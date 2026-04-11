@@ -27,6 +27,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # Creates the unprivileged `portal_app` role used at runtime.
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/10_portal_app.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U portal -d portal"]
       interval: 5s
@@ -75,8 +77,9 @@ services:
       APP_DEBUG: "true"
       APP_SECRET_KEY: ${APP_SECRET_KEY:-dev-insecure-change-me}
       APP_BASE_URL: http://localhost:8000
-      DATABASE_URL: postgresql+asyncpg://portal:portal@postgres:5432/portal
+      DATABASE_URL: postgresql+asyncpg://portal_app:portal_app@postgres:5432/portal
       DATABASE_SYNC_URL: postgresql+psycopg://portal:portal@postgres:5432/portal
+      DATABASE_OWNER_URL: postgresql+asyncpg://portal:portal@postgres:5432/portal
       S3_ENDPOINT_URL: http://minio:9000
       S3_ACCESS_KEY: portal
       S3_SECRET_KEY: portalportal

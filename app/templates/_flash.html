@@ -1,0 +1,11 @@
+{# Inline flash message used by auth forms #}
+{% if error %}
+    <div class="mb-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        {{ error }}
+    </div>
+{% endif %}
+{% if notice %}
+    <div class="mb-4 rounded border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+        {{ notice }}
+    </div>
+{% endif %}

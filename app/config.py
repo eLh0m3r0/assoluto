@@ -33,13 +33,20 @@ class Settings(BaseSettings):
     app_base_url: str = Field(default="http://localhost:8000", alias="APP_BASE_URL")
 
     # --- Database ----------------------------------------------------------
+    # Runtime app user — non-owner, fully subject to Row-Level Security.
     database_url: str = Field(
-        default="postgresql+asyncpg://portal:portal@localhost:5432/portal",
+        default="postgresql+asyncpg://portal_app:portal_app@localhost:5432/portal",
         alias="DATABASE_URL",
     )
+    # Sync DSN used by Alembic and bootstrap scripts (owner, bypasses RLS).
     database_sync_url: str = Field(
         default="postgresql+psycopg://portal:portal@localhost:5432/portal",
         alias="DATABASE_SYNC_URL",
+    )
+    # Async DSN for scripts/CLI tasks that need to act across tenants.
+    database_owner_url: str = Field(
+        default="postgresql+asyncpg://portal:portal@localhost:5432/portal",
+        alias="DATABASE_OWNER_URL",
     )
 
     # --- Tenancy -----------------------------------------------------------

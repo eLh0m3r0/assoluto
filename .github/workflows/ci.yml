@@ -31,8 +31,9 @@ jobs:
           --health-retries 10
 
     env:
-      DATABASE_URL: postgresql+asyncpg://portal:portal@localhost:5432/portal
+      DATABASE_URL: postgresql+asyncpg://portal_app:portal_app@localhost:5432/portal
       DATABASE_SYNC_URL: postgresql+psycopg://portal:portal@localhost:5432/portal
+      DATABASE_OWNER_URL: postgresql+asyncpg://portal:portal@localhost:5432/portal
       APP_ENV: test
       APP_SECRET_KEY: ci-secret-key
 
@@ -51,6 +52,12 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --all-extras
+
+      - name: Bootstrap portal_app role
+        env:
+          PGPASSWORD: portal
+        run: |
+          psql -h localhost -U portal -d portal -f docker/postgres-init.sql
 
       - name: Ruff lint
         run: uv run ruff check .

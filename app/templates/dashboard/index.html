@@ -1,0 +1,34 @@
+{% extends "app_base.html" %}
+
+{% block title %}Dashboard · {{ tenant.name }}{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4 text-2xl font-bold text-slate-900">Dashboard</h1>
+
+    {% if principal.is_staff %}
+        <div class="grid gap-4 md:grid-cols-3">
+            <a href="/app/customers"
+               class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-brand-500">
+                <div class="text-sm font-medium text-slate-500">Klienti</div>
+                <div class="mt-1 text-2xl font-semibold text-slate-900">{{ stats.customers }}</div>
+            </a>
+            <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="text-sm font-medium text-slate-500">Otevřené objednávky</div>
+                <div class="mt-1 text-2xl font-semibold text-slate-400">—</div>
+                <div class="mt-1 text-xs text-slate-400">přijde v M2</div>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="text-sm font-medium text-slate-500">Aktivní majetek klientů</div>
+                <div class="mt-1 text-2xl font-semibold text-slate-400">—</div>
+                <div class="mt-1 text-xs text-slate-400">přijde v M5</div>
+            </div>
+        </div>
+    {% else %}
+        <div class="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
+            <p class="text-slate-700">
+                Vítejte, <strong>{{ principal.full_name }}</strong>!
+                Budete zde vidět své objednávky a majetek — brzy.
+            </p>
+        </div>
+    {% endif %}
+{% endblock %}
