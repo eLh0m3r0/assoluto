@@ -59,7 +59,11 @@ class Settings(BaseSettings):
     s3_bucket: str = Field(default="portal", alias="S3_BUCKET")
     s3_region: str = Field(default="eu-central-1", alias="S3_REGION")
     s3_use_ssl: bool = Field(default=False, alias="S3_USE_SSL")
-    s3_public_url: str = Field(default="http://localhost:9000/portal", alias="S3_PUBLIC_URL")
+    # Optional: endpoint exposed to end-users' browsers for presigned URLs.
+    # Leave empty to reuse `s3_endpoint_url`. In docker-compose this should
+    # point at the host-exposed port (e.g. http://localhost:9000) so the
+    # browser can actually reach the MinIO container.
+    s3_public_endpoint_url: str = Field(default="", alias="S3_PUBLIC_ENDPOINT_URL")
 
     # --- SMTP --------------------------------------------------------------
     smtp_host: str = Field(default="localhost", alias="SMTP_HOST")

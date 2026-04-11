@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="cs"><body style="font-family:sans-serif;background:#f8fafc;padding:24px;">
+<table width="100%"><tr><td align="center"><table width="560" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:32px;">
+<tr><td>
+    <h1 style="margin-top:0;color:#0f172a;">Nový komentář</h1>
+    <p style="color:#334155;">
+        {{ author_name }} přidal/a komentář k objednávce
+        <strong>{{ order_number }}</strong> — {{ order_title }}.
+    </p>
+    <blockquote style="margin:16px 0;padding:12px 16px;border-left:4px solid #2f5bd9;background:#f1f5fe;color:#1e3a8a;">
+        {{ body_excerpt }}
+    </blockquote>
+    <p>
+        <a href="{{ order_url }}" style="display:inline-block;background:#2f5bd9;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;">
+            Otevřít objednávku
+        </a>
+    </p>
+    <p style="color:#94a3b8;font-size:12px;">{{ tenant_name }}</p>
+</td></tr>
+</table></td></tr></table>
+</body></html>

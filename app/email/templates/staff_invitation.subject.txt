@@ -1,0 +1,1 @@
+Pozvánka do týmu {{ tenant_name }} — zákaznický portál

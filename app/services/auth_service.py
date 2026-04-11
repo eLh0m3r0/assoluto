@@ -239,3 +239,190 @@ async def create_tenant_user(
     db.add(user)
     await db.flush()
     return user
+
+
+# ----------------------------------------------------- staff invite flow
+
+
+def create_staff_invite_token(secret_key: str, *, tenant_id: UUID, user_id: UUID) -> str:
+    """Return a signed token embedding tenant + user IDs for staff accept."""
+    return create_token(
+        secret_key,
+        TokenPurpose.STAFF_INVITE,
+        {"tid": str(tenant_id), "uid": str(user_id)},
+    )
+
+
+def decode_staff_invite_token(
+    secret_key: str, token: str, *, max_age_seconds: int
+) -> tuple[UUID, UUID]:
+    try:
+        payload = verify_token(secret_key, TokenPurpose.STAFF_INVITE, token, max_age_seconds)
+    except (InvalidToken, ExpiredToken) as exc:
+        raise InvalidInvitation(str(exc)) from exc
+    try:
+        return UUID(payload["tid"]), UUID(payload["uid"])
+    except (KeyError, ValueError) as exc:
+        raise InvalidInvitation("malformed payload") from exc
+
+
+async def invite_tenant_staff(
+    db: AsyncSession,
+    *,
+    tenant_id: UUID,
+    email: str,
+    full_name: str,
+    role: UserRole = UserRole.TENANT_STAFF,
+) -> User:
+    """Create a staff user in an inactive-until-accepted state.
+
+    The row is inserted with `password_hash=NULL`; the recipient sets it
+    themselves via `/invite/staff?token=...`. `is_active` stays True so
+    the subsequent login works right after accept.
+    """
+    user = User(
+        tenant_id=tenant_id,
+        email=email.strip().lower(),
+        full_name=full_name.strip(),
+        password_hash=None,
+        role=role,
+    )
+    db.add(user)
+    await db.flush()
+    return user
+
+
+async def accept_staff_invite(
+    db: AsyncSession,
+    *,
+    tenant_id: UUID,
+    user_id: UUID,
+    password: str,
+) -> User:
+    """Finalise a staff invitation by setting the password."""
+    user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+    if user is None:
+        raise InvalidInvitation("unknown user")
+    if user.tenant_id != tenant_id:
+        raise InvalidInvitation("tenant mismatch")
+    if not user.is_active:
+        raise InvalidInvitation("user disabled")
+    if user.password_hash is not None:
+        # Re-accepting a completed invite would reset the password silently
+        # from whoever grabbed the URL — block that.
+        raise InvalidInvitation("invitation already accepted")
+    if len(password) < 8:
+        raise InvalidInvitation("password must be at least 8 characters")
+
+    user.password_hash = hash_password(password)
+    user.session_version += 1
+    await db.flush()
+    return user
+
+
+async def change_user_password(
+    db: AsyncSession,
+    *,
+    user: User,
+    current_password: str,
+    new_password: str,
+) -> User:
+    """Self-service password change for tenant staff.
+
+    Bumps `session_version` so any other logged-in sessions are
+    invalidated on the next request.
+    """
+    if not verify_password(current_password, user.password_hash):
+        raise InvalidCredentials("current password is incorrect")
+    if len(new_password) < 8:
+        raise InvalidCredentials("new password must be at least 8 characters")
+    user.password_hash = hash_password(new_password)
+    user.session_version += 1
+    await db.flush()
+    return user
+
+
+# ---------------------------------------------------- password reset flow
+
+
+def create_password_reset_token(
+    secret_key: str,
+    *,
+    tenant_id: UUID,
+    principal_type: str,
+    principal_id: UUID,
+) -> str:
+    return create_token(
+        secret_key,
+        TokenPurpose.PASSWORD_RESET,
+        {
+            "tid": str(tenant_id),
+            "pt": principal_type,
+            "pid": str(principal_id),
+        },
+    )
+
+
+def decode_password_reset_token(
+    secret_key: str, token: str, *, max_age_seconds: int
+) -> tuple[UUID, str, UUID]:
+    try:
+        payload = verify_token(secret_key, TokenPurpose.PASSWORD_RESET, token, max_age_seconds)
+    except (InvalidToken, ExpiredToken) as exc:
+        raise InvalidInvitation(str(exc)) from exc
+    try:
+        return (
+            UUID(payload["tid"]),
+            str(payload["pt"]),
+            UUID(payload["pid"]),
+        )
+    except (KeyError, ValueError) as exc:
+        raise InvalidInvitation("malformed payload") from exc
+
+
+async def find_principal_by_email(
+    db: AsyncSession, email: str
+) -> tuple[str, User | CustomerContact] | None:
+    """Return ("user"|"contact", row) matching the e-mail in current tenant."""
+    email = email.strip().lower()
+    if not email:
+        return None
+    user = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
+    if user is not None and user.is_active:
+        return "user", user
+    contact = (
+        await db.execute(select(CustomerContact).where(CustomerContact.email == email))
+    ).scalar_one_or_none()
+    if contact is not None and contact.is_active:
+        return "contact", contact
+    return None
+
+
+async def reset_password_with_token(
+    db: AsyncSession,
+    *,
+    tenant_id: UUID,
+    principal_type: str,
+    principal_id: UUID,
+    new_password: str,
+) -> None:
+    """Set a new password for the target principal + bump session_version."""
+    if len(new_password) < 8:
+        raise InvalidInvitation("password must be at least 8 characters")
+    if principal_type == "user":
+        row = (await db.execute(select(User).where(User.id == principal_id))).scalar_one_or_none()
+    elif principal_type == "contact":
+        row = (
+            await db.execute(select(CustomerContact).where(CustomerContact.id == principal_id))
+        ).scalar_one_or_none()
+    else:
+        raise InvalidInvitation("bad principal type")
+
+    if row is None or row.tenant_id != tenant_id or not row.is_active:
+        raise InvalidInvitation("unknown principal")
+
+    row.password_hash = hash_password(new_password)
+    row.session_version += 1
+    if isinstance(row, CustomerContact) and row.accepted_at is None:
+        row.accepted_at = datetime.now(UTC)
+    await db.flush()

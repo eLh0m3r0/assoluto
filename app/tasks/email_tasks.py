@@ -71,6 +71,79 @@ def send_invitation(
     _safe_send(sender, "invitation", to, rendered.subject, rendered.html, rendered.text)
 
 
+def send_staff_invitation(
+    sender: EmailSender,
+    *,
+    to: str,
+    tenant_name: str,
+    invitee_name: str,
+    invite_url: str,
+) -> None:
+    """Send an invitation email to a new tenant staff user."""
+    rendered = render_email(
+        "staff_invitation",
+        {
+            "tenant_name": tenant_name,
+            "invitee_name": invitee_name,
+            "invite_url": invite_url,
+        },
+    )
+    _safe_send(sender, "staff_invitation", to, rendered.subject, rendered.html, rendered.text)
+
+
+def send_password_reset(
+    sender: EmailSender,
+    *,
+    to: str,
+    tenant_name: str,
+    full_name: str,
+    reset_url: str,
+) -> None:
+    """Send a password-reset e-mail carrying a one-shot URL."""
+    rendered = render_email(
+        "password_reset",
+        {
+            "tenant_name": tenant_name,
+            "full_name": full_name,
+            "reset_url": reset_url,
+        },
+    )
+    _safe_send(sender, "password_reset", to, rendered.subject, rendered.html, rendered.text)
+
+
+def send_order_comment(
+    sender: EmailSender,
+    *,
+    recipients: Iterable[str],
+    tenant_name: str,
+    order_number: str,
+    order_title: str,
+    order_url: str,
+    author_name: str,
+    body_excerpt: str,
+) -> None:
+    rendered = render_email(
+        "order_comment",
+        {
+            "tenant_name": tenant_name,
+            "order_number": order_number,
+            "order_title": order_title,
+            "order_url": order_url,
+            "author_name": author_name,
+            "body_excerpt": body_excerpt,
+        },
+    )
+    for to in recipients:
+        _safe_send(
+            sender,
+            "order_comment",
+            to,
+            rendered.subject,
+            rendered.html,
+            rendered.text,
+        )
+
+
 def send_order_submitted(
     sender: EmailSender,
     *,

@@ -22,6 +22,7 @@ from app.routers import health as health_router
 from app.routers import orders as orders_router
 from app.routers import products as products_router
 from app.routers import public as public_router
+from app.routers import tenant_admin as tenant_admin_router
 from app.scheduler import build_scheduler
 from app.storage.s3 import ensure_bucket_exists
 from app.templating import Templates, build_jinja_env
@@ -86,6 +87,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(attachments_router.router)
     app.include_router(products_router.router)
     app.include_router(assets_router.router)
+    app.include_router(tenant_admin_router.router)
     _register_error_handlers(app)
     return app
 

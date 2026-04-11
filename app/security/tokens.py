@@ -34,6 +34,7 @@ class ExpiredToken(TokenError):
 # for one flow cannot be replayed against another.
 class TokenPurpose:
     INVITE = "customer-contact-invite"
+    STAFF_INVITE = "tenant-staff-invite"
     MAGIC_LINK = "magic-link-login"
     PASSWORD_RESET = "password-reset"
 
