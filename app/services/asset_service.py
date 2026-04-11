@@ -17,7 +17,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.asset import Asset, AssetMovement
@@ -143,24 +143,6 @@ async def add_movement(
         created_by_user_id=created_by_user_id,
     )
     db.add(movement)
-    # Recompute authoritatively from the movement history to avoid drift.
     asset.current_quantity = new_total
     await db.flush()
     return movement
-
-
-async def recompute_from_history(db: AsyncSession, asset: Asset) -> Decimal:
-    """Rebuild `current_quantity` from the movements table.
-
-    Useful for data recovery and as a safety net in tests.
-    """
-    total = (
-        await db.execute(
-            select(func.coalesce(func.sum(AssetMovement.quantity), 0)).where(
-                AssetMovement.asset_id == asset.id
-            )
-        )
-    ).scalar()
-    asset.current_quantity = Decimal(total or 0)
-    await db.flush()
-    return asset.current_quantity

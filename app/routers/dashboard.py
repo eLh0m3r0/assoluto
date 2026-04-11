@@ -1,8 +1,7 @@
 """Dashboard route — the rendez-vous point after login.
 
-Tenant staff see counts of customers / orders / assets.
-Customer contacts see a minimalist welcome placeholder until M2 adds
-their own order list.
+Tenant staff see live counts of customers, open orders, and assets.
+Customer contacts see counts of their own open orders and assets.
 """
 
 from __future__ import annotations
@@ -13,9 +12,23 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.deps import Principal, get_db, require_login
+from app.models.asset import Asset
 from app.models.customer import Customer
+from app.models.enums import OrderStatus
+from app.models.order import Order
 
 router = APIRouter(prefix="/app", tags=["dashboard"])
+
+
+# Any order the portal still expects a human action on.
+OPEN_ORDER_STATUSES = (
+    OrderStatus.DRAFT,
+    OrderStatus.SUBMITTED,
+    OrderStatus.QUOTED,
+    OrderStatus.CONFIRMED,
+    OrderStatus.IN_PRODUCTION,
+    OrderStatus.READY,
+)
 
 
 def _templates(request: Request):
@@ -34,9 +47,25 @@ async def dashboard_index(
         raise HTTPException(status_code=500, detail="Tenant not resolved")
 
     stats: dict[str, int] = {}
+
+    # Open orders: staff see all; contacts see only their own customer's.
+    order_stmt = (
+        select(func.count()).select_from(Order).where(Order.status.in_(OPEN_ORDER_STATUSES))
+    )
+    if not principal.is_staff:
+        order_stmt = order_stmt.where(Order.customer_id == principal.customer_id)
+    stats["open_orders"] = int((await db.execute(order_stmt)).scalar() or 0)
+
+    # Active assets: same scoping.
+    asset_stmt = select(func.count()).select_from(Asset).where(Asset.is_active.is_(True))
+    if not principal.is_staff:
+        asset_stmt = asset_stmt.where(Asset.customer_id == principal.customer_id)
+    stats["assets"] = int((await db.execute(asset_stmt)).scalar() or 0)
+
     if principal.is_staff:
-        count = await db.execute(select(func.count()).select_from(Customer))
-        stats["customers"] = int(count.scalar() or 0)
+        stats["customers"] = int(
+            (await db.execute(select(func.count()).select_from(Customer))).scalar() or 0
+        )
 
     html = _templates(request).render(
         request,

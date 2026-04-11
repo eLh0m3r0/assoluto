@@ -7,7 +7,9 @@ full page; HTMX requests get only the requested block.
 
 from __future__ import annotations
 
+from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 from fastapi import Request
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -19,15 +21,42 @@ from app.config import Settings
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 
 
+def _qty_filter(value: Any) -> str:
+    """Render a Decimal/number without trailing zeros.
+
+    Examples:
+        Decimal('75.000') -> '75'
+        Decimal('7.500')  -> '7.5'
+        Decimal('0')      -> '0'
+        None              -> ''
+    """
+    if value is None:
+        return ""
+    if isinstance(value, Decimal):
+        # Normalize but guard against scientific notation that
+        # Decimal.normalize() can produce for large integers.
+        normalized = value.normalize()
+        _sign, _digits, exponent = normalized.as_tuple()
+        if isinstance(exponent, int) and exponent > 0:
+            normalized = normalized.quantize(Decimal(1))
+        text = format(normalized, "f")
+        if "." in text:
+            text = text.rstrip("0").rstrip(".")
+        return text or "0"
+    return str(value)
+
+
 def build_jinja_env() -> Environment:
     """Create the project-wide Jinja2 environment."""
-    return Environment(
+    env = Environment(
         loader=FileSystemLoader(str(TEMPLATES_DIR)),
         autoescape=select_autoescape(["html", "htm", "xml"]),
         enable_async=False,
         trim_blocks=True,
         lstrip_blocks=True,
     )
+    env.filters["qty"] = _qty_filter
+    return env
 
 
 class Templates:

@@ -41,7 +41,7 @@
                                 </td>
                             {% endif %}
                             <td class="px-4 py-3 text-right text-slate-900">
-                                {{ a.current_quantity }} {{ a.unit }}
+                                {{ a.current_quantity | qty }} {{ a.unit }}
                             </td>
                             <td class="px-4 py-3 text-slate-600">{{ a.location or "—" }}</td>
                         </tr>

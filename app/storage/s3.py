@@ -1,8 +1,8 @@
 """S3 / MinIO client helper.
 
 Keeps boto3 configuration in one place so the rest of the app only
-touches a thin wrapper. Used by both the attachment upload route
-(presigned PUT URLs) and the background thumbnail task (direct GET/PUT).
+touches a thin wrapper. Used by the attachment upload route (put_object)
+and the background thumbnail task (get_object + put_object).
 """
 
 from __future__ import annotations
@@ -41,8 +41,8 @@ def get_s3_client():
 def ensure_bucket_exists(bucket: str | None = None) -> None:
     """Create the application bucket if it doesn't already exist.
 
-    Called at app startup so MinIO-on-localhost doesn't require manual setup.
-    Swallows `BucketAlreadyOwnedByYou`; re-raises anything else.
+    Called at app startup so MinIO-on-localhost doesn't require manual
+    setup. Swallows `NoSuchBucket`; re-raises anything else.
     """
     settings = get_settings()
     bucket = bucket or settings.s3_bucket
@@ -58,7 +58,7 @@ def ensure_bucket_exists(bucket: str | None = None) -> None:
 
 
 def upload_bytes(key: str, data: bytes, *, content_type: str = "application/octet-stream") -> None:
-    """Upload raw bytes under `key` (synchronous — used by thumbnail tasks)."""
+    """Upload raw bytes under `key`."""
     settings = get_settings()
     get_s3_client().put_object(
         Bucket=settings.s3_bucket,
@@ -87,38 +87,3 @@ def generate_presigned_get(key: str, *, expires_in: int = 300) -> str:
         Params={"Bucket": settings.s3_bucket, "Key": key},
         ExpiresIn=expires_in,
     )
-
-
-def generate_presigned_put(
-    key: str,
-    *,
-    content_type: str,
-    content_length: int,
-    expires_in: int = 900,
-) -> str:
-    """Return a presigned PUT URL for direct-to-S3 uploads.
-
-    The `Content-Length` and `Content-Type` are fixed into the signature,
-    so clients cannot use the URL to upload larger or different files.
-    """
-    settings = get_settings()
-    return get_s3_client().generate_presigned_url(
-        "put_object",
-        Params={
-            "Bucket": settings.s3_bucket,
-            "Key": key,
-            "ContentType": content_type,
-            "ContentLength": content_length,
-        },
-        ExpiresIn=expires_in,
-    )
-
-
-def head_object_size(key: str) -> int | None:
-    """Return the object's size in bytes, or None if it doesn't exist yet."""
-    settings = get_settings()
-    try:
-        response = get_s3_client().head_object(Bucket=settings.s3_bucket, Key=key)
-        return int(response.get("ContentLength", 0))
-    except ClientError:
-        return None

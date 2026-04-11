@@ -194,6 +194,7 @@ async def assets_add_movement(
     type: str = Form(...),
     quantity: str = Form(...),
     note: str = Form(""),
+    reference_order_id: str = Form(""),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -211,6 +212,13 @@ async def assets_add_movement(
     except (InvalidOperation, ValueError):
         raise HTTPException(status_code=400, detail="Invalid quantity") from None
 
+    ref_order_uuid: UUID | None = None
+    if reference_order_id.strip():
+        try:
+            ref_order_uuid = UUID(reference_order_id.strip())
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid reference_order_id") from None
+
     try:
         await add_movement(
             db,
@@ -219,6 +227,7 @@ async def assets_add_movement(
             type_=type_enum,
             quantity=qty,
             note=note or None,
+            reference_order_id=ref_order_uuid,
             created_by_user_id=principal.id,
         )
     except InsufficientStock as exc:

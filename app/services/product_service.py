@@ -29,10 +29,6 @@ async def list_products(db: AsyncSession) -> list[Product]:
     return list(result.scalars().all())
 
 
-async def get_product(db: AsyncSession, product_id: UUID) -> Product | None:
-    return (await db.execute(select(Product).where(Product.id == product_id))).scalar_one_or_none()
-
-
 async def search_products(
     db: AsyncSession,
     *,
@@ -42,7 +38,8 @@ async def search_products(
 ) -> list[Product]:
     """Search the catalog for use in an order-item autocomplete.
 
-    Returns shared products plus products dedicated to `customer_id`.
+    When `customer_id` is given, returns shared products AND products
+    dedicated to that customer. With no scope, returns everything.
     Matches `sku` or `name` case-insensitively.
     """
     q = f"%{query.strip()}%"
@@ -53,9 +50,6 @@ async def search_products(
     )
     if customer_id is not None:
         stmt = stmt.where(or_(Product.customer_id.is_(None), Product.customer_id == customer_id))
-    else:
-        # No customer context (e.g. staff catalog page) → return everything.
-        pass
     stmt = stmt.order_by(Product.name).limit(limit)
     result = await db.execute(stmt)
     return list(result.scalars().all())
@@ -104,8 +98,3 @@ async def create_product(
     db.add(product)
     await db.flush()
     return product
-
-
-async def deactivate_product(db: AsyncSession, product: Product) -> None:
-    product.is_active = False
-    await db.flush()

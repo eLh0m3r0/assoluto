@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, status
-from fastapi.responses import HTMLResponse, JSONResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from app import __version__
@@ -23,6 +23,7 @@ from app.routers import orders as orders_router
 from app.routers import products as products_router
 from app.routers import public as public_router
 from app.scheduler import build_scheduler
+from app.storage.s3 import ensure_bucket_exists
 from app.templating import Templates, build_jinja_env
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -41,6 +42,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     scheduler = None
     if not settings.is_test:
+        # Zero-setup MinIO: create the bucket on startup if it's missing.
+        # Best-effort — a misconfigured S3 endpoint shouldn't block boot,
+        # it just means uploads will fail loudly later.
+        try:
+            ensure_bucket_exists()
+        except Exception as exc:
+            log.warning("s3.bucket_init_failed", error=str(exc))
+
         scheduler = build_scheduler()
         scheduler.start()
         app.state.scheduler = scheduler
@@ -95,6 +104,10 @@ def _register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException) -> Response:
         templates: Templates = request.app.state.templates
+        # 401 on an HTML request → bounce to /auth/login instead of dumping
+        # a raw JSON payload on the user.
+        if exc.status_code == 401 and _wants_html(request):
+            return RedirectResponse(url="/auth/login", status_code=status.HTTP_303_SEE_OTHER)
         if _wants_html(request) and exc.status_code in (403, 404):
             template = f"errors/{exc.status_code}.html"
             html = templates.render(request, template, {"principal": None})

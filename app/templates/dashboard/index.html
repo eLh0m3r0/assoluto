@@ -5,29 +5,34 @@
 {% block content %}
     <h1 class="mb-4 text-2xl font-bold text-slate-900">Dashboard</h1>
 
-    {% if principal.is_staff %}
-        <div class="grid gap-4 md:grid-cols-3">
+    <div class="grid gap-4 md:grid-cols-3">
+        {% if principal.is_staff %}
             <a href="/app/customers"
                class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-brand-500">
                 <div class="text-sm font-medium text-slate-500">Klienti</div>
                 <div class="mt-1 text-2xl font-semibold text-slate-900">{{ stats.customers }}</div>
             </a>
-            <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <div class="text-sm font-medium text-slate-500">Otevřené objednávky</div>
-                <div class="mt-1 text-2xl font-semibold text-slate-400">—</div>
-                <div class="mt-1 text-xs text-slate-400">přijde v M2</div>
+        {% endif %}
+        <a href="/app/orders"
+           class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-brand-500">
+            <div class="text-sm font-medium text-slate-500">Otevřené objednávky</div>
+            <div class="mt-1 text-2xl font-semibold text-slate-900">{{ stats.open_orders }}</div>
+        </a>
+        <a href="/app/assets"
+           class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-brand-500">
+            <div class="text-sm font-medium text-slate-500">
+                {% if principal.is_staff %}Aktivní majetek klientů{% else %}Můj majetek{% endif %}
             </div>
-            <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <div class="text-sm font-medium text-slate-500">Aktivní majetek klientů</div>
-                <div class="mt-1 text-2xl font-semibold text-slate-400">—</div>
-                <div class="mt-1 text-xs text-slate-400">přijde v M5</div>
-            </div>
-        </div>
-    {% else %}
-        <div class="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
-            <p class="text-slate-700">
-                Vítejte, <strong>{{ principal.full_name }}</strong>!
-                Budete zde vidět své objednávky a majetek — brzy.
+            <div class="mt-1 text-2xl font-semibold text-slate-900">{{ stats.assets }}</div>
+        </a>
+    </div>
+
+    {% if not principal.is_staff %}
+        <div class="mt-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-sm text-slate-600">
+                Vítejte, <strong>{{ principal.full_name }}</strong>.
+                Nová objednávka se zakládá v sekci
+                <a href="/app/orders/new" class="text-brand-600 hover:text-brand-700">Objednávky → Nová objednávka</a>.
             </p>
         </div>
     {% endif %}

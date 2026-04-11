@@ -12,7 +12,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import func, select, text
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.customer import Customer
@@ -306,25 +306,6 @@ async def add_item(
     return item
 
 
-async def update_item_pricing(
-    db: AsyncSession,
-    *,
-    order: Order,
-    item: OrderItem,
-    actor: ActorRef,
-    unit_price: Decimal | None,
-) -> OrderItem:
-    """Set or clear an item's unit_price (staff only, while pricing)."""
-    if actor.type != "user":
-        raise ForbiddenActor("pricing is a staff action")
-    if order.status not in (OrderStatus.SUBMITTED, OrderStatus.QUOTED, OrderStatus.DRAFT):
-        raise ForbiddenTransition(f"cannot price an order in status {order.status}")
-    item.unit_price = Decimal(unit_price) if unit_price is not None else None
-    _recalculate_line_total(item)
-    await db.flush()
-    return item
-
-
 async def remove_item(db: AsyncSession, *, order: Order, item: OrderItem, actor: ActorRef) -> None:
     _ensure_item_editable(order, actor)
     await db.delete(item)
@@ -449,8 +430,3 @@ async def add_comment(
     db.add(comment)
     await db.flush()
     return comment
-
-
-# Silence "text imported but unused" from older scaffolding; the helper is
-# kept available for migration-style SQL if a caller needs it later.
-_ = text
