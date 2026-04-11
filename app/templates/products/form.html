@@ -9,7 +9,7 @@
 
     <form method="post" action="/app/products"
           class="max-w-lg space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <div class="grid grid-cols-2 gap-3">
+            {{ csrf_input() }}<div class="grid grid-cols-2 gap-3">
             <div>
                 <label for="sku" class="block text-sm font-medium text-slate-700">SKU *</label>
                 <input type="text" id="sku" name="sku" required value="{{ form.sku or '' }}"

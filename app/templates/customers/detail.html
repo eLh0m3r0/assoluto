@@ -40,7 +40,7 @@
 
         <form method="post" action="/app/customers/{{ customer.id }}/contacts"
               class="mt-2 grid gap-3 sm:grid-cols-3">
-            <input type="email" name="email" required placeholder="jmeno@firma.cz"
+            {{ csrf_input() }}<input type="email" name="email" required placeholder="jmeno@firma.cz"
                    class="rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
             <input type="text" name="full_name" required placeholder="Jméno Příjmení"
                    class="rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">

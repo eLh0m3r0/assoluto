@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import Settings, get_settings
 from app.deps import get_current_tenant, get_db
 from app.models.tenant import Tenant
+from app.security.csrf import verify_csrf
 from app.security.session import SessionData, clear_session, write_session
 from app.services.auth_service import (
     AccountDisabled,
@@ -30,7 +31,7 @@ from app.services.auth_service import (
     reset_password_with_token,
 )
 
-router = APIRouter(tags=["public"])
+router = APIRouter(tags=["public"], dependencies=[Depends(verify_csrf)])
 
 # Invitation links are valid for 7 days.
 INVITE_MAX_AGE_SECONDS = 7 * 24 * 3600

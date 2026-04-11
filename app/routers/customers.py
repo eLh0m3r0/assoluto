@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import Settings, get_settings
 from app.deps import Principal, get_db, require_tenant_staff
 from app.models.tenant import Tenant
+from app.security.csrf import verify_csrf
 from app.services.auth_service import (
     InvalidInvitation,
     create_invitation_token,
@@ -25,7 +26,7 @@ from app.services.customer_service import (
 )
 from app.tasks.email_tasks import send_invitation
 
-router = APIRouter(prefix="/app", tags=["customers"])
+router = APIRouter(prefix="/app", tags=["customers"], dependencies=[Depends(verify_csrf)])
 
 
 def _templates(request: Request):

@@ -11,6 +11,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.deps import Principal, get_db, require_tenant_staff
+from app.security.csrf import verify_csrf
 from app.services.customer_service import list_customers
 from app.services.product_service import (
     DuplicateProductSku,
@@ -20,7 +21,7 @@ from app.services.product_service import (
     search_products,
 )
 
-router = APIRouter(prefix="/app", tags=["products"])
+router = APIRouter(prefix="/app", tags=["products"], dependencies=[Depends(verify_csrf)])
 
 
 def _templates(request: Request):

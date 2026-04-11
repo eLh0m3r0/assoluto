@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.deps import Principal, get_db, require_login
 from app.models.customer import Customer
 from app.models.enums import OrderStatus
+from app.security.csrf import verify_csrf
 from app.services.attachment_service import list_for_order as list_attachments
 from app.services.customer_service import list_customers
 from app.services.notification_service import (
@@ -39,7 +40,7 @@ from app.services.order_service import (
     transition_order,
 )
 
-router = APIRouter(prefix="/app/orders", tags=["orders"])
+router = APIRouter(prefix="/app/orders", tags=["orders"], dependencies=[Depends(verify_csrf)])
 
 
 def _templates(request: Request):

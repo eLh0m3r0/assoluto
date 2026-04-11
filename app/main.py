@@ -24,6 +24,7 @@ from app.routers import products as products_router
 from app.routers import public as public_router
 from app.routers import tenant_admin as tenant_admin_router
 from app.scheduler import build_scheduler
+from app.security.csrf import CsrfCookieMiddleware
 from app.storage.s3 import ensure_bucket_exists
 from app.templating import Templates, build_jinja_env
 
@@ -77,6 +78,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = settings
     app.state.templates = Templates(build_jinja_env(), settings)
     app.state.email_sender = build_sender(settings)
+
+    # Plain ASGI middleware that stamps the csrftoken cookie; validation
+    # happens in `verify_csrf` as a router-level FastAPI dependency so it
+    # can read the form body via `await request.form()` without breaking
+    # downstream `Form(...)` injections.
+    app.add_middleware(CsrfCookieMiddleware)
 
     _mount_static(app)
     app.include_router(health_router.router)

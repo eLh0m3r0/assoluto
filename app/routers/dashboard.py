@@ -16,8 +16,9 @@ from app.models.asset import Asset
 from app.models.customer import Customer
 from app.models.enums import OrderStatus
 from app.models.order import Order
+from app.security.csrf import verify_csrf
 
-router = APIRouter(prefix="/app", tags=["dashboard"])
+router = APIRouter(prefix="/app", tags=["dashboard"], dependencies=[Depends(verify_csrf)])
 
 
 # Any order the portal still expects a human action on.

@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.deps import Principal, get_db, require_login, require_tenant_staff
 from app.models.customer import Customer
 from app.models.enums import AssetMovementType
+from app.security.csrf import verify_csrf
 from app.services.asset_service import (
     AssetError,
     InsufficientStock,
@@ -27,7 +28,7 @@ from app.services.asset_service import (
 )
 from app.services.customer_service import list_customers
 
-router = APIRouter(prefix="/app", tags=["assets"])
+router = APIRouter(prefix="/app", tags=["assets"], dependencies=[Depends(verify_csrf)])
 
 
 def _templates(request: Request):

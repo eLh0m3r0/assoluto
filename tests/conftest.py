@@ -19,6 +19,47 @@ os.environ.setdefault("LOG_LEVEL", "WARNING")
 
 from app.config import Settings, get_settings
 from app.main import create_app
+from app.security.csrf import CSRF_COOKIE_NAME, CSRF_FIELD_NAME
+
+
+class CsrfAwareClient(AsyncClient):
+    """AsyncClient that auto-includes the CSRF token on mutating requests.
+
+    The middleware only enforces tokens on POST/PUT/PATCH/DELETE, so
+    idempotent methods are passed through unchanged. The client makes a
+    warm-up GET to `/auth/login` so the `csrftoken` cookie is minted
+    before the first POST of a test — actual tests don't need to know
+    about this.
+    """
+
+    async def _ensure_csrf_cookie(self) -> str | None:
+        token = self.cookies.get(CSRF_COOKIE_NAME)
+        if token is None:
+            await AsyncClient.get(self, "/auth/login")
+            token = self.cookies.get(CSRF_COOKIE_NAME)
+        return token
+
+    async def request(self, method: str, url, **kwargs):  # type: ignore[override]
+        if method.upper() in ("POST", "PUT", "PATCH", "DELETE"):
+            token = await self._ensure_csrf_cookie()
+            if token is not None:
+                data = kwargs.get("data")
+                files = kwargs.get("files")
+                if isinstance(data, dict):
+                    data = {**data, CSRF_FIELD_NAME: token}
+                    kwargs["data"] = data
+                elif files is not None:
+                    # multipart upload: inject token as an extra form field.
+                    data = kwargs.get("data") or {}
+                    if isinstance(data, dict):
+                        data = {**data, CSRF_FIELD_NAME: token}
+                        kwargs["data"] = data
+                else:
+                    # No form body — still fulfil via header.
+                    headers = dict(kwargs.get("headers") or {})
+                    headers.setdefault("X-CSRF-Token", token)
+                    kwargs["headers"] = headers
+        return await super().request(method, url, **kwargs)
 
 
 @pytest.fixture(autouse=True)
@@ -48,7 +89,7 @@ async def client(settings: Settings) -> AsyncIterator[AsyncClient]:
     """ASGI in-process httpx client bound to a fresh app instance."""
     app = create_app(settings)
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://testserver") as ac:
+    async with CsrfAwareClient(transport=transport, base_url="http://testserver") as ac:
         yield ac
 
 
@@ -147,7 +188,7 @@ async def tenant_client(settings: Settings, demo_tenant) -> AsyncIterator[AsyncC
     """
     app = create_app(settings)
     transport = ASGITransport(app=app)
-    async with AsyncClient(
+    async with CsrfAwareClient(
         transport=transport,
         base_url="http://testserver",
         headers={"X-Tenant-Slug": demo_tenant.slug},

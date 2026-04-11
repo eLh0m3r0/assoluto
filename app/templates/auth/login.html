@@ -13,6 +13,7 @@
         {% include "_flash.html" %}
 
         <form method="post" action="/auth/login" class="space-y-4">
+            {{ csrf_input() }}
             <div>
                 <label for="email" class="block text-sm font-medium text-slate-700">E-mail</label>
                 <input type="email" name="email" id="email" required autofocus

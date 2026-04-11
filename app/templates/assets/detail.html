@@ -75,7 +75,7 @@
         {% if principal.is_staff %}
             <form method="post" action="/app/assets/{{ asset.id }}/movements"
                   class="grid gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:grid-cols-4">
-                <select name="type" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+            {{ csrf_input() }}<select name="type" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
                     <option value="receive">Příjem (+)</option>
                     <option value="issue">Výdej (−)</option>
                     <option value="consume">Spotřeba (−)</option>

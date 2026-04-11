@@ -24,6 +24,7 @@ from fastapi import (
 from fastapi.responses import RedirectResponse, Response
 
 from app.deps import Principal, get_db, require_login
+from app.security.csrf import verify_csrf
 from app.services.attachment_service import (
     AttachmentError,
     AttachmentTooLarge,
@@ -40,7 +41,7 @@ from app.services.order_service import (
 from app.storage import s3 as s3_storage
 from app.tasks.thumbnail_tasks import generate_thumbnail
 
-router = APIRouter(prefix="/app", tags=["attachments"])
+router = APIRouter(prefix="/app", tags=["attachments"], dependencies=[Depends(verify_csrf)])
 
 
 def _actor(principal: Principal) -> ActorRef:

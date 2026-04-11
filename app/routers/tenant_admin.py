@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.deps import Principal, get_db, require_tenant_staff
 from app.models.enums import UserRole
 from app.models.user import User
+from app.security.csrf import verify_csrf
 from app.services.auth_service import (
     InvalidCredentials,
     InvalidInvitation,
@@ -21,7 +22,7 @@ from app.services.auth_service import (
 )
 from app.tasks.email_tasks import send_staff_invitation
 
-router = APIRouter(prefix="/app/admin", tags=["tenant-admin"])
+router = APIRouter(prefix="/app/admin", tags=["tenant-admin"], dependencies=[Depends(verify_csrf)])
 
 
 def _templates(request: Request):

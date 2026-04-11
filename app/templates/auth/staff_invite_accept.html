@@ -16,7 +16,7 @@
         {% include "_flash.html" %}
 
         <form method="post" action="/invite/staff" class="space-y-4">
-            <input type="hidden" name="token" value="{{ token }}">
+            {{ csrf_input() }}<input type="hidden" name="token" value="{{ token }}">
             <div>
                 <label for="password" class="block text-sm font-medium text-slate-700">
                     Heslo (min. 8 znaků)

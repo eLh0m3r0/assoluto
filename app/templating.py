@@ -14,6 +14,7 @@ from typing import Any
 from fastapi import Request
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from jinja2_fragments import render_block
+from markupsafe import Markup
 
 from app import __version__
 from app.config import Settings
@@ -71,11 +72,18 @@ class Templates:
         self.settings = settings
 
     def _base_context(self, request: Request, extra: dict | None = None) -> dict:
+        csrf_value = getattr(request.state, "csrf_token", "")
+
+        def csrf_input() -> Markup:
+            return Markup(f'<input type="hidden" name="csrf_token" value="{csrf_value}">')
+
         context: dict = {
             "request": request,
             "app_version": __version__,
             "app_env": self.settings.app_env,
             "url_for": request.url_for,
+            "csrf_token": csrf_value,
+            "csrf_input": csrf_input,
         }
         if extra:
             context.update(extra)
