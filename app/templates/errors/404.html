@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}404 · Nenalezeno{% endblock %}
+{% block content %}
+    <section class="mx-auto mt-16 max-w-md text-center">
+        <div class="rounded-lg border border-slate-200 bg-white p-10 shadow-sm">
+            <div class="text-6xl font-bold text-slate-300">404</div>
+            <h1 class="mt-4 text-xl font-semibold text-slate-900">Stránka nebyla nalezena</h1>
+            <p class="mt-2 text-sm text-slate-600">
+                Cesta, kterou jste hledali, neexistuje, nebo k ní nemáte přístup.
+            </p>
+            <a href="/" class="mt-6 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                Zpět na úvod
+            </a>
+        </div>
+    </section>
+{% endblock %}

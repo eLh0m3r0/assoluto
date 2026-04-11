@@ -6,7 +6,8 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from app import __version__
@@ -76,7 +77,45 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(attachments_router.router)
     app.include_router(products_router.router)
     app.include_router(assets_router.router)
+    _register_error_handlers(app)
     return app
+
+
+def _register_error_handlers(app: FastAPI) -> None:
+    """Render Jinja error pages for 404/403/500 on HTML clients.
+
+    API/JSON clients continue to get the default JSON payload — we
+    detect that via the `Accept` request header.
+    """
+
+    def _wants_html(request: Request) -> bool:
+        accept = request.headers.get("accept", "")
+        return "text/html" in accept or accept == ""
+
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException) -> Response:
+        templates: Templates = request.app.state.templates
+        if _wants_html(request) and exc.status_code in (403, 404):
+            template = f"errors/{exc.status_code}.html"
+            html = templates.render(request, template, {"principal": None})
+            return HTMLResponse(html, status_code=exc.status_code)
+        return JSONResponse(
+            {"detail": exc.detail}, status_code=exc.status_code, headers=exc.headers
+        )
+
+    @app.exception_handler(Exception)
+    async def unhandled_exception_handler(request: Request, exc: Exception) -> Response:
+        get_logger("app.errors").error(
+            "unhandled", path=request.url.path, error=f"{type(exc).__name__}: {exc}"
+        )
+        templates: Templates = request.app.state.templates
+        if _wants_html(request):
+            html = templates.render(request, "errors/500.html", {"principal": None})
+            return HTMLResponse(html, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JSONResponse(
+            {"detail": "Internal server error"},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def _mount_static(app: FastAPI) -> None:
