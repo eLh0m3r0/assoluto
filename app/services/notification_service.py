@@ -114,3 +114,79 @@ async def build_order_status_changed(
         to_status=to_status,
         recipients=list(recipients),
     )
+
+
+@dataclass(frozen=True)
+class OrderCommentNotification:
+    tenant_name: str
+    order_number: str
+    order_title: str
+    order_url: str
+    author_name: str
+    body_excerpt: str
+    recipients: list[str]
+
+
+async def build_order_comment(
+    db: AsyncSession,
+    *,
+    tenant_name: str,
+    order: Order,
+    author_email: str,
+    author_name: str,
+    author_is_staff: bool,
+    body: str,
+    base_url: str,
+) -> OrderCommentNotification | None:
+    """Prepare a comment notification.
+
+    - Staff comment (non-internal) -> all active contacts of the customer.
+    - Contact comment -> all active tenant admins.
+    Internal comments are never notified to contacts; this function
+    assumes the caller only invokes it for non-internal comments.
+    """
+    if author_is_staff:
+        rows = (
+            (
+                await db.execute(
+                    select(CustomerContact.email).where(
+                        CustomerContact.customer_id == order.customer_id,
+                        CustomerContact.is_active.is_(True),
+                        CustomerContact.email != author_email,
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+    else:
+        rows = (
+            (
+                await db.execute(
+                    select(User.email).where(
+                        User.role == UserRole.TENANT_ADMIN,
+                        User.is_active.is_(True),
+                        User.email != author_email,
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+    if not rows:
+        return None
+
+    excerpt = body.strip()
+    if len(excerpt) > 300:
+        excerpt = excerpt[:297] + "…"
+
+    return OrderCommentNotification(
+        tenant_name=tenant_name,
+        order_number=order.number,
+        order_title=order.title,
+        order_url=f"{base_url.rstrip('/')}/app/orders/{order.id}",
+        author_name=author_name,
+        body_excerpt=excerpt,
+        recipients=list(rows),
+    )

@@ -102,19 +102,36 @@ async def list_orders_for_principal(
     *,
     actor: ActorRef,
     status_filter: OrderStatus | None = None,
-) -> list[Order]:
-    """Return orders visible to the actor, newest first.
+    customer_filter: UUID | None = None,
+    search: str | None = None,
+    offset: int = 0,
+    limit: int = 20,
+) -> tuple[list[Order], int]:
+    """Return (orders, total_count) visible to the actor, newest first.
 
     Tenant isolation comes from RLS (the session is already scoped). On
     top of that, customer contacts see only their own customer's orders.
     """
     stmt = select(Order).order_by(Order.created_at.desc())
+    count_stmt = select(func.count()).select_from(Order)
     if actor.type == "contact":
         stmt = stmt.where(Order.customer_id == actor.customer_id)
+        count_stmt = count_stmt.where(Order.customer_id == actor.customer_id)
+    elif customer_filter is not None:
+        stmt = stmt.where(Order.customer_id == customer_filter)
+        count_stmt = count_stmt.where(Order.customer_id == customer_filter)
     if status_filter is not None:
         stmt = stmt.where(Order.status == status_filter)
+        count_stmt = count_stmt.where(Order.status == status_filter)
+    if search:
+        pattern = f"%{search.strip()}%"
+        stmt = stmt.where((Order.number.ilike(pattern)) | (Order.title.ilike(pattern)))
+        count_stmt = count_stmt.where((Order.number.ilike(pattern)) | (Order.title.ilike(pattern)))
+
+    total = int((await db.execute(count_stmt)).scalar() or 0)
+    stmt = stmt.offset(max(0, offset)).limit(max(1, min(limit, 100)))
     result = await db.execute(stmt)
-    return list(result.scalars().all())
+    return list(result.scalars().all()), total
 
 
 async def get_order_for_principal(db: AsyncSession, *, order_id: UUID, actor: ActorRef) -> Order:

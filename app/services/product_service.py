@@ -42,12 +42,10 @@ async def search_products(
     dedicated to that customer. With no scope, returns everything.
     Matches `sku` or `name` case-insensitively.
     """
-    q = f"%{query.strip()}%"
-    stmt = (
-        select(Product)
-        .where(Product.is_active.is_(True))
-        .where(or_(Product.sku.ilike(q), Product.name.ilike(q)))
-    )
+    stmt = select(Product).where(Product.is_active.is_(True))
+    if query and query.strip():
+        q = f"%{query.strip()}%"
+        stmt = stmt.where(or_(Product.sku.ilike(q), Product.name.ilike(q)))
     if customer_id is not None:
         stmt = stmt.where(or_(Product.customer_id.is_(None), Product.customer_id == customer_id))
     stmt = stmt.order_by(Product.name).limit(limit)

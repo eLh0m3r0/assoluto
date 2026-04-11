@@ -39,6 +39,7 @@ from app.services.order_service import (
     remove_item,
     transition_order,
 )
+from app.services.product_service import search_products
 
 router = APIRouter(prefix="/app/orders", tags=["orders"], dependencies=[Depends(verify_csrf)])
 
@@ -65,15 +66,50 @@ def _tenant(request: Request):
 # --------------------------------------------------------------------- list
 
 
+PAGE_SIZE = 20
+
+
 @router.get("", response_class=HTMLResponse)
 async def orders_index(
     request: Request,
+    status: str | None = None,
+    customer: str | None = None,
+    q: str | None = None,
+    page: int = 1,
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    orders = await list_orders_for_principal(db, actor=_actor(principal))
+    # Parse filters defensively — invalid params get treated as "no filter".
+    status_filter: OrderStatus | None = None
+    if status:
+        try:
+            status_filter = OrderStatus(status)
+        except ValueError:
+            status_filter = None
+
+    customer_filter: UUID | None = None
+    if customer and principal.is_staff:
+        try:
+            customer_filter = UUID(customer)
+        except ValueError:
+            customer_filter = None
+
+    page = max(1, page)
+    offset = (page - 1) * PAGE_SIZE
+
+    orders, total = await list_orders_for_principal(
+        db,
+        actor=_actor(principal),
+        status_filter=status_filter,
+        customer_filter=customer_filter,
+        search=q,
+        offset=offset,
+        limit=PAGE_SIZE,
+    )
+    total_pages = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
 
     customer_by_id: dict = {}
+    customers: list = []
     if principal.is_staff:
         customers = await list_customers(db)
         customer_by_id = {c.id: c for c in customers}
@@ -86,6 +122,27 @@ async def orders_index(
             "tenant": _tenant(request),
             "orders": orders,
             "customer_by_id": customer_by_id,
+            "customers": customers,
+            "filters": {
+                "status": status_filter.value if status_filter else "",
+                "customer": str(customer_filter) if customer_filter else "",
+                "q": q or "",
+            },
+            "page": page,
+            "total_pages": total_pages,
+            "total": total,
+            "status_choices": [
+                ("", "Všechny stavy"),
+                ("draft", "Koncept"),
+                ("submitted", "Odesláno"),
+                ("quoted", "Nacenění"),
+                ("confirmed", "Potvrzeno"),
+                ("in_production", "Ve výrobě"),
+                ("ready", "Připraveno"),
+                ("delivered", "Dodáno"),
+                ("closed", "Uzavřeno"),
+                ("cancelled", "Zrušeno"),
+            ],
         },
     )
     return HTMLResponse(html)
@@ -234,6 +291,14 @@ async def orders_detail(
 
     available_transitions = _available_transitions(order, principal)
 
+    # Products available on this order (shared + customer-specific) — used
+    # by the "Add item" picker. Only loaded while items are still editable.
+    product_choices: list = []
+    if _can_edit_items(order, principal):
+        product_choices = await search_products(
+            db, query="", customer_id=order.customer_id, limit=200
+        )
+
     html = _templates(request).render(
         request,
         "orders/detail.html",
@@ -248,6 +313,7 @@ async def orders_detail(
             "customer": customer,
             "can_edit_items": _can_edit_items(order, principal),
             "available_transitions": available_transitions,
+            "product_choices": product_choices,
             "error": None,
             "notice": None,
         },
@@ -303,10 +369,11 @@ def _available_transitions(order, principal: Principal) -> list[dict]:
 async def orders_add_item(
     order_id: UUID,
     request: Request,
-    description: str = Form(...),
+    description: str = Form(""),
     quantity: str = Form(...),
     unit: str = Form("ks"),
     unit_price: str = Form(""),
+    product_id: str = Form(""),
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -327,6 +394,34 @@ async def orders_add_item(
         except (InvalidOperation, ValueError):
             raise HTTPException(status_code=400, detail="Invalid unit_price") from None
 
+    # Optional product link — when provided, look it up and back-fill the
+    # line item's description/unit/price from the catalog unless the caller
+    # overrode them in the form.
+    product_uuid: UUID | None = None
+    if product_id.strip():
+        try:
+            product_uuid = UUID(product_id.strip())
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid product_id") from None
+
+        from app.models.product import Product
+
+        product = (
+            await db.execute(select(Product).where(Product.id == product_uuid))
+        ).scalar_one_or_none()
+        if product is None:
+            raise HTTPException(status_code=400, detail="Unknown product") from None
+
+        if not description.strip():
+            description = f"{product.sku} — {product.name}"
+        if not unit or unit == "ks":
+            unit = product.unit
+        if price is None and product.default_price is not None:
+            price = product.default_price
+
+    if not description.strip():
+        raise HTTPException(status_code=400, detail="description required") from None
+
     try:
         await add_item(
             db,
@@ -337,6 +432,7 @@ async def orders_add_item(
             quantity=qty,
             unit=unit or "ks",
             unit_price=price,
+            product_id=product_uuid,
         )
     except ForbiddenTransition as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from None
@@ -475,6 +571,7 @@ async def orders_transition(
 async def orders_add_comment(
     order_id: UUID,
     request: Request,
+    background_tasks: BackgroundTasks,
     body: str = Form(...),
     is_internal: str = Form(""),
     principal: Principal = Depends(require_login),
@@ -485,6 +582,7 @@ async def orders_add_comment(
     except (OrderNotFound, OrderAccessDenied):
         raise HTTPException(status_code=404, detail="Order not found") from None
 
+    internal_flag = bool(is_internal)
     try:
         await add_comment(
             db,
@@ -492,11 +590,48 @@ async def orders_add_comment(
             order=order,
             actor=_actor(principal),
             body=body,
-            is_internal=bool(is_internal),
+            is_internal=internal_flag,
         )
     except ForbiddenActor as exc:
         raise HTTPException(status_code=403, detail=str(exc)) from None
     except OrderError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
+
+    # Build comment notification while the session is still open; skip
+    # internal comments entirely (those are staff-only).
+    notif = None
+    if not internal_flag:
+        from app.services.notification_service import build_order_comment
+
+        tenant = request.state.tenant
+        settings = request.app.state.settings
+        notif = await build_order_comment(
+            db,
+            tenant_name=tenant.name,
+            order=order,
+            author_email=principal.email,
+            author_name=principal.full_name,
+            author_is_staff=principal.is_staff,
+            body=body,
+            base_url=settings.app_base_url,
+        )
+
+    await db.commit()
+
+    if notif is not None:
+        from app.tasks.email_tasks import send_order_comment
+
+        sender = request.app.state.email_sender
+        background_tasks.add_task(
+            send_order_comment,
+            sender,
+            recipients=notif.recipients,
+            tenant_name=notif.tenant_name,
+            order_number=notif.order_number,
+            order_title=notif.order_title,
+            order_url=notif.order_url,
+            author_name=notif.author_name,
+            body_excerpt=notif.body_excerpt,
+        )
 
     return RedirectResponse(url=f"/app/orders/{order.id}", status_code=303)

@@ -116,19 +116,33 @@
 
         {% if can_edit_items %}
             <form method="post" action="/app/orders/{{ order.id }}/items"
+                  id="add-item-form"
                   class="grid gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:grid-cols-6">
-            {{ csrf_input() }}<input type="text" name="description" required placeholder="Popis položky"
-                       class="sm:col-span-3 rounded-md border border-slate-300 px-3 py-2 text-sm">
+                {{ csrf_input() }}
+                <select name="product_id" id="add-item-product" data-product-picker
+                        class="sm:col-span-3 rounded-md border border-slate-300 px-3 py-2 text-sm">
+                    <option value="">— vlastní položka (free-text) —</option>
+                    {% for p in product_choices %}
+                        <option value="{{ p.id }}"
+                                data-name="{{ p.sku }} — {{ p.name }}"
+                                data-unit="{{ p.unit }}"
+                                data-price="{{ p.default_price if p.default_price is not none else '' }}">
+                            {{ p.sku }} — {{ p.name }}
+                        </option>
+                    {% endfor %}
+                </select>
                 <input type="number" step="0.001" name="quantity" required placeholder="Množství"
                        class="rounded-md border border-slate-300 px-3 py-2 text-sm">
-                <input type="text" name="unit" value="ks" placeholder="jed."
+                <input type="text" name="unit" id="add-item-unit" value="ks" placeholder="jed."
                        class="rounded-md border border-slate-300 px-3 py-2 text-sm">
                 {% if principal.is_staff %}
-                    <input type="number" step="0.01" name="unit_price" placeholder="Cena/ks"
+                    <input type="number" step="0.01" name="unit_price" id="add-item-price" placeholder="Cena/ks"
                            class="rounded-md border border-slate-300 px-3 py-2 text-sm">
                 {% else %}
                     <span></span>
                 {% endif %}
+                <input type="text" name="description" id="add-item-description" placeholder="Popis (přepíše produkt)"
+                       class="sm:col-span-5 rounded-md border border-slate-300 px-3 py-2 text-sm">
                 <div class="sm:col-span-6 text-right">
                     <button type="submit"
                             class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
@@ -164,6 +178,13 @@
                                 </a>
                                 <div class="text-xs text-slate-500">
                                     {{ (att.size_bytes / 1024)|round(1) }} KB · {{ att.content_type }}
+                                    {% if att.order_item_id %}
+                                        {% for it in items %}
+                                            {% if it.id == att.order_item_id %}
+                                                · <span class="text-slate-700">položka #{{ loop.index }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -184,9 +205,19 @@
         {% if can_edit_items %}
             <form method="post" action="/app/orders/{{ order.id }}/attachments"
                   enctype="multipart/form-data"
-                  class="grid gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:grid-cols-[1fr_auto]">
-            {{ csrf_input() }}<input type="file" name="file" required
+                  class="grid gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:grid-cols-[1fr_1fr_auto]">
+                {{ csrf_input() }}
+                <input type="file" name="file" required
                        class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm">
+                <select name="order_item_id"
+                        class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm">
+                    <option value="">— k celé objednávce —</option>
+                    {% for item in items %}
+                        <option value="{{ item.id }}">
+                            #{{ loop.index }} — {{ item.description[:50] }}
+                        </option>
+                    {% endfor %}
+                </select>
                 <button type="submit"
                         class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
                     Nahrát

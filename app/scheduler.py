@@ -13,7 +13,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from app.logging import get_logger
-from app.tasks.periodic import auto_close_delivered_orders
+from app.tasks.periodic import auto_close_delivered_orders, cleanup_stale_invited_contacts
 
 log = get_logger("app.scheduler")
 
@@ -29,6 +29,14 @@ def build_scheduler() -> AsyncIOScheduler:
         replace_existing=True,
         max_instances=1,
         misfire_grace_time=300,
+    )
+    scheduler.add_job(
+        cleanup_stale_invited_contacts,
+        trigger=CronTrigger(hour=3, minute=0),  # 03:00 UTC daily
+        id="cleanup_stale_invited_contacts",
+        replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=600,
     )
 
     log.info(
