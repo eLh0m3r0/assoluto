@@ -88,6 +88,7 @@ async def wipe_db(owner_engine):  # type: ignore[misc]
             await conn.execute(text("DELETE FROM order_status_history"))
             await conn.execute(text("DELETE FROM order_items"))
             await conn.execute(text("DELETE FROM orders"))
+            await conn.execute(text("DELETE FROM products"))
             await conn.execute(text("DELETE FROM customer_contacts"))
             await conn.execute(text("DELETE FROM customers"))
             await conn.execute(text("DELETE FROM users"))

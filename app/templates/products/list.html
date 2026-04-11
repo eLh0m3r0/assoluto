@@ -1,0 +1,60 @@
+{% extends "app_base.html" %}
+
+{% block title %}Katalog · {{ tenant.name }}{% endblock %}
+
+{% block content %}
+    <div class="mb-6 flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-slate-900">Katalog produktů</h1>
+        <a href="/app/products/new"
+           class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+            Nový produkt
+        </a>
+    </div>
+
+    {% if products %}
+        <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <tr>
+                        <th class="px-4 py-3 text-left">SKU</th>
+                        <th class="px-4 py-3 text-left">Název</th>
+                        <th class="px-4 py-3 text-left">Klient</th>
+                        <th class="px-4 py-3 text-right">Cena</th>
+                        <th class="px-4 py-3 text-left">Jedn.</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for p in products %}
+                        <tr>
+                            <td class="px-4 py-3 font-mono text-slate-700">{{ p.sku }}</td>
+                            <td class="px-4 py-3 text-slate-900">{{ p.name }}</td>
+                            <td class="px-4 py-3 text-slate-600">
+                                {% if p.customer_id %}
+                                    {{ customer_by_id[p.customer_id].name if customer_by_id.get(p.customer_id) else "—" }}
+                                {% else %}
+                                    <span class="text-slate-400">(sdílené)</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-right text-slate-700">
+                                {% if p.default_price is not none %}
+                                    {{ "%.2f"|format(p.default_price) }} {{ p.currency }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-slate-600">{{ p.unit }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="rounded-lg border border-dashed border-slate-300 p-10 text-center">
+            <p class="text-slate-500">Katalog je prázdný.</p>
+            <a href="/app/products/new"
+               class="mt-3 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                Přidat první produkt
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}

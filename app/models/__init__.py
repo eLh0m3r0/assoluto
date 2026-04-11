@@ -12,5 +12,6 @@ from app.models.order import (  # noqa: F401
     OrderItem,
     OrderStatusHistory,
 )
+from app.models.product import Product  # noqa: F401
 from app.models.tenant import Tenant  # noqa: F401
 from app.models.user import User  # noqa: F401
