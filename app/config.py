@@ -52,6 +52,15 @@ class Settings(BaseSettings):
     # --- Tenancy -----------------------------------------------------------
     default_tenant_slug: str | None = Field(default=None, alias="DEFAULT_TENANT_SLUG")
 
+    # --- Platform (hosted SaaS layer) ---------------------------------------
+    # When enabled, the `app.platform` package registers extra routes for
+    # platform-level identity, tenant switching, and tenant CRUD. Keep it
+    # OFF for self-hosted / open-source deployments.
+    feature_platform: bool = Field(default=False, alias="FEATURE_PLATFORM")
+    # Parent domain cookies for the cross-subdomain session, e.g.
+    # `.portal.example.com`. Leave empty for single-host deployments.
+    platform_cookie_domain: str = Field(default="", alias="PLATFORM_COOKIE_DOMAIN")
+
     # --- S3 / MinIO --------------------------------------------------------
     s3_endpoint_url: str = Field(default="http://localhost:9000", alias="S3_ENDPOINT_URL")
     s3_access_key: str = Field(default="portal", alias="S3_ACCESS_KEY")

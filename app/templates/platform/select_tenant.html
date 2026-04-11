@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Výběr portálu · SME Portal{% endblock %}
+
+{% block content %}
+<section class="mx-auto mt-8 max-w-2xl">
+    <div class="mb-4 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Vyberte portál</h1>
+            <p class="text-sm text-slate-500">Přihlášen jako {{ identity.full_name }} ({{ identity.email }})</p>
+        </div>
+        <form method="post" action="/platform/logout" class="inline">
+            {{ csrf_input() }}
+            <button type="submit" class="text-sm text-slate-500 hover:text-slate-900">
+                Odhlásit
+            </button>
+        </form>
+    </div>
+
+    {% if memberships %}
+        <ul class="grid gap-3">
+            {% for m in memberships %}
+                <li>
+                    <form method="post" action="/platform/switch/{{ m.tenant_slug }}"
+                          class="block rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-brand-500">
+                        {{ csrf_input() }}
+                        <button type="submit" class="w-full text-left">
+                            <div class="text-base font-semibold text-slate-900">
+                                {{ m.tenant_name }}
+                                <span class="ml-2 text-xs font-normal text-slate-500">
+                                    ({{ m.tenant_slug }})
+                                </span>
+                            </div>
+                            <div class="text-sm text-slate-600">
+                                {% if m.kind == "staff" %}
+                                    Jako člen týmu
+                                {% else %}
+                                    Jako kontakt klienta{% if m.customer_name %} — {{ m.customer_name }}{% endif %}
+                                {% endif %}
+                            </div>
+                        </button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="rounded-lg border border-dashed border-slate-300 p-10 text-center">
+            <p class="text-slate-500">Nemáte přístup k žádnému portálu.</p>
+        </div>
+    {% endif %}
+
+    {% if identity.is_platform_admin %}
+        <div class="mt-8 rounded-lg border border-amber-200 bg-amber-50 p-5">
+            <p class="text-sm text-amber-800">
+                Máte platform-admin oprávnění.
+                <a href="/platform/admin/tenants" class="font-semibold text-amber-900 underline">
+                    Správa tenantů &rarr;
+                </a>
+            </p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

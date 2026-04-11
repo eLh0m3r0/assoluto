@@ -95,6 +95,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(products_router.router)
     app.include_router(assets_router.router)
     app.include_router(tenant_admin_router.router)
+
+    # Optional SaaS layer — loaded only when FEATURE_PLATFORM is on.
+    # Core self-hosted builds skip this entirely so none of the
+    # platform routes are reachable (the tables still exist in the
+    # schema but are never touched).
+    if settings.feature_platform:
+        from app.platform import install as install_platform
+
+        install_platform(app)
+
     _register_error_handlers(app)
     return app
 
