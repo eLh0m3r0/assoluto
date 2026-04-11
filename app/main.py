@@ -13,6 +13,7 @@ from app import __version__
 from app.config import Settings, get_settings
 from app.email.sender import build_sender
 from app.logging import configure_logging, get_logger
+from app.routers import assets as assets_router
 from app.routers import attachments as attachments_router
 from app.routers import customers as customers_router
 from app.routers import dashboard as dashboard_router
@@ -61,6 +62,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(orders_router.router)
     app.include_router(attachments_router.router)
     app.include_router(products_router.router)
+    app.include_router(assets_router.router)
     return app
 
 

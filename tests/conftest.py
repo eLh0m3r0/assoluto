@@ -83,6 +83,8 @@ async def wipe_db(owner_engine):  # type: ignore[misc]
             # Order matters because of FK constraints. Children first, then
             # parents; `customers` is RESTRICTed by `orders`, so orders (and
             # their dependents) must go first.
+            await conn.execute(text("DELETE FROM asset_movements"))
+            await conn.execute(text("DELETE FROM assets"))
             await conn.execute(text("DELETE FROM order_attachments"))
             await conn.execute(text("DELETE FROM order_comments"))
             await conn.execute(text("DELETE FROM order_status_history"))
