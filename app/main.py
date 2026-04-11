@@ -16,6 +16,7 @@ from app.logging import configure_logging, get_logger
 from app.routers import customers as customers_router
 from app.routers import dashboard as dashboard_router
 from app.routers import health as health_router
+from app.routers import orders as orders_router
 from app.routers import public as public_router
 from app.templating import Templates, build_jinja_env
 
@@ -55,6 +56,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(public_router.router)
     app.include_router(dashboard_router.router)
     app.include_router(customers_router.router)
+    app.include_router(orders_router.router)
     return app
 
 
