@@ -4,6 +4,7 @@ Import every model module here so Alembic autogenerate sees them when it
 inspects `Base.metadata`.
 """
 
+from app.models.attachment import OrderAttachment  # noqa: F401
 from app.models.customer import Customer, CustomerContact  # noqa: F401
 from app.models.order import (  # noqa: F401
     Order,

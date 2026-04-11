@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.deps import Principal, get_db, require_login
 from app.models.customer import Customer
 from app.models.enums import OrderStatus
+from app.services.attachment_service import list_for_order as list_attachments
 from app.services.customer_service import list_customers
 from app.services.order_service import (
     ActorRef,
@@ -218,6 +219,7 @@ async def orders_detail(
     items = await list_items(db, order.id)
     comments = await list_comments(db, order_id=order.id, include_internal=principal.is_staff)
     history = await list_status_history(db, order.id)
+    attachments = await list_attachments(db, order.id)
 
     customer = None
     if principal.is_staff:
@@ -237,6 +239,7 @@ async def orders_detail(
             "items": items,
             "comments": comments,
             "history": history,
+            "attachments": attachments,
             "customer": customer,
             "can_edit_items": _can_edit_items(order, principal),
             "available_transitions": available_transitions,
