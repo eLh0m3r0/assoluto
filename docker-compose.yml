@@ -1,0 +1,95 @@
+# Development / self-host docker-compose for SME Client Portal.
+#
+# Services:
+#   web      — FastAPI app (uvicorn)
+#   postgres — PostgreSQL 16 (tenant DB)
+#   minio    — S3-compatible storage for attachments
+#   mailhog  — SMTP sink with web UI for inspecting outbound mail
+#
+# First run:
+#   cp .env.example .env
+#   docker compose up --build
+#
+# Then open:
+#   http://localhost:8000         — portal
+#   http://localhost:8025         — MailHog UI
+#   http://localhost:9001         — MinIO console (portal / portalportal)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: portal
+      POSTGRES_PASSWORD: portal
+      POSTGRES_DB: portal
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portal -d portal"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: portal
+      MINIO_ROOT_PASSWORD: portalportal
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      mailhog:
+        condition: service_started
+    environment:
+      APP_ENV: development
+      APP_DEBUG: "true"
+      APP_SECRET_KEY: ${APP_SECRET_KEY:-dev-insecure-change-me}
+      APP_BASE_URL: http://localhost:8000
+      DATABASE_URL: postgresql+asyncpg://portal:portal@postgres:5432/portal
+      DATABASE_SYNC_URL: postgresql+psycopg://portal:portal@postgres:5432/portal
+      S3_ENDPOINT_URL: http://minio:9000
+      S3_ACCESS_KEY: portal
+      S3_SECRET_KEY: portalportal
+      S3_BUCKET: portal
+      S3_PUBLIC_URL: http://localhost:9000/portal
+      SMTP_HOST: mailhog
+      SMTP_PORT: "1025"
+      SMTP_FROM: "SME Portal <noreply@localhost>"
+      LOG_LEVEL: INFO
+      LOG_JSON: "false"
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:
+  minio_data:
