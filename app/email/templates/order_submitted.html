@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="cs"><body style="font-family:sans-serif;background:#f8fafc;padding:24px;">
+<table width="100%"><tr><td align="center"><table width="560" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:32px;">
+<tr><td>
+    <h1 style="margin-top:0;color:#0f172a;">Nová objednávka {{ order_number }}</h1>
+    <p style="color:#334155;">
+        Klient <strong>{{ customer_name }}</strong> odeslal novou objednávku
+        „{{ order_title }}".
+    </p>
+    <p>
+        <a href="{{ order_url }}" style="display:inline-block;background:#2f5bd9;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;">
+            Otevřít objednávku
+        </a>
+    </p>
+    <p style="color:#94a3b8;font-size:12px;">{{ tenant_name }}</p>
+</td></tr>
+</table></td></tr></table>
+</body></html>

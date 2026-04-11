@@ -1,0 +1,7 @@
+Objednávka {{ order_number }} — {{ status_label }}
+
+{{ order_title }}
+
+Detail: {{ order_url }}
+
+-- {{ tenant_name }}

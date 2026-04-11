@@ -6,7 +6,7 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +16,10 @@ from app.models.customer import Customer
 from app.models.enums import OrderStatus
 from app.services.attachment_service import list_for_order as list_attachments
 from app.services.customer_service import list_customers
+from app.services.notification_service import (
+    build_order_status_changed,
+    build_order_submitted,
+)
 from app.services.order_service import (
     ActorRef,
     ForbiddenActor,
@@ -380,6 +384,7 @@ async def orders_transition(
     order_id: UUID,
     to_status: str,
     request: Request,
+    background_tasks: BackgroundTasks,
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -404,6 +409,60 @@ async def orders_transition(
         raise HTTPException(status_code=409, detail=str(exc)) from None
     except OrderAccessDenied:
         raise HTTPException(status_code=404, detail="Order not found") from None
+
+    # Build notifications BEFORE we commit + schedule the background task:
+    # queries still run under RLS inside the current session.
+    tenant = request.state.tenant
+    settings = request.app.state.settings
+    sender = request.app.state.email_sender
+
+    notif_submitted = None
+    notif_status = None
+    if target == OrderStatus.SUBMITTED:
+        notif_submitted = await build_order_submitted(
+            db,
+            tenant_name=tenant.name,
+            order=order,
+            base_url=settings.app_base_url,
+        )
+    else:
+        notif_status = await build_order_status_changed(
+            db,
+            tenant_name=tenant.name,
+            order=order,
+            to_status=target,
+            base_url=settings.app_base_url,
+        )
+
+    # Commit so the background task's fresh session can see the new state.
+    await db.commit()
+
+    if notif_submitted is not None:
+        from app.tasks.email_tasks import send_order_submitted
+
+        background_tasks.add_task(
+            send_order_submitted,
+            sender,
+            recipients=notif_submitted.recipients,
+            tenant_name=notif_submitted.tenant_name,
+            customer_name=notif_submitted.customer_name,
+            order_number=notif_submitted.order_number,
+            order_title=notif_submitted.order_title,
+            order_url=notif_submitted.order_url,
+        )
+    if notif_status is not None:
+        from app.tasks.email_tasks import send_order_status_changed
+
+        background_tasks.add_task(
+            send_order_status_changed,
+            sender,
+            recipients=notif_status.recipients,
+            tenant_name=notif_status.tenant_name,
+            order_number=notif_status.order_number,
+            order_title=notif_status.order_title,
+            order_url=notif_status.order_url,
+            to_status=notif_status.to_status,
+        )
 
     return RedirectResponse(url=f"/app/orders/{order.id}", status_code=303)
 

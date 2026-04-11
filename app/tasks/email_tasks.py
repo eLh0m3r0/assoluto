@@ -6,10 +6,47 @@ global so that tests can plug in a `CaptureSender` without monkey-patching.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+
 from app.email.sender import EmailSender, render_email
 from app.logging import get_logger
+from app.models.enums import OrderStatus
 
 log = get_logger("app.tasks.email")
+
+
+STATUS_LABELS: dict[OrderStatus, str] = {
+    OrderStatus.DRAFT: "Koncept",
+    OrderStatus.SUBMITTED: "Odesláno",
+    OrderStatus.QUOTED: "Nacenění",
+    OrderStatus.CONFIRMED: "Potvrzeno",
+    OrderStatus.IN_PRODUCTION: "Ve výrobě",
+    OrderStatus.READY: "Připraveno",
+    OrderStatus.DELIVERED: "Dodáno",
+    OrderStatus.CLOSED: "Uzavřeno",
+    OrderStatus.CANCELLED: "Zrušeno",
+}
+
+
+def _safe_send(
+    sender: EmailSender,
+    kind: str,
+    to: str,
+    subject: str,
+    html: str,
+    text: str,
+) -> None:
+    """Send one email, logging and swallowing errors.
+
+    Fire-and-forget: the caller is a FastAPI BackgroundTask running after
+    the request has been served. Retry semantics arrive with the Dramatiq
+    migration (roadmap R0).
+    """
+    try:
+        sender.send(to=to, subject=subject, html=html, text=text)
+        log.info("email.sent", kind=kind, to=to)
+    except Exception as exc:
+        log.error("email.failed", kind=kind, to=to, error=str(exc))
 
 
 def send_invitation(
@@ -31,10 +68,69 @@ def send_invitation(
             "invite_url": invite_url,
         },
     )
-    try:
-        sender.send(to=to, subject=rendered.subject, html=rendered.html, text=rendered.text)
-        log.info("email.sent", kind="invitation", to=to)
-    except Exception as exc:
-        # Log-and-swallow: this is fire-and-forget from a request path.
-        # Once we move to Dramatiq (R0) the task will retry automatically.
-        log.error("email.failed", kind="invitation", to=to, error=str(exc))
+    _safe_send(sender, "invitation", to, rendered.subject, rendered.html, rendered.text)
+
+
+def send_order_submitted(
+    sender: EmailSender,
+    *,
+    recipients: Iterable[str],
+    tenant_name: str,
+    customer_name: str,
+    order_number: str,
+    order_title: str,
+    order_url: str,
+) -> None:
+    """Notify tenant staff that a customer just submitted an order."""
+    rendered = render_email(
+        "order_submitted",
+        {
+            "tenant_name": tenant_name,
+            "customer_name": customer_name,
+            "order_number": order_number,
+            "order_title": order_title,
+            "order_url": order_url,
+        },
+    )
+    for to in recipients:
+        _safe_send(
+            sender,
+            "order_submitted",
+            to,
+            rendered.subject,
+            rendered.html,
+            rendered.text,
+        )
+
+
+def send_order_status_changed(
+    sender: EmailSender,
+    *,
+    recipients: Iterable[str],
+    tenant_name: str,
+    order_number: str,
+    order_title: str,
+    order_url: str,
+    to_status: OrderStatus,
+) -> None:
+    """Notify customer contacts that an order's status changed."""
+    label = STATUS_LABELS.get(to_status, to_status.value)
+    rendered = render_email(
+        "order_status_changed",
+        {
+            "tenant_name": tenant_name,
+            "order_number": order_number,
+            "order_title": order_title,
+            "order_url": order_url,
+            "status_label": label,
+        },
+    )
+    for to in recipients:
+        _safe_send(
+            sender,
+            "order_status_changed",
+            to,
+            rendered.subject,
+            rendered.html,
+            rendered.text,
+        )

@@ -21,6 +21,7 @@ from app.routers import health as health_router
 from app.routers import orders as orders_router
 from app.routers import products as products_router
 from app.routers import public as public_router
+from app.scheduler import build_scheduler
 from app.templating import Templates, build_jinja_env
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -28,14 +29,26 @@ STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """App lifespan hook — place to start/stop scheduler, warm caches, etc."""
+    """App lifespan hook — starts the in-process scheduler.
+
+    The scheduler is skipped in test mode so pytest doesn't get unexpected
+    background activity. Production and development both run it.
+    """
     settings: Settings = app.state.settings
     log = get_logger("app.lifespan")
     log.info("app.starting", env=settings.app_env, version=__version__)
-    # NOTE: APScheduler start will be wired in later milestones (M6).
+
+    scheduler = None
+    if not settings.is_test:
+        scheduler = build_scheduler()
+        scheduler.start()
+        app.state.scheduler = scheduler
+
     try:
         yield
     finally:
+        if scheduler is not None:
+            scheduler.shutdown(wait=False)
         log.info("app.stopping")
 
 
