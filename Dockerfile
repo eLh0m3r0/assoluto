@@ -94,6 +94,7 @@ COPY --from=builder --chown=app:app /app/app /app/app
 COPY --chown=app:app migrations /app/migrations
 COPY --chown=app:app alembic.ini /app/alembic.ini
 COPY --chown=app:app pyproject.toml /app/pyproject.toml
+COPY --chown=app:app scripts /app/scripts
 COPY --chown=app:app docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
