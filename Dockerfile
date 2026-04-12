@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1
 #
 # Multi-stage image for SME Client Portal.
 #
@@ -33,7 +33,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.5.4 /uv /usr/local/bin/uv
 WORKDIR /app
 
 # Install deps first so docker layer cache is reused when only source changes
-COPY pyproject.toml ./
+COPY pyproject.toml uv.lock ./
 # Touch a placeholder README so `uv sync` doesn't complain about missing files
 RUN touch README.md
 RUN --mount=type=cache,target=/root/.cache/uv \
