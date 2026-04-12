@@ -1,0 +1,7 @@
+Nová objednávka {{ order_number }}
+
+Klient {{ customer_name }} odeslal novou objednávku "{{ order_title }}".
+
+Otevřít: {{ order_url }}
+
+-- {{ tenant_name }}

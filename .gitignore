@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+coverage.xml
+*.cover
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Tailwind build artifacts (app.css itself is committed as a stub so that
+# url_for('static', path='css/app.css') works before the build runs; it gets
+# overwritten locally and in Docker builds).
+app/static/css/app.css.map
+
+# Alembic
+# (keep migrations/versions/, just ignore caches)
+
+# Docker volumes (if ever written locally)
+docker/volumes/
+
+# Logs
+*.log
+logs/
+
+# uv
+# Note: uv.lock IS checked in for reproducible builds. Only the venv is ignored.
+.venv/

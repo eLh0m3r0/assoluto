@@ -1,0 +1,12 @@
+Dobrý den, {{ contact_name }}!
+
+Společnost {{ tenant_name }} vás zve do zákaznického portálu
+za firmu {{ customer_name }}.
+
+Pro dokončení registrace otevřete následující odkaz — platí 7 dní:
+
+{{ invite_url }}
+
+Pokud jste o pozvánku nežádali, tento e-mail ignorujte.
+
+-- {{ tenant_name }}

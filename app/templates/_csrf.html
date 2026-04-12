@@ -1,0 +1,4 @@
+{# CSRF hidden field used by every mutating form.
+   The token comes from request.state via the CsrfMiddleware; the
+   Jinja context processor exposes it as `csrf_token`. #}
+<input type="hidden" name="csrf_token" value="{{ csrf_token }}">

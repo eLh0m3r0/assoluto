@@ -1,0 +1,207 @@
+"""Tenant staff routes for managing customers and their contacts."""
+
+from __future__ import annotations
+
+from uuid import UUID
+
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import Settings, get_settings
+from app.deps import Principal, get_db, require_tenant_staff
+from app.models.tenant import Tenant
+from app.security.csrf import verify_csrf
+from app.services.auth_service import (
+    InvalidInvitation,
+    create_invitation_token,
+    invite_customer_contact,
+)
+from app.services.customer_service import (
+    create_customer,
+    get_customer,
+    list_contacts_for_customer,
+    list_customers,
+)
+from app.tasks.email_tasks import send_invitation
+
+router = APIRouter(prefix="/app", tags=["customers"], dependencies=[Depends(verify_csrf)])
+
+
+def _templates(request: Request):
+    return request.app.state.templates
+
+
+def _tenant(principal: Principal, request: Request) -> Tenant:
+    tenant = getattr(request.state, "tenant", None)
+    if tenant is None:
+        raise HTTPException(status_code=500, detail="Tenant not resolved")
+    return tenant
+
+
+@router.get("/customers", response_class=HTMLResponse)
+async def customers_index(
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    customers = await list_customers(db)
+    html = _templates(request).render(
+        request,
+        "customers/list.html",
+        {
+            "principal": principal,
+            "tenant": _tenant(principal, request),
+            "customers": customers,
+        },
+    )
+    return HTMLResponse(html)
+
+
+@router.get("/customers/new", response_class=HTMLResponse)
+async def customers_new_form(
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+) -> HTMLResponse:
+    html = _templates(request).render(
+        request,
+        "customers/form.html",
+        {
+            "principal": principal,
+            "tenant": _tenant(principal, request),
+            "form": {},
+            "error": None,
+            "notice": None,
+        },
+    )
+    return HTMLResponse(html)
+
+
+@router.post("/customers", response_class=HTMLResponse)
+async def customers_create(
+    request: Request,
+    name: str = Form(...),
+    ico: str = Form(""),
+    dic: str = Form(""),
+    notes: str = Form(""),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    try:
+        customer = await create_customer(
+            db,
+            tenant_id=principal.tenant_id,
+            name=name,
+            ico=ico,
+            dic=dic,
+            notes=notes,
+        )
+    except ValueError as exc:
+        html = _templates(request).render(
+            request,
+            "customers/form.html",
+            {
+                "principal": principal,
+                "tenant": _tenant(principal, request),
+                "form": {"name": name, "ico": ico, "dic": dic, "notes": notes},
+                "error": str(exc),
+                "notice": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
+
+    return RedirectResponse(url=f"/app/customers/{customer.id}", status_code=303)
+
+
+@router.get("/customers/{customer_id}", response_class=HTMLResponse)
+async def customers_detail(
+    customer_id: UUID,
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    customer = await get_customer(db, customer_id)
+    if customer is None:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    contacts = await list_contacts_for_customer(db, customer_id)
+    html = _templates(request).render(
+        request,
+        "customers/detail.html",
+        {
+            "principal": principal,
+            "tenant": _tenant(principal, request),
+            "customer": customer,
+            "contacts": contacts,
+            "error": None,
+            "notice": None,
+        },
+    )
+    return HTMLResponse(html)
+
+
+@router.post("/customers/{customer_id}/contacts", response_class=HTMLResponse)
+async def customers_invite_contact(
+    customer_id: UUID,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    email: str = Form(...),
+    full_name: str = Form(...),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> Response:
+    customer = await get_customer(db, customer_id)
+    if customer is None:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    try:
+        contact = await invite_customer_contact(
+            db,
+            tenant_id=principal.tenant_id,
+            customer_id=customer_id,
+            email=email,
+            full_name=full_name,
+        )
+    except (InvalidInvitation, IntegrityError) as exc:
+        contacts = await list_contacts_for_customer(db, customer_id)
+        html = _templates(request).render(
+            request,
+            "customers/detail.html",
+            {
+                "principal": principal,
+                "tenant": _tenant(principal, request),
+                "customer": customer,
+                "contacts": contacts,
+                "error": (
+                    "Kontakt se stejným e-mailem už existuje."
+                    if isinstance(exc, IntegrityError)
+                    else str(exc)
+                ),
+                "notice": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
+
+    # Generate signed token and enqueue the invitation email as a
+    # background task so we don't block the request on SMTP I/O.
+    token = create_invitation_token(
+        settings.app_secret_key,
+        tenant_id=principal.tenant_id,
+        contact_id=contact.id,
+    )
+    invite_url = f"{settings.app_base_url}/invite/accept?token={token}"
+    sender = request.app.state.email_sender
+    tenant = _tenant(principal, request)
+    background_tasks.add_task(
+        send_invitation,
+        sender,
+        to=contact.email,
+        tenant_name=tenant.name,
+        customer_name=customer.name,
+        contact_name=contact.full_name,
+        invite_url=invite_url,
+    )
+
+    return RedirectResponse(url=f"/app/customers/{customer.id}", status_code=303)

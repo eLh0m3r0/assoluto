@@ -1,0 +1,9 @@
+Nový komentář u objednávky {{ order_number }} — {{ order_title }}
+
+{{ author_name }} napsal/a:
+
+    {{ body_excerpt }}
+
+Otevřít: {{ order_url }}
+
+-- {{ tenant_name }}

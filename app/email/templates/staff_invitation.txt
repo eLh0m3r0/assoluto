@@ -1,0 +1,11 @@
+Dobrý den, {{ invitee_name }}!
+
+Byli jste přidáni do týmu {{ tenant_name }} jako administrátor
+zákaznického portálu. Pro nastavení hesla a první přihlášení otevřete
+následující odkaz — platí 7 dní:
+
+{{ invite_url }}
+
+Pokud jste o pozvánku nežádali, ignorujte tento e-mail.
+
+-- {{ tenant_name }}

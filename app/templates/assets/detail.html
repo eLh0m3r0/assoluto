@@ -1,0 +1,95 @@
+{% extends "app_base.html" %}
+
+{% block title %}{{ asset.code }} — {{ asset.name }}{% endblock %}
+
+{% block content %}
+    <div class="mb-6">
+        <a href="/app/assets" class="text-sm text-slate-500 hover:text-slate-900">&larr; Majetek</a>
+        <h1 class="mt-2 text-2xl font-bold text-slate-900">
+            {{ asset.code }} — {{ asset.name }}
+        </h1>
+        {% if principal.is_staff and customer %}
+            <p class="mt-1 text-sm text-slate-500">Klient: {{ customer.name }}</p>
+        {% endif %}
+    </div>
+
+    {% include "_flash.html" %}
+
+    <section class="mb-6 grid gap-4 md:grid-cols-3">
+        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <div class="text-xs font-medium uppercase tracking-wide text-slate-500">Aktuální stav</div>
+            <div class="mt-1 text-2xl font-semibold text-slate-900">
+                {{ asset.current_quantity | qty }} {{ asset.unit }}
+            </div>
+        </div>
+        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <div class="text-xs font-medium uppercase tracking-wide text-slate-500">Umístění</div>
+            <div class="mt-1 text-sm text-slate-900">{{ asset.location or "—" }}</div>
+        </div>
+        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <div class="text-xs font-medium uppercase tracking-wide text-slate-500">Popis</div>
+            <div class="mt-1 whitespace-pre-wrap text-sm text-slate-900">{{ asset.description or "—" }}</div>
+        </div>
+    </section>
+
+    {# ----------------------------------------------- movements history #}
+    <section class="mb-8 rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="border-b border-slate-200 px-5 py-3">
+            <h2 class="font-semibold text-slate-900">Pohyby</h2>
+        </div>
+        {% if movements %}
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <tr>
+                        <th class="px-4 py-2 text-left">Datum</th>
+                        <th class="px-4 py-2 text-left">Typ</th>
+                        <th class="px-4 py-2 text-right">Množství</th>
+                        <th class="px-4 py-2 text-left">Poznámka</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for m in movements %}
+                        <tr>
+                            <td class="px-4 py-2 text-slate-600">
+                                {{ m.occurred_at.strftime("%d.%m.%Y %H:%M") }}
+                            </td>
+                            <td class="px-4 py-2 text-slate-900">
+                                {% if m.type.value == "receive" %}Příjem
+                                {% elif m.type.value == "issue" %}Výdej
+                                {% elif m.type.value == "consume" %}Spotřeba
+                                {% else %}Korekce
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-2 text-right font-mono {% if m.quantity < 0 %}text-red-600{% else %}text-emerald-700{% endif %}">
+                                {{ m.quantity | qty }} {{ asset.unit }}
+                            </td>
+                            <td class="px-4 py-2 text-slate-600">{{ m.note or "" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="px-5 py-4 text-sm text-slate-500">Žádné pohyby.</p>
+        {% endif %}
+
+        {% if principal.is_staff %}
+            <form method="post" action="/app/assets/{{ asset.id }}/movements"
+                  class="grid gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:grid-cols-4">
+            {{ csrf_input() }}<select name="type" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+                    <option value="receive">Příjem (+)</option>
+                    <option value="issue">Výdej (−)</option>
+                    <option value="consume">Spotřeba (−)</option>
+                    <option value="adjust">Korekce</option>
+                </select>
+                <input type="number" step="0.001" name="quantity" required placeholder="Množství"
+                       class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+                <input type="text" name="note" placeholder="Poznámka"
+                       class="rounded-md border border-slate-300 px-3 py-2 text-sm sm:col-span-1">
+                <button type="submit"
+                        class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                    Přidat pohyb
+                </button>
+            </form>
+        {% endif %}
+    </section>
+{% endblock %}

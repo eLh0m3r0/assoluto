@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Project-level component styles can go here.
+ * Keep it small; prefer Tailwind utilities in templates. */

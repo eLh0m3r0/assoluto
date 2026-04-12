@@ -1,0 +1,53 @@
+{% extends "app_base.html" %}
+
+{% block title %}{{ customer.name }} · {{ tenant.name }}{% endblock %}
+
+{% block content %}
+    <div class="mb-6">
+        <a href="/app/customers" class="text-sm text-slate-500 hover:text-slate-900">&larr; Klienti</a>
+        <h1 class="mt-2 text-2xl font-bold text-slate-900">{{ customer.name }}</h1>
+        {% if customer.ico %}
+            <p class="text-sm text-slate-500">IČO {{ customer.ico }}{% if customer.dic %} · DIČ {{ customer.dic }}{% endif %}</p>
+        {% endif %}
+    </div>
+
+    <section class="mb-8 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold text-slate-900">Kontakty</h2>
+
+        {% if contacts %}
+            <ul class="mb-6 divide-y divide-slate-100">
+                {% for contact in contacts %}
+                    <li class="flex items-center justify-between py-3">
+                        <div>
+                            <div class="font-medium text-slate-900">{{ contact.full_name }}</div>
+                            <div class="text-xs text-slate-500">{{ contact.email }}</div>
+                        </div>
+                        <div class="text-xs">
+                            {% if contact.accepted_at %}
+                                <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700">aktivní</span>
+                            {% else %}
+                                <span class="rounded-full bg-amber-100 px-2 py-0.5 text-amber-700">pozván</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="mb-4 text-sm text-slate-500">Klient zatím nemá žádné kontakty.</p>
+        {% endif %}
+
+        {% include "_flash.html" %}
+
+        <form method="post" action="/app/customers/{{ customer.id }}/contacts"
+              class="mt-2 grid gap-3 sm:grid-cols-3">
+            {{ csrf_input() }}<input type="email" name="email" required placeholder="jmeno@firma.cz"
+                   class="rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+            <input type="text" name="full_name" required placeholder="Jméno Příjmení"
+                   class="rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+            <button type="submit"
+                    class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                Pozvat kontakt
+            </button>
+        </form>
+    </section>
+{% endblock %}

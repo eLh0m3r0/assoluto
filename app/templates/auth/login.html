@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Přihlášení &middot; {{ tenant.name if tenant else "SME Portal" }}{% endblock %}
+
+{% block content %}
+<section class="mx-auto mt-8 max-w-md">
+    <div class="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
+        <h1 class="mb-1 text-xl font-semibold text-slate-900">Přihlášení</h1>
+        {% if tenant %}
+            <p class="mb-6 text-sm text-slate-500">{{ tenant.name }}</p>
+        {% endif %}
+
+        {% include "_flash.html" %}
+
+        <form method="post" action="/auth/login" class="space-y-4">
+            {{ csrf_input() }}
+            <div>
+                <label for="email" class="block text-sm font-medium text-slate-700">E-mail</label>
+                <input type="email" name="email" id="email" required autofocus
+                       value="{{ email or '' }}"
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-slate-700">Heslo</label>
+                <input type="password" name="password" id="password" required
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+            </div>
+            <button type="submit"
+                    class="w-full rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                Přihlásit se
+            </button>
+            <p class="text-center text-sm">
+                <a href="/auth/password-reset" class="text-slate-500 hover:text-slate-900">
+                    Zapomenuté heslo?
+                </a>
+            </p>
+        </form>
+    </div>
+</section>
+{% endblock %}

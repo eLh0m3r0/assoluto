@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{# Base layout for authenticated pages: adds nav, principal badge, logout. #}
+
+{% block nav %}
+    {% if principal %}
+        <a href="/app" class="hover:text-slate-900">Dashboard</a>
+        <span class="px-2 text-slate-300">·</span>
+        <a href="/app/orders" class="hover:text-slate-900">Objednávky</a>
+        <span class="px-2 text-slate-300">·</span>
+        <a href="/app/assets" class="hover:text-slate-900">Majetek</a>
+        {% if principal.is_staff %}
+            <span class="px-2 text-slate-300">·</span>
+            <a href="/app/customers" class="hover:text-slate-900">Klienti</a>
+            <span class="px-2 text-slate-300">·</span>
+            <a href="/app/products" class="hover:text-slate-900">Katalog</a>
+            {% if principal.role == "tenant_admin" %}
+                <span class="px-2 text-slate-300">·</span>
+                <a href="/app/admin/users" class="hover:text-slate-900">Tým</a>
+            {% endif %}
+        {% endif %}
+        <span class="px-2 text-slate-300">·</span>
+        {% if principal.is_staff %}
+            <a href="/app/admin/profile" class="text-slate-900 hover:text-brand-600">{{ principal.full_name }}</a>
+        {% else %}
+            <span class="text-slate-900">{{ principal.full_name }}</span>
+        {% endif %}
+        <span class="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+            {{ principal.role }}
+        </span>
+        <form method="post" action="/auth/logout" class="ml-3 inline">
+            {{ csrf_input() }}<button type="submit" class="text-sm text-slate-500 hover:text-slate-900">
+                Odhlásit
+            </button>
+        </form>
+    {% endif %}
+{% endblock %}
