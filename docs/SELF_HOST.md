@@ -64,10 +64,14 @@ DATABASE_SYNC_URL=postgresql+psycopg://portal:<owner-pass>@db:5432/portal
 DATABASE_OWNER_URL=postgresql+asyncpg://portal:<owner-pass>@db:5432/portal
 
 S3_ENDPOINT_URL=https://s3.eu-central-003.backblazeb2.com
+S3_PUBLIC_ENDPOINT_URL=https://s3.eu-central-003.backblazeb2.com
 S3_ACCESS_KEY=...
 S3_SECRET_KEY=...
 S3_BUCKET=portal-prod
 S3_REGION=eu-central-003
+
+# For self-hosted single-tenant: keep platform OFF
+FEATURE_PLATFORM=false
 
 SMTP_HOST=smtp.postmarkapp.com
 SMTP_PORT=587
