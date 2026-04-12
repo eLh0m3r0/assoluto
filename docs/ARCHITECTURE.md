@@ -109,14 +109,55 @@ app/
 ├── models/          # SQLAlchemy ORM models + enums + mixins
 ├── services/        # business logic (HTTP-free)
 ├── routers/         # FastAPI routers — thin HTTP glue
-├── security/        # passwords, tokens, session cookie
-├── storage/         # boto3 S3 helper
+├── security/        # passwords, tokens, session cookie, CSRF
+├── storage/         # boto3 S3 helper (internal + public client)
 ├── email/           # SMTP sender + Jinja email templates
 ├── tasks/           # email + thumbnail + periodic task bodies
-└── templates/       # Jinja pages (public, app, error)
-migrations/          # Alembic (0001 → 0007)
-scripts/             # create_tenant, seed_dev, build_tailwind
-docker/              # entrypoint.sh, postgres-init.sql
-tests/               # pytest + httpx ASGI + moto S3 + freezegun
-docs/                # SELF_HOST, ARCHITECTURE
+├── templates/       # Jinja pages (public, app, error, platform)
+└── platform/        # opt-in SaaS layer (see below)
+migrations/          # Alembic (0001–0007 core + 1001 platform)
+scripts/             # create_tenant, seed_dev, build_tailwind, backup
+docker/              # entrypoint.sh, postgres-init.sql, nginx.conf.example
+tests/               # 112 tests (pytest + httpx ASGI + moto S3 + freezegun)
+docs/                # SELF_HOST, ARCHITECTURE, ENV
 ```
+
+## CSRF protection
+
+Double-submit cookie pattern split into two pieces:
+
+1. **`CsrfCookieMiddleware`** (pure ASGI): stamps a `csrftoken` cookie on
+   every response and stashes the value on `scope["state"]["csrf_token"]`.
+2. **`verify_csrf`** (FastAPI dependency): wired on every router via
+   `dependencies=[Depends(verify_csrf)]`. Compares the cookie against
+   `X-CSRF-Token` header or `csrf_token` form field. Safe methods
+   (GET/HEAD/OPTIONS) skip validation.
+
+Templates expose `{{ csrf_input() }}` which renders a hidden `<input>`.
+
+## Platform package (opt-in SaaS layer)
+
+Everything in `app/platform/` is loaded only when `FEATURE_PLATFORM=true`.
+Core never imports from it — `app.main.create_app()` calls
+`app.platform.install(app)` conditionally.
+
+### Models (not RLS-protected)
+
+- **`Identity`** — globally unique email + password hash. One person
+  across all tenants.
+- **`TenantMembership`** — links an Identity to a specific tenant via
+  either `user_id` (staff) or `contact_id` (customer contact).
+
+### Routes
+
+- `/platform/login` + `/platform/logout` — platform-wide auth
+- `/platform/select-tenant` — tenant switcher showing all memberships
+- `/platform/switch/{slug}` — mints a tenant-local session and redirects
+- `/platform/admin/tenants` — CRUD for platform admins
+
+### Session
+
+A separate `sme_portal_platform` signed cookie scoped to
+`PLATFORM_COOKIE_DOMAIN` (parent domain) so every tenant subdomain
+shares the session. The tenant-local `sme_portal_session` cookie
+co-exists.
