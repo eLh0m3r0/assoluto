@@ -322,12 +322,9 @@ async def orders_detail(
 
 
 def _can_edit_items(order, principal: Principal) -> bool:
+    """Staff can always edit; contacts only in DRAFT."""
     if principal.is_staff:
-        return order.status in (
-            OrderStatus.DRAFT,
-            OrderStatus.SUBMITTED,
-            OrderStatus.QUOTED,
-        )
+        return True
     return order.status == OrderStatus.DRAFT
 
 
@@ -344,20 +341,27 @@ TRANSITION_LABELS: dict[OrderStatus, str] = {
 
 
 def _available_transitions(order, principal: Principal) -> list[dict]:
-    from app.services.order_service import ACTOR_RULES, ALLOWED_TRANSITIONS
+    """Return the list of transitions the current principal can perform.
 
-    actor_type = principal.type
+    Staff see every status except the current one — full admin control.
+    Contacts see only what the state machine allows.
+    """
+    from app.services.order_service import ALL_STATUSES, CONTACT_ALLOWED_TRANSITIONS
+
     out: list[dict] = []
-    for to_status in ALLOWED_TRANSITIONS.get(order.status, set()):
-        allowed = ACTOR_RULES.get((order.status, to_status), set())
-        if actor_type in allowed:
-            out.append(
-                {
-                    "to_status": to_status.value,
-                    "label": TRANSITION_LABELS.get(to_status, to_status.value),
-                }
-            )
-    # Stable order, cancel always last.
+    if principal.is_staff:
+        candidates = ALL_STATUSES - {order.status}
+    else:
+        candidates = CONTACT_ALLOWED_TRANSITIONS.get(order.status, set())
+
+    for to_status in candidates:
+        out.append(
+            {
+                "to_status": to_status.value,
+                "label": TRANSITION_LABELS.get(to_status, to_status.value),
+            }
+        )
+    # Stable order: cancelled always last.
     out.sort(key=lambda x: (x["to_status"] == "cancelled", x["label"]))
     return out
 
