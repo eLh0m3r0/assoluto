@@ -283,18 +283,24 @@ async def orders_detail(
     history = await list_status_history(db, order.id)
     attachments = await list_attachments(db, order.id)
 
-    customer = None
-    if principal.is_staff:
-        customer = (
-            await db.execute(select(Customer).where(Customer.id == order.customer_id))
-        ).scalar_one_or_none()
+    customer = (
+        await db.execute(select(Customer).where(Customer.id == order.customer_id))
+    ).scalar_one_or_none()
 
     available_transitions = _available_transitions(order, principal)
 
-    # Products available on this order (shared + customer-specific) — used
-    # by the "Add item" picker. Only loaded while items are still editable.
+    # Resolve per-customer order permissions.
+    from app.services.customer_permissions import OrderPermissions
+
+    perms = OrderPermissions.from_dict(customer.order_permissions if customer else None)
+    # Staff always gets full permissions regardless.
+    if principal.is_staff:
+        perms = OrderPermissions()
+
+    # Products available on this order — only loaded when editable AND
+    # the customer is allowed to use the catalog.
     product_choices: list = []
-    if _can_edit_items(order, principal):
+    if _can_edit_items(order, principal) and perms.can_use_catalog:
         product_choices = await search_products(
             db, query="", customer_id=order.customer_id, limit=200
         )
@@ -305,6 +311,7 @@ async def orders_detail(
         {
             "principal": principal,
             "tenant": _tenant(request),
+            "perms": perms,
             "order": order,
             "items": items,
             "comments": comments,
@@ -328,15 +335,22 @@ def _can_edit_items(order, principal: Principal) -> bool:
     return order.status == OrderStatus.DRAFT
 
 
-TRANSITION_LABELS: dict[OrderStatus, str] = {
-    OrderStatus.SUBMITTED: "Odeslat",
-    OrderStatus.QUOTED: "Poslat nacenění",
-    OrderStatus.CONFIRMED: "Potvrdit",
-    OrderStatus.IN_PRODUCTION: "Spustit výrobu",
-    OrderStatus.READY: "Označit připraveno",
-    OrderStatus.DELIVERED: "Dodáno",
-    OrderStatus.CLOSED: "Uzavřít",
-    OrderStatus.CANCELLED: "Zrušit",
+# Label + visual category for each status transition button.
+# "kind" controls the button colour in the template:
+#   forward  = blue (primary workflow progression)
+#   back     = gray (returning to an earlier state)
+#   finish   = green (completing the order)
+#   danger   = red (cancel / destructive)
+TRANSITION_META: dict[OrderStatus, dict] = {
+    OrderStatus.DRAFT: {"label": "Vrátit do konceptu", "kind": "back", "order": 0},
+    OrderStatus.SUBMITTED: {"label": "Odeslat", "kind": "forward", "order": 1},
+    OrderStatus.QUOTED: {"label": "Nacenit", "kind": "forward", "order": 2},
+    OrderStatus.CONFIRMED: {"label": "Potvrdit", "kind": "forward", "order": 3},
+    OrderStatus.IN_PRODUCTION: {"label": "Spustit výrobu", "kind": "forward", "order": 4},
+    OrderStatus.READY: {"label": "Připraveno", "kind": "forward", "order": 5},
+    OrderStatus.DELIVERED: {"label": "Dodáno", "kind": "finish", "order": 6},
+    OrderStatus.CLOSED: {"label": "Uzavřít", "kind": "finish", "order": 7},
+    OrderStatus.CANCELLED: {"label": "Zrušit", "kind": "danger", "order": 99},
 }
 
 
@@ -344,25 +358,30 @@ def _available_transitions(order, principal: Principal) -> list[dict]:
     """Return the list of transitions the current principal can perform.
 
     Staff see every status except the current one — full admin control.
-    Contacts see only what the state machine allows.
+    Contacts see only what the state machine allows. Results are sorted
+    in logical workflow order (forward first, cancel last).
     """
     from app.services.order_service import ALL_STATUSES, CONTACT_ALLOWED_TRANSITIONS
 
-    out: list[dict] = []
     if principal.is_staff:
         candidates = ALL_STATUSES - {order.status}
     else:
         candidates = CONTACT_ALLOWED_TRANSITIONS.get(order.status, set())
 
+    out: list[dict] = []
     for to_status in candidates:
+        meta = TRANSITION_META.get(
+            to_status, {"label": to_status.value, "kind": "forward", "order": 50}
+        )
         out.append(
             {
                 "to_status": to_status.value,
-                "label": TRANSITION_LABELS.get(to_status, to_status.value),
+                "label": meta["label"],
+                "kind": meta["kind"],
+                "order": meta["order"],
             }
         )
-    # Stable order: cancelled always last.
-    out.sort(key=lambda x: (x["to_status"] == "cancelled", x["label"]))
+    out.sort(key=lambda x: x["order"])
     return out
 
 

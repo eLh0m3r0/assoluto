@@ -3,34 +3,69 @@
 {% block title %}Nový klient · {{ tenant.name }}{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4 text-2xl font-bold text-slate-900">Nový klient</h1>
+    <h1 class="mb-4 text-2xl font-bold text-gray-900">Nový klient</h1>
 
     {% include "_flash.html" %}
 
-    <form method="post" action="/app/customers" class="max-w-lg space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-            {{ csrf_input() }}<div>
-            <label for="name" class="block text-sm font-medium text-slate-700">Název firmy *</label>
+    <form method="post" action="/app/customers" class="max-w-lg space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        {{ csrf_input() }}
+        <div>
+            <label for="name" class="mb-1 block text-sm font-medium text-gray-700">Název firmy *</label>
             <input type="text" id="name" name="name" required value="{{ form.name or '' }}"
-                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                   class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+            <div>
+                <label for="ico" class="mb-1 block text-sm font-medium text-gray-700">IČO</label>
+                <input type="text" id="ico" name="ico" value="{{ form.ico or '' }}"
+                       class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+            </div>
+            <div>
+                <label for="dic" class="mb-1 block text-sm font-medium text-gray-700">DIČ</label>
+                <input type="text" id="dic" name="dic" value="{{ form.dic or '' }}"
+                       class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+            </div>
         </div>
         <div>
-            <label for="ico" class="block text-sm font-medium text-slate-700">IČO</label>
-            <input type="text" id="ico" name="ico" value="{{ form.ico or '' }}"
-                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
-        </div>
-        <div>
-            <label for="dic" class="block text-sm font-medium text-slate-700">DIČ</label>
-            <input type="text" id="dic" name="dic" value="{{ form.dic or '' }}"
-                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
-        </div>
-        <div>
-            <label for="notes" class="block text-sm font-medium text-slate-700">Poznámky</label>
+            <label for="notes" class="mb-1 block text-sm font-medium text-gray-700">Poznámky</label>
             <textarea id="notes" name="notes" rows="3"
-                      class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">{{ form.notes or '' }}</textarea>
+                      class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">{{ form.notes or '' }}</textarea>
         </div>
+
+        <fieldset class="rounded-lg border border-gray-200 p-4">
+            <legend class="px-2 text-sm font-semibold text-gray-700">Oprávnění klienta u objednávek</legend>
+            <p class="mb-3 text-xs text-gray-500">Kontroluje, co kontakty tohoto klienta mohou dělat při zadávání objednávek. Staff má vždy plný přístup.</p>
+            <div class="space-y-2">
+                <label class="flex items-center gap-2 text-sm text-gray-700">
+                    <input type="checkbox" name="can_add_items" value="on"
+                           {% if form.get('can_add_items', 'on') == 'on' %}checked{% endif %}
+                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    Může přidávat položky na objednávku
+                </label>
+                <label class="flex items-center gap-2 text-sm text-gray-700">
+                    <input type="checkbox" name="can_use_catalog" value="on"
+                           {% if form.get('can_use_catalog', 'on') == 'on' %}checked{% endif %}
+                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    Může vybírat z katalogu produktů
+                </label>
+                <label class="flex items-center gap-2 text-sm text-gray-700">
+                    <input type="checkbox" name="can_set_prices" value="on"
+                           {% if form.get('can_set_prices', '') == 'on' %}checked{% endif %}
+                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    Může zadávat ceny u položek
+                </label>
+                <label class="flex items-center gap-2 text-sm text-gray-700">
+                    <input type="checkbox" name="can_upload_files" value="on"
+                           {% if form.get('can_upload_files', 'on') == 'on' %}checked{% endif %}
+                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    Může nahrávat přílohy
+                </label>
+            </div>
+        </fieldset>
+
         <div class="flex items-center justify-end gap-3 pt-2">
-            <a href="/app/customers" class="text-sm text-slate-500 hover:text-slate-900">Zrušit</a>
-            <button type="submit" class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+            <a href="/app/customers" class="text-sm text-gray-500 hover:text-gray-900">Zrušit</a>
+            <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
                 Uložit
             </button>
         </div>

@@ -2,11 +2,24 @@
 
 {% block title %}{{ order.number }} — {{ order.title }}{% endblock %}
 
-{% macro transition_btn(to_status, label, order) %}
-    <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ to_status }}" class="inline">
-            {{ csrf_input() }}<button type="submit"
-                class="rounded-md bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700">
-            {{ label }}
+{% macro transition_btn(transition, order) %}
+    {% set kind = transition.kind %}
+    {% if kind == "forward" %}
+        {% set btn_class = "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100" %}
+    {% elif kind == "finish" %}
+        {% set btn_class = "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" %}
+    {% elif kind == "back" %}
+        {% set btn_class = "border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100" %}
+    {% elif kind == "danger" %}
+        {% set btn_class = "border-red-200 bg-red-50 text-red-700 hover:bg-red-100" %}
+    {% else %}
+        {% set btn_class = "border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100" %}
+    {% endif %}
+    <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ transition.to_status }}" class="inline">
+        {{ csrf_input() }}
+        <button type="submit"
+                class="rounded-lg border px-3.5 py-2 text-xs font-semibold transition {{ btn_class }}">
+            {{ transition.label }}
         </button>
     </form>
 {% endmacro %}
@@ -114,38 +127,48 @@
             <p class="px-5 py-4 text-sm text-slate-500">Žádné položky.</p>
         {% endif %}
 
-        {% if can_edit_items %}
+        {% if can_edit_items and perms.can_add_items %}
             <form method="post" action="/app/orders/{{ order.id }}/items"
                   id="add-item-form"
-                  class="grid gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:grid-cols-6">
+                  class="grid gap-3 border-t border-gray-200 bg-gray-50 px-5 py-4 sm:grid-cols-6">
                 {{ csrf_input() }}
-                <select name="product_id" id="add-item-product" data-product-picker
-                        class="sm:col-span-3 rounded-md border border-slate-300 px-3 py-2 text-sm">
-                    <option value="">— vlastní položka (free-text) —</option>
-                    {% for p in product_choices %}
-                        <option value="{{ p.id }}"
-                                data-name="{{ p.sku }} — {{ p.name }}"
-                                data-unit="{{ p.unit }}"
-                                data-price="{{ p.default_price if p.default_price is not none else '' }}">
-                            {{ p.sku }} — {{ p.name }}
-                        </option>
-                    {% endfor %}
-                </select>
+
+                {# Product picker — shown only when catalog is enabled #}
+                {% if perms.can_use_catalog and product_choices %}
+                    <select name="product_id" id="add-item-product" data-product-picker
+                            class="sm:col-span-3 rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                        <option value="">— vlastní položka (free-text) —</option>
+                        {% for p in product_choices %}
+                            <option value="{{ p.id }}"
+                                    data-name="{{ p.sku }} — {{ p.name }}"
+                                    data-unit="{{ p.unit }}"
+                                    data-price="{{ p.default_price if p.default_price is not none else '' }}">
+                                {{ p.sku }} — {{ p.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                {% else %}
+                    <span class="sm:col-span-3"></span>
+                {% endif %}
+
                 <input type="number" step="0.001" name="quantity" required placeholder="Množství"
-                       class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+                       class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
                 <input type="text" name="unit" id="add-item-unit" value="ks" placeholder="jed."
-                       class="rounded-md border border-slate-300 px-3 py-2 text-sm">
-                {% if principal.is_staff %}
+                       class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
+
+                {# Price field — only for staff OR contacts with can_set_prices #}
+                {% if principal.is_staff or perms.can_set_prices %}
                     <input type="number" step="0.01" name="unit_price" id="add-item-price" placeholder="Cena/ks"
-                           class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+                           class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
                 {% else %}
                     <span></span>
                 {% endif %}
-                <input type="text" name="description" id="add-item-description" placeholder="Popis (přepíše produkt)"
-                       class="sm:col-span-5 rounded-md border border-slate-300 px-3 py-2 text-sm">
+
+                <input type="text" name="description" id="add-item-description" placeholder="Popis položky"
+                       class="sm:col-span-5 rounded-lg border border-gray-300 px-3 py-2 text-sm">
                 <div class="sm:col-span-6 text-right">
                     <button type="submit"
-                            class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
                         Přidat položku
                     </button>
                 </div>
@@ -202,7 +225,7 @@
             <p class="px-5 py-4 text-sm text-slate-500">Žádné přílohy.</p>
         {% endif %}
 
-        {% if can_edit_items %}
+        {% if can_edit_items and perms.can_upload_files %}
             <form method="post" action="/app/orders/{{ order.id }}/attachments"
                   enctype="multipart/form-data"
                   class="grid gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:grid-cols-[1fr_1fr_auto]">
@@ -232,7 +255,7 @@
             <h2 class="mb-3 font-semibold text-slate-900">Akce</h2>
             <div class="flex flex-wrap gap-2">
                 {% for transition in available_transitions %}
-                    {{ transition_btn(transition.to_status, transition.label, order) }}
+                    {{ transition_btn(transition, order) }}
                 {% endfor %}
             </div>
         </section>

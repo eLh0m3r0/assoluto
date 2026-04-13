@@ -85,9 +85,19 @@ async def customers_create(
     ico: str = Form(""),
     dic: str = Form(""),
     notes: str = Form(""),
+    can_add_items: str = Form("on"),
+    can_use_catalog: str = Form(""),
+    can_set_prices: str = Form(""),
+    can_upload_files: str = Form("on"),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
+    order_perms = {
+        "can_add_items": can_add_items == "on",
+        "can_use_catalog": can_use_catalog == "on",
+        "can_set_prices": can_set_prices == "on",
+        "can_upload_files": can_upload_files == "on",
+    }
     try:
         customer = await create_customer(
             db,
@@ -96,6 +106,7 @@ async def customers_create(
             ico=ico,
             dic=dic,
             notes=notes,
+            order_permissions=order_perms,
         )
     except ValueError as exc:
         html = _templates(request).render(
