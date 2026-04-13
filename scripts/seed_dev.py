@@ -39,6 +39,7 @@ async def _run() -> None:
             name="4MEX s.r.o.",
             billing_email="billing@4mex.cz",
             storage_prefix="tenants/4mex/",
+            next_order_seq=1,  # seed inserts order #2026-000001
         )
         session.add(tenant)
         await session.flush()
