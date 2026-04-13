@@ -45,42 +45,23 @@ class OrderAccessDenied(OrderError):
 # State machine
 # ---------------------------------------------------------------------------
 
-# Allowed forward transitions. Keys are the current status, values the set
-# of statuses the order may move to next.
-ALLOWED_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
+# Allowed forward transitions for CUSTOMER CONTACTS. Staff (tenant users)
+# can set any status at any time — the state machine only constrains
+# the customer-facing side.
+CONTACT_ALLOWED_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
     OrderStatus.DRAFT: {OrderStatus.SUBMITTED, OrderStatus.CANCELLED},
-    OrderStatus.SUBMITTED: {
-        OrderStatus.QUOTED,
-        OrderStatus.CONFIRMED,
-        OrderStatus.CANCELLED,
-    },
+    OrderStatus.SUBMITTED: {OrderStatus.CANCELLED},
     OrderStatus.QUOTED: {OrderStatus.CONFIRMED, OrderStatus.CANCELLED},
-    OrderStatus.CONFIRMED: {OrderStatus.IN_PRODUCTION, OrderStatus.CANCELLED},
-    OrderStatus.IN_PRODUCTION: {OrderStatus.READY, OrderStatus.CANCELLED},
-    OrderStatus.READY: {OrderStatus.DELIVERED},
-    OrderStatus.DELIVERED: {OrderStatus.CLOSED},
+    OrderStatus.CONFIRMED: set(),
+    OrderStatus.IN_PRODUCTION: set(),
+    OrderStatus.READY: set(),
+    OrderStatus.DELIVERED: set(),
     OrderStatus.CLOSED: set(),
     OrderStatus.CANCELLED: set(),
 }
 
-# Which actor type ("user" = tenant staff, "contact" = customer contact)
-# can perform a given transition. A transition not listed here is
-# administratively blocked regardless of the ALLOWED_TRANSITIONS table.
-ACTOR_RULES: dict[tuple[OrderStatus, OrderStatus], set[str]] = {
-    (OrderStatus.DRAFT, OrderStatus.SUBMITTED): {"contact", "user"},
-    (OrderStatus.DRAFT, OrderStatus.CANCELLED): {"contact", "user"},
-    (OrderStatus.SUBMITTED, OrderStatus.QUOTED): {"user"},
-    (OrderStatus.SUBMITTED, OrderStatus.CONFIRMED): {"user"},
-    (OrderStatus.SUBMITTED, OrderStatus.CANCELLED): {"contact", "user"},
-    (OrderStatus.QUOTED, OrderStatus.CONFIRMED): {"contact", "user"},
-    (OrderStatus.QUOTED, OrderStatus.CANCELLED): {"contact", "user"},
-    (OrderStatus.CONFIRMED, OrderStatus.IN_PRODUCTION): {"user"},
-    (OrderStatus.CONFIRMED, OrderStatus.CANCELLED): {"user"},
-    (OrderStatus.IN_PRODUCTION, OrderStatus.READY): {"user"},
-    (OrderStatus.IN_PRODUCTION, OrderStatus.CANCELLED): {"user"},
-    (OrderStatus.READY, OrderStatus.DELIVERED): {"user"},
-    (OrderStatus.DELIVERED, OrderStatus.CLOSED): {"user"},
-}
+# All statuses — used by staff who can move an order to any status.
+ALL_STATUSES: set[OrderStatus] = set(OrderStatus)
 
 
 @dataclass(frozen=True)
@@ -330,17 +311,16 @@ async def remove_item(db: AsyncSession, *, order: Order, item: OrderItem, actor:
 
 
 def _ensure_item_editable(order: Order, actor: ActorRef) -> None:
+    """Check whether the actor can add/remove/edit items on the order.
+
+    Staff have full edit access at all times. Customer contacts can
+    only modify items while the order is in DRAFT.
+    """
     if actor.type == "contact":
         if order.status != OrderStatus.DRAFT:
             raise ForbiddenTransition("customer contacts may only edit items in DRAFT")
         return
-    # Staff: allow item edits up to (and including) QUOTED.
-    if order.status not in (
-        OrderStatus.DRAFT,
-        OrderStatus.SUBMITTED,
-        OrderStatus.QUOTED,
-    ):
-        raise ForbiddenTransition(f"items are locked once the order is in {order.status}")
+    # Staff: always allowed — full administrative control.
 
 
 async def _recompute_quoted_total(db: AsyncSession, order: Order) -> None:
@@ -368,21 +348,25 @@ async def transition_order(
     actor: ActorRef,
     note: str | None = None,
 ) -> Order:
-    """Advance the order to `to_status` after validating the move."""
-    allowed = ALLOWED_TRANSITIONS.get(order.status, set())
-    if to_status not in allowed:
-        raise ForbiddenTransition(
-            f"cannot transition from {order.status.value} to {to_status.value}"
-        )
+    """Advance the order to `to_status` after validating the move.
 
-    allowed_actors = ACTOR_RULES.get((order.status, to_status), set())
-    if actor.type not in allowed_actors:
-        raise ForbiddenActor(
-            f"{actor.type} cannot perform {order.status.value} -> {to_status.value}"
-        )
+    **Staff (tenant users) can set any status at any time** — they have
+    full administrative control over the order lifecycle. The state
+    machine only constrains customer contacts.
+    """
+    if order.status == to_status:
+        raise ForbiddenTransition("already in that status")
 
-    if actor.type == "contact" and order.customer_id != actor.customer_id:
-        raise OrderAccessDenied()
+    if actor.type == "contact":
+        # Contacts are constrained by the state machine.
+        allowed = CONTACT_ALLOWED_TRANSITIONS.get(order.status, set())
+        if to_status not in allowed:
+            raise ForbiddenTransition(
+                f"cannot transition from {order.status.value} to {to_status.value}"
+            )
+        if order.customer_id != actor.customer_id:
+            raise OrderAccessDenied()
+    # Staff: no transition restrictions — they can move to any status.
 
     # Side effects for specific transitions.
     now = datetime.now(UTC)

@@ -1,29 +1,38 @@
 <!doctype html>
-<html lang="cs">
+<html lang="cs" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}SME Client Portal{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}">
     <script src="{{ url_for('static', path='js/app.js') }}" defer></script>
+    <style>
+        /* Minimal inline fallback so pages look decent even before Tailwind loads */
+        body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+    </style>
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
-    <header class="border-b border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-            <a href="/" class="text-lg font-semibold text-slate-900">SME Portal</a>
-            <nav class="text-sm text-slate-600">
+<body class="flex min-h-full flex-col bg-gray-50 text-gray-900 antialiased">
+    <header class="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+        <div class="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+            <a href="/" class="flex items-center gap-2 text-lg font-bold tracking-tight text-gray-900">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">SP</span>
+                <span class="hidden sm:inline">SME Portal</span>
+            </a>
+            <nav class="flex items-center gap-1 text-sm">
                 {% block nav %}{% endblock %}
             </nav>
         </div>
     </header>
 
-    <main class="mx-auto max-w-6xl px-4 py-8">
+    <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="mx-auto max-w-6xl px-4 py-6 text-xs text-slate-500">
-        SME Client Portal v{{ app_version }} &middot;
-        {% block footer_extra %}{% endblock %}
+    <footer class="border-t border-gray-100 bg-white">
+        <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 text-xs text-gray-400 sm:px-6">
+            <span>SME Client Portal v{{ app_version }}</span>
+            {% block footer_extra %}{% endblock %}
+        </div>
     </footer>
 </body>
 </html>
