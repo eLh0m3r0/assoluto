@@ -55,6 +55,10 @@ dependencies = [
     # Billing (optional at runtime — methods no-op in demo mode when
     # STRIPE_SECRET_KEY is unset).
     "stripe>=10.0",
+    # Rate limiting on public endpoints (signup, verify-resend, contact).
+    "slowapi>=0.1.9",
+    # Password strength scoring — rejects trivial passwords (OWASP ASVS L1).
+    "zxcvbn>=4.4.28",
 ]
 
 [dependency-groups]

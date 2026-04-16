@@ -141,11 +141,40 @@ def validate_slug(slug: str) -> str:
     return slug
 
 
-def validate_password(password: str) -> str:
+def validate_password(password: str, *, user_inputs: list[str] | None = None) -> str:
+    """Validate signup passwords.
+
+    Length rule keeps the DB column bounded. The zxcvbn score guards
+    against trivially guessable choices ("password123", "qwerty",
+    email-derived passwords, etc.). Score is 0-4; we require ≥ 2
+    (OWASP ASVS L1 floor).
+
+    ``user_inputs`` lets zxcvbn down-weight tokens the user already
+    supplied elsewhere in the form (email, company name) — "ACME2026"
+    is a weak password for someone registering "ACME s.r.o.".
+    """
     if len(password) < 8:
         raise SignupValidationError("password", "Heslo musí mít alespoň 8 znaků.")
     if len(password) > 200:
         raise SignupValidationError("password", "Heslo je příliš dlouhé.")
+
+    # zxcvbn import is lazy so the dependency stays optional at module
+    # load time and the 400 KB frequency dictionary isn't paid for on
+    # every request that doesn't validate a password.
+    from zxcvbn import zxcvbn
+
+    result = zxcvbn(password, user_inputs=user_inputs or [])
+    score = int(result.get("score", 0))
+    if score < 2:
+        # Surface the zxcvbn suggestion when present; these are well-known
+        # short English strings (e.g. "Use a few words, avoid common
+        # phrases") — we prepend a Czech framing so users understand.
+        feedback = result.get("feedback", {}) or {}
+        warning = feedback.get("warning") or "Zvolte silnější heslo."
+        raise SignupValidationError(
+            "password",
+            f"Heslo je příliš slabé. {warning}",
+        )
     return password
 
 
@@ -180,7 +209,17 @@ def parse_signup_form(
     slug_candidate = (slug or "").strip().lower() or normalise_slug(company_name)
     validated_slug = validate_slug(slug_candidate)
     validated_email = validate_email(owner_email)
-    validated_password = validate_password(password or "")
+    # Feed user-supplied context into zxcvbn so passwords derived from
+    # the signup form itself score lower.
+    validated_password = validate_password(
+        password or "",
+        user_inputs=[
+            company_name,
+            validated_slug,
+            validated_email,
+            validated_email.split("@", 1)[0],
+        ],
+    )
 
     full_name = (owner_full_name or "").strip() or validated_email.split("@", 1)[0]
 

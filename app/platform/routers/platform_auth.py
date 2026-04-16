@@ -25,6 +25,7 @@ from app.platform.session import (
     write_platform_session,
 )
 from app.security.csrf import verify_csrf
+from app.security.rate_limit import limit as rate_limit
 from app.security.session import SessionData, write_session
 
 router = APIRouter(tags=["platform-auth"], dependencies=[Depends(verify_csrf)])
@@ -59,6 +60,7 @@ async def platform_login_form(
 
 
 @router.post("/platform/login", response_class=HTMLResponse)
+@rate_limit("20/15 minutes")
 async def platform_login_submit(
     request: Request,
     email: str = Form(...),

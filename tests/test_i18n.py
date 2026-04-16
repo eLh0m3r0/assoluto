@@ -82,6 +82,24 @@ async def test_set_lang_rejects_unsupported_locale(tenant_client) -> None:
     assert "sme_locale=cs" in r.headers.get("set-cookie", "")
 
 
+def test_templates_per_locale_env_is_cached_and_distinct() -> None:
+    """Regression test for the thread-race hotfix: per-locale envs stay
+    distinct instances, so ``install_gettext_translations`` is never
+    re-called on a shared Environment under concurrent renders."""
+    from app.config import get_settings
+    from app.templating import Templates, build_jinja_env
+
+    t = Templates(build_jinja_env(), get_settings())
+    env_cs_1 = t._get_env_for_locale("cs")
+    env_cs_2 = t._get_env_for_locale("cs")
+    env_en = t._get_env_for_locale("en")
+
+    # Same locale → same cached instance.
+    assert env_cs_1 is env_cs_2
+    # Different locales → different instances (that's the whole point).
+    assert env_cs_1 is not env_en
+
+
 @pytest.mark.postgres
 async def test_set_lang_rejects_open_redirect(tenant_client) -> None:
     r = await tenant_client.get(
@@ -91,3 +109,44 @@ async def test_set_lang_rejects_open_redirect(tenant_client) -> None:
     assert r.status_code == 303
     # External URL was rejected; redirect goes to safe "/".
     assert r.headers["location"] == "/"
+
+
+@pytest.mark.postgres
+@pytest.mark.parametrize(
+    "bad_next",
+    [
+        "//evil.example.com/path",  # protocol-relative URL
+        "/\\evil.example.com",  # backslash-prefixed, some browsers fold to /
+        "/\\\\evil.example.com",  # double backslash
+        "https://evil.example.com/x",  # absolute URL
+        "javascript:alert(1)",  # scheme injection
+        "",  # empty
+    ],
+)
+async def test_set_lang_rejects_every_known_open_redirect_vector(tenant_client, bad_next) -> None:
+    """All of these must redirect to ``/`` and never off-site."""
+    import urllib.parse
+
+    encoded = urllib.parse.quote(bad_next, safe="")
+    r = await tenant_client.get(
+        f"/set-lang?lang=en&next={encoded}",
+        follow_redirects=False,
+    )
+    assert r.status_code == 303
+    assert r.headers["location"] == "/", f"bad_next={bad_next!r} leaked"
+
+
+def test_safe_next_path_unit() -> None:
+    """Unit test for the helper — fast feedback without httpx stack."""
+    from app.routers.public import _safe_next_path
+
+    assert _safe_next_path("/app") == "/app"
+    assert _safe_next_path("/app?x=1") == "/app?x=1"
+    assert _safe_next_path("/app/orders?status=draft") == "/app/orders?status=draft"
+    # Open-redirect attacks collapse to "/".
+    assert _safe_next_path("") == "/"
+    assert _safe_next_path("//evil.com") == "/"
+    assert _safe_next_path("/\\evil.com") == "/"
+    assert _safe_next_path("https://evil.com") == "/"
+    assert _safe_next_path("javascript:alert(1)") == "/"
+    assert _safe_next_path("evil.com") == "/"  # no leading slash

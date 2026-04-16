@@ -13,9 +13,17 @@ from __future__ import annotations
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request
 from fastapi.responses import HTMLResponse
+from markupsafe import escape
 
 from app.config import Settings, get_settings
 from app.security.csrf import verify_csrf
+from app.security.rate_limit import limit as rate_limit
+
+# Cap the contact-form message to keep the transactional email sender
+# happy (most providers start scoring messages above ~64 KB as spam)
+# and to close off abuse of the endpoint as a mass-mail relay.
+CONTACT_MESSAGE_MAX_CHARS = 4000
+CONTACT_NAME_MAX_CHARS = 120
 
 router = APIRouter(tags=["www"], dependencies=[Depends(verify_csrf)])
 
@@ -53,6 +61,7 @@ async def contact_form(request: Request) -> HTMLResponse:
 
 
 @router.post("/contact", response_class=HTMLResponse)
+@rate_limit("5/15 minutes")
 async def contact_submit(
     request: Request,
     background_tasks: BackgroundTasks,
@@ -69,29 +78,50 @@ async def contact_submit(
     name = (name or "").strip()
     email = (email or "").strip()
     message = (message or "").strip()
-    if not name or not email or not message:
+
+    def _reject(err: str) -> HTMLResponse:
         html = _templates(request).render(
             request,
             "www/contact.html",
             {
                 "principal": None,
                 "submitted": False,
-                "error": "Vyplňte prosím všechna pole.",
+                "error": err,
                 "form": {"name": name, "email": email, "message": message},
             },
         )
         return HTMLResponse(html, status_code=400)
 
+    if not name or not email or not message:
+        return _reject("Vyplňte prosím všechna pole.")
+    if len(name) > CONTACT_NAME_MAX_CHARS:
+        return _reject(f"Jméno může mít nejvýše {CONTACT_NAME_MAX_CHARS} znaků.")
+    if len(message) > CONTACT_MESSAGE_MAX_CHARS:
+        return _reject(f"Zpráva může mít nejvýše {CONTACT_MESSAGE_MAX_CHARS} znaků.")
+    try:
+        from email_validator import EmailNotValidError
+        from email_validator import validate_email as _ve
+
+        _ve(email, check_deliverability=False)
+    except EmailNotValidError:
+        return _reject("Zadaný e-mail není platný.")
+
     # Fire-and-forget: use the existing email sender to mail us the message.
+    # Every piece of user input is HTML-escaped before being interpolated
+    # into the email body (the Subject header is encoded by EmailMessage).
     from app.tasks.email_tasks import _safe_send
 
     sender = request.app.state.email_sender
     support_to = settings.smtp_from or "support@localhost"
+    safe_name = escape(name)
+    safe_email = escape(email)
+    # Preserve newlines in the HTML view by replacing them after escape.
+    safe_message_html = str(escape(message)).replace("\n", "<br>")
     body_text = f"Jméno: {name}\nE-mail: {email}\n\n{message}\n"
     body_html = (
-        f"<p><strong>Jméno:</strong> {name}</p>"
-        f"<p><strong>E-mail:</strong> {email}</p>"
-        f"<p>{message}</p>"
+        f"<p><strong>Jméno:</strong> {safe_name}</p>"
+        f"<p><strong>E-mail:</strong> {safe_email}</p>"
+        f"<p>{safe_message_html}</p>"
     )
     background_tasks.add_task(
         _safe_send,

@@ -26,6 +26,7 @@ from app.platform.service import (
 from app.platform.session import PlatformSession, write_platform_session
 from app.platform.validation import SignupValidationError, parse_signup_form
 from app.security.csrf import verify_csrf
+from app.security.rate_limit import limit as rate_limit
 from app.security.tokens import (
     ExpiredToken,
     InvalidToken,
@@ -72,6 +73,7 @@ async def signup_form(
 
 
 @router.post("/platform/signup", response_class=HTMLResponse)
+@rate_limit("10/15 minutes")
 async def signup_submit(
     request: Request,
     background_tasks: BackgroundTasks,
@@ -303,6 +305,7 @@ async def verify_email(
 
 
 @router.post("/platform/verify-resend", response_class=HTMLResponse)
+@rate_limit("3/5 minutes")
 async def resend_verification(
     request: Request,
     background_tasks: BackgroundTasks,

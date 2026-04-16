@@ -85,6 +85,56 @@ async def test_contact_form_submission_sends_email(www_client) -> None:
     assert "jan@example.com" in sender.outbox[0].text
 
 
+async def test_contact_form_escapes_html_injection(www_client) -> None:
+    """Attacker-supplied HTML in name/message must not land live in the
+    outbound email. Subject is header-encoded by EmailMessage; body must
+    be manually escaped before f-string interpolation."""
+    client, sender = www_client
+    resp = await client.post(
+        "/contact",
+        data={
+            "name": "<script>alert(1)</script>Evil",
+            "email": "x@y.cz",
+            "message": "Hello <a href='http://evil'>click</a>",
+        },
+    )
+    assert resp.status_code == 200
+    assert len(sender.outbox) == 1
+    html_body = sender.outbox[0].html
+    # The literal <script> / <a> tags must not appear — only the escaped
+    # entity form is acceptable.
+    assert "<script>" not in html_body
+    assert "<a href='http://evil'>" not in html_body
+    assert "&lt;script&gt;" in html_body
+    assert "&lt;a href=" in html_body
+
+
+async def test_contact_form_rejects_oversized_message(www_client) -> None:
+    client, sender = www_client
+    resp = await client.post(
+        "/contact",
+        data={
+            "name": "X",
+            "email": "x@y.cz",
+            "message": "a" * 5000,
+        },
+    )
+    assert resp.status_code == 400
+    assert "znaků" in resp.text
+    assert len(sender.outbox) == 0
+
+
+async def test_contact_form_rejects_invalid_email(www_client) -> None:
+    client, sender = www_client
+    resp = await client.post(
+        "/contact",
+        data={"name": "X", "email": "not-an-email", "message": "Hi"},
+    )
+    assert resp.status_code == 400
+    assert "e-mail" in resp.text.lower()
+    assert len(sender.outbox) == 0
+
+
 async def test_contact_form_rejects_empty_message(www_client) -> None:
     client, sender = www_client
     # Missing field → FastAPI returns 422 before our handler runs.

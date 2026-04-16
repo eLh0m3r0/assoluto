@@ -88,7 +88,7 @@ async def test_admin_dashboard_reflects_recent_signups(admin_client) -> None:
                 "slug": f"acme-{i}",
                 "owner_email": f"owner{i}@acme-{i}.cz",
                 "owner_full_name": f"Owner {i}",
-                "password": "verysecret",
+                "password": "correct-horse-battery-staple",
                 "terms_accepted": "1",
             },
             follow_redirects=False,

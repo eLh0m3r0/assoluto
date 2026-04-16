@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.customer import Customer, CustomerContact
@@ -278,19 +279,34 @@ async def signup_tenant(
 
     Caller is responsible for sending the verification email afterwards.
     """
-    # Fail fast if the email already has a platform Identity.
+    # Fail fast if the email already has a platform Identity. This is the
+    # happy-path check; the IntegrityError catch below handles the race
+    # where two concurrent requests both pass this check and only one of
+    # them wins the unique-constraint lottery at flush-time.
     existing = await find_identity_by_email(db, owner_email)
     if existing is not None:
         raise DuplicateIdentityEmail(owner_email.strip().lower())
 
-    tenant, owner = await create_tenant_with_owner(
-        db,
-        slug=slug,
-        name=company_name,
-        owner_email=owner_email,
-        owner_full_name=owner_full_name,
-        owner_password=owner_password,
-    )
+    try:
+        tenant, owner = await create_tenant_with_owner(
+            db,
+            slug=slug,
+            name=company_name,
+            owner_email=owner_email,
+            owner_full_name=owner_full_name,
+            owner_password=owner_password,
+        )
+    except IntegrityError as exc:
+        # Translate DB-level unique-constraint violations to the same
+        # domain exceptions the happy-path code already raises.
+        await db.rollback()
+        msg = str(getattr(exc, "orig", exc))
+        if "platform_identities_email" in msg:
+            raise DuplicateIdentityEmail(owner_email.strip().lower()) from exc
+        if "tenants_slug" in msg or "uq_tenants_slug" in msg:
+            raise DuplicateTenantSlug(slug) from exc
+        raise
+
     # `create_tenant_with_owner` already created/linked the Identity.
     identity = await find_identity_by_email(db, owner_email)
     assert identity is not None  # just created above

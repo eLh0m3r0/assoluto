@@ -3,10 +3,21 @@
 We use `jinja2-fragments` so that HTMX endpoints can return a named fragment
 from a full template without duplicating markup. Non-HTMX requests get the
 full page; HTMX requests get only the requested block.
+
+### Thread safety note
+
+``jinja2.ext.i18n.install_gettext_translations`` is a **mutating** call on
+the ``Environment``. Calling it per-request on a shared Environment — as
+an earlier draft of this module did — races under concurrent requests and
+can leak e.g. Czech translations into a render started for an English
+client. To fix that we keep a **per-locale cache** of fully-configured
+``Environment`` instances. Each instance has ``install_gettext_translations``
+called exactly once at construction time and is never mutated after.
 """
 
 from __future__ import annotations
 
+import threading
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -48,14 +59,12 @@ def _qty_filter(value: Any) -> str:
     return str(value)
 
 
-def build_jinja_env() -> Environment:
-    """Create the project-wide Jinja2 environment.
+def _new_environment(locale: str | None = None) -> Environment:
+    """Construct a fresh Jinja2 Environment with translations installed.
 
-    The ``jinja2.ext.i18n`` extension adds the ``{{ _("...") }}`` and
-    ``{% trans %}...{% endtrans %}`` constructs. A real per-request
-    translation catalog is installed in ``Templates._base_context``;
-    the identity translator registered here only ensures that
-    ``{{ _(...) }}`` works during template validation / compilation.
+    When ``locale`` is None the identity translator is used (msgid passes
+    through unchanged). Otherwise the compiled ``.mo`` catalogue for the
+    given locale is loaded and installed via ``jinja2.ext.i18n``.
     """
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATES_DIR)),
@@ -65,21 +74,60 @@ def build_jinja_env() -> Environment:
         lstrip_blocks=True,
         extensions=["jinja2.ext.i18n"],
     )
-    env.install_gettext_translations(identity_translations(), newstyle=True)  # type: ignore[attr-defined]
+    translations = identity_translations() if locale is None else get_translations(locale)
+    # ``install_gettext_translations`` is only mutating; after it returns
+    # the Environment is effectively immutable for reads / renders as long
+    # as nothing else calls it again on the same instance. This module
+    # guarantees that — the per-locale cache returns the same instance
+    # forever, and nobody outside this module holds a reference.
+    env.install_gettext_translations(translations, newstyle=True)  # type: ignore[attr-defined]
     env.filters["qty"] = _qty_filter
     return env
+
+
+def build_jinja_env() -> Environment:
+    """Back-compat entry point for callers that want a single Environment.
+
+    Returns an Environment wired up with the *identity* translator — good
+    for template-validation / compile-time checks. Real per-request
+    rendering goes through :class:`Templates` which picks a per-locale
+    cached Environment.
+    """
+    return _new_environment(locale=None)
 
 
 class Templates:
     """Thin wrapper exposing `render()` and `render_block()` with app context.
 
     Mirrors the ergonomics of Starlette's `Jinja2Templates` but goes through
-    our own environment so `jinja2-fragments` can share it.
+    our own per-locale cached environments so translations never race
+    between concurrent requests.
     """
 
     def __init__(self, env: Environment, settings: Settings) -> None:
+        # ``env`` is kept for tests / introspection that reach inside; it
+        # is the identity-translator instance returned by build_jinja_env()
+        # and is used only when no locale is known.
         self.env = env
         self.settings = settings
+        self._envs: dict[str, Environment] = {}
+        self._envs_lock = threading.Lock()
+
+    def _get_env_for_locale(self, locale: str) -> Environment:
+        """Return the cached, immutable Environment for ``locale``.
+
+        Builds + caches on first access; subsequent calls are a plain
+        dict lookup. A lock protects first-time insertion from racing.
+        """
+        cached = self._envs.get(locale)
+        if cached is not None:
+            return cached
+        with self._envs_lock:
+            cached = self._envs.get(locale)
+            if cached is None:
+                cached = _new_environment(locale=locale)
+                self._envs[locale] = cached
+        return cached
 
     def _base_context(self, request: Request, extra: dict | None = None) -> dict:
         csrf_value = getattr(request.state, "csrf_token", "")
@@ -87,12 +135,7 @@ class Templates:
         def csrf_input() -> Markup:
             return Markup(f'<input type="hidden" name="csrf_token" value="{csrf_value}">')
 
-        # Install a per-request gettext catalog so ``{{ _("...") }}`` resolves
-        # against the locale that the LocaleMiddleware parked on request.state.
         locale = getattr(request.state, "locale", self.settings.default_locale)
-        self.env.install_gettext_translations(  # type: ignore[attr-defined]
-            get_translations(locale), newstyle=True
-        )
 
         context: dict = {
             "request": request,
@@ -107,6 +150,10 @@ class Templates:
             context.update(extra)
         return context
 
+    def _pick_env(self, request: Request) -> Environment:
+        locale = getattr(request.state, "locale", self.settings.default_locale)
+        return self._get_env_for_locale(locale)
+
     def render(
         self,
         request: Request,
@@ -114,7 +161,8 @@ class Templates:
         context: dict | None = None,
     ) -> str:
         """Render a full template to a string."""
-        template = self.env.get_template(template_name)
+        env = self._pick_env(request)
+        template = env.get_template(template_name)
         return template.render(self._base_context(request, context))
 
     def render_block(
@@ -125,8 +173,9 @@ class Templates:
         context: dict | None = None,
     ) -> str:
         """Render a single named block from a template (for HTMX fragments)."""
+        env = self._pick_env(request)
         return render_block(
-            self.env,
+            env,
             template_name,
             block_name,
             **self._base_context(request, context),

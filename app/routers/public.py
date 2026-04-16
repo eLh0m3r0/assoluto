@@ -14,6 +14,7 @@ from app.config import Settings, get_settings
 from app.deps import get_current_tenant, get_db
 from app.models.tenant import Tenant
 from app.security.csrf import verify_csrf
+from app.security.rate_limit import limit as rate_limit
 from app.security.session import SessionData, clear_session, write_session
 from app.services.auth_service import (
     AccountDisabled,
@@ -41,6 +42,33 @@ PASSWORD_RESET_MAX_AGE_SECONDS = 30 * 60
 
 def _templates(request: Request):
     return request.app.state.templates
+
+
+def _safe_next_path(candidate: str) -> str:
+    """Return ``candidate`` if it is a same-origin path, else ``"/"``.
+
+    Defensive against open-redirect tricks:
+    - must start with ``/``
+    - must not start with ``//`` (protocol-relative URL)
+    - must not contain a backslash (some browsers fold it to ``/``)
+    - must not parse to a non-empty ``netloc`` once normalised
+    - may carry a query string and fragment
+    """
+    from urllib.parse import urlsplit
+
+    if not candidate or not candidate.startswith("/"):
+        return "/"
+    if candidate.startswith("//"):
+        return "/"
+    if "\\" in candidate:
+        return "/"
+    try:
+        parts = urlsplit(candidate)
+    except ValueError:
+        return "/"
+    if parts.scheme or parts.netloc:
+        return "/"
+    return candidate
 
 
 def _login_redirect(request: Request) -> RedirectResponse:
@@ -124,6 +152,7 @@ async def login_form(
 
 
 @router.post("/auth/login", response_class=HTMLResponse)
+@rate_limit("20/15 minutes")
 async def login_submit(
     request: Request,
     email: str = Form(...),
@@ -196,7 +225,7 @@ async def set_language(
     if chosen not in supported:
         chosen = settings.default_locale
 
-    safe_next = next if next.startswith("/") and not next.startswith("//") else "/"
+    safe_next = _safe_next_path(next)
     response = RedirectResponse(url=safe_next, status_code=status.HTTP_303_SEE_OTHER)
     response.set_cookie(
         COOKIE_NAME,
@@ -530,6 +559,7 @@ async def password_reset_request_form(
 
 
 @router.post("/auth/password-reset", response_class=HTMLResponse)
+@rate_limit("5/15 minutes")
 async def password_reset_request_submit(
     request: Request,
     background_tasks: BackgroundTasks,
