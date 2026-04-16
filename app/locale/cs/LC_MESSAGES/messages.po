@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-16 07:20+0000\n"
-"PO-Revision-Date: 2026-04-16 07:20+0000\n"
+"POT-Creation-Date: 2026-04-16 11:08+0000\n"
+"PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
 "Language-Team: cs <opensource@4mex.cz>\n"
@@ -39,6 +39,9 @@ msgstr "Tým"
 msgid "Sign out"
 msgstr "Odhlásit"
 
+msgid "Home"
+msgstr "Domů"
+
 msgid "Draft"
 msgstr "Koncept"
 
@@ -65,3 +68,102 @@ msgstr "Uzavřeno"
 
 msgid "Cancelled"
 msgstr "Zrušeno"
+
+msgid "Platform"
+msgstr "Platforma"
+
+msgid "Sign in"
+msgstr "Přihlásit se"
+
+msgid "Sign in with a single account to all the portals you have access to."
+msgstr "Přihlaste se jedním účtem ke všem portálům, do kterých máte přístup."
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Password"
+msgstr "Heslo"
+
+msgid "Don't have an account yet?"
+msgstr "Ještě nemáte účet?"
+
+msgid "Create new portal"
+msgstr "Vytvořit nový portál"
+
+msgid "Create portal"
+msgstr "Vytvořit portál"
+
+msgid "Create your portal"
+msgstr "Vytvořte si svůj portál"
+
+msgid "14-day free trial. No credit card required."
+msgstr "14denní zkušební verze zdarma. Žádná platební karta není potřeba."
+
+msgid "Company name"
+msgstr "Název firmy"
+
+msgid "required"
+msgstr "povinné"
+
+msgid "Portal subdomain"
+msgstr "Subdoména portálu"
+
+msgid "Optional — if empty we derive it from the company name."
+msgstr "Volitelné — pokud necháte prázdné, odvodíme z názvu firmy."
+
+msgid "Your name"
+msgstr "Vaše jméno"
+
+msgid "Work email"
+msgstr "Pracovní e-mail"
+
+msgid "At least 8 characters; avoid common passwords."
+msgstr "Minimálně 8 znaků; vyhněte se běžným heslům."
+
+msgid "I agree to the"
+msgstr "Souhlasím s"
+
+msgid "Terms of Service"
+msgstr "podmínkami služby"
+
+msgid "and the"
+msgstr "a se"
+
+msgid "Privacy Policy"
+msgstr "zpracováním osobních údajů"
+
+msgid "Already have an account?"
+msgstr "Už máte účet?"
+
+msgid "Email verification"
+msgstr "Ověření e-mailu"
+
+msgid "Email successfully verified"
+msgstr "E-mail úspěšně ověřen"
+
+msgid "Continue to the portal"
+msgstr "Pokračovat do portálu"
+
+msgid "Email verification failed"
+msgstr "Nepodařilo se ověřit e-mail"
+
+msgid "Send a new verification link"
+msgstr "Poslat nový ověřovací odkaz"
+
+msgid "Back to sign in"
+msgstr "Zpět na přihlášení"
+
+msgid "Verify your email"
+msgstr "Ověřte svůj e-mail"
+
+msgid "Check your email"
+msgstr "Zkontrolujte svůj e-mail"
+
+msgid "We've sent a verification link to"
+msgstr "Poslali jsme ověřovací odkaz na"
+
+msgid "Click the link and your portal will be ready to use."
+msgstr "Po kliknutí na odkaz bude váš portál připraven k použití."
+
+msgid "Didn't receive it? Check your spam folder or request a new link."
+msgstr "Nepřišel e-mail? Zkontrolujte spam nebo si nechte poslat nový odkaz."

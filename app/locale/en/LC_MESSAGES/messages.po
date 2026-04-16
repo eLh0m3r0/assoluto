@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-16 07:20+0000\n"
-"PO-Revision-Date: 2026-04-16 07:20+0000\n"
+"POT-Creation-Date: 2026-04-16 11:08+0000\n"
+"PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
 "Language-Team: en <opensource@4mex.cz>\n"
@@ -39,6 +39,9 @@ msgstr "Team"
 msgid "Sign out"
 msgstr "Sign out"
 
+msgid "Home"
+msgstr "Home"
+
 msgid "Draft"
 msgstr "Draft"
 
@@ -65,3 +68,102 @@ msgstr "Closed"
 
 msgid "Cancelled"
 msgstr "Cancelled"
+
+msgid "Platform"
+msgstr "Platform"
+
+msgid "Sign in"
+msgstr "Sign in"
+
+msgid "Sign in with a single account to all the portals you have access to."
+msgstr "Sign in with a single account to all the portals you have access to."
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Password"
+msgstr "Password"
+
+msgid "Don't have an account yet?"
+msgstr "Don't have an account yet?"
+
+msgid "Create new portal"
+msgstr "Create new portal"
+
+msgid "Create portal"
+msgstr "Create portal"
+
+msgid "Create your portal"
+msgstr "Create your portal"
+
+msgid "14-day free trial. No credit card required."
+msgstr "14-day free trial. No credit card required."
+
+msgid "Company name"
+msgstr "Company name"
+
+msgid "required"
+msgstr "required"
+
+msgid "Portal subdomain"
+msgstr "Portal subdomain"
+
+msgid "Optional — if empty we derive it from the company name."
+msgstr "Optional — if empty we derive it from the company name."
+
+msgid "Your name"
+msgstr "Your name"
+
+msgid "Work email"
+msgstr "Work email"
+
+msgid "At least 8 characters; avoid common passwords."
+msgstr "At least 8 characters; avoid common passwords."
+
+msgid "I agree to the"
+msgstr "I agree to the"
+
+msgid "Terms of Service"
+msgstr "Terms of Service"
+
+msgid "and the"
+msgstr "and the"
+
+msgid "Privacy Policy"
+msgstr "Privacy Policy"
+
+msgid "Already have an account?"
+msgstr "Already have an account?"
+
+msgid "Email verification"
+msgstr "Email verification"
+
+msgid "Email successfully verified"
+msgstr "Email successfully verified"
+
+msgid "Continue to the portal"
+msgstr "Continue to the portal"
+
+msgid "Email verification failed"
+msgstr "Email verification failed"
+
+msgid "Send a new verification link"
+msgstr "Send a new verification link"
+
+msgid "Back to sign in"
+msgstr "Back to sign in"
+
+msgid "Verify your email"
+msgstr "Verify your email"
+
+msgid "Check your email"
+msgstr "Check your email"
+
+msgid "We've sent a verification link to"
+msgstr "We've sent a verification link to"
+
+msgid "Click the link and your portal will be ready to use."
+msgstr "Click the link and your portal will be ready to use."
+
+msgid "Didn't receive it? Check your spam folder or request a new link."
+msgstr "Didn't receive it? Check your spam folder or request a new link."

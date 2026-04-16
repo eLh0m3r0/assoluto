@@ -136,6 +136,47 @@ async def test_set_lang_rejects_every_known_open_redirect_vector(tenant_client, 
     assert r.headers["location"] == "/", f"bad_next={bad_next!r} leaked"
 
 
+@pytest.mark.postgres
+async def test_signup_page_renders_in_english_when_locale_is_en(settings, wipe_db) -> None:
+    """PR #8 regression test: the signup page was wrapped with gettext
+    markers — confirm the English catalog actually delivers an English
+    page when the locale cookie is ``en``."""
+    from httpx import ASGITransport
+    from sqlalchemy import text
+
+    from app.main import create_app
+    from tests.conftest import CsrfAwareClient
+
+    settings.feature_platform = True
+
+    from app.platform.deps import reset_platform_engine
+
+    reset_platform_engine()
+    # Ensure platform tables are empty for the fresh app.
+    from sqlalchemy.ext.asyncio import create_async_engine
+
+    engine = create_async_engine(settings.database_owner_url)
+    async with engine.begin() as conn:
+        await conn.execute(text("DELETE FROM platform_tenant_memberships"))
+        await conn.execute(text("DELETE FROM platform_identities"))
+    await engine.dispose()
+
+    app = create_app(settings)
+    transport = ASGITransport(app=app)
+    async with CsrfAwareClient(transport=transport, base_url="http://testserver") as ac:
+        ac.cookies.set("sme_locale", "en")
+        resp = await ac.get("/platform/signup")
+    assert resp.status_code == 200
+    assert '<html lang="en"' in resp.text
+    # English copy from the en catalog.
+    assert "Create your portal" in resp.text
+    assert "14-day free trial" in resp.text
+    # The Czech original must NOT be present.
+    assert "Vytvořte si svůj portál" not in resp.text
+
+    reset_platform_engine()
+
+
 def test_safe_next_path_unit() -> None:
     """Unit test for the helper — fast feedback without httpx stack."""
     from app.routers.public import _safe_next_path
