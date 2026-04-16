@@ -69,6 +69,17 @@ class Settings(BaseSettings):
     # `.portal.example.com`. Leave empty for single-host deployments.
     platform_cookie_domain: str = Field(default="", alias="PLATFORM_COOKIE_DOMAIN")
 
+    # --- Billing (Stripe) --------------------------------------------------
+    # Leave all empty to run in "demo mode" — billing flows still work but
+    # never call the Stripe API. Set STRIPE_SECRET_KEY (and the price IDs)
+    # to enable real checkout.
+    stripe_secret_key: str = Field(default="", alias="STRIPE_SECRET_KEY")
+    stripe_publishable_key: str = Field(default="", alias="STRIPE_PUBLISHABLE_KEY")
+    stripe_webhook_secret: str = Field(default="", alias="STRIPE_WEBHOOK_SECRET")
+    # Stripe Price IDs for the two paid plans (create in Stripe dashboard).
+    stripe_price_starter: str = Field(default="", alias="STRIPE_PRICE_STARTER")
+    stripe_price_pro: str = Field(default="", alias="STRIPE_PRICE_PRO")
+
     # --- S3 / MinIO --------------------------------------------------------
     s3_endpoint_url: str = Field(default="http://localhost:9000", alias="S3_ENDPOINT_URL")
     s3_access_key: str = Field(default="portal", alias="S3_ACCESS_KEY")
@@ -106,6 +117,11 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.app_env == "production"
+
+    @property
+    def stripe_enabled(self) -> bool:
+        """Demo mode = billing UI without Stripe API calls."""
+        return bool(self.stripe_secret_key)
 
     @property
     def is_test(self) -> bool:

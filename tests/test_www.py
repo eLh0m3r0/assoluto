@@ -107,9 +107,7 @@ async def test_contact_form_rejects_empty_message(www_client) -> None:
 
 
 @pytest.mark.postgres
-async def test_landing_shows_marketing_when_platform_on_and_no_tenant(
-    settings, wipe_db
-) -> None:
+async def test_landing_shows_marketing_when_platform_on_and_no_tenant(settings, wipe_db) -> None:
     settings.feature_platform = True
     settings.default_tenant_slug = None
 

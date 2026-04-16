@@ -296,6 +296,17 @@ async def signup_tenant(
     assert identity is not None  # just created above
     identity.terms_accepted_at = datetime.now(UTC)
     await db.flush()
+
+    # Give the new tenant a 14-day trial on the starter plan by default.
+    # Wrapped in a try so a missing plan row (which would only happen if
+    # migration 1003 hasn't been applied) doesn't break signup.
+    try:
+        from app.platform.billing.service import start_trial_subscription
+
+        await start_trial_subscription(db, tenant=tenant, plan_code="starter")
+    except Exception:
+        pass
+
     return tenant, owner, identity
 
 

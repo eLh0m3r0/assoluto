@@ -52,6 +52,9 @@ dependencies = [
     "httpx>=0.27",
     # i18n
     "babel>=2.16",
+    # Billing (optional at runtime — methods no-op in demo mode when
+    # STRIPE_SECRET_KEY is unset).
+    "stripe>=10.0",
 ]
 
 [dependency-groups]
