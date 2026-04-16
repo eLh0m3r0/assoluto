@@ -7,6 +7,95 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Second-round audit hardening (PR #9.1 – #9.4)
+
+A second independent three-reviewer audit (Stripe, backend security,
+UX) was run after the first hardening series. 5 new P0 issues + 11 P1
+were found; this series closes them all.
+
+- **PR #9.1 Security hotfix round 2** (+6 tests):
+  - ``_resolve_tenant_id`` now prioritises the authoritative
+    ``Tenant.stripe_customer_id`` lookup over customer-writeable
+    metadata, and cross-checks candidate tenant_ids against it to
+    block tenant-spoofing via ``metadata.tenant_id``
+    (Stripe-N0 + Backend-N4 — cross-confirmed).
+  - Webhook handlers raise ``WebhookNotYetReady`` on unresolvable
+    tenant / missing subscription; router rolls back the dedup row
+    + returns 503 so Stripe retries. Previous silent returns
+    committed dedup permanently losing events (Backend-N1).
+  - ``slowapi`` limiter key honours ``X-Forwarded-For`` only from
+    trusted peers via a new ``TRUSTED_PROXIES`` CIDR allowlist
+    (Backend-N2). Per-IP counters are now meaningful behind
+    Cloudflare / nginx; header spoofing rejected.
+  - ``tenants.stripe_customer_id`` partial-UNIQUE index
+    (migration 1005) — two tenants can never share a Stripe
+    Customer (Stripe-N5, Backend-P2).
+  - Narrow exception types in ``verify_webhook`` and
+    ``start_checkout`` (Backend-N3, Stripe-N3).
+  - Password validator rejects leading/trailing whitespace and
+    control chars before zxcvbn (Backend-N6).
+  - ``RateLimitExceeded`` handler returns ``PlainTextResponse``
+    on HTML clients.
+
+- **PR #9.2 UX flow repairs round 2** (+1 test):
+  - ``verify_email`` success screen renders a
+    ``Finish setting up {plan}`` CTA that POSTs to
+    ``/platform/switch/{slug}`` with a ``next`` field pointing at
+    ``/platform/billing/checkout/{plan}`` — closes the pricing →
+    signup → verify → checkout conversion loop (UX-C-1).
+  - ``switch_to_tenant`` accepts an optional same-origin ``next``
+    form field (validated via ``_safe_next_path``).
+  - HTML 401 / 403 handlers are platform-aware: ``/platform/*``
+    paths bounce to ``/platform/login`` rather than
+    ``/auth/login``; 403s that carry a ``Location`` header are
+    honoured as 303 redirects (UX-C-2, UX-C-3/C-11).
+  - Billing is gated on ``UserRole.TENANT_ADMIN`` in
+    ``_resolve_current_tenant`` — plain ``tenant_staff`` can no
+    longer cancel a subscription (Stripe-N10).
+
+- **PR #9.3 Stripe polish round 2** (+1 test):
+  - Idempotency key now keys on ``trial_ends_at.isoformat()``
+    instead of a per-minute bucket so legitimate retries collapse
+    (Stripe-N1).
+  - ``handle_subscription_upserted`` scans ALL line items for a
+    recurring plan match — setup fees / add-ons at ``items[0]``
+    no longer mask the real plan swap (Stripe-N4).
+  - ``handle_checkout_completed`` refuses to reset
+    ``status='demo' → 'trialing'`` once
+    ``stripe_subscription_id`` is already populated
+    (order-of-arrival race) (Stripe-N6).
+  - ``handle_invoice_paid`` logs
+    ``stripe.webhook.currency_mismatch`` when invoice currency
+    differs from the plan's currency (Backend-P2).
+  - Lifespan on boot flips any lingering ``status='demo'``
+    subscriptions to ``trialing`` when Stripe becomes enabled
+    (Backend-P2-N11).
+  - New periodic task ``cleanup_old_stripe_events`` prunes
+    ``platform_stripe_events`` older than 30 days (Stripe-N8).
+  - ``tax_behavior=exclusive`` documentation added to the
+    STRIPE_PRICE_* config docstrings (Stripe-N7).
+
+- **PR #9.4 A11y + i18n extension**:
+  - ``_flash.html`` banners carry ``role="alert"`` / ``role="status"``
+    and their SVG icons are ``aria-hidden="true"``.
+  - Billing usage bars gain ``role="progressbar"`` +
+    ``aria-valuenow`` / ``aria-valuemin`` / ``aria-valuemax``.
+  - ``select_tenant.html`` wrapped with gettext; new catalog
+    entries shipped in cs + en .mo files. Remaining Czech strings
+    on admin / billing dashboards are tracked as follow-up.
+  - ``privacy.html`` ``[doplnit]`` placeholder replaced with a
+    concrete "transakční e-mailový poskytovatel (EU regiony)"
+    description.
+
+### Schema
+
+- Migration ``1005_tenant_customer_uq``: replaces the non-unique
+  ``ix_tenants_stripe_customer_id`` with a partial UNIQUE index
+  ``WHERE stripe_customer_id IS NOT NULL``.
+
+Test suite: **206 passing** (round-2 baseline was 198).
+Ruff lint + format: clean.
+
 ### Added — Post-audit hardening (8 PRs)
 
 After the Phase 0–7 SaaS launch plan landed, an independent three-way

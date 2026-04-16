@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-16 11:08+0000\n"
+"POT-Creation-Date: 2026-04-16 13:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,7 +42,7 @@ msgstr ""
 msgid "Team"
 msgstr ""
 
-#: app/templates/app_base.html:38
+#: app/templates/app_base.html:38 app/templates/platform/select_tenant.html:17
 msgid "Sign out"
 msgstr ""
 
@@ -115,6 +115,39 @@ msgstr ""
 msgid "Create new portal"
 msgstr ""
 
+#: app/templates/platform/select_tenant.html:3
+#: app/templates/platform/select_tenant.html:9
+msgid "Select portal"
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:11
+msgid "Signed in as"
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:32
+msgid "Switch to"
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:42
+msgid "As a team member"
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:44
+msgid "As a customer contact"
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:54
+msgid "You don't have access to any portal."
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:61
+msgid "You have platform-admin permissions."
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:63
+msgid "Manage tenants"
+msgstr ""
+
 #: app/templates/platform/signup.html:3 app/templates/platform/signup.html:114
 msgid "Create portal"
 msgstr ""
@@ -183,20 +216,28 @@ msgstr ""
 msgid "Email successfully verified"
 msgstr ""
 
-#: app/templates/platform/verify_email.html:16
+#: app/templates/platform/verify_email.html:25
+msgid "Finish setting up"
+msgstr ""
+
+#: app/templates/platform/verify_email.html:30
+msgid "Skip for now"
+msgstr ""
+
+#: app/templates/platform/verify_email.html:35
 msgid "Continue to the portal"
 msgstr ""
 
-#: app/templates/platform/verify_email.html:22
+#: app/templates/platform/verify_email.html:42
 msgid "Email verification failed"
 msgstr ""
 
-#: app/templates/platform/verify_email.html:28
+#: app/templates/platform/verify_email.html:48
 #: app/templates/platform/verify_sent.html:23
 msgid "Send a new verification link"
 msgstr ""
 
-#: app/templates/platform/verify_email.html:33
+#: app/templates/platform/verify_email.html:53
 msgid "Back to sign in"
 msgstr ""
 

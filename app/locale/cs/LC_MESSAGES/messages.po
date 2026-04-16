@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-16 11:08+0000\n"
+"POT-Creation-Date: 2026-04-16 13:28+0000\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -18,152 +18,246 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+#: app/templates/app_base.html:7
 msgid "Dashboard"
 msgstr "Přehled"
 
+#: app/templates/app_base.html:8
 msgid "Orders"
 msgstr "Objednávky"
 
+#: app/templates/app_base.html:9
 msgid "Assets"
 msgstr "Majetek"
 
+#: app/templates/app_base.html:11
 msgid "Clients"
 msgstr "Klienti"
 
+#: app/templates/app_base.html:12
 msgid "Catalog"
 msgstr "Katalog"
 
+#: app/templates/app_base.html:14
 msgid "Team"
 msgstr "Tým"
 
+#: app/templates/app_base.html:38 app/templates/platform/select_tenant.html:17
 msgid "Sign out"
 msgstr "Odhlásit"
 
+#: app/templates/base.html:17
 msgid "Home"
 msgstr "Domů"
 
+#: app/templates/orders/_status_badge.html:14
 msgid "Draft"
 msgstr "Koncept"
 
+#: app/templates/orders/_status_badge.html:15
 msgid "Submitted"
 msgstr "Odesláno"
 
+#: app/templates/orders/_status_badge.html:16
 msgid "Quoted"
 msgstr "Nacenění"
 
+#: app/templates/orders/_status_badge.html:17
 msgid "Confirmed"
 msgstr "Potvrzeno"
 
+#: app/templates/orders/_status_badge.html:18
 msgid "In production"
 msgstr "Ve výrobě"
 
+#: app/templates/orders/_status_badge.html:19
 msgid "Ready"
 msgstr "Připraveno"
 
+#: app/templates/orders/_status_badge.html:20
 msgid "Delivered"
 msgstr "Dodáno"
 
+#: app/templates/orders/_status_badge.html:21
 msgid "Closed"
 msgstr "Uzavřeno"
 
+#: app/templates/orders/_status_badge.html:22
 msgid "Cancelled"
 msgstr "Zrušeno"
 
+#: app/templates/platform/login.html:3 app/templates/platform/login.html:8
 msgid "Platform"
 msgstr "Platforma"
 
+#: app/templates/platform/login.html:3 app/templates/platform/login.html:29
+#: app/templates/platform/signup.html:120
 msgid "Sign in"
 msgstr "Přihlásit se"
 
+#: app/templates/platform/login.html:10
 msgid "Sign in with a single account to all the portals you have access to."
 msgstr "Přihlaste se jedním účtem ke všem portálům, do kterých máte přístup."
 
+#: app/templates/platform/login.html:18
 msgid "Email"
 msgstr "E-mail"
 
+#: app/templates/platform/login.html:23 app/templates/platform/signup.html:83
 msgid "Password"
 msgstr "Heslo"
 
+#: app/templates/platform/login.html:33
 msgid "Don't have an account yet?"
 msgstr "Ještě nemáte účet?"
 
+#: app/templates/platform/login.html:35
 msgid "Create new portal"
 msgstr "Vytvořit nový portál"
 
+#: app/templates/platform/select_tenant.html:3
+#: app/templates/platform/select_tenant.html:9
+msgid "Select portal"
+msgstr "Vyberte portál"
+
+#: app/templates/platform/select_tenant.html:11
+msgid "Signed in as"
+msgstr "Přihlášen jako"
+
+#: app/templates/platform/select_tenant.html:32
+msgid "Switch to"
+msgstr "Přepnout na"
+
+#: app/templates/platform/select_tenant.html:42
+msgid "As a team member"
+msgstr "Jako člen týmu"
+
+#: app/templates/platform/select_tenant.html:44
+msgid "As a customer contact"
+msgstr "Jako kontakt klienta"
+
+#: app/templates/platform/select_tenant.html:54
+msgid "You don't have access to any portal."
+msgstr "Nemáte přístup k žádnému portálu."
+
+#: app/templates/platform/select_tenant.html:61
+msgid "You have platform-admin permissions."
+msgstr "Máte oprávnění správce platformy."
+
+#: app/templates/platform/select_tenant.html:63
+msgid "Manage tenants"
+msgstr "Spravovat tenanty"
+
+#: app/templates/platform/signup.html:3 app/templates/platform/signup.html:114
 msgid "Create portal"
 msgstr "Vytvořit portál"
 
+#: app/templates/platform/signup.html:8
 msgid "Create your portal"
 msgstr "Vytvořte si svůj portál"
 
+#: app/templates/platform/signup.html:10
 msgid "14-day free trial. No credit card required."
 msgstr "14denní zkušební verze zdarma. Žádná platební karta není potřeba."
 
+#: app/templates/platform/signup.html:22
 msgid "Company name"
 msgstr "Název firmy"
 
+#: app/templates/platform/signup.html:23
 msgid "required"
 msgstr "povinné"
 
+#: app/templates/platform/signup.html:36
 msgid "Portal subdomain"
 msgstr "Subdoména portálu"
 
+#: app/templates/platform/signup.html:50
 msgid "Optional — if empty we derive it from the company name."
 msgstr "Volitelné — pokud necháte prázdné, odvodíme z názvu firmy."
 
+#: app/templates/platform/signup.html:60
 msgid "Your name"
 msgstr "Vaše jméno"
 
+#: app/templates/platform/signup.html:69
 msgid "Work email"
 msgstr "Pracovní e-mail"
 
+#: app/templates/platform/signup.html:89
 msgid "At least 8 characters; avoid common passwords."
 msgstr "Minimálně 8 znaků; vyhněte se běžným heslům."
 
+#: app/templates/platform/signup.html:101
 msgid "I agree to the"
 msgstr "Souhlasím s"
 
+#: app/templates/platform/signup.html:102
 msgid "Terms of Service"
 msgstr "podmínkami služby"
 
+#: app/templates/platform/signup.html:103
 msgid "and the"
 msgstr "a se"
 
+#: app/templates/platform/signup.html:104
 msgid "Privacy Policy"
 msgstr "zpracováním osobních údajů"
 
+#: app/templates/platform/signup.html:119
 msgid "Already have an account?"
 msgstr "Už máte účet?"
 
+#: app/templates/platform/verify_email.html:3
 msgid "Email verification"
 msgstr "Ověření e-mailu"
 
+#: app/templates/platform/verify_email.html:12
 msgid "Email successfully verified"
 msgstr "E-mail úspěšně ověřen"
 
+#: app/templates/platform/verify_email.html:25
+msgid "Finish setting up"
+msgstr "Dokončit nastavení"
+
+#: app/templates/platform/verify_email.html:30
+msgid "Skip for now"
+msgstr "Přeskočit"
+
+#: app/templates/platform/verify_email.html:35
 msgid "Continue to the portal"
 msgstr "Pokračovat do portálu"
 
+#: app/templates/platform/verify_email.html:42
 msgid "Email verification failed"
 msgstr "Nepodařilo se ověřit e-mail"
 
+#: app/templates/platform/verify_email.html:48
+#: app/templates/platform/verify_sent.html:23
 msgid "Send a new verification link"
 msgstr "Poslat nový ověřovací odkaz"
 
+#: app/templates/platform/verify_email.html:53
 msgid "Back to sign in"
 msgstr "Zpět na přihlášení"
 
+#: app/templates/platform/verify_sent.html:3
 msgid "Verify your email"
 msgstr "Ověřte svůj e-mail"
 
+#: app/templates/platform/verify_sent.html:11
 msgid "Check your email"
 msgstr "Zkontrolujte svůj e-mail"
 
+#: app/templates/platform/verify_sent.html:13
 msgid "We've sent a verification link to"
 msgstr "Poslali jsme ověřovací odkaz na"
 
+#: app/templates/platform/verify_sent.html:14
 msgid "Click the link and your portal will be ready to use."
 msgstr "Po kliknutí na odkaz bude váš portál připraven k použití."
 
+#: app/templates/platform/verify_sent.html:17
 msgid "Didn't receive it? Check your spam folder or request a new link."
 msgstr "Nepřišel e-mail? Zkontrolujte spam nebo si nechte poslat nový odkaz."
+

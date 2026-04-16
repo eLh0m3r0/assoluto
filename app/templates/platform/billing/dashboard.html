@@ -78,11 +78,18 @@
                             {{ value }}{% if limit %} / {{ limit }}{% else %} / ∞{% endif %}
                         </span>
                     </div>
-                    <div class="mt-1 h-2 rounded-full bg-slate-100">
-                        {% if limit %}
+                    {% if limit %}
+                        <div role="progressbar"
+                             aria-label="{{ label }}"
+                             aria-valuenow="{{ value }}"
+                             aria-valuemin="0"
+                             aria-valuemax="{{ limit }}"
+                             class="mt-1 h-2 rounded-full bg-slate-100">
                             <div class="h-2 rounded-full {{ bar_color }}" style="width: {{ [pct, 100]|min }}%"></div>
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% else %}
+                        <div class="mt-1 h-2 rounded-full bg-slate-100"></div>
+                    {% endif %}
                 </div>
             {% endmacro %}
             {{ usage_bar("Staff uživatelé", usage.users, current_plan.max_users, "users") }}
