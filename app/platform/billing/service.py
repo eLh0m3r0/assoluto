@@ -212,10 +212,14 @@ def create_checkout_session(
 
     # Stripe idempotency: retrying within 24 h with the same key returns
     # the original session instead of creating a duplicate. We key on
-    # (tenant, plan, minute) so a double-submitted form within the same
-    # minute collapses but legitimate retries across minutes create a
-    # fresh session.
-    idem_key = f"checkout:{tenant.id}:{plan.code}:{int(datetime.now(UTC).timestamp() // 60)}"
+    # ``(tenant, plan, trial_ends_at)`` — so:
+    #   - double-submits within the same checkout attempt collapse
+    #   - a real retry after the trial_end moved (e.g. user cancelled
+    #     and signed up again) produces a fresh session
+    # Previous ``minute`` truncation meant legit retries 59 s apart got
+    # different keys (see round-2 audit S-N1).
+    stable = trial_ends_at.isoformat() if trial_ends_at else "no-trial"
+    idem_key = f"checkout:{tenant.id}:{plan.code}:{stable}"
     session = stripe.checkout.Session.create(**session_kwargs, idempotency_key=idem_key)
     return session.url  # type: ignore[attr-defined,no-any-return]
 

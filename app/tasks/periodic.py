@@ -27,6 +27,12 @@ AUTO_CLOSE_AFTER_DAYS = 14
 INVITE_CLEANUP_LOCK_ID = 42_002
 INVITE_EXPIRY_DAYS = 14
 
+STRIPE_EVENT_CLEANUP_LOCK_ID = 42_003
+# Stripe retries failed webhook deliveries for ~3 days. We keep 30 days
+# for audit purposes, then prune — the dedup table would otherwise grow
+# unbounded at ~100 events / tenant / month. Round-2 audit S-N8.
+STRIPE_EVENT_RETENTION_DAYS = 30
+
 
 def _owner_engine():
     """Return a fresh async engine using the owner DSN (bypasses RLS)."""
@@ -131,6 +137,42 @@ async def cleanup_stale_invited_contacts(now: datetime | None = None) -> int:
                 await conn.execute(
                     text("SELECT pg_advisory_unlock(:id)"),
                     {"id": INVITE_CLEANUP_LOCK_ID},
+                )
+    finally:
+        await engine.dispose()
+
+
+async def cleanup_old_stripe_events(now: datetime | None = None) -> int:
+    """Prune ``platform_stripe_events`` rows older than the retention
+    window. Stripe's own webhook retry window is ~72 h; we keep 30 d for
+    audit + debugging. Returns the number of rows deleted."""
+    current = now or datetime.now(UTC)
+    cutoff = current - timedelta(days=STRIPE_EVENT_RETENTION_DAYS)
+
+    engine = _owner_engine()
+    try:
+        async with engine.begin() as conn:
+            got_lock = (
+                await conn.execute(
+                    text("SELECT pg_try_advisory_lock(:id)"),
+                    {"id": STRIPE_EVENT_CLEANUP_LOCK_ID},
+                )
+            ).scalar()
+            if not got_lock:
+                log.info("periodic.stripe_events.skipped", reason="lock held")
+                return 0
+            try:
+                result = await conn.execute(
+                    text("DELETE FROM platform_stripe_events WHERE received_at <= :cutoff"),
+                    {"cutoff": cutoff},
+                )
+                removed = result.rowcount or 0
+                log.info("periodic.stripe_events.done", removed=removed)
+                return removed
+            finally:
+                await conn.execute(
+                    text("SELECT pg_advisory_unlock(:id)"),
+                    {"id": STRIPE_EVENT_CLEANUP_LOCK_ID},
                 )
     finally:
         await engine.dispose()

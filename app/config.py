@@ -89,6 +89,13 @@ class Settings(BaseSettings):
     stripe_publishable_key: str = Field(default="", alias="STRIPE_PUBLISHABLE_KEY")
     stripe_webhook_secret: str = Field(default="", alias="STRIPE_WEBHOOK_SECRET")
     # Stripe Price IDs for the two paid plans (create in Stripe dashboard).
+    # REQUIRED: each Price must have ``tax_behavior`` set to either
+    # ``inclusive`` or ``exclusive`` at creation time in the Stripe
+    # dashboard — otherwise checkout sessions with ``automatic_tax=true``
+    # fail with ``InvalidRequestError: The price … doesn't have
+    # tax_behavior set``. For Czech DPH 21 % registration, pick
+    # ``exclusive`` (list prices shown "bez DPH") — it matches how our
+    # pricing page labels the amounts.
     stripe_price_starter: str = Field(default="", alias="STRIPE_PRICE_STARTER")
     stripe_price_pro: str = Field(default="", alias="STRIPE_PRICE_PRO")
 

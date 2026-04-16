@@ -452,6 +452,64 @@ async def test_webhook_no_tenant_rolls_back_dedup(stripe_live_client, owner_engi
     assert count == 0, "dedup row must have rolled back with the failed handler"
 
 
+async def test_subscription_updated_scans_all_items_for_plan(stripe_live_client) -> None:
+    """Round-2 S-N4: a multi-line subscription (setup fee + recurring
+    plan) must still swap to the right plan. Previously items[0] would
+    have been taken blindly — if Stripe put the setup fee first we'd
+    have missed the Pro price_id entirely."""
+    client, engine = stripe_live_client
+    tenant, sub = await _seed_tenant_with_trial(engine)
+
+    now_ts = int(time.time())
+    event = _make_event(
+        "evt_sub_multi_1",
+        "customer.subscription.updated",
+        {
+            "id": "sub_multi",
+            "customer": "cus_multi",
+            "status": "active",
+            "current_period_start": now_ts,
+            "current_period_end": now_ts + 30 * 86400,
+            "metadata": {"tenant_id": str(tenant.id)},
+            # Setup fee comes FIRST; real plan second.
+            "items": {
+                "data": [
+                    {"price": {"id": "price_setup_fee_one_off"}},
+                    {"price": {"id": "price_pro_456"}},
+                ]
+            },
+        },
+    )
+    # Tenant has no stripe_customer_id, so this event comes in via
+    # metadata. Seed the customer id so the authoritative customer
+    # lookup matches the metadata claim (no spoofing block).
+    from sqlalchemy.ext.asyncio import async_sessionmaker
+
+    sm = async_sessionmaker(engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        t = (await session.execute(select(Tenant).where(Tenant.id == tenant.id))).scalar_one()
+        t.stripe_customer_id = "cus_multi"
+
+    payload = json.dumps(event)
+    sig = _sign_stripe_event(payload)
+    resp = await client.post(
+        "/platform/webhooks/stripe",
+        content=payload.encode(),
+        headers={"stripe-signature": sig, "content-type": "application/json"},
+    )
+    assert resp.status_code == 200
+
+    async with sm() as session:
+        sub_reloaded = (
+            await session.execute(select(Subscription).where(Subscription.id == sub.id))
+        ).scalar_one()
+        plan = (
+            await session.execute(select(Plan).where(Plan.id == sub_reloaded.plan_id))
+        ).scalar_one()
+        # Pro was in items[1] but the scan must still find it.
+        assert plan.code == "pro"
+
+
 async def test_unknown_event_type_is_no_op(stripe_live_client) -> None:
     client, _ = stripe_live_client
 

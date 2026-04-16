@@ -33,6 +33,26 @@ from app.templating import Templates, build_jinja_env
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 
+async def _normalize_demo_subscriptions(settings: Settings) -> None:
+    """Flip any ``status='demo'`` subscriptions to ``trialing`` on boot.
+
+    Called from the lifespan only when ``feature_platform`` + Stripe
+    are both on. Demo-mode checkout stamped ``status='demo'`` locally
+    but no Stripe webhook will ever transition those rows otherwise.
+    """
+    from sqlalchemy import text
+    from sqlalchemy.ext.asyncio import create_async_engine
+
+    engine = create_async_engine(settings.database_owner_url, pool_pre_ping=True)
+    try:
+        async with engine.begin() as conn:
+            await conn.execute(
+                text("UPDATE platform_subscriptions SET status = 'trialing' WHERE status = 'demo'")
+            )
+    finally:
+        await engine.dispose()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """App lifespan hook — starts the in-process scheduler.
@@ -53,6 +73,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             ensure_bucket_exists()
         except Exception as exc:
             log.warning("s3.bucket_init_failed", error=str(exc))
+
+        # Normalise any lingering ``status='demo'`` rows to ``trialing``
+        # when Stripe is now configured — an operator enabling Stripe
+        # in production must not leave previous demo-mode subscriptions
+        # in an unreachable state that no webhook can flip back.
+        # Round-2 audit Backend-P2.
+        if settings.feature_platform and settings.stripe_enabled:
+            try:
+                await _normalize_demo_subscriptions(settings)
+            except Exception as exc:
+                log.warning("billing.demo_cleanup_failed", error=str(exc))
 
         scheduler = build_scheduler()
         scheduler.start()

@@ -181,16 +181,17 @@ async def handle_checkout_completed(db: AsyncSession, event: dict) -> None:
 
     subscription = await _get_subscription(db, tenant_id)
     if subscription is not None and subscription_id:
+        # Order-of-arrival guard (round-2 S-N6): if
+        # ``customer.subscription.created/updated`` already landed and
+        # populated ``stripe_subscription_id``, a late-arriving
+        # ``checkout.session.completed`` must NOT flip the status.
+        already_synced = subscription.stripe_subscription_id is not None
         subscription.stripe_customer_id = customer_id
         subscription.stripe_subscription_id = subscription_id
-        # Don't override status here — the subscription.created/updated
-        # handlers own that. Only reset a stale "demo" marker to
-        # ``trialing`` when the subscription hasn't been synced yet
-        # (i.e. no stripe_subscription_id persisted before this call).
-        # Otherwise a late-arriving checkout.session.completed after
-        # customer.subscription.created would clobber a valid "active"
-        # status.
-        if subscription.status == "demo":
+        # Only clear a "demo" marker when no prior subscription sync
+        # has happened. Status otherwise belongs to
+        # ``handle_subscription_upserted`` (active / trialing / past_due).
+        if not already_synced and subscription.status == "demo":
             subscription.status = "trialing"
 
     await db.flush()
@@ -224,15 +225,20 @@ async def handle_subscription_upserted(db: AsyncSession, event: dict) -> None:
     subscription.trial_ends_at = _utc_from_ts(data.get("trial_end")) or subscription.trial_ends_at
     subscription.cancel_at_period_end = bool(data.get("cancel_at_period_end", False))
 
-    # Plan swap: the first line item's price.id maps to one of our Plan rows.
+    # Plan swap: scan ALL line items (not just the first) for a price
+    # that matches one of our seeded Plan rows. Stripe may add setup-fee
+    # or one-off add-on line items alongside the recurring plan; picking
+    # items[0] blindly would misdetect. Round-2 audit S-N4.
     items = data.get("items", {}).get("data", []) or []
-    if items:
-        price = (items[0] or {}).get("price", {}) or {}
+    for item in items:
+        price = (item or {}).get("price") or {}
         price_id = price.get("id")
-        if price_id:
-            plan = await _get_plan_by_stripe_price(db, price_id)
-            if plan is not None:
-                subscription.plan_id = plan.id
+        if not price_id:
+            continue
+        plan = await _get_plan_by_stripe_price(db, price_id)
+        if plan is not None:
+            subscription.plan_id = plan.id
+            break
 
     await db.flush()
 
@@ -268,13 +274,33 @@ async def handle_invoice_paid(db: AsyncSession, event: dict) -> None:
         log.warning("stripe.webhook.invoice_no_tenant", invoice_id=data.get("id"))
         raise WebhookNotYetReady("unresolvable tenant on invoice.paid")
 
+    invoice_currency = str(data.get("currency", "czk")).upper()[:3]
+
+    # Cross-check: if the tenant has an active subscription and its plan
+    # currency doesn't match this invoice currency, we log a loud warning
+    # (round-2 audit S-N9). We still record the invoice so accounting
+    # isn't blocked, but an operator alert is warranted.
+    subscription = await _get_subscription(db, tenant_id)
+    if subscription is not None:
+        plan = (
+            await db.execute(select(Plan).where(Plan.id == subscription.plan_id))
+        ).scalar_one_or_none()
+        if plan is not None and plan.currency.upper() != invoice_currency:
+            log.warning(
+                "stripe.webhook.currency_mismatch",
+                tenant_id=str(tenant_id),
+                plan_currency=plan.currency,
+                invoice_currency=invoice_currency,
+                invoice_id=data.get("id"),
+            )
+
     await record_paid_invoice(
         db,
         tenant_id=tenant_id,
         stripe_invoice_id=str(data.get("id", "")),
         number=data.get("number"),
         amount_cents=int(data.get("amount_paid", 0)),
-        currency=str(data.get("currency", "czk")).upper()[:3],
+        currency=invoice_currency,
         hosted_invoice_url=data.get("hosted_invoice_url"),
         pdf_url=data.get("invoice_pdf"),
     )
