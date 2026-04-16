@@ -73,7 +73,32 @@ def _persist_session(
 
 
 @router.get("/", response_class=HTMLResponse)
-async def landing(request: Request, tenant: Tenant = Depends(get_current_tenant)) -> HTMLResponse:
+async def landing(
+    request: Request,
+    settings: Settings = Depends(get_settings),
+) -> HTMLResponse:
+    """Root landing.
+
+    * If a tenant resolves (subdomain / header / DEFAULT_TENANT_SLUG) we
+      show the familiar tenant landing page.
+    * Otherwise, when the platform feature is enabled we render the
+      public marketing page so apex-domain visitors have somewhere to
+      land.
+    * In all other cases we fall back to the tenant landing, which will
+      itself raise 404 because no tenant resolves — matching previous
+      behaviour.
+    """
+    from app.deps import resolve_tenant_slug
+
+    slug = resolve_tenant_slug(request, settings)
+    if slug is None and settings.feature_platform:
+        html = _templates(request).render(request, "www/index.html", {"principal": None})
+        return HTMLResponse(html)
+
+    # Resolve the tenant (may 404) and render the tenant landing.
+    from app.deps import get_current_tenant as _get_current_tenant
+
+    tenant = await _get_current_tenant(request, settings)
     html = _templates(request).render(request, "index.html", {"tenant": tenant})
     return HTMLResponse(html)
 

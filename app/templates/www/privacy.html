@@ -1,0 +1,92 @@
+{% extends "www/www_base.html" %}
+
+{% block title %}Ochrana osobních údajů · SME Portal{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-3xl pb-16 text-slate-700">
+    <h1 class="text-3xl font-bold text-slate-900">Zásady ochrany osobních údajů</h1>
+    <p class="mt-2 text-sm text-slate-500">
+        Verze 1.0 · platnost od 1. května 2026
+    </p>
+
+    <div class="mt-8 space-y-6 text-sm leading-relaxed">
+        <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
+            <strong>Upozornění:</strong> Tento text je šablonou. Před ostrým
+            provozem služby musí být ověřen právníkem znalým GDPR a doplněny
+            konkrétní údaje provozovatele (IČO, adresa, DPO kontakt).
+        </div>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900">1. Správce údajů</h2>
+            <p class="mt-2">
+                Správcem osobních údajů je <strong>[doplnit provozovatele]</strong>,
+                IČO <strong>[doplnit]</strong>, se sídlem <strong>[doplnit]</strong>.
+                Kontakt: <a href="mailto:privacy@smeportal.cz" class="text-brand-600 hover:text-brand-700">privacy@smeportal.cz</a>.
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900">2. Jaké údaje zpracováváme</h2>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>Identifikační údaje účtu (jméno, e-mail, firma, IČO, DIČ)</li>
+                <li>Přihlašovací údaje (heslo v Argon2-hashované podobě)</li>
+                <li>Obsah vytvořený v portále (objednávky, komentáře, přílohy)</li>
+                <li>Fakturační údaje, pokud je předplácíte plán</li>
+                <li>Technické logy (IP adresa, User-Agent) pro bezpečnost provozu</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900">3. Proč údaje zpracováváme</h2>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>Plnění smlouvy (provoz portálu, kterou jste si objednali)</li>
+                <li>Fakturace a daňová evidence (oprávněný zájem + právní povinnost)</li>
+                <li>Zabezpečení a prevence zneužití (oprávněný zájem)</li>
+                <li>Zasílání provozních e-mailů (souhlas / plnění smlouvy)</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900">4. Kde data leží</h2>
+            <p class="mt-2">
+                Servery se nachází v Evropské unii (Frankfurt, DE).
+                Přílohy (výkresy, PDF) v S3-kompatibilním úložišti s EU umístěním.
+                Platby zpracovává Stripe (USA, EU zastoupení). Transakční e-maily
+                odesílá poskytovatel <strong>[doplnit]</strong> (USA/EU).
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900">5. Jak dlouho údaje uchováváme</h2>
+            <p class="mt-2">
+                Údaje aktivního účtu po celou dobu jeho existence. Po zrušení účtu
+                30 dní (pro případnou reaktivaci), poté trvalé smazání. Fakturační
+                údaje v souladu se zákonem (10 let od konce účetního období).
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900">6. Vaše práva</h2>
+            <p class="mt-2">
+                Máte právo na přístup, opravu, výmaz, omezení zpracování,
+                přenositelnost a vznesení námitky. Kontaktujte
+                <a href="mailto:privacy@smeportal.cz" class="text-brand-600 hover:text-brand-700">privacy@smeportal.cz</a>;
+                vyřídíme do 30 dní.
+            </p>
+            <p class="mt-2">
+                Máte také právo podat stížnost u Úřadu pro ochranu osobních údajů
+                (<a href="https://www.uoou.cz" class="text-brand-600 hover:text-brand-700">uoou.cz</a>).
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900">7. Cookies</h2>
+            <p class="mt-2">
+                Portál používá pouze technické (session) cookies nezbytné pro
+                přihlášení a CSRF ochranu. Analytické ani marketingové cookies
+                nenasazujeme bez vašeho souhlasu.
+            </p>
+        </section>
+    </div>
+</section>
+{% endblock %}

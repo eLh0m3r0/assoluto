@@ -1,0 +1,95 @@
+{% extends "www/www_base.html" %}
+
+{% block title %}Funkce · SME Portal{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-4xl pb-16">
+    <div class="mb-10 text-center">
+        <h1 class="text-3xl font-bold text-slate-900">Co všechno SME Portal umí</h1>
+        <p class="mt-2 text-slate-600">
+            Postaveno pro výrobní SME: objednávky s výkresy, katalog, majetek klienta, multi-tenant.
+        </p>
+    </div>
+
+    <div class="space-y-8">
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-semibold text-slate-900">Objednávkový workflow</h2>
+            <p class="mt-2 text-slate-600">
+                Osmistupňový proces: DRAFT → SUBMITTED → QUOTED → CONFIRMED →
+                IN_PRODUCTION → READY → DELIVERED → CLOSED. Každý přechod je
+                auditovaný (kdo, kdy, proč).
+            </p>
+            <ul class="mt-4 list-disc space-y-1 pl-6 text-sm text-slate-600">
+                <li>Klient zadá položky (free-text i z katalogu).</li>
+                <li>Vy naceníte, stanovíte termín.</li>
+                <li>Klient potvrdí, nebo navrhne změnu.</li>
+                <li>Komentáře na objednávce (s interními poznámkami pro tým).</li>
+                <li>Automatické notifikace na každou změnu stavu.</li>
+            </ul>
+        </article>
+
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-semibold text-slate-900">Přílohy a výkresy</h2>
+            <p class="mt-2 text-slate-600">
+                Přímý upload do S3 (max 50 MB). Thumbnaily pro PDF a obrázky.
+                Přílohy lze vázat na celou objednávku i na konkrétní položku.
+            </p>
+        </article>
+
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-semibold text-slate-900">Katalog produktů</h2>
+            <p class="mt-2 text-slate-600">
+                Sdílený per-tenant katalog i per-customer (kustomizovaný pro
+                konkrétního klienta). Autocomplete přímo při zadávání
+                objednávky, s předvyplněnou cenou a jednotkou.
+            </p>
+        </article>
+
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-semibold text-slate-900">Evidence majetku klienta</h2>
+            <p class="mt-2 text-slate-600">
+                Klient má u vás uložený materiál, nástroje, polotovary?
+                Portál eviduje příjem, výdej, spotřebu. Aktuální stav se
+                automaticky přepočítává. Klient vidí jen svoje věci.
+            </p>
+        </article>
+
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-semibold text-slate-900">Multi-tenant od prvního dne</h2>
+            <p class="mt-2 text-slate-600">
+                PostgreSQL Row-Level Security — data různých klientů jsou
+                fyzicky oddělena na úrovni databáze. Subdomény
+                <code>client-a.smeportal.cz</code>, <code>client-b.smeportal.cz</code>
+                pro každého klienta zvlášť.
+            </p>
+        </article>
+
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-semibold text-slate-900">Oprávnění a bezpečnost</h2>
+            <p class="mt-2 text-slate-600">
+                Role: tenant_admin (vlastník), tenant_staff (váš tým),
+                customer_admin (zástupce klienta), customer_user (kontaktní
+                osoba klienta). Per-customer nastavení, co smí klient zadávat
+                (pouze výběr z katalogu / free-text / ceny).
+            </p>
+        </article>
+
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-semibold text-slate-900">Open source</h2>
+            <p class="mt-2 text-slate-600">
+                Celý kód je pod licencí AGPL-3.0 na
+                <a href="https://github.com/elh0m3r0/sme-client-portal" class="text-brand-600 hover:text-brand-700">GitHubu</a>.
+                Můžete si ho self-hostovat (zdarma), zauditovat, nebo forknout.
+                My nabízíme hostovanou verzi s pohodlnou správou a podporou.
+            </p>
+        </article>
+    </div>
+
+    <div class="mt-12 text-center">
+        <a href="/platform/signup"
+           class="inline-block rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700">
+            Vyzkoušet zdarma 14 dní
+        </a>
+    </div>
+</section>
+{% endblock %}

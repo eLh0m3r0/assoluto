@@ -147,15 +147,11 @@ async def test_signup_creates_tenant_identity_and_sends_verification_email(
         ).scalar_one()
         assert tenant.name == "ACME s.r.o."
 
-        user = (
-            await session.execute(select(User).where(User.tenant_id == tenant.id))
-        ).scalar_one()
+        user = (await session.execute(select(User).where(User.tenant_id == tenant.id))).scalar_one()
         assert user.email == "owner@acme-test.cz"
 
         identity = (
-            await session.execute(
-                select(Identity).where(Identity.email == "owner@acme-test.cz")
-            )
+            await session.execute(select(Identity).where(Identity.email == "owner@acme-test.cz"))
         ).scalar_one()
         assert identity.email_verified_at is None
         assert identity.terms_accepted_at is not None
