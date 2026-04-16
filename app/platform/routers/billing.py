@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import Settings, get_settings
 from app.platform.billing.service import (
     BillingError,
+    create_billing_portal_session,
     create_checkout_session,
     get_subscription_for_tenant,
     list_invoices_for_tenant,
@@ -122,6 +123,13 @@ async def start_checkout(
     success_url = f"{base}/platform/billing?checkout=success"
     cancel_url = f"{base}/platform/billing?checkout=cancel"
 
+    # Carry the existing trial clock onto the Stripe side: the
+    # service layer chooses ``trial_end`` (absolute) over
+    # ``trial_period_days`` (always fresh) when we still have trial
+    # left.
+    current_sub = await get_subscription_for_tenant(db, tenant.id)  # type: ignore[attr-defined]
+    trial_ends_at = current_sub.trial_ends_at if current_sub else None
+
     try:
         checkout_url = create_checkout_session(
             settings,
@@ -130,6 +138,7 @@ async def start_checkout(
             success_url=success_url,
             cancel_url=cancel_url,
             customer_email=identity.email,
+            trial_ends_at=trial_ends_at,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Checkout failed: {exc}") from exc
@@ -142,6 +151,50 @@ async def start_checkout(
             await db.commit()
 
     return RedirectResponse(url=checkout_url, status_code=status.HTTP_303_SEE_OTHER)
+
+
+# -------------------------------------------------------- customer portal
+
+
+@csrf_router.post("/platform/billing/portal")
+async def billing_portal(
+    request: Request,
+    identity: Identity = Depends(require_identity),
+    db: AsyncSession = Depends(get_platform_db),
+    settings: Settings = Depends(get_settings),
+) -> Response:
+    """Redirect the signed-in owner to the Stripe Customer Portal.
+
+    Stripe hosts a full self-service UI for plan changes, card updates,
+    and cancellation. We just mint a short-lived session URL and bounce
+    the user there; Stripe emails receipts and fires our webhooks on
+    the way back.
+
+    In demo mode we simply redirect back to the billing dashboard so
+    the button doesn't 404.
+    """
+    tenant, _ = await _resolve_current_tenant(db, identity)
+    if tenant is None:
+        raise HTTPException(status_code=404, detail="No tenant to manage")
+
+    return_url = f"{settings.app_base_url.rstrip('/')}/platform/billing"
+
+    customer_id = getattr(tenant, "stripe_customer_id", None)
+    if not customer_id or not settings.stripe_enabled:
+        # No Stripe customer yet (tenant never went through live checkout)
+        # or demo mode — just bounce back to our dashboard.
+        return RedirectResponse(url=return_url, status_code=status.HTTP_303_SEE_OTHER)
+
+    try:
+        portal_url = create_billing_portal_session(
+            settings,
+            stripe_customer_id=customer_id,
+            return_url=return_url,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Billing portal failed: {exc}") from exc
+
+    return RedirectResponse(url=portal_url, status_code=status.HTTP_303_SEE_OTHER)
 
 
 # ----------------------------------------------------------------- webhooks

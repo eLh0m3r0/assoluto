@@ -181,3 +181,168 @@ async def test_billing_dashboard_requires_login(billing_client) -> None:
     resp = await client.get("/platform/billing", follow_redirects=False)
     # require_identity raises 401 → error handler bounces HTML to /auth/login.
     assert resp.status_code in (303, 401)
+
+
+async def test_billing_portal_demo_mode_bounces_back(billing_client) -> None:
+    """POST /platform/billing/portal in demo mode (or without a
+    stripe_customer_id) must redirect to the billing dashboard rather
+    than try to talk to Stripe."""
+    client, _ = billing_client
+    # Signup → trial subscription, no Stripe customer yet.
+    resp = await client.post(
+        "/platform/signup",
+        data={
+            "company_name": "PortalCo",
+            "slug": "portalco",
+            "owner_email": "o@portalco.cz",
+            "owner_full_name": "O",
+            "password": "correct-horse-battery-staple",
+            "terms_accepted": "1",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+
+    resp = await client.post("/platform/billing/portal", follow_redirects=False)
+    assert resp.status_code == 303
+    # Demo mode + no stripe_customer_id → return to /platform/billing.
+    assert resp.headers["location"].endswith("/platform/billing")
+
+
+def test_checkout_honours_existing_trial_window() -> None:
+    """If tenant already has ``trial_ends_at`` in the future, Stripe
+    checkout must be created with ``trial_end=<timestamp>`` rather than
+    a fresh ``trial_period_days=14`` — otherwise the user would get a
+    second 14-day trial after their first ran out."""
+    from datetime import UTC, datetime, timedelta
+    from unittest.mock import MagicMock, patch
+
+    from app.config import Settings
+    from app.platform.billing.service import create_checkout_session
+
+    settings = Settings(
+        STRIPE_SECRET_KEY="sk_test_fake",
+        STRIPE_WEBHOOK_SECRET="whsec_test",
+    )
+
+    tenant = MagicMock(id="11111111-1111-1111-1111-111111111111")
+    tenant.stripe_customer_id = None
+    plan = MagicMock(
+        id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        code="pro",
+        stripe_price_id="price_pro_live",
+    )
+
+    # Trial ends in 5 days — Stripe should get an absolute trial_end.
+    trial_end = datetime.now(UTC) + timedelta(days=5)
+
+    captured: dict = {}
+
+    def _fake_create(**kwargs):
+        captured.update(kwargs)
+        result = MagicMock()
+        result.url = "https://checkout.stripe.example/x"
+        return result
+
+    with patch("stripe.checkout.Session.create", side_effect=_fake_create):
+        url = create_checkout_session(
+            settings,
+            tenant=tenant,
+            plan=plan,
+            success_url="http://x/ok",
+            cancel_url="http://x/cancel",
+            customer_email="o@example.com",
+            trial_ends_at=trial_end,
+        )
+
+    assert url == "https://checkout.stripe.example/x"
+    sub_data = captured["subscription_data"]
+    # Absolute trial end is preferred over the relative day count.
+    assert "trial_end" in sub_data
+    assert "trial_period_days" not in sub_data
+    # idempotency_key supplied to prevent double-charge on form replay.
+    assert "idempotency_key" in captured
+    assert captured["idempotency_key"].startswith("checkout:")
+    # metadata is propagated in all three places.
+    assert captured["metadata"]["tenant_id"] == str(tenant.id)
+    assert sub_data["metadata"]["tenant_id"] == str(tenant.id)
+    assert captured["client_reference_id"] == str(tenant.id)
+    # Promo codes allowed.
+    assert captured["allow_promotion_codes"] is True
+
+
+def test_checkout_skips_trial_when_already_expired() -> None:
+    """If the local trial already ran out, we must NOT tell Stripe to
+    start a new trial."""
+    from datetime import UTC, datetime, timedelta
+    from unittest.mock import MagicMock, patch
+
+    from app.config import Settings
+    from app.platform.billing.service import create_checkout_session
+
+    settings = Settings(
+        STRIPE_SECRET_KEY="sk_test_fake",
+        STRIPE_WEBHOOK_SECRET="whsec_test",
+    )
+    tenant = MagicMock(id="22222222-2222-2222-2222-222222222222")
+    tenant.stripe_customer_id = None
+    plan = MagicMock(id="p", code="pro", stripe_price_id="price_pro_live")
+    past_trial_end = datetime.now(UTC) - timedelta(days=1)
+
+    captured: dict = {}
+
+    def _fake_create(**kwargs):
+        captured.update(kwargs)
+        result = MagicMock()
+        result.url = "https://x"
+        return result
+
+    with patch("stripe.checkout.Session.create", side_effect=_fake_create):
+        create_checkout_session(
+            settings,
+            tenant=tenant,
+            plan=plan,
+            success_url="http://x/ok",
+            cancel_url="http://x/cancel",
+            customer_email="o@example.com",
+            trial_ends_at=past_trial_end,
+        )
+
+    sub_data = captured["subscription_data"]
+    assert "trial_end" not in sub_data
+    assert "trial_period_days" not in sub_data
+
+
+def test_checkout_reuses_existing_stripe_customer() -> None:
+    """When tenant.stripe_customer_id is set we pass it as ``customer=``
+    and omit ``customer_email`` — no duplicate customers."""
+    from unittest.mock import MagicMock, patch
+
+    from app.config import Settings
+    from app.platform.billing.service import create_checkout_session
+
+    settings = Settings(STRIPE_SECRET_KEY="sk_test_fake")
+    tenant = MagicMock(id="33333333-3333-3333-3333-333333333333")
+    tenant.stripe_customer_id = "cus_existing_abc"
+    plan = MagicMock(id="p", code="pro", stripe_price_id="price_pro_live")
+
+    captured: dict = {}
+
+    def _fake_create(**kwargs):
+        captured.update(kwargs)
+        result = MagicMock()
+        result.url = "https://x"
+        return result
+
+    with patch("stripe.checkout.Session.create", side_effect=_fake_create):
+        create_checkout_session(
+            settings,
+            tenant=tenant,
+            plan=plan,
+            success_url="http://x/ok",
+            cancel_url="http://x/cancel",
+            customer_email="o@example.com",
+        )
+
+    assert captured["customer"] == "cus_existing_abc"
+    assert "customer_email" not in captured

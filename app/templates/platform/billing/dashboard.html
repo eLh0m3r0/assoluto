@@ -38,6 +38,21 @@
                 </span>
             {% endif %}
         </div>
+
+        {# Stripe Customer Portal — available once the tenant has a
+           stripe_customer_id (set on the first successful checkout). #}
+        {% if stripe_enabled and tenant.stripe_customer_id %}
+            <form method="post" action="/platform/billing/portal" class="mt-4">
+                {{ csrf_input() }}
+                <button type="submit"
+                        class="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+                    Spravovat předplatné (Stripe Portal)
+                </button>
+                <p class="mt-1 text-xs text-slate-500">
+                    Změna plánu, platební karta, fakturační údaje a zrušení.
+                </p>
+            </form>
+        {% endif %}
     </div>
 
     {# -------------------------- plan chooser #}

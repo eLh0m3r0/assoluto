@@ -131,12 +131,19 @@ def create_checkout_session(
     success_url: str,
     cancel_url: str,
     customer_email: str,
+    trial_ends_at: datetime | None = None,
 ) -> str:
     """Return a URL the caller should redirect to.
 
     * Live mode: Stripe Checkout session URL.
     * Demo mode: a fake local URL that just bounces back to ``success_url``
       so the signup/upgrade flow is testable locally.
+
+    ``trial_ends_at`` — the already-planned trial end (from our local
+    ``Subscription.trial_ends_at``). When supplied and still in the future
+    we pass it to Stripe as an explicit ``trial_end`` timestamp rather
+    than a fresh 14-day window; that prevents a second trial after an
+    in-app trial has already been consumed.
     """
     stripe = _get_stripe(settings)
     if stripe is None or not plan.stripe_price_id:
@@ -156,6 +163,20 @@ def create_checkout_session(
     #                                                 Subscription + its
     #                                                 Invoices
     tenant_meta = {"tenant_id": str(tenant.id), "plan_code": plan.code}
+    # Decide on the trial handshake. Stripe accepts one of:
+    #   - ``trial_period_days`` (relative): always a fresh N-day window
+    #   - ``trial_end`` (absolute Unix timestamp): useful when we want
+    #     the Stripe side to mirror the in-app trial clock we already
+    #     started at signup. We prefer the absolute form when the
+    #     local trial is still in the future, and we disable the trial
+    #     entirely when it already expired.
+    subscription_data: dict[str, Any] = {"metadata": tenant_meta}
+    if trial_ends_at is not None and trial_ends_at > datetime.now(UTC):
+        subscription_data["trial_end"] = int(trial_ends_at.timestamp())
+    elif trial_ends_at is None:
+        subscription_data["trial_period_days"] = TRIAL_DAYS
+    # else: trial already consumed — no trial on the new checkout.
+
     session_kwargs: dict[str, Any] = {
         "mode": "subscription",
         "success_url": success_url,
@@ -163,10 +184,9 @@ def create_checkout_session(
         "line_items": [{"price": plan.stripe_price_id, "quantity": 1}],
         "client_reference_id": str(tenant.id),
         "metadata": tenant_meta,
-        "subscription_data": {
-            "trial_period_days": TRIAL_DAYS,
-            "metadata": tenant_meta,
-        },
+        "subscription_data": subscription_data,
+        # Launch-promo-code support; harmless when none exist.
+        "allow_promotion_codes": True,
     }
     # Re-use an existing Stripe Customer when the tenant already has
     # one (avoids duplicate customers on repeated checkouts); fall back
@@ -177,7 +197,13 @@ def create_checkout_session(
     else:
         session_kwargs["customer_email"] = customer_email
 
-    session = stripe.checkout.Session.create(**session_kwargs)
+    # Stripe idempotency: retrying within 24 h with the same key returns
+    # the original session instead of creating a duplicate. We key on
+    # (tenant, plan, minute) so a double-submitted form within the same
+    # minute collapses but legitimate retries across minutes create a
+    # fresh session.
+    idem_key = f"checkout:{tenant.id}:{plan.code}:{int(datetime.now(UTC).timestamp() // 60)}"
+    session = stripe.checkout.Session.create(**session_kwargs, idempotency_key=idem_key)
     return session.url  # type: ignore[attr-defined,no-any-return]
 
 
@@ -191,9 +217,11 @@ def create_billing_portal_session(
     stripe = _get_stripe(settings)
     if stripe is None:
         return return_url
+    idem_key = f"portal:{stripe_customer_id}:{int(datetime.now(UTC).timestamp() // 60)}"
     session = stripe.billing_portal.Session.create(
         customer=stripe_customer_id,
         return_url=return_url,
+        idempotency_key=idem_key,
     )
     return session.url  # type: ignore[attr-defined,no-any-return]
 
