@@ -4,14 +4,14 @@
 
 {% block nav %}
     {% if principal %}
-        <a href="/app" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">Dashboard</a>
-        <a href="/app/orders" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">Objednávky</a>
-        <a href="/app/assets" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">Majetek</a>
+        <a href="/app" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">{{ _("Dashboard") }}</a>
+        <a href="/app/orders" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">{{ _("Orders") }}</a>
+        <a href="/app/assets" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">{{ _("Assets") }}</a>
         {% if principal.is_staff %}
-            <a href="/app/customers" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">Klienti</a>
-            <a href="/app/products" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">Katalog</a>
+            <a href="/app/customers" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">{{ _("Clients") }}</a>
+            <a href="/app/products" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">{{ _("Catalog") }}</a>
             {% if principal.role == "tenant_admin" %}
-                <a href="/app/admin/users" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">Tým</a>
+                <a href="/app/admin/users" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">{{ _("Team") }}</a>
             {% endif %}
         {% endif %}
 
@@ -35,7 +35,7 @@
 
         <form method="post" action="/auth/logout" class="ml-1">
             {{ csrf_input() }}
-            <button type="submit" class="rounded-md px-2 py-1.5 text-sm text-gray-400 transition hover:bg-red-50 hover:text-red-600" title="Odhlásit">
+            <button type="submit" class="rounded-md px-2 py-1.5 text-sm text-gray-400 transition hover:bg-red-50 hover:text-red-600" title="{{ _('Sign out') }}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>

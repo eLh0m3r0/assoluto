@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="cs" class="h-full">
+<html lang="{{ locale or 'cs' }}" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,6 +20,17 @@
             </a>
             <nav class="flex items-center gap-1 text-sm">
                 {% block nav %}{% endblock %}
+                {# Language switcher — one-line, no JS. #}
+                {% set _next = request.url.path ~ ('?' ~ request.url.query if request.url.query else '') %}
+                <span class="ml-2 flex items-center gap-1 text-xs text-gray-400">
+                    <a href="/set-lang?lang=cs&next={{ _next | urlencode }}"
+                       class="{% if locale == 'cs' %}font-semibold text-blue-600{% else %}hover:text-gray-700{% endif %}"
+                       aria-label="Čeština">CS</a>
+                    <span>·</span>
+                    <a href="/set-lang?lang=en&next={{ _next | urlencode }}"
+                       class="{% if locale == 'en' %}font-semibold text-blue-600{% else %}hover:text-gray-700{% endif %}"
+                       aria-label="English">EN</a>
+                </span>
             </nav>
         </div>
     </header>

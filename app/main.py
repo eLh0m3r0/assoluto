@@ -25,6 +25,7 @@ from app.routers import public as public_router
 from app.routers import tenant_admin as tenant_admin_router
 from app.scheduler import build_scheduler
 from app.security.csrf import CsrfCookieMiddleware
+from app.security.locale import LocaleMiddleware
 from app.storage.s3 import ensure_bucket_exists
 from app.templating import Templates, build_jinja_env
 
@@ -84,6 +85,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # can read the form body via `await request.form()` without breaking
     # downstream `Form(...)` injections.
     app.add_middleware(CsrfCookieMiddleware)
+
+    # Resolve the UI locale once per request (cookie -> Accept-Language ->
+    # default). Result is available on ``request.state.locale`` and used
+    # by the Jinja2 environment to pick the right gettext catalog.
+    app.add_middleware(LocaleMiddleware, settings=settings)
 
     _mount_static(app)
     app.include_router(health_router.router)

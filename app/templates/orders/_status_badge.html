@@ -11,15 +11,15 @@
     'cancelled':    'bg-red-100 text-red-700',
 } %}
 {% set label_map = {
-    'draft': 'Koncept',
-    'submitted': 'Odesláno',
-    'quoted': 'Nacenění',
-    'confirmed': 'Potvrzeno',
-    'in_production': 'Ve výrobě',
-    'ready': 'Připraveno',
-    'delivered': 'Dodáno',
-    'closed': 'Uzavřeno',
-    'cancelled': 'Zrušeno',
+    'draft': _('Draft'),
+    'submitted': _('Submitted'),
+    'quoted': _('Quoted'),
+    'confirmed': _('Confirmed'),
+    'in_production': _('In production'),
+    'ready': _('Ready'),
+    'delivered': _('Delivered'),
+    'closed': _('Closed'),
+    'cancelled': _('Cancelled'),
 } %}
 <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ style_map.get(status, 'bg-slate-100 text-slate-700') }}">
     {{ label_map.get(status, status) }}

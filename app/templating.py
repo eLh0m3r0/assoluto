@@ -18,6 +18,7 @@ from markupsafe import Markup
 
 from app import __version__
 from app.config import Settings
+from app.i18n import get_translations, identity_translations
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 
@@ -48,14 +49,23 @@ def _qty_filter(value: Any) -> str:
 
 
 def build_jinja_env() -> Environment:
-    """Create the project-wide Jinja2 environment."""
+    """Create the project-wide Jinja2 environment.
+
+    The ``jinja2.ext.i18n`` extension adds the ``{{ _("...") }}`` and
+    ``{% trans %}...{% endtrans %}`` constructs. A real per-request
+    translation catalog is installed in ``Templates._base_context``;
+    the identity translator registered here only ensures that
+    ``{{ _(...) }}`` works during template validation / compilation.
+    """
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATES_DIR)),
         autoescape=select_autoescape(["html", "htm", "xml"]),
         enable_async=False,
         trim_blocks=True,
         lstrip_blocks=True,
+        extensions=["jinja2.ext.i18n"],
     )
+    env.install_gettext_translations(identity_translations(), newstyle=True)  # type: ignore[attr-defined]
     env.filters["qty"] = _qty_filter
     return env
 
@@ -77,6 +87,13 @@ class Templates:
         def csrf_input() -> Markup:
             return Markup(f'<input type="hidden" name="csrf_token" value="{csrf_value}">')
 
+        # Install a per-request gettext catalog so ``{{ _("...") }}`` resolves
+        # against the locale that the LocaleMiddleware parked on request.state.
+        locale = getattr(request.state, "locale", self.settings.default_locale)
+        self.env.install_gettext_translations(  # type: ignore[attr-defined]
+            get_translations(locale), newstyle=True
+        )
+
         context: dict = {
             "request": request,
             "app_version": __version__,
@@ -84,6 +101,7 @@ class Templates:
             "url_for": request.url_for,
             "csrf_token": csrf_value,
             "csrf_input": csrf_input,
+            "locale": locale,
         }
         if extra:
             context.update(extra)

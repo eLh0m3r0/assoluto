@@ -1,0 +1,84 @@
+# Translations template for sme-client-portal.
+# Copyright (C) 2026 4MEX
+# This file is distributed under the same license as the sme-client-portal
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sme-client-portal 0.1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-04-16 07:20+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/templates/app_base.html:7
+msgid "Dashboard"
+msgstr ""
+
+#: app/templates/app_base.html:8
+msgid "Orders"
+msgstr ""
+
+#: app/templates/app_base.html:9
+msgid "Assets"
+msgstr ""
+
+#: app/templates/app_base.html:11
+msgid "Clients"
+msgstr ""
+
+#: app/templates/app_base.html:12
+msgid "Catalog"
+msgstr ""
+
+#: app/templates/app_base.html:14
+msgid "Team"
+msgstr ""
+
+#: app/templates/app_base.html:38
+msgid "Sign out"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:14
+msgid "Draft"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:15
+msgid "Submitted"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:16
+msgid "Quoted"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:17
+msgid "Confirmed"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:18
+msgid "In production"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:19
+msgid "Ready"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:20
+msgid "Delivered"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:21
+msgid "Closed"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:22
+msgid "Cancelled"
+msgstr ""
+

@@ -149,6 +149,41 @@ async def logout(request: Request) -> Response:
     return response
 
 
+# ------------------------------------------------------- language switcher
+
+
+@router.get("/set-lang")
+async def set_language(
+    request: Request,
+    lang: str,
+    next: str = "/",
+    settings: Settings = Depends(get_settings),
+) -> RedirectResponse:
+    """Persist the user's preferred UI locale in a cookie and redirect back.
+
+    The ``next`` query parameter must be a same-origin path starting with
+    ``/`` — we strip anything that looks like an open redirect.
+    """
+    from app.i18n import COOKIE_MAX_AGE, COOKIE_NAME, supported_locale_list
+
+    supported = supported_locale_list(settings.supported_locales)
+    chosen = lang.strip().lower() if lang else settings.default_locale
+    if chosen not in supported:
+        chosen = settings.default_locale
+
+    safe_next = next if next.startswith("/") and not next.startswith("//") else "/"
+    response = RedirectResponse(url=safe_next, status_code=status.HTTP_303_SEE_OTHER)
+    response.set_cookie(
+        COOKIE_NAME,
+        chosen,
+        max_age=COOKIE_MAX_AGE,
+        httponly=False,  # harmless JS-readable: users benefit from client-side checks
+        samesite="lax",
+        secure=settings.is_production,
+    )
+    return response
+
+
 # ----------------------------------------------------------- invite accept
 
 

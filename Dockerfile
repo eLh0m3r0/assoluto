@@ -62,6 +62,10 @@ RUN tailwindcss \
         -o app/static/css/app.css \
         --minify
 
+# Compile gettext translations (.po -> .mo). Idempotent.
+COPY babel.cfg ./
+RUN /app/.venv/bin/pybabel compile -d app/locale || true
+
 # Install the project itself into the venv
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev

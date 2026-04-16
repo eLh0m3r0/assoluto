@@ -1,0 +1,67 @@
+# English translations for sme-client-portal.
+# Copyright (C) 2026 4MEX
+# This file is distributed under the same license as the sme-client-portal
+# project (AGPL-3.0-or-later).
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: sme-client-portal 0.1.0\n"
+"Report-Msgid-Bugs-To: opensource@4mex.cz\n"
+"POT-Creation-Date: 2026-04-16 07:20+0000\n"
+"PO-Revision-Date: 2026-04-16 07:20+0000\n"
+"Last-Translator: 4MEX <opensource@4mex.cz>\n"
+"Language: en\n"
+"Language-Team: en <opensource@4mex.cz>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Orders"
+msgstr "Orders"
+
+msgid "Assets"
+msgstr "Assets"
+
+msgid "Clients"
+msgstr "Clients"
+
+msgid "Catalog"
+msgstr "Catalog"
+
+msgid "Team"
+msgstr "Team"
+
+msgid "Sign out"
+msgstr "Sign out"
+
+msgid "Draft"
+msgstr "Draft"
+
+msgid "Submitted"
+msgstr "Submitted"
+
+msgid "Quoted"
+msgstr "Quoted"
+
+msgid "Confirmed"
+msgstr "Confirmed"
+
+msgid "In production"
+msgstr "In production"
+
+msgid "Ready"
+msgstr "Ready"
+
+msgid "Delivered"
+msgstr "Delivered"
+
+msgid "Closed"
+msgstr "Closed"
+
+msgid "Cancelled"
+msgstr "Cancelled"
