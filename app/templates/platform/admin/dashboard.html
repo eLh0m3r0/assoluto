@@ -38,11 +38,14 @@
             <p class="mt-1 text-xs text-slate-500">{{ metrics.subs_trialing }} ve zkušební verzi</p>
         </div>
         <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">MRR (30 dní)</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">MRR</p>
             <p class="mt-2 text-3xl font-bold text-slate-900">
                 {{ metrics.mrr_cents|money(metrics.mrr_currency) }}
             </p>
-            <p class="mt-1 text-xs text-slate-500">součet zaplacených faktur</p>
+            <p class="mt-1 text-xs text-slate-500">
+                aktivní plány (bez trial)
+                · 30 d tržby {{ metrics.paid_30d_cents|money(metrics.mrr_currency) }}
+            </p>
         </div>
     </div>
 

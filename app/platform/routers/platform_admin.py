@@ -14,7 +14,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.tenant import Tenant
-from app.platform.billing.models import Invoice, Subscription
+from app.platform.billing.models import Invoice, Plan, Subscription
 from app.platform.deps import get_platform_db, require_platform_admin
 from app.platform.models import Identity
 from app.platform.service import (
@@ -162,7 +162,29 @@ async def admin_dashboard(
         ).scalar_one()
     )
 
-    mrr_cents = int(
+    # Real MRR = sum of monthly plan prices for currently-active
+    # (including trialing and demo) subscriptions, grouped by
+    # currency so we never sum across CZK / EUR. For simplicity we
+    # take the dominant currency (first row) and report it; a
+    # multi-currency deployment would break this out per currency.
+    mrr_rows = (
+        await db.execute(
+            select(
+                Plan.currency,
+                func.coalesce(func.sum(Plan.monthly_price_cents), 0).label("total"),
+            )
+            .join(Subscription, Subscription.plan_id == Plan.id)
+            .where(Subscription.status.in_(("active", "trialing", "demo")))
+            .group_by(Plan.currency)
+            .order_by(func.sum(Plan.monthly_price_cents).desc())
+        )
+    ).all()
+    mrr_cents = int(mrr_rows[0].total) if mrr_rows else 0
+    mrr_currency = mrr_rows[0].currency if mrr_rows else "CZK"
+
+    # Keep the 30-day *paid invoice* figure around too — useful for
+    # rough validation once live Stripe webhooks start writing rows.
+    paid_30d_cents = int(
         (
             await db.execute(
                 select(func.coalesce(func.sum(Invoice.amount_cents), 0))
@@ -188,7 +210,8 @@ async def admin_dashboard(
                 "subs_active": subs_active,
                 "subs_trialing": subs_trialing,
                 "mrr_cents": mrr_cents,
-                "mrr_currency": "CZK",
+                "mrr_currency": mrr_currency,
+                "paid_30d_cents": paid_30d_cents,
             },
             "recent_signups": recent_signups,
             "principal": None,

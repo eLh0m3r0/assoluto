@@ -148,6 +148,39 @@ async def test_billing_dashboard_renders(billing_client, owner_engine) -> None:
     # All plan cards should be present.
     for plan_name in ("Community", "Starter", "Pro", "Enterprise"):
         assert plan_name in resp.text
+    # New in PR #6: usage section with the four metric labels.
+    assert "Vaše spotřeba" in resp.text
+    assert "Staff uživatelé" in resp.text
+    assert "Kontakty klientů" in resp.text
+    assert "Úložiště (MB)" in resp.text
+
+
+async def test_billing_dashboard_upgrade_vs_downgrade_labels(billing_client, owner_engine) -> None:
+    """The plan-chooser must visually distinguish upgrades from downgrades
+    (UX-P1-#6). On the trial/Starter plan, Pro is 'Přejít nahoru',
+    Community is 'Přejít dolů'."""
+    client, _ = billing_client
+    resp = await client.post(
+        "/platform/signup",
+        data={
+            "company_name": "UpDnCo",
+            "slug": "updn",
+            "owner_email": "o@updn.cz",
+            "owner_full_name": "O",
+            "password": "correct-horse-battery-staple",
+            "terms_accepted": "1",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    await _mark_verified(owner_engine, "o@updn.cz")
+
+    resp = await client.get("/platform/billing")
+    assert resp.status_code == 200
+    # Starter is the current plan (from the trial attached at signup).
+    # Pro is more expensive → "nahoru"; Community is free → "dolů".
+    assert "Přejít nahoru na Pro" in resp.text
+    assert "Přejít dolů na Community" in resp.text
 
 
 async def test_checkout_demo_switches_plan_locally(billing_client, owner_engine) -> None:

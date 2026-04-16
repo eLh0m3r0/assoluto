@@ -86,6 +86,12 @@ async def billing_dashboard(
                 current_plan = plan
                 break
 
+    # Pass a usage snapshot so the dashboard can render progress bars
+    # against the current plan caps.
+    from app.platform.usage import snapshot_tenant_usage
+
+    usage = await snapshot_tenant_usage(db, tenant.id)  # type: ignore[attr-defined]
+
     html = _templates(request).render(
         request,
         "platform/billing/dashboard.html",
@@ -96,6 +102,7 @@ async def billing_dashboard(
             "current_plan": current_plan,
             "plans": plans,
             "invoices": invoices,
+            "usage": usage,
             "stripe_enabled": settings.stripe_enabled,
             "principal": None,
         },
