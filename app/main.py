@@ -111,6 +111,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(tenant_admin_router.router)
     app.include_router(www_router.router)
 
+    # Fail fast if production deployment is misconfigured in a way that
+    # silently gives free plans via the demo-mode checkout fallback.
+    # Running platform in production WITHOUT Stripe means
+    # /platform/billing/checkout/{plan} just flips the local
+    # Subscription row to the chosen plan and redirects to success —
+    # which is correct for dev but an expensive bug in prod.
+    if settings.is_production and settings.feature_platform and not settings.stripe_enabled:
+        raise RuntimeError(
+            "FEATURE_PLATFORM is on in production but STRIPE_SECRET_KEY is "
+            "empty. The billing checkout would silently grant paid plans. "
+            "Set STRIPE_SECRET_KEY or turn FEATURE_PLATFORM off."
+        )
+
     # Optional SaaS layer — loaded only when FEATURE_PLATFORM is on.
     # Core self-hosted builds skip this entirely so none of the
     # platform routes are reachable (the tables still exist in the

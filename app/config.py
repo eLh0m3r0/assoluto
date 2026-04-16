@@ -69,6 +69,18 @@ class Settings(BaseSettings):
     # `.portal.example.com`. Leave empty for single-host deployments.
     platform_cookie_domain: str = Field(default="", alias="PLATFORM_COOKIE_DOMAIN")
 
+    # --- Platform operator (legal entity behind the hosted service) -------
+    # Filled on every hosted deployment; templated into the Terms of
+    # Service + Privacy Policy pages. Leaving *any* of these empty hides
+    # the legal pages (404) so we never publish a half-filled template
+    # that a user could legally accept against an unnamed party.
+    platform_operator_name: str = Field(default="", alias="PLATFORM_OPERATOR_NAME")
+    platform_operator_ico: str = Field(default="", alias="PLATFORM_OPERATOR_ICO")
+    platform_operator_address: str = Field(default="", alias="PLATFORM_OPERATOR_ADDRESS")
+    platform_operator_email: str = Field(
+        default="opensource@4mex.cz", alias="PLATFORM_OPERATOR_EMAIL"
+    )
+
     # --- Billing (Stripe) --------------------------------------------------
     # Leave all empty to run in "demo mode" — billing flows still work but
     # never call the Stripe API. Set STRIPE_SECRET_KEY (and the price IDs)
@@ -122,6 +134,15 @@ class Settings(BaseSettings):
     def stripe_enabled(self) -> bool:
         """Demo mode = billing UI without Stripe API calls."""
         return bool(self.stripe_secret_key)
+
+    @property
+    def operator_identity_complete(self) -> bool:
+        """All legal identity fields filled in — safe to serve ToS / Privacy."""
+        return bool(
+            self.platform_operator_name
+            and self.platform_operator_ico
+            and self.platform_operator_address
+        )
 
     @property
     def is_test(self) -> bool:

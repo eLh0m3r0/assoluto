@@ -34,6 +34,42 @@ from app.i18n import get_translations, identity_translations
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 
 
+_CURRENCY_SYMBOLS = {
+    "CZK": "Kč",
+    "EUR": "€",
+    "USD": "$",
+}
+
+
+def _money_filter(cents: Any, currency: str = "CZK") -> str:
+    """Render a minor-unit amount as a human-friendly price.
+
+    Examples:
+        money_filter(49000, "CZK")  -> "490 Kč"
+        money_filter(49050, "CZK")  -> "490,50 Kč"
+        money_filter(1990, "EUR")   -> "19,90 €"
+        money_filter(None, "CZK")   -> "—"
+
+    Czech-style formatting: comma decimal separator, space thousands
+    separator, currency symbol after the amount with a single space.
+    Non-mapped currencies fall back to the ISO code.
+    """
+    if cents is None:
+        return "—"
+    try:
+        amount_minor = int(cents)
+    except (TypeError, ValueError):
+        return "—"
+    code = (currency or "CZK").upper()
+    symbol = _CURRENCY_SYMBOLS.get(code, code)
+    whole, fraction = divmod(abs(amount_minor), 100)
+    # Czech thousands separator is a regular space (U+0020 is fine in HTML).
+    whole_str = f"{whole:,}".replace(",", " ")
+    sign = "-" if amount_minor < 0 else ""
+    value = f"{sign}{whole_str},{fraction:02d}" if fraction else f"{sign}{whole_str}"
+    return f"{value} {symbol}"
+
+
 def _qty_filter(value: Any) -> str:
     """Render a Decimal/number without trailing zeros.
 
@@ -82,6 +118,7 @@ def _new_environment(locale: str | None = None) -> Environment:
     # forever, and nobody outside this module holds a reference.
     env.install_gettext_translations(translations, newstyle=True)  # type: ignore[attr-defined]
     env.filters["qty"] = _qty_filter
+    env.filters["money"] = _money_filter
     return env
 
 

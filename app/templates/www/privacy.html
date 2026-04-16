@@ -12,16 +12,17 @@
     <div class="mt-8 space-y-6 text-sm leading-relaxed">
         <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
             <strong>Upozornění:</strong> Tento text je šablonou. Před ostrým
-            provozem služby musí být ověřen právníkem znalým GDPR a doplněny
-            konkrétní údaje provozovatele (IČO, adresa, DPO kontakt).
+            provozem služby by měl být ověřen právníkem znalým GDPR.
         </div>
 
         <section>
             <h2 class="text-lg font-semibold text-slate-900">1. Správce údajů</h2>
             <p class="mt-2">
-                Správcem osobních údajů je <strong>[doplnit provozovatele]</strong>,
-                IČO <strong>[doplnit]</strong>, se sídlem <strong>[doplnit]</strong>.
-                Kontakt: <a href="mailto:privacy@smeportal.cz" class="text-brand-600 hover:text-brand-700">privacy@smeportal.cz</a>.
+                Správcem osobních údajů je <strong>{{ operator_name }}</strong>,
+                IČO <strong>{{ operator_ico }}</strong>,
+                se sídlem {{ operator_address }}.
+                Kontakt:
+                <a href="mailto:{{ operator_email }}" class="text-brand-600 hover:text-brand-700">{{ operator_email }}</a>.
             </p>
         </section>
 

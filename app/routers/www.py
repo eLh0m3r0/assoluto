@@ -11,7 +11,7 @@ prefer).
 
 from __future__ import annotations
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from markupsafe import escape
 
@@ -30,6 +30,33 @@ router = APIRouter(tags=["www"], dependencies=[Depends(verify_csrf)])
 
 def _templates(request: Request):
     return request.app.state.templates
+
+
+def _operator_context(settings: Settings) -> dict:
+    """Return the operator identity fields for legal templates."""
+    return {
+        "operator_name": settings.platform_operator_name,
+        "operator_ico": settings.platform_operator_ico,
+        "operator_address": settings.platform_operator_address,
+        "operator_email": settings.platform_operator_email,
+    }
+
+
+def _require_operator_identity(settings: Settings) -> None:
+    """Legal pages must only serve when the operator identity is configured.
+
+    Publishing a half-filled Terms of Service that a user could legally
+    accept against an unnamed party is a compliance risk we close off
+    with a hard 404 when any of name / IČO / address is missing.
+    """
+    if not settings.operator_identity_complete:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "Legal pages are not configured on this deployment. "
+                "Set PLATFORM_OPERATOR_NAME / _ICO / _ADDRESS."
+            ),
+        )
 
 
 @router.get("/features", response_class=HTMLResponse)
@@ -142,12 +169,22 @@ async def contact_submit(
 
 
 @router.get("/terms", response_class=HTMLResponse)
-async def terms(request: Request) -> HTMLResponse:
-    html = _templates(request).render(request, "www/terms.html", {"principal": None})
+async def terms(request: Request, settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    _require_operator_identity(settings)
+    html = _templates(request).render(
+        request,
+        "www/terms.html",
+        {"principal": None, **_operator_context(settings)},
+    )
     return HTMLResponse(html)
 
 
 @router.get("/privacy", response_class=HTMLResponse)
-async def privacy(request: Request) -> HTMLResponse:
-    html = _templates(request).render(request, "www/privacy.html", {"principal": None})
+async def privacy(request: Request, settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    _require_operator_identity(settings)
+    html = _templates(request).render(
+        request,
+        "www/privacy.html",
+        {"principal": None, **_operator_context(settings)},
+    )
     return HTMLResponse(html)

@@ -49,7 +49,7 @@
                 <p class="mt-1 text-xs text-slate-500">{{ plan.code }}</p>
                 <p class="mt-3 text-xl font-bold text-slate-900">
                     {% if plan.monthly_price_cents > 0 %}
-                        {{ (plan.monthly_price_cents / 100)|round(0, 'floor')|int }} {{ plan.currency }}
+                        {{ plan.monthly_price_cents|money(plan.currency) }}
                         <span class="text-xs font-normal text-slate-500">/měsíc</span>
                     {% else %}
                         Zdarma
@@ -95,7 +95,7 @@
                     <tr>
                         <td class="px-4 py-2 text-slate-700">{{ inv.number or inv.stripe_invoice_id[:10] }}</td>
                         <td class="px-4 py-2 text-right text-slate-900">
-                            {{ (inv.amount_cents / 100)|round(2) }} {{ inv.currency }}
+                            {{ inv.amount_cents|money(inv.currency) }}
                         </td>
                         <td class="px-4 py-2 text-slate-600">{{ inv.status }}</td>
                         <td class="px-4 py-2 text-slate-600">

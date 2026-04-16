@@ -46,18 +46,67 @@ async def test_self_hosted_page_mentions_docker_and_agpl(www_client) -> None:
     assert "AGPL" in resp.text
 
 
-async def test_terms_page_renders(www_client) -> None:
+async def test_terms_page_404_when_operator_identity_missing(www_client) -> None:
+    """Legal pages must not serve when the operator identity is not configured."""
     client, _ = www_client
     resp = await client.get("/terms")
-    assert resp.status_code == 200
-    assert "Podmínky služby" in resp.text
+    # Without PLATFORM_OPERATOR_* env vars set in the test fixture, the
+    # route now 404s rather than publishing a half-filled ToS.
+    assert resp.status_code == 404
 
 
-async def test_privacy_page_renders(www_client) -> None:
+async def test_privacy_page_404_when_operator_identity_missing(www_client) -> None:
     client, _ = www_client
     resp = await client.get("/privacy")
-    assert resp.status_code == 200
-    assert "ochrany osobních údajů" in resp.text
+    assert resp.status_code == 404
+
+
+async def test_terms_page_renders_with_operator_identity(settings) -> None:
+    """When all operator ENV vars are filled, /terms and /privacy render
+    the operator identity in place of the [placeholder] strings."""
+    from httpx import ASGITransport
+
+    from app.email.sender import CaptureSender
+    from app.main import create_app
+
+    settings.platform_operator_name = "ACME Provider s.r.o."
+    settings.platform_operator_ico = "12345678"
+    settings.platform_operator_address = "Masarykova 1, Praha"
+    settings.platform_operator_email = "legal@acme-provider.cz"
+
+    app = create_app(settings)
+    app.state.email_sender = CaptureSender()
+    transport = ASGITransport(app=app)
+    async with CsrfAwareClient(transport=transport, base_url="http://testserver") as ac:
+        resp = await ac.get("/terms")
+        assert resp.status_code == 200
+        assert "ACME Provider s.r.o." in resp.text
+        assert "12345678" in resp.text
+        # Placeholder strings from the old hardcoded template must be gone.
+        assert "[doplnit" not in resp.text
+
+        resp2 = await ac.get("/privacy")
+        assert resp2.status_code == 200
+        assert "ACME Provider s.r.o." in resp2.text
+        assert "legal@acme-provider.cz" in resp2.text
+
+
+def test_money_filter_czk_formats() -> None:
+    from app.templating import _money_filter
+
+    assert _money_filter(49000, "CZK") == "490 Kč"
+    assert _money_filter(49050, "CZK") == "490,50 Kč"
+    assert _money_filter(0, "CZK") == "0 Kč"
+    assert _money_filter(None, "CZK") == "—"
+
+
+def test_money_filter_eur_usd_and_fallback() -> None:
+    from app.templating import _money_filter
+
+    assert _money_filter(1990, "EUR") == "19,90 €"
+    assert _money_filter(2500, "USD") == "25 $"
+    # Unknown currency falls back to ISO code rendered after the amount.
+    assert _money_filter(1234, "GBP") == "12,34 GBP"
 
 
 async def test_contact_form_renders_empty(www_client) -> None:

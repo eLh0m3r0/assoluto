@@ -40,7 +40,7 @@
         <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">MRR (30 dní)</p>
             <p class="mt-2 text-3xl font-bold text-slate-900">
-                {{ (metrics.mrr_cents / 100)|round(0, 'floor')|int }} {{ metrics.mrr_currency }}
+                {{ metrics.mrr_cents|money(metrics.mrr_currency) }}
             </p>
             <p class="mt-1 text-xs text-slate-500">součet zaplacených faktur</p>
         </div>
