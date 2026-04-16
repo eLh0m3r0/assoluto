@@ -28,7 +28,10 @@ async def admin_client(settings, wipe_db, owner_engine) -> AsyncIterator[CsrfAwa
         await conn.execute(text("DELETE FROM platform_subscriptions"))
         await conn.execute(text("DELETE FROM platform_invoices"))
 
-    # Seed a platform admin.
+    # Seed a platform admin. Pre-verified so ``require_platform_admin``
+    # (which now goes through ``require_verified_identity``) doesn't 403.
+    from datetime import UTC, datetime
+
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
         admin = Identity(
@@ -37,6 +40,7 @@ async def admin_client(settings, wipe_db, owner_engine) -> AsyncIterator[CsrfAwa
             full_name="Root",
             password_hash=hash_password("rootpass"),
             is_platform_admin=True,
+            email_verified_at=datetime.now(UTC),
         )
         session.add(admin)
 

@@ -56,6 +56,8 @@ async def platform_client(
 
 
 async def _seed_platform_admin(owner_engine) -> dict:
+    from datetime import UTC, datetime
+
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
         admin = Identity(
@@ -64,6 +66,8 @@ async def _seed_platform_admin(owner_engine) -> dict:
             full_name="Platform Root",
             password_hash=hash_password("rootpass"),
             is_platform_admin=True,
+            # require_platform_admin now gates on email_verified_at too.
+            email_verified_at=datetime.now(UTC),
         )
         session.add(admin)
         await session.flush()

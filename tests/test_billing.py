@@ -48,6 +48,24 @@ async def billing_client(
     reset_platform_engine()
 
 
+async def _mark_verified(owner_engine, email: str) -> None:
+    """Stamp ``email_verified_at`` on an Identity row directly in the DB.
+
+    Signup auto-logs the user in before they click the verification
+    email, but ``require_verified_identity`` blocks billing/admin
+    access until ``email_verified_at`` is set. Tests that don't care
+    about the verification flow skip that click by calling this helper.
+    """
+    from sqlalchemy.ext.asyncio import async_sessionmaker
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as s, s.begin():
+        await s.execute(
+            text("UPDATE platform_identities SET email_verified_at = now() WHERE email = :email"),
+            {"email": email},
+        )
+
+
 # ---------------------------------------------------------------- plans seed
 
 
@@ -121,6 +139,7 @@ async def test_billing_dashboard_renders(billing_client, owner_engine) -> None:
         follow_redirects=False,
     )
     assert resp.status_code == 303
+    await _mark_verified(owner_engine, "o@dashco.cz")
 
     resp = await client.get("/platform/billing")
     assert resp.status_code == 200
@@ -147,6 +166,7 @@ async def test_checkout_demo_switches_plan_locally(billing_client, owner_engine)
         follow_redirects=False,
     )
     assert resp.status_code == 303
+    await _mark_verified(owner_engine, "o@upco.cz")
 
     # "Upgrade" to Pro in demo mode.
     resp = await client.post(
@@ -183,7 +203,7 @@ async def test_billing_dashboard_requires_login(billing_client) -> None:
     assert resp.status_code in (303, 401)
 
 
-async def test_billing_portal_demo_mode_bounces_back(billing_client) -> None:
+async def test_billing_portal_demo_mode_bounces_back(billing_client, owner_engine) -> None:
     """POST /platform/billing/portal in demo mode (or without a
     stripe_customer_id) must redirect to the billing dashboard rather
     than try to talk to Stripe."""
@@ -202,11 +222,37 @@ async def test_billing_portal_demo_mode_bounces_back(billing_client) -> None:
         follow_redirects=False,
     )
     assert resp.status_code == 303
+    await _mark_verified(owner_engine, "o@portalco.cz")
 
     resp = await client.post("/platform/billing/portal", follow_redirects=False)
     assert resp.status_code == 303
     # Demo mode + no stripe_customer_id → return to /platform/billing.
     assert resp.headers["location"].endswith("/platform/billing")
+
+
+async def test_billing_dashboard_refuses_unverified(billing_client) -> None:
+    """Billing must be gated behind email verification (PR #5).
+
+    We sign up, do NOT call ``_mark_verified``, and confirm the
+    dashboard responds with 403.
+    """
+    client, _ = billing_client
+    resp = await client.post(
+        "/platform/signup",
+        data={
+            "company_name": "UnverifiedCo",
+            "slug": "unverifiedco",
+            "owner_email": "o@unv.cz",
+            "owner_full_name": "O",
+            "password": "correct-horse-battery-staple",
+            "terms_accepted": "1",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+
+    resp = await client.get("/platform/billing", follow_redirects=False)
+    assert resp.status_code == 403
 
 
 def test_checkout_honours_existing_trial_window() -> None:

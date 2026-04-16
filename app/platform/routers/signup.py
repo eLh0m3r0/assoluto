@@ -72,6 +72,12 @@ async def signup_form(
     return HTMLResponse(html)
 
 
+def _safe_plan_code(plan: str) -> str:
+    """Allow only the public plan codes through to the verify-sent redirect."""
+    allowed = {"starter", "pro"}
+    return plan if plan in allowed else ""
+
+
 @router.post("/platform/signup", response_class=HTMLResponse)
 @rate_limit("10/15 minutes")
 async def signup_submit(
@@ -83,6 +89,7 @@ async def signup_submit(
     owner_full_name: str = Form(""),
     password: str = Form(...),
     terms_accepted: str = Form(""),
+    plan: str = Form(""),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
@@ -161,6 +168,15 @@ async def signup_submit(
             },
         )
         return HTMLResponse(html, status_code=400)
+
+    # Preserve the plan the user clicked on the pricing page so verify-sent /
+    # verify-email can surface a "Finish setup" CTA that leads into checkout.
+    selected_plan = _safe_plan_code(plan)
+    if selected_plan:
+        tenant_settings = dict(tenant.settings or {})
+        tenant_settings["selected_plan"] = selected_plan
+        tenant.settings = tenant_settings
+        await db.flush()
 
     # 3) Commit BEFORE scheduling the email task (BackgroundTasks run before
     # the request-scoped session commit; see CLAUDE.md for the pattern).

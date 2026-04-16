@@ -444,6 +444,63 @@ def test_signup_tenant_maps_integrityerror_without_preflight() -> None:
     asyncio.get_event_loop().run_until_complete(_run())
 
 
+async def test_signup_persists_selected_plan_on_tenant(signup_client, owner_engine) -> None:
+    """The ``plan`` query param from /pricing?plan=pro survives the
+    signup POST and lands on ``tenant.settings['selected_plan']``."""
+    client, _ = signup_client
+    resp = await client.post(
+        "/platform/signup",
+        data={
+            "company_name": "PlanCo",
+            "slug": "planco",
+            "owner_email": "o@planco.cz",
+            "owner_full_name": "O",
+            "password": "correct-horse-battery-staple",
+            "terms_accepted": "1",
+            "plan": "pro",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+
+    from sqlalchemy.ext.asyncio import async_sessionmaker
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        tenant = (await session.execute(select(Tenant).where(Tenant.slug == "planco"))).scalar_one()
+        assert tenant.settings.get("selected_plan") == "pro"
+
+
+async def test_signup_rejects_invalid_plan_silently(signup_client, owner_engine) -> None:
+    """Bogus plan codes are ignored (fall through to tenant.settings.get
+    is None) rather than stored verbatim. Prevents injecting arbitrary
+    strings into per-tenant settings."""
+    client, _ = signup_client
+    resp = await client.post(
+        "/platform/signup",
+        data={
+            "company_name": "BogusCo",
+            "slug": "bogusco",
+            "owner_email": "o@bogusco.cz",
+            "owner_full_name": "O",
+            "password": "correct-horse-battery-staple",
+            "terms_accepted": "1",
+            "plan": "../../../etc/passwd",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+
+    from sqlalchemy.ext.asyncio import async_sessionmaker
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        tenant = (
+            await session.execute(select(Tenant).where(Tenant.slug == "bogusco"))
+        ).scalar_one()
+        assert "selected_plan" not in tenant.settings
+
+
 async def test_signup_rejects_missing_tos(signup_client) -> None:
     client, _ = signup_client
     resp = await client.post(

@@ -12,6 +12,10 @@
 
         <form method="post" action="/platform/signup" class="space-y-4">
             {{ csrf_input() }}
+            {# Preserve plan selection from /pricing?plan=pro through signup
+               so the post-verify CTA can lead the user straight into checkout. #}
+            {% set preselected_plan = form.plan if form.plan else request.query_params.get('plan', '') %}
+            <input type="hidden" name="plan" value="{{ preselected_plan }}">
 
             <div>
                 <label for="company_name" class="block text-sm font-medium text-slate-700">

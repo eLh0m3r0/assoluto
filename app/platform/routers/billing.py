@@ -24,7 +24,7 @@ from app.platform.billing.service import (
     set_subscription_plan,
     verify_webhook,
 )
-from app.platform.deps import get_platform_db, require_identity
+from app.platform.deps import get_platform_db, require_verified_identity
 from app.platform.models import Identity
 from app.platform.service import list_memberships_for_identity
 from app.security.csrf import verify_csrf
@@ -67,7 +67,7 @@ async def _resolve_current_tenant(
 @router.get("/platform/billing", response_class=HTMLResponse)
 async def billing_dashboard(
     request: Request,
-    identity: Identity = Depends(require_identity),
+    identity: Identity = Depends(require_verified_identity),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
 ) -> HTMLResponse:
@@ -110,7 +110,7 @@ async def billing_dashboard(
 async def start_checkout(
     plan_code: str,
     request: Request,
-    identity: Identity = Depends(require_identity),
+    identity: Identity = Depends(require_verified_identity),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
@@ -159,7 +159,7 @@ async def start_checkout(
 @csrf_router.post("/platform/billing/portal")
 async def billing_portal(
     request: Request,
-    identity: Identity = Depends(require_identity),
+    identity: Identity = Depends(require_verified_identity),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
