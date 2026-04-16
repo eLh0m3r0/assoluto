@@ -74,7 +74,8 @@ Demo credentials: `owner@4mex.cz` / `demo1234` (staff), `jan@acme.cz` / `demo123
 | Doc | What it covers |
 |---|---|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, multi-tenancy, RLS, request flow, directory layout |
-| [docs/SELF_HOST.md](docs/SELF_HOST.md) | Production deployment guide, first-run walkthrough, backups |
+| [docs/SELF_HOST.md](docs/SELF_HOST.md) | Self-hosted production deployment guide |
+| [docs/DEPLOY_SAAS.md](docs/DEPLOY_SAAS.md) | Hosted SaaS deployment (Hetzner + Coolify + Cloudflare R2 + Resend + Stripe) |
 | [docs/ENV.md](docs/ENV.md) | Complete reference of all environment variables |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Developer setup, testing, code conventions, PR checklist |
 | [CLAUDE.md](CLAUDE.md) | AI-assisted development conventions and codebase gotchas |

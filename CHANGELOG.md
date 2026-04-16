@@ -9,17 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- AGPL-3.0 license, `SECURITY.md`, `CODE_OF_CONDUCT.md`, GitHub issue/PR
-  templates — repo is now ready for open-source release.
+- **Phase 0 — License & community files:** AGPL-3.0 license,
+  `SECURITY.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant v2.1),
+  GitHub issue/PR templates.
+- **Phase 1 — Internationalization:** Babel + gettext infrastructure
+  with Czech + English locales, `jinja2.ext.i18n` integration,
+  cookie-based `GET /set-lang` switcher, `LocaleMiddleware` for
+  per-request locale negotiation (cookie → Accept-Language → default).
+- **Phase 2 — Self-signup + email verification:** `POST /platform/signup`
+  creates a tenant + owner User + Identity in one step, sends a
+  verification email, auto-logs the user in to the platform session.
+  Verification via `GET /platform/verify-email?token=` (24-hour TTL).
+  Reserved-slug blocklist protects against phishing-friendly subdomains.
+- **Phase 3 — Marketing website:** landing page, features, pricing,
+  self-hosted guide, contact form, terms/privacy placeholders.
+  Apex-domain routing: shows marketing pages when no tenant resolves
+  and `FEATURE_PLATFORM=true`, otherwise falls back to tenant landing.
+- **Phase 4 — Billing (Stripe-optional):** Plans, Subscriptions,
+  Invoices models; `platform_plans` seeded with Community / Starter /
+  Pro / Enterprise. Demo mode (no `STRIPE_SECRET_KEY`) keeps all
+  bookkeeping local; live mode talks to Stripe for Checkout + webhooks.
+  Signup auto-attaches a 14-day Starter trial.
+- **Phase 5 — Usage metering + limits:** `UsageSnapshot` dataclass +
+  `snapshot_tenant_usage()` + `ensure_within_limit()` that rejects
+  creations that would push a tenant past its plan cap. Unlimited
+  plans (community / enterprise) are always allowed.
+- **Phase 6 — Platform admin dashboard:** `/platform/admin/dashboard`
+  with KPI cards (total tenants, signups 7/30d, active subscriptions,
+  MRR) + recent-signups table.
+- **Phase 7 — Hosted deployment guide:** `docs/DEPLOY_SAAS.md` covers
+  Hetzner + Coolify + Cloudflare (DNS/R2/SSL) + Resend + Stripe +
+  Sentry end-to-end.
 
-### Planned
+### Dependencies
 
-- Internationalization (Czech + English) via Babel + gettext
-- Self-signup, email verification, and onboarding wizard
-- Marketing website (landing, features, pricing, self-hosted guide)
-- Stripe billing integration (plans, subscriptions, invoices)
-- Usage metering and plan limit enforcement
-- Platform admin dashboard with KPIs and MRR tracking
+- `babel>=2.16`
+- `stripe>=10.0` (only used in live mode; demo mode avoids the import)
 
 ## [0.1.0] — Pilot MVP
 

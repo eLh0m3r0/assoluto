@@ -34,6 +34,13 @@ for the rationale.
 |---|---|---|---|---|
 | `DEFAULT_TENANT_SLUG` | string | *(empty)* | no | Fallback tenant slug for single-tenant / self-host. When empty, tenant is resolved from subdomain or `X-Tenant-Slug` header |
 
+## Localization (i18n)
+
+| Variable | Type | Default | Prod required | Description |
+|---|---|---|---|---|
+| `DEFAULT_LOCALE` | string | `cs` | no | Default UI language when no cookie or `Accept-Language` header matches |
+| `SUPPORTED_LOCALES` | comma list | `cs,en` | no | Which locale codes the server recognises (must have compiled `.mo` files in `app/locale/<code>/LC_MESSAGES/`) |
+
 ## Platform (hosted SaaS layer)
 
 These only matter when `FEATURE_PLATFORM=true`. Self-hosted open-source
@@ -41,8 +48,22 @@ deployments can ignore them.
 
 | Variable | Type | Default | Prod required | Description |
 |---|---|---|---|---|
-| `FEATURE_PLATFORM` | bool | `false` | no | Enable the `app/platform/` package: global Identity, tenant switcher, platform admin |
+| `FEATURE_PLATFORM` | bool | `false` | no | Enable the `app/platform/` package: global Identity, tenant switcher, platform admin, self-signup, billing |
 | `PLATFORM_COOKIE_DOMAIN` | string | *(empty)* | if platform on | Parent domain for the cross-subdomain platform session cookie, e.g. `.portal.example.com`. Leave empty for single-host dev |
+
+## Billing (Stripe)
+
+All Stripe variables are optional. Leaving `STRIPE_SECRET_KEY` empty
+runs billing in **demo mode** — the UI works but no Stripe API calls
+are made. Setting these switches to **live mode** automatically.
+
+| Variable | Type | Default | Prod required | Description |
+|---|---|---|---|---|
+| `STRIPE_SECRET_KEY` | string | *(empty)* | no (demo) / yes (live) | Secret API key from Stripe dashboard. Starts with `sk_test_` / `sk_live_` |
+| `STRIPE_PUBLISHABLE_KEY` | string | *(empty)* | optional | Publishable key for frontend integrations (not currently used by the server-rendered UI) |
+| `STRIPE_WEBHOOK_SECRET` | string | *(empty)* | live | Signing secret from the Stripe webhook endpoint — used to verify `POST /platform/webhooks/stripe` payloads |
+| `STRIPE_PRICE_STARTER` | string | *(empty)* | live | Stripe Price ID for the Starter plan (`price_xxx`) |
+| `STRIPE_PRICE_PRO` | string | *(empty)* | live | Stripe Price ID for the Pro plan |
 
 ## S3 / Object storage
 
