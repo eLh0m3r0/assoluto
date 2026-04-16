@@ -77,6 +77,11 @@ async def tenants_create(
             owner_email=owner_email,
             owner_full_name=owner_full_name,
             owner_password=owner_password,
+            # Platform admin is a trusted provisioning path; the
+            # identity never receives a verification email and must
+            # not be trapped behind the verify gate on first login.
+            # Round-3 audit Backend P2.
+            pre_verified_identity=True,
         )
     except DuplicateTenantSlug:
         tenants = await list_tenants(db)

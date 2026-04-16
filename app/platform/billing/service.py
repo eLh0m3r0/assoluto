@@ -132,6 +132,7 @@ def create_checkout_session(
     cancel_url: str,
     customer_email: str,
     trial_ends_at: datetime | None = None,
+    subscription_id: UUID | None = None,
 ) -> str:
     """Return a URL the caller should redirect to.
 
@@ -144,6 +145,13 @@ def create_checkout_session(
     we pass it to Stripe as an explicit ``trial_end`` timestamp rather
     than a fresh 14-day window; that prevents a second trial after an
     in-app trial has already been consumed.
+
+    ``subscription_id`` — our local ``Subscription.id``. Used as the
+    idempotency-key anchor when the trial has already been consumed
+    (``trial_ends_at`` is ``None`` or in the past); without it the key
+    would collapse to the same ``"no-trial"`` sentinel across every
+    future upgrade attempt for the same tenant, causing Stripe to
+    return a stale cached session.
     """
     stripe = _get_stripe(settings)
     if stripe is None or not plan.stripe_price_id:
@@ -205,20 +213,35 @@ def create_checkout_session(
         session_kwargs["customer"] = existing_customer
         # ``customer_update`` is only valid (and required) when a
         # ``customer`` is supplied alongside ``automatic_tax``. Stripe
-        # refuses the session otherwise.
-        session_kwargs["customer_update"] = {"address": "auto", "name": "auto"}
+        # refuses the session otherwise. ``shipping: auto`` is a
+        # forward-compat no-op today (we never enable
+        # ``shipping_address_collection``) but becomes required if the
+        # supplier starts shipping physical goods to customers.
+        session_kwargs["customer_update"] = {
+            "address": "auto",
+            "name": "auto",
+            "shipping": "auto",
+        }
     else:
         session_kwargs["customer_email"] = customer_email
 
     # Stripe idempotency: retrying within 24 h with the same key returns
-    # the original session instead of creating a duplicate. We key on
-    # ``(tenant, plan, trial_ends_at)`` — so:
-    #   - double-submits within the same checkout attempt collapse
-    #   - a real retry after the trial_end moved (e.g. user cancelled
-    #     and signed up again) produces a fresh session
-    # Previous ``minute`` truncation meant legit retries 59 s apart got
-    # different keys (see round-2 audit S-N1).
-    stable = trial_ends_at.isoformat() if trial_ends_at else "no-trial"
+    # the original session instead of creating a duplicate. Round-3
+    # audit P1-#2 hardens the round-2 fix:
+    #   - ``astimezone(UTC).isoformat(timespec="seconds")`` stabilises
+    #     naive-vs-aware datetime drift (some test engines and SQLA
+    #     round-trips strip tzinfo; the isoformat shape would otherwise
+    #     flip between ``…+00:00`` and the naive form).
+    #   - when the trial has been consumed (``trial_ends_at`` missing
+    #     or in the past), we anchor on the local subscription id so
+    #     legitimate repeated upgrade attempts get distinct keys.
+    now = datetime.now(UTC)
+    if trial_ends_at is not None and trial_ends_at > now:
+        stable = trial_ends_at.astimezone(UTC).isoformat(timespec="seconds")
+    elif subscription_id is not None:
+        stable = f"sub-{subscription_id}"
+    else:
+        stable = "no-trial"
     idem_key = f"checkout:{tenant.id}:{plan.code}:{stable}"
     session = stripe.checkout.Session.create(**session_kwargs, idempotency_key=idem_key)
     return session.url  # type: ignore[attr-defined,no-any-return]

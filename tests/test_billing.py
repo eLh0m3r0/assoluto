@@ -263,6 +263,63 @@ async def test_billing_portal_demo_mode_bounces_back(billing_client, owner_engin
     assert resp.headers["location"].endswith("/platform/billing")
 
 
+async def test_post_verify_checkout_completes_full_flow(billing_client, owner_engine) -> None:
+    """Round-3 UX-P0 regression: the post-verify "Finish setting up Pro"
+    button used to POST to /platform/switch/... then 303 to a POST-only
+    /platform/billing/checkout/... which 405'd. Now a single POST to
+    /platform/billing/post-verify-checkout/{plan} does the whole
+    handshake. This test exercises the happy path end to end."""
+    from sqlalchemy import text as _text
+
+    client, _ = billing_client
+    resp = await client.post(
+        "/platform/signup",
+        data={
+            "company_name": "PostVerifyCo",
+            "slug": "postverify",
+            "owner_email": "o@postverify.cz",
+            "owner_full_name": "O",
+            "password": "correct-horse-battery-staple",
+            "terms_accepted": "1",
+            "plan": "pro",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    # Auto-verify the identity (simulates clicking the email link).
+    async with owner_engine.begin() as conn:
+        await conn.execute(
+            _text(
+                "UPDATE platform_identities SET email_verified_at = now() "
+                "WHERE email = 'o@postverify.cz'"
+            )
+        )
+
+    resp = await client.post(
+        "/platform/billing/post-verify-checkout/pro",
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303, resp.text
+    # Demo-mode checkout just bounces to success URL.
+    assert "/platform/billing?checkout=success" in resp.headers["location"]
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        tenant = (
+            await session.execute(select(Tenant).where(Tenant.slug == "postverify"))
+        ).scalar_one()
+        # Plan flipped to Pro in demo mode.
+        subscription = (
+            await session.execute(select(Subscription).where(Subscription.tenant_id == tenant.id))
+        ).scalar_one()
+        plan = (
+            await session.execute(select(Plan).where(Plan.id == subscription.plan_id))
+        ).scalar_one()
+        assert plan.code == "pro"
+        # selected_plan cleared so verify-email replay won't keep nagging.
+        assert "selected_plan" not in (tenant.settings or {})
+
+
 async def test_billing_dashboard_refuses_unverified(billing_client) -> None:
     """Billing must be gated behind email verification (PR #5).
 
@@ -461,7 +518,12 @@ def test_checkout_includes_customer_update_for_existing_customer() -> None:
         )
 
     assert captured["customer"] == "cus_existing_1"
-    assert captured["customer_update"] == {"address": "auto", "name": "auto"}
+    # Round-3 audit Stripe-N4: shipping=auto added forward-compat.
+    assert captured["customer_update"] == {
+        "address": "auto",
+        "name": "auto",
+        "shipping": "auto",
+    }
 
 
 def test_checkout_reuses_existing_stripe_customer() -> None:

@@ -51,16 +51,24 @@ def _safe_next_path(candidate: str) -> str:
     - must start with ``/``
     - must not start with ``//`` (protocol-relative URL)
     - must not contain a backslash (some browsers fold it to ``/``)
+    - must not contain ``..`` segments (including URL-encoded ``%2e%2e``
+      — round-3 defence-in-depth, Backend P2)
     - must not parse to a non-empty ``netloc`` once normalised
     - may carry a query string and fragment
     """
-    from urllib.parse import urlsplit
+    from urllib.parse import unquote, urlsplit
 
     if not candidate or not candidate.startswith("/"):
         return "/"
     if candidate.startswith("//"):
         return "/"
     if "\\" in candidate:
+        return "/"
+    # Decode once to catch %2e%2e and friends. Any path segment that
+    # decodes to ".." refuses — Starlette's router would normalise
+    # anyway, but defence-in-depth keeps the behaviour explicit.
+    decoded = unquote(candidate)
+    if ".." in decoded.split("?", 1)[0].split("/"):
         return "/"
     try:
         parts = urlsplit(candidate)

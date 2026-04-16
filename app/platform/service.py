@@ -59,12 +59,22 @@ async def create_or_get_identity(
     email: str,
     full_name: str,
     password: str | None = None,
+    pre_verified: bool = False,
 ) -> Identity:
     """Return an existing Identity matching `email`, or create a new one.
 
-    `password` is optional — when None, a pending-state Identity with an
-    empty password is written and must be finalized via an invite
-    acceptance flow (same pattern as staff invites).
+    ``password`` is optional — when ``None``, a pending-state Identity
+    with an empty password is written and must be finalized via an
+    invite-acceptance flow (same pattern as staff invites).
+
+    ``pre_verified`` (default ``False``) stamps ``email_verified_at`` at
+    creation time. Use it only when the identity is being provisioned
+    by a trusted channel — platform admin creating a tenant, CLI
+    bootstrap, seed script — otherwise the signup flow owns the
+    email-verification handshake. Round-3 audit Backend-P2 fix:
+    admin-created identities now skip the verify gate because they
+    can't ever click the self-service verification link (nobody sends
+    them one).
     """
     identity = await find_identity_by_email(db, email)
     if identity is not None:
@@ -75,6 +85,7 @@ async def create_or_get_identity(
         email=email.strip().lower(),
         full_name=full_name.strip() or email,
         password_hash=hash_password(password) if password else "",
+        email_verified_at=datetime.now(UTC) if pre_verified else None,
     )
     db.add(identity)
     await db.flush()
@@ -202,12 +213,20 @@ async def create_tenant_with_owner(
     owner_email: str,
     owner_full_name: str,
     owner_password: str,
+    pre_verified_identity: bool = False,
 ) -> tuple[Tenant, User]:
     """Create a new Tenant and seed its first admin user.
 
     Also ensures a platform Identity exists for the owner email and
     links the two via TenantMembership so the owner can log in through
     /platform/login AND directly on the tenant subdomain.
+
+    ``pre_verified_identity`` (default ``False``): when True, the
+    newly-minted Identity is stamped with ``email_verified_at`` so it
+    skips the verification gate. Only set this from trusted
+    provisioning paths (platform admin creating a tenant on behalf
+    of a customer, CLI bootstrap) — the self-signup flow MUST leave
+    it False and rely on the verification email.
     """
     slug = slug.strip().lower()
     if not slug:
@@ -243,6 +262,7 @@ async def create_tenant_with_owner(
         email=owner_email,
         full_name=owner_full_name or owner_email,
         password=owner_password,
+        pre_verified=pre_verified_identity,
     )
     await link_user_to_identity(db, user=owner, identity=identity)
 

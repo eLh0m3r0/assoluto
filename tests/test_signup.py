@@ -564,11 +564,13 @@ async def test_verify_email_success_surfaces_selected_plan_cta(signup_client, ow
     )
     resp = await client.get(f"/platform/verify-email?token={token}")
     assert resp.status_code == 200
-    # The "Finish setting up Pro" CTA exists and points at the switch
-    # endpoint + the checkout URL.
+    # The "Finish setting up Pro" CTA exists and points at the
+    # single-step post-verify endpoint (round-3 UX-P0 fix — the old
+    # /platform/switch?next=/platform/billing/checkout/... pattern
+    # 303'd into a 405 so it's been replaced by
+    # /platform/billing/post-verify-checkout/{plan}).
     assert "Finish setting up" in resp.text or "Dokončit nastavení" in resp.text
-    assert "/platform/switch/finishco" in resp.text
-    assert "/platform/billing/checkout/pro" in resp.text
+    assert "/platform/billing/post-verify-checkout/pro" in resp.text
 
 
 async def test_signup_rejects_missing_tos(signup_client) -> None:

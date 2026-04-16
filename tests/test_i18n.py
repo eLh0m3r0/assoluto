@@ -191,3 +191,8 @@ def test_safe_next_path_unit() -> None:
     assert _safe_next_path("https://evil.com") == "/"
     assert _safe_next_path("javascript:alert(1)") == "/"
     assert _safe_next_path("evil.com") == "/"  # no leading slash
+    # Round-3 defence-in-depth: ``..`` in any encoding must not pass.
+    assert _safe_next_path("/app/../admin") == "/"
+    assert _safe_next_path("/app/%2e%2e/admin") == "/"
+    assert _safe_next_path("/app/%2E%2E/admin") == "/"
+    assert _safe_next_path("/%2e%2e") == "/"

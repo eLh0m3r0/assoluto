@@ -136,8 +136,14 @@ async def _resolve_tenant_id(db: AsyncSession, event_data: dict) -> UUID | None:
 
 
 def _utc_from_ts(ts: Any) -> datetime | None:
-    """Stripe timestamps are Unix seconds. Convert to aware datetime."""
-    if ts is None:
+    """Stripe timestamps are Unix seconds. Convert to aware datetime.
+
+    Stripe occasionally emits ``0`` to signal a cleared timestamp
+    (e.g. ``trial_end`` after a trial is cancelled). Treat that as
+    ``None`` rather than writing 1970-01-01 into the DB — the UI would
+    surface the epoch as a "trial ends" date which is nonsensical.
+    """
+    if ts is None or ts == 0:
         return None
     try:
         return datetime.fromtimestamp(int(ts), tz=UTC)
@@ -177,7 +183,23 @@ async def handle_checkout_completed(db: AsyncSession, event: dict) -> None:
         raise WebhookNotYetReady("tenant row missing")
 
     if customer_id and tenant.stripe_customer_id != customer_id:
+        # Partial UNIQUE on tenants.stripe_customer_id (migration 1005)
+        # means assigning the same id to a second tenant explodes at
+        # flush time. We surface it as WebhookNotYetReady so the
+        # transaction rolls back and Stripe's retry doesn't spin
+        # forever on a silent 500.
+        from sqlalchemy.exc import IntegrityError
+
         tenant.stripe_customer_id = customer_id
+        try:
+            await db.flush()
+        except IntegrityError as exc:
+            log.warning(
+                "stripe.webhook.customer_id_collision",
+                tenant_id=str(tenant_id),
+                customer=str(customer_id),
+            )
+            raise WebhookNotYetReady("stripe customer id collision") from exc
 
     subscription = await _get_subscription(db, tenant_id)
     if subscription is not None and subscription_id:

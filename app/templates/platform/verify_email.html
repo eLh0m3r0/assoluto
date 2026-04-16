@@ -12,14 +12,15 @@
             <h1 class="text-xl font-semibold text-slate-900">{{ _("Email successfully verified") }}</h1>
             <p class="mt-2 text-sm text-slate-600">{{ message }}</p>
             {% if selected_plan and tenant_slug %}
-                {# User picked a paid tier on /pricing — finish the funnel
-                   by minting a tenant session first (via /platform/switch),
-                   then bouncing into /platform/billing/checkout/{plan}. #}
+                {# User picked a paid tier on /pricing — the endpoint below
+                   collapses "mint tenant session + start Stripe Checkout"
+                   into one POST so the 303 redirect never has to pass
+                   through a second POST-only endpoint (the old
+                   switch-then-GET-checkout pattern died with 405). #}
                 <form method="post"
-                      action="/platform/switch/{{ tenant_slug }}"
+                      action="/platform/billing/post-verify-checkout/{{ selected_plan }}"
                       class="mt-6">
                     {{ csrf_input() }}
-                    <input type="hidden" name="next" value="/platform/billing/checkout/{{ selected_plan }}">
                     <button type="submit"
                             class="inline-flex w-full items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
                         {{ _("Finish setting up") }} {{ selected_plan|capitalize }}

@@ -196,6 +196,11 @@ async def switch_to_tenant(
     _, target = await resolve_membership_targets(db, membership=selected)
     if target is None:
         raise HTTPException(status_code=404, detail="Membership target missing")
+    # Round-3 audit Backend P2: refuse to mint a session for a
+    # deactivated User / CustomerContact even when the membership
+    # row still exists. Prevents a zombie cookie from being issued.
+    if not getattr(target, "is_active", True):
+        raise HTTPException(status_code=403, detail="Target account is deactivated")
 
     if isinstance(target, User):
         principal_type = "user"

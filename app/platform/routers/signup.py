@@ -367,20 +367,50 @@ async def resend_verification(
     request: Request,
     background_tasks: BackgroundTasks,
     identity: Identity = Depends(require_identity),
+    db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
     if identity.email_verified_at is not None:
         return RedirectResponse(
             url="/platform/select-tenant", status_code=status.HTTP_303_SEE_OTHER
         )
+    # Look up the identity's first staff-owned tenant so the resent
+    # email renders the company name (round-3 Backend P2 — previously
+    # ``company_name=""`` produced "Vítejte ve firmě " with a trailing
+    # blank).
+    company_name = await _company_name_for_identity(db, identity.id)
     verify_url = _build_verify_url(settings, identity.id)
     background_tasks.add_task(
         send_email_verification,
         request.app.state.email_sender,
         to=identity.email,
         full_name=identity.full_name,
-        # Best-effort: the company_name isn't strictly required for the resend.
-        company_name="",
+        company_name=company_name,
         verify_url=verify_url,
     )
     return RedirectResponse(url="/platform/verify-sent", status_code=status.HTTP_303_SEE_OTHER)
+
+
+async def _company_name_for_identity(db: AsyncSession, identity_id: UUID) -> str:
+    """Best-effort lookup of a display-worthy tenant name for the resend email.
+
+    Returns an empty string (the only safe fallback) on any failure —
+    we never block a resend just because we can't render the greeting
+    prettily.
+    """
+    from app.models.tenant import Tenant
+    from app.platform.service import list_memberships_for_identity
+
+    try:
+        memberships = await list_memberships_for_identity(db, identity_id=identity_id)
+    except Exception:
+        return ""
+    for m in memberships:
+        if m.user_id is None:
+            continue
+        tenant = (
+            await db.execute(select(Tenant).where(Tenant.id == m.tenant_id))
+        ).scalar_one_or_none()
+        if tenant is not None:
+            return tenant.name
+    return ""

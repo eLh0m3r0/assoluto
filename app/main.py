@@ -39,6 +39,15 @@ async def _normalize_demo_subscriptions(settings: Settings) -> None:
     Called from the lifespan only when ``feature_platform`` + Stripe
     are both on. Demo-mode checkout stamped ``status='demo'`` locally
     but no Stripe webhook will ever transition those rows otherwise.
+
+    Round-3 audit hardening:
+    - Advisory lock (id 42_004) so multiple uvicorn workers racing
+      this on simultaneous boot don't duplicate the UPDATE and trip
+      over each other or over a just-arrived webhook.
+    - Restrict to rows with a non-NULL ``trial_ends_at`` so we only
+      upgrade genuine trial-flavoured demo rows; corrupt or
+      mid-experiment rows with NULL trial remain as-is for manual
+      inspection.
     """
     from sqlalchemy import text
     from sqlalchemy.ext.asyncio import create_async_engine
@@ -46,9 +55,30 @@ async def _normalize_demo_subscriptions(settings: Settings) -> None:
     engine = create_async_engine(settings.database_owner_url, pool_pre_ping=True)
     try:
         async with engine.begin() as conn:
-            await conn.execute(
-                text("UPDATE platform_subscriptions SET status = 'trialing' WHERE status = 'demo'")
-            )
+            got_lock = (
+                await conn.execute(
+                    text("SELECT pg_try_advisory_lock(:id)"),
+                    {"id": 42_004},
+                )
+            ).scalar()
+            if not got_lock:
+                # Another worker is already running the normaliser;
+                # skip this worker's attempt.
+                return
+            try:
+                await conn.execute(
+                    text(
+                        "UPDATE platform_subscriptions "
+                        "SET status = 'trialing' "
+                        "WHERE status = 'demo' "
+                        "  AND trial_ends_at IS NOT NULL"
+                    )
+                )
+            finally:
+                await conn.execute(
+                    text("SELECT pg_advisory_unlock(:id)"),
+                    {"id": 42_004},
+                )
     finally:
         await engine.dispose()
 
@@ -198,9 +228,18 @@ def _register_error_handlers(app: FastAPI) -> None:
         # 403 on a platform path that sets Location (i.e. ``require_verified_identity``)
         # should follow that hint rather than render a generic 403 that
         # would bounce the user back into the same loop.
+        # Only same-origin paths are honoured — reject protocol-relative
+        # ``//evil.com`` and backslash variants as an open-redirect guard
+        # in case a future dev sets an absolute Location header
+        # (round-3 Backend P3 defence-in-depth).
         if exc.status_code == 403 and _wants_html(request):
             location = (exc.headers or {}).get("Location")
-            if location and location.startswith("/"):
+            if (
+                location
+                and location.startswith("/")
+                and not location.startswith("//")
+                and "\\" not in location
+            ):
                 return RedirectResponse(url=location, status_code=status.HTTP_303_SEE_OTHER)
 
         if _wants_html(request) and exc.status_code in (403, 404):
