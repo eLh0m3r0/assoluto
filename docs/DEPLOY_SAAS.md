@@ -131,6 +131,11 @@ STRIPE_WEBHOOK_SECRET=whsec_xxx
 STRIPE_PRICE_STARTER=price_xxx
 STRIPE_PRICE_PRO=price_xxx
 
+PLATFORM_OPERATOR_NAME=ACME Provider s.r.o.
+PLATFORM_OPERATOR_ICO=12345678
+PLATFORM_OPERATOR_ADDRESS=Masarykova 1, 110 00 Praha
+PLATFORM_OPERATOR_EMAIL=legal@smeportal.cz
+
 MAX_UPLOAD_SIZE_MB=50
 LOG_LEVEL=INFO
 LOG_JSON=true
@@ -151,6 +156,49 @@ project.
    ```
    *(We'll add a dedicated `create_platform_admin` script as a
    follow-up; for now `create_tenant` is enough to seed the first row.)*
+
+## 8a. Stripe Tax + Czech invoicing (§29 ZDPH)
+
+The checkout session code already sends
+``automatic_tax={"enabled": True}`` + ``tax_id_collection={"enabled":
+True}`` + ``billing_address_collection="required"`` +
+``locale="cs"``, but **Stripe Tax must be turned on and registered for
+Czechia in the dashboard** before the first live invoice.
+
+Steps on the Stripe side:
+
+1. **Dashboard → Tax → Register** — pick **Czechia (DPH 21 %)** as the
+   registration. Stripe now charges 21 % DPH on all B2C and B2B
+   Czech-domestic invoices.
+2. For EU B2B with a valid DIČ, Stripe automatically applies
+   **reverse-charge (0 %)** as long as ``tax_id_collection`` is on.
+3. Non-EU / foreign customers — no DPH, no special handling.
+
+### Czech-compliant invoice numbering (§29 ZDPH)
+
+Stripe's default invoice numbers are NOT a continuous Czech-compliant
+series. Two supported paths:
+
+**A. Use Stripe + external Czech invoicer (recommended).**
+Handle ``invoice.paid`` webhook in ``app/platform/billing/webhooks.py``
+by calling Fakturoid / iDoklad / Pohoda API with:
+  - supplier IČO/DIČ (operator from ENV)
+  - customer IČO/DIČ (from Stripe ``customer.tax_ids``)
+  - invoice date = ``invoice.status_transitions.paid_at``
+  - taxable-supply date same as above
+  - our own continuous number prefix (e.g. ``2026-B-0001``)
+The Stripe hosted invoice becomes the informal receipt; the external
+invoicer produces the legal one and emails it to the customer.
+
+**B. Stripe-only with custom ``number_prefix``.**
+``stripe.InvoiceSetting.update(number_prefix="SMEP-2026-")`` forces a
+continuous per-year series. Combined with operator name/IČO/DIČ on
+the Stripe tenant this can meet §29 — but Stripe PDFs don't carry a
+"datum zdanitelného plnění" field by default, so an accountant
+should sign off before relying on this alone.
+
+Either path can be wired later without a schema change — the
+``platform_invoices`` table already tracks local invoice metadata.
 
 ## 9. Smoke test
 

@@ -187,6 +187,15 @@ def create_checkout_session(
         "subscription_data": subscription_data,
         # Launch-promo-code support; harmless when none exist.
         "allow_promotion_codes": True,
+        # Czech market compliance: DPH 21 % for domestic customers,
+        # reverse-charge (0 %) for EU B2B with a valid DIČ. Stripe Tax
+        # computes both automatically — we just have to enable it
+        # and collect the tax-id + billing address.
+        "automatic_tax": {"enabled": True},
+        "tax_id_collection": {"enabled": True},
+        "billing_address_collection": "required",
+        # Render the Stripe-hosted Checkout in Czech.
+        "locale": "cs",
     }
     # Re-use an existing Stripe Customer when the tenant already has
     # one (avoids duplicate customers on repeated checkouts); fall back
@@ -194,6 +203,10 @@ def create_checkout_session(
     existing_customer = getattr(tenant, "stripe_customer_id", None)
     if existing_customer:
         session_kwargs["customer"] = existing_customer
+        # ``customer_update`` is only valid (and required) when a
+        # ``customer`` is supplied alongside ``automatic_tax``. Stripe
+        # refuses the session otherwise.
+        session_kwargs["customer_update"] = {"address": "auto", "name": "auto"}
     else:
         session_kwargs["customer_email"] = customer_email
 

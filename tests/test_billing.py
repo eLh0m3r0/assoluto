@@ -392,6 +392,78 @@ def test_checkout_skips_trial_when_already_expired() -> None:
     assert "trial_period_days" not in sub_data
 
 
+def test_checkout_enables_stripe_tax_and_cs_locale() -> None:
+    """CZ compliance bundle: automatic_tax + tax_id_collection +
+    billing_address_collection=required + locale=cs on every checkout."""
+    from unittest.mock import MagicMock, patch
+
+    from app.config import Settings
+    from app.platform.billing.service import create_checkout_session
+
+    settings = Settings(STRIPE_SECRET_KEY="sk_test_fake")
+    tenant = MagicMock(id="44444444-4444-4444-4444-444444444444")
+    tenant.stripe_customer_id = None
+    plan = MagicMock(id="p", code="pro", stripe_price_id="price_pro_live")
+
+    captured: dict = {}
+
+    def _fake_create(**kwargs):
+        captured.update(kwargs)
+        result = MagicMock()
+        result.url = "https://x"
+        return result
+
+    with patch("stripe.checkout.Session.create", side_effect=_fake_create):
+        create_checkout_session(
+            settings,
+            tenant=tenant,
+            plan=plan,
+            success_url="http://x/ok",
+            cancel_url="http://x/cancel",
+            customer_email="o@example.com",
+        )
+
+    # CZ market must have automatic tax + DIČ collection + address.
+    assert captured["automatic_tax"] == {"enabled": True}
+    assert captured["tax_id_collection"] == {"enabled": True}
+    assert captured["billing_address_collection"] == "required"
+    assert captured["locale"] == "cs"
+    # customer_update is only for existing-customer flows; first-time
+    # checkout uses customer_email, so no customer_update key.
+    assert "customer_update" not in captured
+
+
+def test_checkout_includes_customer_update_for_existing_customer() -> None:
+    """When re-using a Stripe Customer we must pass ``customer_update``
+    (alongside ``automatic_tax``) or Stripe refuses the session."""
+    from unittest.mock import MagicMock, patch
+
+    from app.config import Settings
+    from app.platform.billing.service import create_checkout_session
+
+    settings = Settings(STRIPE_SECRET_KEY="sk_test_fake")
+    tenant = MagicMock(id="55555555-5555-5555-5555-555555555555")
+    tenant.stripe_customer_id = "cus_existing_1"
+    plan = MagicMock(id="p", code="pro", stripe_price_id="price_pro_live")
+
+    captured: dict = {}
+    with patch(
+        "stripe.checkout.Session.create",
+        side_effect=lambda **k: captured.update(k) or MagicMock(url="https://x"),
+    ):
+        create_checkout_session(
+            settings,
+            tenant=tenant,
+            plan=plan,
+            success_url="http://x/ok",
+            cancel_url="http://x/cancel",
+            customer_email="o@example.com",
+        )
+
+    assert captured["customer"] == "cus_existing_1"
+    assert captured["customer_update"] == {"address": "auto", "name": "auto"}
+
+
 def test_checkout_reuses_existing_stripe_customer() -> None:
     """When tenant.stripe_customer_id is set we pass it as ``customer=``
     and omit ``customer_email`` — no duplicate customers."""
