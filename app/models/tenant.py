@@ -49,5 +49,11 @@ class Tenant(Base, TimestampMixin):
         JsonColumn, nullable=False, default=dict, server_default="{}"
     )
 
+    # Stripe Customer ID. Persisted here (not on Subscription) because
+    # customers outlive subscriptions — canceling + resubscribing reuses
+    # the same Stripe Customer. Populated from the first successful
+    # ``checkout.session.completed`` webhook.
+    stripe_customer_id: Mapped[str | None] = mapped_column(String(128), nullable=True, default=None)
+
     def __repr__(self) -> str:  # pragma: no cover - debug helper
         return f"<Tenant id={self.id} slug={self.slug!r}>"

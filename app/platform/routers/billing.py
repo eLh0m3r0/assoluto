@@ -19,7 +19,6 @@ from app.platform.billing.service import (
     get_subscription_for_tenant,
     list_invoices_for_tenant,
     list_plans,
-    record_paid_invoice,
     require_plan,
     set_subscription_plan,
     verify_webhook,
@@ -156,8 +155,17 @@ async def stripe_webhook(
 ) -> Response:
     """Receive Stripe webhook events.
 
+    Flow:
+      1. Demo mode? → 503.
+      2. Verify the signature (400 on mismatch).
+      3. INSERT ``event.id`` into ``platform_stripe_events`` with
+         ``ON CONFLICT DO NOTHING``. Duplicate delivery (Stripe retries
+         any non-2xx, and occasionally re-fires after 2xx) short-circuits
+         to 200 without re-running the handler.
+      4. Dispatch to the right handler based on ``event.type``.
+
     Not CSRF-protected: Stripe signs the payload with a shared secret,
-    which :func:`verify_webhook` validates. Demo mode returns 503.
+    which :func:`verify_webhook` validates.
     """
     if not settings.stripe_enabled:
         return Response(status_code=503)
@@ -170,29 +178,37 @@ async def stripe_webhook(
     except BillingError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    event_type = event.get("type", "")
-    data = event.get("data", {}).get("object", {})
+    # ``construct_event`` returns a ``stripe.Event`` (a ``StripeObject``)
+    # which supports ``__getitem__`` but NOT ``.get()``. Normalise to a
+    # plain dict so downstream handlers can use ordinary dict helpers.
+    if hasattr(event, "to_dict"):
+        event = event.to_dict()
 
-    # Minimal handlers — add more as needed.
-    if event_type == "invoice.paid":
-        tenant_id_raw = (data.get("metadata") or {}).get("tenant_id")
-        if tenant_id_raw:
-            from uuid import UUID
+    event_id = str(event.get("id", ""))
+    event_type = str(event.get("type", ""))
+    if not event_id:
+        raise HTTPException(status_code=400, detail="Missing event id")
 
-            await record_paid_invoice(
-                db,
-                tenant_id=UUID(tenant_id_raw),
-                stripe_invoice_id=str(data.get("id", "")),
-                number=data.get("number"),
-                amount_cents=int(data.get("amount_paid", 0)),
-                # Defensive [:3] in case Stripe ever returns a weird currency
-                # string — the DB column is String(3).
-                currency=str(data.get("currency", "czk")).upper()[:3],
-                hosted_invoice_url=data.get("hosted_invoice_url"),
-                pdf_url=data.get("invoice_pdf"),
-            )
-            await db.commit()
+    # Dedup. Using raw SQL + ON CONFLICT keeps this atomic against
+    # parallel webhook deliveries.
+    from sqlalchemy import text
 
+    dedup = await db.execute(
+        text(
+            "INSERT INTO platform_stripe_events (id, type, received_at) "
+            "VALUES (:id, :type, now()) ON CONFLICT (id) DO NOTHING RETURNING id"
+        ),
+        {"id": event_id, "type": event_type},
+    )
+    if dedup.scalar() is None:
+        # Already processed — return 200 immediately.
+        await db.commit()
+        return Response(status_code=200)
+
+    from app.platform.billing.webhooks import dispatch_webhook
+
+    await dispatch_webhook(db, event)
+    await db.commit()
     return Response(status_code=200)
 
 

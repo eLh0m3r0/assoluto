@@ -143,15 +143,41 @@ def create_checkout_session(
         # Demo: pretend the user clicked "Pay", go straight to success.
         return success_url
 
-    session = stripe.checkout.Session.create(
-        mode="subscription",
-        success_url=success_url,
-        cancel_url=cancel_url,
-        customer_email=customer_email,
-        line_items=[{"price": plan.stripe_price_id, "quantity": 1}],
-        client_reference_id=str(tenant.id),
-        subscription_data={"trial_period_days": TRIAL_DAYS},
-    )
+    # Stripe design: metadata on the Session does NOT propagate onto the
+    # Subscription / Invoice the session creates — you must also set it
+    # on ``subscription_data.metadata`` (per
+    # https://docs.stripe.com/api/checkout/sessions/create). We set
+    # ``tenant_id`` in THREE places so every downstream object we might
+    # receive in a webhook can find it:
+    #
+    #   * ``client_reference_id``  — on ``checkout.session.completed``
+    #   * ``metadata.tenant_id``   — on the Session itself
+    #   * ``subscription_data.metadata.tenant_id`` — propagates to the
+    #                                                 Subscription + its
+    #                                                 Invoices
+    tenant_meta = {"tenant_id": str(tenant.id), "plan_code": plan.code}
+    session_kwargs: dict[str, Any] = {
+        "mode": "subscription",
+        "success_url": success_url,
+        "cancel_url": cancel_url,
+        "line_items": [{"price": plan.stripe_price_id, "quantity": 1}],
+        "client_reference_id": str(tenant.id),
+        "metadata": tenant_meta,
+        "subscription_data": {
+            "trial_period_days": TRIAL_DAYS,
+            "metadata": tenant_meta,
+        },
+    }
+    # Re-use an existing Stripe Customer when the tenant already has
+    # one (avoids duplicate customers on repeated checkouts); fall back
+    # to customer_email on the first checkout.
+    existing_customer = getattr(tenant, "stripe_customer_id", None)
+    if existing_customer:
+        session_kwargs["customer"] = existing_customer
+    else:
+        session_kwargs["customer_email"] = customer_email
+
+    session = stripe.checkout.Session.create(**session_kwargs)
     return session.url  # type: ignore[attr-defined,no-any-return]
 
 

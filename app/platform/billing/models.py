@@ -18,6 +18,23 @@ from app.db.base import Base
 from app.models.mixins import TimestampMixin
 
 
+class StripeEvent(Base):
+    """Receipt log for incoming Stripe webhook events.
+
+    Used purely as a dedup sentinel — Stripe retries webhook deliveries
+    aggressively (at-least-once) so every handler must be idempotent.
+    We insert the event id at the top of the webhook handler using
+    ``INSERT … ON CONFLICT DO NOTHING``; when the insert returns a row
+    we process, otherwise we short-circuit to HTTP 200 and move on.
+    """
+
+    __tablename__ = "platform_stripe_events"
+
+    id: Mapped[str] = mapped_column(String(255), primary_key=True)
+    type: Mapped[str] = mapped_column(String(128), nullable=False)
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class Plan(Base, TimestampMixin):
     __tablename__ = "platform_plans"
     __table_args__ = (UniqueConstraint("code", name="uq_platform_plans_code"),)
