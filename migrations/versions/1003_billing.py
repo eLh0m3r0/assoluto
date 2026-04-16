@@ -147,6 +147,16 @@ def upgrade() -> None:
         """
     )
 
+    # Billing tables are accessed ONLY via ``app.platform.billing`` using
+    # the owner DB session (``get_platform_db``) — they bypass the usual
+    # per-request tenant-scoped session. Consequently they have no RLS
+    # policies (only the owner would ever hit them).
+    #
+    # We still grant access to ``portal_app`` so a future tenant-facing
+    # read path (e.g. "show my invoices on the tenant portal") can be
+    # wired in without another migration; when that happens, RLS
+    # policies on the two tenant-FK'd tables MUST be added in the same
+    # commit (see follow-up SAAS-14).
     op.execute(
         """
         DO $$

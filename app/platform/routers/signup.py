@@ -116,7 +116,7 @@ async def signup_submit(
 
     # 2) Provision tenant + owner user + Identity
     try:
-        tenant, owner, identity = await signup_tenant(
+        tenant, _owner, identity = await signup_tenant(
             db,
             company_name=form.company_name,
             slug=form.slug,
@@ -188,7 +188,6 @@ async def signup_submit(
         domain=_cookie_domain(settings),
         secure=settings.is_production,
     )
-    _ = owner  # silence unused — returned by signup_tenant for completeness
     return response
 
 

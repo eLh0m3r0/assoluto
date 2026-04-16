@@ -185,7 +185,9 @@ async def stripe_webhook(
                 stripe_invoice_id=str(data.get("id", "")),
                 number=data.get("number"),
                 amount_cents=int(data.get("amount_paid", 0)),
-                currency=str(data.get("currency", "czk")).upper(),
+                # Defensive [:3] in case Stripe ever returns a weird currency
+                # string — the DB column is String(3).
+                currency=str(data.get("currency", "czk")).upper()[:3],
                 hosted_invoice_url=data.get("hosted_invoice_url"),
                 pdf_url=data.get("invoice_pdf"),
             )

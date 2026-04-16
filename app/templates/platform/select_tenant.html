@@ -17,6 +17,8 @@
         </form>
     </div>
 
+    {% include "_flash.html" %}
+
     {% if memberships %}
         <ul class="grid gap-3">
             {% for m in memberships %}

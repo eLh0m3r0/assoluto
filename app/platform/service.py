@@ -298,13 +298,14 @@ async def signup_tenant(
     await db.flush()
 
     # Give the new tenant a 14-day trial on the starter plan by default.
-    # Wrapped in a try so a missing plan row (which would only happen if
-    # migration 1003 hasn't been applied) doesn't break signup.
+    # The only known failure mode here is "migration 1003 hasn't been
+    # applied yet" (PlanNotFound). Anything else indicates a real bug
+    # and should surface rather than silently continue.
     try:
-        from app.platform.billing.service import start_trial_subscription
+        from app.platform.billing.service import PlanNotFound, start_trial_subscription
 
         await start_trial_subscription(db, tenant=tenant, plan_code="starter")
-    except Exception:
+    except PlanNotFound:
         pass
 
     return tenant, owner, identity
