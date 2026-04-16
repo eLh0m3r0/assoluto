@@ -38,6 +38,10 @@ class DuplicateTenantSlug(PlatformError):
     pass
 
 
+class DuplicateIdentityEmail(PlatformError):
+    pass
+
+
 # ---------------------------------------------------------- identity helpers
 
 
@@ -250,6 +254,62 @@ async def deactivate_tenant(db: AsyncSession, *, tenant_id: UUID) -> None:
         raise PlatformError("tenant not found")
     tenant.is_active = False
     await db.flush()
+
+
+# -------------------------------------------------------- self-signup flow
+
+
+async def signup_tenant(
+    db: AsyncSession,
+    *,
+    company_name: str,
+    slug: str,
+    owner_email: str,
+    owner_full_name: str,
+    owner_password: str,
+) -> tuple[Tenant, User, Identity]:
+    """Create a tenant + admin user + Identity for the self-signup flow.
+
+    Same as :func:`create_tenant_with_owner` but also:
+
+    * enforces that the Identity email is globally unique (you cannot
+      signup twice with the same address)
+    * stamps ``terms_accepted_at`` on the new Identity
+
+    Caller is responsible for sending the verification email afterwards.
+    """
+    # Fail fast if the email already has a platform Identity.
+    existing = await find_identity_by_email(db, owner_email)
+    if existing is not None:
+        raise DuplicateIdentityEmail(owner_email.strip().lower())
+
+    tenant, owner = await create_tenant_with_owner(
+        db,
+        slug=slug,
+        name=company_name,
+        owner_email=owner_email,
+        owner_full_name=owner_full_name,
+        owner_password=owner_password,
+    )
+    # `create_tenant_with_owner` already created/linked the Identity.
+    identity = await find_identity_by_email(db, owner_email)
+    assert identity is not None  # just created above
+    identity.terms_accepted_at = datetime.now(UTC)
+    await db.flush()
+    return tenant, owner, identity
+
+
+async def mark_email_verified(db: AsyncSession, *, identity_id: UUID) -> Identity:
+    """Mark an Identity as email-verified. Idempotent."""
+    identity = (
+        await db.execute(select(Identity).where(Identity.id == identity_id))
+    ).scalar_one_or_none()
+    if identity is None:
+        raise PlatformError("identity not found")
+    if identity.email_verified_at is None:
+        identity.email_verified_at = datetime.now(UTC)
+        await db.flush()
+    return identity
 
 
 # ----------------------------------------------------------- customer lookup

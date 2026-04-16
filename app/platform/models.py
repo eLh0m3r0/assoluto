@@ -54,6 +54,14 @@ class Identity(Base, TimestampMixin):
 
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
+    # Self-signup lifecycle fields (see migration 1002).
+    email_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    terms_accepted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
 
 class TenantMembership(Base, TimestampMixin):
     """Link between an Identity and a specific tenant.
