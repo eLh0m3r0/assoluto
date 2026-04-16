@@ -93,6 +93,31 @@ def test_validation_parse_signup_form_derives_slug_when_empty() -> None:
     assert form.slug == "acme-s-r-o"
 
 
+def test_validation_rejects_whitespace_only_password() -> None:
+    """Round-2 audit: 8 spaces would pass the length check alone.
+    Now we require no leading/trailing whitespace and no control chars
+    BEFORE running zxcvbn."""
+    from app.platform.validation import SignupValidationError, validate_password
+
+    # 8 spaces — length passes but leading/trailing whitespace rule rejects.
+    with pytest.raises(SignupValidationError) as excinfo:
+        validate_password(" " * 8)
+    assert "mezerou" in excinfo.value.message.lower()
+
+    # Leading space on an otherwise strong password.
+    with pytest.raises(SignupValidationError):
+        validate_password(" correct-horse-battery-staple")
+
+    # Trailing space.
+    with pytest.raises(SignupValidationError):
+        validate_password("correct-horse-battery-staple ")
+
+    # Control character (NUL).
+    with pytest.raises(SignupValidationError) as excinfo:
+        validate_password("good-password\x00")
+    assert "řídicí" in excinfo.value.message.lower()
+
+
 def test_validation_rejects_weak_password() -> None:
     from app.platform.validation import SignupValidationError, validate_password
 

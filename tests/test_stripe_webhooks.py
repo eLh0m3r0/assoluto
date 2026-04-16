@@ -350,6 +350,108 @@ async def test_subscription_deleted_downgrades_to_community(stripe_live_client) 
         assert plan.code == "community"
 
 
+async def test_webhook_rejects_tenant_spoof_via_metadata(stripe_live_client, owner_engine) -> None:
+    """Round-2 audit P0-1: a paying tenant A must NOT be able to put
+    tenant B's UUID in their own Stripe customer's metadata and thereby
+    hijack our webhook effects onto tenant B. ``_resolve_tenant_id``
+    cross-checks the ``customer`` id against ``Tenant.stripe_customer_id``
+    and refuses to resolve on mismatch."""
+    client, engine = stripe_live_client
+
+    # Set up two tenants. Tenant A has a Stripe customer id on file;
+    # tenant B is the would-be victim.
+    sm = async_sessionmaker(engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        tenant_a = Tenant(
+            id=uuid4(),
+            slug="spoof-a",
+            name="Tenant A",
+            billing_email="a@spoof.cz",
+            storage_prefix="tenants/spoof-a/",
+            stripe_customer_id="cus_A_live",
+        )
+        tenant_b = Tenant(
+            id=uuid4(),
+            slug="spoof-b",
+            name="Tenant B victim",
+            billing_email="b@spoof.cz",
+            storage_prefix="tenants/spoof-b/",
+        )
+        session.add(tenant_a)
+        session.add(tenant_b)
+        await session.flush()
+        starter = (await session.execute(select(Plan).where(Plan.code == "starter"))).scalar_one()
+        starter.stripe_price_id = "price_spoof_starter"
+        session.add(Subscription(tenant_id=tenant_a.id, plan_id=starter.id, status="trialing"))
+        session.add(Subscription(tenant_id=tenant_b.id, plan_id=starter.id, status="active"))
+
+    # Attack payload: "customer" = tenant A's customer, "metadata.tenant_id"
+    # claims to be tenant B. Should be refused.
+    event = _make_event(
+        "evt_spoof_1",
+        "customer.subscription.deleted",
+        {
+            "id": "sub_spoof",
+            "customer": "cus_A_live",
+            "metadata": {"tenant_id": str(tenant_b.id)},
+        },
+    )
+    payload = json.dumps(event)
+    sig = _sign_stripe_event(payload)
+    resp = await client.post(
+        "/platform/webhooks/stripe",
+        content=payload.encode(),
+        headers={"stripe-signature": sig, "content-type": "application/json"},
+    )
+    # Handler raises WebhookNotYetReady → router returns 503 → Stripe
+    # retries; but the DB state is NOT mutated.
+    assert resp.status_code == 503
+
+    async with sm() as session:
+        sub_b = (
+            await session.execute(select(Subscription).where(Subscription.tenant_id == tenant_b.id))
+        ).scalar_one()
+        assert sub_b.status == "active", "victim subscription must NOT be cancelled"
+
+
+async def test_webhook_no_tenant_rolls_back_dedup(stripe_live_client, owner_engine) -> None:
+    """When a handler raises WebhookNotYetReady, the router rolls back
+    the transaction (dedup row + any partial writes) so Stripe retries.
+    Regression test for the round-2 P0 that the dedup INSERT previously
+    committed silently on no-op returns."""
+    from sqlalchemy import text
+
+    client, engine = stripe_live_client
+
+    # Unknown tenant → _resolve_tenant_id returns None → handler raises
+    event = _make_event(
+        "evt_notready_1",
+        "customer.subscription.updated",
+        {
+            "id": "sub_unknown",
+            "customer": "cus_never_seen",
+            "status": "active",
+        },
+    )
+    payload = json.dumps(event)
+    sig = _sign_stripe_event(payload)
+    resp = await client.post(
+        "/platform/webhooks/stripe",
+        content=payload.encode(),
+        headers={"stripe-signature": sig, "content-type": "application/json"},
+    )
+    assert resp.status_code == 503
+
+    # Dedup row must also be absent so a retry can still process the event.
+    async with engine.begin() as conn:
+        count = (
+            await conn.execute(
+                text("SELECT count(*) FROM platform_stripe_events WHERE id = 'evt_notready_1'")
+            )
+        ).scalar_one()
+    assert count == 0, "dedup row must have rolled back with the failed handler"
+
+
 async def test_unknown_event_type_is_no_op(stripe_live_client) -> None:
     client, _ = stripe_live_client
 

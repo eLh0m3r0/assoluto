@@ -116,6 +116,15 @@ class Settings(BaseSettings):
     # --- Uploads -----------------------------------------------------------
     max_upload_size_mb: int = Field(default=50, alias="MAX_UPLOAD_SIZE_MB")
 
+    # --- Proxy / rate limiting --------------------------------------------
+    # Comma-separated CIDR blocks or IP literals we trust to forward a
+    # real client IP in ``X-Forwarded-For``. Empty = don't trust any
+    # header — use ``request.client.host`` directly (safe default for
+    # local dev). In production behind Cloudflare / nginx, set this to
+    # the proxy's egress IPs (and Cloudflare's published ranges) so per-
+    # client rate limits actually track the real client.
+    trusted_proxies: str = Field(default="", alias="TRUSTED_PROXIES")
+
     # --- Logging -----------------------------------------------------------
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(
         default="INFO", alias="LOG_LEVEL"

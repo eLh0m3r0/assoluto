@@ -147,8 +147,20 @@ async def start_checkout(
             customer_email=identity.email,
             trial_ends_at=trial_ends_at,
         )
-    except Exception as exc:
+    except BillingError as exc:
         raise HTTPException(status_code=500, detail=f"Checkout failed: {exc}") from exc
+    except Exception as exc:
+        # Stripe SDK errors surface via ``stripe.error.StripeError``
+        # (imported lazily). Map cleanly to 502 (upstream issue) vs
+        # 500 (our bug).
+        from app.logging import get_logger
+
+        get_logger("app.billing").error(
+            "checkout.failed", tenant_id=str(tenant.id), error=f"{type(exc).__name__}: {exc}"
+        )
+        raise HTTPException(
+            status_code=502, detail="Payment provider error, please try again."
+        ) from exc
 
     # In demo mode, flip the local subscription to the chosen plan immediately.
     if not settings.stripe_enabled:
@@ -250,7 +262,12 @@ async def stripe_webhook(
         raise HTTPException(status_code=400, detail="Missing event id")
 
     # Dedup. Using raw SQL + ON CONFLICT keeps this atomic against
-    # parallel webhook deliveries.
+    # parallel webhook deliveries. We INSERT the dedup row FIRST so that
+    # a concurrent second delivery of the same event_id is blocked at the
+    # INSERT level rather than both running the handler side-by-side.
+    # On failure the whole transaction (dedup row + any partial handler
+    # writes) rolls back, and Stripe's automatic retry will get a fresh
+    # attempt.
     from sqlalchemy import text
 
     dedup = await db.execute(
@@ -265,9 +282,16 @@ async def stripe_webhook(
         await db.commit()
         return Response(status_code=200)
 
-    from app.platform.billing.webhooks import dispatch_webhook
+    from app.platform.billing.webhooks import WebhookNotYetReady, dispatch_webhook
 
-    await dispatch_webhook(db, event)
+    try:
+        await dispatch_webhook(db, event)
+    except WebhookNotYetReady:
+        # Handler decided this event can't be processed right now (e.g.
+        # tenant row not yet written). We rollback so the dedup INSERT
+        # is also undone and Stripe's automatic retry can try again.
+        await db.rollback()
+        return Response(status_code=503)
     await db.commit()
     return Response(status_code=200)
 

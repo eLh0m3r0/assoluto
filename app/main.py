@@ -86,7 +86,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # suites don't have to reset counters between cases.
     from app.security import rate_limit as _rate_limit
 
-    _rate_limit.install(app, enabled=not settings.is_test)
+    _rate_limit.install(
+        app,
+        enabled=not settings.is_test,
+        trusted_proxies=settings.trusted_proxies,
+    )
 
     # Plain ASGI middleware that stamps the csrftoken cookie; validation
     # happens in `verify_csrf` as a router-level FastAPI dependency so it

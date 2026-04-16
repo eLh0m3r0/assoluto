@@ -14,6 +14,59 @@ from app.main import create_app
 from tests.conftest import CsrfAwareClient
 
 
+def test_client_ip_ignores_xff_without_trusted_proxies() -> None:
+    """Without a configured TRUSTED_PROXIES list, the limiter must fall
+    back to the direct peer IP regardless of X-Forwarded-For. Otherwise
+    every attacker trivially bypasses rate limits by forging the header."""
+    from unittest.mock import MagicMock
+
+    from app.security.rate_limit import _client_ip, install
+
+    # Re-install with empty trusted list (default for local dev).
+    app = MagicMock()
+    app.state = MagicMock()
+    install(app, enabled=True, trusted_proxies="")
+
+    req = MagicMock()
+    req.client = MagicMock(host="1.2.3.4")
+    req.headers = {"x-forwarded-for": "9.9.9.9"}
+    assert _client_ip(req) == "1.2.3.4"
+
+
+def test_client_ip_honours_xff_from_trusted_proxy() -> None:
+    """When the peer matches TRUSTED_PROXIES, use XFF's leftmost
+    untrusted IP as the rate-limit key."""
+    from unittest.mock import MagicMock
+
+    from app.security.rate_limit import _client_ip, install
+
+    app = MagicMock()
+    app.state = MagicMock()
+    install(app, enabled=True, trusted_proxies="10.0.0.0/8")
+
+    req = MagicMock()
+    req.client = MagicMock(host="10.5.5.5")  # trusted proxy
+    req.headers = {"x-forwarded-for": "203.0.113.7, 10.0.0.1"}
+    assert _client_ip(req) == "203.0.113.7"
+
+
+def test_client_ip_rejects_untrusted_peer_claiming_xff() -> None:
+    """If the peer is NOT in the trusted list, XFF is ignored even when
+    present (attacker could otherwise just set it themselves)."""
+    from unittest.mock import MagicMock
+
+    from app.security.rate_limit import _client_ip, install
+
+    app = MagicMock()
+    app.state = MagicMock()
+    install(app, enabled=True, trusted_proxies="10.0.0.0/8")
+
+    req = MagicMock()
+    req.client = MagicMock(host="203.0.113.99")  # random internet peer
+    req.headers = {"x-forwarded-for": "1.1.1.1"}  # forged
+    assert _client_ip(req) == "203.0.113.99"
+
+
 async def test_contact_form_is_rate_limited(settings) -> None:
     """/contact allows 5 POSTs / 15 min / IP, then 429."""
     # Build an app with the limiter explicitly ON (overriding is_test).

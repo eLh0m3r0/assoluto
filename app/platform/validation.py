@@ -157,6 +157,19 @@ def validate_password(password: str, *, user_inputs: list[str] | None = None) ->
         raise SignupValidationError("password", "Heslo musí mít alespoň 8 znaků.")
     if len(password) > 200:
         raise SignupValidationError("password", "Heslo je příliš dlouhé.")
+    # Reject leading/trailing whitespace and control characters outright —
+    # these usually indicate a paste accident and dramatically weaken the
+    # effective entropy we give zxcvbn to score.
+    if password.strip() != password:
+        raise SignupValidationError(
+            "password",
+            "Heslo nesmí začínat ani končit mezerou.",
+        )
+    if any(ord(c) < 32 or ord(c) == 127 for c in password):
+        raise SignupValidationError(
+            "password",
+            "Heslo nesmí obsahovat řídicí znaky.",
+        )
 
     # zxcvbn import is lazy so the dependency stays optional at module
     # load time and the 400 KB frequency dictionary isn't paid for on

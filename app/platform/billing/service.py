@@ -242,10 +242,17 @@ def create_billing_portal_session(
 # --------------------------------------------------------- webhook handling
 
 
+# Stripe's default replay window is 300 s. We pin it explicitly so a
+# silent SDK change cannot lengthen the attack window without review.
+_WEBHOOK_TOLERANCE_SECONDS = 300
+
+
 def verify_webhook(settings: Settings, payload: bytes, sig_header: str) -> Any:
     """Validate and decode a Stripe webhook payload.
 
-    Raises :class:`BillingError` on failure.
+    Raises :class:`BillingError` on failure, discriminating between
+    signature-verification mismatches (possible attack / misconfig) and
+    plain JSON-parse errors so observability / alerts can differ.
     """
     stripe = _get_stripe(settings)
     if stripe is None:
@@ -255,9 +262,14 @@ def verify_webhook(settings: Settings, payload: bytes, sig_header: str) -> Any:
             payload=payload,
             sig_header=sig_header,
             secret=settings.stripe_webhook_secret,
+            tolerance=_WEBHOOK_TOLERANCE_SECONDS,
         )
-    except Exception as exc:
-        raise BillingError(f"Invalid webhook: {exc}") from exc
+    except stripe.error.SignatureVerificationError as exc:
+        raise BillingError(f"Invalid webhook signature: {exc}") from exc
+    except ValueError as exc:
+        # Malformed JSON; Stripe SDK raises ValueError before signature
+        # verification runs.
+        raise BillingError(f"Malformed webhook payload: {exc}") from exc
 
 
 async def record_paid_invoice(
