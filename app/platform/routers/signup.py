@@ -11,6 +11,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
@@ -305,16 +306,56 @@ async def verify_email(
 
     await db.commit()
 
+    # Look up any plan the user pre-selected on /pricing?plan=pro so
+    # the success page can point them straight into checkout instead
+    # of a generic "continue to the portal" dead-end.
+    selected_plan, tenant_slug = await _lookup_signup_selected_plan(db, identity_uuid)
+
     html = _templates(request).render(
         request,
         "platform/verify_email.html",
         {
             "success": True,
             "message": "E-mail byl úspěšně ověřen.",
+            "selected_plan": selected_plan,
+            "tenant_slug": tenant_slug,
             "principal": None,
         },
     )
     return HTMLResponse(html)
+
+
+async def _lookup_signup_selected_plan(
+    db: AsyncSession, identity_id: UUID
+) -> tuple[str | None, str | None]:
+    """Return the ``selected_plan`` the user picked on /pricing (or None).
+
+    Resolves the identity's first staff membership → that tenant →
+    ``tenant.settings.get("selected_plan")``. Used only to power the
+    post-verification "finish checkout" CTA; treats any error as
+    "no plan selected" so a missing row never blocks verification.
+    """
+    from app.models.tenant import Tenant
+    from app.platform.service import list_memberships_for_identity
+
+    try:
+        memberships = await list_memberships_for_identity(db, identity_id=identity_id)
+    except Exception:
+        return None, None
+
+    for m in memberships:
+        if m.user_id is None:
+            continue
+        tenant = (
+            await db.execute(select(Tenant).where(Tenant.id == m.tenant_id))
+        ).scalar_one_or_none()
+        if tenant is None:
+            continue
+        chosen = (tenant.settings or {}).get("selected_plan")
+        if chosen in {"starter", "pro"}:
+            return chosen, tenant.slug
+        return None, tenant.slug
+    return None, None
 
 
 # ----------------------------------------------------------- resend link

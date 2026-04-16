@@ -155,10 +155,23 @@ def _register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException) -> Response:
         templates: Templates = request.app.state.templates
-        # 401 on an HTML request → bounce to /auth/login instead of dumping
-        # a raw JSON payload on the user.
+        on_platform_path = request.url.path.startswith("/platform/")
+
+        # 401 on an HTML request → bounce to the right login page.
+        # Platform routes use /platform/login; everything else keeps
+        # /auth/login (tenant-local).
         if exc.status_code == 401 and _wants_html(request):
-            return RedirectResponse(url="/auth/login", status_code=status.HTTP_303_SEE_OTHER)
+            login_url = "/platform/login" if on_platform_path else "/auth/login"
+            return RedirectResponse(url=login_url, status_code=status.HTTP_303_SEE_OTHER)
+
+        # 403 on a platform path that sets Location (i.e. ``require_verified_identity``)
+        # should follow that hint rather than render a generic 403 that
+        # would bounce the user back into the same loop.
+        if exc.status_code == 403 and _wants_html(request):
+            location = (exc.headers or {}).get("Location")
+            if location and location.startswith("/"):
+                return RedirectResponse(url=location, status_code=status.HTTP_303_SEE_OTHER)
+
         if _wants_html(request) and exc.status_code in (403, 404):
             template = f"errors/{exc.status_code}.html"
             html = templates.render(request, template, {"principal": None})

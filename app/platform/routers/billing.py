@@ -42,13 +42,19 @@ def _templates(request: Request):
 async def _resolve_current_tenant(
     db: AsyncSession, identity: Identity
 ) -> tuple[object, object] | tuple[None, None]:
-    """Pick the first tenant this identity owns as staff.
+    """Pick the first tenant this identity owns **as tenant_admin**.
 
-    Billing is a per-tenant concern. For identities with memberships in
-    multiple tenants we use the tenant they switched into most recently
-    (tracked via ``last_login_at`` is-rough-enough — real impl would
-    read a session cookie). First pass: first staff membership.
+    Billing is a per-tenant concern AND a privileged one: cancelling
+    a subscription or switching plans has real money consequences. We
+    therefore require ``UserRole.TENANT_ADMIN`` on the membership's
+    user — plain tenant_staff memberships are skipped even if they
+    appear first in the list.
+
+    Customer contact memberships are likewise skipped (customers should
+    never see their supplier's billing dashboard).
     """
+    from app.models.enums import UserRole
+    from app.models.user import User
     from app.platform.service import resolve_membership_targets
 
     memberships = await list_memberships_for_identity(db, identity_id=identity.id)
@@ -56,8 +62,11 @@ async def _resolve_current_tenant(
         if membership.user_id is None:
             continue  # customer contacts don't manage billing
         tenant, target = await resolve_membership_targets(db, membership=membership)
-        if tenant is not None:
-            return tenant, target
+        if tenant is None or not isinstance(target, User):
+            continue
+        if target.role != UserRole.TENANT_ADMIN:
+            continue
+        return tenant, target
     return None, None
 
 

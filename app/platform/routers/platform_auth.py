@@ -160,6 +160,7 @@ async def select_tenant(
 async def switch_to_tenant(
     tenant_slug: str,
     request: Request,
+    next: str = Form(""),
     identity: Identity = Depends(require_identity),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
@@ -167,11 +168,15 @@ async def switch_to_tenant(
     """Drop a tenant-local session cookie and redirect to the dashboard.
 
     The endpoint verifies that the caller actually has a membership for
-    the target tenant before minting a local session.
+    the target tenant before minting a local session. An optional
+    ``next`` form field redirects to a same-origin path (e.g. straight
+    into checkout after email verification); open-redirect protection
+    is delegated to ``_safe_next_path``.
     """
     from sqlalchemy import select
 
     from app.models.tenant import Tenant
+    from app.routers.public import _safe_next_path
 
     tenant = (
         await db.execute(select(Tenant).where(Tenant.slug == tenant_slug))
@@ -216,7 +221,10 @@ async def switch_to_tenant(
         session_version=session_version,
     )
 
-    response = RedirectResponse(url="/app", status_code=303)
+    redirect_to = _safe_next_path(next) if next else "/app"
+    if redirect_to == "/":
+        redirect_to = "/app"
+    response = RedirectResponse(url=redirect_to, status_code=303)
     write_session(
         response,
         settings.app_secret_key,

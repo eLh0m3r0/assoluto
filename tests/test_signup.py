@@ -526,6 +526,51 @@ async def test_signup_rejects_invalid_plan_silently(signup_client, owner_engine)
         assert "selected_plan" not in tenant.settings
 
 
+async def test_verify_email_success_surfaces_selected_plan_cta(signup_client, owner_engine) -> None:
+    """Round-2 audit C-1 fix: when ``tenant.settings["selected_plan"]``
+    was stamped at signup, the verify-email success screen renders a
+    "Finish setting up …" CTA pointing into checkout via
+    /platform/switch."""
+    client, _ = signup_client
+    resp = await client.post(
+        "/platform/signup",
+        data={
+            "company_name": "FinishCo",
+            "slug": "finishco",
+            "owner_email": "o@finishco.cz",
+            "owner_full_name": "O",
+            "password": "correct-horse-battery-staple",
+            "terms_accepted": "1",
+            "plan": "pro",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+
+    from sqlalchemy.ext.asyncio import async_sessionmaker
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        identity = (
+            await session.execute(select(Identity).where(Identity.email == "o@finishco.cz"))
+        ).scalar_one()
+
+    from app.config import get_settings
+
+    token = create_token(
+        get_settings().app_secret_key,
+        TokenPurpose.EMAIL_VERIFY,
+        {"identity_id": str(identity.id)},
+    )
+    resp = await client.get(f"/platform/verify-email?token={token}")
+    assert resp.status_code == 200
+    # The "Finish setting up Pro" CTA exists and points at the switch
+    # endpoint + the checkout URL.
+    assert "Finish setting up" in resp.text or "Dokončit nastavení" in resp.text
+    assert "/platform/switch/finishco" in resp.text
+    assert "/platform/billing/checkout/pro" in resp.text
+
+
 async def test_signup_rejects_missing_tos(signup_client) -> None:
     client, _ = signup_client
     resp = await client.post(
