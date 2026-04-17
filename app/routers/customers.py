@@ -197,6 +197,9 @@ async def customers_invite_contact(
 
     # Generate signed token and enqueue the invitation email as a
     # background task so we don't block the request on SMTP I/O.
+    # Explicit commit first — see CLAUDE.md "BackgroundTasks + explicit
+    # commit" for why this is mandatory.
+    await db.commit()
     token = create_invitation_token(
         settings.app_secret_key,
         tenant_id=principal.tenant_id,

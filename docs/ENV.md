@@ -94,6 +94,12 @@ are made. Setting these switches to **live mode** automatically.
 |---|---|---|---|---|
 | `MAX_UPLOAD_SIZE_MB` | int | `50` | no | Maximum file size per attachment in megabytes |
 
+## Rate limiting / proxy
+
+| Variable | Type | Default | Prod required | Description |
+|---|---|---|---|---|
+| `TRUSTED_PROXIES` | comma list | *(empty)* | if behind proxy | CIDR blocks / IPs of upstream proxies whose `X-Forwarded-For` we trust. Without this, rate-limit counters see only the proxy's IP → one global bucket. Set to Cloudflare's published ranges + your nginx egress in production. Leave empty for local dev (uses direct peer IP). |
+
 ## Logging
 
 | Variable | Type | Default | Prod required | Description |

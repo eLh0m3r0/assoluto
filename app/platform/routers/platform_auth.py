@@ -205,15 +205,11 @@ async def switch_to_tenant(
     if isinstance(target, User):
         principal_type = "user"
         customer_id = None
-        full_name = target.full_name
-        email_val = target.email
         session_version = target.session_version
         principal_id = target.id
     else:  # CustomerContact
         principal_type = "contact"
         customer_id = target.customer_id
-        full_name = target.full_name
-        email_val = target.email
         session_version = target.session_version
         principal_id = target.id
 
@@ -239,5 +235,4 @@ async def switch_to_tenant(
     # Keep the tenant header so in-process tests & single-domain dev
     # still resolve the tenant after the redirect.
     response.headers["X-Tenant-Slug"] = tenant.slug
-    _ = (full_name, email_val)  # silence unused
     return response

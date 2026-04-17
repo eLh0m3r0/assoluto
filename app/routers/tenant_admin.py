@@ -118,6 +118,10 @@ async def users_invite(
         role=role_enum,
     )
 
+    # Explicit commit before scheduling the email task — the background
+    # task's fresh session must see the just-written User row. See
+    # CLAUDE.md "BackgroundTasks + explicit commit".
+    await db.commit()
     settings = request.app.state.settings
     token = create_staff_invite_token(
         settings.app_secret_key,

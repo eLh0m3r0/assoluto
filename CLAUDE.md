@@ -22,9 +22,9 @@ app/           Python package — the FastAPI application
   tasks/       Background task bodies (email, thumbnails, periodic cleanup)
   templates/   Jinja2 HTML (base, auth, orders, customers, products, assets, admin, errors, platform)
   platform/    Opt-in SaaS package (Identity, TenantMembership, platform admin)
-migrations/    Alembic (0001-0007 core, 1001 platform)
+migrations/    Alembic (0001-0008 core, 1001-1005 platform/billing)
 scripts/       CLI tools: create_tenant, seed_dev, build_tailwind
-tests/         112 tests (pytest-asyncio, httpx ASGITransport, moto for S3)
+tests/         207+ tests (pytest-asyncio, httpx ASGITransport, moto for S3)
 ```
 
 ## Critical patterns to understand
