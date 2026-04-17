@@ -223,10 +223,12 @@ def _register_error_handlers(app: FastAPI) -> None:
         # back where they wanted after authentication.
         if exc.status_code == 401 and _wants_html(request):
             login_url = "/platform/login" if on_platform_path else "/auth/login"
-            original = request.url.path
-            if original and original != "/" and original != login_url:
-                from urllib.parse import quote
+            from urllib.parse import quote
 
+            from app.routers.public import _safe_next_path
+
+            original = _safe_next_path(request.url.path)
+            if original != "/" and original != login_url:
                 login_url = f"{login_url}?next={quote(original, safe='/')}"
             return RedirectResponse(url=login_url, status_code=status.HTTP_303_SEE_OTHER)
 
