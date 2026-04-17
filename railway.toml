@@ -1,0 +1,28 @@
+# Railway deployment configuration for SME Client Portal.
+#
+# This file configures a single-service Railway deployment.
+# Railway provides TLS termination and routing — nginx is NOT needed.
+#
+# Required Railway services:
+#   1. This web service (builds from Dockerfile)
+#   2. Railway Postgres plugin (set DATABASE_* env vars from its credentials)
+#
+# Required external services (not managed by Railway):
+#   - S3-compatible storage: Backblaze B2 or Cloudflare R2
+#   - SMTP relay: Postmark or Resend
+#
+# See docs/DEPLOY_RAILWAY.md for the full setup walkthrough.
+
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "uvicorn app.main:app --host 0.0.0.0 --port 8000"
+healthcheckPath = "/healthz"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5
+
+[[services]]
+name = "web"
