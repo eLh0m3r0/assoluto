@@ -437,9 +437,15 @@ async def test_plan_e2e_happy_path(
 
     # -------- Step 24: auto_close_delivered_orders after 14 days -------
     async with owner_engine.begin() as conn:
+        aged = datetime.now(UTC) - timedelta(days=15)
         await conn.execute(
             text("UPDATE orders SET updated_at = :ts WHERE id = :id"),
-            {"ts": datetime.now(UTC) - timedelta(days=15), "id": order_id},
+            {"ts": aged, "id": order_id},
+        )
+        # Age comments too — auto-close skips orders with recent comments.
+        await conn.execute(
+            text("UPDATE order_comments SET created_at = :ts WHERE order_id = :id"),
+            {"ts": aged, "id": order_id},
         )
 
     from app.tasks.periodic import auto_close_delivered_orders
