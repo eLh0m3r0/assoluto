@@ -37,6 +37,7 @@ class TokenPurpose:
     STAFF_INVITE = "tenant-staff-invite"
     MAGIC_LINK = "magic-link-login"
     PASSWORD_RESET = "password-reset"
+    EMAIL_VERIFY = "platform-email-verify"
 
 
 def _serializer(secret_key: str, purpose: str) -> URLSafeTimedSerializer:

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Create portal") }} · SME Portal{% endblock %}
+
+{% block content %}
+<section class="mx-auto mt-8 max-w-xl">
+    <div class="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
+        <h1 class="mb-1 text-2xl font-semibold text-slate-900">{{ _("Create your portal") }}</h1>
+        <p class="mb-6 text-sm text-slate-500">
+            {{ _("14-day free trial. No credit card required.") }}
+        </p>
+
+        <form method="post" action="/platform/signup" class="space-y-4">
+            {{ csrf_input() }}
+            {# Preserve plan selection from /pricing?plan=pro through signup
+               so the post-verify CTA can lead the user straight into checkout. #}
+            {% set preselected_plan = form.plan if form.plan else request.query_params.get('plan', '') %}
+            <input type="hidden" name="plan" value="{{ preselected_plan }}">
+
+            <div>
+                <label for="company_name" class="block text-sm font-medium text-slate-700">
+                    {{ _("Company name") }} <span class="text-red-500" aria-hidden="true">*</span>
+                    <span class="sr-only">({{ _("required") }})</span>
+                </label>
+                <input type="text" id="company_name" name="company_name" required autofocus
+                       value="{{ form.company_name or '' }}"
+                       placeholder="ACME s.r.o."
+                       class="mt-1 w-full rounded-md border {% if errors.company_name %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                {% if errors.company_name %}
+                    <p class="mt-1 text-xs text-red-600">{{ errors.company_name }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="slug" class="block text-sm font-medium text-slate-700">
+                    {{ _("Portal subdomain") }}
+                </label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <input type="text" id="slug" name="slug"
+                           value="{{ form.slug or '' }}"
+                           pattern="[a-z0-9-]*"
+                           placeholder="acme"
+                           aria-describedby="slug-help"
+                           class="w-full rounded-l-md border {% if errors.slug %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                    <span class="inline-flex items-center rounded-r-md border border-l-0 border-slate-300 bg-slate-50 px-3 text-sm text-slate-500">
+                        .smeportal.cz
+                    </span>
+                </div>
+                <p id="slug-help" class="mt-1 text-xs text-slate-500">
+                    {{ _("Optional — if empty we derive it from the company name.") }}
+                </p>
+                {% if errors.slug %}
+                    <p class="mt-1 text-xs text-red-600">{{ errors.slug }}</p>
+                {% endif %}
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="owner_full_name" class="block text-sm font-medium text-slate-700">
+                        {{ _("Your name") }}
+                    </label>
+                    <input type="text" id="owner_full_name" name="owner_full_name"
+                           value="{{ form.owner_full_name or '' }}"
+                           placeholder="Jan Novák"
+                           class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label for="owner_email" class="block text-sm font-medium text-slate-700">
+                        {{ _("Work email") }} <span class="text-red-500" aria-hidden="true">*</span>
+                    </label>
+                    <input type="email" id="owner_email" name="owner_email" required
+                           value="{{ form.owner_email or '' }}"
+                           placeholder="jan@acme.cz"
+                           class="mt-1 w-full rounded-md border {% if errors.owner_email or errors.email %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                    {% if errors.owner_email or errors.email %}
+                        <p class="mt-1 text-xs text-red-600">{{ errors.owner_email or errors.email }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-slate-700">
+                    {{ _("Password") }} <span class="text-red-500" aria-hidden="true">*</span>
+                </label>
+                <input type="password" id="password" name="password" required minlength="8"
+                       aria-describedby="password-help"
+                       class="mt-1 w-full rounded-md border {% if errors.password %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                <p id="password-help" class="mt-1 text-xs text-slate-500">
+                    {{ _("At least 8 characters; avoid common passwords.") }}
+                </p>
+                {% if errors.password %}
+                    <p class="mt-1 text-xs text-red-600">{{ errors.password }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="flex items-start gap-2 text-sm text-slate-700">
+                    <input type="checkbox" name="terms_accepted" value="1" required
+                           class="mt-0.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                    <span>
+                        {{ _("I agree to the") }}
+                        <a href="/terms" target="_blank" class="text-brand-600 hover:text-brand-700">{{ _("Terms of Service") }}</a>
+                        {{ _("and the") }}
+                        <a href="/privacy" target="_blank" class="text-brand-600 hover:text-brand-700">{{ _("Privacy Policy") }}</a>.
+                    </span>
+                </label>
+                {% if errors.terms_accepted %}
+                    <p class="mt-1 text-xs text-red-600">{{ errors.terms_accepted }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit"
+                    class="w-full rounded-md bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">
+                {{ _("Create portal") }}
+            </button>
+        </form>
+
+        <p class="mt-5 text-center text-sm text-slate-500">
+            {{ _("Already have an account?") }}
+            <a href="/platform/login" class="font-semibold text-brand-600 hover:text-brand-700">{{ _("Sign in") }}</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

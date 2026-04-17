@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.customer import Customer, CustomerContact
@@ -38,6 +39,10 @@ class DuplicateTenantSlug(PlatformError):
     pass
 
 
+class DuplicateIdentityEmail(PlatformError):
+    pass
+
+
 # ---------------------------------------------------------- identity helpers
 
 
@@ -54,12 +59,22 @@ async def create_or_get_identity(
     email: str,
     full_name: str,
     password: str | None = None,
+    pre_verified: bool = False,
 ) -> Identity:
     """Return an existing Identity matching `email`, or create a new one.
 
-    `password` is optional — when None, a pending-state Identity with an
-    empty password is written and must be finalized via an invite
-    acceptance flow (same pattern as staff invites).
+    ``password`` is optional — when ``None``, a pending-state Identity
+    with an empty password is written and must be finalized via an
+    invite-acceptance flow (same pattern as staff invites).
+
+    ``pre_verified`` (default ``False``) stamps ``email_verified_at`` at
+    creation time. Use it only when the identity is being provisioned
+    by a trusted channel — platform admin creating a tenant, CLI
+    bootstrap, seed script — otherwise the signup flow owns the
+    email-verification handshake. Round-3 audit Backend-P2 fix:
+    admin-created identities now skip the verify gate because they
+    can't ever click the self-service verification link (nobody sends
+    them one).
     """
     identity = await find_identity_by_email(db, email)
     if identity is not None:
@@ -70,6 +85,7 @@ async def create_or_get_identity(
         email=email.strip().lower(),
         full_name=full_name.strip() or email,
         password_hash=hash_password(password) if password else "",
+        email_verified_at=datetime.now(UTC) if pre_verified else None,
     )
     db.add(identity)
     await db.flush()
@@ -197,12 +213,20 @@ async def create_tenant_with_owner(
     owner_email: str,
     owner_full_name: str,
     owner_password: str,
+    pre_verified_identity: bool = False,
 ) -> tuple[Tenant, User]:
     """Create a new Tenant and seed its first admin user.
 
     Also ensures a platform Identity exists for the owner email and
     links the two via TenantMembership so the owner can log in through
     /platform/login AND directly on the tenant subdomain.
+
+    ``pre_verified_identity`` (default ``False``): when True, the
+    newly-minted Identity is stamped with ``email_verified_at`` so it
+    skips the verification gate. Only set this from trusted
+    provisioning paths (platform admin creating a tenant on behalf
+    of a customer, CLI bootstrap) — the self-signup flow MUST leave
+    it False and rely on the verification email.
     """
     slug = slug.strip().lower()
     if not slug:
@@ -238,6 +262,7 @@ async def create_tenant_with_owner(
         email=owner_email,
         full_name=owner_full_name or owner_email,
         password=owner_password,
+        pre_verified=pre_verified_identity,
     )
     await link_user_to_identity(db, user=owner, identity=identity)
 
@@ -250,6 +275,89 @@ async def deactivate_tenant(db: AsyncSession, *, tenant_id: UUID) -> None:
         raise PlatformError("tenant not found")
     tenant.is_active = False
     await db.flush()
+
+
+# -------------------------------------------------------- self-signup flow
+
+
+async def signup_tenant(
+    db: AsyncSession,
+    *,
+    company_name: str,
+    slug: str,
+    owner_email: str,
+    owner_full_name: str,
+    owner_password: str,
+) -> tuple[Tenant, User, Identity]:
+    """Create a tenant + admin user + Identity for the self-signup flow.
+
+    Same as :func:`create_tenant_with_owner` but also:
+
+    * enforces that the Identity email is globally unique (you cannot
+      signup twice with the same address)
+    * stamps ``terms_accepted_at`` on the new Identity
+
+    Caller is responsible for sending the verification email afterwards.
+    """
+    # Fail fast if the email already has a platform Identity. This is the
+    # happy-path check; the IntegrityError catch below handles the race
+    # where two concurrent requests both pass this check and only one of
+    # them wins the unique-constraint lottery at flush-time.
+    existing = await find_identity_by_email(db, owner_email)
+    if existing is not None:
+        raise DuplicateIdentityEmail(owner_email.strip().lower())
+
+    try:
+        tenant, owner = await create_tenant_with_owner(
+            db,
+            slug=slug,
+            name=company_name,
+            owner_email=owner_email,
+            owner_full_name=owner_full_name,
+            owner_password=owner_password,
+        )
+    except IntegrityError as exc:
+        # Translate DB-level unique-constraint violations to the same
+        # domain exceptions the happy-path code already raises.
+        await db.rollback()
+        msg = str(getattr(exc, "orig", exc))
+        if "platform_identities_email" in msg:
+            raise DuplicateIdentityEmail(owner_email.strip().lower()) from exc
+        if "tenants_slug" in msg or "uq_tenants_slug" in msg:
+            raise DuplicateTenantSlug(slug) from exc
+        raise
+
+    # `create_tenant_with_owner` already created/linked the Identity.
+    identity = await find_identity_by_email(db, owner_email)
+    assert identity is not None  # just created above
+    identity.terms_accepted_at = datetime.now(UTC)
+    await db.flush()
+
+    # Give the new tenant a 14-day trial on the starter plan by default.
+    # The only known failure mode here is "migration 1003 hasn't been
+    # applied yet" (PlanNotFound). Anything else indicates a real bug
+    # and should surface rather than silently continue.
+    try:
+        from app.platform.billing.service import PlanNotFound, start_trial_subscription
+
+        await start_trial_subscription(db, tenant=tenant, plan_code="starter")
+    except PlanNotFound:
+        pass
+
+    return tenant, owner, identity
+
+
+async def mark_email_verified(db: AsyncSession, *, identity_id: UUID) -> Identity:
+    """Mark an Identity as email-verified. Idempotent."""
+    identity = (
+        await db.execute(select(Identity).where(Identity.id == identity_id))
+    ).scalar_one_or_none()
+    if identity is None:
+        raise PlatformError("identity not found")
+    if identity.email_verified_at is None:
+        identity.email_verified_at = datetime.now(UTC)
+        await db.flush()
+    return identity
 
 
 # ----------------------------------------------------------- customer lookup

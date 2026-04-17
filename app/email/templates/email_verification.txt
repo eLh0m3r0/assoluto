@@ -1,0 +1,14 @@
+Vítejte v SME Portalu
+
+Dobrý den, {{ full_name }},
+
+děkujeme za registraci portálu pro vaši firmu {{ company_name }}.
+
+Pro dokončení registrace prosím klikněte na následující odkaz
+a potvrďte svou e-mailovou adresu:
+
+    {{ verify_url }}
+
+Odkaz je platný 24 hodin.
+
+Pokud jste o registraci nežádali, můžete tento e-mail ignorovat.

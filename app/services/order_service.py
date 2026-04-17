@@ -165,21 +165,38 @@ async def list_status_history(db: AsyncSession, order_id: UUID) -> list[OrderSta
 async def _next_order_number(db: AsyncSession, *, tenant_id: UUID) -> str:
     """Atomically allocate the next per-tenant order number.
 
-    Uses a row-level lock on the tenant row so concurrent creations can't
-    collide. The returned value is "<year>-<seq:06>".
+    Instead of relying on a counter field (which can drift after manual
+    inserts, seed scripts, or data imports), we derive the next sequence
+    from the actual MAX(number) in the orders table for this tenant/year.
+    A FOR UPDATE lock on the tenant row serialises concurrent creations.
     """
-    # SELECT ... FOR UPDATE on the tenant row.
-    tenant = (
-        await db.execute(select(Tenant).where(Tenant.id == tenant_id).with_for_update())
-    ).scalar_one()
-    next_seq = (tenant.next_order_seq or 0) + 1
-    tenant.next_order_seq = next_seq
-    # Flush the update so the lock holds through the rest of the
-    # enclosing transaction.
-    await db.flush()
-
     now = datetime.now(UTC)
-    return f"{now.year}-{next_seq:06d}"
+    year = now.year
+    prefix = f"{year}-"
+
+    # Lock the tenant row to serialise concurrent order creation.
+    await db.execute(select(Tenant).where(Tenant.id == tenant_id).with_for_update())
+
+    # Find the highest existing number for this year.
+    max_number = (
+        await db.execute(
+            select(func.max(Order.number)).where(
+                Order.tenant_id == tenant_id,
+                Order.number.like(f"{prefix}%"),
+            )
+        )
+    ).scalar()
+
+    if max_number is not None:
+        try:
+            current_seq = int(max_number.split("-", 1)[1])
+        except (ValueError, IndexError):
+            current_seq = 0
+    else:
+        current_seq = 0
+
+    next_seq = current_seq + 1
+    return f"{year}-{next_seq:06d}"
 
 
 async def create_order(

@@ -56,6 +56,8 @@ async def platform_client(
 
 
 async def _seed_platform_admin(owner_engine) -> dict:
+    from datetime import UTC, datetime
+
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
         admin = Identity(
@@ -64,6 +66,8 @@ async def _seed_platform_admin(owner_engine) -> dict:
             full_name="Platform Root",
             password_hash=hash_password("rootpass"),
             is_platform_admin=True,
+            # require_platform_admin now gates on email_verified_at too.
+            email_verified_at=datetime.now(UTC),
         )
         session.add(admin)
         await session.flush()
@@ -82,7 +86,8 @@ async def _platform_login(client: CsrfAwareClient, email: str, password: str) ->
 async def test_platform_login_form_renders(platform_client: CsrfAwareClient) -> None:
     resp = await platform_client.get("/platform/login")
     assert resp.status_code == 200
-    assert "SME Portal — platforma" in resp.text
+    # cs default locale: "Platform" → "Platforma".
+    assert "SME Portal — Platforma" in resp.text
 
 
 async def test_platform_login_with_wrong_password_fails(

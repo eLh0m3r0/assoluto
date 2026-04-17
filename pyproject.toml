@@ -4,8 +4,19 @@ version = "0.1.0"
 description = "Customer portal for manufacturing SMEs: orders, catalog, client-owned assets"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Proprietary (license TBD before first release)" }
+license = { text = "AGPL-3.0-or-later" }
 authors = [{ name = "4MEX" }]
+keywords = ["fastapi", "multi-tenant", "saas", "manufacturing", "portal", "sme"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: FastAPI",
+    "Intended Audience :: Manufacturing",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business",
+]
 
 dependencies = [
     # Web framework
@@ -39,6 +50,15 @@ dependencies = [
     # Misc
     "python-slugify>=8.0",
     "httpx>=0.27",
+    # i18n
+    "babel>=2.16",
+    # Billing (optional at runtime — methods no-op in demo mode when
+    # STRIPE_SECRET_KEY is unset).
+    "stripe>=10.0",
+    # Rate limiting on public endpoints (signup, verify-resend, contact).
+    "slowapi>=0.1.9",
+    # Password strength scoring — rejects trivial passwords (OWASP ASVS L1).
+    "zxcvbn>=4.4.28",
 ]
 
 [dependency-groups]

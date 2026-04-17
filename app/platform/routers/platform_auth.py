@@ -25,6 +25,7 @@ from app.platform.session import (
     write_platform_session,
 )
 from app.security.csrf import verify_csrf
+from app.security.rate_limit import limit as rate_limit
 from app.security.session import SessionData, write_session
 
 router = APIRouter(tags=["platform-auth"], dependencies=[Depends(verify_csrf)])
@@ -59,6 +60,7 @@ async def platform_login_form(
 
 
 @router.post("/platform/login", response_class=HTMLResponse)
+@rate_limit("20/15 minutes")
 async def platform_login_submit(
     request: Request,
     email: str = Form(...),
@@ -158,6 +160,7 @@ async def select_tenant(
 async def switch_to_tenant(
     tenant_slug: str,
     request: Request,
+    next: str = Form(""),
     identity: Identity = Depends(require_identity),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
@@ -165,11 +168,15 @@ async def switch_to_tenant(
     """Drop a tenant-local session cookie and redirect to the dashboard.
 
     The endpoint verifies that the caller actually has a membership for
-    the target tenant before minting a local session.
+    the target tenant before minting a local session. An optional
+    ``next`` form field redirects to a same-origin path (e.g. straight
+    into checkout after email verification); open-redirect protection
+    is delegated to ``_safe_next_path``.
     """
     from sqlalchemy import select
 
     from app.models.tenant import Tenant
+    from app.routers.public import _safe_next_path
 
     tenant = (
         await db.execute(select(Tenant).where(Tenant.slug == tenant_slug))
@@ -189,19 +196,20 @@ async def switch_to_tenant(
     _, target = await resolve_membership_targets(db, membership=selected)
     if target is None:
         raise HTTPException(status_code=404, detail="Membership target missing")
+    # Round-3 audit Backend P2: refuse to mint a session for a
+    # deactivated User / CustomerContact even when the membership
+    # row still exists. Prevents a zombie cookie from being issued.
+    if not getattr(target, "is_active", True):
+        raise HTTPException(status_code=403, detail="Target account is deactivated")
 
     if isinstance(target, User):
         principal_type = "user"
         customer_id = None
-        full_name = target.full_name
-        email_val = target.email
         session_version = target.session_version
         principal_id = target.id
     else:  # CustomerContact
         principal_type = "contact"
         customer_id = target.customer_id
-        full_name = target.full_name
-        email_val = target.email
         session_version = target.session_version
         principal_id = target.id
 
@@ -214,7 +222,10 @@ async def switch_to_tenant(
         session_version=session_version,
     )
 
-    response = RedirectResponse(url="/app", status_code=303)
+    redirect_to = _safe_next_path(next) if next else "/app"
+    if redirect_to == "/":
+        redirect_to = "/app"
+    response = RedirectResponse(url=redirect_to, status_code=303)
     write_session(
         response,
         settings.app_secret_key,
@@ -224,5 +235,4 @@ async def switch_to_tenant(
     # Keep the tenant header so in-process tests & single-domain dev
     # still resolve the tenant after the redirect.
     response.headers["X-Tenant-Slug"] = tenant.slug
-    _ = (full_name, email_val)  # silence unused
     return response

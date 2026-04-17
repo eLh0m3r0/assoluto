@@ -1,0 +1,106 @@
+{% extends "www/www_base.html" %}
+
+{% block title %}Ceník · SME Portal{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-5xl pb-16">
+    <div class="mb-10 text-center">
+        <h1 class="text-3xl font-bold text-slate-900">Jednoduchý ceník</h1>
+        <p class="mt-2 text-slate-600">
+            14denní zkušební verze zdarma. Ceny jsou bez DPH.
+        </p>
+    </div>
+
+    <div class="grid gap-5 md:grid-cols-4">
+        {# -- Community (self-hosted) -- #}
+        <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-slate-900">Community</h3>
+            <p class="mt-1 text-sm text-slate-500">Self-hosted, AGPL-3.0</p>
+            <p class="mt-4"><span class="text-3xl font-bold text-slate-900">Zdarma</span></p>
+            <ul class="mt-6 space-y-2 text-sm text-slate-600">
+                <li>✓ Neomezení uživatelé</li>
+                <li>✓ Neomezené objednávky</li>
+                <li>✓ Vlastní Postgres + S3</li>
+                <li>✓ GitHub komunita</li>
+            </ul>
+            <a href="/self-hosted"
+               class="mt-auto pt-6">
+                <span class="block rounded-md bg-slate-100 px-4 py-2 text-center text-sm font-semibold text-slate-700 hover:bg-slate-200">Návod</span>
+            </a>
+        </div>
+
+        {# -- Starter -- #}
+        <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-slate-900">Starter</h3>
+            <p class="mt-1 text-sm text-slate-500">Malé týmy</p>
+            <p class="mt-4">
+                <span class="text-3xl font-bold text-slate-900">490 Kč</span>
+                <span class="text-sm text-slate-500">/měsíc</span>
+            </p>
+            <ul class="mt-6 space-y-2 text-sm text-slate-600">
+                <li>✓ 3 staff uživatelé</li>
+                <li>✓ 20 kontaktů klientů</li>
+                <li>✓ 100 objednávek/měs.</li>
+                <li>✓ 2 GB úložiště</li>
+                <li>✓ E-mail podpora (48 h)</li>
+            </ul>
+            <a href="/platform/signup?plan=starter"
+               class="mt-auto pt-6">
+                <span class="block rounded-md bg-brand-600 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-brand-700">Vyzkoušet zdarma 14 dní</span>
+            </a>
+        </div>
+
+        {# -- Pro -- #}
+        <div class="flex flex-col rounded-xl border-2 border-brand-500 bg-white p-6 shadow-md ring-2 ring-brand-100">
+            <div class="mb-1 text-xs font-bold uppercase tracking-wide text-brand-600">Nejoblíbenější</div>
+            <h3 class="text-lg font-semibold text-slate-900">Pro</h3>
+            <p class="mt-1 text-sm text-slate-500">Rostoucí firmy</p>
+            <p class="mt-4">
+                <span class="text-3xl font-bold text-slate-900">1 490 Kč</span>
+                <span class="text-sm text-slate-500">/měsíc</span>
+            </p>
+            <ul class="mt-6 space-y-2 text-sm text-slate-600">
+                <li>✓ 15 staff uživatelů</li>
+                <li>✓ 100 kontaktů klientů</li>
+                <li>✓ Neomezené objednávky</li>
+                <li>✓ 20 GB úložiště</li>
+                <li>✓ E-mail podpora (12 h)</li>
+                <li>✓ SSO (brzy)</li>
+            </ul>
+            <a href="/platform/signup?plan=pro"
+               class="mt-auto pt-6">
+                <span class="block rounded-md bg-brand-600 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-brand-700">Vyzkoušet zdarma 14 dní</span>
+            </a>
+        </div>
+
+        {# -- Enterprise -- #}
+        <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-slate-900">Enterprise</h3>
+            <p class="mt-1 text-sm text-slate-500">Na míru</p>
+            <p class="mt-4"><span class="text-3xl font-bold text-slate-900">Individuálně</span></p>
+            <ul class="mt-6 space-y-2 text-sm text-slate-600">
+                <li>✓ Neomezené limity</li>
+                <li>✓ Vlastní doména</li>
+                <li>✓ Dedikovaná podpora (4 h)</li>
+                <li>✓ SLA</li>
+                <li>✓ On-prem nasazení možné</li>
+            </ul>
+            <a href="/contact" class="mt-auto pt-6">
+                <span class="block rounded-md bg-slate-800 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-slate-900">Kontaktovat</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-10 rounded-lg border border-slate-200 bg-slate-50 p-6 text-sm text-slate-600">
+        <p class="font-semibold text-slate-900">Roční předplatné</p>
+        <p class="mt-1">2 měsíce zdarma — Starter 4 900 Kč/rok, Pro 14 900 Kč/rok.</p>
+        <p class="mt-3 font-semibold text-slate-900">Často kladené dotazy</p>
+        <ul class="mt-1 list-disc space-y-1 pl-5">
+            <li>Platební karty zpracováváme přes Stripe; fakturu dostanete e-mailem.</li>
+            <li>Kdykoliv můžete přejít na vyšší/nižší plán; dopočítá se rozdíl.</li>
+            <li>Můžete svůj účet zrušit a exportovat svá data (CSV).</li>
+            <li>Ceny se nevztahují na self-hosted verzi — ta je zdarma navždy.</li>
+        </ul>
+    </div>
+</section>
+{% endblock %}

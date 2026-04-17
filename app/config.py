@@ -52,6 +52,14 @@ class Settings(BaseSettings):
     # --- Tenancy -----------------------------------------------------------
     default_tenant_slug: str | None = Field(default=None, alias="DEFAULT_TENANT_SLUG")
 
+    # --- Localization (i18n) -----------------------------------------------
+    # Default UI language served when no cookie / header preference matches
+    # one of the supported locales. The portal ships Czech (``cs``) and
+    # English (``en``) out of the box.
+    default_locale: str = Field(default="cs", alias="DEFAULT_LOCALE")
+    # Comma-separated list of supported locale codes.
+    supported_locales: str = Field(default="cs,en", alias="SUPPORTED_LOCALES")
+
     # --- Platform (hosted SaaS layer) ---------------------------------------
     # When enabled, the `app.platform` package registers extra routes for
     # platform-level identity, tenant switching, and tenant CRUD. Keep it
@@ -60,6 +68,36 @@ class Settings(BaseSettings):
     # Parent domain cookies for the cross-subdomain session, e.g.
     # `.portal.example.com`. Leave empty for single-host deployments.
     platform_cookie_domain: str = Field(default="", alias="PLATFORM_COOKIE_DOMAIN")
+
+    # --- Platform operator (legal entity behind the hosted service) -------
+    # Filled on every hosted deployment; templated into the Terms of
+    # Service + Privacy Policy pages. Leaving *any* of these empty hides
+    # the legal pages (404) so we never publish a half-filled template
+    # that a user could legally accept against an unnamed party.
+    platform_operator_name: str = Field(default="", alias="PLATFORM_OPERATOR_NAME")
+    platform_operator_ico: str = Field(default="", alias="PLATFORM_OPERATOR_ICO")
+    platform_operator_address: str = Field(default="", alias="PLATFORM_OPERATOR_ADDRESS")
+    platform_operator_email: str = Field(
+        default="opensource@4mex.cz", alias="PLATFORM_OPERATOR_EMAIL"
+    )
+
+    # --- Billing (Stripe) --------------------------------------------------
+    # Leave all empty to run in "demo mode" — billing flows still work but
+    # never call the Stripe API. Set STRIPE_SECRET_KEY (and the price IDs)
+    # to enable real checkout.
+    stripe_secret_key: str = Field(default="", alias="STRIPE_SECRET_KEY")
+    stripe_publishable_key: str = Field(default="", alias="STRIPE_PUBLISHABLE_KEY")
+    stripe_webhook_secret: str = Field(default="", alias="STRIPE_WEBHOOK_SECRET")
+    # Stripe Price IDs for the two paid plans (create in Stripe dashboard).
+    # REQUIRED: each Price must have ``tax_behavior`` set to either
+    # ``inclusive`` or ``exclusive`` at creation time in the Stripe
+    # dashboard — otherwise checkout sessions with ``automatic_tax=true``
+    # fail with ``InvalidRequestError: The price … doesn't have
+    # tax_behavior set``. For Czech DPH 21 % registration, pick
+    # ``exclusive`` (list prices shown "bez DPH") — it matches how our
+    # pricing page labels the amounts.
+    stripe_price_starter: str = Field(default="", alias="STRIPE_PRICE_STARTER")
+    stripe_price_pro: str = Field(default="", alias="STRIPE_PRICE_PRO")
 
     # --- S3 / MinIO --------------------------------------------------------
     s3_endpoint_url: str = Field(default="http://localhost:9000", alias="S3_ENDPOINT_URL")
@@ -85,6 +123,15 @@ class Settings(BaseSettings):
     # --- Uploads -----------------------------------------------------------
     max_upload_size_mb: int = Field(default=50, alias="MAX_UPLOAD_SIZE_MB")
 
+    # --- Proxy / rate limiting --------------------------------------------
+    # Comma-separated CIDR blocks or IP literals we trust to forward a
+    # real client IP in ``X-Forwarded-For``. Empty = don't trust any
+    # header — use ``request.client.host`` directly (safe default for
+    # local dev). In production behind Cloudflare / nginx, set this to
+    # the proxy's egress IPs (and Cloudflare's published ranges) so per-
+    # client rate limits actually track the real client.
+    trusted_proxies: str = Field(default="", alias="TRUSTED_PROXIES")
+
     # --- Logging -----------------------------------------------------------
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(
         default="INFO", alias="LOG_LEVEL"
@@ -98,6 +145,20 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.app_env == "production"
+
+    @property
+    def stripe_enabled(self) -> bool:
+        """Demo mode = billing UI without Stripe API calls."""
+        return bool(self.stripe_secret_key)
+
+    @property
+    def operator_identity_complete(self) -> bool:
+        """All legal identity fields filled in — safe to serve ToS / Privacy."""
+        return bool(
+            self.platform_operator_name
+            and self.platform_operator_ico
+            and self.platform_operator_address
+        )
 
     @property
     def is_test(self) -> bool:

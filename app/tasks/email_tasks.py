@@ -71,6 +71,26 @@ def send_invitation(
     _safe_send(sender, "invitation", to, rendered.subject, rendered.html, rendered.text)
 
 
+def send_email_verification(
+    sender: EmailSender,
+    *,
+    to: str,
+    full_name: str,
+    company_name: str,
+    verify_url: str,
+) -> None:
+    """Send the platform signup email-verification link."""
+    rendered = render_email(
+        "email_verification",
+        {
+            "full_name": full_name,
+            "company_name": company_name,
+            "verify_url": verify_url,
+        },
+    )
+    _safe_send(sender, "email_verification", to, rendered.subject, rendered.html, rendered.text)
+
+
 def send_staff_invitation(
     sender: EmailSender,
     *,

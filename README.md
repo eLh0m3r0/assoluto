@@ -1,5 +1,10 @@
 # SME Client Portal
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![CI](https://github.com/elh0m3r0/sme-client-portal/actions/workflows/ci.yml/badge.svg)](https://github.com/elh0m3r0/sme-client-portal/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://docs.astral.sh/ruff/)
+
 Zákaznický portál pro malé a střední výrobní firmy. Transparentní
 objednávkový proces mezi dodavatelem (výrobcem) a jeho klienty.
 
@@ -7,6 +12,7 @@ objednávkový proces mezi dodavatelem (výrobcem) a jeho klienty.
 > Customers submit orders (with attachments), the supplier quotes,
 > confirms, tracks production status, and manages client-owned
 > materials stored on-site. Built with Python / FastAPI / PostgreSQL.
+> Free and open-source under AGPL-3.0.
 
 ---
 
@@ -68,7 +74,8 @@ Demo credentials: `owner@4mex.cz` / `demo1234` (staff), `jan@acme.cz` / `demo123
 | Doc | What it covers |
 |---|---|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, multi-tenancy, RLS, request flow, directory layout |
-| [docs/SELF_HOST.md](docs/SELF_HOST.md) | Production deployment guide, first-run walkthrough, backups |
+| [docs/SELF_HOST.md](docs/SELF_HOST.md) | Self-hosted production deployment guide |
+| [docs/DEPLOY_SAAS.md](docs/DEPLOY_SAAS.md) | Hosted SaaS deployment (Hetzner + Coolify + Cloudflare R2 + Resend + Stripe) |
 | [docs/ENV.md](docs/ENV.md) | Complete reference of all environment variables |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Developer setup, testing, code conventions, PR checklist |
 | [CLAUDE.md](CLAUDE.md) | AI-assisted development conventions and codebase gotchas |
@@ -122,10 +129,25 @@ tests/                   # 112 tests (pytest + httpx + moto)
 docs/                    # ARCHITECTURE, SELF_HOST, ENV
 ```
 
-## Licence
+## License
 
-Licence TBD before first public release — see [LICENSE.placeholder](LICENSE.placeholder).
-Options under consideration: AGPL-3.0 (full) or MIT core + commercial platform.
+**GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)** — see [LICENSE](LICENSE).
+
+You are free to use, modify, and redistribute this software under the
+terms of the AGPL-3.0. If you run a modified version over a network
+(e.g., as a hosted SaaS), the AGPL requires that you make the source
+code of your modified version available to users of that network service.
+
+For commercial licensing inquiries (proprietary forks, OEM integration,
+etc.) contact: `opensource@4mex.cz`
+
+## Community
+
+- **Bug reports & feature requests:** [GitHub Issues](https://github.com/elh0m3r0/sme-client-portal/issues)
+- **Security disclosures:** see [SECURITY.md](SECURITY.md)
+- **Code of Conduct:** [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — we follow the Contributor Covenant v2.1
+- **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Changelog:** [CHANGELOG.md](CHANGELOG.md)
 
 ## Status
 

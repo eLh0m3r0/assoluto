@@ -73,6 +73,22 @@ async def upload_attachment(
     except (OrderNotFound, OrderAccessDenied):
         raise HTTPException(status_code=404, detail="Order not found") from None
 
+    # Server-side enforcement of can_upload_files (round-4 audit A1).
+    if not principal.is_staff:
+        from sqlalchemy import select
+
+        from app.models.customer import Customer
+        from app.services.customer_permissions import OrderPermissions
+
+        customer = (
+            await db.execute(select(Customer).where(Customer.id == order.customer_id))
+        ).scalar_one_or_none()
+        perms = OrderPermissions.from_dict(customer.order_permissions if customer else None)
+        if not perms.can_upload_files:
+            raise HTTPException(
+                status_code=403, detail="Uploading files is disabled for your account"
+            )
+
     # Read body into memory (MVP). For large files a streaming upload will
     # replace this in R0 alongside presigned PUTs.
     data = await file.read()

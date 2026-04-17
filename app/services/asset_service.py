@@ -118,7 +118,14 @@ async def add_movement(
     created_by_user_id: UUID | None = None,
     occurred_at: datetime | None = None,
 ) -> AssetMovement:
-    """Insert a movement and recompute the asset's current_quantity."""
+    """Insert a movement and recompute the asset's current_quantity.
+
+    The asset row is re-loaded ``FOR UPDATE`` inside this function so
+    concurrent movements on the same asset are serialised at the DB
+    level — otherwise two simultaneous POSTs could both read the same
+    ``current_quantity``, both pass the stock check, and the last
+    writer would persist a wrong total. Round-4 audit A2 fix.
+    """
     if quantity is None:
         raise AssetError("quantity is required")
 
@@ -128,9 +135,17 @@ async def add_movement(
 
     signed = _signed_quantity(type_, qty)
 
-    new_total = (asset.current_quantity or Decimal("0")) + signed
+    # Re-read the row under a row-level lock so the current_quantity
+    # is guaranteed not to change between our read and write.
+    locked_asset = (
+        await db.execute(select(Asset).where(Asset.id == asset.id).with_for_update())
+    ).scalar_one()
+
+    new_total = (locked_asset.current_quantity or Decimal("0")) + signed
     if type_ in (AssetMovementType.ISSUE, AssetMovementType.CONSUME) and new_total < 0:
-        raise InsufficientStock(f"not enough stock: {asset.current_quantity} < {qty.copy_abs()}")
+        raise InsufficientStock(
+            f"not enough stock: {locked_asset.current_quantity} < {qty.copy_abs()}"
+        )
 
     movement = AssetMovement(
         tenant_id=tenant_id,
@@ -143,6 +158,6 @@ async def add_movement(
         created_by_user_id=created_by_user_id,
     )
     db.add(movement)
-    asset.current_quantity = new_total
+    locked_asset.current_quantity = new_total
     await db.flush()
     return movement

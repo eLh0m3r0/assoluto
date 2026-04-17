@@ -74,5 +74,40 @@
                 </a>.
             </p>
         </div>
+    {% elif stats.customers == 0 and stats.open_orders == 0 and stats.assets == 0 %}
+        {# Empty-state onboarding nudge — shows on a fresh tenant. #}
+        <div class="mt-8 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6">
+            <h2 class="text-base font-semibold text-slate-900">Začněte tím, že přidáte prvního klienta</h2>
+            <p class="mt-1 text-sm text-slate-600">
+                Klient = firma, jejíž kontakty budou zadávat objednávky skrz portál.
+                Pak si můžete přidat produkty do katalogu nebo sledovat jejich majetek u vás.
+            </p>
+            <ol class="mt-4 grid gap-3 sm:grid-cols-3">
+                <li>
+                    <a href="/app/customers/new"
+                       class="block rounded-lg border border-slate-200 bg-white p-4 hover:border-blue-400 hover:shadow">
+                        <span class="text-xs font-bold text-blue-600">1</span>
+                        <p class="mt-1 text-sm font-semibold text-slate-900">Přidat klienta</p>
+                        <p class="mt-0.5 text-xs text-slate-500">Firma, které budete dodávat</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="/app/products/new"
+                       class="block rounded-lg border border-slate-200 bg-white p-4 hover:border-emerald-400 hover:shadow">
+                        <span class="text-xs font-bold text-emerald-600">2</span>
+                        <p class="mt-1 text-sm font-semibold text-slate-900">Založit produkt</p>
+                        <p class="mt-0.5 text-xs text-slate-500">Položka z vašeho katalogu</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="/app/admin/users"
+                       class="block rounded-lg border border-slate-200 bg-white p-4 hover:border-purple-400 hover:shadow">
+                        <span class="text-xs font-bold text-purple-600">3</span>
+                        <p class="mt-1 text-sm font-semibold text-slate-900">Pozvat kolegu</p>
+                        <p class="mt-0.5 text-xs text-slate-500">Staff / admin role</p>
+                    </a>
+                </li>
+            </ol>
+        </div>
     {% endif %}
 {% endblock %}

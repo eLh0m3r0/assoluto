@@ -1,0 +1,263 @@
+# Translations template for sme-client-portal.
+# Copyright (C) 2026 4MEX
+# This file is distributed under the same license as the sme-client-portal
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sme-client-portal 0.1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-04-16 13:28+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/templates/app_base.html:7
+msgid "Dashboard"
+msgstr ""
+
+#: app/templates/app_base.html:8
+msgid "Orders"
+msgstr ""
+
+#: app/templates/app_base.html:9
+msgid "Assets"
+msgstr ""
+
+#: app/templates/app_base.html:11
+msgid "Clients"
+msgstr ""
+
+#: app/templates/app_base.html:12
+msgid "Catalog"
+msgstr ""
+
+#: app/templates/app_base.html:14
+msgid "Team"
+msgstr ""
+
+#: app/templates/app_base.html:38 app/templates/platform/select_tenant.html:17
+msgid "Sign out"
+msgstr ""
+
+#: app/templates/base.html:17
+msgid "Home"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:14
+msgid "Draft"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:15
+msgid "Submitted"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:16
+msgid "Quoted"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:17
+msgid "Confirmed"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:18
+msgid "In production"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:19
+msgid "Ready"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:20
+msgid "Delivered"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:21
+msgid "Closed"
+msgstr ""
+
+#: app/templates/orders/_status_badge.html:22
+msgid "Cancelled"
+msgstr ""
+
+#: app/templates/platform/login.html:3 app/templates/platform/login.html:8
+msgid "Platform"
+msgstr ""
+
+#: app/templates/platform/login.html:3 app/templates/platform/login.html:29
+#: app/templates/platform/signup.html:120
+msgid "Sign in"
+msgstr ""
+
+#: app/templates/platform/login.html:10
+msgid "Sign in with a single account to all the portals you have access to."
+msgstr ""
+
+#: app/templates/platform/login.html:18
+msgid "Email"
+msgstr ""
+
+#: app/templates/platform/login.html:23 app/templates/platform/signup.html:83
+msgid "Password"
+msgstr ""
+
+#: app/templates/platform/login.html:33
+msgid "Don't have an account yet?"
+msgstr ""
+
+#: app/templates/platform/login.html:35
+msgid "Create new portal"
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:3
+#: app/templates/platform/select_tenant.html:9
+msgid "Select portal"
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:11
+msgid "Signed in as"
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:32
+msgid "Switch to"
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:42
+msgid "As a team member"
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:44
+msgid "As a customer contact"
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:54
+msgid "You don't have access to any portal."
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:61
+msgid "You have platform-admin permissions."
+msgstr ""
+
+#: app/templates/platform/select_tenant.html:63
+msgid "Manage tenants"
+msgstr ""
+
+#: app/templates/platform/signup.html:3 app/templates/platform/signup.html:114
+msgid "Create portal"
+msgstr ""
+
+#: app/templates/platform/signup.html:8
+msgid "Create your portal"
+msgstr ""
+
+#: app/templates/platform/signup.html:10
+msgid "14-day free trial. No credit card required."
+msgstr ""
+
+#: app/templates/platform/signup.html:22
+msgid "Company name"
+msgstr ""
+
+#: app/templates/platform/signup.html:23
+msgid "required"
+msgstr ""
+
+#: app/templates/platform/signup.html:36
+msgid "Portal subdomain"
+msgstr ""
+
+#: app/templates/platform/signup.html:50
+msgid "Optional — if empty we derive it from the company name."
+msgstr ""
+
+#: app/templates/platform/signup.html:60
+msgid "Your name"
+msgstr ""
+
+#: app/templates/platform/signup.html:69
+msgid "Work email"
+msgstr ""
+
+#: app/templates/platform/signup.html:89
+msgid "At least 8 characters; avoid common passwords."
+msgstr ""
+
+#: app/templates/platform/signup.html:101
+msgid "I agree to the"
+msgstr ""
+
+#: app/templates/platform/signup.html:102
+msgid "Terms of Service"
+msgstr ""
+
+#: app/templates/platform/signup.html:103
+msgid "and the"
+msgstr ""
+
+#: app/templates/platform/signup.html:104
+msgid "Privacy Policy"
+msgstr ""
+
+#: app/templates/platform/signup.html:119
+msgid "Already have an account?"
+msgstr ""
+
+#: app/templates/platform/verify_email.html:3
+msgid "Email verification"
+msgstr ""
+
+#: app/templates/platform/verify_email.html:12
+msgid "Email successfully verified"
+msgstr ""
+
+#: app/templates/platform/verify_email.html:25
+msgid "Finish setting up"
+msgstr ""
+
+#: app/templates/platform/verify_email.html:30
+msgid "Skip for now"
+msgstr ""
+
+#: app/templates/platform/verify_email.html:35
+msgid "Continue to the portal"
+msgstr ""
+
+#: app/templates/platform/verify_email.html:42
+msgid "Email verification failed"
+msgstr ""
+
+#: app/templates/platform/verify_email.html:48
+#: app/templates/platform/verify_sent.html:23
+msgid "Send a new verification link"
+msgstr ""
+
+#: app/templates/platform/verify_email.html:53
+msgid "Back to sign in"
+msgstr ""
+
+#: app/templates/platform/verify_sent.html:3
+msgid "Verify your email"
+msgstr ""
+
+#: app/templates/platform/verify_sent.html:11
+msgid "Check your email"
+msgstr ""
+
+#: app/templates/platform/verify_sent.html:13
+msgid "We've sent a verification link to"
+msgstr ""
+
+#: app/templates/platform/verify_sent.html:14
+msgid "Click the link and your portal will be ready to use."
+msgstr ""
+
+#: app/templates/platform/verify_sent.html:17
+msgid "Didn't receive it? Check your spam folder or request a new link."
+msgstr ""
+

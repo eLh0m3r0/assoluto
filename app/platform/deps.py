@@ -82,9 +82,32 @@ async def require_identity(
     return identity
 
 
-async def require_platform_admin(
+async def require_verified_identity(
     identity: Identity = Depends(require_identity),
 ) -> Identity:
+    """Refuse to serve the request when the identity's email isn't verified.
+
+    Guards admin + billing routes against the "typo'd someone else's email
+    and auto-logged in" path: signup issues a platform session cookie
+    pre-verification, so anything irreversible downstream must recheck.
+    The verify-sent / verify-resend / verify-email flows themselves use
+    plain ``require_identity`` so they remain reachable.
+    """
+    if identity.email_verified_at is None:
+        raise HTTPException(
+            status_code=403,
+            detail=("E-mail není ověřen. Nejprve klikněte na odkaz v ověřovacím e-mailu."),
+            headers={"Location": "/platform/verify-sent"},
+        )
+    return identity
+
+
+async def require_platform_admin(
+    identity: Identity = Depends(require_verified_identity),
+) -> Identity:
+    """Platform admins MUST have a verified email — they hold super-powers
+    across every tenant; we cannot grant that to a freshly signed-up
+    identity whose email hasn't been confirmed yet."""
     if not identity.is_platform_admin:
         raise HTTPException(status_code=403, detail="Platform admin required")
     return identity

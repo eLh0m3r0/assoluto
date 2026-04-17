@@ -42,6 +42,19 @@ class Customer(Base, TimestampMixin, TenantMixin):
     billing_address: Mapped[dict[str, Any] | None] = mapped_column(JsonColumn, nullable=True)
     notes: Mapped[str | None] = mapped_column(String(2000), nullable=True)
 
+    # Per-customer order permission flags. Controls what the customer's
+    # contacts can do when creating/editing orders. Staff always has full
+    # access regardless of these settings.
+    #
+    # Keys (all default True when missing):
+    #   can_add_items       — contact can add line items (in DRAFT)
+    #   can_use_catalog     — show product picker; False = free-text only
+    #   can_set_prices      — contact can fill unit_price on items
+    #   can_upload_files    — contact can attach files
+    order_permissions: Mapped[dict[str, Any]] = mapped_column(
+        JsonColumn, nullable=False, default=dict, server_default="{}"
+    )
+
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, server_default="true"
     )

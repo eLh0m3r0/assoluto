@@ -14,6 +14,7 @@ from app.config import Settings, get_settings
 from app.deps import get_current_tenant, get_db
 from app.models.tenant import Tenant
 from app.security.csrf import verify_csrf
+from app.security.rate_limit import limit as rate_limit
 from app.security.session import SessionData, clear_session, write_session
 from app.services.auth_service import (
     AccountDisabled,
@@ -41,6 +42,41 @@ PASSWORD_RESET_MAX_AGE_SECONDS = 30 * 60
 
 def _templates(request: Request):
     return request.app.state.templates
+
+
+def _safe_next_path(candidate: str) -> str:
+    """Return ``candidate`` if it is a same-origin path, else ``"/"``.
+
+    Defensive against open-redirect tricks:
+    - must start with ``/``
+    - must not start with ``//`` (protocol-relative URL)
+    - must not contain a backslash (some browsers fold it to ``/``)
+    - must not contain ``..`` segments (including URL-encoded ``%2e%2e``
+      — round-3 defence-in-depth, Backend P2)
+    - must not parse to a non-empty ``netloc`` once normalised
+    - may carry a query string and fragment
+    """
+    from urllib.parse import unquote, urlsplit
+
+    if not candidate or not candidate.startswith("/"):
+        return "/"
+    if candidate.startswith("//"):
+        return "/"
+    if "\\" in candidate:
+        return "/"
+    # Decode once to catch %2e%2e and friends. Any path segment that
+    # decodes to ".." refuses — Starlette's router would normalise
+    # anyway, but defence-in-depth keeps the behaviour explicit.
+    decoded = unquote(candidate)
+    if ".." in decoded.split("?", 1)[0].split("/"):
+        return "/"
+    try:
+        parts = urlsplit(candidate)
+    except ValueError:
+        return "/"
+    if parts.scheme or parts.netloc:
+        return "/"
+    return candidate
 
 
 def _login_redirect(request: Request) -> RedirectResponse:
@@ -73,7 +109,32 @@ def _persist_session(
 
 
 @router.get("/", response_class=HTMLResponse)
-async def landing(request: Request, tenant: Tenant = Depends(get_current_tenant)) -> HTMLResponse:
+async def landing(
+    request: Request,
+    settings: Settings = Depends(get_settings),
+) -> HTMLResponse:
+    """Root landing.
+
+    * If a tenant resolves (subdomain / header / DEFAULT_TENANT_SLUG) we
+      show the familiar tenant landing page.
+    * Otherwise, when the platform feature is enabled we render the
+      public marketing page so apex-domain visitors have somewhere to
+      land.
+    * In all other cases we fall back to the tenant landing, which will
+      itself raise 404 because no tenant resolves — matching previous
+      behaviour.
+    """
+    from app.deps import resolve_tenant_slug
+
+    slug = resolve_tenant_slug(request, settings)
+    if slug is None and settings.feature_platform:
+        html = _templates(request).render(request, "www/index.html", {"principal": None})
+        return HTMLResponse(html)
+
+    # Resolve the tenant (may 404) and render the tenant landing.
+    from app.deps import get_current_tenant as _get_current_tenant
+
+    tenant = await _get_current_tenant(request, settings)
     html = _templates(request).render(request, "index.html", {"tenant": tenant})
     return HTMLResponse(html)
 
@@ -99,6 +160,7 @@ async def login_form(
 
 
 @router.post("/auth/login", response_class=HTMLResponse)
+@rate_limit("20/15 minutes")
 async def login_submit(
     request: Request,
     email: str = Form(...),
@@ -146,6 +208,41 @@ async def login_submit(
 async def logout(request: Request) -> Response:
     response = RedirectResponse(url="/auth/login", status_code=status.HTTP_303_SEE_OTHER)
     clear_session(response)
+    return response
+
+
+# ------------------------------------------------------- language switcher
+
+
+@router.get("/set-lang")
+async def set_language(
+    request: Request,
+    lang: str,
+    next: str = "/",
+    settings: Settings = Depends(get_settings),
+) -> RedirectResponse:
+    """Persist the user's preferred UI locale in a cookie and redirect back.
+
+    The ``next`` query parameter must be a same-origin path starting with
+    ``/`` — we strip anything that looks like an open redirect.
+    """
+    from app.i18n import COOKIE_MAX_AGE, COOKIE_NAME, supported_locale_list
+
+    supported = supported_locale_list(settings.supported_locales)
+    chosen = lang.strip().lower() if lang else settings.default_locale
+    if chosen not in supported:
+        chosen = settings.default_locale
+
+    safe_next = _safe_next_path(next)
+    response = RedirectResponse(url=safe_next, status_code=status.HTTP_303_SEE_OTHER)
+    response.set_cookie(
+        COOKIE_NAME,
+        chosen,
+        max_age=COOKIE_MAX_AGE,
+        httponly=False,  # harmless JS-readable: users benefit from client-side checks
+        samesite="lax",
+        secure=settings.is_production,
+    )
     return response
 
 
@@ -470,6 +567,7 @@ async def password_reset_request_form(
 
 
 @router.post("/auth/password-reset", response_class=HTMLResponse)
+@rate_limit("5/15 minutes")
 async def password_reset_request_submit(
     request: Request,
     background_tasks: BackgroundTasks,

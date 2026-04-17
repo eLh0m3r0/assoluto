@@ -41,6 +41,7 @@ async def create_customer(
     ico: str | None = None,
     dic: str | None = None,
     notes: str | None = None,
+    order_permissions: dict | None = None,
 ) -> Customer:
     name = name.strip()
     if not name:
@@ -52,6 +53,7 @@ async def create_customer(
         ico=((ico or None) and ico.strip()) or None,
         dic=((dic or None) and dic.strip()) or None,
         notes=((notes or None) and notes.strip()) or None,
+        order_permissions=order_permissions or {},
     )
     db.add(customer)
     await db.flush()

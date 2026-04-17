@@ -5,12 +5,16 @@ Gated by `require_platform_admin`, so a regular Identity cannot see it.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.tenant import Tenant
+from app.platform.billing.models import Invoice, Plan, Subscription
 from app.platform.deps import get_platform_db, require_platform_admin
 from app.platform.models import Identity
 from app.platform.service import (
@@ -73,6 +77,11 @@ async def tenants_create(
             owner_email=owner_email,
             owner_full_name=owner_full_name,
             owner_password=owner_password,
+            # Platform admin is a trusted provisioning path; the
+            # identity never receives a verification email and must
+            # not be trapped behind the verify gate on first login.
+            # Round-3 audit Backend P2.
+            pre_verified_identity=True,
         )
     except DuplicateTenantSlug:
         tenants = await list_tenants(db)
@@ -105,6 +114,115 @@ async def tenants_create(
 
     await db.commit()
     return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+
+
+@router.get("/dashboard", response_class=HTMLResponse)
+async def admin_dashboard(
+    request: Request,
+    identity: Identity = Depends(require_platform_admin),
+    db: AsyncSession = Depends(get_platform_db),
+) -> HTMLResponse:
+    """KPI dashboard for platform operators.
+
+    Computes cheap aggregate metrics in one set of queries and renders
+    a simple card layout. No heavy charting — Chart.js can be wired
+    later if needed. The numbers here are intentionally the kind of
+    "how's the business doing" signals you check twice a day.
+    """
+    now = datetime.now(UTC)
+    week_ago = now - timedelta(days=7)
+    month_ago = now - timedelta(days=30)
+
+    total_tenants = int((await db.execute(select(func.count(Tenant.id)))).scalar_one())
+    active_tenants = int(
+        (
+            await db.execute(select(func.count(Tenant.id)).where(Tenant.is_active.is_(True)))
+        ).scalar_one()
+    )
+    signups_this_week = int(
+        (
+            await db.execute(select(func.count(Tenant.id)).where(Tenant.created_at >= week_ago))
+        ).scalar_one()
+    )
+    signups_this_month = int(
+        (
+            await db.execute(select(func.count(Tenant.id)).where(Tenant.created_at >= month_ago))
+        ).scalar_one()
+    )
+
+    subs_active = int(
+        (
+            await db.execute(
+                select(func.count(Subscription.id)).where(
+                    Subscription.status.in_(("active", "trialing", "demo"))
+                )
+            )
+        ).scalar_one()
+    )
+    subs_trialing = int(
+        (
+            await db.execute(
+                select(func.count(Subscription.id)).where(Subscription.status == "trialing")
+            )
+        ).scalar_one()
+    )
+
+    # Real MRR = sum of monthly plan prices for currently-active
+    # (including trialing and demo) subscriptions, grouped by
+    # currency so we never sum across CZK / EUR. For simplicity we
+    # take the dominant currency (first row) and report it; a
+    # multi-currency deployment would break this out per currency.
+    mrr_rows = (
+        await db.execute(
+            select(
+                Plan.currency,
+                func.coalesce(func.sum(Plan.monthly_price_cents), 0).label("total"),
+            )
+            .join(Subscription, Subscription.plan_id == Plan.id)
+            .where(Subscription.status.in_(("active", "trialing", "demo")))
+            .group_by(Plan.currency)
+            .order_by(func.sum(Plan.monthly_price_cents).desc())
+        )
+    ).all()
+    mrr_cents = int(mrr_rows[0].total) if mrr_rows else 0
+    mrr_currency = mrr_rows[0].currency if mrr_rows else "CZK"
+
+    # Keep the 30-day *paid invoice* figure around too — useful for
+    # rough validation once live Stripe webhooks start writing rows.
+    paid_30d_cents = int(
+        (
+            await db.execute(
+                select(func.coalesce(func.sum(Invoice.amount_cents), 0))
+                .where(Invoice.status == "paid")
+                .where(Invoice.paid_at >= month_ago)
+            )
+        ).scalar_one()
+    )
+
+    recent_signups_q = select(Tenant).order_by(Tenant.created_at.desc()).limit(10)
+    recent_signups = list((await db.execute(recent_signups_q)).scalars().all())
+
+    html = _templates(request).render(
+        request,
+        "platform/admin/dashboard.html",
+        {
+            "identity": identity,
+            "metrics": {
+                "total_tenants": total_tenants,
+                "active_tenants": active_tenants,
+                "signups_this_week": signups_this_week,
+                "signups_this_month": signups_this_month,
+                "subs_active": subs_active,
+                "subs_trialing": subs_trialing,
+                "mrr_cents": mrr_cents,
+                "mrr_currency": mrr_currency,
+                "paid_30d_cents": paid_30d_cents,
+            },
+            "recent_signups": recent_signups,
+            "principal": None,
+        },
+    )
+    return HTMLResponse(html)
 
 
 @router.post("/tenants/{tenant_id}/deactivate")
