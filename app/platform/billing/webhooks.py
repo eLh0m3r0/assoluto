@@ -244,7 +244,9 @@ async def handle_subscription_upserted(db: AsyncSession, event: dict) -> None:
     subscription.current_period_end = (
         _utc_from_ts(data.get("current_period_end")) or subscription.current_period_end
     )
-    subscription.trial_ends_at = _utc_from_ts(data.get("trial_end")) or subscription.trial_ends_at
+    trial_end_ts = data.get("trial_end")
+    if trial_end_ts is not None:
+        subscription.trial_ends_at = _utc_from_ts(trial_end_ts)
     subscription.cancel_at_period_end = bool(data.get("cancel_at_period_end", False))
 
     # Plan swap: scan ALL line items (not just the first) for a price

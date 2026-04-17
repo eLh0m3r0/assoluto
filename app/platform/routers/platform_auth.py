@@ -45,16 +45,20 @@ def _cookie_domain(settings: Settings) -> str | None:
 @router.get("/platform/login", response_class=HTMLResponse)
 async def platform_login_form(
     request: Request,
+    notice: str | None = None,
     identity: Identity | None = Depends(get_current_identity),
 ) -> HTMLResponse:
     if identity is not None:
         return RedirectResponse(
             url="/platform/select-tenant", status_code=status.HTTP_303_SEE_OTHER
         )
+    banner = None
+    if notice == "password_reset":
+        banner = "Heslo bylo úspěšně změněno. Přihlaste se novým heslem."
     html = _templates(request).render(
         request,
         "platform/login.html",
-        {"error": None, "notice": None, "principal": None},
+        {"error": None, "notice": banner, "principal": None},
     )
     return HTMLResponse(html)
 
@@ -108,6 +112,158 @@ async def platform_logout(
     response = RedirectResponse(url="/platform/login", status_code=status.HTTP_303_SEE_OTHER)
     clear_platform_session(response, domain=_cookie_domain(settings))
     return response
+
+
+# -------------------------------------------------- password reset
+
+PLATFORM_RESET_MAX_AGE = 30 * 60  # 30 minutes
+
+
+@router.get("/platform/password-reset", response_class=HTMLResponse)
+async def platform_password_reset_form(request: Request) -> HTMLResponse:
+    html = _templates(request).render(
+        request,
+        "platform/password_reset_request.html",
+        {"error": None, "notice": None, "principal": None},
+    )
+    return HTMLResponse(html)
+
+
+@router.post("/platform/password-reset", response_class=HTMLResponse)
+@rate_limit("5/15 minutes")
+async def platform_password_reset_submit(
+    request: Request,
+    email: str = Form(...),
+    db: AsyncSession = Depends(get_platform_db),
+    settings: Settings = Depends(get_settings),
+) -> HTMLResponse:
+    from app.platform.service import (
+        create_platform_password_reset_token,
+        find_identity_by_email,
+    )
+    from app.tasks.email_tasks import send_password_reset
+
+    identity = await find_identity_by_email(db, email)
+    if identity is not None and identity.is_active:
+        reset_token = create_platform_password_reset_token(settings.app_secret_key, identity.id)
+        reset_url = f"{settings.app_base_url}/platform/password-reset/confirm?token={reset_token}"
+        sender = request.app.state.email_sender
+        send_password_reset(
+            sender,
+            to=identity.email,
+            tenant_name="SME Portal",
+            full_name=identity.full_name,
+            reset_url=reset_url,
+        )
+
+    html = _templates(request).render(
+        request,
+        "platform/password_reset_request.html",
+        {
+            "error": None,
+            "notice": "Pokud adresa existuje, odeslali jsme odkaz na obnovu hesla.",
+            "principal": None,
+        },
+    )
+    return HTMLResponse(html)
+
+
+@router.get("/platform/password-reset/confirm", response_class=HTMLResponse)
+async def platform_password_reset_confirm_form(
+    request: Request,
+    token: str,
+    settings: Settings = Depends(get_settings),
+) -> HTMLResponse:
+    from app.platform.service import decode_platform_password_reset_token
+
+    try:
+        decode_platform_password_reset_token(settings.app_secret_key, token, PLATFORM_RESET_MAX_AGE)
+    except Exception:
+        html = _templates(request).render(
+            request,
+            "platform/password_reset_confirm.html",
+            {
+                "token": token,
+                "error": "Odkaz je neplatný nebo vypršel.",
+                "notice": None,
+                "principal": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
+
+    html = _templates(request).render(
+        request,
+        "platform/password_reset_confirm.html",
+        {"token": token, "error": None, "notice": None, "principal": None},
+    )
+    return HTMLResponse(html)
+
+
+@router.post("/platform/password-reset/confirm", response_class=HTMLResponse)
+@rate_limit("10/15 minutes")
+async def platform_password_reset_confirm_submit(
+    request: Request,
+    token: str = Form(...),
+    password: str = Form(...),
+    password_confirm: str = Form(...),
+    db: AsyncSession = Depends(get_platform_db),
+    settings: Settings = Depends(get_settings),
+) -> Response:
+    if password != password_confirm:
+        html = _templates(request).render(
+            request,
+            "platform/password_reset_confirm.html",
+            {
+                "token": token,
+                "error": "Hesla se neshodují.",
+                "notice": None,
+                "principal": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
+
+    from app.platform.service import (
+        decode_platform_password_reset_token,
+        reset_platform_password,
+    )
+
+    try:
+        identity_id = decode_platform_password_reset_token(
+            settings.app_secret_key, token, PLATFORM_RESET_MAX_AGE
+        )
+    except Exception:
+        html = _templates(request).render(
+            request,
+            "platform/password_reset_confirm.html",
+            {
+                "token": token,
+                "error": "Odkaz je neplatný nebo vypršel.",
+                "notice": None,
+                "principal": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
+
+    try:
+        await reset_platform_password(db, identity_id, password)
+        await db.commit()
+    except Exception:
+        html = _templates(request).render(
+            request,
+            "platform/password_reset_confirm.html",
+            {
+                "token": token,
+                "error": "Nepodařilo se nastavit nové heslo.",
+                "notice": None,
+                "principal": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
+
+    return RedirectResponse(
+        url="/platform/login?notice=password_reset",
+        status_code=303,
+    )
 
 
 # ------------------------------------------------------- tenant picker

@@ -1,31 +1,30 @@
 {% extends "www/www_base.html" %}
 
-{% block title %}Self-hosted · SME Portal{% endblock %}
+{% block title %}{{ _("Self-hosted") }} · SME Portal{% endblock %}
 
 {% block content %}
 <section class="mx-auto max-w-3xl pb-16">
     <div class="mb-10 text-center">
-        <h1 class="text-3xl font-bold text-slate-900">Self-hosted instalace</h1>
+        <h1 class="text-3xl font-bold text-slate-900">{{ _("Self-hosted installation") }}</h1>
         <p class="mt-2 text-slate-600">
-            Kompletní Open Source release pod licencí AGPL-3.0. Hostujte si portál
-            na vlastním serveru — zdarma a bez omezení.
+            {{ _("Complete open source release under the AGPL-3.0 license. Host the portal on your own server — free and without limitations.") }}
         </p>
     </div>
 
     <div class="space-y-8">
         <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-semibold text-slate-900">Požadavky</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("Requirements") }}</h2>
             <ul class="mt-3 list-disc space-y-1 pl-6 text-sm text-slate-600">
-                <li>Linux server s Docker 24+ (2 vCPU, 2 GB RAM pro start)</li>
-                <li>PostgreSQL 16 (spustí se v Docker composu)</li>
-                <li>S3-kompatibilní úložiště (MinIO, Backblaze B2, Cloudflare R2, AWS S3)</li>
-                <li>SMTP relay pro odchozí e-maily</li>
-                <li>Veřejný hostname + TLS (doporučujeme Caddy nebo nginx)</li>
+                <li>{{ _("Linux server with Docker 24+ (2 vCPU, 2 GB RAM to start)") }}</li>
+                <li>{{ _("PostgreSQL 16 (runs in Docker Compose)") }}</li>
+                <li>{{ _("S3-compatible storage (MinIO, Backblaze B2, Cloudflare R2, AWS S3)") }}</li>
+                <li>{{ _("SMTP relay for outgoing emails") }}</li>
+                <li>{{ _("Public hostname + TLS (we recommend Caddy or nginx)") }}</li>
             </ul>
         </section>
 
         <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-semibold text-slate-900">Quickstart (lokální demo)</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("Quickstart (local demo)") }}</h2>
             <pre class="mt-3 overflow-x-auto rounded-md bg-slate-900 p-4 text-xs leading-relaxed text-slate-100"><code>git clone https://github.com/elh0m3r0/sme-client-portal.git
 cd sme-client-portal
 cp .env.example .env
@@ -40,38 +39,31 @@ docker compose exec web python -m scripts.seed_dev
         </section>
 
         <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-semibold text-slate-900">Produkční nasazení</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("Production deployment") }}</h2>
             <p class="mt-2 text-sm text-slate-600">
-                V repu je připravený <code>docker-compose.prod.yml</code> pro
-                produkční běh za Nginx proxy s připravenou TLS konfigurací.
-                Stačí doplnit ENV proměnné (SMTP, S3, doména) a
+                {{ _("The repo includes a") }} <code>docker-compose.prod.yml</code> {{ _("for production use behind an Nginx proxy with TLS configuration ready. Just fill in the ENV variables (SMTP, S3, domain) and run") }}
                 <code>docker compose -f docker-compose.prod.yml up -d</code>.
             </p>
             <p class="mt-2 text-sm text-slate-600">
-                Detaily: <a href="https://github.com/elh0m3r0/sme-client-portal/blob/main/docs/SELF_HOST.md" class="text-brand-600 hover:text-brand-700">docs/SELF_HOST.md</a>,
-                seznam ENV proměnných v <a href="https://github.com/elh0m3r0/sme-client-portal/blob/main/docs/ENV.md" class="text-brand-600 hover:text-brand-700">docs/ENV.md</a>.
+                {{ _("Details:") }} <a href="https://github.com/elh0m3r0/sme-client-portal/blob/main/docs/SELF_HOST.md" class="text-brand-600 hover:text-brand-700">docs/SELF_HOST.md</a>,
+                {{ _("list of ENV variables in") }} <a href="https://github.com/elh0m3r0/sme-client-portal/blob/main/docs/ENV.md" class="text-brand-600 hover:text-brand-700">docs/ENV.md</a>.
             </p>
         </section>
 
         <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-semibold text-slate-900">Single-tenant vs. multi-tenant</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("Single-tenant vs. multi-tenant") }}</h2>
             <p class="mt-2 text-sm text-slate-600">
-                Self-hostovaná instalace běží ve výchozím stavu jako
-                <strong>single-tenant</strong> (jeden "dodavatel", více klientských
-                kontaktů). Pokud potřebujete provozovat více oddělených dodavatelů
-                na jedné instanci, zapněte v <code>.env</code> proměnnou
-                <code>FEATURE_PLATFORM=true</code> — aktivuje opt-in SaaS vrstvu
-                s Identity, cross-tenant loginem a admin CRUD pro tenanty.
+                {{ _("The self-hosted installation runs by default as") }}
+                <strong>{{ _("single-tenant") }}</strong> {{ _("(one \"supplier\", multiple client contacts). If you need to run multiple separate suppliers on one instance, enable the") }} <code>FEATURE_PLATFORM=true</code> {{ _("variable in") }} <code>.env</code> {{ _("— this activates the opt-in SaaS layer with Identity, cross-tenant login, and admin CRUD for tenants.") }}
             </p>
         </section>
 
         <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-semibold text-slate-900">Podpora</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("Support") }}</h2>
             <p class="mt-2 text-sm text-slate-600">
-                Self-hosters mají přístup k
-                <a href="https://github.com/elh0m3r0/sme-client-portal/issues" class="text-brand-600 hover:text-brand-700">GitHub issues</a>
-                a diskuzím. Pro komerční podporu, audit bezpečnosti nebo
-                custom development využijte <a href="/contact" class="text-brand-600 hover:text-brand-700">kontaktní formulář</a>.
+                {{ _("Self-hosters have access to") }}
+                <a href="https://github.com/elh0m3r0/sme-client-portal/issues" class="text-brand-600 hover:text-brand-700">{{ _("GitHub issues") }}</a>
+                {{ _("and discussions. For commercial support, security audits, or custom development, use the") }} <a href="/contact" class="text-brand-600 hover:text-brand-700">{{ _("contact form") }}</a>.
             </p>
         </section>
     </div>

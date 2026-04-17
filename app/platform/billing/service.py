@@ -257,7 +257,7 @@ def create_billing_portal_session(
     stripe = _get_stripe(settings)
     if stripe is None:
         return return_url
-    idem_key = f"portal:{stripe_customer_id}:{int(datetime.now(UTC).timestamp() // 60)}"
+    idem_key = f"portal:{stripe_customer_id}"
     session = stripe.billing_portal.Session.create(
         customer=stripe_customer_id,
         return_url=return_url,

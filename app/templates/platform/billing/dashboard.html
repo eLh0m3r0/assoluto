@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Předplatné · SME Portal{% endblock %}
+{% block title %}{{ _("Subscription") }} · SME Portal{% endblock %}
 
 {% block content %}
 <section class="mx-auto max-w-4xl pb-16">
-    <h1 class="text-2xl font-bold text-slate-900">Předplatné a fakturace</h1>
+    <h1 class="text-2xl font-bold text-slate-900">{{ _("Subscription & billing") }}</h1>
     <p class="mt-1 text-sm text-slate-500">
-        Tenant: <strong>{{ tenant.name }}</strong>
+        {{ _("Tenant:") }} <strong>{{ tenant.name }}</strong>
     </p>
 
     <div class="mt-4">{% include "_flash.html" %}</div>
@@ -14,9 +14,9 @@
     {# -------------------------- cancellation banner #}
     {% if subscription and subscription.cancel_at_period_end %}
         <div class="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
-            <strong>Předplatné bude zrušeno.</strong>
-            Přístup vám zůstane do {{ subscription.current_period_end.strftime("%d.%m.%Y") if subscription.current_period_end else "konce období" }}.
-            Zrušení můžete vrátit v Stripe Portálu níže.
+            <strong>{{ _("Subscription will be cancelled.") }}</strong>
+            {{ _("Access remains until") }} {{ subscription.current_period_end.strftime("%d.%m.%Y") if subscription.current_period_end else _("end of period") }}.
+            {{ _("You can revert the cancellation in the Stripe Portal below.") }}
         </div>
     {% endif %}
 
@@ -24,26 +24,26 @@
     <div class="mt-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Aktuální plán</p>
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ _("Current plan") }}</p>
                 <p class="mt-1 text-xl font-bold text-slate-900">
                     {{ current_plan.name if current_plan else "—" }}
                 </p>
                 <p class="mt-1 text-sm text-slate-600">
                     {% if subscription %}
-                        Stav: <span class="font-medium">{{ subscription.status }}</span>
+                        {{ _("Status:") }} <span class="font-medium">{{ subscription.status }}</span>
                         {% if subscription.trial_ends_at and subscription.status == 'trialing' %}
-                            · Zkušební verze do {{ subscription.trial_ends_at.strftime("%d.%m.%Y") }}
+                            · {{ _("Trial until") }} {{ subscription.trial_ends_at.strftime("%d.%m.%Y") }}
                         {% elif subscription.current_period_end %}
-                            · Další fakturace {{ subscription.current_period_end.strftime("%d.%m.%Y") }}
+                            · {{ _("Next billing") }} {{ subscription.current_period_end.strftime("%d.%m.%Y") }}
                         {% endif %}
                     {% else %}
-                        Žádné aktivní předplatné
+                        {{ _("No active subscription") }}
                     {% endif %}
                 </p>
             </div>
             {% if not stripe_enabled %}
                 <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
-                    Demo režim (Stripe není nakonfigurován)
+                    {{ _("Demo mode (Stripe not configured)") }}
                 </span>
             {% endif %}
         </div>
@@ -55,10 +55,10 @@
                 {{ csrf_input() }}
                 <button type="submit"
                         class="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
-                    Spravovat předplatné (Stripe Portal)
+                    {{ _("Manage subscription (Stripe Portal)") }}
                 </button>
                 <p class="mt-1 text-xs text-slate-500">
-                    Změna plánu, platební karta, fakturační údaje a zrušení.
+                    {{ _("Plan change, payment card, billing details, and cancellation.") }}
                 </p>
             </form>
         {% endif %}
@@ -66,7 +66,7 @@
 
     {# -------------------------- usage #}
     {% if current_plan and usage %}
-        <h2 class="mt-8 text-lg font-semibold text-slate-900">Vaše spotřeba</h2>
+        <h2 class="mt-8 text-lg font-semibold text-slate-900">{{ _("Your usage") }}</h2>
         <div class="mt-3 grid gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
             {% macro usage_bar(label, value, limit, key) %}
                 {% set pct = usage.percent_of(key, limit) %}
@@ -92,15 +92,15 @@
                     {% endif %}
                 </div>
             {% endmacro %}
-            {{ usage_bar("Staff uživatelé", usage.users, current_plan.max_users, "users") }}
-            {{ usage_bar("Kontakty klientů", usage.contacts, current_plan.max_contacts, "contacts") }}
-            {{ usage_bar("Objednávky (měs.)", usage.orders_this_month, current_plan.max_orders_per_month, "orders") }}
-            {{ usage_bar("Úložiště (MB)", (usage.storage_bytes // 1048576), current_plan.max_storage_mb, "storage_mb") }}
+            {{ usage_bar(_("Staff users"), usage.users, current_plan.max_users, "users") }}
+            {{ usage_bar(_("Client contacts"), usage.contacts, current_plan.max_contacts, "contacts") }}
+            {{ usage_bar(_("Orders (monthly)"), usage.orders_this_month, current_plan.max_orders_per_month, "orders") }}
+            {{ usage_bar(_("Storage (MB)"), (usage.storage_bytes // 1048576), current_plan.max_storage_mb, "storage_mb") }}
         </div>
     {% endif %}
 
     {# -------------------------- plan chooser #}
-    <h2 class="mt-8 text-lg font-semibold text-slate-900">Přejít na jiný plán</h2>
+    <h2 class="mt-8 text-lg font-semibold text-slate-900">{{ _("Switch plan") }}</h2>
     <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {% for plan in plans %}
             <div class="flex flex-col rounded-xl border {% if current_plan and plan.id == current_plan.id %}border-brand-500 ring-2 ring-brand-100{% else %}border-slate-200{% endif %} bg-white p-5 shadow-sm">
@@ -109,21 +109,21 @@
                 <p class="mt-3 text-xl font-bold text-slate-900">
                     {% if plan.monthly_price_cents > 0 %}
                         {{ plan.monthly_price_cents|money(plan.currency) }}
-                        <span class="text-xs font-normal text-slate-500">/měsíc</span>
+                        <span class="text-xs font-normal text-slate-500">{{ _("/month") }}</span>
                     {% else %}
-                        Zdarma
+                        {{ _("Free") }}
                     {% endif %}
                 </p>
                 <ul class="mt-4 space-y-1 text-xs text-slate-600">
-                    <li>Uživatelé: {{ plan.max_users or "∞" }}</li>
-                    <li>Kontakty: {{ plan.max_contacts or "∞" }}</li>
-                    <li>Obj./měs.: {{ plan.max_orders_per_month or "∞" }}</li>
-                    <li>Úložiště: {% if plan.max_storage_mb %}{{ (plan.max_storage_mb / 1024)|round(1) }} GB{% else %}∞{% endif %}</li>
+                    <li>{{ _("Users:") }} {{ plan.max_users or "∞" }}</li>
+                    <li>{{ _("Contacts:") }} {{ plan.max_contacts or "∞" }}</li>
+                    <li>{{ _("Orders/month:") }} {{ plan.max_orders_per_month or "∞" }}</li>
+                    <li>{{ _("Storage:") }} {% if plan.max_storage_mb %}{{ (plan.max_storage_mb / 1024)|round(1) }} GB{% else %}∞{% endif %}</li>
                 </ul>
                 {% if current_plan and plan.id == current_plan.id %}
-                    <span class="mt-auto pt-4 text-center text-xs font-semibold text-brand-600">Aktuální plán</span>
+                    <span class="mt-auto pt-4 text-center text-xs font-semibold text-brand-600">{{ _("Current plan") }}</span>
                 {% elif plan.code == 'enterprise' %}
-                    <a href="/contact" class="mt-auto pt-4 text-center text-xs font-semibold text-brand-600 hover:text-brand-700">Kontaktovat</a>
+                    <a href="/contact" class="mt-auto pt-4 text-center text-xs font-semibold text-brand-600 hover:text-brand-700">{{ _("Contact us") }}</a>
                 {% else %}
                     {# Distinguish upgrade (primary brand color) from downgrade
                        (muted secondary) so the paid-plan click is visually
@@ -131,15 +131,15 @@
                     {% if current_plan and plan.monthly_price_cents > current_plan.monthly_price_cents %}
                         {% set direction = "upgrade" %}
                         {% set btn_classes = "bg-brand-600 text-white hover:bg-brand-700" %}
-                        {% set label = "Přejít nahoru na " ~ plan.name %}
+                        {% set label = _("Upgrade to ") ~ plan.name %}
                     {% elif current_plan and plan.monthly_price_cents < current_plan.monthly_price_cents %}
                         {% set direction = "downgrade" %}
                         {% set btn_classes = "bg-slate-100 text-slate-700 hover:bg-slate-200" %}
-                        {% set label = "Přejít dolů na " ~ plan.name %}
+                        {% set label = _("Downgrade to ") ~ plan.name %}
                     {% else %}
                         {% set direction = "switch" %}
                         {% set btn_classes = "bg-brand-600 text-white hover:bg-brand-700" %}
-                        {% set label = "Vyzkoušet " ~ plan.name %}
+                        {% set label = _("Try ") ~ plan.name %}
                     {% endif %}
                     <form method="post" action="/platform/billing/checkout/{{ plan.code }}" class="mt-auto pt-4">
                         {{ csrf_input() }}
@@ -155,15 +155,15 @@
     </div>
 
     {# -------------------------- invoice history #}
-    <h2 class="mt-10 text-lg font-semibold text-slate-900">Faktury</h2>
+    <h2 class="mt-10 text-lg font-semibold text-slate-900">{{ _("Invoices") }}</h2>
     {% if invoices %}
         <table class="mt-3 min-w-full divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white shadow-sm text-sm">
             <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <tr>
-                    <th class="px-4 py-2 text-left">Číslo</th>
-                    <th class="px-4 py-2 text-right">Částka</th>
-                    <th class="px-4 py-2 text-left">Stav</th>
-                    <th class="px-4 py-2 text-left">Zaplaceno</th>
+                    <th class="px-4 py-2 text-left">{{ _("Number") }}</th>
+                    <th class="px-4 py-2 text-right">{{ _("Amount") }}</th>
+                    <th class="px-4 py-2 text-left">{{ _("Status") }}</th>
+                    <th class="px-4 py-2 text-left">{{ _("Paid") }}</th>
                     <th class="px-4 py-2"></th>
                 </tr>
             </thead>
@@ -189,7 +189,7 @@
         </table>
     {% else %}
         <p class="mt-3 rounded-lg border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">
-            Zatím žádné faktury.
+            {{ _("No invoices yet.") }}
         </p>
     {% endif %}
 </section>

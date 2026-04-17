@@ -105,6 +105,38 @@ async def authenticate_identity(db: AsyncSession, email: str, password: str) -> 
     return identity
 
 
+def create_platform_password_reset_token(secret_key: str, identity_id: UUID) -> str:
+    from app.security.tokens import TokenPurpose, create_token
+
+    return create_token(
+        secret_key,
+        TokenPurpose.PLATFORM_PASSWORD_RESET,
+        {"identity_id": str(identity_id)},
+    )
+
+
+def decode_platform_password_reset_token(secret_key: str, token: str, max_age_seconds: int) -> UUID:
+    from app.security.tokens import TokenPurpose, verify_token
+
+    try:
+        data = verify_token(
+            secret_key, TokenPurpose.PLATFORM_PASSWORD_RESET, token, max_age_seconds
+        )
+    except Exception as exc:
+        raise InvalidCredentials(str(exc)) from exc
+    return UUID(data["identity_id"])
+
+
+async def reset_platform_password(db: AsyncSession, identity_id: UUID, new_password: str) -> None:
+    identity = (
+        await db.execute(select(Identity).where(Identity.id == identity_id))
+    ).scalar_one_or_none()
+    if identity is None or not identity.is_active:
+        raise InvalidCredentials("Identity not found or disabled")
+    identity.password_hash = hash_password(new_password)
+    await db.flush()
+
+
 # --------------------------------------------------------- membership helpers
 
 

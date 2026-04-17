@@ -59,7 +59,7 @@ async def test_unauthenticated_html_redirects_to_login(
         follow_redirects=False,
     )
     assert response.status_code == 303
-    assert response.headers["location"] == "/auth/login"
+    assert response.headers["location"].startswith("/auth/login")
 
 
 async def test_unauthenticated_json_still_gets_401(

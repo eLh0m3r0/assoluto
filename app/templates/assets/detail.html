@@ -74,7 +74,7 @@
 
         {% if principal.is_staff %}
             <form method="post" action="/app/assets/{{ asset.id }}/movements"
-                  class="grid gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:grid-cols-4">
+                  class="grid gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:grid-cols-3 lg:grid-cols-6">
             {{ csrf_input() }}<select name="type" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
                     <option value="receive">Příjem (+)</option>
                     <option value="issue">Výdej (−)</option>
@@ -84,9 +84,15 @@
                 <input type="number" step="0.001" name="quantity" required placeholder="Množství"
                        class="rounded-md border border-slate-300 px-3 py-2 text-sm">
                 <input type="text" name="note" placeholder="Poznámka"
-                       class="rounded-md border border-slate-300 px-3 py-2 text-sm sm:col-span-1">
+                       class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+                <select name="reference_order_id" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+                    <option value="">— objednávka —</option>
+                    {% for o in orders %}
+                        <option value="{{ o.id }}">{{ o.number }} — {{ o.title }}</option>
+                    {% endfor %}
+                </select>
                 <button type="submit"
-                        class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                        class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 sm:col-span-2">
                     Přidat pohyb
                 </button>
             </form>

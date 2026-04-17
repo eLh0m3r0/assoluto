@@ -17,7 +17,7 @@ from app.config import get_settings
 from app.logging import get_logger
 from app.models.customer import CustomerContact
 from app.models.enums import OrderStatus
-from app.models.order import Order, OrderStatusHistory
+from app.models.order import Order, OrderComment, OrderStatusHistory
 
 log = get_logger("app.tasks.periodic")
 
@@ -33,6 +33,8 @@ STRIPE_EVENT_CLEANUP_LOCK_ID = 42_003
 # unbounded at ~100 events / tenant / month. Round-2 audit S-N8.
 STRIPE_EVENT_RETENTION_DAYS = 30
 
+EXPIRE_TRIALS_LOCK_ID = 42_005
+
 
 def _owner_engine():
     """Return a fresh async engine using the owner DSN (bypasses RLS)."""
@@ -41,6 +43,9 @@ def _owner_engine():
 
 async def auto_close_delivered_orders(now: datetime | None = None) -> int:
     """Close DELIVERED orders that have been sitting for >= 14 days.
+
+    Skips orders that have comments newer than the cutoff — active
+    discussion means the order shouldn't be auto-closed yet.
 
     Returns the number of orders closed. Uses a Postgres advisory lock so
     concurrent workers never double-close.
@@ -64,18 +69,30 @@ async def auto_close_delivered_orders(now: datetime | None = None) -> int:
             try:
                 sm = async_sessionmaker(bind=conn, expire_on_commit=False)
                 async with sm() as session:
-                    rows = (
-                        (
-                            await session.execute(
-                                select(Order).where(
-                                    Order.status == OrderStatus.DELIVERED,
-                                    Order.updated_at <= cutoff,
-                                )
-                            )
+                    from sqlalchemy import func as sa_func
+
+                    latest_comment = (
+                        select(
+                            OrderComment.order_id,
+                            sa_func.max(OrderComment.created_at).label("last_comment_at"),
                         )
-                        .scalars()
-                        .all()
+                        .group_by(OrderComment.order_id)
+                        .subquery()
                     )
+
+                    stmt = (
+                        select(Order)
+                        .outerjoin(latest_comment, Order.id == latest_comment.c.order_id)
+                        .where(
+                            Order.status == OrderStatus.DELIVERED,
+                            Order.updated_at <= cutoff,
+                            (
+                                (latest_comment.c.last_comment_at.is_(None))
+                                | (latest_comment.c.last_comment_at <= cutoff)
+                            ),
+                        )
+                    )
+                    rows = (await session.execute(stmt)).scalars().all()
                     for order in rows:
                         order.status = OrderStatus.CLOSED
                         order.closed_at = current
@@ -173,6 +190,51 @@ async def cleanup_old_stripe_events(now: datetime | None = None) -> int:
                 await conn.execute(
                     text("SELECT pg_advisory_unlock(:id)"),
                     {"id": STRIPE_EVENT_CLEANUP_LOCK_ID},
+                )
+    finally:
+        await engine.dispose()
+
+
+async def expire_demo_trials(now: datetime | None = None) -> int:
+    """Downgrade expired demo-mode trials to the community plan.
+
+    In live Stripe mode, ``customer.subscription.deleted`` handles this.
+    This job is defence-in-depth for demo/dev mode where no webhook fires.
+    """
+    current = now or datetime.now(UTC)
+
+    engine = _owner_engine()
+    try:
+        async with engine.begin() as conn:
+            got_lock = (
+                await conn.execute(
+                    text("SELECT pg_try_advisory_lock(:id)"),
+                    {"id": EXPIRE_TRIALS_LOCK_ID},
+                )
+            ).scalar()
+            if not got_lock:
+                log.info("periodic.expire_trials.skipped", reason="lock held")
+                return 0
+
+            try:
+                result = await conn.execute(
+                    text(
+                        "UPDATE platform_subscriptions "
+                        "SET status = 'canceled' "
+                        "WHERE status IN ('trialing', 'demo') "
+                        "  AND trial_ends_at IS NOT NULL "
+                        "  AND trial_ends_at < :now "
+                        "  AND stripe_subscription_id IS NULL"
+                    ),
+                    {"now": current},
+                )
+                expired = result.rowcount or 0
+                log.info("periodic.expire_trials.done", expired=expired)
+                return expired
+            finally:
+                await conn.execute(
+                    text("SELECT pg_advisory_unlock(:id)"),
+                    {"id": EXPIRE_TRIALS_LOCK_ID},
                 )
     finally:
         await engine.dispose()

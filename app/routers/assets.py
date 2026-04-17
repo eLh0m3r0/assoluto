@@ -167,10 +167,25 @@ async def assets_detail(
 
     movements = await list_movements(db, asset_id=asset.id)
     customer = None
+    orders = []
     if principal.is_staff:
         customer = (
             await db.execute(select(Customer).where(Customer.id == asset.customer_id))
         ).scalar_one_or_none()
+        from app.models.order import Order
+
+        orders = (
+            (
+                await db.execute(
+                    select(Order)
+                    .where(Order.customer_id == asset.customer_id)
+                    .order_by(Order.created_at.desc())
+                    .limit(50)
+                )
+            )
+            .scalars()
+            .all()
+        )
 
     html = _templates(request).render(
         request,
@@ -181,6 +196,7 @@ async def assets_detail(
             "asset": asset,
             "movements": movements,
             "customer": customer,
+            "orders": orders,
             "error": None,
             "notice": None,
         },

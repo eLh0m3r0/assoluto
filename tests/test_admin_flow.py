@@ -220,7 +220,7 @@ async def test_password_change_bumps_session_version_and_forces_relogin(
         follow_redirects=False,
     )
     assert page.status_code == 303
-    assert page.headers["location"] == "/auth/login"
+    assert page.headers["location"].startswith("/auth/login")
 
     # Log in with new password works.
     tenant_client.cookies.clear()

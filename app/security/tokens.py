@@ -38,6 +38,7 @@ class TokenPurpose:
     MAGIC_LINK = "magic-link-login"
     PASSWORD_RESET = "password-reset"
     EMAIL_VERIFY = "platform-email-verify"
+    PLATFORM_PASSWORD_RESET = "platform-password-reset"
 
 
 def _serializer(secret_key: str, purpose: str) -> URLSafeTimedSerializer:

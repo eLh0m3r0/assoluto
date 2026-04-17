@@ -1,98 +1,82 @@
 {% extends "www/www_base.html" %}
 
-{% block title %}Podmínky služby · SME Portal{% endblock %}
+{% block title %}{{ _("Terms of Service") }} · SME Portal{% endblock %}
 
 {% block content %}
 <section class="mx-auto max-w-3xl pb-16 text-slate-700">
-    <h1 class="text-3xl font-bold text-slate-900">Podmínky služby</h1>
+    <h1 class="text-3xl font-bold text-slate-900">{{ _("Terms of Service") }}</h1>
     <p class="mt-2 text-sm text-slate-500">
-        Verze 1.0 · platnost od 1. května 2026
+        {{ _("Version 1.0 · effective from May 1, 2026") }}
     </p>
 
     <div class="mt-8 space-y-6 text-sm leading-relaxed">
         <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
-            <strong>Upozornění:</strong> Tento text je šablonou a před ostrým
-            provozem služby by měl být ověřen právníkem znalým českého práva
-            (GDPR, občanský zákoník).
+            <strong>{{ _("Notice:") }}</strong> {{ _("This text is a template and should be reviewed by a lawyer familiar with Czech law (GDPR, Civil Code) before going live.") }}
         </div>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">1. Úvodní ustanovení</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("1. Introduction") }}</h2>
             <p class="mt-2">
-                Provozovatelem služby SME Portal (dále jen „Služba") je
-                <strong>{{ operator_name }}</strong>, IČO <strong>{{ operator_ico }}</strong>,
-                se sídlem {{ operator_address }} (dále jen „Provozovatel").
-                Tyto podmínky upravují vztah mezi Provozovatelem a osobou,
-                která Službu užívá (dále jen „Uživatel").
+                {{ _("The operator of the SME Portal service (hereinafter the \"Service\") is") }}
+                <strong>{{ operator_name }}</strong>, {{ _("Company ID") }} <strong>{{ operator_ico }}</strong>,
+                {{ _("with registered office at") }} {{ operator_address }} {{ _("(hereinafter the \"Operator\"). These terms govern the relationship between the Operator and the person using the Service (hereinafter the \"User\").") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">2. Popis služby</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("2. Description of the Service") }}</h2>
             <p class="mt-2">
-                Služba poskytuje multi-tenant zákaznický portál pro výrobní SME —
-                správu objednávek, produktového katalogu, majetku klienta
-                a komunikace mezi dodavatelem a jeho klienty.
+                {{ _("The Service provides a multi-tenant customer portal for manufacturing SMEs — management of orders, product catalog, client assets, and communication between the supplier and their clients.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">3. Registrace a účet</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("3. Registration and account") }}</h2>
             <p class="mt-2">
-                K užívání Služby je potřeba registrace. Uživatel je povinen
-                uvádět pravdivé údaje a chránit své přístupové údaje.
-                Provozovatel může účet zablokovat při hrubém porušení podmínek.
+                {{ _("Registration is required to use the Service. The User is obliged to provide truthful information and protect their login credentials. The Operator may block the account in case of serious violation of the terms.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">4. Zkušební verze a platby</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("4. Trial period and payments") }}</h2>
             <p class="mt-2">
-                Nový účet získá 14denní zkušební verzi zdarma. Po jejím uplynutí
-                Uživatel pokračuje pouze při aktivním předplatném. Platby se
-                realizují prostřednictvím poskytovatele Stripe.
+                {{ _("A new account receives a 14-day free trial. After its expiration, the User can continue only with an active subscription. Payments are processed through Stripe.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">5. Povinnosti Uživatele</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("5. User obligations") }}</h2>
             <p class="mt-2">
-                Uživatel nesmí Službu zneužívat, obcházet zabezpečení, zasahovat
-                do provozu ani používat pro obsah porušující zákony ČR nebo EU.
+                {{ _("The User must not misuse the Service, circumvent security measures, interfere with operations, or use it for content that violates the laws of the Czech Republic or the EU.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">6. Ochrana osobních údajů</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("6. Personal data protection") }}</h2>
             <p class="mt-2">
-                Zpracování osobních údajů se řídí samostatným dokumentem
-                <a href="/privacy" class="text-brand-600 hover:text-brand-700">Zásady ochrany osobních údajů</a>.
+                {{ _("The processing of personal data is governed by a separate document") }}
+                <a href="/privacy" class="text-brand-600 hover:text-brand-700">{{ _("Privacy Policy") }}</a>.
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">7. Odpovědnost</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("7. Liability") }}</h2>
             <p class="mt-2">
-                Služba je poskytována „as-is". Provozovatel neručí za škody
-                způsobené výpadkem nebo ztrátou dat nad rámec uhrazeného
-                předplatného daného měsíce. Uživatel je povinen udržovat
-                si vlastní zálohy exportem dat.
+                {{ _("The Service is provided \"as-is\". The Operator is not liable for damages caused by outages or data loss beyond the amount of the subscription paid for the given month. The User is obliged to maintain their own backups by exporting data.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">8. Ukončení smlouvy</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("8. Termination") }}</h2>
             <p class="mt-2">
-                Uživatel může účet kdykoli zrušit. Po ukončení budou data
-                uchovávána 30 dní, poté budou nenávratně smazána.
+                {{ _("The User may cancel their account at any time. After termination, data will be retained for 30 days, then permanently deleted.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">9. Závěrečná ustanovení</h2>
+            <h2 class="text-lg font-semibold text-slate-900">{{ _("9. Final provisions") }}</h2>
             <p class="mt-2">
-                Tyto podmínky se řídí právem České republiky. Provozovatel
-                může podmínky měnit s 30denním předstihem.
+                {{ _("These terms are governed by the laws of the Czech Republic. The Operator may modify the terms with 30 days' notice.") }}
             </p>
         </section>
     </div>
