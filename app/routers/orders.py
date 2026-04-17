@@ -405,6 +405,24 @@ async def orders_add_item(
     except (OrderNotFound, OrderAccessDenied):
         raise HTTPException(status_code=404, detail="Order not found") from None
 
+    # Server-side enforcement of per-customer OrderPermissions — the
+    # template hides the form but a direct POST bypasses the UI.
+    # Round-4 audit A1 fix.
+    if not principal.is_staff:
+        from app.models.customer import Customer
+        from app.services.customer_permissions import OrderPermissions
+
+        customer = (
+            await db.execute(select(Customer).where(Customer.id == order.customer_id))
+        ).scalar_one_or_none()
+        perms = OrderPermissions.from_dict(customer.order_permissions if customer else None)
+        if not perms.can_add_items:
+            raise HTTPException(status_code=403, detail="Adding items is disabled for your account")
+        if unit_price.strip() and not perms.can_set_prices:
+            raise HTTPException(
+                status_code=403, detail="Setting prices is disabled for your account"
+            )
+
     try:
         qty = Decimal(quantity)
     except (InvalidOperation, ValueError):
