@@ -332,6 +332,7 @@ async def invite_accept_form(
 
 
 @router.post("/invite/accept", response_class=HTMLResponse)
+@rate_limit("10/15 minutes")
 async def invite_accept_submit(
     request: Request,
     token: str = Form(...),
@@ -478,6 +479,7 @@ async def staff_invite_form(
 
 
 @router.post("/invite/staff", response_class=HTMLResponse)
+@rate_limit("10/15 minutes")
 async def staff_invite_submit(
     request: Request,
     token: str = Form(...),
@@ -658,6 +660,7 @@ async def password_reset_confirm_form(
 
 
 @router.post("/auth/password-reset/confirm", response_class=HTMLResponse)
+@rate_limit("10/15 minutes")
 async def password_reset_confirm_submit(
     request: Request,
     token: str = Form(...),

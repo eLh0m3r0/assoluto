@@ -17,6 +17,7 @@ from app.tasks.periodic import (
     auto_close_delivered_orders,
     cleanup_old_stripe_events,
     cleanup_stale_invited_contacts,
+    expire_demo_trials,
 )
 
 log = get_logger("app.scheduler")
@@ -46,6 +47,15 @@ def build_scheduler() -> AsyncIOScheduler:
         cleanup_old_stripe_events,
         trigger=CronTrigger(hour=3, minute=30),  # 03:30 UTC daily
         id="cleanup_old_stripe_events",
+        replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=600,
+    )
+
+    scheduler.add_job(
+        expire_demo_trials,
+        trigger=CronTrigger(hour=3, minute=45),  # 03:45 UTC daily
+        id="expire_demo_trials",
         replace_existing=True,
         max_instances=1,
         misfire_grace_time=600,

@@ -33,6 +33,8 @@ STRIPE_EVENT_CLEANUP_LOCK_ID = 42_003
 # unbounded at ~100 events / tenant / month. Round-2 audit S-N8.
 STRIPE_EVENT_RETENTION_DAYS = 30
 
+EXPIRE_TRIALS_LOCK_ID = 42_005
+
 
 def _owner_engine():
     """Return a fresh async engine using the owner DSN (bypasses RLS)."""
@@ -188,6 +190,51 @@ async def cleanup_old_stripe_events(now: datetime | None = None) -> int:
                 await conn.execute(
                     text("SELECT pg_advisory_unlock(:id)"),
                     {"id": STRIPE_EVENT_CLEANUP_LOCK_ID},
+                )
+    finally:
+        await engine.dispose()
+
+
+async def expire_demo_trials(now: datetime | None = None) -> int:
+    """Downgrade expired demo-mode trials to the community plan.
+
+    In live Stripe mode, ``customer.subscription.deleted`` handles this.
+    This job is defence-in-depth for demo/dev mode where no webhook fires.
+    """
+    current = now or datetime.now(UTC)
+
+    engine = _owner_engine()
+    try:
+        async with engine.begin() as conn:
+            got_lock = (
+                await conn.execute(
+                    text("SELECT pg_try_advisory_lock(:id)"),
+                    {"id": EXPIRE_TRIALS_LOCK_ID},
+                )
+            ).scalar()
+            if not got_lock:
+                log.info("periodic.expire_trials.skipped", reason="lock held")
+                return 0
+
+            try:
+                result = await conn.execute(
+                    text(
+                        "UPDATE platform_subscriptions "
+                        "SET status = 'canceled' "
+                        "WHERE status IN ('trialing', 'demo') "
+                        "  AND trial_ends_at IS NOT NULL "
+                        "  AND trial_ends_at < :now "
+                        "  AND stripe_subscription_id IS NULL"
+                    ),
+                    {"now": current},
+                )
+                expired = result.rowcount or 0
+                log.info("periodic.expire_trials.done", expired=expired)
+                return expired
+            finally:
+                await conn.execute(
+                    text("SELECT pg_advisory_unlock(:id)"),
+                    {"id": EXPIRE_TRIALS_LOCK_ID},
                 )
     finally:
         await engine.dispose()

@@ -200,6 +200,7 @@ async def platform_password_reset_confirm_form(
 
 
 @router.post("/platform/password-reset/confirm", response_class=HTMLResponse)
+@rate_limit("10/15 minutes")
 async def platform_password_reset_confirm_submit(
     request: Request,
     token: str = Form(...),
