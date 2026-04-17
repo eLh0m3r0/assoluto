@@ -17,7 +17,7 @@ from app.config import get_settings
 from app.logging import get_logger
 from app.models.customer import CustomerContact
 from app.models.enums import OrderStatus
-from app.models.order import Order, OrderStatusHistory
+from app.models.order import Order, OrderComment, OrderStatusHistory
 
 log = get_logger("app.tasks.periodic")
 
@@ -42,6 +42,9 @@ def _owner_engine():
 async def auto_close_delivered_orders(now: datetime | None = None) -> int:
     """Close DELIVERED orders that have been sitting for >= 14 days.
 
+    Skips orders that have comments newer than the cutoff — active
+    discussion means the order shouldn't be auto-closed yet.
+
     Returns the number of orders closed. Uses a Postgres advisory lock so
     concurrent workers never double-close.
     """
@@ -64,18 +67,30 @@ async def auto_close_delivered_orders(now: datetime | None = None) -> int:
             try:
                 sm = async_sessionmaker(bind=conn, expire_on_commit=False)
                 async with sm() as session:
-                    rows = (
-                        (
-                            await session.execute(
-                                select(Order).where(
-                                    Order.status == OrderStatus.DELIVERED,
-                                    Order.updated_at <= cutoff,
-                                )
-                            )
+                    from sqlalchemy import func as sa_func
+
+                    latest_comment = (
+                        select(
+                            OrderComment.order_id,
+                            sa_func.max(OrderComment.created_at).label("last_comment_at"),
                         )
-                        .scalars()
-                        .all()
+                        .group_by(OrderComment.order_id)
+                        .subquery()
                     )
+
+                    stmt = (
+                        select(Order)
+                        .outerjoin(latest_comment, Order.id == latest_comment.c.order_id)
+                        .where(
+                            Order.status == OrderStatus.DELIVERED,
+                            Order.updated_at <= cutoff,
+                            (
+                                (latest_comment.c.last_comment_at.is_(None))
+                                | (latest_comment.c.last_comment_at <= cutoff)
+                            ),
+                        )
+                    )
+                    rows = (await session.execute(stmt)).scalars().all()
                     for order in rows:
                         order.status = OrderStatus.CLOSED
                         order.closed_at = current

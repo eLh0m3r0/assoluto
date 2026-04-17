@@ -27,7 +27,7 @@ async def test_features_page_renders(www_client) -> None:
     client, _ = www_client
     resp = await client.get("/features")
     assert resp.status_code == 200
-    assert "Co všechno SME Portal umí" in resp.text
+    assert "What SME Portal can do" in resp.text
 
 
 async def test_pricing_page_renders_all_tiers(www_client) -> None:
@@ -113,7 +113,7 @@ async def test_contact_form_renders_empty(www_client) -> None:
     client, _ = www_client
     resp = await client.get("/contact")
     assert resp.status_code == 200
-    assert "Napište nám" in resp.text
+    assert "Write to us" in resp.text
 
 
 async def test_contact_form_submission_sends_email(www_client) -> None:
@@ -127,7 +127,7 @@ async def test_contact_form_submission_sends_email(www_client) -> None:
         },
     )
     assert resp.status_code == 200
-    assert "Zpráva odeslána" in resp.text
+    assert "Message sent" in resp.text
     # Background task ran by the TestClient in-process.
     assert len(sender.outbox) == 1
     assert "Jan Novák" in sender.outbox[0].text
@@ -219,6 +219,6 @@ async def test_landing_shows_marketing_when_platform_on_and_no_tenant(settings, 
     async with CsrfAwareClient(transport=transport, base_url="http://testserver") as ac:
         resp = await ac.get("/")
     assert resp.status_code == 200
-    assert "Nahraďte e-maily a telefony" in resp.text
+    assert "Replace emails and phone calls with" in resp.text
 
     reset_platform_engine()

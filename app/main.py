@@ -218,11 +218,16 @@ def _register_error_handlers(app: FastAPI) -> None:
         templates: Templates = request.app.state.templates
         on_platform_path = request.url.path.startswith("/platform/")
 
-        # 401 on an HTML request → bounce to the right login page.
-        # Platform routes use /platform/login; everything else keeps
-        # /auth/login (tenant-local).
+        # 401 on an HTML request → bounce to the right login page,
+        # preserving the original path as ?next= so the user lands
+        # back where they wanted after authentication.
         if exc.status_code == 401 and _wants_html(request):
             login_url = "/platform/login" if on_platform_path else "/auth/login"
+            original = request.url.path
+            if original and original != "/" and original != login_url:
+                from urllib.parse import quote
+
+                login_url = f"{login_url}?next={quote(original, safe='/')}"
             return RedirectResponse(url=login_url, status_code=status.HTTP_303_SEE_OTHER)
 
         # 403 on a platform path that sets Location (i.e. ``require_verified_identity``)

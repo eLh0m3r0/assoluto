@@ -76,6 +76,7 @@ async def _resolve_current_tenant(
 @router.get("/platform/billing", response_class=HTMLResponse)
 async def billing_dashboard(
     request: Request,
+    checkout: str | None = None,
     identity: Identity = Depends(require_verified_identity),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
@@ -101,6 +102,10 @@ async def billing_dashboard(
 
     usage = await snapshot_tenant_usage(db, tenant.id)  # type: ignore[attr-defined]
 
+    notice = None
+    if checkout == "success":
+        notice = "Předplatné bylo úspěšně aktualizováno."
+
     html = _templates(request).render(
         request,
         "platform/billing/dashboard.html",
@@ -114,6 +119,7 @@ async def billing_dashboard(
             "usage": usage,
             "stripe_enabled": settings.stripe_enabled,
             "principal": None,
+            "notice": notice,
         },
     )
     return HTMLResponse(html)

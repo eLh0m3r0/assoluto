@@ -64,10 +64,10 @@ def _safe_next_path(candidate: str) -> str:
         return "/"
     if "\\" in candidate:
         return "/"
-    # Decode once to catch %2e%2e and friends. Any path segment that
-    # decodes to ".." refuses — Starlette's router would normalise
-    # anyway, but defence-in-depth keeps the behaviour explicit.
+    # Loop-decode to catch double/triple-encoded %2e%2e (%252e%252e).
     decoded = unquote(candidate)
+    while unquote(decoded) != decoded:
+        decoded = unquote(decoded)
     if ".." in decoded.split("?", 1)[0].split("/"):
         return "/"
     try:
@@ -147,6 +147,7 @@ async def login_form(
     request: Request,
     tenant: Tenant = Depends(get_current_tenant),
     notice: str | None = None,
+    next: str | None = None,
 ) -> HTMLResponse:
     banner = None
     if notice == "password_reset":
@@ -154,7 +155,7 @@ async def login_form(
     html = _templates(request).render(
         request,
         "auth/login.html",
-        {"tenant": tenant, "error": None, "notice": banner},
+        {"tenant": tenant, "error": None, "notice": banner, "next": next or ""},
     )
     return HTMLResponse(html)
 
@@ -165,6 +166,7 @@ async def login_submit(
     request: Request,
     email: str = Form(...),
     password: str = Form(...),
+    next: str = Form(""),
     tenant: Tenant = Depends(get_current_tenant),
     db: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -180,6 +182,7 @@ async def login_submit(
                 "email": email,
                 "error": "Účet je deaktivován.",
                 "notice": None,
+                "next": next,
             },
         )
         return HTMLResponse(html, status_code=status.HTTP_403_FORBIDDEN)
@@ -192,11 +195,13 @@ async def login_submit(
                 "email": email,
                 "error": "Neplatný e-mail nebo heslo.",
                 "notice": None,
+                "next": next,
             },
         )
         return HTMLResponse(html, status_code=status.HTTP_401_UNAUTHORIZED)
 
-    response = _login_redirect(request)
+    dest = _safe_next_path(next) if next else "/app"
+    response = RedirectResponse(url=dest, status_code=status.HTTP_303_SEE_OTHER)
     _persist_session(request, response, settings, login)
     return response
 

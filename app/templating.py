@@ -182,6 +182,7 @@ class Templates:
             "csrf_token": csrf_value,
             "csrf_input": csrf_input,
             "locale": locale,
+            "feature_platform": self.settings.feature_platform,
         }
         if extra:
             context.update(extra)

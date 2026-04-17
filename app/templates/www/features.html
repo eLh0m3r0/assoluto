@@ -1,86 +1,74 @@
 {% extends "www/www_base.html" %}
 
-{% block title %}Funkce · SME Portal{% endblock %}
+{% block title %}{{ _("Features") }} · SME Portal{% endblock %}
 
 {% block content %}
 <section class="mx-auto max-w-4xl pb-16">
     <div class="mb-10 text-center">
-        <h1 class="text-3xl font-bold text-slate-900">Co všechno SME Portal umí</h1>
+        <h1 class="text-3xl font-bold text-slate-900">{{ _("What SME Portal can do") }}</h1>
         <p class="mt-2 text-slate-600">
-            Postaveno pro výrobní SME: objednávky s výkresy, katalog, majetek klienta, multi-tenant.
+            {{ _("Built for manufacturing SMEs: orders with drawings, catalog, client assets, multi-tenant.") }}
         </p>
     </div>
 
     <div class="space-y-8">
         <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">Objednávkový workflow</h2>
+            <h2 class="text-xl font-semibold text-slate-900">{{ _("Order workflow") }}</h2>
             <p class="mt-2 text-slate-600">
-                Osmistupňový proces: DRAFT → SUBMITTED → QUOTED → CONFIRMED →
-                IN_PRODUCTION → READY → DELIVERED → CLOSED. Každý přechod je
-                auditovaný (kdo, kdy, proč).
+                {{ _("Eight-step process: DRAFT → SUBMITTED → QUOTED → CONFIRMED → IN_PRODUCTION → READY → DELIVERED → CLOSED. Every transition is audited (who, when, why).") }}
             </p>
             <ul class="mt-4 list-disc space-y-1 pl-6 text-sm text-slate-600">
-                <li>Klient zadá položky (free-text i z katalogu).</li>
-                <li>Vy naceníte, stanovíte termín.</li>
-                <li>Klient potvrdí, nebo navrhne změnu.</li>
-                <li>Komentáře na objednávce (s interními poznámkami pro tým).</li>
-                <li>Automatické notifikace na každou změnu stavu.</li>
+                <li>{{ _("Client enters items (free-text or from the catalog).") }}</li>
+                <li>{{ _("You quote and set the deadline.") }}</li>
+                <li>{{ _("Client confirms or proposes a change.") }}</li>
+                <li>{{ _("Comments on the order (with internal notes for the team).") }}</li>
+                <li>{{ _("Automatic notifications on every status change.") }}</li>
             </ul>
         </article>
 
         <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">Přílohy a výkresy</h2>
+            <h2 class="text-xl font-semibold text-slate-900">{{ _("Attachments and drawings") }}</h2>
             <p class="mt-2 text-slate-600">
-                Přímý upload do S3 (max 50 MB). Thumbnaily pro PDF a obrázky.
-                Přílohy lze vázat na celou objednávku i na konkrétní položku.
+                {{ _("Direct upload to S3 (max 50 MB). Thumbnails for PDFs and images. Attachments can be linked to the entire order or to a specific item.") }}
             </p>
         </article>
 
         <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">Katalog produktů</h2>
+            <h2 class="text-xl font-semibold text-slate-900">{{ _("Product catalog") }}</h2>
             <p class="mt-2 text-slate-600">
-                Sdílený per-tenant katalog i per-customer (kustomizovaný pro
-                konkrétního klienta). Autocomplete přímo při zadávání
-                objednávky, s předvyplněnou cenou a jednotkou.
+                {{ _("Shared per-tenant catalog and per-customer catalog (customized for a specific client). Autocomplete directly when placing an order, with pre-filled price and unit.") }}
             </p>
         </article>
 
         <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">Evidence majetku klienta</h2>
+            <h2 class="text-xl font-semibold text-slate-900">{{ _("Client asset tracking") }}</h2>
             <p class="mt-2 text-slate-600">
-                Klient má u vás uložený materiál, nástroje, polotovary?
-                Portál eviduje příjem, výdej, spotřebu. Aktuální stav se
-                automaticky přepočítává. Klient vidí jen svoje věci.
+                {{ _("Does your client store materials, tools, or semi-finished products with you? The portal tracks receipt, dispatch, and consumption. Current balance is recalculated automatically. Clients only see their own items.") }}
             </p>
         </article>
 
         <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">Multi-tenant od prvního dne</h2>
+            <h2 class="text-xl font-semibold text-slate-900">{{ _("Multi-tenant from day one") }}</h2>
             <p class="mt-2 text-slate-600">
-                PostgreSQL Row-Level Security — data různých klientů jsou
-                fyzicky oddělena na úrovni databáze. Subdomény
+                {{ _("PostgreSQL Row-Level Security — data from different clients is physically separated at the database level. Subdomains") }}
                 <code>client-a.smeportal.cz</code>, <code>client-b.smeportal.cz</code>
-                pro každého klienta zvlášť.
+                {{ _("for each client separately.") }}
             </p>
         </article>
 
         <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">Oprávnění a bezpečnost</h2>
+            <h2 class="text-xl font-semibold text-slate-900">{{ _("Permissions and security") }}</h2>
             <p class="mt-2 text-slate-600">
-                Role: tenant_admin (vlastník), tenant_staff (váš tým),
-                customer_admin (zástupce klienta), customer_user (kontaktní
-                osoba klienta). Per-customer nastavení, co smí klient zadávat
-                (pouze výběr z katalogu / free-text / ceny).
+                {{ _("Roles: tenant_admin (owner), tenant_staff (your team), customer_admin (client representative), customer_user (client contact person). Per-customer settings for what the client can enter (catalog selection only / free-text / prices).") }}
             </p>
         </article>
 
         <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">Open source</h2>
+            <h2 class="text-xl font-semibold text-slate-900">{{ _("Open source") }}</h2>
             <p class="mt-2 text-slate-600">
-                Celý kód je pod licencí AGPL-3.0 na
-                <a href="https://github.com/elh0m3r0/sme-client-portal" class="text-brand-600 hover:text-brand-700">GitHubu</a>.
-                Můžete si ho self-hostovat (zdarma), zauditovat, nebo forknout.
-                My nabízíme hostovanou verzi s pohodlnou správou a podporou.
+                {{ _("The entire code is licensed under AGPL-3.0 on") }}
+                <a href="https://github.com/elh0m3r0/sme-client-portal" class="text-brand-600 hover:text-brand-700">{{ _("GitHub") }}</a>.
+                {{ _("You can self-host it (free), audit it, or fork it. We offer a hosted version with convenient management and support.") }}
             </p>
         </article>
     </div>
@@ -88,7 +76,7 @@
     <div class="mt-12 text-center">
         <a href="/platform/signup"
            class="inline-block rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700">
-            Vyzkoušet zdarma 14 dní
+            {{ _("Try free for 14 days") }}
         </a>
     </div>
 </section>

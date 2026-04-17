@@ -3,30 +3,30 @@
 
 {% block nav %}
     <a href="/features" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">
-        Funkce
+        {{ _("Features") }}
     </a>
     <a href="/pricing" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">
-        Ceník
+        {{ _("Pricing") }}
     </a>
     <a href="/self-hosted" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">
-        Self-hosted
+        {{ _("Self-hosted") }}
     </a>
     <a href="/contact" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">
-        Kontakt
+        {{ _("Contact") }}
     </a>
     <a href="/platform/login" class="ml-2 rounded-md bg-white px-3 py-1.5 font-medium text-brand-600 ring-1 ring-inset ring-brand-200 transition hover:bg-brand-50">
-        Přihlášení
+        {{ _("Sign in") }}
     </a>
     <a href="/platform/signup" class="rounded-md bg-brand-600 px-3 py-1.5 font-semibold text-white transition hover:bg-brand-700">
-        Vyzkoušet zdarma
+        {{ _("Try for free") }}
     </a>
 {% endblock %}
 
 {% block footer_extra %}
     <div class="flex items-center gap-3">
-        <a href="/terms" class="hover:text-gray-600">Podmínky</a>
+        <a href="/terms" class="hover:text-gray-600">{{ _("Terms") }}</a>
         <span>·</span>
-        <a href="/privacy" class="hover:text-gray-600">Ochrana údajů</a>
+        <a href="/privacy" class="hover:text-gray-600">{{ _("Privacy") }}</a>
         <span>·</span>
         <a href="https://github.com/elh0m3r0/sme-client-portal" class="hover:text-gray-600">GitHub</a>
     </div>

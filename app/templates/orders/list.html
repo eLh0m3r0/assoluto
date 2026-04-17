@@ -20,7 +20,7 @@
                 class="rounded-md border border-slate-300 px-3 py-2 text-sm">
             {% for value, label in status_choices %}
                 <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>
-                    {{ label }}
+                    {{ _(label) }}
                 </option>
             {% endfor %}
         </select>
