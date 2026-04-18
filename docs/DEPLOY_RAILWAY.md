@@ -1,4 +1,4 @@
-# Deploying SME Client Portal on Railway
+# Deploying Assoluto on Railway
 
 This guide walks through deploying the portal on [Railway](https://railway.app) —
 a single-service Docker deployment backed by Railway's managed Postgres, an
@@ -85,7 +85,7 @@ SMTP_HOST=smtp.postmarkapp.com
 SMTP_PORT=587
 SMTP_USER=<postmark server API key>
 SMTP_PASSWORD=<postmark server API key>
-SMTP_FROM="SME Portal <noreply@your-domain>"
+SMTP_FROM="Assoluto <noreply@your-domain>"
 SMTP_STARTTLS=true
 
 # --- Feature flags ---

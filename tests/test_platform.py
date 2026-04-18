@@ -87,7 +87,7 @@ async def test_platform_login_form_renders(platform_client: CsrfAwareClient) -> 
     resp = await platform_client.get("/platform/login")
     assert resp.status_code == 200
     # cs default locale: "Platform" → "Platforma".
-    assert "SME Portal — Platforma" in resp.text
+    assert "Assoluto — Platforma" in resp.text
 
 
 async def test_platform_login_with_wrong_password_fails(

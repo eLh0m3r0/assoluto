@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #
-# Multi-stage image for SME Client Portal.
+# Multi-stage image for Assoluto.
 #
 #   1. builder  — install deps with uv into /app/.venv, build Tailwind CSS
 #   2. runtime  — slim Python image with just the venv and app code

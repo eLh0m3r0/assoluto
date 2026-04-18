@@ -1,6 +1,6 @@
 # Deploying to a Hetzner Cloud VPS
 
-End-to-end guide to running the SME Client Portal in production on a
+End-to-end guide to running Assoluto in production on a
 single Hetzner Cloud VPS with automatic zero-touch deploys from GitHub.
 Every push to the `production` branch builds a new Docker image, pushes
 it to GitHub Container Registry (GHCR), SSHes into the VPS, and rolls
@@ -40,7 +40,7 @@ Every step below is tagged with an actor:
 | §5.1 B2 bucket + keys | Create bucket and application key in Backblaze UI | 🧑 You |
 | §5.2 Postmark server + DNS | Create server, verify domain (SPF/DKIM/DMARC records at registrar) | 🧑 You |
 | §5.3 Stripe setup | Stripe dashboard + webhook endpoint | 🧑 You |
-| §6 App layout on VPS | Clone repo, write `/etc/sme-portal/env`, patch nginx.conf + compose | 🖥️ Claude on the VPS |
+| §6 App layout on VPS | Clone repo, write `/etc/assoluto/env`, patch nginx.conf + compose | 🖥️ Claude on the VPS |
 | §7 First manual deploy | Pull image, `docker compose up`, fix Postgres password, health check | 🖥️ Claude on the VPS |
 | §7.5 Create first tenant | `python -m scripts.create_tenant` | 🖥️ Claude on the VPS |
 | §8.1 Add GitHub secrets | Paste SSH private key, host, user into repo Settings | 🧑 You |
@@ -61,8 +61,8 @@ Every step below is tagged with an actor:
 ```
              ┌────────────────────────────── Cloudflare DNS ─┐
              │                                                │
-  browser ───┤  https://portal.example.com                    │
-             │  https://<tenant>.portal.example.com           │
+  browser ───┤  https://assoluto.eu                    │
+             │  https://<tenant>.assoluto.eu           │
              └──────┬─────────────────────────────────────────┘
                     │  HTTPS (TLS terminated by nginx on VPS)
                     ▼
@@ -100,7 +100,7 @@ Every step below is tagged with an actor:
   simple and take pg_dump backups to S3.
 - **Nginx for TLS + wildcard.** The app listens on plain HTTP inside
   the Docker network; Nginx terminates TLS and serves the wildcard
-  cert for `*.portal.example.com`.
+  cert for `*.assoluto.eu`.
 
 ---
 
@@ -111,8 +111,8 @@ Before you start you need:
 | Item | Where | Notes |
 |------|-------|-------|
 | Hetzner Cloud account | console.hetzner.cloud | EU VAT-friendly, no credit card holds |
-| A domain you control | any registrar | `portal.example.com` in this guide |
-| SSH keypair on your laptop | `~/.ssh/id_ed25519` | `ssh-keygen -t ed25519 -C "deploy@sme-portal"` if you don't have one |
+| A domain you control | any registrar | `assoluto.eu` in this guide |
+| SSH keypair on your laptop | `~/.ssh/id_ed25519` | `ssh-keygen -t ed25519 -C "deploy@assoluto"` if you don't have one |
 | GitHub repo with this codebase | github.com | Public or private both fine |
 | Backblaze B2 or Cloudflare R2 account | respective dashboards | For attachments |
 | Postmark / SES / Mailgun account | respective dashboards | For transactional email |
@@ -137,12 +137,12 @@ a billing card, or a DNS record you alone can create.
 
 **Domain & DNS**
 
-- [ ] `PORTAL_DOMAIN` — e.g. `portal.example.com`
+- [ ] `PORTAL_DOMAIN` — e.g. `assoluto.eu`
 - [ ] `ACME_EMAIL` — the address Let's Encrypt will email on cert
-      expiry (e.g. `ops@example.com`)
+      expiry (e.g. `ops@assoluto.eu`)
 - [ ] Two **A records** created at your registrar / DNS host:
-      `portal.example.com → <VPS IP>` and
-      `*.portal.example.com → <VPS IP>`
+      `assoluto.eu → <VPS IP>` and
+      `*.assoluto.eu → <VPS IP>`
 - [ ] `CLOUDFLARE_API_TOKEN` — only if your DNS is on Cloudflare;
       zone-scoped, Zone:DNS:Edit. (If DNS is elsewhere, use the Caddy
       path in §9 and collect the provider's API token instead.)
@@ -158,7 +158,7 @@ a billing card, or a DNS record you alone can create.
 **Object storage (Backblaze B2 or Cloudflare R2)**
 
 - [ ] `S3_ENDPOINT_URL` (from the bucket page)
-- [ ] `S3_BUCKET` — e.g. `sme-portal-prod-attachments`
+- [ ] `S3_BUCKET` — e.g. `assoluto-attachments`
 - [ ] `S3_REGION` — e.g. `eu-central-003`
 - [ ] `S3_ACCESS_KEY` / `S3_SECRET_KEY`
 
@@ -168,14 +168,14 @@ a billing card, or a DNS record you alone can create.
       registrar and **verified** in the provider dashboard
 - [ ] `SMTP_HOST`, `SMTP_PORT` (usually `587`)
 - [ ] `SMTP_USER`, `SMTP_PASSWORD`
-- [ ] `SMTP_FROM` — e.g. `no-reply@portal.example.com`
+- [ ] `SMTP_FROM` — e.g. `no-reply@assoluto.eu`
 
 **Stripe** (skip if you're not selling subscriptions yet — leave
 `FEATURE_PLATFORM=false`)
 
 - [ ] `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`
 - [ ] `STRIPE_WEBHOOK_SECRET` (from the webhook endpoint you create
-      pointing at `https://portal.example.com/platform/stripe/webhook`)
+      pointing at `https://assoluto.eu/platform/stripe/webhook`)
 - [ ] `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_PRO` (price IDs from the
       Stripe dashboard)
 
@@ -185,7 +185,7 @@ a billing card, or a DNS record you alone can create.
       `read:packages` scope, so the VPS can pull from GHCR. Call this
       `GHCR_PULL_TOKEN`. (Skip if your GHCR image is public.)
 - [ ] A **deploy keypair** for CI. Generate with
-      `ssh-keygen -t ed25519 -f ~/.ssh/sme_portal_deploy -N ''`.
+      `ssh-keygen -t ed25519 -f ~/.ssh/assoluto_deploy -N ''`.
       The public half goes into the VPS's `authorized_keys`; the
       private half goes into the `DEPLOY_SSH_KEY` repo secret.
 - [ ] Repository secrets added under **Settings → Secrets and
@@ -216,7 +216,7 @@ In the Hetzner Cloud console:
 4. **Networking:** Public IPv4 on, IPv6 on.
 5. **SSH key:** paste your `~/.ssh/id_ed25519.pub` contents. This
    becomes the initial root key.
-6. **Name:** `sme-portal-prod`.
+6. **Name:** `assoluto-prod`.
 7. Create. You'll get a public IPv4 address — write it down.
 
 ### 3.2. 🖥️ First login and baseline hardening — Claude on the VPS
@@ -290,11 +290,11 @@ You need two records pointing at the VPS IP:
 
 | Type | Name                    | Value        | TTL |
 |------|-------------------------|--------------|-----|
-| A    | `portal.example.com`    | `1.2.3.4`    | 300 |
-| A    | `*.portal.example.com`  | `1.2.3.4`    | 300 |
+| A    | `assoluto.eu`    | `1.2.3.4`    | 300 |
+| A    | `*.assoluto.eu`  | `1.2.3.4`    | 300 |
 
 The wildcard is **mandatory** — each tenant gets a subdomain like
-`acme.portal.example.com`.
+`acme.assoluto.eu`.
 
 If your DNS is on Cloudflare, you can leave the orange cloud **off**
 (grey cloud / DNS-only). Terminating TLS yourself on the VPS keeps
@@ -327,13 +327,13 @@ sudo chmod 600 /etc/letsencrypt/secrets/cloudflare.ini
 sudo certbot certonly \
     --dns-cloudflare \
     --dns-cloudflare-credentials /etc/letsencrypt/secrets/cloudflare.ini \
-    -d portal.example.com \
-    -d '*.portal.example.com' \
-    --agree-tos --email ops@example.com --non-interactive
+    -d assoluto.eu \
+    -d '*.assoluto.eu' \
+    --agree-tos --email ops@assoluto.eu --non-interactive
 ```
 
 Certbot stores the cert at
-`/etc/letsencrypt/live/portal.example.com/{fullchain,privkey}.pem`.
+`/etc/letsencrypt/live/assoluto.eu/{fullchain,privkey}.pem`.
 
 Renewal is automatic via the `certbot.timer` systemd unit (every 12 h).
 We'll mount a symlinked copy into the Nginx container below.
@@ -352,9 +352,9 @@ verification. None of it can be safely delegated to an agent.
 ### 5.1. Object storage (Backblaze B2 example)
 
 1. Sign up at backblaze.com, enable B2 Cloud Storage.
-2. **Create Bucket:** name `sme-portal-prod-attachments`, private.
+2. **Create Bucket:** name `assoluto-attachments`, private.
 3. **Application Keys → Add a New Application Key:**
-   - Name: `sme-portal-prod`
+   - Name: `assoluto-prod`
    - Allow access to: this bucket only
    - Type of access: Read and Write
 4. Save the **keyID** and **applicationKey** — you only see them once.
@@ -366,7 +366,7 @@ Env vars you'll set later:
 S3_ENDPOINT_URL=https://s3.eu-central-003.backblazeb2.com
 S3_ACCESS_KEY=<keyID>
 S3_SECRET_KEY=<applicationKey>
-S3_BUCKET=sme-portal-prod-attachments
+S3_BUCKET=assoluto-attachments
 S3_REGION=eu-central-003
 ```
 
@@ -386,7 +386,7 @@ SMTP_HOST=smtp.postmarkapp.com
 SMTP_PORT=587
 SMTP_USER=<Server API token>
 SMTP_PASSWORD=<Server API token>     # Postmark uses the same value for both
-SMTP_FROM=no-reply@portal.example.com
+SMTP_FROM=no-reply@assoluto.eu
 ```
 
 Send a test email once the app is running via the signup flow or a
@@ -399,7 +399,7 @@ Send a test email once the app is running via the signup flow or a
 2. Create prices for your plans in the Stripe dashboard; copy the
    `price_...` IDs.
 3. Create a webhook endpoint pointing at
-   `https://portal.example.com/platform/stripe/webhook` — select events
+   `https://assoluto.eu/platform/stripe/webhook` — select events
    per [`docs/DEPLOY_SAAS.md`](DEPLOY_SAAS.md#stripe-webhook-events).
 4. Copy the webhook signing secret.
 
@@ -417,19 +417,19 @@ STRIPE_PRICE_PRO=price_...
 
 ## 6. 🖥️ Application layout on the VPS — Claude on the VPS
 
-We'll keep the compose files and nginx config under `/opt/sme-portal`
-(readable) and secrets under `/etc/sme-portal/env` (root-readable
+We'll keep the compose files and nginx config under `/opt/assoluto`
+(readable) and secrets under `/etc/assoluto/env` (root-readable
 only).
 
 ```bash
 # As deploy on the VPS
-sudo mkdir -p /opt/sme-portal /etc/sme-portal
-sudo chown deploy:deploy /opt/sme-portal
+sudo mkdir -p /opt/assoluto /etc/assoluto
+sudo chown deploy:deploy /opt/assoluto
 
 # Clone the repo — only for its compose + nginx config. The actual
 # app code is pulled as a Docker image from GHCR.
-git clone https://github.com/<your-org>/sme-client-portal.git /opt/sme-portal
-cd /opt/sme-portal
+git clone https://github.com/<your-org>/sme-client-portal.git /opt/assoluto
+cd /opt/assoluto
 git checkout production   # stay on the deployed branch
 ```
 
@@ -438,12 +438,12 @@ git checkout production   # stay on the deployed branch
 Copy the template and replace the hostnames:
 
 ```bash
-sudo mkdir -p /opt/sme-portal/docker
-cp /opt/sme-portal/docker/nginx.conf.example /opt/sme-portal/docker/nginx.conf
-sed -i 's/portal\.example\.com/portal.YOUR-DOMAIN.com/g' /opt/sme-portal/docker/nginx.conf
+sudo mkdir -p /opt/assoluto/docker
+cp /opt/assoluto/docker/nginx.conf.example /opt/assoluto/docker/nginx.conf
+sed -i 's/portal\.example\.com/portal.YOUR-DOMAIN.com/g' /opt/assoluto/docker/nginx.conf
 
 # Create the common proxy include that the vhost file references.
-sudo tee /opt/sme-portal/docker/common-proxy.inc >/dev/null <<'EOF'
+sudo tee /opt/assoluto/docker/common-proxy.inc >/dev/null <<'EOF'
 proxy_set_header Host $host;
 proxy_set_header X-Real-IP $remote_addr;
 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -455,7 +455,7 @@ EOF
 
 Now patch `docker-compose.prod.yml` **on the VPS** to also mount the
 certbot cert directory and the `common-proxy.inc` file into the Nginx
-container. Edit `/opt/sme-portal/docker-compose.prod.yml` and replace
+container. Edit `/opt/assoluto/docker-compose.prod.yml` and replace
 the `nginx.volumes` block with:
 
 ```yaml
@@ -466,7 +466,7 @@ the `nginx.volumes` block with:
 ```
 
 And change the two `ssl_certificate*` lines in
-`/opt/sme-portal/docker/nginx.conf` to:
+`/opt/assoluto/docker/nginx.conf` to:
 
 ```nginx
 ssl_certificate     /etc/letsencrypt/live/portal.YOUR-DOMAIN.com/fullchain.pem;
@@ -478,7 +478,7 @@ ssl_certificate_key /etc/letsencrypt/live/portal.YOUR-DOMAIN.com/privkey.pem;
 > git. (Alternative: template the host via env substitution; for one
 > VPS that's overkill.)
 
-### 6.2. The env file — `/etc/sme-portal/env`
+### 6.2. The env file — `/etc/assoluto/env`
 
 Every credential lives here. It is read by `docker compose --env-file`
 and is never in git.
@@ -489,13 +489,13 @@ python3 -c 'import secrets; print(secrets.token_urlsafe(48))'   # APP_SECRET_KEY
 python3 -c 'import secrets; print(secrets.token_urlsafe(32))'   # PORTAL_OWNER_PASSWORD
 python3 -c 'import secrets; print(secrets.token_urlsafe(32))'   # PORTAL_APP_PASSWORD
 
-sudo tee /etc/sme-portal/env >/dev/null <<'EOF'
+sudo tee /etc/assoluto/env >/dev/null <<'EOF'
 # ---- Image tag (overwritten by the CI job on every deploy) ----
 APP_IMAGE_TAG=latest
 
 # ---- Core ----
 APP_SECRET_KEY=<paste the 48-byte token>
-APP_BASE_URL=https://portal.example.com
+APP_BASE_URL=https://assoluto.eu
 LOG_LEVEL=INFO
 
 # ---- Database ----
@@ -507,7 +507,7 @@ S3_ENDPOINT_URL=https://s3.eu-central-003.backblazeb2.com
 S3_PUBLIC_ENDPOINT_URL=
 S3_ACCESS_KEY=<keyID>
 S3_SECRET_KEY=<applicationKey>
-S3_BUCKET=sme-portal-prod-attachments
+S3_BUCKET=assoluto-attachments
 S3_REGION=eu-central-003
 
 # ---- SMTP (Postmark) ----
@@ -515,18 +515,18 @@ SMTP_HOST=smtp.postmarkapp.com
 SMTP_PORT=587
 SMTP_USER=<postmark token>
 SMTP_PASSWORD=<postmark token>
-SMTP_FROM=no-reply@portal.example.com
+SMTP_FROM=no-reply@assoluto.eu
 
 # ---- Platform / SaaS (set true only when billing + signup are live) ----
 FEATURE_PLATFORM=false
-PLATFORM_COOKIE_DOMAIN=.portal.example.com
+PLATFORM_COOKIE_DOMAIN=.assoluto.eu
 
 # ---- Limits ----
 MAX_UPLOAD_SIZE_MB=50
 EOF
 
-sudo chmod 600 /etc/sme-portal/env
-sudo chown root:root /etc/sme-portal/env
+sudo chmod 600 /etc/assoluto/env
+sudo chown root:root /etc/assoluto/env
 ```
 
 > **Postgres password gotcha.** `docker/postgres-init.sql` ships with a
@@ -535,10 +535,10 @@ sudo chown root:root /etc/sme-portal/env
 >
 > ```bash
 > # After the stack is up for the first time (see §7):
-> sudo docker compose --env-file /etc/sme-portal/env \
+> sudo docker compose --env-file /etc/assoluto/env \
 >     -f docker-compose.yml -f docker-compose.prod.yml \
 >     exec postgres psql -U portal -d portal \
->     -c "ALTER ROLE portal_app WITH PASSWORD '$(sudo grep PORTAL_APP_PASSWORD /etc/sme-portal/env | cut -d= -f2)';"
+>     -c "ALTER ROLE portal_app WITH PASSWORD '$(sudo grep PORTAL_APP_PASSWORD /etc/assoluto/env | cut -d= -f2)';"
 > ```
 >
 > This is a one-time fix. For a cleaner setup, fork `postgres-init.sql`
@@ -581,21 +581,21 @@ docker buildx build --platform linux/amd64 \
 
 ```bash
 # On the VPS, as deploy
-cd /opt/sme-portal
+cd /opt/assoluto
 
 # Pin the bootstrap tag
-sudo sed -i 's/^APP_IMAGE_TAG=.*/APP_IMAGE_TAG=bootstrap/' /etc/sme-portal/env
+sudo sed -i 's/^APP_IMAGE_TAG=.*/APP_IMAGE_TAG=bootstrap/' /etc/assoluto/env
 
-sudo docker compose --env-file /etc/sme-portal/env \
+sudo docker compose --env-file /etc/assoluto/env \
     -f docker-compose.yml -f docker-compose.prod.yml \
     pull
 
-sudo docker compose --env-file /etc/sme-portal/env \
+sudo docker compose --env-file /etc/assoluto/env \
     -f docker-compose.yml -f docker-compose.prod.yml \
     up -d
 
 # Watch the web container come up — migrations run via entrypoint.sh
-sudo docker compose --env-file /etc/sme-portal/env \
+sudo docker compose --env-file /etc/assoluto/env \
     -f docker-compose.yml -f docker-compose.prod.yml \
     logs -f web
 ```
@@ -615,25 +615,25 @@ Fix the Postgres password now (see the admonition at the end of §6.2).
 
 ```bash
 # Healthz via the web container
-sudo docker compose --env-file /etc/sme-portal/env \
+sudo docker compose --env-file /etc/assoluto/env \
     -f docker-compose.yml -f docker-compose.prod.yml \
     exec web curl -fsS http://127.0.0.1:8000/healthz
 # {"status":"ok"}
 
 # From your laptop
-curl -fsS https://portal.example.com/healthz
+curl -fsS https://assoluto.eu/healthz
 # {"status":"ok"}
 ```
 
 ### 7.5. Create the first tenant
 
 ```bash
-sudo docker compose --env-file /etc/sme-portal/env \
+sudo docker compose --env-file /etc/assoluto/env \
     -f docker-compose.yml -f docker-compose.prod.yml \
     exec web python -m scripts.create_tenant acme admin@acme.com
 ```
 
-Visit `https://acme.portal.example.com` and log in with the credentials
+Visit `https://acme.assoluto.eu` and log in with the credentials
 the script printed.
 
 ---
@@ -660,9 +660,9 @@ Generate a dedicated keypair for CI (don't reuse your personal one):
 
 ```bash
 # On your laptop
-ssh-keygen -t ed25519 -f ~/.ssh/sme_portal_deploy -C "gha-deploy@sme-portal" -N ''
+ssh-keygen -t ed25519 -f ~/.ssh/assoluto_deploy -C "gha-deploy@assoluto" -N ''
 # Paste the .pub into /home/deploy/.ssh/authorized_keys on the VPS
-# Paste the private key (entire contents of ~/.ssh/sme_portal_deploy) into DEPLOY_SSH_KEY
+# Paste the private key (entire contents of ~/.ssh/assoluto_deploy) into DEPLOY_SSH_KEY
 ```
 
 ### 8.2. 🧑 Create the `production` branch — you (one-time)
@@ -692,7 +692,7 @@ The workflow does exactly this:
 2. Builds `Dockerfile` for `linux/amd64` using GHA build cache.
 3. Pushes two tags to GHCR: `:<short-sha>` and `:production`.
 4. SSHes in as `deploy` and:
-   - Rewrites `APP_IMAGE_TAG` in `/etc/sme-portal/env` to the new SHA.
+   - Rewrites `APP_IMAGE_TAG` in `/etc/assoluto/env` to the new SHA.
    - `docker compose pull web`
    - `docker compose up -d --no-deps --remove-orphans web` — this
      recreates only the web container. Postgres and nginx keep running.
@@ -714,7 +714,7 @@ If the run fails at the SSH step:
 - Check the VPS fingerprint got recorded. `appleboy/ssh-action` sets
   `StrictHostKeyChecking no` by default, so this is usually the
   secrets being wrong.
-- Test the key manually: `ssh -i ~/.ssh/sme_portal_deploy deploy@<IP>`.
+- Test the key manually: `ssh -i ~/.ssh/assoluto_deploy deploy@<IP>`.
 - Verify `deploy` can run `sudo docker …` without a password.
 
 ---
@@ -729,7 +729,7 @@ natively.
 Minimal `Caddyfile`:
 
 ```
-portal.example.com, *.portal.example.com {
+assoluto.eu, *.assoluto.eu {
     tls {
         dns hetzner {env.HETZNER_API_TOKEN}   # or cloudflare, route53, digitalocean, …
     }
@@ -766,17 +766,17 @@ again.
 ### 10.1. 🖥️ Postgres backups — Claude on the VPS (once)
 
 Schedule a daily `pg_dump` to S3. Create
-`/opt/sme-portal/scripts/backup.sh`:
+`/opt/assoluto/scripts/backup.sh`:
 
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
 STAMP=$(date -u +%Y-%m-%dT%H-%M-%SZ)
-DEST="s3://sme-portal-prod-backups/postgres/${STAMP}.sql.gz"
+DEST="s3://assoluto-backups/postgres/${STAMP}.sql.gz"
 
-sudo docker compose --env-file /etc/sme-portal/env \
-    -f /opt/sme-portal/docker-compose.yml \
-    -f /opt/sme-portal/docker-compose.prod.yml \
+sudo docker compose --env-file /etc/assoluto/env \
+    -f /opt/assoluto/docker-compose.yml \
+    -f /opt/assoluto/docker-compose.prod.yml \
     exec -T postgres pg_dump -U portal portal \
     | gzip -9 \
     | aws --endpoint-url "${S3_ENDPOINT_URL}" s3 cp - "${DEST}"
@@ -785,10 +785,10 @@ sudo docker compose --env-file /etc/sme-portal/env \
 Then:
 
 ```bash
-chmod +x /opt/sme-portal/scripts/backup.sh
+chmod +x /opt/assoluto/scripts/backup.sh
 
-# /etc/cron.d/sme-portal-backup
-0 3 * * * deploy /opt/sme-portal/scripts/backup.sh >> /var/log/sme-portal-backup.log 2>&1
+# /etc/cron.d/assoluto-backup
+0 3 * * * deploy /opt/assoluto/scripts/backup.sh >> /var/log/assoluto-backup.log 2>&1
 ```
 
 Test the restore path against a staging instance at least once before
@@ -797,13 +797,13 @@ you pretend you have backups.
 ### 10.2. Uptime monitoring
 
 Point **UptimeRobot** or **Better Stack** at
-`https://portal.example.com/healthz`. A 5-minute interval is plenty.
+`https://assoluto.eu/healthz`. A 5-minute interval is plenty.
 
 ### 10.3. Logs
 
 ```bash
 # Live tail
-sudo docker compose --env-file /etc/sme-portal/env \
+sudo docker compose --env-file /etc/assoluto/env \
     -f docker-compose.yml -f docker-compose.prod.yml logs -f web
 
 # Last hour
@@ -822,11 +822,11 @@ Every deploy keeps the previous image on the VPS. To roll back:
 # List tags currently pulled on the VPS
 sudo docker image ls | grep sme-client-portal
 
-# Edit /etc/sme-portal/env and set APP_IMAGE_TAG to a previous SHA
-sudo $EDITOR /etc/sme-portal/env
+# Edit /etc/assoluto/env and set APP_IMAGE_TAG to a previous SHA
+sudo $EDITOR /etc/assoluto/env
 
 # Roll web only — Postgres stays up
-sudo docker compose --env-file /etc/sme-portal/env \
+sudo docker compose --env-file /etc/assoluto/env \
     -f docker-compose.yml -f docker-compose.prod.yml \
     up -d --no-deps --remove-orphans web
 ```
@@ -847,7 +847,7 @@ Before you point real users at the box:
 - [ ] SSH password auth disabled, root login disabled, fail2ban running
 - [ ] UFW enabled, only 22/80/443 open
 - [ ] `unattended-upgrades` enabled (monthly reboot for kernel CVEs)
-- [ ] `/etc/sme-portal/env` is `chmod 600 root:root`
+- [ ] `/etc/assoluto/env` is `chmod 600 root:root`
 - [ ] `APP_SECRET_KEY` is ≥ 32 bytes of true randomness and unique
       per environment (never copied from dev)
 - [ ] `APP_DEBUG=false`, `LOG_JSON=true` in the prod env
@@ -874,7 +874,7 @@ Before you point real users at the box:
 `deploy` can't run docker. Re-check `sudo usermod -aG docker deploy`
 and `/etc/sudoers.d/deploy-docker`.
 
-**Workflow succeeds but `https://portal.example.com` 502s.**
+**Workflow succeeds but `https://assoluto.eu` 502s.**
 Nginx can't reach `web`. Check `docker compose ps` — if `web` is
 `unhealthy`, `docker compose logs web` will show why. The usual
 suspect is a bad `DATABASE_URL` or the `portal_app` password mismatch
@@ -933,25 +933,25 @@ first prompt. Claude will execute §3.2 through §10.1 end-to-end.
 
 ```
 You are running as root on a freshly provisioned Hetzner Cloud VPS
-(Ubuntu 24.04). Follow /opt/sme-portal/docs/DEPLOY_HETZNER.md from §3.2
+(Ubuntu 24.04). Follow /opt/assoluto/docs/DEPLOY_HETZNER.md from §3.2
 through §10.1 — but since the repo isn't cloned yet, work from the
 values below. Do NOT ask me for confirmation on individual commands;
 execute the plan end-to-end and report at each major milestone.
 
 ===== Values to use =====
-PORTAL_DOMAIN=portal.example.com
-ACME_EMAIL=ops@example.com
+PORTAL_DOMAIN=assoluto.eu
+ACME_EMAIL=ops@assoluto.eu
 REPO_URL=https://github.com/<your-org>/sme-client-portal.git
 
 # Deploy keypair — public half goes into deploy@'s authorized_keys
-DEPLOY_SSH_PUBLIC_KEY=ssh-ed25519 AAAA... gha-deploy@sme-portal
+DEPLOY_SSH_PUBLIC_KEY=ssh-ed25519 AAAA... gha-deploy@assoluto
 
 # Cloudflare API token for Let's Encrypt DNS-01
 CLOUDFLARE_API_TOKEN=<token>
 
 # Object storage (Backblaze B2 or R2)
 S3_ENDPOINT_URL=https://s3.eu-central-003.backblazeb2.com
-S3_BUCKET=sme-portal-prod-attachments
+S3_BUCKET=assoluto-attachments
 S3_REGION=eu-central-003
 S3_ACCESS_KEY=<keyID>
 S3_SECRET_KEY=<applicationKey>
@@ -961,7 +961,7 @@ SMTP_HOST=smtp.postmarkapp.com
 SMTP_PORT=587
 SMTP_USER=<token>
 SMTP_PASSWORD=<token>
-SMTP_FROM=no-reply@portal.example.com
+SMTP_FROM=no-reply@assoluto.eu
 
 # Platform / SaaS (leave FEATURE_PLATFORM=false until Stripe is live)
 FEATURE_PLATFORM=false
@@ -983,7 +983,7 @@ FIRST_TENANT_ADMIN_EMAIL=admin@acme.com
 2. §3.3 Install Docker via get.docker.com, add deploy to docker group.
 3. §4.1 Install python3-certbot-dns-cloudflare, drop the token file,
    request the wildcard cert for PORTAL_DOMAIN and *.PORTAL_DOMAIN.
-4. §6 App layout: clone REPO_URL into /opt/sme-portal as deploy,
+4. §6 App layout: clone REPO_URL into /opt/assoluto as deploy,
    checkout the `production` branch if it exists (otherwise `main`),
    render docker/nginx.conf from the .example template with
    PORTAL_DOMAIN substituted, create docker/common-proxy.inc, patch
@@ -993,13 +993,13 @@ FIRST_TENANT_ADMIN_EMAIL=admin@acme.com
    directory.
 5. §6.2 Generate three strong secrets with
    `python3 -c 'import secrets; print(secrets.token_urlsafe(48))'`
-   (one 48-byte, two 32-byte), write /etc/sme-portal/env with every
+   (one 48-byte, two 32-byte), write /etc/assoluto/env with every
    value from the block above plus APP_IMAGE_TAG=latest,
    APP_BASE_URL=https://PORTAL_DOMAIN, LOG_LEVEL=INFO,
    PLATFORM_COOKIE_DOMAIN=.PORTAL_DOMAIN, MAX_UPLOAD_SIZE_MB=50,
    chmod 600 root:root.
 6. §7.1 If GHCR_PULL_TOKEN is set, docker login ghcr.io.
-7. §7.3 `docker compose --env-file /etc/sme-portal/env -f
+7. §7.3 `docker compose --env-file /etc/assoluto/env -f
    docker-compose.yml -f docker-compose.prod.yml pull && up -d`.
    Wait for `web` to report healthy.
 8. §6.2 admonition: immediately ALTER ROLE portal_app with the
@@ -1009,7 +1009,7 @@ FIRST_TENANT_ADMIN_EMAIL=admin@acme.com
 10. §7.5 Run scripts.create_tenant with FIRST_TENANT_SLUG and
     FIRST_TENANT_ADMIN_EMAIL. Capture the printed credentials into
     your report (do not put them in any file).
-11. §10.1 Install /opt/sme-portal/scripts/backup.sh + the cron entry
+11. §10.1 Install /opt/assoluto/scripts/backup.sh + the cron entry
     at 03:00 daily.
 12. Final report: paste back
     - `docker compose ps`
@@ -1023,7 +1023,7 @@ FIRST_TENANT_ADMIN_EMAIL=admin@acme.com
 - Do not push anything to git. Keep all edits local to the VPS.
 - Do not expose Postgres on the host — check that port 5432 is only
   on the Docker network.
-- If /etc/sme-portal/env already exists with a non-zero APP_SECRET_KEY,
+- If /etc/assoluto/env already exists with a non-zero APP_SECRET_KEY,
   stop and ask me before overwriting.
 - If certbot fails, do not proceed past step 3 — report the error.
 - After you're done, remove the Cloudflare token file's contents
@@ -1045,10 +1045,10 @@ FIRST_TENANT_ADMIN_EMAIL=admin@acme.com
   Code offline against a local model, or narrow the API token scopes
   to what §A actually needs and rotate them once deploy succeeds.
 - **Hooks for guardrails.** If you run Claude repeatedly on this
-  host, configure a project `CLAUDE.md` under `/opt/sme-portal/` that
+  host, configure a project `CLAUDE.md` under `/opt/assoluto/` that
   codifies the guardrails block above, plus hooks in
-  `/opt/sme-portal/.claude/settings.json` that veto anything writing
-  outside `/opt/sme-portal`, `/etc/sme-portal`, `/etc/letsencrypt`,
+  `/opt/assoluto/.claude/settings.json` that veto anything writing
+  outside `/opt/assoluto`, `/etc/assoluto`, `/etc/letsencrypt`,
   `/etc/cron.d`, `/etc/sudoers.d`, and `/home/deploy`.
 
 ### A.2. When you should stop delegating and take over

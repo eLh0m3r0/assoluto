@@ -33,5 +33,5 @@ async def test_root_returns_html_landing_for_tenant(
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/html")
     body = response.text
-    assert "SME Client Portal" in body
+    assert "Assoluto" in body
     assert "Zákaznický portál" in body

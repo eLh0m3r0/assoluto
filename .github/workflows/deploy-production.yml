@@ -80,14 +80,14 @@ jobs:
           script_stop: true
           script: |
             set -euo pipefail
-            cd /opt/sme-portal
+            cd /opt/assoluto
 
             # Pin the just-built tag so the compose file resolves it.
-            sudo sed -i -E "s|^APP_IMAGE_TAG=.*$|APP_IMAGE_TAG=${IMAGE_TAG}|" /etc/sme-portal/env || {
-                echo "APP_IMAGE_TAG=${IMAGE_TAG}" | sudo tee -a /etc/sme-portal/env >/dev/null
+            sudo sed -i -E "s|^APP_IMAGE_TAG=.*$|APP_IMAGE_TAG=${IMAGE_TAG}|" /etc/assoluto/env || {
+                echo "APP_IMAGE_TAG=${IMAGE_TAG}" | sudo tee -a /etc/assoluto/env >/dev/null
             }
 
-            COMPOSE="sudo docker compose --env-file /etc/sme-portal/env -f docker-compose.yml -f docker-compose.prod.yml"
+            COMPOSE="sudo docker compose --env-file /etc/assoluto/env -f docker-compose.yml -f docker-compose.prod.yml"
 
             echo ">>> Pulling image…"
             $COMPOSE pull web

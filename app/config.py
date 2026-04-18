@@ -10,7 +10,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Global configuration for the SME Client Portal.
+    """Global configuration for Assoluto.
 
     Values are populated from environment variables (and optionally a `.env`
     file in development). Keep this model flat and explicit — it documents
@@ -78,7 +78,7 @@ class Settings(BaseSettings):
     platform_operator_ico: str = Field(default="", alias="PLATFORM_OPERATOR_ICO")
     platform_operator_address: str = Field(default="", alias="PLATFORM_OPERATOR_ADDRESS")
     platform_operator_email: str = Field(
-        default="opensource@4mex.cz", alias="PLATFORM_OPERATOR_EMAIL"
+        default="opensource@assoluto.eu", alias="PLATFORM_OPERATOR_EMAIL"
     )
 
     # --- Billing (Stripe) --------------------------------------------------
@@ -117,7 +117,7 @@ class Settings(BaseSettings):
     smtp_port: int = Field(default=1025, alias="SMTP_PORT")
     smtp_user: str = Field(default="", alias="SMTP_USER")
     smtp_password: str = Field(default="", alias="SMTP_PASSWORD")
-    smtp_from: str = Field(default="SME Portal <noreply@localhost>", alias="SMTP_FROM")
+    smtp_from: str = Field(default="Assoluto <noreply@localhost>", alias="SMTP_FROM")
     smtp_starttls: bool = Field(default=False, alias="SMTP_STARTTLS")
 
     # --- Uploads -----------------------------------------------------------

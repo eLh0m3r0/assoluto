@@ -155,7 +155,7 @@ async def contact_submit(
         sender,
         "contact",
         support_to,
-        f"[SME Portal] Kontakt od {name}",
+        f"[Assoluto] Kontakt od {name}",
         body_html,
         body_text,
     )

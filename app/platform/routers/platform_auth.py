@@ -151,7 +151,7 @@ async def platform_password_reset_submit(
         send_password_reset(
             sender,
             to=identity.email,
-            tenant_name="SME Portal",
+            tenant_name="Assoluto",
             full_name=identity.full_name,
             reset_url=reset_url,
         )

@@ -1,4 +1,4 @@
-# Railway deployment configuration for SME Client Portal.
+# Railway deployment configuration for Assoluto.
 #
 # This file configures a single-service Railway deployment.
 # Railway provides TLS termination and routing — nginx is NOT needed.

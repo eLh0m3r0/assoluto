@@ -1,6 +1,6 @@
 # Hosted SaaS Deployment Guide
 
-This guide walks through a production deployment of the SME Client Portal
+This guide walks through a production deployment of Assoluto
 as a hosted SaaS on the recommended stack:
 
 | Component | Provider | Purpose |
@@ -51,14 +51,14 @@ Open `https://<server_ip>:8000`, create the admin user, then:
 
 In Cloudflare:
 
-- `A  smeportal.cz → <server_ip>`  — proxied (orange cloud) ON
-- `A  *.smeportal.cz → <server_ip>` — proxied ON
+- `A  assoluto.eu → <server_ip>`  — proxied (orange cloud) ON
+- `A  *.assoluto.eu → <server_ip>` — proxied ON
 
 SSL mode: **Full (strict)**. Under `Network`, enable HTTP/3.
 
 ## 4. Set up Cloudflare R2
 
-1. Cloudflare dashboard → R2 → **Create bucket** `sme-portal`.
+1. Cloudflare dashboard → R2 → **Create bucket** `assoluto`.
 2. **S3 API tokens → Create token** with object read/write on that bucket.
 3. Grab:
    - `Access Key ID`
@@ -79,12 +79,12 @@ Map these to env vars (see section 7).
 ## 6. Set up Stripe
 
 1. Dashboard → **Test mode** for initial integration, then Live.
-2. **Products**: create "SME Portal Starter" @ 490 CZK/month and
-   "SME Portal Pro" @ 1 490 CZK/month, both monthly, tax-inclusive as
+2. **Products**: create "Assoluto Starter" @ 490 CZK/month and
+   "Assoluto Pro" @ 1 490 CZK/month, both monthly, tax-inclusive as
    per your Czech tax setup.
 3. Note the `price_xxx` IDs — they go into `STRIPE_PRICE_STARTER` /
    `STRIPE_PRICE_PRO`.
-4. **Webhooks** → add endpoint `https://smeportal.cz/platform/webhooks/stripe`
+4. **Webhooks** → add endpoint `https://assoluto.eu/platform/webhooks/stripe`
    subscribed to: `checkout.session.completed`, `invoice.paid`,
    `invoice.payment_failed`, `customer.subscription.updated`,
    `customer.subscription.deleted`. Copy the signing secret into
@@ -98,7 +98,7 @@ In Coolify, create an application from the GitHub source and set:
 APP_ENV=production
 APP_DEBUG=false
 APP_SECRET_KEY=<32 random bytes — e.g. `openssl rand -hex 32`>
-APP_BASE_URL=https://smeportal.cz
+APP_BASE_URL=https://assoluto.eu
 
 DATABASE_URL=postgresql+asyncpg://portal_app:<strong>@postgres:5432/portal
 DATABASE_SYNC_URL=postgresql+psycopg://portal:<strong>@postgres:5432/portal
@@ -108,12 +108,12 @@ DEFAULT_LOCALE=cs
 SUPPORTED_LOCALES=cs,en
 
 FEATURE_PLATFORM=true
-PLATFORM_COOKIE_DOMAIN=.smeportal.cz
+PLATFORM_COOKIE_DOMAIN=.assoluto.eu
 
 S3_ENDPOINT_URL=https://<accountid>.r2.cloudflarestorage.com
 S3_ACCESS_KEY=<r2 access key>
 S3_SECRET_KEY=<r2 secret key>
-S3_BUCKET=sme-portal
+S3_BUCKET=assoluto
 S3_REGION=auto
 S3_USE_SSL=true
 S3_PUBLIC_ENDPOINT_URL=https://<accountid>.r2.cloudflarestorage.com
@@ -122,7 +122,7 @@ SMTP_HOST=smtp.resend.com
 SMTP_PORT=587
 SMTP_USER=<resend smtp user>
 SMTP_PASSWORD=<resend smtp pass>
-SMTP_FROM=SME Portal <noreply@smeportal.cz>
+SMTP_FROM=Assoluto <noreply@assoluto.eu>
 SMTP_STARTTLS=true
 
 STRIPE_SECRET_KEY=sk_live_xxx
@@ -134,7 +134,7 @@ STRIPE_PRICE_PRO=price_xxx
 PLATFORM_OPERATOR_NAME=ACME Provider s.r.o.
 PLATFORM_OPERATOR_ICO=12345678
 PLATFORM_OPERATOR_ADDRESS=Masarykova 1, 110 00 Praha
-PLATFORM_OPERATOR_EMAIL=legal@smeportal.cz
+PLATFORM_OPERATOR_EMAIL=legal@assoluto.eu
 
 MAX_UPLOAD_SIZE_MB=50
 LOG_LEVEL=INFO
@@ -209,12 +209,12 @@ Either path can be wired later without a schema change — the
 
 ## 9. Smoke test
 
-- `https://smeportal.cz` → marketing landing
-- `https://smeportal.cz/platform/signup` → registration form
+- `https://assoluto.eu` → marketing landing
+- `https://assoluto.eu/platform/signup` → registration form
 - Sign up a test tenant; check MailHog / Resend for the verification
   email; click the link; watch `email_verified_at` get stamped.
-- `https://testco.smeportal.cz` → tenant portal login
-- `https://smeportal.cz/platform/billing` → subscription dashboard
+- `https://testco.assoluto.eu` → tenant portal login
+- `https://assoluto.eu/platform/billing` → subscription dashboard
   (Demo badge gone, Stripe prices visible)
 
 ## 10. Monitoring
@@ -231,7 +231,7 @@ full tracebacks.
 
 Uptime (BetterUptime):
 
-- Monitor URL: `https://smeportal.cz/healthz`
+- Monitor URL: `https://assoluto.eu/healthz`
 - Expected status 200, JSON body `{"status":"ok"}`.
 - Alert channel: email + optional Slack.
 
@@ -241,11 +241,11 @@ Postgres:
 
 ```bash
 # /etc/cron.daily/sme-backup.sh
-docker exec sme-portal-postgres pg_dump -U portal portal \
-  | gzip > /var/backups/sme-portal-$(date +%Y%m%d).sql.gz
+docker exec assoluto-postgres pg_dump -U portal portal \
+  | gzip > /var/backups/assoluto-$(date +%Y%m%d).sql.gz
 # Upload to R2 with rclone — see scripts/backup.sh in the repo
-rclone copy /var/backups/ r2:sme-portal-backups/
-find /var/backups -name "sme-portal-*.sql.gz" -mtime +30 -delete
+rclone copy /var/backups/ r2:assoluto-backups/
+find /var/backups -name "assoluto-*.sql.gz" -mtime +30 -delete
 ```
 
 R2 files: durable by default (11 nines). Enable **Object Lock /

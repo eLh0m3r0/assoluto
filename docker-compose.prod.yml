@@ -4,7 +4,7 @@
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 #
 # This file expects the hosted image in GHCR and reads every credential
-# from env vars set on the host (or in /etc/sme-portal/env passed via
+# from env vars set on the host (or in /etc/assoluto/env passed via
 # `docker compose --env-file`). The defaults in .env.example must NOT
 # be used in production.
 

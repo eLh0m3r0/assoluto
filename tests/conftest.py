@@ -1,4 +1,4 @@
-"""Shared pytest fixtures for the SME Client Portal tests."""
+"""Shared pytest fixtures for Assoluto tests."""
 
 from __future__ import annotations
 

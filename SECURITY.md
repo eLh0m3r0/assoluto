@@ -2,11 +2,11 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in the SME Client Portal, please
+If you discover a security vulnerability in Assoluto, please
 **do not open a public GitHub issue**. Instead, report it privately by
 email so we can investigate and release a fix before details become public.
 
-**Contact:** security@4mex.cz
+**Contact:** security@assoluto.eu
 
 Please include:
 
@@ -78,12 +78,12 @@ Before exposing the portal to the public internet:
 
 ### Oznámení zranitelnosti
 
-Pokud objevíte bezpečnostní zranitelnost v SME Client Portalu,
+Pokud objevíte bezpečnostní zranitelnost v Assolutu,
 **neotevírejte prosím veřejný GitHub issue**. Nahlaste ji soukromě
 e-mailem, ať ji můžeme prozkoumat a vydat opravu dřív, než se detaily
 dostanou na veřejnost.
 
-**Kontakt:** security@4mex.cz
+**Kontakt:** security@assoluto.eu
 
 Prosím uveďte:
 

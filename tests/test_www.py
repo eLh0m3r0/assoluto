@@ -27,7 +27,7 @@ async def test_features_page_renders(www_client) -> None:
     client, _ = www_client
     resp = await client.get("/features")
     assert resp.status_code == 200
-    assert "What SME Portal can do" in resp.text
+    assert "What Assoluto can do" in resp.text
 
 
 async def test_pricing_page_renders_all_tiers(www_client) -> None:

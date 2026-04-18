@@ -85,7 +85,7 @@ are made. Setting these switches to **live mode** automatically.
 | `SMTP_PORT` | int | `1025` | yes | SMTP port (1025 = MailHog dev, 587 = STARTTLS prod) |
 | `SMTP_USER` | string | *(empty)* | if SMTP requires auth | SMTP login username |
 | `SMTP_PASSWORD` | string | *(empty)* | if SMTP requires auth | SMTP login password |
-| `SMTP_FROM` | string | `SME Portal <noreply@localhost>` | yes | Sender address in outbound emails |
+| `SMTP_FROM` | string | `Assoluto <noreply@localhost>` | yes | Sender address in outbound emails |
 | `SMTP_STARTTLS` | bool | `false` | yes (set `true`) | Enable STARTTLS for SMTP connection |
 
 ## File uploads

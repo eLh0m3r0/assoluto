@@ -1,6 +1,6 @@
 # Self-host guide
 
-The SME Client Portal ships as a single Docker image and a
+The Assoluto ships as a single Docker image and a
 `docker-compose.yml` that brings up every dependency you need to run
 the portal against a private Postgres.
 
@@ -78,7 +78,7 @@ SMTP_PORT=587
 SMTP_USER=...
 SMTP_PASSWORD=...
 SMTP_STARTTLS=true
-SMTP_FROM="SME Portal <noreply@portal.example.com>"
+SMTP_FROM="Assoluto <noreply@portal.example.com>"
 
 MAX_UPLOAD_SIZE_MB=50
 LOG_LEVEL=INFO

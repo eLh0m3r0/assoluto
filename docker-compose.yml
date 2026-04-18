@@ -1,4 +1,4 @@
-# Development / self-host docker-compose for SME Client Portal.
+# Development / self-host docker-compose for Assoluto.
 #
 # Services:
 #   web      — FastAPI app (uvicorn)
@@ -87,7 +87,7 @@ services:
       S3_BUCKET: portal
       SMTP_HOST: mailhog
       SMTP_PORT: "1025"
-      SMTP_FROM: "SME Portal <noreply@localhost>"
+      SMTP_FROM: "Assoluto <noreply@localhost>"
       LOG_LEVEL: INFO
       LOG_JSON: "false"
     ports:

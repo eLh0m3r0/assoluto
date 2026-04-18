@@ -1,15 +1,15 @@
-# SME Client Portal
+# Assoluto
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![CI](https://github.com/elh0m3r0/sme-client-portal/actions/workflows/ci.yml/badge.svg)](https://github.com/elh0m3r0/sme-client-portal/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://docs.astral.sh/ruff/)
 
-A multi-tenant customer portal for manufacturing SMEs. Customers submit
-orders (with attachments), the supplier quotes, confirms, tracks
-production status, and manages client-owned materials stored on-site.
-Built with Python / FastAPI / PostgreSQL. Free and open-source under
-AGPL-3.0.
+**Assoluto** — a multi-tenant customer portal for manufacturing SMEs.
+Customers submit orders (with attachments), the supplier quotes,
+confirms, tracks production status, and manages client-owned materials
+stored on-site. Built with Python / FastAPI / PostgreSQL. Hosted at
+[assoluto.eu](https://assoluto.eu), free and open-source under AGPL-3.0.
 
 ## Features
 
@@ -135,7 +135,7 @@ terms of the AGPL-3.0. If you run a modified version over a network
 code of your modified version available to users of that network service.
 
 For commercial licensing inquiries (proprietary forks, OEM integration,
-etc.) contact: `opensource@4mex.cz`
+etc.) contact: `opensource@assoluto.eu`
 
 ## Community
 
@@ -154,13 +154,14 @@ Active development. MVP functional for pilot deployment.
 
 ## Česká verze (Czech version)
 
-### SME Client Portal
+### Assoluto
 
-Multi-tenantní zákaznický portál pro malé a střední výrobní firmy.
-Zákazníci zadávají objednávky (včetně příloh), dodavatel nacení,
-potvrzuje, sleduje stav výroby a eviduje materiál zákazníka
-skladovaný u dodavatele. Postaveno na Pythonu / FastAPI / PostgreSQL.
-Zdarma a open-source pod licencí AGPL-3.0.
+**Assoluto** — multi-tenantní zákaznický portál pro malé a střední
+výrobní firmy. Zákazníci zadávají objednávky (včetně příloh),
+dodavatel nacení, potvrzuje, sleduje stav výroby a eviduje materiál
+zákazníka skladovaný u dodavatele. Postaveno na Pythonu / FastAPI /
+PostgreSQL. Hostováno na [assoluto.eu](https://assoluto.eu), zdarma
+a open-source pod licencí AGPL-3.0.
 
 ### Funkce
 
@@ -201,7 +202,7 @@ Demo přihlašovací údaje: `owner@4mex.cz` / `demo1234` (staff),
 upravené verze zpřístupnili uživatelům dané síťové služby.
 
 Pro komerční licencování (proprietární forky, OEM integrace apod.):
-`opensource@4mex.cz`.
+`opensource@assoluto.eu`.
 
 ### Komunita
 

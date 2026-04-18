@@ -15,7 +15,7 @@ limit_req_zone $binary_remote_addr zone=general:10m rate=60r/s;
 # ---------------------------------------------------------------------
 server {
     listen 80;
-    server_name portal.example.com *.portal.example.com;
+    server_name assoluto.eu *.assoluto.eu;
 
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
@@ -27,11 +27,11 @@ server {
 
 # ---------------------------------------------------------------------
 # Main TLS vhost — matches the wildcard so every tenant subdomain
-# (4mex.portal.example.com, ...) terminates here and proxies to `web`.
+# (4mex.assoluto.eu, ...) terminates here and proxies to `web`.
 # ---------------------------------------------------------------------
 server {
     listen 443 ssl http2;
-    server_name portal.example.com *.portal.example.com;
+    server_name assoluto.eu *.assoluto.eu;
 
     ssl_certificate /etc/nginx/certs/fullchain.pem;
     ssl_certificate_key /etc/nginx/certs/privkey.pem;

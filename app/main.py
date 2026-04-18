@@ -133,7 +133,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     configure_logging(settings)
 
     app = FastAPI(
-        title="SME Client Portal",
+        title="Assoluto",
         version=__version__,
         debug=settings.app_debug,
         lifespan=lifespan,
