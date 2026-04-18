@@ -15,6 +15,47 @@ entrypoint.
 
 ---
 
+## 0. Who does what — automation map
+
+Every step below is tagged with an actor:
+
+| Tag | Meaning |
+|-----|---------|
+| 🧑 **You** | Must be done by a human — account signups, billing, DNS records at your registrar, GitHub web-UI actions, identity checks. |
+| 💻 **Claude on your laptop** | Safe to delegate to Claude Code running locally — file edits, keypair generation, docker buildx. |
+| 🖥️ **Claude on the VPS** | After you SSH in and launch Claude Code there, hand it the prompt in [§A — Delegation brief](#a--delegation-brief-for-claude-on-the-vps). It executes the server-side setup end-to-end. |
+| ⚙️ **GitHub Actions** | Fully automated once the `production` branch and secrets exist. |
+
+### Responsibility at a glance
+
+| Section | What | Actor |
+|---------|------|-------|
+| §2 Prerequisites | Hetzner + domain + B2/R2 + Postmark + Stripe account creation; domain purchase | 🧑 You |
+| §3.1 Provision VPS | Click through Hetzner cloud console, upload your SSH pubkey, note the IP | 🧑 You |
+| §3.2 Baseline hardening | apt upgrade, create `deploy` user, disable root SSH, UFW, fail2ban | 🖥️ Claude on the VPS |
+| §3.3 Docker install | `get.docker.com` + group add | 🖥️ Claude on the VPS |
+| §4 DNS records | Create `A portal` and `A *.portal` at your registrar / Cloudflare | 🧑 You |
+| §4.1 Cloudflare API token | Create token in Cloudflare UI | 🧑 You |
+| §4.1 Run certbot | Install plugin, drop the token file, request the cert | 🖥️ Claude on the VPS |
+| §5.1 B2 bucket + keys | Create bucket and application key in Backblaze UI | 🧑 You |
+| §5.2 Postmark server + DNS | Create server, verify domain (SPF/DKIM/DMARC records at registrar) | 🧑 You |
+| §5.3 Stripe setup | Stripe dashboard + webhook endpoint | 🧑 You |
+| §6 App layout on VPS | Clone repo, write `/etc/sme-portal/env`, patch nginx.conf + compose | 🖥️ Claude on the VPS |
+| §7 First manual deploy | Pull image, `docker compose up`, fix Postgres password, health check | 🖥️ Claude on the VPS |
+| §7.5 Create first tenant | `python -m scripts.create_tenant` | 🖥️ Claude on the VPS |
+| §8.1 Add GitHub secrets | Paste SSH private key, host, user into repo Settings | 🧑 You |
+| §8.1 Generate deploy keypair | `ssh-keygen` + install pubkey in `authorized_keys` | 💻 Claude on your laptop + 🖥️ Claude on the VPS |
+| §8.2 Create `production` branch | `git checkout -b production && git push` | 🧑 You (one-time) |
+| §8.3 Every later deploy | Build image, SSH to VPS, roll web, health check | ⚙️ GitHub Actions |
+| §10.1 Backup cron | Script + crontab | 🖥️ Claude on the VPS |
+
+> **Bottom line.** You spend an hour in browsers and registrar dashboards
+> collecting a list of 12 values (§2a below). You SSH into the VPS,
+> launch Claude Code, paste it the delegation brief from §A, and it
+> executes the rest. After that every push to `production` is hands-off.
+
+---
+
 ## 1. What you'll build
 
 ```
@@ -83,9 +124,86 @@ deployment (CX22 VPS ~5 EUR + B2 storage pennies + Postmark free tier
 
 ---
 
+## 2a. Preflight checklist — 🧑 only you can do this
+
+Before you SSH anywhere, collect the values below in a secure note (a
+1Password item, a local file you'll `shred` afterwards, whatever). The
+delegation brief in §A expects all of them to be handed over in one
+block to Claude on the VPS, so having them in one place makes the
+handoff a single paste.
+
+This whole section is human-only because each item requires an account,
+a billing card, or a DNS record you alone can create.
+
+**Domain & DNS**
+
+- [ ] `PORTAL_DOMAIN` — e.g. `portal.example.com`
+- [ ] `ACME_EMAIL` — the address Let's Encrypt will email on cert
+      expiry (e.g. `ops@example.com`)
+- [ ] Two **A records** created at your registrar / DNS host:
+      `portal.example.com → <VPS IP>` and
+      `*.portal.example.com → <VPS IP>`
+- [ ] `CLOUDFLARE_API_TOKEN` — only if your DNS is on Cloudflare;
+      zone-scoped, Zone:DNS:Edit. (If DNS is elsewhere, use the Caddy
+      path in §9 and collect the provider's API token instead.)
+
+**Hetzner**
+
+- [ ] Hetzner Cloud account exists and has a payment method on file
+- [ ] Your laptop's SSH public key (`~/.ssh/id_ed25519.pub`) added to
+      the Hetzner console under *Security → SSH Keys*
+- [ ] VPS provisioned per §3.1 — note the **public IPv4** as
+      `VPS_IP`
+
+**Object storage (Backblaze B2 or Cloudflare R2)**
+
+- [ ] `S3_ENDPOINT_URL` (from the bucket page)
+- [ ] `S3_BUCKET` — e.g. `sme-portal-prod-attachments`
+- [ ] `S3_REGION` — e.g. `eu-central-003`
+- [ ] `S3_ACCESS_KEY` / `S3_SECRET_KEY`
+
+**Transactional email (Postmark, SES, Resend, Mailgun, …)**
+
+- [ ] Sending domain DKIM + SPF + DMARC records added at the
+      registrar and **verified** in the provider dashboard
+- [ ] `SMTP_HOST`, `SMTP_PORT` (usually `587`)
+- [ ] `SMTP_USER`, `SMTP_PASSWORD`
+- [ ] `SMTP_FROM` — e.g. `no-reply@portal.example.com`
+
+**Stripe** (skip if you're not selling subscriptions yet — leave
+`FEATURE_PLATFORM=false`)
+
+- [ ] `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`
+- [ ] `STRIPE_WEBHOOK_SECRET` (from the webhook endpoint you create
+      pointing at `https://portal.example.com/platform/stripe/webhook`)
+- [ ] `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_PRO` (price IDs from the
+      Stripe dashboard)
+
+**GitHub**
+
+- [ ] A **GitHub Personal Access Token (classic)** with
+      `read:packages` scope, so the VPS can pull from GHCR. Call this
+      `GHCR_PULL_TOKEN`. (Skip if your GHCR image is public.)
+- [ ] A **deploy keypair** for CI. Generate with
+      `ssh-keygen -t ed25519 -f ~/.ssh/sme_portal_deploy -N ''`.
+      The public half goes into the VPS's `authorized_keys`; the
+      private half goes into the `DEPLOY_SSH_KEY` repo secret.
+- [ ] Repository secrets added under **Settings → Secrets and
+      variables → Actions**: `DEPLOY_HOST`, `DEPLOY_USER=deploy`,
+      `DEPLOY_SSH_KEY`, optional `DEPLOY_PORT`.
+
+Once every box is ticked, you're ready to SSH into the VPS and hand
+off the rest to Claude. Jump to [§A — Delegation brief](#a--delegation-brief-for-claude-on-the-vps).
+
+Everything in §3–§7 below is **reference detail** that Claude on the
+VPS will execute. Read it to understand what will happen, but you
+don't have to type any of it yourself.
+
+---
+
 ## 3. Provision the Hetzner VPS
 
-### 3.1. Create the server
+### 3.1. 🧑 Create the server — you
 
 In the Hetzner Cloud console:
 
@@ -101,7 +219,7 @@ In the Hetzner Cloud console:
 6. **Name:** `sme-portal-prod`.
 7. Create. You'll get a public IPv4 address — write it down.
 
-### 3.2. First login and baseline hardening
+### 3.2. 🖥️ First login and baseline hardening — Claude on the VPS
 
 ```bash
 # Replace 1.2.3.4 with the IP Hetzner assigned you.
@@ -152,7 +270,7 @@ ssh deploy@1.2.3.4   # should work
 
 From now on, do everything as `deploy` with `sudo` when needed.
 
-### 3.3. Install Docker
+### 3.3. 🖥️ Install Docker — Claude on the VPS
 
 ```bash
 # On the VPS, as deploy with sudo
@@ -166,7 +284,7 @@ docker compose version       # v2.x expected
 
 ---
 
-## 4. DNS configuration
+## 4. 🧑 DNS configuration — you
 
 You need two records pointing at the VPS IP:
 
@@ -184,6 +302,10 @@ origin rules simple. Turn the proxy on later if you want CDN + DDoS
 protection.
 
 ### 4.1. Wildcard TLS — obtain a certificate
+
+> **Split.** 🧑 You create the Cloudflare API token in the Cloudflare
+> UI (only a human can consent to that). 🖥️ Claude on the VPS runs
+> the certbot installation and the cert request.
 
 Let's Encrypt supports wildcard certs only via DNS-01. The cleanest
 path is **certbot with the Cloudflare DNS plugin**:
@@ -222,7 +344,10 @@ providers. See [§9 Alternative: Caddy](#9-alternative-caddy-instead-of-nginx).
 
 ---
 
-## 5. External services
+## 5. External services — 🧑 you
+
+Every subsection here is account setup, billing, and domain
+verification. None of it can be safely delegated to an agent.
 
 ### 5.1. Object storage (Backblaze B2 example)
 
@@ -290,7 +415,7 @@ STRIPE_PRICE_PRO=price_...
 
 ---
 
-## 6. Application layout on the VPS
+## 6. 🖥️ Application layout on the VPS — Claude on the VPS
 
 We'll keep the compose files and nginx config under `/opt/sme-portal`
 (readable) and secrets under `/etc/sme-portal/env` (root-readable
@@ -421,7 +546,7 @@ sudo chown root:root /etc/sme-portal/env
 
 ---
 
-## 7. First manual deploy
+## 7. 🖥️ First manual deploy — Claude on the VPS
 
 Before wiring up GitHub Actions, do one manual deploy to prove the
 stack works end-to-end.
@@ -438,11 +563,12 @@ echo "<your-PAT>" | sudo docker login ghcr.io -u <your-github-username> --passwo
 
 (If your image is in a public GitHub package you can skip this.)
 
-### 7.2. Build + push a first image from your laptop
+### 7.2. 💻 Build + push a first image from your laptop — optional
 
 You don't strictly need to — GitHub Actions will build one when you
 push to `production`. But for the first manual boot it's nice to have
-a known-good image in GHCR already:
+a known-good image in GHCR already. Either run this yourself or hand
+the docker commands to Claude on your laptop:
 
 ```bash
 # On your laptop, from the repo root
@@ -516,8 +642,10 @@ the script printed.
 
 The workflow is already in the repo at
 [`.github/workflows/deploy-production.yml`](../.github/workflows/deploy-production.yml).
+After this section is set up correctly, every push to `production` is
+⚙️ fully automated.
 
-### 8.1. Add GitHub secrets
+### 8.1. 🧑 Add GitHub secrets — you
 
 Repository → **Settings → Secrets and variables → Actions → New repository secret**:
 
@@ -537,7 +665,7 @@ ssh-keygen -t ed25519 -f ~/.ssh/sme_portal_deploy -C "gha-deploy@sme-portal" -N 
 # Paste the private key (entire contents of ~/.ssh/sme_portal_deploy) into DEPLOY_SSH_KEY
 ```
 
-### 8.2. Create the `production` branch
+### 8.2. 🧑 Create the `production` branch — you (one-time)
 
 ```bash
 # From your laptop, on main (or whatever has been tested)
@@ -556,7 +684,7 @@ git push
 # …wait for GitHub Actions green tick…
 ```
 
-### 8.3. What happens during a deploy
+### 8.3. ⚙️ What happens during a deploy — automatic
 
 The workflow does exactly this:
 
@@ -635,7 +763,7 @@ again.
 
 ## 10. Operations
 
-### 10.1. Postgres backups
+### 10.1. 🖥️ Postgres backups — Claude on the VPS (once)
 
 Schedule a daily `pg_dump` to S3. Create
 `/opt/sme-portal/scripts/backup.sh`:
@@ -786,3 +914,157 @@ outage.
 - **Review [`docs/DEPLOY_SAAS.md`](DEPLOY_SAAS.md)** for the
   multi-tenant operational model (tenant provisioning, billing events,
   RLS verification) once the plumbing is live.
+
+---
+
+## A — Delegation brief for Claude on the VPS
+
+After you've provisioned the VPS (§3.1) and ticked off §2a, SSH in
+**as root** using your personal SSH key. Install Claude Code on the
+box (one-liner from the docs), then paste the block below as the
+first prompt. Claude will execute §3.2 through §10.1 end-to-end.
+
+> The brief assumes you hand Claude the collected secrets inline. Do
+> **not** commit the filled-in brief to git — it contains live
+> credentials. Write it into a scratch file, paste it, then `shred`
+> the file.
+
+**Copy, fill the placeholders, paste to Claude:**
+
+```
+You are running as root on a freshly provisioned Hetzner Cloud VPS
+(Ubuntu 24.04). Follow /opt/sme-portal/docs/DEPLOY_HETZNER.md from §3.2
+through §10.1 — but since the repo isn't cloned yet, work from the
+values below. Do NOT ask me for confirmation on individual commands;
+execute the plan end-to-end and report at each major milestone.
+
+===== Values to use =====
+PORTAL_DOMAIN=portal.example.com
+ACME_EMAIL=ops@example.com
+REPO_URL=https://github.com/<your-org>/sme-client-portal.git
+
+# Deploy keypair — public half goes into deploy@'s authorized_keys
+DEPLOY_SSH_PUBLIC_KEY=ssh-ed25519 AAAA... gha-deploy@sme-portal
+
+# Cloudflare API token for Let's Encrypt DNS-01
+CLOUDFLARE_API_TOKEN=<token>
+
+# Object storage (Backblaze B2 or R2)
+S3_ENDPOINT_URL=https://s3.eu-central-003.backblazeb2.com
+S3_BUCKET=sme-portal-prod-attachments
+S3_REGION=eu-central-003
+S3_ACCESS_KEY=<keyID>
+S3_SECRET_KEY=<applicationKey>
+
+# SMTP
+SMTP_HOST=smtp.postmarkapp.com
+SMTP_PORT=587
+SMTP_USER=<token>
+SMTP_PASSWORD=<token>
+SMTP_FROM=no-reply@portal.example.com
+
+# Platform / SaaS (leave FEATURE_PLATFORM=false until Stripe is live)
+FEATURE_PLATFORM=false
+
+# GHCR pull — only if the repo image is private
+GHCR_USER=<github username>
+GHCR_PULL_TOKEN=<PAT with read:packages>
+
+# Initial tenant to seed after first boot
+FIRST_TENANT_SLUG=acme
+FIRST_TENANT_ADMIN_EMAIL=admin@acme.com
+
+===== Execute in order =====
+1. §3.2 Baseline hardening: apt upgrade, install ufw/fail2ban/certbot
+   tooling, create `deploy` user from my authorized_keys, add
+   DEPLOY_SSH_PUBLIC_KEY to /home/deploy/.ssh/authorized_keys, grant
+   the NOPASSWD sudoers rule, disable SSH password + root login, UFW
+   allow 22/80/443.
+2. §3.3 Install Docker via get.docker.com, add deploy to docker group.
+3. §4.1 Install python3-certbot-dns-cloudflare, drop the token file,
+   request the wildcard cert for PORTAL_DOMAIN and *.PORTAL_DOMAIN.
+4. §6 App layout: clone REPO_URL into /opt/sme-portal as deploy,
+   checkout the `production` branch if it exists (otherwise `main`),
+   render docker/nginx.conf from the .example template with
+   PORTAL_DOMAIN substituted, create docker/common-proxy.inc, patch
+   docker-compose.prod.yml so the nginx service mounts
+   /etc/letsencrypt and common-proxy.inc (see §6.1 block), update the
+   ssl_certificate* lines in nginx.conf to point at the certbot live
+   directory.
+5. §6.2 Generate three strong secrets with
+   `python3 -c 'import secrets; print(secrets.token_urlsafe(48))'`
+   (one 48-byte, two 32-byte), write /etc/sme-portal/env with every
+   value from the block above plus APP_IMAGE_TAG=latest,
+   APP_BASE_URL=https://PORTAL_DOMAIN, LOG_LEVEL=INFO,
+   PLATFORM_COOKIE_DOMAIN=.PORTAL_DOMAIN, MAX_UPLOAD_SIZE_MB=50,
+   chmod 600 root:root.
+6. §7.1 If GHCR_PULL_TOKEN is set, docker login ghcr.io.
+7. §7.3 `docker compose --env-file /etc/sme-portal/env -f
+   docker-compose.yml -f docker-compose.prod.yml pull && up -d`.
+   Wait for `web` to report healthy.
+8. §6.2 admonition: immediately ALTER ROLE portal_app with the
+   PORTAL_APP_PASSWORD from the env file so the app's DSN works.
+9. §7.4 curl /healthz inside the web container — retry up to 60s.
+   If it fails, show me the last 200 lines of web logs and stop.
+10. §7.5 Run scripts.create_tenant with FIRST_TENANT_SLUG and
+    FIRST_TENANT_ADMIN_EMAIL. Capture the printed credentials into
+    your report (do not put them in any file).
+11. §10.1 Install /opt/sme-portal/scripts/backup.sh + the cron entry
+    at 03:00 daily.
+12. Final report: paste back
+    - `docker compose ps`
+    - `curl -fsS http://127.0.0.1:8000/healthz` (from inside web)
+    - the first-tenant credentials
+    - a list of any step you had to adapt and why
+    - any outstanding "you should do this" follow-ups for me
+
+===== Guardrails =====
+- Do not run `rm -rf` on anything outside /tmp/.
+- Do not push anything to git. Keep all edits local to the VPS.
+- Do not expose Postgres on the host — check that port 5432 is only
+  on the Docker network.
+- If /etc/sme-portal/env already exists with a non-zero APP_SECRET_KEY,
+  stop and ask me before overwriting.
+- If certbot fails, do not proceed past step 3 — report the error.
+- After you're done, remove the Cloudflare token file's contents
+  only if the cert is on auto-renew and you've verified
+  `certbot renew --dry-run` succeeds.
+```
+
+### A.1. Safety notes on running Claude on a production server
+
+- **Run as `deploy`, not `root`, after §3.2.** The brief starts as
+  root only because Ubuntu defaults have no other sudo user yet;
+  Claude should switch to the `deploy` user it creates and escalate
+  via `sudo` from then on.
+- **Scope the secrets paste.** Only paste the preflight values into
+  the Claude prompt. If you use a cloud-hosted Claude, the prompt is
+  transmitted to Anthropic — treat the secrets the same way you'd
+  treat them being in any SaaS log: rotate them after you're done if
+  that's your threat model. For the strictest setups, run Claude
+  Code offline against a local model, or narrow the API token scopes
+  to what §A actually needs and rotate them once deploy succeeds.
+- **Hooks for guardrails.** If you run Claude repeatedly on this
+  host, configure a project `CLAUDE.md` under `/opt/sme-portal/` that
+  codifies the guardrails block above, plus hooks in
+  `/opt/sme-portal/.claude/settings.json` that veto anything writing
+  outside `/opt/sme-portal`, `/etc/sme-portal`, `/etc/letsencrypt`,
+  `/etc/cron.d`, `/etc/sudoers.d`, and `/home/deploy`.
+
+### A.2. When you should stop delegating and take over
+
+Some operations warrant a human hand on the wheel:
+
+- **Any rollback during a production incident.** Don't ask an agent
+  to "fix it" — paste the rollback commands from §10.4 yourself so
+  you're reading the output in real time.
+- **Migrations that drop columns or rewrite rows.** Follow the
+  add-backfill-switch-drop pattern (§10.4) and take each step on a
+  separate deploy. Agents are happy to collapse the steps; you know
+  why they shouldn't be collapsed.
+- **First cut-over of real customer data.** Do the restore from
+  backup yourself, verify row counts, flip DNS only after smoke
+  tests pass.
+
+Everything else — routine deploys, dependency bumps, certificate
+rotation, log rotation, adding a new tenant — is safe to delegate.
