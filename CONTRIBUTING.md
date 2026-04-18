@@ -143,3 +143,99 @@ docs: add ENV.md reference
 - [ ] Templates include `{{ csrf_input() }}` in every form
 - [ ] New ENV vars documented in `docs/ENV.md` and `.env.example`
 - [ ] Migrations are numbered sequentially and have a downgrade path
+
+---
+
+## Česká verze (Czech version)
+
+### Přispívání
+
+Díky, že zvažujete příspěvek! Tento dokument pokrývá všechno, co
+potřebujete, abyste kód rozjeli lokálně a poslali čistý PR.
+
+### Předpoklady
+
+- Python 3.11+ (doporučuje se 3.12)
+- [uv](https://docs.astral.sh/uv/) package manager
+- PostgreSQL 16
+- Docker + Docker Compose (volitelné, pro celostack vývoj)
+
+### Nastavení
+
+```bash
+git clone https://github.com/eLh0m3r0/sme-client-portal.git
+cd sme-client-portal
+uv sync --all-extras
+cp .env.example .env
+```
+
+Aplikace potřebuje **dvě Postgres role**: `portal` (owner, pouští
+migrace) a `portal_app` (non-owner, běží aplikace, podléhá RLS).
+
+```bash
+docker compose up postgres -d        # varianta A: docker compose
+# nebo:
+sudo -u postgres psql -f docker/postgres-init.sql   # varianta B: lokální PG
+
+uv run alembic upgrade head
+uv run uvicorn app.main:app --reload
+```
+
+### Spouštění testů
+
+```bash
+uv run pytest -v                    # všechny testy (nutný Postgres)
+uv run pytest -m "not postgres"     # jen unit testy
+uv run pytest tests/test_orders_flow.py -v
+```
+
+Testy označené `@pytest.mark.postgres` se automaticky přeskočí, když
+Postgres není dostupný přes `DATABASE_URL`. CI je pouští vždy
+(spouští postgres service container).
+
+### Lint
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run ruff check . --fix
+uv run ruff format .
+```
+
+CI pouští oba; PR musí být čistý.
+
+### Konvence kódu
+
+- **Vrstvy:** `routers/` (tenké HTTP glue) → `services/` (business
+  logika bez HTTP) → `models/` (jen data). Routery neobsahují
+  business logiku. Services nikdy neimportují FastAPI.
+- **Tenant izolace:** každá tenant-scoped tabulka dědí `TenantMixin`.
+  Postgres RLS filtruje řádky přes `current_setting('app.tenant_id')`.
+  Nikdy to neobcházejte mimo explicitní cross-tenant background job.
+- **BackgroundTasks + explicitní commit:** FastAPI spouští
+  BackgroundTasks **před** úklidem request-scoped dependencies, takže
+  task nevidí zapsané řádky, pokud endpoint před schedulem úkolu
+  neuděláte `await db.commit()`.
+- **CSRF:** každý router s POST/PUT/PATCH/DELETE musí mít
+  `dependencies=[Depends(verify_csrf)]`, každý `<form method="post">`
+  v template musí obsahovat `{{ csrf_input() }}`.
+
+### Commit zprávy
+
+Dodržujte [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat(orders): add status filter to orders list
+fix(docker): copy uv.lock into builder stage
+docs: add ENV.md reference
+```
+
+### PR checklist
+
+- [ ] `uv run ruff check .` bez chyb
+- [ ] `uv run ruff format --check .` bez chyb
+- [ ] `uv run pytest` prochází (všech 112+ testů)
+- [ ] Nové funkce mají testy
+- [ ] Šablony mají `{{ csrf_input() }}` v každém formuláři
+- [ ] Nové ENV proměnné zdokumentované v `docs/ENV.md` a `.env.example`
+- [ ] Migrace jsou očíslované sekvenčně a mají downgrade cestu

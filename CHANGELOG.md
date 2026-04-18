@@ -83,9 +83,10 @@ were found; this series closes them all.
   - ``select_tenant.html`` wrapped with gettext; new catalog
     entries shipped in cs + en .mo files. Remaining Czech strings
     on admin / billing dashboards are tracked as follow-up.
-  - ``privacy.html`` ``[doplnit]`` placeholder replaced with a
-    concrete "transakční e-mailový poskytovatel (EU regiony)"
-    description.
+  - ``privacy.html`` ``[doplnit]`` ("to be filled") placeholder
+    replaced with a concrete Czech-language description ("transakční
+    e-mailový poskytovatel (EU regiony)" — "transactional email
+    provider, EU regions").
 
 ### Schema
 
@@ -132,8 +133,9 @@ the P0s and most of the P1s:
   ``require_verified_identity`` dependency gates billing + admin
   routes until ``email_verified_at`` is stamped.
 - **PR #6 Dashboard polish** (+1 test): usage progress bars on the
-  billing dashboard, distinct "Přejít nahoru" / "Přejít dolů" button
-  styling, ``cancel_at_period_end`` warning banner, real MRR query
+  billing dashboard, distinct "Přejít nahoru" / "Přejít dolů"
+  ("Upgrade" / "Downgrade") button styling, ``cancel_at_period_end``
+  warning banner, real MRR query
   from active plan prices (replaces the flawed 30-day paid sum),
   empty-state onboarding nudge on a fresh tenant dashboard.
 - **PR #7 CZ compliance**: Stripe Tax (``automatic_tax`` +

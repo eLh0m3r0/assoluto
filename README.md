@@ -5,29 +5,24 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://docs.astral.sh/ruff/)
 
-Zákaznický portál pro malé a střední výrobní firmy. Transparentní
-objednávkový proces mezi dodavatelem (výrobcem) a jeho klienty.
-
-> **English:** A multi-tenant customer portal for manufacturing SMEs.
-> Customers submit orders (with attachments), the supplier quotes,
-> confirms, tracks production status, and manages client-owned
-> materials stored on-site. Built with Python / FastAPI / PostgreSQL.
-> Free and open-source under AGPL-3.0.
-
----
+A multi-tenant customer portal for manufacturing SMEs. Customers submit
+orders (with attachments), the supplier quotes, confirms, tracks
+production status, and manages client-owned materials stored on-site.
+Built with Python / FastAPI / PostgreSQL. Free and open-source under
+AGPL-3.0.
 
 ## Features
 
 | Module | Description |
 |---|---|
-| **Objednávky** | Klient zadá položky a přílohy, dodavatel nacení, navrhne termín, aktualizuje stav (DRAFT → SUBMITTED → QUOTED → CONFIRMED → IN_PRODUCTION → READY → DELIVERED → CLOSED). Komentáře, audit trail. |
-| **Katalog produktů** | Per-tenant nebo per-customer katalog; výběr do objednávky místo free-textu s předvyplněním ceny a jednotky. |
-| **Správa majetku klienta** | Evidence materiálu/nástrojů klienta u dodavatele: příjem, výdej, spotřeba, korekce. Klient má read-only přehled. |
-| **E-mail notifikace** | Nové objednávky, změny stavů, komentáře — přes BackgroundTasks (bez Redisu). |
-| **Multi-tenant** | Shared DB + Postgres Row-Level Security. Dva DB uživatelé (`portal` owner + `portal_app` non-owner). |
-| **Platform (SaaS)** | Opt-in `app/platform/` package: globální Identity, cross-tenant login, tenant switcher, platform admin CRUD. `FEATURE_PLATFORM=true` aktivuje. |
-| **CSRF ochrana** | Double-submit cookie pattern na všech mutating routes. |
-| **Staff admin** | Správa staff uživatelů (invite, deaktivace), self-service změna hesla, password reset flow. |
+| **Orders** | Customer submits items and attachments; supplier prices them, proposes a delivery date, and moves the order through DRAFT → SUBMITTED → QUOTED → CONFIRMED → IN_PRODUCTION → READY → DELIVERED → CLOSED. Comments and full audit trail. |
+| **Product catalog** | Per-tenant or per-customer catalog; pick items into an order instead of free text, with pre-filled price and unit. |
+| **Customer-owned asset tracking** | Track materials and tools that belong to the customer but are stored at the supplier: receive, issue, consume, adjust. Customer gets a read-only view. |
+| **Email notifications** | New orders, status transitions, and comments — via `BackgroundTasks` (no Redis required). |
+| **Multi-tenant** | Shared database with Postgres Row-Level Security. Two DB roles (`portal` owner + `portal_app` non-owner). |
+| **Platform (SaaS)** | Opt-in `app/platform/` package: global Identity, cross-tenant login, tenant switcher, platform admin CRUD. Activated by `FEATURE_PLATFORM=true`. |
+| **CSRF protection** | Double-submit cookie pattern on every mutating route. |
+| **Staff admin** | Staff user management (invite, deactivate), self-service password change, password reset flow. |
 
 ## Tech stack
 
@@ -76,6 +71,7 @@ Demo credentials: `owner@4mex.cz` / `demo1234` (staff), `jan@acme.cz` / `demo123
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, multi-tenancy, RLS, request flow, directory layout |
 | [docs/SELF_HOST.md](docs/SELF_HOST.md) | Self-hosted production deployment guide |
 | [docs/DEPLOY_SAAS.md](docs/DEPLOY_SAAS.md) | Hosted SaaS deployment (Hetzner + Coolify + Cloudflare R2 + Resend + Stripe) |
+| [docs/DEPLOY_HETZNER.md](docs/DEPLOY_HETZNER.md) | Hetzner VPS single-box production setup with auto-deploy from the `production` branch |
 | [docs/ENV.md](docs/ENV.md) | Complete reference of all environment variables |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Developer setup, testing, code conventions, PR checklist |
 | [CLAUDE.md](CLAUDE.md) | AI-assisted development conventions and codebase gotchas |
@@ -153,3 +149,64 @@ etc.) contact: `opensource@4mex.cz`
 
 Active development. MVP functional for pilot deployment.
 112 pytest tests, CI via GitHub Actions (lint + test + Docker build).
+
+---
+
+## Česká verze (Czech version)
+
+### SME Client Portal
+
+Multi-tenantní zákaznický portál pro malé a střední výrobní firmy.
+Zákazníci zadávají objednávky (včetně příloh), dodavatel nacení,
+potvrzuje, sleduje stav výroby a eviduje materiál zákazníka
+skladovaný u dodavatele. Postaveno na Pythonu / FastAPI / PostgreSQL.
+Zdarma a open-source pod licencí AGPL-3.0.
+
+### Funkce
+
+| Modul | Popis |
+|---|---|
+| **Objednávky** | Klient zadá položky a přílohy, dodavatel nacení, navrhne termín, aktualizuje stav (DRAFT → SUBMITTED → QUOTED → CONFIRMED → IN_PRODUCTION → READY → DELIVERED → CLOSED). Komentáře, audit trail. |
+| **Katalog produktů** | Per-tenant nebo per-customer katalog; výběr do objednávky místo free-textu s předvyplněním ceny a jednotky. |
+| **Správa majetku klienta** | Evidence materiálu/nástrojů klienta u dodavatele: příjem, výdej, spotřeba, korekce. Klient má read-only přehled. |
+| **E-mail notifikace** | Nové objednávky, změny stavů, komentáře — přes BackgroundTasks (bez Redisu). |
+| **Multi-tenant** | Sdílená DB + Postgres Row-Level Security. Dva DB uživatelé (`portal` owner + `portal_app` non-owner). |
+| **Platform (SaaS)** | Opt-in `app/platform/` balíček: globální Identity, cross-tenant login, přepínač tenantů, platform admin CRUD. Aktivuje se přes `FEATURE_PLATFORM=true`. |
+| **CSRF ochrana** | Double-submit cookie pattern na všech mutating routes. |
+| **Staff admin** | Správa staff uživatelů (invite, deaktivace), self-service změna hesla, password reset flow. |
+
+### Rychlý start
+
+```bash
+git clone https://github.com/eLh0m3r0/sme-client-portal.git
+cd sme-client-portal
+cp .env.example .env
+docker compose up --build
+```
+
+Naplnit demo data:
+
+```bash
+docker compose exec web python -m scripts.seed_dev
+```
+
+Demo přihlašovací údaje: `owner@4mex.cz` / `demo1234` (staff),
+`jan@acme.cz` / `demo1234` (zákaznický kontakt).
+
+### Licence
+
+**GNU Affero General Public License v3.0 nebo novější (AGPL-3.0-or-later)**
+— viz [LICENSE](LICENSE). Pokud provozujete upravenou verzi po síti
+(např. jako hostovanou SaaS), AGPL vyžaduje, abyste zdrojový kód své
+upravené verze zpřístupnili uživatelům dané síťové služby.
+
+Pro komerční licencování (proprietární forky, OEM integrace apod.):
+`opensource@4mex.cz`.
+
+### Komunita
+
+- **Bug reporty a návrhy funkcí:** [GitHub Issues](https://github.com/elh0m3r0/sme-client-portal/issues)
+- **Bezpečnostní oznámení:** viz [SECURITY.md](SECURITY.md)
+- **Kodex chování:** [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — řídíme se Contributor Covenant v2.1
+- **Přispívání:** [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Changelog:** [CHANGELOG.md](CHANGELOG.md)

@@ -81,3 +81,34 @@ For answers to common questions about this code of conduct, see the FAQ at [http
 [Mozilla CoC]: https://github.com/mozilla/diversity
 [FAQ]: https://www.contributor-covenant.org/faq
 [translations]: https://www.contributor-covenant.org/translations
+
+---
+
+## Česká verze (Czech version)
+
+### Kodex chování pro přispěvatele
+
+Projekt se řídí standardem **Contributor Covenant v2.1**. Plný text
+v češtině je k dispozici v oficiálním překladu:
+<https://www.contributor-covenant.org/cs/version/2/1/code_of_conduct/>.
+
+Stručně:
+
+- **Slib.** Zavazujeme se, že účast v naší komunitě bude prostá
+  obtěžování pro kohokoli — bez ohledu na věk, velikost, postižení,
+  etnicitu, pohlaví, identitu, zkušenosti, vzdělání, socioekonomický
+  status, národnost, vzhled, rasu, kastu, barvu pleti, náboženství
+  nebo sexuální orientaci.
+- **Standardy.** Jednáme s empatií a respektem; konstruktivně
+  přijímáme i dáváme zpětnou vazbu; přijímáme odpovědnost za chyby.
+  Nepoužíváme sexualizovaný jazyk, netrollujeme, neobtěžujeme,
+  nezveřejňujeme cizí osobní údaje bez souhlasu.
+- **Vynucení.** Porušení lze nahlásit na **conduct@4mex.cz**.
+  Všechny stížnosti budou posouzeny rychle a férově; identita
+  oznamovatele je chráněna.
+- **Sankce.** Podle závažnosti: soukromé napomenutí → varování →
+  dočasný ban → trvalý ban. Detaily v anglické verzi výše
+  (sekce *Enforcement Guidelines*).
+
+Pokud máte dotazy k výkladu, napište na `conduct@4mex.cz` nebo se
+podívejte do [FAQ][FAQ].
