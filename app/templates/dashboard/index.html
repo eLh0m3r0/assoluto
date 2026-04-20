@@ -1,15 +1,15 @@
 {% extends "app_base.html" %}
 
-{% block title %}Dashboard · {{ tenant.name }}{% endblock %}
+{% block title %}Assoluto — {{ _('Dashboard') }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <h1 class="text-2xl font-bold text-gray-900">{{ _('Dashboard') }}</h1>
         <p class="mt-1 text-sm text-gray-500">
             {% if principal.is_staff %}
-                {{ tenant.name }} — přehled
+                {{ tenant.name }} — {{ _('overview') }}
             {% else %}
-                Vítejte, {{ principal.full_name }}
+                {{ _('Welcome,') }} {{ principal.full_name }}
             {% endif %}
         </p>
     </div>
@@ -20,7 +20,7 @@
                class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-500">Klienti</p>
+                        <p class="text-sm font-medium text-gray-500">{{ _('Clients') }}</p>
                         <p class="mt-1 text-3xl font-bold text-gray-900">{{ stats.customers }}</p>
                     </div>
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition group-hover:bg-blue-100">
@@ -36,7 +36,7 @@
            class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-amber-300 hover:shadow-md">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Otevřené objednávky</p>
+                    <p class="text-sm font-medium text-gray-500">{{ _('Open orders') }}</p>
                     <p class="mt-1 text-3xl font-bold text-gray-900">{{ stats.open_orders }}</p>
                 </div>
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600 transition group-hover:bg-amber-100">
@@ -52,7 +52,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500">
-                        {% if principal.is_staff %}Aktivní majetek klientů{% else %}Můj majetek{% endif %}
+                        {% if principal.is_staff %}{{ _('Active client assets') }}{% else %}{{ _('My assets') }}{% endif %}
                     </p>
                     <p class="mt-1 text-3xl font-bold text-gray-900">{{ stats.assets }}</p>
                 </div>
@@ -65,46 +65,84 @@
         </a>
     </div>
 
+    {% if recent_orders %}
+        <section class="mt-8 rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+                <h2 class="font-semibold text-slate-900">{{ _('Recent orders') }}</h2>
+                <a href="/app/orders" class="text-xs font-medium text-blue-600 hover:text-blue-800">
+                    {{ _('All orders') }} →
+                </a>
+            </div>
+            <ul class="divide-y divide-slate-100">
+                {% for order in recent_orders %}
+                    <li>
+                        <a href="/app/orders/{{ order.id }}"
+                           class="flex items-center justify-between gap-3 px-5 py-3 text-sm hover:bg-slate-50">
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono text-xs text-slate-500">{{ order.number }}</span>
+                                    <span class="truncate font-medium text-slate-900">{{ order.title }}</span>
+                                </div>
+                                {% if principal.is_staff and customer_by_id.get(order.customer_id) %}
+                                    <div class="truncate text-xs text-slate-500">
+                                        {{ customer_by_id[order.customer_id].name }}
+                                        · {{ order.created_at.strftime("%d.%m.%Y") }}
+                                    </div>
+                                {% else %}
+                                    <div class="truncate text-xs text-slate-500">
+                                        {{ order.created_at.strftime("%d.%m.%Y") }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% with status=order.status.value %}
+                                {% include "orders/_status_badge.html" %}
+                            {% endwith %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+
     {% if not principal.is_staff %}
         <div class="mt-8 rounded-xl border border-blue-100 bg-blue-50 p-5">
             <p class="text-sm text-blue-800">
-                Nová objednávka se zakládá v sekci
+                {{ _('Start a new order in') }}
                 <a href="/app/orders/new" class="font-semibold underline decoration-blue-300 underline-offset-2 hover:decoration-blue-500">
-                    Objednávky → Nová objednávka
+                    {{ _('Orders') }} → {{ _('New order') }}
                 </a>.
             </p>
         </div>
     {% elif stats.customers == 0 and stats.open_orders == 0 and stats.assets == 0 %}
         {# Empty-state onboarding nudge — shows on a fresh tenant. #}
         <div class="mt-8 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6">
-            <h2 class="text-base font-semibold text-slate-900">Začněte tím, že přidáte prvního klienta</h2>
+            <h2 class="text-base font-semibold text-slate-900">{{ _('Start by adding your first client') }}</h2>
             <p class="mt-1 text-sm text-slate-600">
-                Klient = firma, jejíž kontakty budou zadávat objednávky skrz portál.
-                Pak si můžete přidat produkty do katalogu nebo sledovat jejich majetek u vás.
+                {{ _('A client is a company whose contacts will place orders through the portal. Then add products to the catalog or track their assets at your site.') }}
             </p>
             <ol class="mt-4 grid gap-3 sm:grid-cols-3">
                 <li>
                     <a href="/app/customers/new"
                        class="block rounded-lg border border-slate-200 bg-white p-4 hover:border-blue-400 hover:shadow">
                         <span class="text-xs font-bold text-blue-600">1</span>
-                        <p class="mt-1 text-sm font-semibold text-slate-900">Přidat klienta</p>
-                        <p class="mt-0.5 text-xs text-slate-500">Firma, které budete dodávat</p>
+                        <p class="mt-1 text-sm font-semibold text-slate-900">{{ _('Add a client') }}</p>
+                        <p class="mt-0.5 text-xs text-slate-500">{{ _('A company you deliver to') }}</p>
                     </a>
                 </li>
                 <li>
                     <a href="/app/products/new"
                        class="block rounded-lg border border-slate-200 bg-white p-4 hover:border-emerald-400 hover:shadow">
                         <span class="text-xs font-bold text-emerald-600">2</span>
-                        <p class="mt-1 text-sm font-semibold text-slate-900">Založit produkt</p>
-                        <p class="mt-0.5 text-xs text-slate-500">Položka z vašeho katalogu</p>
+                        <p class="mt-1 text-sm font-semibold text-slate-900">{{ _('Create a product') }}</p>
+                        <p class="mt-0.5 text-xs text-slate-500">{{ _('An item from your catalog') }}</p>
                     </a>
                 </li>
                 <li>
                     <a href="/app/admin/users"
                        class="block rounded-lg border border-slate-200 bg-white p-4 hover:border-purple-400 hover:shadow">
                         <span class="text-xs font-bold text-purple-600">3</span>
-                        <p class="mt-1 text-sm font-semibold text-slate-900">Pozvat kolegu</p>
-                        <p class="mt-0.5 text-xs text-slate-500">Staff / admin role</p>
+                        <p class="mt-1 text-sm font-semibold text-slate-900">{{ _('Invite a colleague') }}</p>
+                        <p class="mt-0.5 text-xs text-slate-500">{{ _('Staff / admin role') }}</p>
                     </a>
                 </li>
             </ol>

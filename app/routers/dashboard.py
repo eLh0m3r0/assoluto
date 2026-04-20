@@ -17,6 +17,7 @@ from app.models.customer import Customer
 from app.models.enums import OrderStatus
 from app.models.order import Order
 from app.security.csrf import verify_csrf
+from app.services.order_service import ActorRef, list_orders_for_principal
 
 router = APIRouter(prefix="/app", tags=["dashboard"], dependencies=[Depends(verify_csrf)])
 
@@ -68,6 +69,28 @@ async def dashboard_index(
             (await db.execute(select(func.count()).select_from(Customer))).scalar() or 0
         )
 
+    # Recent orders: last 5 across all statuses (scoped for contacts via
+    # ``list_orders_for_principal``). Used on the dashboard so the user
+    # lands on something actionable rather than three bare counters.
+    recent_orders, _ = await list_orders_for_principal(
+        db,
+        actor=ActorRef(
+            type=principal.type,
+            id=principal.id,
+            customer_id=principal.customer_id,
+        ),
+        limit=5,
+    )
+
+    # Map customer_id → Customer for display; only needed for staff.
+    customer_by_id: dict = {}
+    if principal.is_staff and recent_orders:
+        cust_ids = {o.customer_id for o in recent_orders}
+        cust_rows = (
+            (await db.execute(select(Customer).where(Customer.id.in_(cust_ids)))).scalars().all()
+        )
+        customer_by_id = {c.id: c for c in cust_rows}
+
     html = _templates(request).render(
         request,
         "dashboard/index.html",
@@ -75,6 +98,8 @@ async def dashboard_index(
             "principal": principal,
             "tenant": tenant,
             "stats": stats,
+            "recent_orders": recent_orders,
+            "customer_by_id": customer_by_id,
         },
     )
     return HTMLResponse(html)

@@ -457,3 +457,117 @@ msgstr "Přihlášení do workspace"
 msgid "Add a comment"
 msgstr "Přidat komentář"
 
+# --- dashboard + profile ---
+
+#: app/templates/dashboard/index.html
+msgid "overview"
+msgstr "přehled"
+
+#: app/templates/dashboard/index.html
+msgid "Welcome,"
+msgstr "Vítejte,"
+
+#: app/templates/dashboard/index.html
+msgid "Open orders"
+msgstr "Otevřené objednávky"
+
+#: app/templates/dashboard/index.html
+msgid "Active client assets"
+msgstr "Aktivní majetek klientů"
+
+#: app/templates/dashboard/index.html
+msgid "My assets"
+msgstr "Můj majetek"
+
+#: app/templates/dashboard/index.html
+msgid "Recent orders"
+msgstr "Poslední objednávky"
+
+#: app/templates/dashboard/index.html
+msgid "All orders"
+msgstr "Všechny objednávky"
+
+#: app/templates/dashboard/index.html
+msgid "Start a new order in"
+msgstr "Novou objednávku založíte v sekci"
+
+#: app/templates/dashboard/index.html
+msgid "New order"
+msgstr "Nová objednávka"
+
+#: app/templates/dashboard/index.html
+msgid "Start by adding your first client"
+msgstr "Začněte tím, že přidáte prvního klienta"
+
+#: app/templates/dashboard/index.html
+msgid "A client is a company whose contacts will place orders through the portal. Then add products to the catalog or track their assets at your site."
+msgstr "Klient = firma, jejíž kontakty budou zadávat objednávky přes portál. Pak přidejte produkty do katalogu nebo sledujte jejich majetek u vás."
+
+#: app/templates/dashboard/index.html
+msgid "Add a client"
+msgstr "Přidat klienta"
+
+#: app/templates/dashboard/index.html
+msgid "A company you deliver to"
+msgstr "Firma, které dodáváte"
+
+#: app/templates/dashboard/index.html
+msgid "Create a product"
+msgstr "Založit produkt"
+
+#: app/templates/dashboard/index.html
+msgid "An item from your catalog"
+msgstr "Položka z vašeho katalogu"
+
+#: app/templates/dashboard/index.html
+msgid "Invite a colleague"
+msgstr "Pozvat kolegu"
+
+#: app/templates/dashboard/index.html
+msgid "Staff / admin role"
+msgstr "Staff / admin role"
+
+#: app/templates/admin/profile.html
+msgid "Profile"
+msgstr "Profil"
+
+#: app/templates/admin/profile.html
+msgid "Account"
+msgstr "Účet"
+
+#: app/templates/admin/profile.html
+msgid "Full name"
+msgstr "Jméno"
+
+#: app/templates/admin/profile.html
+msgid "Email changes need an administrator."
+msgstr "Změnu e-mailu musí provést administrátor."
+
+#: app/templates/admin/profile.html
+msgid "Save profile"
+msgstr "Uložit profil"
+
+#: app/templates/admin/profile.html
+msgid "Change password"
+msgstr "Změna hesla"
+
+#: app/templates/admin/profile.html
+msgid "Current password"
+msgstr "Současné heslo"
+
+#: app/templates/admin/profile.html
+msgid "New password (min. 8 characters)"
+msgstr "Nové heslo (min. 8 znaků)"
+
+#: app/templates/admin/profile.html
+msgid "Confirm new password"
+msgstr "Potvrzení nového hesla"
+
+#: app/templates/admin/profile.html
+msgid "Save new password"
+msgstr "Uložit nové heslo"
+
+#: app/templates/admin/profile.html
+msgid "After changing your password you will be signed out and must log in again."
+msgstr "Po změně hesla budete odhlášeni a musíte se znovu přihlásit."
+

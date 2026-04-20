@@ -171,6 +171,7 @@ async def users_disable(
 @router.get("/profile", response_class=HTMLResponse)
 async def profile_form(
     request: Request,
+    saved: int = 0,
     principal: Principal = Depends(require_tenant_staff),
 ) -> HTMLResponse:
     html = _templates(request).render(
@@ -180,10 +181,38 @@ async def profile_form(
             "principal": principal,
             "tenant": _tenant(request),
             "error": None,
-            "notice": None,
+            "notice": "Profil uložen." if saved else None,
         },
     )
     return HTMLResponse(html)
+
+
+@router.post("/profile", response_class=HTMLResponse)
+async def profile_update(
+    request: Request,
+    full_name: str = Form(...),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    full_name = (full_name or "").strip()
+    if not full_name:
+        html = _templates(request).render(
+            request,
+            "admin/profile.html",
+            {
+                "principal": principal,
+                "tenant": _tenant(request),
+                "error": "Jméno nesmí být prázdné.",
+                "notice": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
+    user = (await db.execute(select(User).where(User.id == principal.id))).scalar_one()
+    user.full_name = full_name
+    await db.flush()
+    await db.commit()
+    # Redirect so the header badge picks up the new name on its own render.
+    return RedirectResponse(url="/app/admin/profile?saved=1", status_code=303)
 
 
 @router.post("/profile/password", response_class=HTMLResponse)
