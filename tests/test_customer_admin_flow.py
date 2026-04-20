@@ -66,7 +66,7 @@ async def test_full_customer_and_invite_flow(
     # link instead of a translated word so the test is locale-agnostic.
     dash = await tenant_client.get("/app")
     assert dash.status_code == 200
-    assert '/app/customers' in dash.text
+    assert "/app/customers" in dash.text
 
     # 3) Create a customer via the real form endpoint.
     create_resp = await tenant_client.post(
