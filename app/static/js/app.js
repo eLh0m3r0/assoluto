@@ -50,9 +50,16 @@
 
   // -------- submit button "busy" state --------
   // Prevents double-submit by disabling the form's submit button(s) after
-  // the first submit. A 5s fallback re-enables it in case the browser
-  // doesn't actually navigate (validation error, network hiccup), so the
+  // the first submit. Swaps the label with a spinner + original text so
+  // the click feels alive. A 5s fallback re-enables the button in case
+  // nothing actually navigated (validation error, network hiccup) so the
   // user isn't stranded with a dead form.
+  var SPINNER_SVG =
+    '<svg xmlns="http://www.w3.org/2000/svg" class="inline-block h-4 w-4 animate-spin mr-2 -mt-0.5 align-middle" fill="none" viewBox="0 0 24 24">' +
+    '<circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
+    '<path class="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>' +
+    "</svg>";
+
   document.addEventListener("submit", function (event) {
     var form = event.target;
     if (!form || !(form instanceof HTMLFormElement)) return;
@@ -65,7 +72,7 @@
       btn.setAttribute("data-busy", "1");
       if (btn.tagName === "BUTTON") {
         btn.setAttribute("data-orig-text", btn.innerHTML);
-        btn.innerHTML = btn.innerHTML + " …";
+        btn.innerHTML = SPINNER_SVG + btn.innerHTML;
       }
       // Fallback re-enable: if nothing navigated after 5s (validation
       // failure from backend, network error), let the user try again.
@@ -79,6 +86,22 @@
           btn.removeAttribute("data-orig-text");
         }
       }, 5000);
+    });
+  });
+
+  // -------- flash message auto-dismiss --------
+  // Success notices (``role="status"``, blue) fade out after 4s so the
+  // user gets the confirmation but isn't left with a permanent banner.
+  // Errors (``role="alert"``, red) stay — they usually need action.
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('[role="status"]').forEach(function (el) {
+      setTimeout(function () {
+        el.style.transition = "opacity 400ms ease";
+        el.style.opacity = "0";
+        setTimeout(function () {
+          el.remove();
+        }, 450);
+      }, 4000);
     });
   });
 

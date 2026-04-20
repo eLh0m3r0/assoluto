@@ -10,6 +10,11 @@
     <style>
         /* Minimal inline fallback so pages look decent even before Tailwind loads */
         body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        /* Spinner used by the submit-busy state in app.js. Matches Tailwind's
+           animate-spin at 1s duration. Kept inline so it works without a
+           Tailwind rebuild. */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .animate-spin { animation: spin 1s linear infinite; }
     </style>
 </head>
 <body class="flex min-h-full flex-col bg-gray-50 text-gray-900 antialiased">
