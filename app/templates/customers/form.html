@@ -2,7 +2,7 @@
 
 {% set _is_edit = customer is defined and customer %}
 
-{% block title %}{{ (_('Edit client') if _is_edit else _('New client')) }} · {{ tenant.name }}{% endblock %}
+{% block title %}Assoluto — {{ (_('Edit client') if _is_edit else _('New client')) }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
     <div class="mb-4">

@@ -2,7 +2,7 @@
 
 {% set _is_edit = product is defined and product %}
 
-{% block title %}{{ (_('Edit product') if _is_edit else _('New product')) }} · {{ tenant.name }}{% endblock %}
+{% block title %}Assoluto — {{ (_('Edit product') if _is_edit else _('New product')) }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
     <div class="mb-4 flex items-center gap-3">

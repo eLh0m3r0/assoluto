@@ -1,6 +1,6 @@
 {% extends "app_base.html" %}
 
-{% block title %}{{ customer.name }} · {{ tenant.name }}{% endblock %}
+{% block title %}Assoluto — {{ customer.name }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
     {% set _perms = customer.order_permissions or {} %}

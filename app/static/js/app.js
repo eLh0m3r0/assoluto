@@ -48,6 +48,40 @@
     }
   });
 
+  // -------- submit button "busy" state --------
+  // Prevents double-submit by disabling the form's submit button(s) after
+  // the first submit. A 5s fallback re-enables it in case the browser
+  // doesn't actually navigate (validation error, network hiccup), so the
+  // user isn't stranded with a dead form.
+  document.addEventListener("submit", function (event) {
+    var form = event.target;
+    if (!form || !(form instanceof HTMLFormElement)) return;
+    // Skip forms that explicitly opt out — e.g. filters, search.
+    if (form.hasAttribute("data-no-busy")) return;
+    var buttons = form.querySelectorAll("button[type='submit'], input[type='submit']");
+    buttons.forEach(function (btn) {
+      if (btn.disabled) return;
+      btn.disabled = true;
+      btn.setAttribute("data-busy", "1");
+      if (btn.tagName === "BUTTON") {
+        btn.setAttribute("data-orig-text", btn.innerHTML);
+        btn.innerHTML = btn.innerHTML + " …";
+      }
+      // Fallback re-enable: if nothing navigated after 5s (validation
+      // failure from backend, network error), let the user try again.
+      setTimeout(function () {
+        if (!btn.isConnected) return;
+        btn.disabled = false;
+        btn.removeAttribute("data-busy");
+        var orig = btn.getAttribute("data-orig-text");
+        if (orig !== null) {
+          btn.innerHTML = orig;
+          btn.removeAttribute("data-orig-text");
+        }
+      }, 5000);
+    });
+  });
+
   // -------- order item product picker --------
   // When a staff/contact picks a product from the dropdown on the order
   // detail page, pre-fill the description, unit, and unit_price inputs.

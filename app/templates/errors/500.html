@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}500 · Chyba serveru{% endblock %}
+{% block title %}Assoluto — 500 · {{ _('Server error') }}{% endblock %}
 {% block content %}
     <section class="mx-auto mt-16 max-w-md text-center">
         <div class="rounded-lg border border-slate-200 bg-white p-10 shadow-sm">
             <div class="text-6xl font-bold text-slate-300">500</div>
-            <h1 class="mt-4 text-xl font-semibold text-slate-900">Něco se nepovedlo</h1>
+            <h1 class="mt-4 text-xl font-semibold text-slate-900">{{ _('Something went wrong') }}</h1>
             <p class="mt-2 text-sm text-slate-600">
-                Nastala neočekávaná chyba. Zkuste to prosím za chvíli znovu.
+                {{ _('An unexpected error occurred. Please try again in a moment.') }}
             </p>
         </div>
     </section>

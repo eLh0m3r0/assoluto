@@ -1,13 +1,13 @@
 {% extends "app_base.html" %}
 
-{% block title %}Katalog · {{ tenant.name }}{% endblock %}
+{% block title %}Assoluto — {{ _('Catalog') }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
     <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-slate-900">Katalog produktů</h1>
+        <h1 class="text-2xl font-bold text-slate-900">{{ _('Product catalog') }}</h1>
         <a href="/app/products/new"
            class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-            Nový produkt
+            {{ _('New product') }}
         </a>
     </div>
 
@@ -17,10 +17,10 @@
                 <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     <tr>
                         <th class="px-4 py-3 text-left">SKU</th>
-                        <th class="px-4 py-3 text-left">Název</th>
-                        <th class="px-4 py-3 text-left">Klient</th>
-                        <th class="px-4 py-3 text-right">Cena</th>
-                        <th class="px-4 py-3 text-left">Jedn.</th>
+                        <th class="px-4 py-3 text-left">{{ _('Name') }}</th>
+                        <th class="px-4 py-3 text-left">{{ _('Client') }}</th>
+                        <th class="px-4 py-3 text-right">{{ _('Price') }}</th>
+                        <th class="px-4 py-3 text-left">{{ _('Unit') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -51,10 +51,10 @@
         </div>
     {% else %}
         <div class="rounded-lg border border-dashed border-slate-300 p-10 text-center">
-            <p class="text-slate-500">Katalog je prázdný.</p>
+            <p class="text-slate-500">{{ _('The catalog is empty.') }}</p>
             <a href="/app/products/new"
                class="mt-3 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-                Přidat první produkt
+                {{ _('Add the first product') }}
             </a>
         </div>
     {% endif %}

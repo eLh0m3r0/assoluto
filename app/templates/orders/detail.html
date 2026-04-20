@@ -1,6 +1,6 @@
 {% extends "app_base.html" %}
 
-{% block title %}{{ order.number }} — {{ order.title }}{% endblock %}
+{% block title %}Assoluto — {{ order.number }} — {{ order.title }}{% endblock %}
 
 {% macro transition_btn(transition, order) %}
     {% set kind = transition.kind %}

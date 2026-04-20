@@ -571,3 +571,121 @@ msgstr "Uložit nové heslo"
 msgid "After changing your password you will be signed out and must log in again."
 msgstr "Po změně hesla budete odhlášeni a musíte se znovu přihlásit."
 
+# --- round-3: title prefix, error pages, tables ---
+
+#: app/templates/errors/404.html
+msgid "Not found"
+msgstr "Nenalezeno"
+
+#: app/templates/errors/404.html
+msgid "Page not found"
+msgstr "Stránka nebyla nalezena"
+
+#: app/templates/errors/404.html
+msgid "The path you were looking for does not exist or you do not have access to it."
+msgstr "Cesta, kterou jste hledali, neexistuje, nebo k ní nemáte přístup."
+
+#: app/templates/errors/404.html
+msgid "Back to home"
+msgstr "Zpět na úvod"
+
+#: app/templates/errors/403.html
+msgid "Access denied"
+msgstr "Přístup odepřen"
+
+#: app/templates/errors/403.html
+msgid "You do not have permission for this action."
+msgstr "K této akci nemáte dostatečná oprávnění."
+
+#: app/templates/errors/403.html
+msgid "Back to dashboard"
+msgstr "Zpět na přehled"
+
+#: app/templates/errors/500.html
+msgid "Server error"
+msgstr "Chyba serveru"
+
+#: app/templates/errors/500.html
+msgid "Something went wrong"
+msgstr "Něco se nepovedlo"
+
+#: app/templates/errors/500.html
+msgid "An unexpected error occurred. Please try again in a moment."
+msgstr "Nastala neočekávaná chyba. Zkuste to prosím za chvíli znovu."
+
+#: app/templates/orders/list.html
+msgid "Number"
+msgstr "Číslo"
+
+#: app/templates/orders/list.html
+msgid "Status"
+msgstr "Stav"
+
+#: app/templates/orders/list.html
+msgid "Total"
+msgstr "Celkem"
+
+#: app/templates/orders/list.html
+msgid "Created"
+msgstr "Vytvořeno"
+
+#: app/templates/orders/list.html
+msgid "Page"
+msgstr "Strana"
+
+#: app/templates/orders/list.html
+msgid "of"
+msgstr "z"
+
+#: app/templates/orders/list.html
+msgid "records"
+msgstr "záznamů"
+
+#: app/templates/orders/list.html
+msgid "Previous"
+msgstr "Předchozí"
+
+#: app/templates/orders/list.html
+msgid "Next"
+msgstr "Další"
+
+#: app/templates/orders/form.html
+msgid "choose a client"
+msgstr "vyberte klienta"
+
+#: app/templates/orders/form.html
+msgid "Requested delivery date"
+msgstr "Požadovaný termín dodání"
+
+#: app/templates/orders/form.html
+msgid "Note"
+msgstr "Poznámka"
+
+#: app/templates/orders/form.html
+msgid "Create draft"
+msgstr "Vytvořit koncept"
+
+#: app/templates/products/list.html
+msgid "Product catalog"
+msgstr "Katalog produktů"
+
+#: app/templates/products/list.html
+msgid "Price"
+msgstr "Cena"
+
+#: app/templates/products/list.html
+msgid "The catalog is empty."
+msgstr "Katalog je prázdný."
+
+#: app/templates/products/list.html
+msgid "Add the first product"
+msgstr "Přidat první produkt"
+
+#: app/templates/customers/list.html
+msgid "No clients yet."
+msgstr "Zatím žádní klienti."
+
+#: app/templates/customers/list.html
+msgid "Add the first client"
+msgstr "Založit prvního klienta"
+

@@ -1,6 +1,6 @@
 {% extends "app_base.html" %}
 
-{% block title %}Objednávky · {{ tenant.name }}{% endblock %}
+{% block title %}Assoluto — {{ _('Orders') }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
     <div class="mb-6 flex items-center justify-between">
@@ -48,14 +48,14 @@
             <table class="min-w-full divide-y divide-slate-200 text-sm">
                 <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     <tr>
-                        <th class="px-4 py-3 text-left">Číslo</th>
-                        <th class="px-4 py-3 text-left">Název</th>
+                        <th class="px-4 py-3 text-left">{{ _('Number') }}</th>
+                        <th class="px-4 py-3 text-left">{{ _('Name') }}</th>
                         {% if principal.is_staff %}
-                            <th class="px-4 py-3 text-left">Klient</th>
+                            <th class="px-4 py-3 text-left">{{ _('Client') }}</th>
                         {% endif %}
-                        <th class="px-4 py-3 text-left">Stav</th>
-                        <th class="px-4 py-3 text-right">Celkem</th>
-                        <th class="px-4 py-3 text-left">Vytvořeno</th>
+                        <th class="px-4 py-3 text-left">{{ _('Status') }}</th>
+                        <th class="px-4 py-3 text-right">{{ _('Total') }}</th>
+                        <th class="px-4 py-3 text-left">{{ _('Created') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -95,20 +95,20 @@
             {% set _base_qs = "&q=" ~ filters.q ~ "&status=" ~ filters.status ~ "&customer=" ~ filters.customer %}
             <nav class="mt-4 flex items-center justify-between text-sm text-slate-600">
                 <span>
-                    Strana <strong>{{ page }}</strong> z <strong>{{ total_pages }}</strong>
-                    · {{ total }} záznam{% if total != 1 %}ů{% endif %}
+                    {{ _('Page') }} <strong>{{ page }}</strong> {{ _('of') }} <strong>{{ total_pages }}</strong>
+                    · {{ total }} {{ _('records') }}
                 </span>
                 <div class="flex gap-2">
                     {% if page > 1 %}
                         <a href="?page={{ page - 1 }}{{ _base_qs }}"
                            class="rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50">
-                            ← Předchozí
+                            ← {{ _('Previous') }}
                         </a>
                     {% endif %}
                     {% if page < total_pages %}
                         <a href="?page={{ page + 1 }}{{ _base_qs }}"
                            class="rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50">
-                            Další →
+                            {{ _('Next') }} →
                         </a>
                     {% endif %}
                 </div>

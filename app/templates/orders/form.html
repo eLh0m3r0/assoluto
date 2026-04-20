@@ -1,16 +1,17 @@
 {% extends "app_base.html" %}
 
-{% block title %}Nová objednávka · {{ tenant.name }}{% endblock %}
+{% block title %}Assoluto — {{ _('New order') }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4 text-2xl font-bold text-slate-900">Nová objednávka</h1>
+    <h1 class="mb-4 text-2xl font-bold text-slate-900">{{ _('New order') }}</h1>
 
     {% include "_flash.html" %}
 
     <form method="post" action="/app/orders"
           class="max-w-2xl space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-            {{ csrf_input() }}<div>
-            <label for="title" class="block text-sm font-medium text-slate-700">Název *</label>
+        {{ csrf_input() }}
+        <div>
+            <label for="title" class="block text-sm font-medium text-slate-700">{{ _('Name') }} *</label>
             <input type="text" id="title" name="title" required
                    value="{{ form.title or '' }}" autofocus
                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
@@ -18,10 +19,10 @@
 
         {% if principal.is_staff %}
             <div>
-                <label for="customer_id" class="block text-sm font-medium text-slate-700">Klient *</label>
+                <label for="customer_id" class="block text-sm font-medium text-slate-700">{{ _('Client') }} *</label>
                 <select id="customer_id" name="customer_id" required
                         class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
-                    <option value="">— vyberte klienta —</option>
+                    <option value="">— {{ _('choose a client') }} —</option>
                     {% for customer in customers %}
                         <option value="{{ customer.id }}"
                                 {% if form.customer_id == customer.id|string %}selected{% endif %}>
@@ -34,7 +35,7 @@
 
         <div>
             <label for="requested_delivery_at" class="block text-sm font-medium text-slate-700">
-                Požadovaný termín dodání
+                {{ _('Requested delivery date') }}
             </label>
             {# Prevent picking a delivery date in the past. Uses client tz;
                the backend does not enforce this, so it's a UX hint only. #}
@@ -45,16 +46,16 @@
         </div>
 
         <div>
-            <label for="notes" class="block text-sm font-medium text-slate-700">Poznámka</label>
+            <label for="notes" class="block text-sm font-medium text-slate-700">{{ _('Note') }}</label>
             <textarea id="notes" name="notes" rows="3"
                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">{{ form.notes or '' }}</textarea>
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-2">
-            <a href="/app/orders" class="text-sm text-slate-500 hover:text-slate-900">Zrušit</a>
+            <a href="/app/orders" class="text-sm text-slate-500 hover:text-slate-900">{{ _('Cancel') }}</a>
             <button type="submit"
                     class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-                Vytvořit koncept
+                {{ _('Create draft') }}
             </button>
         </div>
     </form>
