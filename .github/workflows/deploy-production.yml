@@ -100,7 +100,7 @@ jobs:
 
             echo ">>> Waiting for /healthz…"
             for i in $(seq 1 20); do
-                if $COMPOSE exec -T web curl -fsS http://127.0.0.1:8000/healthz >/dev/null 2>&1; then
+                if $COMPOSE exec -T web python -c "import urllib.request, sys; r = urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=5); sys.exit(0 if r.status == 200 else 1)" >/dev/null 2>&1; then
                     echo "Health OK on attempt $i"
                     $COMPOSE ps
                     exit 0
