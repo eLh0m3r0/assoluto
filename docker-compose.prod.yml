@@ -11,8 +11,11 @@
 services:
   web:
     build: null
-    image: ghcr.io/elh0m3r0/sme-client-portal:${APP_IMAGE_TAG:-latest}
+    image: ghcr.io/elh0m3r0/assoluto:${APP_IMAGE_TAG:-latest}
     restart: always
+    depends_on: !override
+      postgres:
+        condition: service_healthy
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
@@ -66,19 +69,29 @@ services:
   # MailHog is dev-only.
   mailhog: !reset null
 
-  nginx:
-    image: nginx:1.27-alpine
+  caddy:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.caddy
+    image: assoluto-caddy:local
     restart: always
     depends_on:
       - web
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      PORTAL_DOMAIN: ${PORTAL_DOMAIN:?PORTAL_DOMAIN must be set}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL must be set}
+      PORKBUN_API_KEY: ${PORKBUN_API_KEY:?PORKBUN_API_KEY must be set}
+      PORKBUN_SECRET_KEY: ${PORKBUN_SECRET_KEY:?PORKBUN_SECRET_KEY must be set}
     volumes:
-      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - nginx_certs:/etc/nginx/certs:ro
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
     networks:
       - default
 
 volumes:
-  nginx_certs:
+  caddy_data:
+  caddy_config:

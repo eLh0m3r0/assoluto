@@ -82,12 +82,15 @@ jobs:
             set -euo pipefail
             cd /opt/assoluto
 
-            # Pin the just-built tag so the compose file resolves it.
-            sudo sed -i -E "s|^APP_IMAGE_TAG=.*$|APP_IMAGE_TAG=${IMAGE_TAG}|" /etc/assoluto/env || {
-                echo "APP_IMAGE_TAG=${IMAGE_TAG}" | sudo tee -a /etc/assoluto/env >/dev/null
-            }
+            # /etc/assoluto/env is deploy-owned (600) so sudo isn't needed.
+            if grep -qE '^APP_IMAGE_TAG=' /etc/assoluto/env; then
+                sed -i -E "s|^APP_IMAGE_TAG=.*$|APP_IMAGE_TAG=${IMAGE_TAG}|" /etc/assoluto/env
+            else
+                echo "APP_IMAGE_TAG=${IMAGE_TAG}" >> /etc/assoluto/env
+            fi
 
-            COMPOSE="sudo docker compose --env-file /etc/assoluto/env -f docker-compose.yml -f docker-compose.prod.yml"
+            # `deploy` is in the `docker` group — no sudo needed.
+            COMPOSE="docker compose --env-file /etc/assoluto/env -f docker-compose.yml -f docker-compose.prod.yml"
 
             echo ">>> Pulling image…"
             $COMPOSE pull web
@@ -97,7 +100,7 @@ jobs:
 
             echo ">>> Waiting for /healthz…"
             for i in $(seq 1 20); do
-                if $COMPOSE exec -T web curl -fsS http://127.0.0.1:8000/healthz >/dev/null 2>&1; then
+                if $COMPOSE exec -T web python -c "import urllib.request, sys; r = urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=5); sys.exit(0 if r.status == 200 else 1)" >/dev/null 2>&1; then
                     echo "Health OK on attempt $i"
                     $COMPOSE ps
                     exit 0
