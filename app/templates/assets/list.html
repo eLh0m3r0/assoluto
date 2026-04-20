@@ -51,6 +51,12 @@
         </div>
     {% else %}
         <div class="rounded-lg border border-dashed border-slate-300 p-10 text-center">
+            <svg aria-hidden="true" class="mx-auto mb-3 h-12 w-12 text-slate-300"
+                 viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="8" y="14" width="32" height="24" rx="2"/>
+                <path stroke-linecap="round" d="M8 22h32"/>
+                <path stroke-linecap="round" d="M18 14V8h12v6"/>
+            </svg>
             <p class="text-slate-500">{{ _('No assets recorded for this client yet.') }}</p>
             {% if principal.is_staff %}
                 <a href="/app/assets/new"

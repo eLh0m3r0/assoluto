@@ -10,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.deps import Principal, get_db, require_tenant_staff
+from app.i18n import t as _t
 from app.models.enums import UserRole
 from app.models.user import User
 from app.security.csrf import verify_csrf
@@ -104,7 +105,7 @@ async def users_invite(
                 "principal": principal,
                 "tenant": _tenant(request),
                 "users": users,
-                "error": "Uživatel s tímto e-mailem už existuje.",
+                "error": _t(request, "A user with this email already exists."),
                 "notice": None,
             },
         )
@@ -202,7 +203,7 @@ async def profile_update(
             {
                 "principal": principal,
                 "tenant": _tenant(request),
-                "error": "Jméno nesmí být prázdné.",
+                "error": _t(request, "Name cannot be empty."),
                 "notice": None,
             },
         )
@@ -231,7 +232,7 @@ async def profile_change_password(
             {
                 "principal": principal,
                 "tenant": _tenant(request),
-                "error": "Nová hesla se neshodují.",
+                "error": _t(request, "New passwords do not match."),
                 "notice": None,
             },
         )

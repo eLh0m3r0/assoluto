@@ -26,7 +26,9 @@
 
 {% block content %}
     <div class="mb-6">
-        <a href="/app/orders" class="text-sm text-slate-500 hover:text-slate-900">&larr; {{ _('Orders') }}</a>
+        {% with items=[(_('Dashboard'), '/app'), (_('Orders'), '/app/orders'), (order.number, None)] %}
+            {% include "_breadcrumbs.html" %}
+        {% endwith %}
         <div class="mt-2 flex items-center gap-3">
             <h1 class="text-2xl font-bold text-slate-900">
                 {{ order.number }} — {{ order.title }}
@@ -309,19 +311,41 @@
         <div class="border-b border-slate-200 px-5 py-3">
             <h2 class="font-semibold text-slate-900">{{ _('Status history') }}</h2>
         </div>
-        <ul class="divide-y divide-slate-100">
+        <ol class="relative px-8 py-6">
+            {# Vertical guide line (behind the dots) — stops before the last
+               entry so the tail doesn't hang past the final milestone. #}
+            {% if history|length > 1 %}
+                <span aria-hidden="true"
+                      class="absolute left-[34px] top-8 bottom-8 w-px bg-slate-200"></span>
+            {% endif %}
             {% for entry in history %}
-                <li class="px-5 py-3 text-sm">
-                    <span class="text-slate-500">{{ entry.created_at.strftime("%d.%m.%Y %H:%M") }}</span>
-                    ·
-                    {% if entry.from_status %}
-                        {% with status=entry.from_status.value %}{% include "orders/_status_badge.html" %}{% endwith %}
-                        →
+                <li class="relative pb-6 last:pb-0 pl-8">
+                    {# Dot: emerald for final states (delivered/closed), red for cancelled,
+                       blue otherwise. Ring gives a subtle halo on white. #}
+                    {% set _to = entry.to_status.value %}
+                    {% if _to in ("delivered", "closed") %}
+                        {% set _dot = "bg-emerald-500 ring-emerald-100" %}
+                    {% elif _to == "cancelled" %}
+                        {% set _dot = "bg-red-500 ring-red-100" %}
+                    {% else %}
+                        {% set _dot = "bg-blue-500 ring-blue-100" %}
                     {% endif %}
-                    {% with status=entry.to_status.value %}{% include "orders/_status_badge.html" %}{% endwith %}
-                    {% if entry.note %}<span class="text-slate-500">— {{ entry.note }}</span>{% endif %}
+                    <span aria-hidden="true"
+                          class="absolute -left-[6px] top-1.5 flex h-3 w-3 items-center justify-center rounded-full ring-4 {{ _dot }}"></span>
+                    <div class="flex flex-wrap items-center gap-2 text-sm">
+                        {% with status=_to %}{% include "orders/_status_badge.html" %}{% endwith %}
+                        {% if entry.from_status %}
+                            <span class="text-xs text-slate-400">
+                                ← {{ entry.from_status.value|capitalize }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="mt-0.5 text-xs text-slate-500">
+                        {{ entry.created_at.strftime("%d.%m.%Y %H:%M") }}
+                        {% if entry.note %}· {{ entry.note }}{% endif %}
+                    </div>
                 </li>
             {% endfor %}
-        </ul>
+        </ol>
     </section>
 {% endblock %}

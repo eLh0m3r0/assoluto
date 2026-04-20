@@ -125,6 +125,17 @@ def gettext(locale: str, message: str) -> str:
     return _load_translations(locale).gettext(message)
 
 
+def t(request: Request, message: str) -> str:
+    """Translate ``message`` using the request's resolved locale.
+
+    Shortcut for router handlers that need to hand a localized error
+    string to a template. Falls back to ``cs`` if the locale middleware
+    never ran (pure unit tests without the middleware stack).
+    """
+    locale = getattr(getattr(request, "state", None), "locale", None) or "cs"
+    return _load_translations(locale).gettext(message)
+
+
 def ngettext(locale: str, singular: str, plural: str, n: int) -> str:
     """Plural-aware translation."""
     return _load_translations(locale).ngettext(singular, plural, n)

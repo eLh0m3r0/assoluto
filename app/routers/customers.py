@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
 from app.deps import Principal, get_db, require_tenant_staff
+from app.i18n import t as _t
 from app.models.tenant import Tenant
 from app.security.csrf import verify_csrf
 from app.services.auth_service import (
@@ -283,7 +284,7 @@ async def customers_invite_contact(
                 "customer": customer,
                 "contacts": contacts,
                 "error": (
-                    "Kontakt se stejným e-mailem už existuje."
+                    _t(request, "A contact with the same email already exists.")
                     if isinstance(exc, IntegrityError)
                     else str(exc)
                 ),

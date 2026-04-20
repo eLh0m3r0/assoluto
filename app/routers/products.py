@@ -120,9 +120,11 @@ async def products_create(
             customer_id=target_customer_id,
         )
     except (ProductError, IntegrityError) as exc:
+        from app.i18n import t as _t
+
         customers = await list_customers(db)
         if isinstance(exc, (DuplicateProductSku, IntegrityError)):
-            error = "Produkt s tímto SKU už existuje."
+            error = _t(request, "A product with this SKU already exists.")
         else:
             error = str(exc)
         html = _templates(request).render(
@@ -293,9 +295,11 @@ async def products_update(
             customer_id=target_customer_id,
         )
     except (ProductError, IntegrityError) as exc:
+        from app.i18n import t as _t
+
         customers = await list_customers(db)
         error = (
-            "Produkt s tímto SKU už existuje."
+            _t(request, "A product with this SKU already exists.")
             if isinstance(exc, (DuplicateProductSku, IntegrityError))
             else str(exc)
         )

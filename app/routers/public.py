@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
 from app.deps import get_current_tenant, get_db
+from app.i18n import t as _t
 from app.models.tenant import Tenant
 from app.security.csrf import verify_csrf
 from app.security.rate_limit import limit as rate_limit
@@ -180,7 +181,7 @@ async def login_submit(
             {
                 "tenant": tenant,
                 "email": email,
-                "error": "Účet je deaktivován.",
+                "error": _t(request, "Your account is disabled."),
                 "notice": None,
                 "next": next,
             },
@@ -193,7 +194,7 @@ async def login_submit(
             {
                 "tenant": tenant,
                 "email": email,
-                "error": "Neplatný e-mail nebo heslo.",
+                "error": _t(request, "Invalid email or password."),
                 "notice": None,
                 "next": next,
             },
@@ -274,7 +275,7 @@ async def invite_accept_form(
                 "tenant": tenant,
                 "token": token,
                 "contact": None,
-                "error": "Pozvánka je neplatná nebo vypršela.",
+                "error": _t(request, "The invitation is invalid or has expired."),
                 "notice": None,
             },
         )
@@ -288,7 +289,7 @@ async def invite_accept_form(
                 "tenant": tenant,
                 "token": token,
                 "contact": None,
-                "error": "Pozvánka patří k jinému tenantovi.",
+                "error": _t(request, "The invitation belongs to a different tenant."),
                 "notice": None,
             },
         )
@@ -350,7 +351,7 @@ async def invite_accept_submit(
                 "tenant": tenant,
                 "token": token,
                 "contact": None,
-                "error": "Hesla se neshodují.",
+                "error": _t(request, "Passwords do not match."),
                 "notice": None,
             },
         )
@@ -370,7 +371,7 @@ async def invite_accept_submit(
                 "tenant": tenant,
                 "token": token,
                 "contact": None,
-                "error": "Pozvánka je neplatná nebo vypršela.",
+                "error": _t(request, "The invitation is invalid or has expired."),
                 "notice": None,
             },
         )
@@ -384,7 +385,7 @@ async def invite_accept_submit(
                 "tenant": tenant,
                 "token": token,
                 "contact": None,
-                "error": "Pozvánka patří k jinému tenantovi.",
+                "error": _t(request, "The invitation belongs to a different tenant."),
                 "notice": None,
             },
         )
@@ -453,7 +454,7 @@ async def staff_invite_form(
                 "tenant": tenant,
                 "token": token,
                 "user": None,
-                "error": "Pozvánka je neplatná nebo vypršela.",
+                "error": _t(request, "The invitation is invalid or has expired."),
                 "notice": None,
             },
         )
@@ -497,7 +498,7 @@ async def staff_invite_submit(
                 "tenant": tenant,
                 "token": token,
                 "user": None,
-                "error": "Hesla se neshodují.",
+                "error": _t(request, "Passwords do not match."),
                 "notice": None,
             },
         )
@@ -646,7 +647,7 @@ async def password_reset_confirm_form(
             {
                 "tenant": tenant,
                 "token": token,
-                "error": "Odkaz je neplatný nebo vypršel.",
+                "error": _t(request, "The link is invalid or has expired."),
                 "notice": None,
             },
         )
@@ -681,7 +682,7 @@ async def password_reset_confirm_submit(
             {
                 "tenant": tenant,
                 "token": token,
-                "error": "Hesla se neshodují.",
+                "error": _t(request, "Passwords do not match."),
                 "notice": None,
             },
         )

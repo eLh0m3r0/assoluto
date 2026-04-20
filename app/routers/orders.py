@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.deps import Principal, get_db, require_login
+from app.i18n import t as _t
 from app.models.customer import Customer
 from app.models.enums import OrderStatus
 from app.security.csrf import verify_csrf
@@ -202,7 +203,7 @@ async def orders_create(
                     "requested_delivery_at": requested_delivery_at,
                     "notes": notes,
                 },
-                error="Vyberte klienta.",
+                error=_t(request, "Choose a client."),
             )
     else:
         if principal.customer_id is None:

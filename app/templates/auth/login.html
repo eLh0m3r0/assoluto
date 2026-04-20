@@ -6,7 +6,9 @@
 <div class="flex min-h-[60vh] items-center justify-center">
     <div class="w-full max-w-sm">
         <div class="mb-8 text-center">
-            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-lg font-bold text-white shadow-lg shadow-blue-600/20">A</div>
+            <div class="mx-auto h-14 w-14 drop-shadow-xl">
+                {% with size="h-14 w-14", variant="login" %}{% include "_logo.html" %}{% endwith %}
+            </div>
             <h1 class="mt-4 text-2xl font-bold text-gray-900">{{ _('Sign in') }}</h1>
             {% if tenant %}
                 <p class="mt-1 text-sm text-gray-500">{{ _('Sign in to workspace') }} <span class="font-medium text-gray-700">{{ tenant.name }}</span></p>

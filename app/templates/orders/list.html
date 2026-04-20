@@ -116,6 +116,13 @@
         {% endif %}
     {% else %}
         <div class="rounded-lg border border-dashed border-slate-300 p-10 text-center">
+            <svg aria-hidden="true" class="mx-auto mb-3 h-12 w-12 text-slate-300"
+                 viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M14 10h20l4 6v24a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V16l4-6z"/>
+                <path stroke-linecap="round" d="M10 18h28"/>
+                <path stroke-linecap="round" d="M18 26h12M18 32h8"/>
+            </svg>
             {% if has_active_filters %}
                 <p class="text-slate-500">{{ _('No orders match the filter.') }}</p>
                 <a href="/app/orders"

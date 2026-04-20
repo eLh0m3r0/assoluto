@@ -5,13 +5,15 @@
 {% block title %}Assoluto — {{ (_('Edit product') if _is_edit else _('New product')) }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
-    <div class="mb-4 flex items-center gap-3">
-        {% if _is_edit %}
-            <a href="/app/products/{{ product.id }}" class="text-sm text-slate-500 hover:text-slate-900">&larr; {{ _('Back to product') }}</a>
-        {% else %}
-            <a href="/app/products" class="text-sm text-slate-500 hover:text-slate-900">&larr; {{ _('Catalog') }}</a>
-        {% endif %}
-    </div>
+    {% if _is_edit %}
+        {% with items=[(_('Dashboard'), '/app'), (_('Catalog'), '/app/products'), (product.name, '/app/products/' ~ product.id), (_('Edit'), None)] %}
+            {% include "_breadcrumbs.html" %}
+        {% endwith %}
+    {% else %}
+        {% with items=[(_('Dashboard'), '/app'), (_('Catalog'), '/app/products'), (_('New product'), None)] %}
+            {% include "_breadcrumbs.html" %}
+        {% endwith %}
+    {% endif %}
     <h1 class="mb-4 text-2xl font-bold text-slate-900">{{ _('Edit product') if _is_edit else _('New product') }}</h1>
 
     {% include "_flash.html" %}

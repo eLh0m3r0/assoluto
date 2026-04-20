@@ -989,3 +989,53 @@ msgstr "Nový záznam majetku"
 msgid "Code"
 msgstr "Kód"
 
+# --- round-5: server errors, logo polish, breadcrumbs ---
+
+#: app/routers/products.py
+msgid "A product with this SKU already exists."
+msgstr "Produkt s tímto SKU už existuje."
+
+#: app/routers/customers.py
+msgid "A contact with the same email already exists."
+msgstr "Kontakt se stejným e-mailem už existuje."
+
+#: app/routers/public.py
+msgid "Your account is disabled."
+msgstr "Účet je deaktivován."
+
+#: app/routers/public.py
+msgid "Invalid email or password."
+msgstr "Neplatný e-mail nebo heslo."
+
+#: app/routers/public.py
+msgid "The invitation is invalid or has expired."
+msgstr "Pozvánka je neplatná nebo vypršela."
+
+#: app/routers/public.py
+msgid "The invitation belongs to a different tenant."
+msgstr "Pozvánka patří k jinému tenantovi."
+
+#: app/routers/public.py
+msgid "Passwords do not match."
+msgstr "Hesla se neshodují."
+
+#: app/routers/public.py
+msgid "The link is invalid or has expired."
+msgstr "Odkaz je neplatný nebo vypršel."
+
+#: app/routers/tenant_admin.py
+msgid "A user with this email already exists."
+msgstr "Uživatel s tímto e-mailem už existuje."
+
+#: app/routers/tenant_admin.py
+msgid "Name cannot be empty."
+msgstr "Jméno nesmí být prázdné."
+
+#: app/routers/tenant_admin.py
+msgid "New passwords do not match."
+msgstr "Nová hesla se neshodují."
+
+#: app/routers/orders.py
+msgid "Choose a client."
+msgstr "Vyberte klienta."
+
