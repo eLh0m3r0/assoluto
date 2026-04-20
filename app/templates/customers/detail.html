@@ -12,6 +12,7 @@
                 {% if customer.ico %}
                     <p class="text-sm text-slate-500">IČO {{ customer.ico }}{% if customer.dic %} · DIČ {{ customer.dic }}{% endif %}</p>
                 {% endif %}
+                {# IČO/DIČ are Czech legal-entity IDs — intentionally not translated. #}
             </div>
             <a href="/app/customers/{{ customer.id }}/edit"
                class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
@@ -95,7 +96,7 @@
         <form method="post" action="/app/customers/{{ customer.id }}/contacts"
               class="mt-2 grid gap-3 sm:grid-cols-3">
             {{ csrf_input() }}
-            <input type="email" name="email" required placeholder="jmeno@firma.cz"
+            <input type="email" name="email" required placeholder="{{ _('name@company.com') }}"
                    class="rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
             <input type="text" name="full_name" required placeholder="{{ _('Name Surname') }}"
                    class="rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">

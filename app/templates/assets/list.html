@@ -5,12 +5,12 @@
 {% block content %}
     <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-bold text-slate-900">
-            {% if principal.is_staff %}Majetek klientů{% else %}Můj majetek u dodavatele{% endif %}
+            {% if principal.is_staff %}{{ _('Client assets') }}{% else %}{{ _('My assets at the supplier') }}{% endif %}
         </h1>
         {% if principal.is_staff %}
             <a href="/app/assets/new"
                class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-                Nový záznam
+                {{ _('New record') }}
             </a>
         {% endif %}
     </div>
@@ -20,13 +20,13 @@
             <table class="min-w-full divide-y divide-slate-200 text-sm">
                 <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     <tr>
-                        <th class="px-4 py-3 text-left">Kód</th>
-                        <th class="px-4 py-3 text-left">Název</th>
+                        <th class="px-4 py-3 text-left">{{ _('Code') }}</th>
+                        <th class="px-4 py-3 text-left">{{ _('Name') }}</th>
                         {% if principal.is_staff %}
-                            <th class="px-4 py-3 text-left">Klient</th>
+                            <th class="px-4 py-3 text-left">{{ _('Client') }}</th>
                         {% endif %}
-                        <th class="px-4 py-3 text-right">Stav</th>
-                        <th class="px-4 py-3 text-left">Umístění</th>
+                        <th class="px-4 py-3 text-right">{{ _('Stock') }}</th>
+                        <th class="px-4 py-3 text-left">{{ _('Location') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">

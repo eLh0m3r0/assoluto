@@ -1,19 +1,20 @@
 {% extends "app_base.html" %}
 
-{% block title %}Nový záznam majetku · {{ tenant.name }}{% endblock %}
+{% block title %}Assoluto — {{ _('New asset record') }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4 text-2xl font-bold text-slate-900">Nový záznam majetku</h1>
+    <h1 class="mb-4 text-2xl font-bold text-slate-900">{{ _('New asset record') }}</h1>
 
     {% include "_flash.html" %}
 
     <form method="post" action="/app/assets"
           class="max-w-lg space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-            {{ csrf_input() }}<div>
-            <label for="customer_id" class="block text-sm font-medium text-slate-700">Klient *</label>
+        {{ csrf_input() }}
+        <div>
+            <label for="customer_id" class="block text-sm font-medium text-slate-700">{{ _('Client') }} *</label>
             <select id="customer_id" name="customer_id" required
                     class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
-                <option value="">— vyberte klienta —</option>
+                <option value="">— {{ _('choose a client') }} —</option>
                 {% for c in customers %}
                     <option value="{{ c.id }}" {% if form.customer_id == c.id|string %}selected{% endif %}>
                         {{ c.name }}
@@ -23,37 +24,37 @@
         </div>
         <div class="grid grid-cols-2 gap-3">
             <div>
-                <label for="code" class="block text-sm font-medium text-slate-700">Kód *</label>
+                <label for="code" class="block text-sm font-medium text-slate-700">{{ _('Code') }} *</label>
                 <input type="text" id="code" name="code" required value="{{ form.code or '' }}"
                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
             </div>
             <div>
-                <label for="unit" class="block text-sm font-medium text-slate-700">Jednotka</label>
+                <label for="unit" class="block text-sm font-medium text-slate-700">{{ _('Unit') }}</label>
                 <input type="text" id="unit" name="unit" value="{{ form.unit or 'ks' }}"
                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
             </div>
         </div>
         <div>
-            <label for="name" class="block text-sm font-medium text-slate-700">Název *</label>
+            <label for="name" class="block text-sm font-medium text-slate-700">{{ _('Name') }} *</label>
             <input type="text" id="name" name="name" required value="{{ form.name or '' }}"
                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
         </div>
         <div>
-            <label for="location" class="block text-sm font-medium text-slate-700">Umístění</label>
+            <label for="location" class="block text-sm font-medium text-slate-700">{{ _('Location') }}</label>
             <input type="text" id="location" name="location" value="{{ form.location or '' }}"
                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
         </div>
         <div>
-            <label for="description" class="block text-sm font-medium text-slate-700">Popis</label>
+            <label for="description" class="block text-sm font-medium text-slate-700">{{ _('Description') }}</label>
             <textarea id="description" name="description" rows="3"
                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">{{ form.description or '' }}</textarea>
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-2">
-            <a href="/app/assets" class="text-sm text-slate-500 hover:text-slate-900">Zrušit</a>
+            <a href="/app/assets" class="text-sm text-slate-500 hover:text-slate-900">{{ _('Cancel') }}</a>
             <button type="submit"
                     class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-                Uložit
+                {{ _('Save') }}
             </button>
         </div>
     </form>

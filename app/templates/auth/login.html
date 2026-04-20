@@ -20,27 +20,27 @@
                 {{ csrf_input() }}
                 {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
                 <div>
-                    <label for="email" class="mb-1 block text-sm font-medium text-gray-700">E-mail</label>
+                    <label for="email" class="mb-1 block text-sm font-medium text-gray-700">{{ _('Email') }}</label>
                     <input type="email" name="email" id="email" required autofocus
                            value="{{ email or '' }}"
                            class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                           placeholder="jmeno@firma.cz">
+                           placeholder="{{ _('name@company.com') }}">
                 </div>
                 <div>
-                    <label for="password" class="mb-1 block text-sm font-medium text-gray-700">Heslo</label>
+                    <label for="password" class="mb-1 block text-sm font-medium text-gray-700">{{ _('Password') }}</label>
                     <input type="password" name="password" id="password" required
                            class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                            placeholder="********">
                 </div>
                 <button type="submit"
                         class="flex w-full justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 active:bg-blue-800">
-                    Přihlásit se
+                    {{ _('Sign in') }}
                 </button>
             </form>
         </div>
         <p class="mt-4 text-center text-sm text-gray-500">
             <a href="/auth/password-reset" class="font-medium text-blue-600 transition hover:text-blue-500">
-                Zapomenuté heslo?
+                {{ _('Forgot password?') }}
             </a>
         </p>
     </div>

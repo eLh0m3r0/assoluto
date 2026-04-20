@@ -292,7 +292,7 @@ async def orders_detail(
         await db.execute(select(Customer).where(Customer.id == order.customer_id))
     ).scalar_one_or_none()
 
-    available_transitions = _available_transitions(order, principal)
+    available_transitions = _available_transitions(request, order, principal)
 
     # Resolve per-customer order permissions.
     from app.services.customer_permissions import OrderPermissions
@@ -346,27 +346,34 @@ def _can_edit_items(order, principal: Principal) -> bool:
 #   back     = gray (returning to an earlier state)
 #   finish   = green (completing the order)
 #   danger   = red (cancel / destructive)
+#
+# ``label`` values are English gettext message IDs; the real translation
+# is resolved per request in ``_available_transitions`` so the CS/EN
+# switcher works on the action buttons too.
 TRANSITION_META: dict[OrderStatus, dict] = {
-    OrderStatus.DRAFT: {"label": "Vrátit do konceptu", "kind": "back", "order": 0},
-    OrderStatus.SUBMITTED: {"label": "Odeslat", "kind": "forward", "order": 1},
-    OrderStatus.QUOTED: {"label": "Nacenit", "kind": "forward", "order": 2},
-    OrderStatus.CONFIRMED: {"label": "Potvrdit", "kind": "forward", "order": 3},
-    OrderStatus.IN_PRODUCTION: {"label": "Spustit výrobu", "kind": "forward", "order": 4},
-    OrderStatus.READY: {"label": "Připraveno", "kind": "forward", "order": 5},
-    OrderStatus.DELIVERED: {"label": "Dodáno", "kind": "finish", "order": 6},
-    OrderStatus.CLOSED: {"label": "Uzavřít", "kind": "finish", "order": 7},
-    OrderStatus.CANCELLED: {"label": "Zrušit", "kind": "danger", "order": 99},
+    OrderStatus.DRAFT: {"label": "Return to draft", "kind": "back", "order": 0},
+    OrderStatus.SUBMITTED: {"label": "Submit", "kind": "forward", "order": 1},
+    OrderStatus.QUOTED: {"label": "Quote", "kind": "forward", "order": 2},
+    OrderStatus.CONFIRMED: {"label": "Confirm", "kind": "forward", "order": 3},
+    OrderStatus.IN_PRODUCTION: {"label": "Start production", "kind": "forward", "order": 4},
+    OrderStatus.READY: {"label": "Ready", "kind": "forward", "order": 5},
+    OrderStatus.DELIVERED: {"label": "Delivered", "kind": "finish", "order": 6},
+    OrderStatus.CLOSED: {"label": "Close", "kind": "finish", "order": 7},
+    OrderStatus.CANCELLED: {"label": "Cancel", "kind": "danger", "order": 99},
 }
 
 
-def _available_transitions(order, principal: Principal) -> list[dict]:
+def _available_transitions(request: Request, order, principal: Principal) -> list[dict]:
     """Return the list of transitions the current principal can perform.
 
     Staff see every status except the current one — full admin control.
     Contacts see only what the state machine allows. Results are sorted
     in logical workflow order (forward first, cancel last).
     """
+    from app.i18n import gettext as _gettext
     from app.services.order_service import ALL_STATUSES, CONTACT_ALLOWED_TRANSITIONS
+
+    locale = getattr(request.state, "locale", None) or "cs"
 
     if principal.is_staff:
         candidates = ALL_STATUSES - {order.status}
@@ -381,7 +388,7 @@ def _available_transitions(order, principal: Principal) -> list[dict]:
         out.append(
             {
                 "to_status": to_status.value,
-                "label": meta["label"],
+                "label": _gettext(locale, meta["label"]),
                 "kind": meta["kind"],
                 "order": meta["order"],
             }

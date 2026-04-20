@@ -689,3 +689,303 @@ msgstr "Zatím žádní klienti."
 msgid "Add the first client"
 msgstr "Založit prvního klienta"
 
+# --- round-4: orders detail, admin users, auth, assets ---
+
+#: app/templates/orders/detail.html
+msgid "Quoted (confirmed)"
+msgstr "Nacenění (potvrzené)"
+
+#: app/templates/orders/detail.html
+msgid "Confirmed total price filled in by staff on transition to Quoted."
+msgstr "Potvrzená celková cena vyplněná staffem při přechodu do stavu Nacenění."
+
+#: app/templates/orders/detail.html
+msgid "Requested delivery"
+msgstr "Požadovaný termín"
+
+#: app/templates/orders/detail.html
+msgid "Promised delivery"
+msgstr "Slíbený termín"
+
+#: app/templates/orders/detail.html
+msgid "Items"
+msgstr "Položky"
+
+#: app/templates/orders/detail.html
+msgid "Quantity"
+msgstr "Množství"
+
+#: app/templates/orders/detail.html
+msgid "Price/unit"
+msgstr "Cena/ks"
+
+#: app/templates/orders/detail.html
+msgid "No items."
+msgstr "Žádné položky."
+
+#: app/templates/orders/detail.html
+msgid "custom item (free-text)"
+msgstr "vlastní položka (free-text)"
+
+#: app/templates/orders/detail.html
+msgid "unit"
+msgstr "jed."
+
+#: app/templates/orders/detail.html
+msgid "Item description"
+msgstr "Popis položky"
+
+#: app/templates/orders/detail.html
+msgid "Add item"
+msgstr "Přidat položku"
+
+#: app/templates/orders/detail.html
+msgid "Attachments"
+msgstr "Přílohy"
+
+#: app/templates/orders/detail.html
+msgid "No attachments."
+msgstr "Žádné přílohy."
+
+#: app/templates/orders/detail.html
+msgid "item"
+msgstr "položka"
+
+#: app/templates/orders/detail.html
+msgid "to the whole order"
+msgstr "k celé objednávce"
+
+#: app/templates/orders/detail.html
+msgid "Upload"
+msgstr "Nahrát"
+
+#: app/templates/orders/detail.html
+msgid "Actions"
+msgstr "Akce"
+
+#: app/templates/orders/detail.html
+msgid "Comments"
+msgstr "Komentáře"
+
+#: app/templates/orders/detail.html
+msgid "internal"
+msgstr "interní"
+
+#: app/templates/orders/detail.html
+msgid "No comments."
+msgstr "Žádné komentáře."
+
+#: app/templates/orders/detail.html
+msgid "Write a comment…"
+msgstr "Napište komentář…"
+
+#: app/templates/orders/detail.html
+msgid "Internal (staff only)"
+msgstr "Interní (jen pro tým)"
+
+#: app/templates/orders/detail.html
+msgid "Status history"
+msgstr "Historie stavů"
+
+#: app/routers/orders.py
+msgid "Return to draft"
+msgstr "Vrátit do konceptu"
+
+#: app/routers/orders.py
+msgid "Submit"
+msgstr "Odeslat"
+
+#: app/routers/orders.py
+msgid "Quote"
+msgstr "Nacenit"
+
+#: app/routers/orders.py
+msgid "Confirm"
+msgstr "Potvrdit"
+
+#: app/routers/orders.py
+msgid "Start production"
+msgstr "Spustit výrobu"
+
+#: app/routers/orders.py
+msgid "Close"
+msgstr "Uzavřít"
+
+# "Ready", "Delivered", "Cancel" reuse the existing msgids from
+# orders/_status_badge.html and products/form.html (they share the
+# same Czech translation, so we don't duplicate entries).
+
+#: app/templates/admin/users.html
+msgid "Team users"
+msgstr "Uživatelé týmu"
+
+#: app/templates/admin/users.html
+msgid "Manage staff users — full access to all tenant data."
+msgstr "Spravujte staff uživatele — přístup do všech dat tenantu."
+
+#: app/templates/admin/users.html
+msgid "State"
+msgstr "Stav"
+
+#: app/templates/admin/users.html
+msgid "Role"
+msgstr "Role"
+
+#: app/templates/admin/users.html
+msgid "disabled"
+msgstr "deaktivován"
+
+#: app/templates/admin/users.html
+msgid "pending invite"
+msgstr "čeká na přijetí"
+
+#: app/templates/admin/users.html
+msgid "Deactivate"
+msgstr "Deaktivovat"
+
+#: app/templates/admin/users.html
+msgid "Deactivate this user?"
+msgstr "Opravdu deaktivovat tohoto uživatele?"
+
+#: app/templates/admin/users.html
+msgid "No users."
+msgstr "Žádní uživatelé."
+
+#: app/templates/admin/users.html
+msgid "Invite user"
+msgstr "Pozvat uživatele"
+
+#: app/templates/admin/users.html
+msgid "name@company.com"
+msgstr "jmeno@firma.cz"
+
+#: app/templates/auth/password_reset_request.html
+msgid "Password reset"
+msgstr "Obnovení hesla"
+
+#: app/templates/auth/password_reset_request.html
+msgid "Enter your email. If we have an account for it, we will send a link to set a new password."
+msgstr "Zadejte svůj e-mail. Pokud u nás účet existuje, pošleme vám odkaz na nastavení nového hesla."
+
+#: app/templates/auth/password_reset_request.html
+msgid "Send the link"
+msgstr "Odeslat odkaz"
+
+# "Back to sign in" already defined under platform/verify_email.html
+
+#: app/templates/auth/password_reset_confirm.html
+msgid "New password"
+msgstr "Nové heslo"
+
+#: app/templates/auth/password_reset_confirm.html
+msgid "Enter a new password for your account."
+msgstr "Zadejte nové heslo pro svůj účet."
+
+#: app/templates/auth/password_reset_confirm.html
+msgid "Confirm password"
+msgstr "Potvrzení hesla"
+
+#: app/templates/auth/password_reset_confirm.html
+msgid "Set new password"
+msgstr "Nastavit nové heslo"
+
+#: app/templates/auth/invite_accept.html
+msgid "Accept invitation"
+msgstr "Přijetí pozvánky"
+
+#: app/templates/auth/invite_accept.html
+msgid "Hello,"
+msgstr "Dobrý den,"
+
+#: app/templates/auth/invite_accept.html
+msgid "Please set a password to access the portal."
+msgstr "Nastavte si prosím heslo pro přístup do portálu."
+
+#: app/templates/auth/invite_accept.html
+msgid "Set password and sign in"
+msgstr "Nastavit heslo a přihlásit"
+
+#: app/templates/auth/staff_invite_accept.html
+msgid "Accept team invitation"
+msgstr "Přijetí pozvánky do týmu"
+
+#: app/templates/auth/staff_invite_accept.html
+msgid "Set your password to access the %(tenant)s portal."
+msgstr "Nastavte si heslo pro přístup do portálu %(tenant)s."
+
+#: app/templates/auth/staff_invite_accept.html
+msgid "Password (min. 8 characters)"
+msgstr "Heslo (min. 8 znaků)"
+
+#: app/templates/auth/login.html
+msgid "Forgot password?"
+msgstr "Zapomenuté heslo?"
+
+#: app/templates/assets/detail.html
+msgid "Current stock"
+msgstr "Aktuální stav"
+
+#: app/templates/assets/detail.html
+msgid "Location"
+msgstr "Umístění"
+
+#: app/templates/assets/detail.html
+msgid "Movements"
+msgstr "Pohyby"
+
+#: app/templates/assets/detail.html
+msgid "Date"
+msgstr "Datum"
+
+#: app/templates/assets/detail.html
+msgid "Type"
+msgstr "Typ"
+
+#: app/templates/assets/detail.html
+msgid "Receipt"
+msgstr "Příjem"
+
+#: app/templates/assets/detail.html
+msgid "Issue"
+msgstr "Výdej"
+
+#: app/templates/assets/detail.html
+msgid "Consumption"
+msgstr "Spotřeba"
+
+#: app/templates/assets/detail.html
+msgid "Correction"
+msgstr "Korekce"
+
+#: app/templates/assets/detail.html
+msgid "No movements."
+msgstr "Žádné pohyby."
+
+#: app/templates/assets/detail.html
+msgid "order"
+msgstr "objednávka"
+
+#: app/templates/assets/detail.html
+msgid "Add movement"
+msgstr "Přidat pohyb"
+
+#: app/templates/assets/list.html
+msgid "Client assets"
+msgstr "Majetek klientů"
+
+#: app/templates/assets/list.html
+msgid "My assets at the supplier"
+msgstr "Můj majetek u dodavatele"
+
+#: app/templates/assets/list.html
+msgid "Stock"
+msgstr "Stav"
+
+#: app/templates/assets/form.html
+msgid "New asset record"
+msgstr "Nový záznam majetku"
+
+#: app/templates/assets/form.html
+msgid "Code"
+msgstr "Kód"
+
