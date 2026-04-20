@@ -83,12 +83,12 @@ async def test_pagination_default_page_size(
     page1 = await tenant_client.get("/app/orders")
     assert page1.status_code == 200
     # 20 rows on the first page, so the 25th entry must NOT be there.
-    assert page1.text.count('onclick="location.href') == 20
+    assert page1.text.count('data-href="') == 20
 
     page2 = await tenant_client.get("/app/orders?page=2")
     assert page2.status_code == 200
     # 5 remaining rows on page 2.
-    assert page2.text.count('onclick="location.href') == 5
+    assert page2.text.count('data-href="') == 5
 
     # Pagination controls present on page 1.
     assert "Další" in page1.text
@@ -102,7 +102,7 @@ async def test_status_filter_narrows_results(
 
     delivered = await tenant_client.get("/app/orders?status=delivered")
     assert delivered.status_code == 200
-    rows = delivered.text.count('onclick="location.href')
+    rows = delivered.text.count('data-href="')
     assert rows == 7  # 25 orders, indices 18..24 are DELIVERED
 
 
@@ -113,7 +113,7 @@ async def test_customer_filter_scopes_to_one_customer(
     await _login(tenant_client, "owner@4mex.cz", "ownerpass")
 
     acme = await tenant_client.get(f"/app/orders?customer={seed['acme_id']}")
-    rows = acme.text.count('onclick="location.href')
+    rows = acme.text.count('data-href="')
     # Even indices 0, 2, 4, ..., 24 -> 13 orders under ACME
     assert rows == 13
     assert "Other" not in acme.text or "Zakázka" not in acme.text.split("Other")[0]
@@ -124,6 +124,6 @@ async def test_search_by_title(tenant_client: AsyncClient, owner_engine, demo_te
     await _login(tenant_client, "owner@4mex.cz", "ownerpass")
 
     resp = await tenant_client.get("/app/orders?q=Speci")
-    rows = resp.text.count('onclick="location.href')
+    rows = resp.text.count('data-href="')
     assert rows == 1
     assert "Speciální hledaná" in resp.text
