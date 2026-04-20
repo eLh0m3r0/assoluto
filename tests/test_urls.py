@@ -33,7 +33,9 @@ def test_preserves_port() -> None:
 def test_default_tenant_slug_returns_base_unchanged() -> None:
     # Single-tenant self-host: no subdomain needed, tenant resolves via the
     # configured default slug.
-    got = tenant_base_url(_settings("https://portal.acme.com", default_slug="acme"), _tenant("acme"))
+    got = tenant_base_url(
+        _settings("https://portal.acme.com", default_slug="acme"), _tenant("acme")
+    )
     assert got == "https://portal.acme.com"
 
 

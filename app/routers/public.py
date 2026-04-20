@@ -599,7 +599,9 @@ async def password_reset_request_submit(
         )
         from app.urls import tenant_base_url
 
-        reset_url = f"{tenant_base_url(settings, tenant)}/auth/password-reset/confirm?token={reset_token}"
+        reset_url = (
+            f"{tenant_base_url(settings, tenant)}/auth/password-reset/confirm?token={reset_token}"
+        )
         sender = request.app.state.email_sender
         from app.tasks.email_tasks import send_password_reset
 
