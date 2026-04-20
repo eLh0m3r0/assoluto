@@ -24,7 +24,7 @@
                     {{ _('Edit') }}
                 </a>
                 <form method="post" action="/app/products/{{ product.id }}/delete"
-                      onsubmit="return confirm('{{ _('Delete this product? It will be removed from the catalog but historical orders keep their link.') }}');">
+                      data-confirm="{{ _('Delete this product? It will be removed from the catalog but historical orders keep their link.') }}">
                     {{ csrf_input() }}
                     <button type="submit"
                             class="rounded-md border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50">

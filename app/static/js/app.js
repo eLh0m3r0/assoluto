@@ -17,6 +17,37 @@
     target.setAttribute("aria-expanded", open ? "true" : "false");
   });
 
+  // -------- clickable table rows --------
+  // Rows in list tables carry ``data-href`` instead of an inline onclick
+  // (CSP ``script-src 'self'`` forbids inline handlers). A middle-click
+  // or ctrl/cmd-click should open in a new tab, matching native <a>.
+  document.addEventListener("click", function (event) {
+    var row = event.target.closest("[data-href]");
+    if (!row) return;
+    // Don't steal clicks on inline actions (buttons, links, forms).
+    if (event.target.closest("a, button, input, form")) return;
+    var href = row.getAttribute("data-href");
+    if (!href) return;
+    if (event.ctrlKey || event.metaKey || event.button === 1) {
+      window.open(href, "_blank", "noopener");
+    } else {
+      window.location.href = href;
+    }
+  });
+
+  // -------- destructive-action confirmation --------
+  // Forms that carry ``data-confirm="..."`` pop up the native confirm
+  // dialog on submit; cancelling aborts the submission. Replaces the
+  // inline ``onsubmit="return confirm(...)"`` that CSP blocked.
+  document.addEventListener("submit", function (event) {
+    var form = event.target.closest("form[data-confirm]");
+    if (!form) return;
+    var msg = form.getAttribute("data-confirm") || "";
+    if (msg && !window.confirm(msg)) {
+      event.preventDefault();
+    }
+  });
+
   // -------- order item product picker --------
   // When a staff/contact picks a product from the dropdown on the order
   // detail page, pre-fill the description, unit, and unit_price inputs.

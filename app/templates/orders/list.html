@@ -61,7 +61,7 @@
                 <tbody class="divide-y divide-slate-100">
                     {% for order in orders %}
                         <tr class="cursor-pointer hover:bg-slate-50"
-                            onclick="location.href='/app/orders/{{ order.id }}'">
+                            data-href="/app/orders/{{ order.id }}">
                             <td class="px-4 py-3 font-mono text-slate-700">{{ order.number }}</td>
                             <td class="px-4 py-3 text-slate-900">{{ order.title }}</td>
                             {% if principal.is_staff %}
