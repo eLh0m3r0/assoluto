@@ -128,9 +128,11 @@ async def users_invite(
         tenant_id=principal.tenant_id,
         user_id=user.id,
     )
-    invite_url = f"{settings.app_base_url}/invite/staff?token={token}"
     sender = request.app.state.email_sender
     tenant = _tenant(request)
+    from app.urls import tenant_base_url
+
+    invite_url = f"{tenant_base_url(settings, tenant)}/invite/staff?token={token}"
     background_tasks.add_task(
         send_staff_invitation,
         sender,

@@ -205,9 +205,11 @@ async def customers_invite_contact(
         tenant_id=principal.tenant_id,
         contact_id=contact.id,
     )
-    invite_url = f"{settings.app_base_url}/invite/accept?token={token}"
     sender = request.app.state.email_sender
     tenant = _tenant(principal, request)
+    from app.urls import tenant_base_url
+
+    invite_url = f"{tenant_base_url(settings, tenant)}/invite/accept?token={token}"
     background_tasks.add_task(
         send_invitation,
         sender,

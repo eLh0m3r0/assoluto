@@ -553,6 +553,9 @@ async def orders_transition(
     tenant = request.state.tenant
     settings = request.app.state.settings
     sender = request.app.state.email_sender
+    from app.urls import tenant_base_url
+
+    tenant_url = tenant_base_url(settings, tenant)
 
     notif_submitted = None
     notif_status = None
@@ -561,7 +564,7 @@ async def orders_transition(
             db,
             tenant_name=tenant.name,
             order=order,
-            base_url=settings.app_base_url,
+            base_url=tenant_url,
         )
     else:
         notif_status = await build_order_status_changed(
@@ -569,7 +572,7 @@ async def orders_transition(
             tenant_name=tenant.name,
             order=order,
             to_status=target,
-            base_url=settings.app_base_url,
+            base_url=tenant_url,
         )
 
     # Commit so the background task's fresh session can see the new state.
@@ -646,6 +649,8 @@ async def orders_add_comment(
 
         tenant = request.state.tenant
         settings = request.app.state.settings
+        from app.urls import tenant_base_url
+
         notif = await build_order_comment(
             db,
             tenant_name=tenant.name,
@@ -654,7 +659,7 @@ async def orders_add_comment(
             author_name=principal.full_name,
             author_is_staff=principal.is_staff,
             body=body,
-            base_url=settings.app_base_url,
+            base_url=tenant_base_url(settings, tenant),
         )
 
     await db.commit()
