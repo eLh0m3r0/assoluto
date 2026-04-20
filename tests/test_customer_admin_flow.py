@@ -62,10 +62,11 @@ async def test_full_customer_and_invite_flow(
     # 1) Login as tenant owner.
     await _login(tenant_client, "owner@4mex.cz", "correct horse")
 
-    # 2) Dashboard shows 0 customers initially.
+    # 2) Dashboard shows 0 customers initially. Assert on the Clients card
+    # link instead of a translated word so the test is locale-agnostic.
     dash = await tenant_client.get("/app")
     assert dash.status_code == 200
-    assert "Dashboard" in dash.text
+    assert '/app/customers' in dash.text
 
     # 3) Create a customer via the real form endpoint.
     create_resp = await tenant_client.post(
@@ -141,8 +142,9 @@ async def test_full_customer_and_invite_flow(
     # 9) Contact logs in from a fresh client with the new password.
     dash2 = await tenant_client.get("/app")
     assert dash2.status_code == 200
-    # Contact dashboard does NOT include the staff "Klienti" card.
-    assert "Klienti" not in _nav_block(dash2.text)
+    # Contact nav does NOT include the staff Clients link — locale-agnostic
+    # check against the href instead of the translated label.
+    assert "/app/customers" not in _nav_block(dash2.text)
 
 
 def _nav_block(html: str) -> str:
