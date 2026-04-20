@@ -1,0 +1,37 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$PORTAL_DOMAIN}, *.{$PORTAL_DOMAIN} {
+	tls {
+		dns porkbun {
+			api_key {$PORKBUN_API_KEY}
+			api_secret_key {$PORKBUN_SECRET_KEY}
+		}
+	}
+
+	encode gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Frame-Options DENY
+		X-Content-Type-Options nosniff
+		Referrer-Policy same-origin
+		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+	}
+
+	request_body {
+		max_size 60MB
+	}
+
+	reverse_proxy web:8000 {
+		header_up Host {host}
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		transport http {
+			read_timeout 60s
+			dial_timeout 5s
+		}
+	}
+}
