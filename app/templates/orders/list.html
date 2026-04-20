@@ -11,7 +11,7 @@
         </a>
     </div>
 
-    <form method="get" action="/app/orders"
+    <form method="get" action="/app/orders" data-no-busy
           class="mb-4 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-4">
         <input type="text" name="q" value="{{ filters.q }}"
                placeholder="{{ _('Number or title…') }}"
