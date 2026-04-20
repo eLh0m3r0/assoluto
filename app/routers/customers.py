@@ -23,6 +23,7 @@ from app.services.customer_service import (
     get_customer,
     list_contacts_for_customer,
     list_customers,
+    update_customer,
 )
 from app.tasks.email_tasks import send_invitation
 
@@ -150,6 +151,102 @@ async def customers_detail(
         },
     )
     return HTMLResponse(html)
+
+
+@router.get("/customers/{customer_id}/edit", response_class=HTMLResponse)
+async def customers_edit_form(
+    customer_id: UUID,
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    customer = await get_customer(db, customer_id)
+    if customer is None:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    perms = customer.order_permissions or {}
+    html = _templates(request).render(
+        request,
+        "customers/form.html",
+        {
+            "principal": principal,
+            "tenant": _tenant(principal, request),
+            "customer": customer,
+            "form": {
+                "name": customer.name,
+                "ico": customer.ico or "",
+                "dic": customer.dic or "",
+                "notes": customer.notes or "",
+                "can_add_items": "on" if perms.get("can_add_items", True) else "",
+                "can_use_catalog": "on" if perms.get("can_use_catalog", True) else "",
+                "can_set_prices": "on" if perms.get("can_set_prices", False) else "",
+                "can_upload_files": "on" if perms.get("can_upload_files", True) else "",
+            },
+            "error": None,
+            "notice": None,
+        },
+    )
+    return HTMLResponse(html)
+
+
+@router.post("/customers/{customer_id}", response_class=HTMLResponse)
+async def customers_update(
+    customer_id: UUID,
+    request: Request,
+    name: str = Form(...),
+    ico: str = Form(""),
+    dic: str = Form(""),
+    notes: str = Form(""),
+    can_add_items: str = Form(""),
+    can_use_catalog: str = Form(""),
+    can_set_prices: str = Form(""),
+    can_upload_files: str = Form(""),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    customer = await get_customer(db, customer_id)
+    if customer is None:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    order_perms = {
+        "can_add_items": can_add_items == "on",
+        "can_use_catalog": can_use_catalog == "on",
+        "can_set_prices": can_set_prices == "on",
+        "can_upload_files": can_upload_files == "on",
+    }
+    try:
+        await update_customer(
+            db,
+            customer,
+            name=name,
+            ico=ico,
+            dic=dic,
+            notes=notes,
+            order_permissions=order_perms,
+        )
+    except ValueError as exc:
+        html = _templates(request).render(
+            request,
+            "customers/form.html",
+            {
+                "principal": principal,
+                "tenant": _tenant(principal, request),
+                "customer": customer,
+                "form": {
+                    "name": name,
+                    "ico": ico,
+                    "dic": dic,
+                    "notes": notes,
+                    "can_add_items": can_add_items,
+                    "can_use_catalog": can_use_catalog,
+                    "can_set_prices": can_set_prices,
+                    "can_upload_files": can_upload_files,
+                },
+                "error": str(exc),
+                "notice": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
+
+    return RedirectResponse(url=f"/app/customers/{customer.id}", status_code=303)
 
 
 @router.post("/customers/{customer_id}/contacts", response_class=HTMLResponse)

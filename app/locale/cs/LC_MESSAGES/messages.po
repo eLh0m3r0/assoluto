@@ -261,3 +261,199 @@ msgstr "Po kliknutí na odkaz bude váš portál připraven k použití."
 msgid "Didn't receive it? Check your spam folder or request a new link."
 msgstr "Nepřišel e-mail? Zkontrolujte spam nebo si nechte poslat nový odkaz."
 
+# --- round-2 audit: landing + CRUD templates ---
+
+#: app/templates/index.html
+msgid "Customer portal for SMEs"
+msgstr "Zákaznický portál pro SME"
+
+#: app/templates/index.html
+msgid "Transparent order process between the manufacturer and its clients. Product catalog, attachments, client asset tracking."
+msgstr "Transparentní objednávkový proces mezi výrobcem a jeho klienty. Katalog produktů, přílohy k objednávkám, evidence klientského majetku."
+
+#: app/templates/base.html
+msgid "Toggle menu"
+msgstr "Otevřít menu"
+
+#: app/templates/products/detail.html
+msgid "Edit product"
+msgstr "Upravit produkt"
+
+#: app/templates/products/form.html
+msgid "New product"
+msgstr "Nový produkt"
+
+#: app/templates/products/form.html
+msgid "Back to product"
+msgstr "Zpět na produkt"
+
+#: app/templates/products/form.html
+msgid "Unit"
+msgstr "Jednotka"
+
+#: app/templates/products/form.html
+msgid "Name"
+msgstr "Název"
+
+#: app/templates/products/form.html
+msgid "Description"
+msgstr "Popis"
+
+#: app/templates/products/form.html
+msgid "Default price"
+msgstr "Výchozí cena"
+
+#: app/templates/products/form.html
+msgid "Client"
+msgstr "Klient"
+
+#: app/templates/products/form.html
+msgid "shared"
+msgstr "sdílené"
+
+#: app/templates/products/form.html
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: app/templates/products/form.html
+msgid "Save"
+msgstr "Uložit"
+
+#: app/templates/products/detail.html
+msgid "Edit"
+msgstr "Upravit"
+
+#: app/templates/products/detail.html
+msgid "Delete"
+msgstr "Smazat"
+
+#: app/templates/products/detail.html
+msgid "Delete this product? It will be removed from the catalog but historical orders keep their link."
+msgstr "Opravdu smazat tento produkt? Bude odebrán z katalogu, ale zůstane propojen s historickými objednávkami."
+
+#: app/templates/customers/detail.html
+msgid "Edit client"
+msgstr "Upravit klienta"
+
+#: app/templates/customers/form.html
+msgid "New client"
+msgstr "Nový klient"
+
+#: app/templates/customers/form.html
+msgid "Back to client"
+msgstr "Zpět na klienta"
+
+#: app/templates/customers/form.html
+msgid "Notes"
+msgstr "Poznámky"
+
+#: app/templates/customers/form.html
+msgid "Client order permissions"
+msgstr "Oprávnění klienta u objednávek"
+
+#: app/templates/customers/form.html
+msgid "Controls what contacts of this client can do when placing orders. Staff always has full access."
+msgstr "Kontroluje, co kontakty tohoto klienta mohou dělat při zadávání objednávek. Staff má vždy plný přístup."
+
+#: app/templates/customers/form.html
+msgid "Can add items to an order"
+msgstr "Může přidávat položky na objednávku"
+
+#: app/templates/customers/form.html
+msgid "Can pick from the product catalog"
+msgstr "Může vybírat z katalogu produktů"
+
+#: app/templates/customers/form.html
+msgid "Can set item prices"
+msgstr "Může zadávat ceny u položek"
+
+#: app/templates/customers/form.html
+msgid "Can upload attachments"
+msgstr "Může nahrávat přílohy"
+
+#: app/templates/customers/detail.html
+msgid "Contacts"
+msgstr "Kontakty"
+
+#: app/templates/customers/detail.html
+msgid "active"
+msgstr "aktivní"
+
+#: app/templates/customers/detail.html
+msgid "invited"
+msgstr "pozván"
+
+#: app/templates/customers/detail.html
+msgid "This client has no contacts yet."
+msgstr "Klient zatím nemá žádné kontakty."
+
+#: app/templates/customers/detail.html
+msgid "Name Surname"
+msgstr "Jméno Příjmení"
+
+#: app/templates/customers/detail.html
+msgid "Invite contact"
+msgstr "Pozvat kontakt"
+
+# --- filter + empty-state polish ---
+
+#: app/templates/orders/list.html
+msgid "No orders match the filter."
+msgstr "Žádné objednávky neodpovídají filtru."
+
+#: app/templates/orders/list.html
+msgid "No orders yet."
+msgstr "Zatím žádné objednávky."
+
+#: app/templates/orders/list.html
+msgid "Create the first order"
+msgstr "Vytvořit první objednávku"
+
+#: app/templates/orders/list.html
+msgid "Clear filters"
+msgstr "Zrušit filtry"
+
+#: app/templates/orders/list.html
+msgid "All statuses"
+msgstr "Všechny stavy"
+
+#: app/templates/orders/list.html
+msgid "All clients"
+msgstr "Všichni klienti"
+
+#: app/templates/orders/list.html
+msgid "Filter"
+msgstr "Filtrovat"
+
+#: app/templates/orders/list.html
+msgid "Number or title…"
+msgstr "Číslo nebo název…"
+
+#: app/templates/assets/list.html
+msgid "No assets recorded for this client yet."
+msgstr "Pro tohoto klienta zatím nejsou evidovány žádné aktiva."
+
+#: app/templates/assets/list.html
+msgid "New record"
+msgstr "Nový záznam"
+
+#: app/templates/admin/users.html
+msgid "Operator"
+msgstr "Operátor"
+
+#: app/templates/admin/users.html
+msgid "Administrator"
+msgstr "Administrátor"
+
+#: app/templates/admin/users.html
+msgid "Send invitation"
+msgstr "Odeslat pozvánku"
+
+#: app/templates/auth/login.html
+msgid "Sign in to workspace"
+msgstr "Přihlášení do workspace"
+
+#: app/templates/orders/detail.html
+msgid "Add a comment"
+msgstr "Přidat komentář"
+

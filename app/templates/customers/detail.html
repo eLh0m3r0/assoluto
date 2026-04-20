@@ -3,16 +3,70 @@
 {% block title %}{{ customer.name }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
+    {% set _perms = customer.order_permissions or {} %}
     <div class="mb-6">
-        <a href="/app/customers" class="text-sm text-slate-500 hover:text-slate-900">&larr; Klienti</a>
-        <h1 class="mt-2 text-2xl font-bold text-slate-900">{{ customer.name }}</h1>
-        {% if customer.ico %}
-            <p class="text-sm text-slate-500">IČO {{ customer.ico }}{% if customer.dic %} · DIČ {{ customer.dic }}{% endif %}</p>
-        {% endif %}
+        <a href="/app/customers" class="text-sm text-slate-500 hover:text-slate-900">&larr; {{ _('Clients') }}</a>
+        <div class="mt-2 flex flex-wrap items-start justify-between gap-3">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">{{ customer.name }}</h1>
+                {% if customer.ico %}
+                    <p class="text-sm text-slate-500">IČO {{ customer.ico }}{% if customer.dic %} · DIČ {{ customer.dic }}{% endif %}</p>
+                {% endif %}
+            </div>
+            <a href="/app/customers/{{ customer.id }}/edit"
+               class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                {{ _('Edit') }}
+            </a>
+        </div>
     </div>
 
+    {% if customer.notes %}
+        <section class="mb-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{{ _('Notes') }}</h2>
+            <p class="whitespace-pre-line text-sm text-slate-700">{{ customer.notes }}</p>
+        </section>
+    {% endif %}
+
+    <section class="mb-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{{ _('Client order permissions') }}</h2>
+        <ul class="grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+            <li class="flex items-center gap-2">
+                {% if _perms.get('can_add_items', True) %}
+                    <span class="text-emerald-600">✓</span>
+                {% else %}
+                    <span class="text-slate-300">✗</span>
+                {% endif %}
+                {{ _('Can add items to an order') }}
+            </li>
+            <li class="flex items-center gap-2">
+                {% if _perms.get('can_use_catalog', True) %}
+                    <span class="text-emerald-600">✓</span>
+                {% else %}
+                    <span class="text-slate-300">✗</span>
+                {% endif %}
+                {{ _('Can pick from the product catalog') }}
+            </li>
+            <li class="flex items-center gap-2">
+                {% if _perms.get('can_set_prices', False) %}
+                    <span class="text-emerald-600">✓</span>
+                {% else %}
+                    <span class="text-slate-300">✗</span>
+                {% endif %}
+                {{ _('Can set item prices') }}
+            </li>
+            <li class="flex items-center gap-2">
+                {% if _perms.get('can_upload_files', True) %}
+                    <span class="text-emerald-600">✓</span>
+                {% else %}
+                    <span class="text-slate-300">✗</span>
+                {% endif %}
+                {{ _('Can upload attachments') }}
+            </li>
+        </ul>
+    </section>
+
     <section class="mb-8 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="mb-4 text-lg font-semibold text-slate-900">Kontakty</h2>
+        <h2 class="mb-4 text-lg font-semibold text-slate-900">{{ _('Contacts') }}</h2>
 
         {% if contacts %}
             <ul class="mb-6 divide-y divide-slate-100">
@@ -24,29 +78,30 @@
                         </div>
                         <div class="text-xs">
                             {% if contact.accepted_at %}
-                                <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700">aktivní</span>
+                                <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700">{{ _('active') }}</span>
                             {% else %}
-                                <span class="rounded-full bg-amber-100 px-2 py-0.5 text-amber-700">pozván</span>
+                                <span class="rounded-full bg-amber-100 px-2 py-0.5 text-amber-700">{{ _('invited') }}</span>
                             {% endif %}
                         </div>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p class="mb-4 text-sm text-slate-500">Klient zatím nemá žádné kontakty.</p>
+            <p class="mb-4 text-sm text-slate-500">{{ _('This client has no contacts yet.') }}</p>
         {% endif %}
 
         {% include "_flash.html" %}
 
         <form method="post" action="/app/customers/{{ customer.id }}/contacts"
               class="mt-2 grid gap-3 sm:grid-cols-3">
-            {{ csrf_input() }}<input type="email" name="email" required placeholder="jmeno@firma.cz"
+            {{ csrf_input() }}
+            <input type="email" name="email" required placeholder="jmeno@firma.cz"
                    class="rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
-            <input type="text" name="full_name" required placeholder="Jméno Příjmení"
+            <input type="text" name="full_name" required placeholder="{{ _('Name Surname') }}"
                    class="rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
             <button type="submit"
                     class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-                Pozvat kontakt
+                {{ _('Invite contact') }}
             </button>
         </form>
     </section>

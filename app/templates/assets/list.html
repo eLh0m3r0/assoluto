@@ -51,7 +51,13 @@
         </div>
     {% else %}
         <div class="rounded-lg border border-dashed border-slate-300 p-10 text-center">
-            <p class="text-slate-500">Žádné záznamy.</p>
+            <p class="text-slate-500">{{ _('No assets recorded for this client yet.') }}</p>
+            {% if principal.is_staff %}
+                <a href="/app/assets/new"
+                   class="mt-3 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                    {{ _('New record') }}
+                </a>
+            {% endif %}
         </div>
     {% endif %}
 {% endblock %}

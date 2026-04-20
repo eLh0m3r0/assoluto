@@ -25,14 +25,15 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     {% for p in products %}
-                        <tr>
+                        <tr class="cursor-pointer hover:bg-slate-50"
+                            onclick="location.href='/app/products/{{ p.id }}'">
                             <td class="px-4 py-3 font-mono text-slate-700">{{ p.sku }}</td>
                             <td class="px-4 py-3 text-slate-900">{{ p.name }}</td>
                             <td class="px-4 py-3 text-slate-600">
                                 {% if p.customer_id %}
                                     {{ customer_by_id[p.customer_id].name if customer_by_id.get(p.customer_id) else "—" }}
                                 {% else %}
-                                    <span class="text-slate-400">(sdílené)</span>
+                                    <span class="text-slate-400">({{ _('shared') }})</span>
                                 {% endif %}
                             </td>
                             <td class="px-4 py-3 text-right text-slate-700">

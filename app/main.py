@@ -6,9 +6,10 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import FastAPI, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import __version__
 from app.config import Settings, get_settings
@@ -26,6 +27,7 @@ from app.routers import tenant_admin as tenant_admin_router
 from app.routers import www as www_router
 from app.scheduler import build_scheduler
 from app.security.csrf import CsrfCookieMiddleware
+from app.security.headers import SecurityHeadersMiddleware
 from app.security.locale import LocaleMiddleware
 from app.storage.s3 import ensure_bucket_exists
 from app.templating import Templates, build_jinja_env
@@ -159,6 +161,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # downstream `Form(...)` injections.
     app.add_middleware(CsrfCookieMiddleware)
 
+    # Adds Content-Security-Policy to every response. The other security
+    # headers (HSTS, X-Frame-Options, etc.) come from Caddy / uvicorn.
+    app.add_middleware(SecurityHeadersMiddleware)
+
     # Resolve the UI locale once per request (cookie -> Accept-Language ->
     # default). Result is available on ``request.state.locale`` and used
     # by the Jinja2 environment to pick the right gettext catalog.
@@ -213,8 +219,8 @@ def _register_error_handlers(app: FastAPI) -> None:
         accept = request.headers.get("accept", "")
         return "text/html" in accept or accept == ""
 
-    @app.exception_handler(HTTPException)
-    async def http_exception_handler(request: Request, exc: HTTPException) -> Response:
+    @app.exception_handler(StarletteHTTPException)
+    async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> Response:
         templates: Templates = request.app.state.templates
         on_platform_path = request.url.path.startswith("/platform/")
 

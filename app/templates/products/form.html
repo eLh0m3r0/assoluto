@@ -1,48 +1,59 @@
 {% extends "app_base.html" %}
 
-{% block title %}Nový produkt · {{ tenant.name }}{% endblock %}
+{% set _is_edit = product is defined and product %}
+
+{% block title %}{{ (_('Edit product') if _is_edit else _('New product')) }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4 text-2xl font-bold text-slate-900">Nový produkt</h1>
+    <div class="mb-4 flex items-center gap-3">
+        {% if _is_edit %}
+            <a href="/app/products/{{ product.id }}" class="text-sm text-slate-500 hover:text-slate-900">&larr; {{ _('Back to product') }}</a>
+        {% else %}
+            <a href="/app/products" class="text-sm text-slate-500 hover:text-slate-900">&larr; {{ _('Catalog') }}</a>
+        {% endif %}
+    </div>
+    <h1 class="mb-4 text-2xl font-bold text-slate-900">{{ _('Edit product') if _is_edit else _('New product') }}</h1>
 
     {% include "_flash.html" %}
 
-    <form method="post" action="/app/products"
+    <form method="post"
+          action="{{ '/app/products/' ~ product.id if _is_edit else '/app/products' }}"
           class="max-w-lg space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-            {{ csrf_input() }}<div class="grid grid-cols-2 gap-3">
+        {{ csrf_input() }}
+        <div class="grid grid-cols-2 gap-3">
             <div>
                 <label for="sku" class="block text-sm font-medium text-slate-700">SKU *</label>
                 <input type="text" id="sku" name="sku" required value="{{ form.sku or '' }}"
                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
             </div>
             <div>
-                <label for="unit" class="block text-sm font-medium text-slate-700">Jednotka</label>
+                <label for="unit" class="block text-sm font-medium text-slate-700">{{ _('Unit') }}</label>
                 <input type="text" id="unit" name="unit" value="{{ form.unit or 'ks' }}"
                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
             </div>
         </div>
         <div>
-            <label for="name" class="block text-sm font-medium text-slate-700">Název *</label>
+            <label for="name" class="block text-sm font-medium text-slate-700">{{ _('Name') }} *</label>
             <input type="text" id="name" name="name" required value="{{ form.name or '' }}"
                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
         </div>
         <div>
-            <label for="description" class="block text-sm font-medium text-slate-700">Popis</label>
+            <label for="description" class="block text-sm font-medium text-slate-700">{{ _('Description') }}</label>
             <textarea id="description" name="description" rows="3"
                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">{{ form.description or '' }}</textarea>
         </div>
         <div class="grid grid-cols-2 gap-3">
             <div>
-                <label for="default_price" class="block text-sm font-medium text-slate-700">Výchozí cena</label>
+                <label for="default_price" class="block text-sm font-medium text-slate-700">{{ _('Default price') }}</label>
                 <input type="number" step="0.01" id="default_price" name="default_price"
                        value="{{ form.default_price or '' }}"
                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
             </div>
             <div>
-                <label for="customer_id" class="block text-sm font-medium text-slate-700">Klient</label>
+                <label for="customer_id" class="block text-sm font-medium text-slate-700">{{ _('Client') }}</label>
                 <select id="customer_id" name="customer_id"
                         class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
-                    <option value="">— sdílené —</option>
+                    <option value="">— {{ _('shared') }} —</option>
                     {% for c in customers %}
                         <option value="{{ c.id }}" {% if form.customer_id == c.id|string %}selected{% endif %}>
                             {{ c.name }}
@@ -53,10 +64,11 @@
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-2">
-            <a href="/app/products" class="text-sm text-slate-500 hover:text-slate-900">Zrušit</a>
+            <a href="{{ '/app/products/' ~ product.id if _is_edit else '/app/products' }}"
+               class="text-sm text-slate-500 hover:text-slate-900">{{ _('Cancel') }}</a>
             <button type="submit"
                     class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-                Uložit
+                {{ _('Save') }}
             </button>
         </div>
     </form>

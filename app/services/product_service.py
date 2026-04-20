@@ -96,3 +96,51 @@ async def create_product(
     db.add(product)
     await db.flush()
     return product
+
+
+async def get_product(db: AsyncSession, product_id: UUID) -> Product | None:
+    return (await db.execute(select(Product).where(Product.id == product_id))).scalar_one_or_none()
+
+
+async def update_product(
+    db: AsyncSession,
+    product: Product,
+    *,
+    sku: str,
+    name: str,
+    description: str | None,
+    unit: str,
+    default_price: Decimal | None,
+    customer_id: UUID | None,
+) -> Product:
+    sku = sku.strip()
+    name = name.strip()
+    if not sku or not name:
+        raise ProductError("sku and name are required")
+
+    # Re-check SKU uniqueness if the SKU or customer scope changed.
+    if sku != product.sku or customer_id != product.customer_id:
+        dup_stmt = select(Product).where(Product.sku == sku, Product.id != product.id)
+        if customer_id is None:
+            dup_stmt = dup_stmt.where(Product.customer_id.is_(None))
+        else:
+            dup_stmt = dup_stmt.where(Product.customer_id == customer_id)
+        if (await db.execute(dup_stmt)).scalar_one_or_none() is not None:
+            raise DuplicateProductSku(sku)
+
+    product.sku = sku
+    product.name = name
+    product.description = description or None
+    product.unit = unit or "ks"
+    product.default_price = default_price
+    product.customer_id = customer_id
+    await db.flush()
+    return product
+
+
+async def deactivate_product(db: AsyncSession, product: Product) -> None:
+    """Soft-delete the product (is_active=False) — keeps it out of the
+    catalog listing and the order-item search, but preserves the
+    foreign-key relation from any historical order items."""
+    product.is_active = False
+    await db.flush()

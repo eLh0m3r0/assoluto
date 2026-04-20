@@ -131,6 +131,9 @@ async def orders_index(
             "page": page,
             "total_pages": total_pages,
             "total": total,
+            "has_active_filters": bool(
+                (status or "").strip() or (customer or "").strip() or (q or "").strip()
+            ),
             "status_choices": [
                 ("", "All statuses"),
                 ("draft", "Draft"),
@@ -166,6 +169,7 @@ async def orders_new_form(
             "tenant": _tenant(request),
             "customers": customers,
             "form": {},
+            "today_iso": date.today().isoformat(),
             "error": None,
             "notice": None,
         },
@@ -254,6 +258,7 @@ async def _rerender_form(
             "tenant": _tenant(request),
             "customers": customers,
             "form": form,
+            "today_iso": date.today().isoformat(),
             "error": error,
             "notice": None,
         },

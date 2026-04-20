@@ -58,3 +58,27 @@ async def create_customer(
     db.add(customer)
     await db.flush()
     return customer
+
+
+async def update_customer(
+    db: AsyncSession,
+    customer: Customer,
+    *,
+    name: str,
+    ico: str | None,
+    dic: str | None,
+    notes: str | None,
+    order_permissions: dict | None = None,
+) -> Customer:
+    name = name.strip()
+    if not name:
+        raise ValueError("customer name is required")
+
+    customer.name = name
+    customer.ico = ((ico or None) and ico.strip()) or None
+    customer.dic = ((dic or None) and dic.strip()) or None
+    customer.notes = ((notes or None) and notes.strip()) or None
+    if order_permissions is not None:
+        customer.order_permissions = order_permissions
+    await db.flush()
+    return customer

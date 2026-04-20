@@ -43,8 +43,9 @@
     {% include "_flash.html" %}
 
     <section class="mb-6 grid gap-4 md:grid-cols-3">
-        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <div class="text-xs font-medium uppercase tracking-wide text-slate-500">Nacenění</div>
+        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+             title="Potvrzená celková cena vyplněná staffem při přechodu do stavu Nacenění.">
+            <div class="text-xs font-medium uppercase tracking-wide text-slate-500">Nacenění (potvrzené)</div>
             <div class="mt-1 text-xl font-semibold text-slate-900">
                 {% if order.quoted_total is not none %}
                     {{ "%.2f"|format(order.quoted_total) }} {{ order.currency }}
@@ -294,7 +295,7 @@
                 {% endif %}
                 <button type="submit"
                         class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-                    Odeslat
+                    {{ _('Add a comment') }}
                 </button>
             </div>
         </form>

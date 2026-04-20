@@ -36,8 +36,11 @@
             <label for="requested_delivery_at" class="block text-sm font-medium text-slate-700">
                 Požadovaný termín dodání
             </label>
+            {# Prevent picking a delivery date in the past. Uses client tz;
+               the backend does not enforce this, so it's a UX hint only. #}
             <input type="date" id="requested_delivery_at" name="requested_delivery_at"
                    value="{{ form.requested_delivery_at or '' }}"
+                   min="{{ today_iso }}"
                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
         </div>
 

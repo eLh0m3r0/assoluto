@@ -4,6 +4,19 @@
 (function () {
   "use strict";
 
+  // -------- mobile nav toggle --------
+  // The header renders two copies of the nav: one inline (md+) and one
+  // stacked in a drawer (below md). The hamburger button toggles the
+  // drawer's visibility by flipping the ``hidden`` class.
+  document.addEventListener("click", function (event) {
+    var target = event.target.closest("#nav-toggle");
+    if (!target) return;
+    var drawer = document.getElementById("mobile-nav");
+    if (!drawer) return;
+    var open = drawer.classList.toggle("hidden") === false;
+    target.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+
   // -------- order item product picker --------
   // When a staff/contact picks a product from the dropdown on the order
   // detail page, pre-fill the description, unit, and unit_price inputs.
