@@ -11,10 +11,11 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.deps import Principal, get_db, require_login
+from app.deps import Principal, get_db, require_login, require_tenant_staff
 from app.i18n import t as _t
 from app.models.customer import Customer
 from app.models.enums import OrderStatus
+from app.models.order import Order
 from app.security.csrf import verify_csrf
 from app.services.attachment_service import list_for_order as list_attachments
 from app.services.customer_service import list_customers
@@ -31,6 +32,7 @@ from app.services.order_service import (
     OrderNotFound,
     add_comment,
     add_item,
+    bulk_transition,
     create_order,
     get_order_for_principal,
     list_comments,
@@ -77,6 +79,8 @@ async def orders_index(
     customer: str | None = None,
     q: str | None = None,
     page: int = 1,
+    notice: str | None = None,
+    error: str | None = None,
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
@@ -115,6 +119,22 @@ async def orders_index(
         customers = await list_customers(db)
         customer_by_id = {c.id: c for c in customers}
 
+    # Status options for the bulk-transition dropdown (staff only in the
+    # template; listed without the empty option). English labels stay in
+    # sync with the filter list above so a single translation catalog
+    # covers both.
+    bulk_status_choices = [
+        ("draft", "Draft"),
+        ("submitted", "Submitted"),
+        ("quoted", "Quoted"),
+        ("confirmed", "Confirmed"),
+        ("in_production", "In production"),
+        ("ready", "Ready"),
+        ("delivered", "Delivered"),
+        ("closed", "Closed"),
+        ("cancelled", "Cancelled"),
+    ]
+
     html = _templates(request).render(
         request,
         "orders/list.html",
@@ -135,6 +155,8 @@ async def orders_index(
             "has_active_filters": bool(
                 (status or "").strip() or (customer or "").strip() or (q or "").strip()
             ),
+            "notice": notice or None,
+            "error": error or None,
             "status_choices": [
                 ("", "All statuses"),
                 ("draft", "Draft"),
@@ -147,6 +169,7 @@ async def orders_index(
                 ("closed", "Closed"),
                 ("cancelled", "Cancelled"),
             ],
+            "bulk_status_choices": bulk_status_choices,
         },
     )
     return HTMLResponse(html)
@@ -525,6 +548,143 @@ async def orders_delete_item(
         raise HTTPException(status_code=409, detail=str(exc)) from None
 
     return RedirectResponse(url=f"/app/orders/{order.id}", status_code=303)
+
+
+# ----------------------------------------------------------- bulk transition
+
+
+@router.post("/bulk/transition")
+async def orders_bulk_transition(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    order_ids: list[str] = Form(default=[]),
+    to_status: str = Form(...),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Transition a batch of orders to the same target status (staff only).
+
+    Accepts a repeated ``order_ids`` form field and a single ``to_status``.
+    Each order is passed through :func:`transition_order` (which owns the
+    state-machine, history write, and timestamp side effects). Per-order
+    errors are aggregated into a flash summary; orders that transitioned
+    successfully have a status-change notification dispatched after commit.
+    """
+    # Validate the target status up-front; invalid input redirects back with
+    # an error flash instead of 400-ing — the user can retry from the list.
+    try:
+        target = OrderStatus(to_status)
+    except ValueError:
+        return RedirectResponse(
+            url=f"/app/orders?error={_t(request, 'Unknown status')}",
+            status_code=303,
+        )
+
+    # Parse + de-duplicate UUID inputs. Malformed IDs are silently dropped
+    # — the UI only ever sends valid IDs; we do not want one tampered
+    # field to block the rest.
+    parsed_ids: list[UUID] = []
+    seen: set[UUID] = set()
+    for raw in order_ids:
+        try:
+            uid = UUID(raw)
+        except (ValueError, AttributeError):
+            continue
+        if uid in seen:
+            continue
+        seen.add(uid)
+        parsed_ids.append(uid)
+
+    if not parsed_ids:
+        return RedirectResponse(
+            url=f"/app/orders?error={_t(request, 'Select at least one order.')}",
+            status_code=303,
+        )
+
+    # Defence-in-depth: RLS already restricts the tenant; filter by the
+    # submitted IDs explicitly so we never act on anything not requested.
+    orders = list((await db.execute(select(Order).where(Order.id.in_(parsed_ids)))).scalars().all())
+
+    result = await bulk_transition(
+        db,
+        orders=orders,
+        to_status=target,
+        actor=_actor(principal),
+    )
+
+    # Build notification payloads while the session is still open — RLS
+    # scoping is active here. Commit BEFORE scheduling background tasks
+    # so their fresh session can read the new state (CLAUDE.md §2).
+    tenant = request.state.tenant
+    settings = request.app.state.settings
+    sender = request.app.state.email_sender
+    from app.urls import tenant_base_url
+
+    tenant_url = tenant_base_url(settings, tenant)
+
+    notifications: list = []
+    orders_by_id = {o.id: o for o in orders}
+    for order_id in result.succeeded:
+        order = orders_by_id.get(order_id)
+        if order is None:
+            continue
+        if target == OrderStatus.SUBMITTED:
+            payload = await build_order_submitted(
+                db,
+                tenant_name=tenant.name,
+                order=order,
+                base_url=tenant_url,
+            )
+        else:
+            payload = await build_order_status_changed(
+                db,
+                tenant_name=tenant.name,
+                order=order,
+                to_status=target,
+                base_url=tenant_url,
+            )
+        if payload is not None:
+            notifications.append((target, payload))
+
+    await db.commit()
+
+    from app.tasks.email_tasks import send_order_status_changed, send_order_submitted
+
+    for status, payload in notifications:
+        if status == OrderStatus.SUBMITTED:
+            background_tasks.add_task(
+                send_order_submitted,
+                sender,
+                recipients=payload.recipients,
+                tenant_name=payload.tenant_name,
+                customer_name=payload.customer_name,
+                order_number=payload.order_number,
+                order_title=payload.order_title,
+                order_url=payload.order_url,
+            )
+        else:
+            background_tasks.add_task(
+                send_order_status_changed,
+                sender,
+                recipients=payload.recipients,
+                tenant_name=payload.tenant_name,
+                order_number=payload.order_number,
+                order_title=payload.order_title,
+                order_url=payload.order_url,
+                to_status=payload.to_status,
+            )
+
+    ok = len(result.succeeded)
+    failed = len(result.errors)
+    # Flash summary — localised, but the numeric template is shared.
+    if failed == 0:
+        notice = _t(request, "{count} orders transitioned.").format(count=ok)
+        return RedirectResponse(url=f"/app/orders?notice={notice}", status_code=303)
+    summary = _t(request, "{ok} transitioned, {failed} failed.").format(ok=ok, failed=failed)
+    # Treat partial failure as a notice (not error) so successful rows
+    # still get positive confirmation; the "failed" count tells the staff
+    # member to inspect those orders individually.
+    return RedirectResponse(url=f"/app/orders?notice={summary}", status_code=303)
 
 
 # --------------------------------------------------------------- transition
