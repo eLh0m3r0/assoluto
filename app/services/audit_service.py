@@ -288,3 +288,20 @@ async def list_events(
     stmt = stmt.offset(max(0, offset)).limit(max(1, min(limit, 200)))
     rows = (await db.execute(stmt)).scalars().all()
     return list(rows), total
+
+
+async def list_recent(
+    db: AsyncSession,
+    *,
+    principal: Any,
+    limit: int = 20,
+) -> list[AuditEvent]:
+    """Return the N most recent audit events visible to ``principal``.
+
+    Thin convenience wrapper over :func:`list_events` for the dashboard
+    "Recent activity" widget (§7). Reuses the same scoping rules — staff
+    see everything in the tenant, contacts see only ``order`` events on
+    their own customer's orders — and the same RLS session guarantee.
+    """
+    events, _ = await list_events(db, principal=principal, limit=limit, offset=0)
+    return events
