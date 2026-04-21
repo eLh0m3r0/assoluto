@@ -23,6 +23,7 @@ from app.routers import health as health_router
 from app.routers import orders as orders_router
 from app.routers import products as products_router
 from app.routers import public as public_router
+from app.routers import search as search_router
 from app.routers import tenant_admin as tenant_admin_router
 from app.routers import www as www_router
 from app.scheduler import build_scheduler
@@ -179,6 +180,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(attachments_router.router)
     app.include_router(products_router.router)
     app.include_router(assets_router.router)
+    app.include_router(search_router.router)
     app.include_router(tenant_admin_router.router)
     app.include_router(www_router.router)
 
