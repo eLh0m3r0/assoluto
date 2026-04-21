@@ -21,6 +21,7 @@ from app.models.enums import OrderStatus
 from app.models.order import Order, OrderItem
 from app.security.csrf import verify_csrf
 from app.services.attachment_service import list_for_order as list_attachments
+from app.services.audit_service import actor_from_principal
 from app.services.customer_service import list_customers
 from app.services.notification_service import (
     build_order_status_changed,
@@ -694,6 +695,7 @@ async def orders_add_item(
             unit=unit or "ks",
             unit_price=price,
             product_id=product_uuid,
+            audit_actor=actor_from_principal(principal),
         )
     except ForbiddenTransition as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from None
@@ -872,7 +874,13 @@ async def orders_delete_item(
         raise HTTPException(status_code=404, detail="Item not found")
 
     try:
-        await remove_item(db, order=order, item=item, actor=_actor(principal))
+        await remove_item(
+            db,
+            order=order,
+            item=item,
+            actor=_actor(principal),
+            audit_actor=actor_from_principal(principal),
+        )
     except ForbiddenTransition as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from None
 
@@ -1044,6 +1052,7 @@ async def orders_transition(
             order=order,
             to_status=target,
             actor=_actor(principal),
+            audit_actor=actor_from_principal(principal),
         )
     except (ForbiddenTransition, ForbiddenActor) as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from None
@@ -1137,6 +1146,7 @@ async def orders_add_comment(
             actor=_actor(principal),
             body=body,
             is_internal=internal_flag,
+            audit_actor=actor_from_principal(principal),
         )
     except ForbiddenActor as exc:
         raise HTTPException(status_code=403, detail=str(exc)) from None

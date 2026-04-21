@@ -20,6 +20,8 @@ from app.models.customer import Customer
 from app.models.enums import OrderStatus
 from app.models.order import Order, OrderComment, OrderItem, OrderStatusHistory
 from app.models.tenant import Tenant
+from app.services import audit_service
+from app.services.audit_service import SYSTEM_ACTOR, ActorInfo
 
 
 class OrderError(Exception):
@@ -315,6 +317,7 @@ async def add_item(
     unit_price: Decimal | None = None,
     product_id: UUID | None = None,
     notes: str | None = None,
+    audit_actor: ActorInfo | None = None,
 ) -> OrderItem:
     """Append a line item to an order.
 
@@ -354,16 +357,57 @@ async def add_item(
     _recalculate_line_total(item)
     db.add(item)
     await db.flush()
+
+    await audit_service.record(
+        db,
+        action="order.item_added",
+        entity_type="order",
+        entity_id=order.id,
+        entity_label=order.number,
+        actor=audit_actor or SYSTEM_ACTOR,
+        after={
+            "item_id": str(item.id),
+            "description": item.description,
+            "quantity": str(item.quantity),
+            "unit": item.unit,
+            "unit_price": str(item.unit_price) if item.unit_price is not None else None,
+        },
+        tenant_id=tenant_id,
+    )
     return item
 
 
-async def remove_item(db: AsyncSession, *, order: Order, item: OrderItem, actor: ActorRef) -> None:
+async def remove_item(
+    db: AsyncSession,
+    *,
+    order: Order,
+    item: OrderItem,
+    actor: ActorRef,
+    audit_actor: ActorInfo | None = None,
+) -> None:
     _ensure_item_editable(order, actor)
+    snapshot = {
+        "item_id": str(item.id),
+        "description": item.description,
+        "quantity": str(item.quantity),
+        "unit": item.unit,
+        "unit_price": str(item.unit_price) if item.unit_price is not None else None,
+    }
     await db.delete(item)
     await db.flush()
     # Recompute the cached quoted total — the deleted line no longer
     # contributes. Keeps the dashboard card in sync with the items list.
     await _recompute_quoted_total(db, order)
+    await audit_service.record(
+        db,
+        action="order.item_removed",
+        entity_type="order",
+        entity_id=order.id,
+        entity_label=order.number,
+        actor=audit_actor or SYSTEM_ACTOR,
+        before=snapshot,
+        tenant_id=order.tenant_id,
+    )
 
 
 async def update_item(
@@ -375,6 +419,7 @@ async def update_item(
     unit_price: Decimal | None = None,
     note: str | None = None,
     actor: ActorRef | None = None,
+    audit_actor: ActorInfo | None = None,
 ) -> OrderItem:
     """Partially update a line item on a DRAFT order.
 
@@ -383,10 +428,6 @@ async def update_item(
     field. The order must be in ``DRAFT`` for **any** actor (staff or
     contact); once an order has moved on, edits go through the full
     transition flow instead.
-
-    The ``actor`` argument is accepted for future audit-hook compatibility
-    (see §6 in the roadmap); this revision does not record audit events
-    so the parameter is currently ignored if no audit service is wired.
     """
     if order.status != OrderStatus.DRAFT:
         raise ForbiddenTransition("items can only be edited while the order is a draft")
@@ -394,6 +435,12 @@ async def update_item(
     # Contact scope check — cannot patch somebody else's customer's order.
     if actor is not None and actor.type == "contact" and order.customer_id != actor.customer_id:
         raise OrderAccessDenied()
+
+    before = {
+        "quantity": str(item.quantity),
+        "unit_price": str(item.unit_price) if item.unit_price is not None else None,
+        "notes": item.notes,
+    }
 
     if quantity is not None:
         if Decimal(quantity) <= 0:
@@ -417,6 +464,23 @@ async def update_item(
     # Keep ``quoted_total`` aligned with the sum of line totals so the
     # header card on the detail page reflects the just-saved change.
     await _recompute_quoted_total(db, order)
+
+    after = {
+        "quantity": str(item.quantity),
+        "unit_price": str(item.unit_price) if item.unit_price is not None else None,
+        "notes": item.notes,
+    }
+    await audit_service.record(
+        db,
+        action="order.item_updated",
+        entity_type="order",
+        entity_id=order.id,
+        entity_label=order.number,
+        actor=audit_actor or SYSTEM_ACTOR,
+        before=before,
+        after=after,
+        tenant_id=order.tenant_id,
+    )
     return item
 
 
@@ -457,6 +521,7 @@ async def transition_order(
     to_status: OrderStatus,
     actor: ActorRef,
     note: str | None = None,
+    audit_actor: ActorInfo | None = None,
 ) -> Order:
     """Advance the order to `to_status` after validating the move.
 
@@ -505,6 +570,18 @@ async def transition_order(
         )
     )
     await db.flush()
+
+    await audit_service.record(
+        db,
+        action="order.status_changed",
+        entity_type="order",
+        entity_id=order.id,
+        entity_label=order.number,
+        actor=audit_actor or SYSTEM_ACTOR,
+        before={"status": previous.value},
+        after={"status": to_status.value},
+        tenant_id=order.tenant_id,
+    )
     return order
 
 
@@ -562,6 +639,7 @@ async def add_comment(
     actor: ActorRef,
     body: str,
     is_internal: bool = False,
+    audit_actor: ActorInfo | None = None,
 ) -> OrderComment:
     body = body.strip()
     if not body:
@@ -581,4 +659,21 @@ async def add_comment(
     )
     db.add(comment)
     await db.flush()
+
+    # Keep the diff small — long bodies are kept in the source table.
+    excerpt = body if len(body) <= 200 else body[:197] + "..."
+    await audit_service.record(
+        db,
+        action="order.comment_added",
+        entity_type="order",
+        entity_id=order.id,
+        entity_label=order.number,
+        actor=audit_actor or SYSTEM_ACTOR,
+        after={
+            "comment_id": str(comment.id),
+            "is_internal": is_internal,
+            "body": excerpt,
+        },
+        tenant_id=tenant_id,
+    )
     return comment

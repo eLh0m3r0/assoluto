@@ -9,6 +9,8 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.product import Product
+from app.services import audit_service
+from app.services.audit_service import SYSTEM_ACTOR, ActorInfo, diff_from_models
 
 
 class ProductError(Exception):
@@ -64,6 +66,7 @@ async def create_product(
     default_price: Decimal | None = None,
     currency: str = "CZK",
     customer_id: UUID | None = None,
+    audit_actor: ActorInfo | None = None,
 ) -> Product:
     sku = sku.strip()
     name = name.strip()
@@ -95,6 +98,24 @@ async def create_product(
     )
     db.add(product)
     await db.flush()
+
+    await audit_service.record(
+        db,
+        action="product.created",
+        entity_type="product",
+        entity_id=product.id,
+        entity_label=f"{product.sku} — {product.name}",
+        actor=audit_actor or SYSTEM_ACTOR,
+        after={
+            "sku": product.sku,
+            "name": product.name,
+            "default_price": (
+                str(product.default_price) if product.default_price is not None else None
+            ),
+            "currency": product.currency,
+        },
+        tenant_id=tenant_id,
+    )
     return product
 
 
@@ -112,6 +133,7 @@ async def update_product(
     unit: str,
     default_price: Decimal | None,
     customer_id: UUID | None,
+    audit_actor: ActorInfo | None = None,
 ) -> Product:
     sku = sku.strip()
     name = name.strip()
@@ -128,6 +150,12 @@ async def update_product(
         if (await db.execute(dup_stmt)).scalar_one_or_none() is not None:
             raise DuplicateProductSku(sku)
 
+    # Snapshot before mutation so we can diff including the price fields
+    # the plan calls out specifically.
+    before_snapshot = type("_ProductSnapshot", (), {})()
+    for field in ("sku", "name", "description", "unit", "default_price", "customer_id"):
+        setattr(before_snapshot, field, getattr(product, field, None))
+
     product.sku = sku
     product.name = name
     product.description = description or None
@@ -135,6 +163,23 @@ async def update_product(
     product.default_price = default_price
     product.customer_id = customer_id
     await db.flush()
+
+    diff = diff_from_models(
+        before_snapshot,
+        product,
+        ["sku", "name", "description", "unit", "default_price", "customer_id"],
+    )
+    if diff:
+        await audit_service.record(
+            db,
+            action="product.updated",
+            entity_type="product",
+            entity_id=product.id,
+            entity_label=f"{product.sku} — {product.name}",
+            actor=audit_actor or SYSTEM_ACTOR,
+            diff=diff,
+            tenant_id=product.tenant_id,
+        )
     return product
 
 

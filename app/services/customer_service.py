@@ -8,6 +8,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.customer import Customer, CustomerContact
+from app.services import audit_service
+from app.services.audit_service import SYSTEM_ACTOR, ActorInfo, diff_from_models
 
 
 async def list_customers(db: AsyncSession) -> list[Customer]:
@@ -42,6 +44,7 @@ async def create_customer(
     dic: str | None = None,
     notes: str | None = None,
     order_permissions: dict | None = None,
+    audit_actor: ActorInfo | None = None,
 ) -> Customer:
     name = name.strip()
     if not name:
@@ -57,6 +60,21 @@ async def create_customer(
     )
     db.add(customer)
     await db.flush()
+
+    await audit_service.record(
+        db,
+        action="customer.created",
+        entity_type="customer",
+        entity_id=customer.id,
+        entity_label=customer.name,
+        actor=audit_actor or SYSTEM_ACTOR,
+        after={
+            "name": customer.name,
+            "ico": customer.ico,
+            "dic": customer.dic,
+        },
+        tenant_id=tenant_id,
+    )
     return customer
 
 
@@ -69,10 +87,17 @@ async def update_customer(
     dic: str | None,
     notes: str | None,
     order_permissions: dict | None = None,
+    audit_actor: ActorInfo | None = None,
 ) -> Customer:
     name = name.strip()
     if not name:
         raise ValueError("customer name is required")
+
+    # Snapshot tracked fields BEFORE mutation so the diff picks up the
+    # genuine prior state even after the attribute assignments below.
+    before_snapshot = type("_CustomerSnapshot", (), {})()
+    for field in ("name", "ico", "dic", "notes", "order_permissions"):
+        setattr(before_snapshot, field, getattr(customer, field, None))
 
     customer.name = name
     customer.ico = ((ico or None) and ico.strip()) or None
@@ -81,4 +106,54 @@ async def update_customer(
     if order_permissions is not None:
         customer.order_permissions = order_permissions
     await db.flush()
+
+    diff = diff_from_models(
+        before_snapshot,
+        customer,
+        ["name", "ico", "dic", "notes", "order_permissions"],
+    )
+    if diff:
+        await audit_service.record(
+            db,
+            action="customer.updated",
+            entity_type="customer",
+            entity_id=customer.id,
+            entity_label=customer.name,
+            actor=audit_actor or SYSTEM_ACTOR,
+            diff=diff,
+            tenant_id=customer.tenant_id,
+        )
     return customer
+
+
+async def delete_customer(
+    db: AsyncSession,
+    customer: Customer,
+    *,
+    audit_actor: ActorInfo | None = None,
+) -> None:
+    """Hard-delete a customer row (RESTRICT-protected by orders FK).
+
+    The service stays in place for future router wiring; the audit row
+    is written before the delete so the ``entity_label`` survives.
+    """
+    label = customer.name
+    customer_id = customer.id
+    tenant_id = customer.tenant_id
+
+    await audit_service.record(
+        db,
+        action="customer.deleted",
+        entity_type="customer",
+        entity_id=customer_id,
+        entity_label=label,
+        actor=audit_actor or SYSTEM_ACTOR,
+        before={
+            "name": customer.name,
+            "ico": customer.ico,
+            "dic": customer.dic,
+        },
+        tenant_id=tenant_id,
+    )
+    await db.delete(customer)
+    await db.flush()

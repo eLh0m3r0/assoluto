@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.deps import Principal, get_db, require_tenant_staff
 from app.security.csrf import verify_csrf
+from app.services.audit_service import actor_from_principal
 from app.services.customer_service import list_customers
 from app.services.product_service import (
     DuplicateProductSku,
@@ -118,6 +119,7 @@ async def products_create(
             unit=unit,
             default_price=price_dec,
             customer_id=target_customer_id,
+            audit_actor=actor_from_principal(principal),
         )
     except (ProductError, IntegrityError) as exc:
         from app.i18n import t as _t
@@ -293,6 +295,7 @@ async def products_update(
             unit=unit,
             default_price=price_dec,
             customer_id=target_customer_id,
+            audit_actor=actor_from_principal(principal),
         )
     except (ProductError, IntegrityError) as exc:
         from app.i18n import t as _t

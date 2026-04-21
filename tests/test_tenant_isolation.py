@@ -66,6 +66,7 @@ async def seeded_tenants(owner_engine):  # type: ignore[misc]
 
     async def wipe() -> None:
         async with owner_engine.begin() as conn:
+            await conn.execute(text("DELETE FROM audit_events"))
             await conn.execute(text("DELETE FROM asset_movements"))
             await conn.execute(text("DELETE FROM assets"))
             await conn.execute(text("DELETE FROM order_items"))
