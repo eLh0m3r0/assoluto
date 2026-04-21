@@ -39,6 +39,7 @@ from app.services.order_service import (
     list_status_history,
     remove_item,
     transition_order,
+    update_item,
 )
 from app.services.product_service import search_products
 
@@ -494,6 +495,151 @@ async def orders_add_item(
         raise HTTPException(status_code=400, detail=str(exc)) from None
 
     return RedirectResponse(url=f"/app/orders/{order.id}", status_code=303)
+
+
+@router.api_route(
+    "/{order_id}/items/{item_id}/patch",
+    methods=["POST", "PATCH"],
+    response_class=HTMLResponse,
+)
+async def orders_patch_item(
+    order_id: UUID,
+    item_id: UUID,
+    request: Request,
+    quantity: str = Form(""),
+    unit_price: str = Form(""),
+    note: str = Form(""),
+    principal: Principal = Depends(require_login),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Field-level autosave for a single order-item row.
+
+    Called by HTMX from ``_item_row.html`` whenever one of the inline
+    inputs changes (quantity, price, note). Accepts any subset — fields
+    left blank are skipped so typing in the note box does not clobber
+    the quantity on the next keystroke.
+
+    Always returns an HTML fragment (the updated row). Validation errors
+    come back as a 200-with-error-fragment so HTMX swaps in place and the
+    user sees the red hint next to the offending input; a genuine state
+    error (order not DRAFT) is a 409 with the same fragment structure.
+    """
+    try:
+        order = await get_order_for_principal(db, order_id=order_id, actor=_actor(principal))
+    except (OrderNotFound, OrderAccessDenied):
+        raise HTTPException(status_code=404, detail="Order not found") from None
+
+    from app.models.order import OrderItem
+
+    item = (
+        await db.execute(
+            select(OrderItem).where(OrderItem.id == item_id, OrderItem.order_id == order_id)
+        )
+    ).scalar_one_or_none()
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    # Per-customer permission guard — same shape as add_item. Restricts
+    # contacts from setting prices if the customer config forbids it.
+    if not principal.is_staff:
+        customer = (
+            await db.execute(select(Customer).where(Customer.id == order.customer_id))
+        ).scalar_one_or_none()
+        from app.services.customer_permissions import OrderPermissions
+
+        perms = OrderPermissions.from_dict(customer.order_permissions if customer else None)
+        can_set_prices = perms.can_set_prices
+    else:
+        from app.services.customer_permissions import OrderPermissions
+
+        perms = OrderPermissions()
+        can_set_prices = True
+
+    qty: Decimal | None = None
+    price: Decimal | None = None
+    note_value: str | None = None
+
+    row_error: str | None = None
+
+    if quantity.strip():
+        try:
+            qty = Decimal(quantity)
+        except (InvalidOperation, ValueError):
+            row_error = _t(request, "Invalid quantity")
+
+    if row_error is None and unit_price.strip():
+        if not can_set_prices:
+            raise HTTPException(
+                status_code=403, detail="Setting prices is disabled for your account"
+            )
+        try:
+            price = Decimal(unit_price)
+        except (InvalidOperation, ValueError):
+            row_error = _t(request, "Invalid unit_price")
+
+    # The note field is a free-form string; empty-string means "clear".
+    # The caller sends it on every change because the whole row is
+    # serialised (hx-include="closest tr"); we distinguish "blank was
+    # typed" from "field was absent" by always applying it when the form
+    # field exists at all.
+    if "note" in (await request.form()):
+        note_value = note
+
+    status_code = 200
+    if row_error is None:
+        try:
+            await update_item(
+                db,
+                order=order,
+                item=item,
+                quantity=qty,
+                unit_price=price,
+                note=note_value,
+                actor=_actor(principal),
+            )
+            await db.commit()
+        except ForbiddenTransition as exc:
+            # Order moved out of DRAFT between the page load and the
+            # autosave — return the row with an inline error so the user
+            # sees why the change didn't stick.
+            row_error = _t(request, "This order is no longer a draft.")
+            status_code = 409
+            await db.rollback()
+            _ = exc
+        except OrderAccessDenied:
+            raise HTTPException(status_code=404, detail="Order not found") from None
+        except OrderError as exc:
+            row_error = str(exc)
+            await db.rollback()
+
+    # Re-read the item so the rendered row reflects whatever actually
+    # landed in the DB (including ``line_total`` recompute on success).
+    await db.refresh(item)
+
+    # Find the 1-based index among the order's items for the "#" column
+    # display — cheap; at most a few dozen rows per order.
+    siblings = await list_items(db, order.id)
+    try:
+        row_index = [s.id for s in siblings].index(item.id) + 1
+    except ValueError:
+        row_index = 0
+
+    html = _templates(request).render(
+        request,
+        "orders/_item_row.html",
+        {
+            "order": order,
+            "item": item,
+            "row_index": row_index,
+            "can_edit_items": _can_edit_items(order, principal),
+            "can_set_prices": can_set_prices,
+            "is_staff": principal.is_staff,
+            "row_error": row_error,
+            "saved": row_error is None,
+            "perms": perms,
+        },
+    )
+    return HTMLResponse(html, status_code=status_code)
 
 
 @router.post("/{order_id}/items/{item_id}/delete", response_class=HTMLResponse)

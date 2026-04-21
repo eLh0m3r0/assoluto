@@ -91,39 +91,11 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     {% for item in items %}
-                        <tr>
-                            <td class="px-4 py-2 text-slate-500">{{ loop.index }}</td>
-                            <td class="px-4 py-2 text-slate-900">{{ item.description }}</td>
-                            <td class="px-4 py-2 text-right text-slate-700">
-                                {{ item.quantity | qty }} {{ item.unit }}
-                            </td>
-                            <td class="px-4 py-2 text-right text-slate-700">
-                                {% if item.unit_price is not none %}
-                                    {{ "%.2f"|format(item.unit_price) }}
-                                {% else %}
-                                    —
-                                {% endif %}
-                            </td>
-                            <td class="px-4 py-2 text-right text-slate-900">
-                                {% if item.line_total is not none %}
-                                    {{ "%.2f"|format(item.line_total) }}
-                                {% else %}
-                                    —
-                                {% endif %}
-                            </td>
-                            {% if can_edit_items %}
-                                <td class="px-4 py-2 text-right">
-                                    <form method="post"
-                                          action="/app/orders/{{ order.id }}/items/{{ item.id }}/delete"
-                                          class="inline">
-                                        {{ csrf_input() }}
-                                        <button type="submit" class="text-xs text-red-600 hover:text-red-800">
-                                            {{ _('Delete') }}
-                                        </button>
-                                    </form>
-                                </td>
-                            {% endif %}
-                        </tr>
+                        {% with row_index=loop.index, row_error=None, saved=False,
+                                is_staff=principal.is_staff,
+                                can_set_prices=perms.can_set_prices %}
+                            {% include "orders/_item_row.html" %}
+                        {% endwith %}
                     {% endfor %}
                 </tbody>
             </table>

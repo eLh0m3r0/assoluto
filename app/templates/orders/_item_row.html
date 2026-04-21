@@ -1,0 +1,109 @@
+{#
+  Fragment: a single order-item row (``<tr>``) used inside the items
+  table on ``orders/detail.html`` AND returned stand-alone as the HTMX
+  swap target from ``POST /app/orders/{id}/items/{item_id}/patch``.
+
+  The row itself carries the ``hx-patch`` attribute so that any
+  ``change`` event inside (be it the quantity, price or note input)
+  triggers a debounced autosave. ``hx-swap="outerHTML"`` replaces the
+  whole row with whatever the server returns — including error state.
+
+  Expected context:
+    order             Order         (for the URL)
+    item              OrderItem     (the row being rendered)
+    row_index         int           (1-based display number)
+    can_edit_items    bool          (hides inputs when False)
+    can_set_prices    bool          (hides the price input for restricted contacts)
+    is_staff          bool          (staff always sees price)
+    row_error         str | None    (validation error from a failed PATCH)
+    saved             bool          (True on a successful PATCH — flashes a green tick)
+#}
+<tr id="item-row-{{ item.id }}"
+    class="item-row"
+    hx-patch="/app/orders/{{ order.id }}/items/{{ item.id }}/patch"
+    hx-trigger="change delay:500ms"
+    hx-target="this"
+    hx-swap="outerHTML"
+    hx-include="closest tr"
+    hx-indicator="#saving-{{ item.id }}">
+    <td class="px-4 py-2 align-top text-slate-500">{{ row_index }}</td>
+    <td class="px-4 py-2 align-top text-slate-900">
+        <div>{{ item.description }}</div>
+        {% if can_edit_items %}
+            <input type="text" name="note" value="{{ item.notes or '' }}"
+                   placeholder="{{ _('Note (optional)') }}"
+                   class="mt-1 w-full rounded border border-slate-200 bg-white px-2 py-1 text-xs text-slate-600">
+        {% elif item.notes %}
+            <div class="mt-1 text-xs text-slate-500">{{ item.notes }}</div>
+        {% endif %}
+        {% if row_error %}
+            <div class="mt-1 text-xs font-medium text-red-600"
+                 role="alert" data-row-error="1">
+                {{ row_error }}
+            </div>
+        {% endif %}
+    </td>
+    <td class="px-4 py-2 align-top text-right text-slate-700">
+        {% if can_edit_items %}
+            <input type="number" step="0.001" min="0.001" name="quantity"
+                   value="{{ item.quantity | qty }}"
+                   class="w-24 rounded border border-slate-200 bg-white px-2 py-1 text-right text-sm text-slate-900"
+                   aria-label="{{ _('Quantity') }}">
+            <span class="text-xs text-slate-500">{{ item.unit }}</span>
+        {% else %}
+            {{ item.quantity | qty }} {{ item.unit }}
+        {% endif %}
+    </td>
+    <td class="px-4 py-2 align-top text-right text-slate-700">
+        {% if can_edit_items and (is_staff or can_set_prices) %}
+            <input type="number" step="0.01" min="0" name="unit_price"
+                   value="{{ '%.2f'|format(item.unit_price) if item.unit_price is not none else '' }}"
+                   class="w-24 rounded border border-slate-200 bg-white px-2 py-1 text-right text-sm text-slate-900"
+                   aria-label="{{ _('Price/unit') }}">
+        {% elif item.unit_price is not none %}
+            {{ "%.2f"|format(item.unit_price) }}
+        {% else %}
+            —
+        {% endif %}
+    </td>
+    <td class="px-4 py-2 align-top text-right text-slate-900">
+        {% if item.line_total is not none %}
+            {{ "%.2f"|format(item.line_total) }}
+        {% else %}
+            —
+        {% endif %}
+    </td>
+    {% if can_edit_items %}
+        <td class="px-4 py-2 align-top text-right">
+            {# Saving indicator — fades in while HTMX is in flight thanks
+               to ``.htmx-request`` (vendored CSS toggles opacity on the
+               element whose id matches ``hx-indicator``). A success tick
+               briefly replaces it after ``saved=True``. #}
+            <span id="saving-{{ item.id }}"
+                  class="htmx-indicator inline-flex items-center text-xs text-slate-400"
+                  aria-live="polite">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                            stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                <span class="ml-1">{{ _('Saving…') }}</span>
+            </span>
+            {% if saved %}
+                <span class="ml-2 text-xs text-emerald-600" data-row-saved="1">
+                    {{ _('Saved') }}
+                </span>
+            {% endif %}
+            <form method="post"
+                  action="/app/orders/{{ order.id }}/items/{{ item.id }}/delete"
+                  class="inline">
+                {{ csrf_input() }}
+                <button type="submit" class="ml-2 text-xs text-red-600 hover:text-red-800">
+                    {{ _('Delete') }}
+                </button>
+            </form>
+        </td>
+    {% endif %}
+</tr>

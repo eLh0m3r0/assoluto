@@ -325,6 +325,63 @@ async def remove_item(db: AsyncSession, *, order: Order, item: OrderItem, actor:
     _ensure_item_editable(order, actor)
     await db.delete(item)
     await db.flush()
+    # Recompute the cached quoted total — the deleted line no longer
+    # contributes. Keeps the dashboard card in sync with the items list.
+    await _recompute_quoted_total(db, order)
+
+
+async def update_item(
+    db: AsyncSession,
+    *,
+    order: Order,
+    item: OrderItem,
+    quantity: Decimal | None = None,
+    unit_price: Decimal | None = None,
+    note: str | None = None,
+    actor: ActorRef | None = None,
+) -> OrderItem:
+    """Partially update a line item on a DRAFT order.
+
+    Only provided (non-``None``) fields are applied — this mirrors the
+    field-level autosave UX where a single input change PATCHes just that
+    field. The order must be in ``DRAFT`` for **any** actor (staff or
+    contact); once an order has moved on, edits go through the full
+    transition flow instead.
+
+    The ``actor`` argument is accepted for future audit-hook compatibility
+    (see §6 in the roadmap); this revision does not record audit events
+    so the parameter is currently ignored if no audit service is wired.
+    """
+    if order.status != OrderStatus.DRAFT:
+        raise ForbiddenTransition("items can only be edited while the order is a draft")
+
+    # Contact scope check — cannot patch somebody else's customer's order.
+    if actor is not None and actor.type == "contact" and order.customer_id != actor.customer_id:
+        raise OrderAccessDenied()
+
+    if quantity is not None:
+        if Decimal(quantity) <= 0:
+            raise OrderError("quantity must be positive")
+        item.quantity = Decimal(quantity)
+
+    if unit_price is not None:
+        # A sentinel Decimal("-1") is NOT used — callers pass None to
+        # signal "do not touch". Passing a real negative price is an error.
+        if Decimal(unit_price) < 0:
+            raise OrderError("unit_price must not be negative")
+        item.unit_price = Decimal(unit_price)
+
+    if note is not None:
+        # Empty string clears the note; treat "   " as empty too.
+        cleaned = note.strip() or None
+        item.notes = cleaned
+
+    _recalculate_line_total(item)
+    await db.flush()
+    # Keep ``quoted_total`` aligned with the sum of line totals so the
+    # header card on the detail page reflects the just-saved change.
+    await _recompute_quoted_total(db, order)
+    return item
 
 
 def _ensure_item_editable(order: Order, actor: ActorRef) -> None:
