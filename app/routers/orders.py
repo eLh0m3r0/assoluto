@@ -475,6 +475,53 @@ async def _rerender_form(
     return HTMLResponse(html, status_code=400 if error else 200)
 
 
+# ----------------------------------------------------------------- PDF export
+
+
+@router.get("/{order_id}.pdf")
+async def orders_pdf(
+    order_id: UUID,
+    request: Request,
+    principal: Principal = Depends(require_login),
+    db: AsyncSession = Depends(get_db),
+) -> StreamingResponse:
+    """Render the order as a PDF for inline browser viewing / saving.
+
+    Authorisation mirrors the HTML detail view: staff always, contacts only
+    for their own customer's orders. Access denial returns 404 so we don't
+    leak the existence of an order on another customer.
+    """
+    try:
+        order = await get_order_for_principal(db, order_id=order_id, actor=_actor(principal))
+    except OrderNotFound:
+        raise HTTPException(status_code=404, detail="Order not found") from None
+    except OrderAccessDenied:
+        raise HTTPException(status_code=404, detail="Order not found") from None
+
+    items = await list_items(db, order.id)
+    customer = (
+        await db.execute(select(Customer).where(Customer.id == order.customer_id))
+    ).scalar_one_or_none()
+    tenant = _tenant(request)
+    locale = getattr(request.state, "locale", None) or "cs"
+
+    # Local import so reportlab is only loaded when PDFs are actually served.
+    from app.services.pdf_service import render_order_pdf
+
+    pdf_bytes = render_order_pdf(order, items, customer, tenant, locale=locale)
+
+    from io import BytesIO
+
+    return StreamingResponse(
+        BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'inline; filename="{order.number}.pdf"',
+            "Content-Length": str(len(pdf_bytes)),
+        },
+    )
+
+
 # -------------------------------------------------------------------- detail
 
 
