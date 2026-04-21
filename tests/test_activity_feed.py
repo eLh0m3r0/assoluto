@@ -256,6 +256,8 @@ async def test_list_recent_respects_rls_cross_tenant(owner_engine, wipe_db) -> N
     order_b_id = uuid4()
     customer_a_id = uuid4()
     customer_b_id = uuid4()
+    # Insert in dependency order — AuditEvent has no SQLAlchemy relationship
+    # to Tenant, so unit-of-work can't infer FK ordering on its own.
     async with owner_sm() as session, session.begin():
         session.add_all(
             [
@@ -273,6 +275,11 @@ async def test_list_recent_respects_rls_cross_tenant(owner_engine, wipe_db) -> N
                     billing_email="billing@beta.cz",
                     storage_prefix="tenants/beta/",
                 ),
+            ]
+        )
+        await session.flush()
+        session.add_all(
+            [
                 Customer(id=customer_a_id, tenant_id=tenant_a_id, name="A"),
                 Customer(id=customer_b_id, tenant_id=tenant_b_id, name="B"),
                 Order(

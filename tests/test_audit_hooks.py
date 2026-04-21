@@ -38,13 +38,30 @@ async def _set_tenant(session, tenant_id: UUID) -> None:
     )
 
 
-async def _seed_customer_and_order(owner_engine, tenant_id: UUID) -> tuple[UUID, UUID]:
+async def _seed_customer_and_order(owner_engine, tenant_id: UUID) -> tuple[UUID, UUID, UUID]:
+    """Seed a staff user, a customer, and a DRAFT order. Returns
+    ``(user_id, customer_id, order_id)`` — the user_id is used by helpers
+    that need a real actor id (FK on ``order_status_history.changed_by_user_id``
+    and ``order_comments.author_user_id``).
+    """
+    from app.models.user import User
+    from app.security.passwords import hash_password
+
     owner_sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    user_id = uuid4()
     customer_id = uuid4()
     order_id = uuid4()
     async with owner_sm() as session, session.begin():
         session.add_all(
             [
+                User(
+                    id=user_id,
+                    tenant_id=tenant_id,
+                    email=f"audit-test-{user_id.hex[:8]}@4mex.cz",
+                    full_name="Alice",
+                    role=UserRole.TENANT_STAFF,
+                    password_hash=hash_password("x" * 12),
+                ),
                 Customer(id=customer_id, tenant_id=tenant_id, name="ACME"),
                 Order(
                     id=order_id,
@@ -56,11 +73,11 @@ async def _seed_customer_and_order(owner_engine, tenant_id: UUID) -> tuple[UUID,
                 ),
             ]
         )
-    return customer_id, order_id
+    return user_id, customer_id, order_id
 
 
-def _staff_actor() -> tuple[ActorRef, ActorInfo]:
-    uid = uuid4()
+def _staff_actor(user_id: UUID | None = None) -> tuple[ActorRef, ActorInfo]:
+    uid = user_id if user_id is not None else uuid4()
     ref = ActorRef(type="user", id=uid)
     info = ActorInfo(type="user", id=uid, label="Alice")
     return ref, info
@@ -70,10 +87,10 @@ async def test_order_transition_writes_audit_row(owner_engine, demo_tenant) -> N
     from app.db.session import get_sessionmaker
 
     tenant_id = demo_tenant.id
-    _, order_id = await _seed_customer_and_order(owner_engine, tenant_id)
+    user_id, _, order_id = await _seed_customer_and_order(owner_engine, tenant_id)
 
     sm = get_sessionmaker()
-    ref, info = _staff_actor()
+    ref, info = _staff_actor(user_id=user_id)
 
     async with sm() as session, session.begin():
         await _set_tenant(session, tenant_id)
@@ -109,10 +126,10 @@ async def test_order_add_item_writes_audit_row(owner_engine, demo_tenant) -> Non
     from app.db.session import get_sessionmaker
 
     tenant_id = demo_tenant.id
-    _, order_id = await _seed_customer_and_order(owner_engine, tenant_id)
+    user_id, _, order_id = await _seed_customer_and_order(owner_engine, tenant_id)
 
     sm = get_sessionmaker()
-    ref, info = _staff_actor()
+    ref, info = _staff_actor(user_id=user_id)
 
     async with sm() as session, session.begin():
         await _set_tenant(session, tenant_id)
@@ -149,10 +166,10 @@ async def test_order_remove_item_writes_audit_row(owner_engine, demo_tenant) -> 
     from app.models.order import OrderItem
 
     tenant_id = demo_tenant.id
-    _, order_id = await _seed_customer_and_order(owner_engine, tenant_id)
+    user_id, _, order_id = await _seed_customer_and_order(owner_engine, tenant_id)
 
     sm = get_sessionmaker()
-    ref, info = _staff_actor()
+    ref, info = _staff_actor(user_id=user_id)
 
     async with sm() as session, session.begin():
         await _set_tenant(session, tenant_id)
@@ -194,10 +211,10 @@ async def test_order_add_comment_writes_audit_row(owner_engine, demo_tenant) -> 
     from app.db.session import get_sessionmaker
 
     tenant_id = demo_tenant.id
-    _, order_id = await _seed_customer_and_order(owner_engine, tenant_id)
+    user_id, _, order_id = await _seed_customer_and_order(owner_engine, tenant_id)
 
     sm = get_sessionmaker()
-    ref, info = _staff_actor()
+    ref, info = _staff_actor(user_id=user_id)
 
     async with sm() as session, session.begin():
         await _set_tenant(session, tenant_id)

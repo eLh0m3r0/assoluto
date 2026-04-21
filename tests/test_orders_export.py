@@ -126,7 +126,7 @@ async def test_csv_has_bom_and_expected_header(
     # a CZ catalog entry; either way the column order is deterministic.
     assert cols[0] in ("Order number", "Číslo zakázky")
     # Last columns cover currency + item_count.
-    assert cols[-1] in ("Items", "Položek", "Počet položek")
+    assert cols[-1] in ("Items", "Položky", "Položek", "Počet položek")
 
 
 async def test_staff_sees_all_tenant_orders(

@@ -842,6 +842,11 @@ async def orders_patch_item(
 
     status_code = 200
     if row_error is None:
+        # Wrap the mutation in a SAVEPOINT so a domain error (e.g. the
+        # order transitioning out of DRAFT mid-autosave) can be rolled
+        # back cleanly without killing the request-scoped outer
+        # transaction owned by ``get_db``.
+        savepoint = await db.begin_nested()
         try:
             await update_item(
                 db,
@@ -851,21 +856,19 @@ async def orders_patch_item(
                 unit_price=price,
                 note=note_value,
                 actor=_actor(principal),
+                audit_actor=actor_from_principal(principal),
             )
-            await db.commit()
-        except ForbiddenTransition as exc:
-            # Order moved out of DRAFT between the page load and the
-            # autosave — return the row with an inline error so the user
-            # sees why the change didn't stick.
+            await savepoint.commit()
+        except ForbiddenTransition:
+            await savepoint.rollback()
             row_error = _t(request, "This order is no longer a draft.")
             status_code = 409
-            await db.rollback()
-            _ = exc
         except OrderAccessDenied:
+            await savepoint.rollback()
             raise HTTPException(status_code=404, detail="Order not found") from None
         except OrderError as exc:
+            await savepoint.rollback()
             row_error = str(exc)
-            await db.rollback()
 
     # Re-read the item so the rendered row reflects whatever actually
     # landed in the DB (including ``line_total`` recompute on success).
