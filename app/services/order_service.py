@@ -553,6 +553,10 @@ async def transition_order(
     if to_status == OrderStatus.QUOTED:
         # Make sure we have a total computed from the item prices.
         await _recompute_quoted_total(db, order)
+    if to_status == OrderStatus.DELIVERED and order.delivered_at is None:
+        # Stamp only once — if staff toggle DELIVERED off and back on, we
+        # keep the original delivery date so SLA numbers remain stable.
+        order.delivered_at = date.today()
     if to_status == OrderStatus.CLOSED:
         order.closed_at = now
     if to_status == OrderStatus.CANCELLED:
