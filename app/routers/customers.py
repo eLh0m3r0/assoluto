@@ -14,6 +14,7 @@ from app.deps import Principal, get_db, require_tenant_staff
 from app.i18n import t as _t
 from app.models.tenant import Tenant
 from app.security.csrf import verify_csrf
+from app.services.audit_service import actor_from_principal
 from app.services.auth_service import (
     InvalidInvitation,
     create_invitation_token,
@@ -109,6 +110,7 @@ async def customers_create(
             dic=dic,
             notes=notes,
             order_permissions=order_perms,
+            audit_actor=actor_from_principal(principal),
         )
     except ValueError as exc:
         html = _templates(request).render(
@@ -222,6 +224,7 @@ async def customers_update(
             dic=dic,
             notes=notes,
             order_permissions=order_perms,
+            audit_actor=actor_from_principal(principal),
         )
     except ValueError as exc:
         html = _templates(request).render(

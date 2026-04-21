@@ -19,6 +19,8 @@ from app.models.customer import Customer
 from app.models.enums import OrderStatus
 from app.models.order import Order, OrderComment, OrderItem, OrderStatusHistory
 from app.models.tenant import Tenant
+from app.services import audit_service
+from app.services.audit_service import SYSTEM_ACTOR, ActorInfo
 
 
 class OrderError(Exception):
@@ -279,6 +281,7 @@ async def add_item(
     unit_price: Decimal | None = None,
     product_id: UUID | None = None,
     notes: str | None = None,
+    audit_actor: ActorInfo | None = None,
 ) -> OrderItem:
     """Append a line item to an order.
 
@@ -318,13 +321,54 @@ async def add_item(
     _recalculate_line_total(item)
     db.add(item)
     await db.flush()
+
+    await audit_service.record(
+        db,
+        action="order.item_added",
+        entity_type="order",
+        entity_id=order.id,
+        entity_label=order.number,
+        actor=audit_actor or SYSTEM_ACTOR,
+        after={
+            "item_id": str(item.id),
+            "description": item.description,
+            "quantity": str(item.quantity),
+            "unit": item.unit,
+            "unit_price": str(item.unit_price) if item.unit_price is not None else None,
+        },
+        tenant_id=tenant_id,
+    )
     return item
 
 
-async def remove_item(db: AsyncSession, *, order: Order, item: OrderItem, actor: ActorRef) -> None:
+async def remove_item(
+    db: AsyncSession,
+    *,
+    order: Order,
+    item: OrderItem,
+    actor: ActorRef,
+    audit_actor: ActorInfo | None = None,
+) -> None:
     _ensure_item_editable(order, actor)
+    snapshot = {
+        "item_id": str(item.id),
+        "description": item.description,
+        "quantity": str(item.quantity),
+        "unit": item.unit,
+        "unit_price": str(item.unit_price) if item.unit_price is not None else None,
+    }
     await db.delete(item)
     await db.flush()
+    await audit_service.record(
+        db,
+        action="order.item_removed",
+        entity_type="order",
+        entity_id=order.id,
+        entity_label=order.number,
+        actor=audit_actor or SYSTEM_ACTOR,
+        before=snapshot,
+        tenant_id=order.tenant_id,
+    )
 
 
 def _ensure_item_editable(order: Order, actor: ActorRef) -> None:
@@ -364,6 +408,7 @@ async def transition_order(
     to_status: OrderStatus,
     actor: ActorRef,
     note: str | None = None,
+    audit_actor: ActorInfo | None = None,
 ) -> Order:
     """Advance the order to `to_status` after validating the move.
 
@@ -412,6 +457,18 @@ async def transition_order(
         )
     )
     await db.flush()
+
+    await audit_service.record(
+        db,
+        action="order.status_changed",
+        entity_type="order",
+        entity_id=order.id,
+        entity_label=order.number,
+        actor=audit_actor or SYSTEM_ACTOR,
+        before={"status": previous.value},
+        after={"status": to_status.value},
+        tenant_id=order.tenant_id,
+    )
     return order
 
 
@@ -428,6 +485,7 @@ async def add_comment(
     actor: ActorRef,
     body: str,
     is_internal: bool = False,
+    audit_actor: ActorInfo | None = None,
 ) -> OrderComment:
     body = body.strip()
     if not body:
@@ -447,4 +505,21 @@ async def add_comment(
     )
     db.add(comment)
     await db.flush()
+
+    # Keep the diff small — long bodies are kept in the source table.
+    excerpt = body if len(body) <= 200 else body[:197] + "..."
+    await audit_service.record(
+        db,
+        action="order.comment_added",
+        entity_type="order",
+        entity_id=order.id,
+        entity_label=order.number,
+        actor=audit_actor or SYSTEM_ACTOR,
+        after={
+            "comment_id": str(comment.id),
+            "is_internal": is_internal,
+            "body": excerpt,
+        },
+        tenant_id=tenant_id,
+    )
     return comment

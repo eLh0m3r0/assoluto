@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from datetime import date
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +15,7 @@ from app.i18n import t as _t
 from app.models.enums import UserRole
 from app.models.user import User
 from app.security.csrf import verify_csrf
+from app.services.audit_service import actor_from_principal
 from app.services.auth_service import (
     InvalidCredentials,
     InvalidInvitation,
@@ -117,6 +119,7 @@ async def users_invite(
         email=email,
         full_name=full_name,
         role=role_enum,
+        audit_actor=actor_from_principal(principal),
     )
 
     # Explicit commit before scheduling the email task — the background
@@ -246,6 +249,7 @@ async def profile_change_password(
             user=user,
             current_password=current_password,
             new_password=new_password,
+            audit_actor=actor_from_principal(principal),
         )
     except InvalidCredentials as exc:
         html = _templates(request).render(
@@ -267,6 +271,103 @@ async def profile_change_password(
 
     clear_session(response)
     return response
+
+
+# --------------------------------------------------------------- audit log
+
+
+AUDIT_PAGE_SIZE = 50
+
+# Known entity_type values rendered in the filter dropdown. Kept tight
+# so typos in the URL don't clutter the UI — unknown types still work
+# via direct query-string access.
+AUDIT_ENTITY_CHOICES: tuple[tuple[str, str], ...] = (
+    ("", "All entities"),
+    ("order", "Order"),
+    ("customer", "Client"),
+    ("product", "Product"),
+    ("user", "User"),
+)
+
+
+@router.get("/audit", response_class=HTMLResponse)
+async def audit_index(
+    request: Request,
+    entity_type: str | None = None,
+    actor_id: str | None = None,
+    from_: str | None = Query(None, alias="from"),
+    to: str | None = None,
+    q: str | None = None,
+    page: int = 1,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    """Render the audit-log viewer (staff-only).
+
+    Filters map 1:1 to ``audit_service.list_events`` keyword args. Query
+    param ``from`` is accepted as ``from_`` because ``from`` is a Python
+    keyword — the template uses the HTML name ``from``.
+    """
+    from app.services.audit_service import list_events
+
+    entity_type_value = (entity_type or "").strip() or None
+    actor_uuid: UUID | None = None
+    if actor_id and actor_id.strip():
+        try:
+            actor_uuid = UUID(actor_id.strip())
+        except ValueError:
+            actor_uuid = None
+
+    date_from: date | None = None
+    if from_ and from_.strip():
+        try:
+            date_from = date.fromisoformat(from_.strip())
+        except ValueError:
+            date_from = None
+    date_to: date | None = None
+    if to and to.strip():
+        try:
+            date_to = date.fromisoformat(to.strip())
+        except ValueError:
+            date_to = None
+
+    page = max(1, page)
+    offset = (page - 1) * AUDIT_PAGE_SIZE
+
+    events, total = await list_events(
+        db,
+        principal=principal,
+        entity_type=entity_type_value,
+        actor_id=actor_uuid,
+        date_from=date_from,
+        date_to=date_to,
+        q=(q or None),
+        limit=AUDIT_PAGE_SIZE,
+        offset=offset,
+    )
+    total_pages = max(1, (total + AUDIT_PAGE_SIZE - 1) // AUDIT_PAGE_SIZE)
+
+    html = _templates(request).render(
+        request,
+        "admin/audit.html",
+        {
+            "principal": principal,
+            "tenant": _tenant(request),
+            "events": events,
+            "total": total,
+            "page": page,
+            "total_pages": total_pages,
+            "filters": {
+                "entity_type": entity_type_value or "",
+                "actor_id": actor_id or "",
+                "from": from_ or "",
+                "to": to or "",
+                "q": q or "",
+            },
+            "entity_choices": AUDIT_ENTITY_CHOICES,
+        },
+    )
+    return HTMLResponse(html)
 
 
 # Re-export InvalidInvitation so other modules can pretend this router

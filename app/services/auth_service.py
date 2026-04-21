@@ -25,6 +25,8 @@ from app.security.tokens import (
     create_token,
     verify_token,
 )
+from app.services import audit_service
+from app.services.audit_service import SYSTEM_ACTOR, ActorInfo
 
 
 class AuthError(Exception):
@@ -224,6 +226,7 @@ async def create_tenant_user(
     full_name: str,
     password: str,
     role: UserRole = UserRole.TENANT_STAFF,
+    audit_actor: ActorInfo | None = None,
 ) -> User:
     """Create an active tenant staff user with a hashed password."""
     if len(password) < 8:
@@ -238,6 +241,16 @@ async def create_tenant_user(
     )
     db.add(user)
     await db.flush()
+    await audit_service.record(
+        db,
+        action="user.invited",
+        entity_type="user",
+        entity_id=user.id,
+        entity_label=user.email,
+        actor=audit_actor or SYSTEM_ACTOR,
+        after={"email": user.email, "role": user.role.value},
+        tenant_id=tenant_id,
+    )
     return user
 
 
@@ -273,6 +286,7 @@ async def invite_tenant_staff(
     email: str,
     full_name: str,
     role: UserRole = UserRole.TENANT_STAFF,
+    audit_actor: ActorInfo | None = None,
 ) -> User:
     """Create a staff user in an inactive-until-accepted state.
 
@@ -289,6 +303,16 @@ async def invite_tenant_staff(
     )
     db.add(user)
     await db.flush()
+    await audit_service.record(
+        db,
+        action="user.invited",
+        entity_type="user",
+        entity_id=user.id,
+        entity_label=user.email,
+        actor=audit_actor or SYSTEM_ACTOR,
+        after={"email": user.email, "role": user.role.value},
+        tenant_id=tenant_id,
+    )
     return user
 
 
@@ -326,6 +350,7 @@ async def change_user_password(
     user: User,
     current_password: str,
     new_password: str,
+    audit_actor: ActorInfo | None = None,
 ) -> User:
     """Self-service password change for tenant staff.
 
@@ -339,6 +364,15 @@ async def change_user_password(
     user.password_hash = hash_password(new_password)
     user.session_version += 1
     await db.flush()
+    await audit_service.record(
+        db,
+        action="user.password_changed",
+        entity_type="user",
+        entity_id=user.id,
+        entity_label=user.email,
+        actor=audit_actor or SYSTEM_ACTOR,
+        tenant_id=user.tenant_id,
+    )
     return user
 
 
