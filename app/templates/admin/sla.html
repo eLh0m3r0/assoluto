@@ -7,7 +7,7 @@
         <a href="/app" class="text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">&larr; {{ _('Dashboard') }}</a>
         <h1 class="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('SLA tracking') }}</h1>
         <p class="text-sm text-slate-500 dark:text-slate-400">
-            {{ _('On-time delivery across %(date_from)s — %(date_to)s.') % {'date_from': date_from.isoformat(), 'date_to': date_to.isoformat()} }}
+            {{ _('On-time delivery across dates') }}: {{ date_from.isoformat() }} — {{ date_to.isoformat() }}.
         </p>
     </div>
 
@@ -120,7 +120,7 @@
                             </th>
                             {% for week in grid.weeks %}
                                 <th class="px-1 py-1 text-center font-normal text-slate-500 dark:text-slate-400"
-                                    title="{{ _('Week of %(date)s') % {'date': week.isoformat()} }}">
+                                    title="{{ _('Week of') }} {{ week.isoformat() }}">
                                     {{ week.strftime('%d.%m') }}
                                 </th>
                             {% endfor %}
@@ -148,7 +148,7 @@
                                             {% set bg = 'bg-red-500' %}
                                         {% endif %}
                                         <td class="h-6 w-8 rounded text-center text-[10px] font-semibold text-white {{ bg }}"
-                                            title="{{ _('On time: %(ot)s / %(tot)s (%(late)s late)') % {'ot': cell.on_time, 'tot': cell.total, 'late': cell.late} }}">
+                                            title="{{ _('On time') }}: {{ cell.on_time }} / {{ cell.total }} ({{ cell.late }} {{ _('late') }})">
                                             {{ cell.total }}
                                         </td>
                                     {% endif %}
