@@ -2,19 +2,23 @@
 
 from __future__ import annotations
 
-from datetime import date
+import csv
+import io
+from collections.abc import AsyncIterator
+from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse, Response
-from sqlalchemy import select
+from fastapi.responses import HTMLResponse, RedirectResponse, Response, StreamingResponse
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.deps import Principal, get_db, require_login
 from app.i18n import t as _t
 from app.models.customer import Customer
 from app.models.enums import OrderStatus
+from app.models.order import OrderItem
 from app.security.csrf import verify_csrf
 from app.services.attachment_service import list_for_order as list_attachments
 from app.services.customer_service import list_customers
@@ -31,6 +35,7 @@ from app.services.order_service import (
     OrderNotFound,
     add_comment,
     add_item,
+    build_orders_query,
     create_order,
     get_order_for_principal,
     list_comments,
@@ -151,6 +156,185 @@ async def orders_index(
         },
     )
     return HTMLResponse(html)
+
+
+# -------------------------------------------------------------------- CSV
+
+
+# Columns emitted by the CSV export, in order. Tuple of
+# ``(english_header_key, Order-field extractor)``. English strings are
+# the gettext message IDs; translations live in the .po catalogs.
+CSV_BATCH_SIZE = 500
+
+# UTF-8 byte-order mark — lets Excel (especially CZ locale) open the
+# file with the correct encoding out of the box.
+_UTF8_BOM = "﻿"
+
+
+def _parse_iso_date(raw: str | None) -> date | None:
+    """Parse ``YYYY-MM-DD`` tolerantly; bad/empty input yields ``None``."""
+    if not raw:
+        return None
+    try:
+        return date.fromisoformat(raw.strip())
+    except ValueError:
+        return None
+
+
+def _fmt_datetime(value: datetime | None) -> str:
+    if value is None:
+        return ""
+    # ISO 8601 without microseconds, timezone-aware values are emitted
+    # in their native offset (typically UTC — the DB stores timestamptz).
+    return value.replace(microsecond=0).isoformat()
+
+
+def _fmt_date(value: date | None) -> str:
+    return value.isoformat() if value is not None else ""
+
+
+def _fmt_decimal(value: Decimal | None) -> str:
+    if value is None:
+        return ""
+    # Let Excel-friendly locales parse the number — emit a plain dot,
+    # never scientific notation.
+    return format(value, "f")
+
+
+@router.get(".csv")
+async def orders_export_csv(
+    request: Request,
+    status: str | None = None,
+    customer: str | None = None,
+    from_: str | None = None,
+    to: str | None = None,
+    q: str | None = None,
+    principal: Principal = Depends(require_login),
+    db: AsyncSession = Depends(get_db),
+) -> StreamingResponse:
+    """Stream a CSV export of orders matching the same filters as the list.
+
+    Authorization: same scoping as ``orders_index`` — staff sees the
+    whole tenant (subject to RLS), contacts only their own customer's
+    orders. The download filename is stamped with today's date.
+    """
+    # ``from`` is a Python keyword; FastAPI lets us rename via ``alias``
+    # on Query(), but declaring the parameter as ``from_`` and then
+    # reading ``request.query_params`` covers both "from" and "from_"
+    # without adding ceremony. Keep the signature ergonomic.
+    from_raw = request.query_params.get("from") or from_
+    to_raw = request.query_params.get("to") or to
+
+    status_filter: OrderStatus | None = None
+    if status:
+        try:
+            status_filter = OrderStatus(status)
+        except ValueError:
+            status_filter = None
+
+    customer_filter: UUID | None = None
+    if customer and principal.is_staff:
+        try:
+            customer_filter = UUID(customer)
+        except ValueError:
+            customer_filter = None
+
+    date_from = _parse_iso_date(from_raw)
+    date_to = _parse_iso_date(to_raw)
+
+    stmt = build_orders_query(
+        actor=_actor(principal),
+        status=status_filter,
+        customer_id=customer_filter,
+        date_from=date_from,
+        date_to=date_to,
+        q=q,
+    )
+
+    # Resolve customer names lazily with a per-request cache — the list
+    # may contain tens of thousands of orders but typically a small
+    # number of distinct customers.
+    customer_names: dict[UUID, str] = {}
+
+    async def _customer_name(cid: UUID) -> str:
+        if cid in customer_names:
+            return customer_names[cid]
+        row = (
+            await db.execute(select(Customer.name).where(Customer.id == cid))
+        ).scalar_one_or_none()
+        name = row or ""
+        customer_names[cid] = name
+        return name
+
+    header = [
+        _t(request, "Order number"),
+        _t(request, "Status"),
+        _t(request, "Customer"),
+        _t(request, "Created at"),
+        _t(request, "Submitted at"),
+        _t(request, "Promised delivery at"),
+        _t(request, "Quoted total"),
+        _t(request, "Currency"),
+        _t(request, "Items"),
+    ]
+
+    async def _row_iter() -> AsyncIterator[str]:
+        buffer = io.StringIO()
+        # ``;`` delimiter — CZ Excel assumes semicolons when the system
+        # list separator is set that way; Excel also handles this on US
+        # locales when the file is opened via the "Data > Get Data" flow.
+        writer = csv.writer(buffer, delimiter=";", lineterminator="\r\n")
+
+        # First chunk: BOM + header row.
+        writer.writerow(header)
+        yield _UTF8_BOM + buffer.getvalue()
+        buffer.seek(0)
+        buffer.truncate()
+
+        offset = 0
+        while True:
+            page_stmt = stmt.offset(offset).limit(CSV_BATCH_SIZE)
+            page = list((await db.execute(page_stmt)).scalars().all())
+            if not page:
+                break
+
+            # Bulk-fetch item counts for this page to avoid N+1 queries.
+            order_ids = [o.id for o in page]
+            count_rows = await db.execute(
+                select(OrderItem.order_id, func.count(OrderItem.id))
+                .where(OrderItem.order_id.in_(order_ids))
+                .group_by(OrderItem.order_id)
+            )
+            item_counts: dict[UUID, int] = {row[0]: row[1] for row in count_rows.all()}
+
+            for order in page:
+                writer.writerow(
+                    [
+                        order.number,
+                        order.status.value,
+                        await _customer_name(order.customer_id),
+                        _fmt_datetime(order.created_at),
+                        _fmt_datetime(order.submitted_at),
+                        _fmt_date(order.promised_delivery_at),
+                        _fmt_decimal(order.quoted_total),
+                        order.currency,
+                        str(item_counts.get(order.id, 0)),
+                    ]
+                )
+            yield buffer.getvalue()
+            buffer.seek(0)
+            buffer.truncate()
+
+            if len(page) < CSV_BATCH_SIZE:
+                break
+            offset += CSV_BATCH_SIZE
+
+    filename = f"orders-{date.today().isoformat()}.csv"
+    return StreamingResponse(
+        _row_iter(),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 # ----------------------------------------------------------------- new form
