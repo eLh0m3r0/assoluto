@@ -17,6 +17,7 @@ from app.models.customer import Customer
 from app.models.enums import OrderStatus
 from app.models.order import Order
 from app.security.csrf import verify_csrf
+from app.services import audit_service
 from app.services.order_service import ActorRef, list_orders_for_principal
 
 router = APIRouter(prefix="/app", tags=["dashboard"], dependencies=[Depends(verify_csrf)])
@@ -91,6 +92,11 @@ async def dashboard_index(
         )
         customer_by_id = {c.id: c for c in cust_rows}
 
+    # Recent activity feed (§7) — reads from audit_events via the same
+    # scoping rules as the audit log (staff see the whole tenant, contacts
+    # only see order events on their own customer's orders).
+    recent_activity = await audit_service.list_recent(db, principal=principal, limit=20)
+
     html = _templates(request).render(
         request,
         "dashboard/index.html",
@@ -100,6 +106,7 @@ async def dashboard_index(
             "stats": stats,
             "recent_orders": recent_orders,
             "customer_by_id": customer_by_id,
+            "recent_activity": recent_activity,
         },
     )
     return HTMLResponse(html)

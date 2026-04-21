@@ -65,6 +65,90 @@
         </a>
     </div>
 
+    {#
+        Recent activity (§7) — thin window into the audit log, scoped
+        per-principal by ``audit_service.list_recent``. Staff see every
+        event in the tenant; contacts see only ``order`` events on their
+        own customer's orders. The empty state keeps the widget present
+        on fresh tenants so the UI doesn't jump.
+
+        Action strings: we keep a lookup dict from ``action`` code to a
+        short English verb phrase, then run each phrase through ``_()``
+        so Czech (and any future locale) can translate normally. Keeping
+        the verbs English-keyed matches the rest of the codebase — the
+        `.po` catalog translates English strings, not opaque keys.
+    #}
+    {% set activity_icons = {
+        'order.status_changed': '→',
+        'order.item_added': '+',
+        'order.item_updated': '*',
+        'order.item_removed': '−',
+        'order.comment_added': '"',
+        'customer.created': '+',
+        'customer.updated': '*',
+        'customer.deleted': '−',
+        'product.created': '+',
+        'product.updated': '*',
+        'user.invited': '+',
+        'user.password_changed': '*',
+    } %}
+    {% set activity_verbs = {
+        'order.status_changed': _('changed status of'),
+        'order.item_added': _('added item to'),
+        'order.item_updated': _('updated item on'),
+        'order.item_removed': _('removed item from'),
+        'order.comment_added': _('commented on'),
+        'customer.created': _('created client'),
+        'customer.updated': _('updated client'),
+        'customer.deleted': _('deleted client'),
+        'product.created': _('created product'),
+        'product.updated': _('updated product'),
+        'user.invited': _('invited user'),
+        'user.password_changed': _('changed password for'),
+    } %}
+    <section class="mt-8 rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+            <h2 class="font-semibold text-slate-900">{{ _('Recent activity') }}</h2>
+            {% if principal.is_staff %}
+                <a href="/app/admin/audit" class="text-xs font-medium text-blue-600 hover:text-blue-800">
+                    {{ _('Audit log') }} →
+                </a>
+            {% endif %}
+        </div>
+        {% if recent_activity %}
+            <ul class="divide-y divide-slate-100">
+                {% for event in recent_activity %}
+                    <li class="flex items-start gap-3 px-5 py-3 text-sm">
+                        <span class="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-slate-100 text-xs text-slate-600"
+                              aria-hidden="true">
+                            {{ activity_icons.get(event.action, '•') }}
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-slate-900">
+                                <span class="font-medium">{{ event.actor_label or _('System') }}</span>
+                                <span class="text-slate-500">
+                                    {{ activity_verbs.get(event.action, event.action) }}
+                                </span>
+                                <span class="font-medium text-slate-900">{{ event.entity_label }}</span>
+                            </p>
+                            <p class="text-xs text-slate-400">
+                                <time datetime="{{ event.occurred_at.isoformat() }}"
+                                      title="{{ event.occurred_at.strftime('%Y-%m-%d %H:%M') }}">
+                                    {{ event.occurred_at|timeago }}
+                                </time>
+                                · <span class="uppercase tracking-wide">{{ event.entity_type }}</span>
+                            </p>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="px-5 py-8 text-center text-sm text-slate-500">
+                {{ _('No activity yet — actions will show up here as they happen.') }}
+            </p>
+        {% endif %}
+    </section>
+
     {% if recent_orders %}
         <section class="mt-8 rounded-xl border border-slate-200 bg-white shadow-sm">
             <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3">

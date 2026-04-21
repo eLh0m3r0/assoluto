@@ -18,6 +18,7 @@ called exactly once at construction time and is never mutated after.
 from __future__ import annotations
 
 import threading
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -70,6 +71,53 @@ def _money_filter(cents: Any, currency: str = "CZK") -> str:
     return f"{value} {symbol}"
 
 
+def _timeago_filter(value: Any) -> str:
+    """Render a datetime as a short relative-time string.
+
+    Examples:
+        just now     (< 60 s)
+        5m ago       (< 1 h)
+        2h ago       (< 24 h)
+        3d ago       (< 14 d)
+        2w ago       (< 60 d)
+        4mo ago      (< 365 d)
+        2y ago       (else)
+
+    The unit suffixes are intentionally short + locale-neutral so we
+    don't have to thread translations through a filter; the dashboard
+    i18n handles headings and action labels instead. ``None`` / non-
+    datetime inputs render as an em-dash so mis-wired callers don't
+    crash the page.
+    """
+    if value is None:
+        return "—"
+    if not isinstance(value, datetime):
+        return str(value)
+    # Treat naive datetimes as UTC (everything we persist is TIMESTAMPTZ).
+    moment = value if value.tzinfo is not None else value.replace(tzinfo=UTC)
+    delta = datetime.now(UTC) - moment
+    seconds = int(delta.total_seconds())
+    if seconds < 0:
+        # Future timestamps shouldn't happen, but don't blow up.
+        seconds = 0
+    if seconds < 60:
+        return "just now"
+    minutes = seconds // 60
+    if minutes < 60:
+        return f"{minutes}m ago"
+    hours = minutes // 60
+    if hours < 24:
+        return f"{hours}h ago"
+    days = hours // 24
+    if days < 14:
+        return f"{days}d ago"
+    if days < 60:
+        return f"{days // 7}w ago"
+    if days < 365:
+        return f"{days // 30}mo ago"
+    return f"{days // 365}y ago"
+
+
 def _qty_filter(value: Any) -> str:
     """Render a Decimal/number without trailing zeros.
 
@@ -119,6 +167,7 @@ def _new_environment(locale: str | None = None) -> Environment:
     env.install_gettext_translations(translations, newstyle=True)  # type: ignore[attr-defined]
     env.filters["qty"] = _qty_filter
     env.filters["money"] = _money_filter
+    env.filters["timeago"] = _timeago_filter
     return env
 
 
