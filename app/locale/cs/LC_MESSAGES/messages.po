@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-16 13:28+0000\n"
+"POT-Creation-Date: 2026-04-21 23:47+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -18,37 +18,948 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app/templates/app_base.html:7
-msgid "Dashboard"
-msgstr "Přehled"
+#: app/templates/_palette.html:14
+msgid "Search"
+msgstr "Hledat"
 
-#: app/templates/app_base.html:8
+#: app/templates/_palette.html:23
+msgid "Search orders, customers, products"
+msgstr "Hledat objednávky, klienty, produkty"
+
+#: app/templates/_palette.html:24
+msgid "Search orders, customers, products…"
+msgstr "Hledat objednávky, klienty, produkty…"
+
+# --- round-3: title prefix, error pages, tables ---
+#: app/templates/_palette_results.html:18
+#, fuzzy
+msgid "Nothing found for"
+msgstr "Nenalezeno"
+
+#: app/templates/_palette_results.html:22
+#: app/templates/_palette_results.html:23 app/templates/app_base.html:8
+#: app/templates/dashboard/index.html:196 app/templates/orders/detail.html:29
+#: app/templates/orders/list.html:3 app/templates/orders/list.html:7
 msgid "Orders"
 msgstr "Objednávky"
 
-#: app/templates/app_base.html:9
-msgid "Assets"
-msgstr "Majetek"
+#: app/templates/_palette_results.html:34
+#, fuzzy
+msgid "Order"
+msgstr "objednávka"
 
-#: app/templates/app_base.html:11
+#: app/templates/_palette_results.html:43
+#: app/templates/_palette_results.html:44 app/templates/app_base.html:11
+#: app/templates/customers/detail.html:8 app/templates/customers/form.html:9
+#: app/templates/customers/form.html:13 app/templates/customers/list.html:3
+#: app/templates/customers/list.html:7 app/templates/dashboard/index.html:23
 msgid "Clients"
 msgstr "Klienti"
 
-#: app/templates/app_base.html:12
+#: app/templates/_palette_results.html:55 app/templates/assets/detail.html:12
+#: app/templates/assets/form.html:14 app/templates/assets/list.html:26
+#: app/templates/orders/detail.html:41 app/templates/orders/form.html:22
+#: app/templates/orders/list.html:73 app/templates/products/form.html:55
+#: app/templates/products/list.html:21
+msgid "Client"
+msgstr "Klient"
+
+#: app/templates/_palette_results.html:64
+#: app/templates/_palette_results.html:65 app/templates/app_base.html:12
+#: app/templates/products/detail.html:7 app/templates/products/form.html:9
+#: app/templates/products/form.html:13 app/templates/products/list.html:3
 msgid "Catalog"
 msgstr "Katalog"
 
-#: app/templates/app_base.html:14
+#: app/templates/_palette_results.html:76
+#, fuzzy
+msgid "Product"
+msgstr "Nový produkt"
+
+#: app/templates/admin/audit.html:7 app/templates/admin/profile.html:7
+#: app/templates/admin/sla.html:7 app/templates/admin/users.html:7
+#: app/templates/app_base.html:7 app/templates/customers/detail.html:8
+#: app/templates/customers/form.html:9 app/templates/customers/form.html:13
+#: app/templates/dashboard/index.html:3 app/templates/dashboard/index.html:7
+#: app/templates/orders/detail.html:29 app/templates/products/detail.html:7
+#: app/templates/products/form.html:9 app/templates/products/form.html:13
+msgid "Dashboard"
+msgstr "Přehled"
+
+#: app/templates/app_base.html:9 app/templates/assets/detail.html:7
+#: app/templates/assets/list.html:3
+msgid "Assets"
+msgstr "Majetek"
+
+#: app/templates/app_base.html:13
+msgid "SLA"
+msgstr "SLA"
+
+#: app/templates/admin/users.html:3 app/templates/app_base.html:15
 msgid "Team"
 msgstr "Tým"
 
-#: app/templates/app_base.html:38 app/templates/platform/select_tenant.html:17
+#: app/templates/app_base.html:16
+#, fuzzy
+msgid "Audit"
+msgstr "jed."
+
+#: app/templates/app_base.html:18
+msgid "Billing"
+msgstr ""
+
+#: app/templates/app_base.html:43 app/templates/app_base.html:47
+#: app/templates/platform/select_tenant.html:17
 msgid "Sign out"
 msgstr "Odhlásit"
 
-#: app/templates/base.html:17
+#: app/templates/base.html:45 app/templates/index.html:3
 msgid "Home"
 msgstr "Domů"
+
+#: app/templates/base.html:54
+msgid "Toggle menu"
+msgstr "Otevřít menu"
+
+#: app/templates/base.html:71 app/templates/base.html:72
+#: app/templates/base.html:89
+msgid "Toggle theme"
+msgstr "Přepnout motiv"
+
+#: app/templates/base.html:73
+msgid "Theme: system"
+msgstr "Motiv: systémový"
+
+#: app/templates/base.html:74
+msgid "Theme: light"
+msgstr "Motiv: světlý"
+
+#: app/templates/base.html:75
+msgid "Theme: dark"
+msgstr "Motiv: tmavý"
+
+#: app/templates/auth/login.html:12 app/templates/auth/login.html:39
+#: app/templates/index.html:8 app/templates/index.html:21
+#: app/templates/platform/login.html:3 app/templates/platform/login.html:29
+#: app/templates/platform/signup.html:120 app/templates/www/www_base.html:18
+msgid "Sign in"
+msgstr "Přihlásit se"
+
+# --- round-2 audit: landing + CRUD templates ---
+#: app/templates/index.html:14
+msgid "Customer portal for SMEs"
+msgstr "Zákaznický portál pro SME"
+
+#: app/templates/index.html:16
+msgid ""
+"Transparent order process between the manufacturer and its clients. "
+"Product catalog, attachments, client asset tracking."
+msgstr ""
+"Transparentní objednávkový proces mezi výrobcem a jeho klienty. Katalog "
+"produktů, přílohy k objednávkám, evidence klientského majetku."
+
+#: app/templates/admin/audit.html:3 app/templates/admin/audit.html:8
+#: app/templates/dashboard/index.html:114
+#, fuzzy
+msgid "Audit log"
+msgstr "Katalog"
+
+#: app/templates/admin/audit.html:10
+msgid "Append-only record of every tracked action in this tenant."
+msgstr ""
+
+#: app/templates/admin/audit.html:19
+msgid "Search action, entity, actor…"
+msgstr ""
+
+#: app/templates/admin/audit.html:35 app/templates/orders/list.html:44
+msgid "Filter"
+msgstr "Filtrovat"
+
+#: app/templates/admin/audit.html:44
+msgid "When"
+msgstr ""
+
+#: app/templates/admin/audit.html:45
+#, fuzzy
+msgid "Actor"
+msgstr "Akce"
+
+#: app/templates/admin/audit.html:46
+#, fuzzy
+msgid "Action"
+msgstr "Akce"
+
+#: app/templates/admin/audit.html:47
+#, fuzzy
+msgid "Entity"
+msgstr "Množství"
+
+#: app/templates/admin/audit.html:48
+#, fuzzy
+msgid "Change"
+msgstr "Zrušit"
+
+#: app/templates/admin/audit.html:81 app/templates/admin/audit.html:84
+msgid "Show details"
+msgstr ""
+
+#: app/templates/admin/audit.html:102 app/templates/orders/list.html:157
+msgid "Page"
+msgstr "Strana"
+
+#: app/templates/admin/audit.html:102 app/templates/orders/list.html:158
+msgid "records"
+msgstr "záznamů"
+
+#: app/templates/admin/audit.html:108 app/templates/orders/list.html:164
+msgid "Previous"
+msgstr "Předchozí"
+
+#: app/templates/admin/audit.html:112 app/templates/orders/list.html:170
+msgid "Next"
+msgstr "Další"
+
+# --- filter + empty-state polish ---
+#: app/templates/admin/audit.html:119
+#, fuzzy
+msgid "No audit events match the current filters."
+msgstr "Žádné objednávky neodpovídají filtru."
+
+#: app/templates/admin/profile.html:3 app/templates/admin/profile.html:8
+msgid "Profile"
+msgstr "Profil"
+
+#: app/templates/admin/profile.html:15
+msgid "Account"
+msgstr "Účet"
+
+#: app/templates/admin/profile.html:19 app/templates/admin/users.html:21
+msgid "Full name"
+msgstr "Jméno"
+
+#: app/templates/admin/profile.html:25 app/templates/admin/users.html:22
+#: app/templates/auth/login.html:25
+#: app/templates/auth/password_reset_request.html:18
+#: app/templates/platform/login.html:18
+#: app/templates/platform/password_reset_request.html:18
+msgid "Email"
+msgstr "E-mail"
+
+#: app/templates/admin/profile.html:27
+msgid "Email changes need an administrator."
+msgstr "Změnu e-mailu musí provést administrátor."
+
+#: app/templates/admin/profile.html:31
+msgid "Save profile"
+msgstr "Uložit profil"
+
+#: app/templates/admin/profile.html:37
+msgid "Change password"
+msgstr "Změna hesla"
+
+#: app/templates/admin/profile.html:42
+msgid "Current password"
+msgstr "Současné heslo"
+
+#: app/templates/admin/profile.html:49 app/templates/auth/invite_accept.html:23
+#: app/templates/auth/password_reset_confirm.html:20
+#: app/templates/platform/password_reset_confirm.html:20
+msgid "New password (min. 8 characters)"
+msgstr "Nové heslo (min. 8 znaků)"
+
+#: app/templates/admin/profile.html:56
+msgid "Confirm new password"
+msgstr "Potvrzení nového hesla"
+
+#: app/templates/admin/profile.html:64
+msgid "Save new password"
+msgstr "Uložit nové heslo"
+
+#: app/templates/admin/profile.html:67
+msgid "After changing your password you will be signed out and must log in again."
+msgstr "Po změně hesla budete odhlášeni a musíte se znovu přihlásit."
+
+#: app/templates/admin/sla.html:3 app/templates/admin/sla.html:8
+msgid "SLA tracking"
+msgstr ""
+
+#: app/templates/admin/sla.html:10
+#, python-format
+msgid "On-time delivery across %(date_from)s — %(date_to)s."
+msgstr ""
+
+#: app/templates/admin/sla.html:17
+#, fuzzy
+msgid "Timeframe"
+msgstr "Tým"
+
+#: app/templates/admin/sla.html:21
+msgid "Last 30 days"
+msgstr "Posledních 30 dní"
+
+#: app/templates/admin/sla.html:22
+msgid "Last 90 days"
+msgstr "Posledních 90 dní"
+
+#: app/templates/admin/sla.html:23
+msgid "Last 365 days"
+msgstr "Posledních 365 dní"
+
+#: app/templates/admin/sla.html:28
+msgid "Apply"
+msgstr ""
+
+#: app/templates/admin/sla.html:37
+msgid "On-time rate"
+msgstr ""
+
+#: app/templates/admin/sla.html:52
+msgid "of delivered orders met the promised date"
+msgstr ""
+
+#: app/templates/admin/sla.html:58
+#, fuzzy
+msgid "Delivered (total)"
+msgstr "Dodáno"
+
+#: app/templates/admin/sla.html:62
+msgid "orders with recorded delivery"
+msgstr ""
+
+#: app/templates/admin/sla.html:68
+#, fuzzy
+msgid "Late"
+msgstr "Datum"
+
+#: app/templates/admin/sla.html:72
+msgid "delivered past the promised date"
+msgstr ""
+
+#: app/templates/admin/sla.html:78
+#, fuzzy
+msgid "Pending (overdue)"
+msgstr "čeká na přijetí"
+
+#: app/templates/admin/sla.html:82
+msgid "promised date passed, not yet delivered"
+msgstr ""
+
+#: app/templates/admin/sla.html:91
+msgid "Weekly on-time heatmap"
+msgstr ""
+
+#: app/templates/admin/sla.html:96
+#, python-format
+msgid "&ge;90%% on time"
+msgstr ""
+
+#: app/templates/admin/sla.html:100
+#, python-format
+msgid "50-90%%"
+msgstr ""
+
+#: app/templates/admin/sla.html:104
+#, python-format
+msgid "&lt;50%%"
+msgstr ""
+
+#: app/templates/admin/sla.html:108
+#, fuzzy
+msgid "no orders"
+msgstr "Objednávky"
+
+#: app/templates/admin/sla.html:119
+msgid "Customer"
+msgstr "Klient"
+
+#: app/templates/admin/sla.html:123
+#, python-format
+msgid "Week of %(date)s"
+msgstr ""
+
+#: app/templates/admin/sla.html:139
+#, fuzzy
+msgid "No orders"
+msgstr "Objednávky"
+
+#: app/templates/admin/sla.html:151
+#, python-format
+msgid "On time: %(ot)s / %(tot)s (%(late)s late)"
+msgstr ""
+
+#: app/templates/admin/sla.html:163
+msgid "No orders with a promised delivery date yet."
+msgstr ""
+
+# "Ready", "Delivered", "Cancel" reuse the existing msgids from
+# orders/_status_badge.html and products/form.html (they share the
+# same Czech translation, so we don't duplicate entries).
+#: app/templates/admin/users.html:8
+msgid "Team users"
+msgstr "Uživatelé týmu"
+
+#: app/templates/admin/users.html:10
+msgid "Manage staff users — full access to all tenant data."
+msgstr "Spravujte staff uživatele — přístup do všech dat tenantu."
+
+#: app/templates/admin/users.html:23
+msgid "Role"
+msgstr "Role"
+
+#: app/templates/admin/users.html:24
+msgid "State"
+msgstr "Stav"
+
+#: app/templates/admin/users.html:34 app/templates/admin/users.html:75
+msgid "Administrator"
+msgstr "Administrátor"
+
+#: app/templates/admin/users.html:34 app/templates/admin/users.html:74
+msgid "Operator"
+msgstr "Operátor"
+
+#: app/templates/admin/users.html:38
+msgid "disabled"
+msgstr "deaktivován"
+
+#: app/templates/admin/users.html:40
+msgid "pending invite"
+msgstr "čeká na přijetí"
+
+#: app/templates/admin/users.html:42 app/templates/customers/detail.html:84
+msgid "active"
+msgstr "aktivní"
+
+#: app/templates/admin/users.html:48
+msgid "Deactivate this user?"
+msgstr "Opravdu deaktivovat tohoto uživatele?"
+
+#: app/templates/admin/users.html:51
+msgid "Deactivate"
+msgstr "Deaktivovat"
+
+#: app/templates/admin/users.html:61
+msgid "No users."
+msgstr "Žádní uživatelé."
+
+#: app/templates/admin/users.html:66
+msgid "Invite user"
+msgstr "Pozvat uživatele"
+
+#: app/templates/admin/users.html:69 app/templates/auth/login.html:29
+#: app/templates/customers/detail.html:101
+msgid "name@company.com"
+msgstr "jmeno@firma.cz"
+
+#: app/templates/admin/users.html:71 app/templates/customers/detail.html:103
+msgid "Name Surname"
+msgstr "Jméno Příjmení"
+
+#: app/templates/admin/users.html:79
+msgid "Send invitation"
+msgstr "Odeslat pozvánku"
+
+#: app/templates/assets/detail.html:20
+msgid "Current stock"
+msgstr "Aktuální stav"
+
+#: app/templates/assets/detail.html:26 app/templates/assets/form.html:43
+#: app/templates/assets/list.html:29
+msgid "Location"
+msgstr "Umístění"
+
+#: app/templates/assets/detail.html:30 app/templates/assets/form.html:48
+#: app/templates/orders/detail.html:83 app/templates/products/detail.html:52
+#: app/templates/products/form.html:43
+msgid "Description"
+msgstr "Popis"
+
+#: app/templates/assets/detail.html:38
+msgid "Movements"
+msgstr "Pohyby"
+
+#: app/templates/assets/detail.html:44
+msgid "Date"
+msgstr "Datum"
+
+#: app/templates/assets/detail.html:45
+msgid "Type"
+msgstr "Typ"
+
+#: app/templates/assets/detail.html:46 app/templates/assets/detail.html:85
+#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:84
+#: app/templates/orders/detail.html:130
+msgid "Quantity"
+msgstr "Množství"
+
+#: app/templates/assets/detail.html:47 app/templates/assets/detail.html:87
+#: app/templates/orders/form.html:49
+msgid "Note"
+msgstr "Poznámka"
+
+#: app/templates/assets/detail.html:57 app/templates/assets/detail.html:80
+msgid "Receipt"
+msgstr "Příjem"
+
+#: app/templates/assets/detail.html:58 app/templates/assets/detail.html:81
+msgid "Issue"
+msgstr "Výdej"
+
+#: app/templates/assets/detail.html:59 app/templates/assets/detail.html:82
+msgid "Consumption"
+msgstr "Spotřeba"
+
+#: app/templates/assets/detail.html:60 app/templates/assets/detail.html:83
+msgid "Correction"
+msgstr "Korekce"
+
+#: app/templates/assets/detail.html:72
+msgid "No movements."
+msgstr "Žádné pohyby."
+
+#: app/templates/assets/detail.html:90
+msgid "order"
+msgstr "objednávka"
+
+#: app/templates/assets/detail.html:97
+msgid "Add movement"
+msgstr "Přidat pohyb"
+
+#: app/templates/assets/form.html:3 app/templates/assets/form.html:6
+msgid "New asset record"
+msgstr "Nový záznam majetku"
+
+#: app/templates/assets/form.html:17 app/templates/orders/form.html:25
+msgid "choose a client"
+msgstr "vyberte klienta"
+
+#: app/templates/assets/form.html:27 app/templates/assets/list.html:23
+msgid "Code"
+msgstr "Kód"
+
+#: app/templates/assets/form.html:32 app/templates/products/form.html:32
+#: app/templates/products/list.html:23
+msgid "Unit"
+msgstr "Jednotka"
+
+#: app/templates/assets/form.html:38 app/templates/assets/list.html:24
+#: app/templates/orders/form.html:14 app/templates/orders/list.html:71
+#: app/templates/products/form.html:38 app/templates/products/list.html:20
+msgid "Name"
+msgstr "Název"
+
+#: app/templates/assets/form.html:54 app/templates/customers/form.html:81
+#: app/templates/orders/form.html:55 app/templates/products/form.html:70
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: app/templates/assets/form.html:57 app/templates/customers/form.html:83
+#: app/templates/products/form.html:73
+msgid "Save"
+msgstr "Uložit"
+
+#: app/templates/assets/list.html:8
+msgid "Client assets"
+msgstr "Majetek klientů"
+
+#: app/templates/assets/list.html:8
+msgid "My assets at the supplier"
+msgstr "Můj majetek u dodavatele"
+
+#: app/templates/assets/list.html:13 app/templates/assets/list.html:64
+msgid "New record"
+msgstr "Nový záznam"
+
+#: app/templates/assets/list.html:28
+msgid "Stock"
+msgstr "Stav"
+
+#: app/templates/assets/list.html:60
+msgid "No assets recorded for this client yet."
+msgstr "Pro tohoto klienta zatím nejsou evidovány žádné aktiva."
+
+#: app/templates/auth/invite_accept.html:3
+#: app/templates/auth/invite_accept.html:8
+msgid "Accept invitation"
+msgstr "Přijetí pozvánky"
+
+#: app/templates/auth/invite_accept.html:11
+#: app/templates/auth/staff_invite_accept.html:11
+msgid "Hello,"
+msgstr "Dobrý den,"
+
+#: app/templates/auth/invite_accept.html:12
+msgid "Please set a password to access the portal."
+msgstr "Nastavte si prosím heslo pro přístup do portálu."
+
+#: app/templates/auth/invite_accept.html:30
+#: app/templates/auth/password_reset_confirm.html:27
+#: app/templates/auth/staff_invite_accept.html:30
+#: app/templates/platform/password_reset_confirm.html:27
+msgid "Confirm password"
+msgstr "Potvrzení hesla"
+
+#: app/templates/auth/invite_accept.html:37
+#: app/templates/auth/staff_invite_accept.html:37
+msgid "Set password and sign in"
+msgstr "Nastavit heslo a přihlásit"
+
+#: app/templates/auth/login.html:14
+msgid "Sign in to workspace"
+msgstr "Přihlášení do workspace"
+
+#: app/templates/auth/login.html:32 app/templates/platform/login.html:23
+#: app/templates/platform/signup.html:83
+msgid "Password"
+msgstr "Heslo"
+
+#: app/templates/auth/login.html:45 app/templates/platform/login.html:34
+msgid "Forgot password?"
+msgstr "Zapomenuté heslo?"
+
+# "Back to sign in" already defined under platform/verify_email.html
+#: app/templates/auth/password_reset_confirm.html:3
+#: app/templates/auth/password_reset_confirm.html:8
+#: app/templates/platform/password_reset_confirm.html:3
+#: app/templates/platform/password_reset_confirm.html:8
+msgid "New password"
+msgstr "Nové heslo"
+
+#: app/templates/auth/password_reset_confirm.html:10
+msgid "Enter a new password for your account."
+msgstr "Zadejte nové heslo pro svůj účet."
+
+#: app/templates/auth/password_reset_confirm.html:34
+#: app/templates/platform/password_reset_confirm.html:34
+msgid "Set new password"
+msgstr "Nastavit nové heslo"
+
+#: app/templates/auth/password_reset_request.html:3
+#: app/templates/auth/password_reset_request.html:8
+#: app/templates/platform/password_reset_request.html:3
+#: app/templates/platform/password_reset_request.html:8
+msgid "Password reset"
+msgstr "Obnovení hesla"
+
+#: app/templates/auth/password_reset_request.html:10
+msgid ""
+"Enter your email. If we have an account for it, we will send a link to "
+"set a new password."
+msgstr ""
+"Zadejte svůj e-mail. Pokud u nás účet existuje, pošleme vám odkaz na "
+"nastavení nového hesla."
+
+#: app/templates/auth/password_reset_request.html:24
+msgid "Send the link"
+msgstr "Odeslat odkaz"
+
+#: app/templates/auth/password_reset_request.html:27
+#: app/templates/platform/password_reset_request.html:27
+#: app/templates/platform/verify_email.html:54
+msgid "Back to sign in"
+msgstr "Zpět na přihlášení"
+
+#: app/templates/auth/staff_invite_accept.html:3
+#: app/templates/auth/staff_invite_accept.html:8
+msgid "Accept team invitation"
+msgstr "Přijetí pozvánky do týmu"
+
+#: app/templates/auth/staff_invite_accept.html:12
+#, python-format
+msgid "Set your password to access the %(tenant)s portal."
+msgstr "Nastavte si heslo pro přístup do portálu %(tenant)s."
+
+#: app/templates/auth/staff_invite_accept.html:23
+msgid "Password (min. 8 characters)"
+msgstr "Heslo (min. 8 znaků)"
+
+#: app/templates/customers/detail.html:21 app/templates/customers/form.html:9
+#: app/templates/products/detail.html:26 app/templates/products/form.html:9
+msgid "Edit"
+msgstr "Upravit"
+
+#: app/templates/customers/detail.html:28 app/templates/customers/form.html:43
+msgid "Notes"
+msgstr "Poznámky"
+
+#: app/templates/customers/detail.html:34 app/templates/customers/form.html:49
+msgid "Client order permissions"
+msgstr "Oprávnění klienta u objednávek"
+
+#: app/templates/customers/detail.html:42 app/templates/customers/form.html:56
+msgid "Can add items to an order"
+msgstr "Může přidávat položky na objednávku"
+
+#: app/templates/customers/detail.html:50 app/templates/customers/form.html:62
+msgid "Can pick from the product catalog"
+msgstr "Může vybírat z katalogu produktů"
+
+#: app/templates/customers/detail.html:58 app/templates/customers/form.html:68
+msgid "Can set item prices"
+msgstr "Může zadávat ceny u položek"
+
+#: app/templates/customers/detail.html:66 app/templates/customers/form.html:74
+msgid "Can upload attachments"
+msgstr "Může nahrávat přílohy"
+
+#: app/templates/customers/detail.html:72
+msgid "Contacts"
+msgstr "Kontakty"
+
+#: app/templates/customers/detail.html:86
+msgid "invited"
+msgstr "pozván"
+
+#: app/templates/customers/detail.html:93
+msgid "This client has no contacts yet."
+msgstr "Klient zatím nemá žádné kontakty."
+
+#: app/templates/customers/detail.html:107
+msgid "Invite contact"
+msgstr "Pozvat kontakt"
+
+#: app/templates/customers/form.html:5 app/templates/customers/form.html:17
+msgid "Edit client"
+msgstr "Upravit klienta"
+
+#: app/templates/customers/form.html:5 app/templates/customers/form.html:13
+#: app/templates/customers/form.html:17 app/templates/customers/list.html:10
+msgid "New client"
+msgstr "Nový klient"
+
+#: app/templates/customers/form.html:26 app/templates/platform/signup.html:22
+msgid "Company name"
+msgstr "Název firmy"
+
+#: app/templates/customers/form.html:50
+msgid ""
+"Controls what contacts of this client can do when placing orders. Staff "
+"always has full access."
+msgstr ""
+"Kontroluje, co kontakty tohoto klienta mohou dělat při zadávání "
+"objednávek. Staff má vždy plný přístup."
+
+#: app/templates/customers/list.html:36
+msgid "No clients yet."
+msgstr "Zatím žádní klienti."
+
+#: app/templates/customers/list.html:39
+msgid "Add the first client"
+msgstr "Založit prvního klienta"
+
+# --- dashboard + profile ---
+#: app/templates/dashboard/index.html:10
+msgid "overview"
+msgstr "přehled"
+
+#: app/templates/dashboard/index.html:12
+msgid "Welcome,"
+msgstr "Vítejte,"
+
+#: app/templates/dashboard/index.html:39
+msgid "Open orders"
+msgstr "Otevřené objednávky"
+
+#: app/templates/dashboard/index.html:55
+msgid "Active client assets"
+msgstr "Aktivní majetek klientů"
+
+#: app/templates/dashboard/index.html:55
+msgid "My assets"
+msgstr "Můj majetek"
+
+#: app/templates/dashboard/index.html:96
+#, fuzzy
+msgid "changed status of"
+msgstr "Změna hesla"
+
+#: app/templates/dashboard/index.html:97
+#, fuzzy
+msgid "added item to"
+msgstr "Přidat položku"
+
+#: app/templates/dashboard/index.html:98
+#, fuzzy
+msgid "updated item on"
+msgstr "Přidat položku"
+
+#: app/templates/dashboard/index.html:99
+msgid "removed item from"
+msgstr ""
+
+#: app/templates/dashboard/index.html:100
+#, fuzzy
+msgid "commented on"
+msgstr "Komentáře"
+
+#: app/templates/dashboard/index.html:101
+#, fuzzy
+msgid "created client"
+msgstr "Upravit klienta"
+
+#: app/templates/dashboard/index.html:102
+#, fuzzy
+msgid "updated client"
+msgstr "Upravit klienta"
+
+#: app/templates/dashboard/index.html:103
+#, fuzzy
+msgid "deleted client"
+msgstr "Upravit klienta"
+
+#: app/templates/dashboard/index.html:104
+#, fuzzy
+msgid "created product"
+msgstr "Založit produkt"
+
+#: app/templates/dashboard/index.html:105
+#, fuzzy
+msgid "updated product"
+msgstr "Upravit produkt"
+
+#: app/templates/dashboard/index.html:106
+#, fuzzy
+msgid "invited user"
+msgstr "Pozvat uživatele"
+
+#: app/templates/dashboard/index.html:107
+#, fuzzy
+msgid "changed password for"
+msgstr "Změna hesla"
+
+#: app/templates/dashboard/index.html:111
+msgid "Recent activity"
+msgstr "Poslední aktivita"
+
+#: app/templates/dashboard/index.html:128
+#, fuzzy
+msgid "System"
+msgstr "Motiv: systémový"
+
+#: app/templates/dashboard/index.html:147
+msgid "No activity yet — actions will show up here as they happen."
+msgstr "Zatím žádná aktivita — akce se budou zobrazovat zde, jakmile se něco stane."
+
+#: app/templates/dashboard/index.html:155
+msgid "Recent orders"
+msgstr "Poslední objednávky"
+
+#: app/templates/dashboard/index.html:157
+msgid "All orders"
+msgstr "Všechny objednávky"
+
+#: app/templates/dashboard/index.html:194
+msgid "Start a new order in"
+msgstr "Novou objednávku založíte v sekci"
+
+#: app/templates/dashboard/index.html:196 app/templates/orders/form.html:3
+#: app/templates/orders/form.html:6 app/templates/orders/list.html:10
+msgid "New order"
+msgstr "Nová objednávka"
+
+#: app/templates/dashboard/index.html:203
+msgid "Start by adding your first client"
+msgstr "Začněte tím, že přidáte prvního klienta"
+
+#: app/templates/dashboard/index.html:205
+msgid ""
+"A client is a company whose contacts will place orders through the "
+"portal. Then add products to the catalog or track their assets at your "
+"site."
+msgstr ""
+"Klient = firma, jejíž kontakty budou zadávat objednávky přes portál. Pak "
+"přidejte produkty do katalogu nebo sledujte jejich majetek u vás."
+
+#: app/templates/dashboard/index.html:212
+msgid "Add a client"
+msgstr "Přidat klienta"
+
+#: app/templates/dashboard/index.html:213
+msgid "A company you deliver to"
+msgstr "Firma, které dodáváte"
+
+#: app/templates/dashboard/index.html:220
+msgid "Create a product"
+msgstr "Založit produkt"
+
+#: app/templates/dashboard/index.html:221
+msgid "An item from your catalog"
+msgstr "Položka z vašeho katalogu"
+
+#: app/templates/dashboard/index.html:228
+msgid "Invite a colleague"
+msgstr "Pozvat kolegu"
+
+#: app/templates/dashboard/index.html:229
+msgid "Staff / admin role"
+msgstr "Staff / admin role"
+
+#: app/templates/errors/403.html:2 app/templates/errors/403.html:7
+msgid "Access denied"
+msgstr "Přístup odepřen"
+
+#: app/templates/errors/403.html:9
+msgid "You do not have permission for this action."
+msgstr "K této akci nemáte dostatečná oprávnění."
+
+#: app/templates/errors/403.html:12
+msgid "Back to dashboard"
+msgstr "Zpět na přehled"
+
+# --- round-3: title prefix, error pages, tables ---
+#: app/templates/errors/404.html:2
+msgid "Not found"
+msgstr "Nenalezeno"
+
+#: app/templates/errors/404.html:7
+msgid "Page not found"
+msgstr "Stránka nebyla nalezena"
+
+#: app/templates/errors/404.html:8
+msgid ""
+"The path you were looking for does not exist or you do not have access to"
+" it."
+msgstr "Cesta, kterou jste hledali, neexistuje, nebo k ní nemáte přístup."
+
+#: app/templates/errors/404.html:13
+msgid "Back to home"
+msgstr "Zpět na úvod"
+
+#: app/templates/errors/500.html:2
+msgid "Server error"
+msgstr "Chyba serveru"
+
+#: app/templates/errors/500.html:7
+msgid "Something went wrong"
+msgstr "Něco se nepovedlo"
+
+#: app/templates/errors/500.html:9
+msgid "An unexpected error occurred. Please try again in a moment."
+msgstr "Nastala neočekávaná chyba. Zkuste to prosím za chvíli znovu."
+
+#: app/templates/orders/_item_row.html:34
+msgid "Note (optional)"
+msgstr "Poznámka (nepovinné)"
+
+#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:85
+#: app/templates/orders/detail.html:137
+msgid "Price/unit"
+msgstr "Cena/ks"
+
+#: app/templates/orders/_item_row.html:92
+msgid "Saving…"
+msgstr "Ukládám…"
+
+#: app/templates/orders/_item_row.html:96
+#, fuzzy
+msgid "Saved"
+msgstr "Uložit"
+
+#: app/templates/orders/_item_row.html:104 app/templates/orders/detail.html:194
+#: app/templates/products/detail.html:33
+msgid "Delete"
+msgstr "Smazat"
 
 #: app/templates/orders/_status_badge.html:14
 msgid "Draft"
@@ -86,34 +997,216 @@ msgstr "Uzavřeno"
 msgid "Cancelled"
 msgstr "Zrušeno"
 
+#: app/templates/orders/detail.html:49
+msgid "Confirmed total price filled in by staff on transition to Quoted."
+msgstr "Potvrzená celková cena vyplněná staffem při přechodu do stavu Nacenění."
+
+# --- round-4: orders detail, admin users, auth, assets ---
+#: app/templates/orders/detail.html:50
+msgid "Quoted (confirmed)"
+msgstr "Nacenění (potvrzené)"
+
+#: app/templates/orders/detail.html:60
+msgid "Requested delivery"
+msgstr "Požadovaný termín"
+
+#: app/templates/orders/detail.html:66
+msgid "Promised delivery"
+msgstr "Slíbený termín"
+
+#: app/templates/orders/detail.html:76
+msgid "Items"
+msgstr "Položky"
+
+#: app/templates/orders/detail.html:86 app/templates/orders/list.html:76
+msgid "Total"
+msgstr "Celkem"
+
+#: app/templates/orders/detail.html:103
+msgid "No items."
+msgstr "Žádné položky."
+
+#: app/templates/orders/detail.html:116
+msgid "custom item (free-text)"
+msgstr "vlastní položka (free-text)"
+
+#: app/templates/orders/detail.html:132
+msgid "unit"
+msgstr "jed."
+
+#: app/templates/orders/detail.html:143
+msgid "Item description"
+msgstr "Popis položky"
+
+#: app/templates/orders/detail.html:148
+msgid "Add item"
+msgstr "Přidat položku"
+
+#: app/templates/orders/detail.html:158
+msgid "Attachments"
+msgstr "Přílohy"
+
+#: app/templates/orders/detail.html:183
+msgid "item"
+msgstr "položka"
+
+#: app/templates/orders/detail.html:202
+msgid "No attachments."
+msgstr "Žádné přílohy."
+
+#: app/templates/orders/detail.html:214
+msgid "to the whole order"
+msgstr "k celé objednávce"
+
+#: app/templates/orders/detail.html:223
+msgid "Upload"
+msgstr "Nahrát"
+
+#: app/templates/orders/detail.html:232
+msgid "Actions"
+msgstr "Akce"
+
+#: app/templates/orders/detail.html:244
+msgid "Comments"
+msgstr "Komentáře"
+
+#: app/templates/orders/detail.html:251
+msgid "internal"
+msgstr "interní"
+
+#: app/templates/orders/detail.html:256
+msgid "No comments."
+msgstr "Žádné komentáře."
+
+#: app/templates/orders/detail.html:262
+msgid "Write a comment…"
+msgstr "Napište komentář…"
+
+#: app/templates/orders/detail.html:268
+msgid "Internal (staff only)"
+msgstr "Interní (jen pro tým)"
+
+#: app/templates/orders/detail.html:275
+msgid "Add a comment"
+msgstr "Přidat komentář"
+
+#: app/templates/orders/detail.html:284
+msgid "Status history"
+msgstr "Historie stavů"
+
+#: app/templates/orders/form.html:38
+msgid "Requested delivery date"
+msgstr "Požadovaný termín dodání"
+
+#: app/templates/orders/form.html:58
+msgid "Create draft"
+msgstr "Vytvořit koncept"
+
+#: app/templates/orders/list.html:19
+msgid "Number or title…"
+msgstr "Číslo nebo název…"
+
+#: app/templates/orders/list.html:32
+msgid "All clients"
+msgstr "Všichni klienti"
+
+#: app/templates/orders/list.html:66
+msgid "Select all on page"
+msgstr "Vybrat vše na stránce"
+
+#: app/templates/orders/list.html:70
+#: app/templates/platform/billing/dashboard.html:163
+msgid "Number"
+msgstr "Číslo"
+
+#: app/templates/orders/list.html:75
+#: app/templates/platform/billing/dashboard.html:165
+msgid "Status"
+msgstr "Stav"
+
+#: app/templates/orders/list.html:77
+msgid "Created"
+msgstr "Vytvořeno"
+
+#: app/templates/orders/list.html:88
+#, fuzzy
+msgid "Select order"
+msgstr "Vyberte portál"
+
+#: app/templates/orders/list.html:129
+#, fuzzy
+msgid "selected"
+msgstr "Smazat"
+
+#: app/templates/orders/list.html:131 app/templates/orders/list.html:134
+#, fuzzy
+msgid "Set status to…"
+msgstr "Historie stavů"
+
+#: app/templates/orders/list.html:141
+msgid "Apply to selected"
+msgstr "Použít na vybrané"
+
+#: app/templates/orders/list.html:145
+#, fuzzy
+msgid "Clear selection"
+msgstr "Korekce"
+
+#: app/templates/orders/list.html:157
+msgid "of"
+msgstr "z"
+
+# --- filter + empty-state polish ---
+#: app/templates/orders/list.html:186
+msgid "No orders match the filter."
+msgstr "Žádné objednávky neodpovídají filtru."
+
+#: app/templates/orders/list.html:189
+msgid "Clear filters"
+msgstr "Zrušit filtry"
+
+#: app/templates/orders/list.html:192
+msgid "No orders yet."
+msgstr "Zatím žádné objednávky."
+
+#: app/templates/orders/list.html:195
+msgid "Create the first order"
+msgstr "Vytvořit první objednávku"
+
 #: app/templates/platform/login.html:3 app/templates/platform/login.html:8
 msgid "Platform"
 msgstr "Platforma"
-
-#: app/templates/platform/login.html:3 app/templates/platform/login.html:29
-#: app/templates/platform/signup.html:120
-msgid "Sign in"
-msgstr "Přihlásit se"
 
 #: app/templates/platform/login.html:10
 msgid "Sign in with a single account to all the portals you have access to."
 msgstr "Přihlaste se jedním účtem ke všem portálům, do kterých máte přístup."
 
-#: app/templates/platform/login.html:18
-msgid "Email"
-msgstr "E-mail"
-
-#: app/templates/platform/login.html:23 app/templates/platform/signup.html:83
-msgid "Password"
-msgstr "Heslo"
-
-#: app/templates/platform/login.html:33
+#: app/templates/platform/login.html:38
 msgid "Don't have an account yet?"
 msgstr "Ještě nemáte účet?"
 
-#: app/templates/platform/login.html:35
+#: app/templates/platform/login.html:40
 msgid "Create new portal"
 msgstr "Vytvořit nový portál"
+
+#: app/templates/platform/password_reset_confirm.html:10
+#, fuzzy
+msgid "Choose a new password for your platform account."
+msgstr "Zadejte nové heslo pro svůj účet."
+
+#: app/templates/platform/password_reset_request.html:10
+#, fuzzy
+msgid ""
+"Enter your email. If an account exists, we will send you a link to set a "
+"new password."
+msgstr ""
+"Zadejte svůj e-mail. Pokud u nás účet existuje, pošleme vám odkaz na "
+"nastavení nového hesla."
+
+#: app/templates/platform/password_reset_request.html:24
+#, fuzzy
+msgid "Send reset link"
+msgstr "Odeslat odkaz"
 
 #: app/templates/platform/select_tenant.html:3
 #: app/templates/platform/select_tenant.html:9
@@ -160,10 +1253,6 @@ msgstr "Vytvořte si svůj portál"
 msgid "14-day free trial. No credit card required."
 msgstr "14denní zkušební verze zdarma. Žádná platební karta není potřeba."
 
-#: app/templates/platform/signup.html:22
-msgid "Company name"
-msgstr "Název firmy"
-
 #: app/templates/platform/signup.html:23
 msgid "required"
 msgstr "povinné"
@@ -192,7 +1281,8 @@ msgstr "Minimálně 8 znaků; vyhněte se běžným heslům."
 msgid "I agree to the"
 msgstr "Souhlasím s"
 
-#: app/templates/platform/signup.html:102
+#: app/templates/platform/signup.html:102 app/templates/www/terms.html:3
+#: app/templates/www/terms.html:7
 msgid "Terms of Service"
 msgstr "podmínkami služby"
 
@@ -200,7 +1290,8 @@ msgstr "podmínkami služby"
 msgid "and the"
 msgstr "a se"
 
-#: app/templates/platform/signup.html:104
+#: app/templates/platform/signup.html:104 app/templates/www/privacy.html:3
+#: app/templates/www/privacy.html:7 app/templates/www/terms.html:58
 msgid "Privacy Policy"
 msgstr "zpracováním osobních údajů"
 
@@ -216,30 +1307,26 @@ msgstr "Ověření e-mailu"
 msgid "Email successfully verified"
 msgstr "E-mail úspěšně ověřen"
 
-#: app/templates/platform/verify_email.html:25
+#: app/templates/platform/verify_email.html:26
 msgid "Finish setting up"
 msgstr "Dokončit nastavení"
 
-#: app/templates/platform/verify_email.html:30
+#: app/templates/platform/verify_email.html:31
 msgid "Skip for now"
 msgstr "Přeskočit"
 
-#: app/templates/platform/verify_email.html:35
+#: app/templates/platform/verify_email.html:36
 msgid "Continue to the portal"
 msgstr "Pokračovat do portálu"
 
-#: app/templates/platform/verify_email.html:42
+#: app/templates/platform/verify_email.html:43
 msgid "Email verification failed"
 msgstr "Nepodařilo se ověřit e-mail"
 
-#: app/templates/platform/verify_email.html:48
+#: app/templates/platform/verify_email.html:49
 #: app/templates/platform/verify_sent.html:23
 msgid "Send a new verification link"
 msgstr "Poslat nový ověřovací odkaz"
-
-#: app/templates/platform/verify_email.html:53
-msgid "Back to sign in"
-msgstr "Zpět na přihlášení"
 
 #: app/templates/platform/verify_sent.html:3
 msgid "Verify your email"
@@ -261,797 +1348,1083 @@ msgstr "Po kliknutí na odkaz bude váš portál připraven k použití."
 msgid "Didn't receive it? Check your spam folder or request a new link."
 msgstr "Nepřišel e-mail? Zkontrolujte spam nebo si nechte poslat nový odkaz."
 
-# --- round-2 audit: landing + CRUD templates ---
-
-#: app/templates/index.html
-msgid "Customer portal for SMEs"
-msgstr "Zákaznický portál pro SME"
-
-#: app/templates/index.html
-msgid "Transparent order process between the manufacturer and its clients. Product catalog, attachments, client asset tracking."
-msgstr "Transparentní objednávkový proces mezi výrobcem a jeho klienty. Katalog produktů, přílohy k objednávkám, evidence klientského majetku."
-
-#: app/templates/base.html
-msgid "Toggle menu"
-msgstr "Otevřít menu"
-
-#: app/templates/base.html
-msgid "Toggle theme"
-msgstr "Přepnout motiv"
-
-#: app/templates/base.html
-msgid "Theme: system"
-msgstr "Motiv: systémový"
-
-#: app/templates/base.html
-msgid "Theme: light"
-msgstr "Motiv: světlý"
-
-#: app/templates/base.html
-msgid "Theme: dark"
-msgstr "Motiv: tmavý"
-
-#: app/templates/products/detail.html
-msgid "Edit product"
-msgstr "Upravit produkt"
-
-#: app/templates/products/form.html
-msgid "New product"
-msgstr "Nový produkt"
-
-#: app/templates/products/form.html
-msgid "Back to product"
-msgstr "Zpět na produkt"
-
-#: app/templates/products/form.html
-msgid "Unit"
-msgstr "Jednotka"
-
-#: app/templates/products/form.html
-msgid "Name"
-msgstr "Název"
-
-#: app/templates/products/form.html
-msgid "Description"
+#: app/templates/platform/billing/dashboard.html:3
+#, fuzzy
+msgid "Subscription"
 msgstr "Popis"
 
-#: app/templates/products/form.html
-msgid "Default price"
-msgstr "Výchozí cena"
-
-#: app/templates/products/form.html
-msgid "Client"
-msgstr "Klient"
-
-#: app/templates/products/form.html
-msgid "shared"
-msgstr "sdílené"
-
-#: app/templates/products/form.html
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: app/templates/products/form.html
-msgid "Save"
-msgstr "Uložit"
-
-#: app/templates/products/detail.html
-msgid "Edit"
-msgstr "Upravit"
-
-#: app/templates/products/detail.html
-msgid "Delete"
-msgstr "Smazat"
-
-#: app/templates/products/detail.html
-msgid "Delete this product? It will be removed from the catalog but historical orders keep their link."
-msgstr "Opravdu smazat tento produkt? Bude odebrán z katalogu, ale zůstane propojen s historickými objednávkami."
-
-#: app/templates/customers/detail.html
-msgid "Edit client"
-msgstr "Upravit klienta"
-
-#: app/templates/customers/form.html
-msgid "New client"
-msgstr "Nový klient"
-
-#: app/templates/customers/form.html
-msgid "Back to client"
-msgstr "Zpět na klienta"
-
-#: app/templates/customers/form.html
-msgid "Notes"
-msgstr "Poznámky"
-
-#: app/templates/customers/form.html
-msgid "Client order permissions"
-msgstr "Oprávnění klienta u objednávek"
-
-#: app/templates/customers/form.html
-msgid "Controls what contacts of this client can do when placing orders. Staff always has full access."
-msgstr "Kontroluje, co kontakty tohoto klienta mohou dělat při zadávání objednávek. Staff má vždy plný přístup."
-
-#: app/templates/customers/form.html
-msgid "Can add items to an order"
-msgstr "Může přidávat položky na objednávku"
-
-#: app/templates/customers/form.html
-msgid "Can pick from the product catalog"
-msgstr "Může vybírat z katalogu produktů"
-
-#: app/templates/customers/form.html
-msgid "Can set item prices"
-msgstr "Může zadávat ceny u položek"
-
-#: app/templates/customers/form.html
-msgid "Can upload attachments"
-msgstr "Může nahrávat přílohy"
-
-#: app/templates/customers/detail.html
-msgid "Contacts"
-msgstr "Kontakty"
-
-#: app/templates/customers/detail.html
-msgid "active"
-msgstr "aktivní"
-
-#: app/templates/customers/detail.html
-msgid "invited"
-msgstr "pozván"
-
-#: app/templates/customers/detail.html
-msgid "This client has no contacts yet."
-msgstr "Klient zatím nemá žádné kontakty."
-
-#: app/templates/customers/detail.html
-msgid "Name Surname"
-msgstr "Jméno Příjmení"
-
-#: app/templates/customers/detail.html
-msgid "Invite contact"
-msgstr "Pozvat kontakt"
-
-# --- filter + empty-state polish ---
-
-#: app/templates/orders/list.html
-msgid "No orders match the filter."
-msgstr "Žádné objednávky neodpovídají filtru."
-
-#: app/templates/orders/list.html
-msgid "No orders yet."
-msgstr "Zatím žádné objednávky."
-
-#: app/templates/orders/list.html
-msgid "Create the first order"
-msgstr "Vytvořit první objednávku"
-
-#: app/templates/orders/list.html
-msgid "Clear filters"
-msgstr "Zrušit filtry"
-
-#: app/templates/orders/list.html
-msgid "All statuses"
-msgstr "Všechny stavy"
-
-#: app/templates/orders/list.html
-msgid "All clients"
-msgstr "Všichni klienti"
-
-#: app/templates/orders/list.html
-msgid "Filter"
-msgstr "Filtrovat"
-
-#: app/templates/orders/list.html
-msgid "Number or title…"
-msgstr "Číslo nebo název…"
-
-#: app/templates/assets/list.html
-msgid "No assets recorded for this client yet."
-msgstr "Pro tohoto klienta zatím nejsou evidovány žádné aktiva."
-
-#: app/templates/assets/list.html
-msgid "New record"
-msgstr "Nový záznam"
-
-#: app/templates/admin/users.html
-msgid "Operator"
-msgstr "Operátor"
-
-#: app/templates/admin/users.html
-msgid "Administrator"
-msgstr "Administrátor"
-
-#: app/templates/admin/users.html
-msgid "Send invitation"
-msgstr "Odeslat pozvánku"
-
-#: app/templates/auth/login.html
-msgid "Sign in to workspace"
-msgstr "Přihlášení do workspace"
-
-#: app/templates/orders/detail.html
-msgid "Add a comment"
-msgstr "Přidat komentář"
-
-# --- dashboard + profile ---
-
-#: app/templates/dashboard/index.html
-msgid "overview"
-msgstr "přehled"
-
-#: app/templates/dashboard/index.html
-msgid "Welcome,"
-msgstr "Vítejte,"
-
-#: app/templates/dashboard/index.html
-msgid "Open orders"
-msgstr "Otevřené objednávky"
-
-#: app/templates/dashboard/index.html
-msgid "Active client assets"
-msgstr "Aktivní majetek klientů"
-
-#: app/templates/dashboard/index.html
-msgid "My assets"
-msgstr "Můj majetek"
-
-#: app/templates/dashboard/index.html
-msgid "Recent orders"
-msgstr "Poslední objednávky"
-
-#: app/templates/dashboard/index.html
-msgid "All orders"
-msgstr "Všechny objednávky"
-
-#: app/templates/dashboard/index.html
-msgid "Start a new order in"
-msgstr "Novou objednávku založíte v sekci"
-
-#: app/templates/dashboard/index.html
-msgid "New order"
-msgstr "Nová objednávka"
-
-#: app/templates/dashboard/index.html
-msgid "Start by adding your first client"
-msgstr "Začněte tím, že přidáte prvního klienta"
-
-#: app/templates/dashboard/index.html
-msgid "A client is a company whose contacts will place orders through the portal. Then add products to the catalog or track their assets at your site."
-msgstr "Klient = firma, jejíž kontakty budou zadávat objednávky přes portál. Pak přidejte produkty do katalogu nebo sledujte jejich majetek u vás."
-
-#: app/templates/dashboard/index.html
-msgid "Add a client"
-msgstr "Přidat klienta"
-
-#: app/templates/dashboard/index.html
-msgid "A company you deliver to"
-msgstr "Firma, které dodáváte"
-
-#: app/templates/dashboard/index.html
-msgid "Create a product"
-msgstr "Založit produkt"
-
-#: app/templates/dashboard/index.html
-msgid "An item from your catalog"
-msgstr "Položka z vašeho katalogu"
-
-#: app/templates/dashboard/index.html
-msgid "Invite a colleague"
-msgstr "Pozvat kolegu"
-
-#: app/templates/dashboard/index.html
-msgid "Staff / admin role"
-msgstr "Staff / admin role"
-
-#: app/templates/admin/profile.html
-msgid "Profile"
-msgstr "Profil"
-
-#: app/templates/admin/profile.html
-msgid "Account"
-msgstr "Účet"
-
-#: app/templates/admin/profile.html
-msgid "Full name"
-msgstr "Jméno"
-
-#: app/templates/admin/profile.html
-msgid "Email changes need an administrator."
-msgstr "Změnu e-mailu musí provést administrátor."
-
-#: app/templates/admin/profile.html
-msgid "Save profile"
-msgstr "Uložit profil"
-
-#: app/templates/admin/profile.html
-msgid "Change password"
-msgstr "Změna hesla"
-
-#: app/templates/admin/profile.html
-msgid "Current password"
-msgstr "Současné heslo"
-
-#: app/templates/admin/profile.html
-msgid "New password (min. 8 characters)"
-msgstr "Nové heslo (min. 8 znaků)"
-
-#: app/templates/admin/profile.html
-msgid "Confirm new password"
-msgstr "Potvrzení nového hesla"
-
-#: app/templates/admin/profile.html
-msgid "Save new password"
-msgstr "Uložit nové heslo"
-
-#: app/templates/admin/profile.html
-msgid "After changing your password you will be signed out and must log in again."
-msgstr "Po změně hesla budete odhlášeni a musíte se znovu přihlásit."
-
-# --- round-3: title prefix, error pages, tables ---
-
-#: app/templates/errors/404.html
-msgid "Not found"
-msgstr "Nenalezeno"
-
-#: app/templates/errors/404.html
-msgid "Page not found"
-msgstr "Stránka nebyla nalezena"
-
-#: app/templates/errors/404.html
-msgid "The path you were looking for does not exist or you do not have access to it."
-msgstr "Cesta, kterou jste hledali, neexistuje, nebo k ní nemáte přístup."
-
-#: app/templates/errors/404.html
-msgid "Back to home"
-msgstr "Zpět na úvod"
-
-#: app/templates/errors/403.html
-msgid "Access denied"
+#: app/templates/platform/billing/dashboard.html:7
+msgid "Subscription & billing"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:9
+msgid "Tenant:"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:17
+msgid "Subscription will be cancelled."
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:18
+#, fuzzy
+msgid "Access remains until"
 msgstr "Přístup odepřen"
 
-#: app/templates/errors/403.html
-msgid "You do not have permission for this action."
-msgstr "K této akci nemáte dostatečná oprávnění."
+#: app/templates/platform/billing/dashboard.html:18
+msgid "end of period"
+msgstr ""
 
-#: app/templates/errors/403.html
-msgid "Back to dashboard"
-msgstr "Zpět na přehled"
+#: app/templates/platform/billing/dashboard.html:19
+msgid "You can revert the cancellation in the Stripe Portal below."
+msgstr ""
 
-#: app/templates/errors/500.html
-msgid "Server error"
-msgstr "Chyba serveru"
+#: app/templates/platform/billing/dashboard.html:27
+#: app/templates/platform/billing/dashboard.html:124
+#, fuzzy
+msgid "Current plan"
+msgstr "Současné heslo"
 
-#: app/templates/errors/500.html
-msgid "Something went wrong"
-msgstr "Něco se nepovedlo"
-
-#: app/templates/errors/500.html
-msgid "An unexpected error occurred. Please try again in a moment."
-msgstr "Nastala neočekávaná chyba. Zkuste to prosím za chvíli znovu."
-
-#: app/templates/orders/list.html
-msgid "Number"
-msgstr "Číslo"
-
-#: app/templates/orders/list.html
-msgid "Status"
+#: app/templates/platform/billing/dashboard.html:33
+#, fuzzy
+msgid "Status:"
 msgstr "Stav"
 
-#: app/templates/orders/list.html
-msgid "Total"
-msgstr "Celkem"
+#: app/templates/platform/billing/dashboard.html:35
+msgid "Trial until"
+msgstr ""
 
-#: app/templates/orders/list.html
-msgid "Created"
-msgstr "Vytvořeno"
+#: app/templates/platform/billing/dashboard.html:37
+msgid "Next billing"
+msgstr ""
 
-#: app/templates/orders/list.html
-msgid "Page"
-msgstr "Strana"
-
-#: app/templates/orders/list.html
-msgid "of"
-msgstr "z"
-
-#: app/templates/orders/list.html
-msgid "records"
-msgstr "záznamů"
-
-#: app/templates/orders/list.html
-msgid "Previous"
-msgstr "Předchozí"
-
-#: app/templates/orders/list.html
-msgid "Next"
-msgstr "Další"
-
-#: app/templates/orders/form.html
-msgid "choose a client"
-msgstr "vyberte klienta"
-
-#: app/templates/orders/form.html
-msgid "Requested delivery date"
-msgstr "Požadovaný termín dodání"
-
-#: app/templates/orders/form.html
-msgid "Note"
-msgstr "Poznámka"
-
-#: app/templates/orders/form.html
-msgid "Create draft"
-msgstr "Vytvořit koncept"
-
-#: app/templates/products/list.html
-msgid "Product catalog"
-msgstr "Katalog produktů"
-
-#: app/templates/products/list.html
-msgid "Price"
-msgstr "Cena"
-
-#: app/templates/products/list.html
-msgid "The catalog is empty."
-msgstr "Katalog je prázdný."
-
-#: app/templates/products/list.html
-msgid "Add the first product"
-msgstr "Přidat první produkt"
-
-#: app/templates/customers/list.html
-msgid "No clients yet."
-msgstr "Zatím žádní klienti."
-
-#: app/templates/customers/list.html
-msgid "Add the first client"
-msgstr "Založit prvního klienta"
-
-# --- round-4: orders detail, admin users, auth, assets ---
-
-#: app/templates/orders/detail.html
-msgid "Quoted (confirmed)"
-msgstr "Nacenění (potvrzené)"
-
-#: app/templates/orders/detail.html
-msgid "Confirmed total price filled in by staff on transition to Quoted."
-msgstr "Potvrzená celková cena vyplněná staffem při přechodu do stavu Nacenění."
-
-#: app/templates/orders/detail.html
-msgid "Requested delivery"
-msgstr "Požadovaný termín"
-
-#: app/templates/orders/detail.html
-msgid "Promised delivery"
-msgstr "Slíbený termín"
-
-#: app/templates/orders/detail.html
-msgid "Items"
-msgstr "Položky"
-
-#: app/templates/orders/detail.html
-msgid "Quantity"
-msgstr "Množství"
-
-#: app/templates/orders/detail.html
-msgid "Price/unit"
-msgstr "Cena/ks"
-
-#: app/templates/orders/detail.html
-msgid "No items."
-msgstr "Žádné položky."
-
-#: app/templates/orders/detail.html
-msgid "custom item (free-text)"
-msgstr "vlastní položka (free-text)"
-
-#: app/templates/orders/detail.html
-msgid "unit"
-msgstr "jed."
-
-#: app/templates/orders/detail.html
-msgid "Item description"
+#: app/templates/platform/billing/dashboard.html:40
+#, fuzzy
+msgid "No active subscription"
 msgstr "Popis položky"
 
-#: app/templates/orders/detail.html
-msgid "Add item"
-msgstr "Přidat položku"
+#: app/templates/platform/billing/dashboard.html:46
+msgid "Demo mode (Stripe not configured)"
+msgstr ""
 
-#: app/templates/orders/detail.html
-msgid "Attachments"
-msgstr "Přílohy"
+#: app/templates/platform/billing/dashboard.html:58
+msgid "Manage subscription (Stripe Portal)"
+msgstr ""
 
-#: app/templates/orders/detail.html
-msgid "No attachments."
-msgstr "Žádné přílohy."
+#: app/templates/platform/billing/dashboard.html:61
+msgid "Plan change, payment card, billing details, and cancellation."
+msgstr ""
 
-#: app/templates/orders/detail.html
-msgid "item"
-msgstr "položka"
-
-#: app/templates/orders/detail.html
-msgid "to the whole order"
-msgstr "k celé objednávce"
-
-#: app/templates/orders/detail.html
-msgid "Upload"
-msgstr "Nahrát"
-
-#: app/templates/orders/detail.html
-msgid "Actions"
-msgstr "Akce"
-
-#: app/templates/orders/detail.html
-msgid "Comments"
-msgstr "Komentáře"
-
-#: app/templates/orders/detail.html
-msgid "internal"
-msgstr "interní"
-
-#: app/templates/orders/detail.html
-msgid "No comments."
-msgstr "Žádné komentáře."
-
-#: app/templates/orders/detail.html
-msgid "Write a comment…"
-msgstr "Napište komentář…"
-
-#: app/templates/orders/detail.html
-msgid "Internal (staff only)"
-msgstr "Interní (jen pro tým)"
-
-#: app/templates/orders/detail.html
-msgid "Status history"
-msgstr "Historie stavů"
-
-#: app/routers/orders.py
-msgid "Return to draft"
-msgstr "Vrátit do konceptu"
-
-#: app/routers/orders.py
-msgid "Submit"
-msgstr "Odeslat"
-
-#: app/routers/orders.py
-msgid "Quote"
-msgstr "Nacenit"
-
-#: app/routers/orders.py
-msgid "Confirm"
-msgstr "Potvrdit"
-
-#: app/routers/orders.py
-msgid "Start production"
-msgstr "Spustit výrobu"
-
-#: app/routers/orders.py
-msgid "Close"
-msgstr "Uzavřít"
+#: app/templates/platform/billing/dashboard.html:69
+#, fuzzy
+msgid "Your usage"
+msgstr "Vaše jméno"
 
 # "Ready", "Delivered", "Cancel" reuse the existing msgids from
 # orders/_status_badge.html and products/form.html (they share the
 # same Czech translation, so we don't duplicate entries).
-
-#: app/templates/admin/users.html
-msgid "Team users"
+#: app/templates/platform/billing/dashboard.html:95
+#, fuzzy
+msgid "Staff users"
 msgstr "Uživatelé týmu"
 
-#: app/templates/admin/users.html
-msgid "Manage staff users — full access to all tenant data."
-msgstr "Spravujte staff uživatele — přístup do všech dat tenantu."
+#: app/templates/platform/billing/dashboard.html:96
+#, fuzzy
+msgid "Client contacts"
+msgstr "Pozvat kontakt"
 
-#: app/templates/admin/users.html
-msgid "State"
-msgstr "Stav"
+#: app/templates/platform/billing/dashboard.html:97
+msgid "Orders (monthly)"
+msgstr ""
 
-#: app/templates/admin/users.html
-msgid "Role"
-msgstr "Role"
+#: app/templates/platform/billing/dashboard.html:98
+msgid "Storage (MB)"
+msgstr ""
 
-#: app/templates/admin/users.html
-msgid "disabled"
-msgstr "deaktivován"
+#: app/templates/platform/billing/dashboard.html:103
+#, fuzzy
+msgid "Switch plan"
+msgstr "Přepnout na"
 
-#: app/templates/admin/users.html
-msgid "pending invite"
-msgstr "čeká na přijetí"
+#: app/templates/platform/billing/dashboard.html:112
+#: app/templates/www/pricing.html:38 app/templates/www/pricing.html:60
+msgid "/month"
+msgstr ""
 
-#: app/templates/admin/users.html
-msgid "Deactivate"
-msgstr "Deaktivovat"
+#: app/templates/platform/billing/dashboard.html:114
+#: app/templates/www/pricing.html:19
+msgid "Free"
+msgstr ""
 
-#: app/templates/admin/users.html
-msgid "Deactivate this user?"
-msgstr "Opravdu deaktivovat tohoto uživatele?"
-
-#: app/templates/admin/users.html
-msgid "No users."
+#: app/templates/platform/billing/dashboard.html:118
+#, fuzzy
+msgid "Users:"
 msgstr "Žádní uživatelé."
 
-#: app/templates/admin/users.html
-msgid "Invite user"
-msgstr "Pozvat uživatele"
+#: app/templates/platform/billing/dashboard.html:119
+#, fuzzy
+msgid "Contacts:"
+msgstr "Kontakty"
 
-#: app/templates/admin/users.html
-msgid "name@company.com"
-msgstr "jmeno@firma.cz"
+#: app/templates/platform/billing/dashboard.html:120
+#, fuzzy
+msgid "Orders/month:"
+msgstr "Objednávky"
 
-#: app/templates/auth/password_reset_request.html
-msgid "Password reset"
-msgstr "Obnovení hesla"
-
-#: app/templates/auth/password_reset_request.html
-msgid "Enter your email. If we have an account for it, we will send a link to set a new password."
-msgstr "Zadejte svůj e-mail. Pokud u nás účet existuje, pošleme vám odkaz na nastavení nového hesla."
-
-#: app/templates/auth/password_reset_request.html
-msgid "Send the link"
-msgstr "Odeslat odkaz"
-
-# "Back to sign in" already defined under platform/verify_email.html
-
-#: app/templates/auth/password_reset_confirm.html
-msgid "New password"
-msgstr "Nové heslo"
-
-#: app/templates/auth/password_reset_confirm.html
-msgid "Enter a new password for your account."
-msgstr "Zadejte nové heslo pro svůj účet."
-
-#: app/templates/auth/password_reset_confirm.html
-msgid "Confirm password"
-msgstr "Potvrzení hesla"
-
-#: app/templates/auth/password_reset_confirm.html
-msgid "Set new password"
-msgstr "Nastavit nové heslo"
-
-#: app/templates/auth/invite_accept.html
-msgid "Accept invitation"
-msgstr "Přijetí pozvánky"
-
-#: app/templates/auth/invite_accept.html
-msgid "Hello,"
-msgstr "Dobrý den,"
-
-#: app/templates/auth/invite_accept.html
-msgid "Please set a password to access the portal."
-msgstr "Nastavte si prosím heslo pro přístup do portálu."
-
-#: app/templates/auth/invite_accept.html
-msgid "Set password and sign in"
-msgstr "Nastavit heslo a přihlásit"
-
-#: app/templates/auth/staff_invite_accept.html
-msgid "Accept team invitation"
-msgstr "Přijetí pozvánky do týmu"
-
-#: app/templates/auth/staff_invite_accept.html
-msgid "Set your password to access the %(tenant)s portal."
-msgstr "Nastavte si heslo pro přístup do portálu %(tenant)s."
-
-#: app/templates/auth/staff_invite_accept.html
-msgid "Password (min. 8 characters)"
-msgstr "Heslo (min. 8 znaků)"
-
-#: app/templates/auth/login.html
-msgid "Forgot password?"
-msgstr "Zapomenuté heslo?"
-
-#: app/templates/assets/detail.html
-msgid "Current stock"
-msgstr "Aktuální stav"
-
-#: app/templates/assets/detail.html
-msgid "Location"
-msgstr "Umístění"
-
-#: app/templates/assets/detail.html
-msgid "Movements"
-msgstr "Pohyby"
-
-#: app/templates/assets/detail.html
-msgid "Date"
-msgstr "Datum"
-
-#: app/templates/assets/detail.html
-msgid "Type"
-msgstr "Typ"
-
-#: app/templates/assets/detail.html
-msgid "Receipt"
-msgstr "Příjem"
-
-#: app/templates/assets/detail.html
-msgid "Issue"
-msgstr "Výdej"
-
-#: app/templates/assets/detail.html
-msgid "Consumption"
-msgstr "Spotřeba"
-
-#: app/templates/assets/detail.html
-msgid "Correction"
-msgstr "Korekce"
-
-#: app/templates/assets/detail.html
-msgid "No movements."
-msgstr "Žádné pohyby."
-
-#: app/templates/assets/detail.html
-msgid "order"
-msgstr "objednávka"
-
-#: app/templates/assets/detail.html
-msgid "Add movement"
-msgstr "Přidat pohyb"
-
-#: app/templates/assets/list.html
-msgid "Client assets"
-msgstr "Majetek klientů"
-
-#: app/templates/assets/list.html
-msgid "My assets at the supplier"
-msgstr "Můj majetek u dodavatele"
-
-#: app/templates/assets/list.html
-msgid "Stock"
+#: app/templates/platform/billing/dashboard.html:121
+#, fuzzy
+msgid "Storage:"
 msgstr "Stav"
 
-#: app/templates/assets/form.html
-msgid "New asset record"
-msgstr "Nový záznam majetku"
+#: app/templates/platform/billing/dashboard.html:126
+#: app/templates/www/pricing.html:80 app/templates/www/pricing.html:89
+#, fuzzy
+msgid "Contact us"
+msgstr "Kontakty"
 
-#: app/templates/assets/form.html
-msgid "Code"
-msgstr "Kód"
+#: app/templates/platform/billing/dashboard.html:134
+msgid "Upgrade to "
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:138
+msgid "Downgrade to "
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:142
+msgid "Try "
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:158
+#, fuzzy
+msgid "Invoices"
+msgstr "pozván"
+
+#: app/templates/platform/billing/dashboard.html:164
+#, fuzzy
+msgid "Amount"
+msgstr "Účet"
+
+#: app/templates/platform/billing/dashboard.html:166
+#, fuzzy
+msgid "Paid"
+msgstr "Nahrát"
+
+#: app/templates/platform/billing/dashboard.html:192
+#, fuzzy
+msgid "No invoices yet."
+msgstr "Zatím žádné objednávky."
+
+#: app/templates/products/detail.html:19 app/templates/products/form.html:58
+#: app/templates/products/list.html:36
+msgid "shared"
+msgstr "sdílené"
+
+#: app/templates/products/detail.html:29
+msgid ""
+"Delete this product? It will be removed from the catalog but historical "
+"orders keep their link."
+msgstr ""
+"Opravdu smazat tento produkt? Bude odebrán z katalogu, ale zůstane "
+"propojen s historickými objednávkami."
+
+#: app/templates/products/detail.html:42 app/templates/products/form.html:49
+msgid "Default price"
+msgstr "Výchozí cena"
+
+#: app/templates/products/form.html:5 app/templates/products/form.html:17
+msgid "Edit product"
+msgstr "Upravit produkt"
+
+#: app/templates/products/form.html:5 app/templates/products/form.html:13
+#: app/templates/products/form.html:17 app/templates/products/list.html:10
+msgid "New product"
+msgstr "Nový produkt"
+
+#: app/templates/products/list.html:7 app/templates/www/features.html:37
+#: app/templates/www/index.html:55
+msgid "Product catalog"
+msgstr "Katalog produktů"
+
+#: app/templates/products/list.html:22
+msgid "Price"
+msgstr "Cena"
+
+#: app/templates/products/list.html:60
+msgid "The catalog is empty."
+msgstr "Katalog je prázdný."
+
+#: app/templates/products/list.html:63
+msgid "Add the first product"
+msgstr "Přidat první produkt"
+
+#: app/templates/www/contact.html:3 app/templates/www/www_base.html:15
+#, fuzzy
+msgid "Contact"
+msgstr "Kontakty"
+
+#: app/templates/www/contact.html:7
+#, fuzzy
+msgid "Write to us"
+msgstr "Přepnout na"
+
+#: app/templates/www/contact.html:9
+msgid ""
+"Need help with deployment, interested in the Enterprise plan, or found a "
+"bug? Write to us and we will get back to you within one business day."
+msgstr ""
+
+#: app/templates/www/contact.html:15
+#, fuzzy
+msgid "Message sent"
+msgstr "Spravovat tenanty"
+
+#: app/templates/www/contact.html:16
+msgid "Thanks — we will reply within 24 hours."
+msgstr ""
+
+#: app/templates/www/contact.html:27
+#, fuzzy
+msgid "Your name *"
+msgstr "Vaše jméno"
+
+#: app/templates/www/contact.html:33
+#, fuzzy
+msgid "Email *"
+msgstr "E-mail"
+
+#: app/templates/www/contact.html:39
+#, fuzzy
+msgid "Your message *"
+msgstr "Vaše jméno"
+
+#: app/templates/www/contact.html:45
+#, fuzzy
+msgid "Send"
+msgstr "sdílené"
+
+#: app/templates/www/features.html:3 app/templates/www/www_base.html:6
+msgid "Features"
+msgstr ""
+
+#: app/templates/www/features.html:8
+msgid "What Assoluto can do"
+msgstr ""
+
+#: app/templates/www/features.html:10
+msgid ""
+"Built for manufacturing SMEs: orders with drawings, catalog, client "
+"assets, multi-tenant."
+msgstr ""
+
+#: app/templates/www/features.html:16
+msgid "Order workflow"
+msgstr ""
+
+#: app/templates/www/features.html:18
+msgid ""
+"Eight-step process: DRAFT → SUBMITTED → QUOTED → CONFIRMED → "
+"IN_PRODUCTION → READY → DELIVERED → CLOSED. Every transition is audited "
+"(who, when, why)."
+msgstr ""
+
+#: app/templates/www/features.html:21
+msgid "Client enters items (free-text or from the catalog)."
+msgstr ""
+
+#: app/templates/www/features.html:22
+msgid "You quote and set the deadline."
+msgstr ""
+
+#: app/templates/www/features.html:23
+msgid "Client confirms or proposes a change."
+msgstr ""
+
+#: app/templates/www/features.html:24
+msgid "Comments on the order (with internal notes for the team)."
+msgstr ""
+
+#: app/templates/www/features.html:25
+msgid "Automatic notifications on every status change."
+msgstr ""
+
+#: app/templates/www/features.html:30
+#, fuzzy
+msgid "Attachments and drawings"
+msgstr "Přílohy"
+
+#: app/templates/www/features.html:32
+msgid ""
+"Direct upload to S3 (max 50 MB). Thumbnails for PDFs and images. "
+"Attachments can be linked to the entire order or to a specific item."
+msgstr ""
+
+#: app/templates/www/features.html:39
+msgid ""
+"Shared per-tenant catalog and per-customer catalog (customized for a "
+"specific client). Autocomplete directly when placing an order, with pre-"
+"filled price and unit."
+msgstr ""
+
+#: app/templates/www/features.html:44
+#, fuzzy
+msgid "Client asset tracking"
+msgstr "Majetek klientů"
+
+#: app/templates/www/features.html:46
+msgid ""
+"Does your client store materials, tools, or semi-finished products with "
+"you? The portal tracks receipt, dispatch, and consumption. Current "
+"balance is recalculated automatically. Clients only see their own items."
+msgstr ""
+
+#: app/templates/www/features.html:51
+msgid "Multi-tenant from day one"
+msgstr ""
+
+#: app/templates/www/features.html:53
+msgid ""
+"PostgreSQL Row-Level Security — data from different clients is physically"
+" separated at the database level. Subdomains"
+msgstr ""
+
+#: app/templates/www/features.html:55
+msgid "for each client separately."
+msgstr ""
+
+#: app/templates/www/features.html:60
+msgid "Permissions and security"
+msgstr ""
+
+#: app/templates/www/features.html:62
+msgid ""
+"Roles: tenant_admin (owner), tenant_staff (your team), customer_admin "
+"(client representative), customer_user (client contact person). Per-"
+"customer settings for what the client can enter (catalog selection only /"
+" free-text / prices)."
+msgstr ""
+
+#: app/templates/www/features.html:67 app/templates/www/index.html:91
+#, fuzzy
+msgid "Open source"
+msgstr "Otevřené objednávky"
+
+#: app/templates/www/features.html:69
+msgid "The entire code is licensed under AGPL-3.0 on"
+msgstr ""
+
+#: app/templates/www/features.html:70
+msgid "GitHub"
+msgstr ""
+
+#: app/templates/www/features.html:71
+msgid ""
+"You can self-host it (free), audit it, or fork it. We offer a hosted "
+"version with convenient management and support."
+msgstr ""
+
+#: app/templates/www/features.html:79 app/templates/www/index.html:22
+#: app/templates/www/pricing.html:49 app/templates/www/pricing.html:72
+msgid "Try free for 14 days"
+msgstr ""
+
+# --- round-2 audit: landing + CRUD templates ---
+#: app/templates/www/index.html:3 app/templates/www/index.html:10
+#, fuzzy
+msgid "Client portal for manufacturing SMEs"
+msgstr "Zákaznický portál pro SME"
+
+#: app/templates/www/index.html:13
+msgid "Replace emails and phone calls with"
+msgstr ""
+
+#: app/templates/www/index.html:14
+#, fuzzy
+msgid "a structured portal"
+msgstr "Vyberte portál"
+
+#: app/templates/www/index.html:17
+msgid ""
+"Let your clients place orders online, share drawings, track production "
+"status, and keep an overview of their materials at your warehouse. No "
+"complex ERP, no lengthy implementation."
+msgstr ""
+
+#: app/templates/www/index.html:26
+msgid "Self-hosted installation guide"
+msgstr ""
+
+#: app/templates/www/index.html:30
+msgid "No credit card required · Open source (AGPL-3.0) · GDPR-ready (EU data)"
+msgstr ""
+
+#: app/templates/www/index.html:39
+msgid "Everything your manufacturing SME needs"
+msgstr ""
+
+#: app/templates/www/index.html:46
+#, fuzzy
+msgid "Orders with attachments"
+msgstr "Žádné přílohy."
+
+#: app/templates/www/index.html:48
+msgid ""
+"Client uploads drawings, specifies quantities, you quote and set a "
+"deadline. 8-step workflow with audit trail."
+msgstr ""
+
+#: app/templates/www/index.html:57
+msgid "Share only the items relevant to each client. Prices, units, descriptions."
+msgstr ""
+
+#: app/templates/www/index.html:64
+msgid "Client assets at your warehouse"
+msgstr ""
+
+#: app/templates/www/index.html:66
+msgid ""
+"Precise tracking of client materials/tools in stock. Receive, issue, "
+"consume, current balance."
+msgstr ""
+
+#: app/templates/www/index.html:73
+msgid "Multi-tenant security"
+msgstr ""
+
+#: app/templates/www/index.html:75
+msgid ""
+"PostgreSQL Row-Level Security isolates data at the database level. Each "
+"client sees only their own."
+msgstr ""
+
+#: app/templates/www/index.html:82
+#, fuzzy
+msgid "Email notifications"
+msgstr "Ověření e-mailu"
+
+#: app/templates/www/index.html:84
+msgid ""
+"New orders, status changes, comments — automatically by email. Per-user "
+"preferences."
+msgstr ""
+
+#: app/templates/www/index.html:93
+msgid ""
+"Full code under AGPL-3.0 on GitHub. Self-host it on your own "
+"infrastructure for free."
+msgstr ""
+
+#: app/templates/www/index.html:103
+msgid "Get started in 5 minutes"
+msgstr ""
+
+#: app/templates/www/index.html:105
+msgid ""
+"Sign up, invite your first client, and accept your first order. No "
+"installation, no lengthy negotiations."
+msgstr ""
+
+#: app/templates/www/index.html:109 app/templates/www/www_base.html:21
+msgid "Try for free"
+msgstr ""
+
+#: app/templates/www/pricing.html:3 app/templates/www/www_base.html:9
+#, fuzzy
+msgid "Pricing"
+msgstr "Cena"
+
+#: app/templates/www/pricing.html:8
+msgid "Simple pricing"
+msgstr ""
+
+#: app/templates/www/pricing.html:10
+msgid "14-day free trial. Prices exclude VAT."
+msgstr ""
+
+#: app/templates/www/pricing.html:18
+msgid "Self-hosted, AGPL-3.0"
+msgstr ""
+
+#: app/templates/www/pricing.html:21
+#, fuzzy
+msgid "✓ Unlimited users"
+msgstr "Pozvat uživatele"
+
+#: app/templates/www/pricing.html:22 app/templates/www/pricing.html:65
+msgid "✓ Unlimited orders"
+msgstr ""
+
+#: app/templates/www/pricing.html:23
+msgid "✓ Your own Postgres + S3"
+msgstr ""
+
+#: app/templates/www/pricing.html:24
+msgid "✓ GitHub community"
+msgstr ""
+
+#: app/templates/www/pricing.html:28
+msgid "Guide"
+msgstr ""
+
+#: app/templates/www/pricing.html:35
+msgid "Small teams"
+msgstr ""
+
+#: app/templates/www/pricing.html:37
+msgid "490 CZK"
+msgstr ""
+
+# "Ready", "Delivered", "Cancel" reuse the existing msgids from
+# orders/_status_badge.html and products/form.html (they share the
+# same Czech translation, so we don't duplicate entries).
+#: app/templates/www/pricing.html:41
+#, fuzzy
+msgid "✓ 3 staff users"
+msgstr "Uživatelé týmu"
+
+#: app/templates/www/pricing.html:42
+#, fuzzy
+msgid "✓ 20 client contacts"
+msgstr "Pozvat kontakt"
+
+#: app/templates/www/pricing.html:43
+msgid "✓ 100 orders/month"
+msgstr ""
+
+#: app/templates/www/pricing.html:44
+msgid "✓ 2 GB storage"
+msgstr ""
+
+#: app/templates/www/pricing.html:45
+msgid "✓ Email support (48 h)"
+msgstr ""
+
+#: app/templates/www/pricing.html:55
+msgid "Most popular"
+msgstr ""
+
+#: app/templates/www/pricing.html:57
+msgid "Growing businesses"
+msgstr ""
+
+#: app/templates/www/pricing.html:59
+msgid "1 490 CZK"
+msgstr ""
+
+# "Ready", "Delivered", "Cancel" reuse the existing msgids from
+# orders/_status_badge.html and products/form.html (they share the
+# same Czech translation, so we don't duplicate entries).
+#: app/templates/www/pricing.html:63
+#, fuzzy
+msgid "✓ 15 staff users"
+msgstr "Uživatelé týmu"
+
+#: app/templates/www/pricing.html:64
+#, fuzzy
+msgid "✓ 100 client contacts"
+msgstr "Pozvat kontakt"
+
+#: app/templates/www/pricing.html:66
+msgid "✓ 20 GB storage"
+msgstr ""
+
+#: app/templates/www/pricing.html:67
+msgid "✓ Email support (12 h)"
+msgstr ""
+
+#: app/templates/www/pricing.html:68
+msgid "✓ SSO (coming soon)"
+msgstr ""
+
+#: app/templates/www/pricing.html:79
+msgid "Custom"
+msgstr ""
+
+#: app/templates/www/pricing.html:82
+msgid "✓ Unlimited limits"
+msgstr ""
+
+#: app/templates/www/pricing.html:83
+msgid "✓ Custom domain"
+msgstr ""
+
+#: app/templates/www/pricing.html:84
+msgid "✓ Dedicated support (4 h)"
+msgstr ""
+
+#: app/templates/www/pricing.html:85
+msgid "✓ SLA"
+msgstr ""
+
+#: app/templates/www/pricing.html:86
+msgid "✓ On-premises deployment possible"
+msgstr ""
+
+#: app/templates/www/pricing.html:95
+#, fuzzy
+msgid "Annual subscription"
+msgstr "Popis"
+
+#: app/templates/www/pricing.html:96
+msgid "2 months free — Starter 4 900 CZK/year, Pro 14 900 CZK/year."
+msgstr ""
+
+#: app/templates/www/pricing.html:97
+msgid "Frequently asked questions"
+msgstr ""
+
+#: app/templates/www/pricing.html:99
+msgid ""
+"We process credit cards through Stripe; you will receive an invoice by "
+"email."
+msgstr ""
+
+#: app/templates/www/pricing.html:100
+msgid ""
+"You can upgrade or downgrade your plan at any time; the difference will "
+"be prorated."
+msgstr ""
+
+#: app/templates/www/pricing.html:101
+msgid "You can cancel your account and export your data (CSV)."
+msgstr ""
+
+#: app/templates/www/pricing.html:102
+msgid "Prices do not apply to the self-hosted version — it is free forever."
+msgstr ""
+
+#: app/templates/www/privacy.html:9 app/templates/www/terms.html:9
+msgid "Version 1.0 · effective from May 1, 2026"
+msgstr ""
+
+#: app/templates/www/privacy.html:14 app/templates/www/terms.html:14
+#, fuzzy
+msgid "Notice:"
+msgstr "Poznámka"
+
+#: app/templates/www/privacy.html:14
+msgid ""
+"This text is a template. It should be reviewed by a lawyer familiar with "
+"GDPR before going live."
+msgstr ""
+
+#: app/templates/www/privacy.html:18
+msgid "1. Data controller"
+msgstr ""
+
+#: app/templates/www/privacy.html:20
+msgid "The data controller is"
+msgstr ""
+
+#: app/templates/www/privacy.html:21 app/templates/www/terms.html:21
+#, fuzzy
+msgid "Company ID"
+msgstr "Název firmy"
+
+#: app/templates/www/privacy.html:22 app/templates/www/terms.html:22
+msgid "with registered office at"
+msgstr ""
+
+#: app/templates/www/privacy.html:23
+#, fuzzy
+msgid "Contact:"
+msgstr "Kontakty"
+
+#: app/templates/www/privacy.html:29
+msgid "2. What data we process"
+msgstr ""
+
+#: app/templates/www/privacy.html:31
+msgid "Account identification data (name, email, company, Company ID, VAT ID)"
+msgstr ""
+
+#: app/templates/www/privacy.html:32
+msgid "Login credentials (password in Argon2-hashed form)"
+msgstr ""
+
+#: app/templates/www/privacy.html:33
+msgid "Content created in the portal (orders, comments, attachments)"
+msgstr ""
+
+#: app/templates/www/privacy.html:34
+msgid "Billing data, if you subscribe to a plan"
+msgstr ""
+
+#: app/templates/www/privacy.html:35
+msgid "Technical logs (IP address, User-Agent) for operational security"
+msgstr ""
+
+#: app/templates/www/privacy.html:40
+msgid "3. Why we process data"
+msgstr ""
+
+#: app/templates/www/privacy.html:42
+msgid "Contract performance (operating the portal you ordered)"
+msgstr ""
+
+#: app/templates/www/privacy.html:43
+msgid "Invoicing and tax records (legitimate interest + legal obligation)"
+msgstr ""
+
+#: app/templates/www/privacy.html:44
+msgid "Security and abuse prevention (legitimate interest)"
+msgstr ""
+
+#: app/templates/www/privacy.html:45
+msgid "Sending operational emails (consent / contract performance)"
+msgstr ""
+
+#: app/templates/www/privacy.html:50
+msgid "4. Where data is stored"
+msgstr ""
+
+#: app/templates/www/privacy.html:52
+msgid ""
+"Servers are located in the European Union (Frankfurt, DE). Attachments "
+"(drawings, PDFs) in S3-compatible storage with EU location. Payments are "
+"processed by Stripe (USA, EU representation). Transactional emails are "
+"sent by a transactional email provider (EU regions — Resend, Postmark, or"
+" equivalent)."
+msgstr ""
+
+#: app/templates/www/privacy.html:57
+msgid "5. How long we retain data"
+msgstr ""
+
+#: app/templates/www/privacy.html:59
+msgid ""
+"Active account data is retained for the duration of the account's "
+"existence. After account cancellation, 30 days (for possible "
+"reactivation), then permanent deletion. Billing data in accordance with "
+"the law (10 years from the end of the accounting period)."
+msgstr ""
+
+#: app/templates/www/privacy.html:64
+msgid "6. Your rights"
+msgstr ""
+
+#: app/templates/www/privacy.html:66
+msgid ""
+"You have the right to access, rectification, erasure, restriction of "
+"processing, portability, and objection. Contact"
+msgstr ""
+
+#: app/templates/www/privacy.html:68
+msgid "we will respond within 30 days."
+msgstr ""
+
+#: app/templates/www/privacy.html:71
+msgid ""
+"You also have the right to file a complaint with the Office for Personal "
+"Data Protection"
+msgstr ""
+
+#: app/templates/www/privacy.html:77
+msgid "7. Cookies"
+msgstr ""
+
+#: app/templates/www/privacy.html:79
+msgid ""
+"The portal uses only technical (session) cookies necessary for login and "
+"CSRF protection. We do not deploy analytics or marketing cookies without "
+"your consent."
+msgstr ""
+
+#: app/templates/www/self_hosted.html:3 app/templates/www/www_base.html:12
+msgid "Self-hosted"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:8
+#, fuzzy
+msgid "Self-hosted installation"
+msgstr "Odeslat pozvánku"
+
+#: app/templates/www/self_hosted.html:10
+msgid ""
+"Complete open source release under the AGPL-3.0 license. Host the portal "
+"on your own server — free and without limitations."
+msgstr ""
+
+#: app/templates/www/self_hosted.html:16
+#, fuzzy
+msgid "Requirements"
+msgstr "povinné"
+
+#: app/templates/www/self_hosted.html:18
+msgid "Linux server with Docker 24+ (2 vCPU, 2 GB RAM to start)"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:19
+msgid "PostgreSQL 16 (runs in Docker Compose)"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:20
+msgid "S3-compatible storage (MinIO, Backblaze B2, Cloudflare R2, AWS S3)"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:21
+msgid "SMTP relay for outgoing emails"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:22
+msgid "Public hostname + TLS (we recommend Caddy or nginx)"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:27
+msgid "Quickstart (local demo)"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:42
+msgid "Production deployment"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:44
+msgid "The repo includes a"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:44
+msgid ""
+"for production use behind an Nginx proxy with TLS configuration ready. "
+"Just fill in the ENV variables (SMTP, S3, domain) and run"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:48
+#, fuzzy
+msgid "Details:"
+msgstr "E-mail"
+
+#: app/templates/www/self_hosted.html:49
+msgid "list of ENV variables in"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:54
+msgid "Single-tenant vs. multi-tenant"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:56
+msgid "The self-hosted installation runs by default as"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:57
+#, fuzzy
+msgid "single-tenant"
+msgstr "Spravovat tenanty"
+
+#: app/templates/www/self_hosted.html:57
+msgid ""
+"(one \"supplier\", multiple client contacts). If you need to run multiple"
+" separate suppliers on one instance, enable the"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:57
+msgid "variable in"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:57
+msgid ""
+"— this activates the opt-in SaaS layer with Identity, cross-tenant login,"
+" and admin CRUD for tenants."
+msgstr ""
+
+#: app/templates/www/self_hosted.html:62
+msgid "Support"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:64
+msgid "Self-hosters have access to"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:65
+msgid "GitHub issues"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:66
+msgid ""
+"and discussions. For commercial support, security audits, or custom "
+"development, use the"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:66
+#, fuzzy
+msgid "contact form"
+msgstr "Kontakty"
+
+#: app/templates/www/terms.html:14
+msgid ""
+"This text is a template and should be reviewed by a lawyer familiar with "
+"Czech law (GDPR, Civil Code) before going live."
+msgstr ""
+
+#: app/templates/www/terms.html:18
+#, fuzzy
+msgid "1. Introduction"
+msgstr "Ve výrobě"
+
+#: app/templates/www/terms.html:20
+msgid "The operator of Assoluto service (hereinafter the \"Service\") is"
+msgstr ""
+
+#: app/templates/www/terms.html:22
+msgid ""
+"(hereinafter the \"Operator\"). These terms govern the relationship "
+"between the Operator and the person using the Service (hereinafter the "
+"\"User\")."
+msgstr ""
+
+#: app/templates/www/terms.html:27
+msgid "2. Description of the Service"
+msgstr ""
+
+#: app/templates/www/terms.html:29
+msgid ""
+"The Service provides a multi-tenant customer portal for manufacturing "
+"SMEs — management of orders, product catalog, client assets, and "
+"communication between the supplier and their clients."
+msgstr ""
+
+#: app/templates/www/terms.html:34
+msgid "3. Registration and account"
+msgstr ""
+
+#: app/templates/www/terms.html:36
+msgid ""
+"Registration is required to use the Service. The User is obliged to "
+"provide truthful information and protect their login credentials. The "
+"Operator may block the account in case of serious violation of the terms."
+msgstr ""
+
+#: app/templates/www/terms.html:41
+msgid "4. Trial period and payments"
+msgstr ""
+
+#: app/templates/www/terms.html:43
+msgid ""
+"A new account receives a 14-day free trial. After its expiration, the "
+"User can continue only with an active subscription. Payments are "
+"processed through Stripe."
+msgstr ""
+
+#: app/templates/www/terms.html:48
+msgid "5. User obligations"
+msgstr ""
+
+#: app/templates/www/terms.html:50
+msgid ""
+"The User must not misuse the Service, circumvent security measures, "
+"interfere with operations, or use it for content that violates the laws "
+"of the Czech Republic or the EU."
+msgstr ""
+
+#: app/templates/www/terms.html:55
+msgid "6. Personal data protection"
+msgstr ""
+
+#: app/templates/www/terms.html:57
+msgid "The processing of personal data is governed by a separate document"
+msgstr ""
+
+#: app/templates/www/terms.html:63
+msgid "7. Liability"
+msgstr ""
+
+#: app/templates/www/terms.html:65
+msgid ""
+"The Service is provided \"as-is\". The Operator is not liable for damages"
+" caused by outages or data loss beyond the amount of the subscription "
+"paid for the given month. The User is obliged to maintain their own "
+"backups by exporting data."
+msgstr ""
+
+#: app/templates/www/terms.html:70
+#, fuzzy
+msgid "8. Termination"
+msgstr "Přijetí pozvánky do týmu"
+
+#: app/templates/www/terms.html:72
+msgid ""
+"The User may cancel their account at any time. After termination, data "
+"will be retained for 30 days, then permanently deleted."
+msgstr ""
+
+#: app/templates/www/terms.html:77
+msgid "9. Final provisions"
+msgstr ""
+
+#: app/templates/www/terms.html:79
+msgid ""
+"These terms are governed by the laws of the Czech Republic. The Operator "
+"may modify the terms with 30 days' notice."
+msgstr ""
+
+#: app/templates/www/www_base.html:27
+#, fuzzy
+msgid "Terms"
+msgstr "Položky"
+
+#: app/templates/www/www_base.html:29
+#, fuzzy
+msgid "Privacy"
+msgstr "zpracováním osobních údajů"
+
+#~ msgid "Back to product"
+#~ msgstr "Zpět na produkt"
+
+#~ msgid "Back to client"
+#~ msgstr "Zpět na klienta"
+
+#~ msgid "All statuses"
+#~ msgstr "Všechny stavy"
+
+#~ msgid "Return to draft"
+#~ msgstr "Vrátit do konceptu"
+
+#~ msgid "Submit"
+#~ msgstr "Odeslat"
+
+#~ msgid "Quote"
+#~ msgstr "Nacenit"
+
+#~ msgid "Confirm"
+#~ msgstr "Potvrdit"
+
+#~ msgid "Start production"
+#~ msgstr "Spustit výrobu"
+
+#~ msgid "Close"
+#~ msgstr "Uzavřít"
 
 # --- round-5: server errors, logo polish, breadcrumbs ---
+#~ msgid "A product with this SKU already exists."
+#~ msgstr "Produkt s tímto SKU už existuje."
 
-#: app/routers/products.py
-msgid "A product with this SKU already exists."
-msgstr "Produkt s tímto SKU už existuje."
+#~ msgid "A contact with the same email already exists."
+#~ msgstr "Kontakt se stejným e-mailem už existuje."
 
-#: app/routers/customers.py
-msgid "A contact with the same email already exists."
-msgstr "Kontakt se stejným e-mailem už existuje."
+#~ msgid "Your account is disabled."
+#~ msgstr "Účet je deaktivován."
 
-#: app/routers/public.py
-msgid "Your account is disabled."
-msgstr "Účet je deaktivován."
+#~ msgid "Invalid email or password."
+#~ msgstr "Neplatný e-mail nebo heslo."
 
-#: app/routers/public.py
-msgid "Invalid email or password."
-msgstr "Neplatný e-mail nebo heslo."
+#~ msgid "The invitation is invalid or has expired."
+#~ msgstr "Pozvánka je neplatná nebo vypršela."
 
-#: app/routers/public.py
-msgid "The invitation is invalid or has expired."
-msgstr "Pozvánka je neplatná nebo vypršela."
+#~ msgid "The invitation belongs to a different tenant."
+#~ msgstr "Pozvánka patří k jinému tenantovi."
 
-#: app/routers/public.py
-msgid "The invitation belongs to a different tenant."
-msgstr "Pozvánka patří k jinému tenantovi."
+#~ msgid "Passwords do not match."
+#~ msgstr "Hesla se neshodují."
 
-#: app/routers/public.py
-msgid "Passwords do not match."
-msgstr "Hesla se neshodují."
+#~ msgid "The link is invalid or has expired."
+#~ msgstr "Odkaz je neplatný nebo vypršel."
 
-#: app/routers/public.py
-msgid "The link is invalid or has expired."
-msgstr "Odkaz je neplatný nebo vypršel."
+#~ msgid "A user with this email already exists."
+#~ msgstr "Uživatel s tímto e-mailem už existuje."
 
-#: app/routers/tenant_admin.py
-msgid "A user with this email already exists."
-msgstr "Uživatel s tímto e-mailem už existuje."
+#~ msgid "Name cannot be empty."
+#~ msgstr "Jméno nesmí být prázdné."
 
-#: app/routers/tenant_admin.py
-msgid "Name cannot be empty."
-msgstr "Jméno nesmí být prázdné."
+#~ msgid "New passwords do not match."
+#~ msgstr "Nová hesla se neshodují."
 
-#: app/routers/tenant_admin.py
-msgid "New passwords do not match."
-msgstr "Nová hesla se neshodují."
-
-#: app/routers/orders.py
-msgid "Choose a client."
-msgstr "Vyberte klienta."
+#~ msgid "Choose a client."
+#~ msgstr "Vyberte klienta."
 

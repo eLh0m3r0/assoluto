@@ -67,3 +67,4 @@ logs/
 .venv/
 .claude/
 ultraplan.md
+bin/
