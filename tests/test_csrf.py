@@ -86,6 +86,37 @@ async def test_csrf_mismatch_returns_403(raw_client: AsyncClient) -> None:
     assert resp.status_code == 403
 
 
+async def test_csrf_header_mismatch_returns_403(raw_client: AsyncClient) -> None:
+    """HTMX clients that send X-CSRF-Token must match the cookie exactly."""
+    await raw_client.get("/auth/login")  # seed cookie
+    resp = await raw_client.post(
+        "/auth/login",
+        data={"email": "x@y.cz", "password": "whatever"},
+        headers={"X-CSRF-Token": "not-the-right-one"},
+    )
+    assert resp.status_code == 403
+
+
+async def test_csrf_header_empty_body_succeeds(raw_client: AsyncClient) -> None:
+    """HTMX often POSTs with an empty body and relies solely on the header.
+
+    The double-submit contract is satisfied by the cookie/header pair —
+    no form field required. We hit a non-existent POST target so the 403
+    (CSRF) vs 404/405 (routing) distinction is the actual assertion.
+    """
+    await raw_client.get("/auth/login")  # seed cookie
+    token = raw_client.cookies.get(CSRF_COOKIE_NAME)
+    assert token
+
+    resp = await raw_client.post(
+        "/auth/login",
+        headers={"X-CSRF-Token": token},
+    )
+    # Passed CSRF; login validation fails with 401 because no credentials
+    # were provided. The point is the response is NOT 403.
+    assert resp.status_code != 403
+
+
 async def test_safe_methods_never_require_csrf(raw_client: AsyncClient) -> None:
     for path in ("/healthz", "/readyz", "/auth/login", "/"):
         resp = await raw_client.get(path)
