@@ -4,6 +4,34 @@
 (function () {
   "use strict";
 
+  // -------- htmx CSRF header --------
+  // HTMX fires ``htmx:configRequest`` on every request just before it goes
+  // out; we attach the double-submit token as ``X-CSRF-Token`` so the
+  // backend's ``verify_csrf`` dependency accepts it on non-GET requests.
+  // The token travels via the ``csrftoken`` cookie (stamped by
+  // ``CsrfCookieMiddleware``) — we read it here instead of relying on a
+  // template-rendered global, which avoids stale tokens on long-lived pages
+  // and keeps base.html free of inline handlers (CSP-safe).
+  function readCsrfCookie() {
+    var name = "csrftoken=";
+    var parts = (document.cookie || "").split(";");
+    for (var i = 0; i < parts.length; i += 1) {
+      var part = parts[i].trim();
+      if (part.indexOf(name) === 0) return part.substring(name.length);
+    }
+    return "";
+  }
+
+  document.addEventListener("htmx:configRequest", function (evt) {
+    // Safe methods don't need a token; skip to avoid leaking it needlessly.
+    var method = (evt.detail && evt.detail.verb ? String(evt.detail.verb) : "").toUpperCase();
+    if (method === "GET" || method === "HEAD" || method === "OPTIONS") return;
+    var token = readCsrfCookie();
+    if (token && evt.detail && evt.detail.headers) {
+      evt.detail.headers["X-CSRF-Token"] = token;
+    }
+  });
+
   // -------- mobile nav toggle --------
   // The header renders two copies of the nav: one inline (md+) and one
   // stacked in a drawer (below md). The hamburger button toggles the
