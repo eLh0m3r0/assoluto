@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from datetime import date, timedelta
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +15,7 @@ from app.i18n import t as _t
 from app.models.enums import UserRole
 from app.models.user import User
 from app.security.csrf import verify_csrf
+from app.services import sla_service
 from app.services.auth_service import (
     InvalidCredentials,
     InvalidInvitation,
@@ -267,6 +269,89 @@ async def profile_change_password(
 
     clear_session(response)
     return response
+
+
+# ----------------------------------------------------------------- SLA
+
+
+_SLA_TIMEFRAMES = {"30": 30, "90": 90, "365": 365}
+
+
+def _heatmap_grid(cells: list[dict]) -> dict:
+    """Pivot the flat cell list from ``sla_service.heatmap_data`` into a
+    grid suitable for rendering.
+
+    Returns ``{"weeks": [date, ...], "rows": [{"customer_id", "customer_name",
+    "cells": {week_start: {"on_time", "late", "total", "ratio"|None}}}]}``.
+    Missing (customer, week) combinations become ``None`` in the template.
+    """
+    weeks: list = []
+    seen_weeks: set = set()
+    rows_by_customer: dict[UUID, dict] = {}
+    for cell in cells:
+        ws = cell["week_start"]
+        if ws not in seen_weeks:
+            seen_weeks.add(ws)
+            weeks.append(ws)
+        cid = cell["customer_id"]
+        row = rows_by_customer.get(cid)
+        if row is None:
+            row = {
+                "customer_id": cid,
+                "customer_name": cell["customer_name"],
+                "cells": {},
+            }
+            rows_by_customer[cid] = row
+        total = cell["total"]
+        ratio = (cell["on_time"] / total) if total > 0 else None
+        row["cells"][ws] = {
+            "on_time": cell["on_time"],
+            "late": cell["late"],
+            "total": total,
+            "ratio": ratio,
+        }
+    weeks.sort()
+    rows = sorted(rows_by_customer.values(), key=lambda r: r["customer_name"].lower())
+    return {"weeks": weeks, "rows": rows}
+
+
+@router.get("/sla", response_class=HTMLResponse)
+async def sla_dashboard(
+    request: Request,
+    timeframe: str = Query("90"),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    """On-time delivery summary + per-customer weekly heatmap."""
+    days = _SLA_TIMEFRAMES.get(timeframe, 90)
+    timeframe_value = timeframe if timeframe in _SLA_TIMEFRAMES else "90"
+
+    today = date.today()
+    date_from = today - timedelta(days=days)
+
+    summary = await sla_service.on_time_rate(db, date_from=date_from, date_to=today)
+    # One heatmap week per 7 days, capped at a year (52) so the grid stays
+    # readable; for the 30d view we still show ~8 weeks of history.
+    heatmap_weeks = max(8, min(52, (days // 7) + 1))
+    cells = await sla_service.heatmap_data(db, weeks=heatmap_weeks)
+    grid = _heatmap_grid(cells)
+
+    html = _templates(request).render(
+        request,
+        "admin/sla.html",
+        {
+            "principal": principal,
+            "tenant": _tenant(request),
+            "summary": summary,
+            "rate_pct": round(summary["rate"] * 100, 1),
+            "grid": grid,
+            "timeframe": timeframe_value,
+            "timeframes": list(_SLA_TIMEFRAMES.keys()),
+            "date_from": date_from,
+            "date_to": today,
+        },
+    )
+    return HTMLResponse(html)
 
 
 # Re-export InvalidInvitation so other modules can pretend this router

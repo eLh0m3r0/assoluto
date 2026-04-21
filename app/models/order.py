@@ -93,6 +93,11 @@ class Order(Base, TimestampMixin, TenantMixin):
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     cancelled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
+    # Recorded on transition into ``OrderStatus.DELIVERED``; drives SLA
+    # on-time calculations in ``app.services.sla_service``. Nullable —
+    # historical or never-delivered orders stay NULL.
+    delivered_at: Mapped[date | None] = mapped_column(Date, nullable=True)
+
     def __repr__(self) -> str:  # pragma: no cover
         return f"<Order {self.number} status={self.status.value}>"
 
