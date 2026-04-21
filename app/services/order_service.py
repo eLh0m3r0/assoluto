@@ -8,11 +8,11 @@ transitions are allowed and which actor may trigger them.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import Select, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.customer import Customer
@@ -78,6 +78,47 @@ class ActorRef:
 # ---------------------------------------------------------------------------
 
 
+def build_orders_query(
+    *,
+    actor: ActorRef,
+    status: OrderStatus | None = None,
+    customer_id: UUID | None = None,
+    date_from: date | None = None,
+    date_to: date | None = None,
+    q: str | None = None,
+) -> Select:
+    """Build the base `SELECT orders` query shared by list + CSV export.
+
+    Tenant isolation comes from RLS on the session. On top of that,
+    customer contacts are constrained to their own customer's orders;
+    the ``customer_id`` filter is applied only when the actor is staff.
+
+    ``date_from`` / ``date_to`` are **inclusive** bounds compared against
+    ``Order.created_at`` (truncated to a calendar date on the caller side
+    by passing a ``date`` value). A ``None`` bound means "unbounded".
+    Returns the base ``Select``; callers add ``.limit()`` / ``.offset()``.
+    """
+    stmt = select(Order).order_by(Order.created_at.desc())
+    if actor.type == "contact":
+        stmt = stmt.where(Order.customer_id == actor.customer_id)
+    elif customer_id is not None:
+        stmt = stmt.where(Order.customer_id == customer_id)
+    if status is not None:
+        stmt = stmt.where(Order.status == status)
+    if date_from is not None:
+        stmt = stmt.where(Order.created_at >= date_from)
+    if date_to is not None:
+        # Inclusive upper bound — match anything strictly before the
+        # start of the next day so full-day ranges behave as expected.
+        from datetime import timedelta
+
+        stmt = stmt.where(Order.created_at < date_to + timedelta(days=1))
+    if q:
+        pattern = f"%{q.strip()}%"
+        stmt = stmt.where((Order.number.ilike(pattern)) | (Order.title.ilike(pattern)))
+    return stmt
+
+
 async def list_orders_for_principal(
     db: AsyncSession,
     *,
@@ -93,21 +134,15 @@ async def list_orders_for_principal(
     Tenant isolation comes from RLS (the session is already scoped). On
     top of that, customer contacts see only their own customer's orders.
     """
-    stmt = select(Order).order_by(Order.created_at.desc())
-    count_stmt = select(func.count()).select_from(Order)
-    if actor.type == "contact":
-        stmt = stmt.where(Order.customer_id == actor.customer_id)
-        count_stmt = count_stmt.where(Order.customer_id == actor.customer_id)
-    elif customer_filter is not None:
-        stmt = stmt.where(Order.customer_id == customer_filter)
-        count_stmt = count_stmt.where(Order.customer_id == customer_filter)
-    if status_filter is not None:
-        stmt = stmt.where(Order.status == status_filter)
-        count_stmt = count_stmt.where(Order.status == status_filter)
-    if search:
-        pattern = f"%{search.strip()}%"
-        stmt = stmt.where((Order.number.ilike(pattern)) | (Order.title.ilike(pattern)))
-        count_stmt = count_stmt.where((Order.number.ilike(pattern)) | (Order.title.ilike(pattern)))
+    stmt = build_orders_query(
+        actor=actor,
+        status=status_filter,
+        customer_id=customer_filter,
+        q=search,
+    )
+    # Count(*) over the same filter set — re-run build_orders_query as a
+    # subquery so the WHERE clauses stay in sync automatically.
+    count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
 
     total = int((await db.execute(count_stmt)).scalar() or 0)
     stmt = stmt.offset(max(0, offset)).limit(max(1, min(limit, 100)))
