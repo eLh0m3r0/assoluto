@@ -261,3 +261,19 @@ msgstr "Click the link and your portal will be ready to use."
 msgid "Didn't receive it? Check your spam folder or request a new link."
 msgstr "Didn't receive it? Check your spam folder or request a new link."
 
+
+#: app/templates/base.html
+msgid "Toggle theme"
+msgstr "Toggle theme"
+
+#: app/templates/base.html
+msgid "Theme: system"
+msgstr "Theme: system"
+
+#: app/templates/base.html
+msgid "Theme: light"
+msgstr "Theme: light"
+
+#: app/templates/base.html
+msgid "Theme: dark"
+msgstr "Theme: dark"

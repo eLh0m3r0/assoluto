@@ -3,25 +3,25 @@
 {% block title %}Assoluto — {{ _('New order') }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4 text-2xl font-bold text-slate-900">{{ _('New order') }}</h1>
+    <h1 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('New order') }}</h1>
 
     {% include "_flash.html" %}
 
     <form method="post" action="/app/orders"
-          class="max-w-2xl space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          class="max-w-2xl space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         {{ csrf_input() }}
         <div>
-            <label for="title" class="block text-sm font-medium text-slate-700">{{ _('Name') }} *</label>
+            <label for="title" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Name') }} *</label>
             <input type="text" id="title" name="title" required
                    value="{{ form.title or '' }}" autofocus
-                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                   class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500">
         </div>
 
         {% if principal.is_staff %}
             <div>
-                <label for="customer_id" class="block text-sm font-medium text-slate-700">{{ _('Client') }} *</label>
+                <label for="customer_id" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Client') }} *</label>
                 <select id="customer_id" name="customer_id" required
-                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
+                        class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                     <option value="">— {{ _('choose a client') }} —</option>
                     {% for customer in customers %}
                         <option value="{{ customer.id }}"
@@ -34,7 +34,7 @@
         {% endif %}
 
         <div>
-            <label for="requested_delivery_at" class="block text-sm font-medium text-slate-700">
+            <label for="requested_delivery_at" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                 {{ _('Requested delivery date') }}
             </label>
             {# Prevent picking a delivery date in the past. Uses client tz;
@@ -42,17 +42,17 @@
             <input type="date" id="requested_delivery_at" name="requested_delivery_at"
                    value="{{ form.requested_delivery_at or '' }}"
                    min="{{ today_iso }}"
-                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
+                   class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
         </div>
 
         <div>
-            <label for="notes" class="block text-sm font-medium text-slate-700">{{ _('Note') }}</label>
+            <label for="notes" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Note') }}</label>
             <textarea id="notes" name="notes" rows="3"
-                      class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">{{ form.notes or '' }}</textarea>
+                      class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">{{ form.notes or '' }}</textarea>
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-2">
-            <a href="/app/orders" class="text-sm text-slate-500 hover:text-slate-900">{{ _('Cancel') }}</a>
+            <a href="/app/orders" class="text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200">{{ _('Cancel') }}</a>
             <button type="submit"
                     class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
                 {{ _('Create draft') }}

@@ -9,29 +9,29 @@
             <div class="mx-auto h-14 w-14 drop-shadow-xl">
                 {% with size="h-14 w-14", variant="login" %}{% include "_logo.html" %}{% endwith %}
             </div>
-            <h1 class="mt-4 text-2xl font-bold text-gray-900">{{ _('Sign in') }}</h1>
+            <h1 class="mt-4 text-2xl font-bold text-gray-900 dark:text-slate-100">{{ _('Sign in') }}</h1>
             {% if tenant %}
-                <p class="mt-1 text-sm text-gray-500">{{ _('Sign in to workspace') }} <span class="font-medium text-gray-700">{{ tenant.name }}</span></p>
+                <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">{{ _('Sign in to workspace') }} <span class="font-medium text-gray-700 dark:text-slate-200">{{ tenant.name }}</span></p>
             {% endif %}
         </div>
 
         {% include "_flash.html" %}
 
-        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <form method="post" action="/auth/login" class="space-y-4">
                 {{ csrf_input() }}
                 {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
                 <div>
-                    <label for="email" class="mb-1 block text-sm font-medium text-gray-700">{{ _('Email') }}</label>
+                    <label for="email" class="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">{{ _('Email') }}</label>
                     <input type="email" name="email" id="email" required autofocus
                            value="{{ email or '' }}"
-                           class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                           class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                            placeholder="{{ _('name@company.com') }}">
                 </div>
                 <div>
-                    <label for="password" class="mb-1 block text-sm font-medium text-gray-700">{{ _('Password') }}</label>
+                    <label for="password" class="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">{{ _('Password') }}</label>
                     <input type="password" name="password" id="password" required
-                           class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                           class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                            placeholder="********">
                 </div>
                 <button type="submit"
@@ -40,8 +40,8 @@
                 </button>
             </form>
         </div>
-        <p class="mt-4 text-center text-sm text-gray-500">
-            <a href="/auth/password-reset" class="font-medium text-blue-600 transition hover:text-blue-500">
+        <p class="mt-4 text-center text-sm text-gray-500 dark:text-slate-400">
+            <a href="/auth/password-reset" class="font-medium text-blue-600 transition hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
                 {{ _('Forgot password?') }}
             </a>
         </p>

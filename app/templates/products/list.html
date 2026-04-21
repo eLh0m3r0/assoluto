@@ -4,7 +4,7 @@
 
 {% block content %}
     <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-slate-900">{{ _('Product catalog') }}</h1>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('Product catalog') }}</h1>
         <a href="/app/products/new"
            class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
             {{ _('New product') }}
@@ -12,9 +12,9 @@
     </div>
 
     {% if products %}
-        <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-            <table class="min-w-full divide-y divide-slate-200 text-sm">
-                <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+                <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
                     <tr>
                         <th class="px-4 py-3 text-left">SKU</th>
                         <th class="px-4 py-3 text-left">{{ _('Name') }}</th>
@@ -23,41 +23,41 @@
                         <th class="px-4 py-3 text-left">{{ _('Unit') }}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     {% for p in products %}
-                        <tr class="cursor-pointer hover:bg-slate-50"
+                        <tr class="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50"
                             data-href="/app/products/{{ p.id }}">
-                            <td class="px-4 py-3 font-mono text-slate-700">{{ p.sku }}</td>
-                            <td class="px-4 py-3 text-slate-900">{{ p.name }}</td>
-                            <td class="px-4 py-3 text-slate-600">
+                            <td class="px-4 py-3 font-mono text-slate-700 dark:text-slate-300">{{ p.sku }}</td>
+                            <td class="px-4 py-3 text-slate-900 dark:text-slate-100">{{ p.name }}</td>
+                            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
                                 {% if p.customer_id %}
                                     {{ customer_by_id[p.customer_id].name if customer_by_id.get(p.customer_id) else "—" }}
                                 {% else %}
-                                    <span class="text-slate-400">({{ _('shared') }})</span>
+                                    <span class="text-slate-400 dark:text-slate-500">({{ _('shared') }})</span>
                                 {% endif %}
                             </td>
-                            <td class="px-4 py-3 text-right text-slate-700">
+                            <td class="px-4 py-3 text-right text-slate-700 dark:text-slate-300">
                                 {% if p.default_price is not none %}
                                     {{ "%.2f"|format(p.default_price) }} {{ p.currency }}
                                 {% else %}
                                     —
                                 {% endif %}
                             </td>
-                            <td class="px-4 py-3 text-slate-600">{{ p.unit }}</td>
+                            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ p.unit }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     {% else %}
-        <div class="rounded-lg border border-dashed border-slate-300 p-10 text-center">
-            <svg aria-hidden="true" class="mx-auto mb-3 h-12 w-12 text-slate-300"
+        <div class="rounded-lg border border-dashed border-slate-300 p-10 text-center dark:border-slate-700">
+            <svg aria-hidden="true" class="mx-auto mb-3 h-12 w-12 text-slate-300 dark:text-slate-600"
                  viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linejoin="round" d="M24 6l16 8v20L24 42 8 34V14z"/>
                 <path stroke-linejoin="round" d="M8 14l16 8 16-8"/>
                 <path stroke-linejoin="round" d="M24 22v20"/>
             </svg>
-            <p class="text-slate-500">{{ _('The catalog is empty.') }}</p>
+            <p class="text-slate-500 dark:text-slate-400">{{ _('The catalog is empty.') }}</p>
             <a href="/app/products/new"
                class="mt-3 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
                 {{ _('Add the first product') }}
