@@ -206,6 +206,70 @@
     initThemeToggle();
   }
 
+  // -------- orders list bulk selection --------
+  // Toggles a sticky action bar (``[data-bulk-bar]``) once any row
+  // checkbox in the orders list is ticked, and keeps the header
+  // "select all" checkbox in sync with the row state (checked when all
+  // rows are, indeterminate when some are). CSP-safe — no inline
+  // handlers; we rely on data attributes only.
+  function syncBulkBar() {
+    var form = document.querySelector("[data-bulk-form]");
+    if (!form) return;
+    var rows = form.querySelectorAll("[data-bulk-row-checkbox]");
+    var selected = 0;
+    rows.forEach(function (cb) { if (cb.checked) selected += 1; });
+
+    var bar = form.querySelector("[data-bulk-bar]");
+    if (bar) {
+      if (selected > 0) bar.classList.remove("hidden");
+      else bar.classList.add("hidden");
+    }
+    var count = form.querySelector("[data-bulk-count]");
+    if (count) count.textContent = String(selected);
+
+    var master = form.querySelector("[data-bulk-select-all]");
+    if (master) {
+      master.checked = rows.length > 0 && selected === rows.length;
+      master.indeterminate = selected > 0 && selected < rows.length;
+    }
+  }
+
+  document.addEventListener("change", function (event) {
+    var target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (target.hasAttribute("data-bulk-select-all")) {
+      var form = target.closest("[data-bulk-form]");
+      if (!form) return;
+      form.querySelectorAll("[data-bulk-row-checkbox]").forEach(function (cb) {
+        cb.checked = target.checked;
+      });
+      syncBulkBar();
+      return;
+    }
+    if (target.hasAttribute("data-bulk-row-checkbox")) {
+      syncBulkBar();
+    }
+  });
+
+  document.addEventListener("click", function (event) {
+    var btn = event.target.closest("[data-bulk-clear]");
+    if (!btn) return;
+    var form = btn.closest("[data-bulk-form]");
+    if (!form) return;
+    form.querySelectorAll("[data-bulk-row-checkbox]").forEach(function (cb) {
+      cb.checked = false;
+    });
+    syncBulkBar();
+  });
+
+  // Initial sync on page load (browser back-forward cache can restore
+  // checkbox state — keep the bar consistent with the checkboxes).
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", syncBulkBar);
+  } else {
+    syncBulkBar();
+  }
+
   // -------- order item product picker --------
   // When a staff/contact picks a product from the dropdown on the order
   // detail page, pre-fill the description, unit, and unit_price inputs.

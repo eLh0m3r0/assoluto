@@ -7,7 +7,8 @@ transitions are allowed and which actor may trigger them.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Iterable
+from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from uuid import UUID
@@ -505,6 +506,47 @@ async def transition_order(
     )
     await db.flush()
     return order
+
+
+@dataclass
+class BulkResult:
+    """Outcome of a bulk status transition.
+
+    ``succeeded`` lists order IDs that transitioned cleanly; ``errors``
+    maps order ID → human-readable reason for the ones that did not.
+    The caller is responsible for committing the session after inspecting
+    the result — the service only flushes so failures can short-circuit
+    without poisoning the outer transaction.
+    """
+
+    succeeded: list[UUID] = field(default_factory=list)
+    errors: dict[UUID, str] = field(default_factory=dict)
+
+
+async def bulk_transition(
+    db: AsyncSession,
+    *,
+    orders: Iterable[Order],
+    to_status: OrderStatus,
+    actor: ActorRef,
+) -> BulkResult:
+    """Move multiple orders to ``to_status`` in a single pass.
+
+    Delegates to :func:`transition_order` per order so the state-machine,
+    history write, and timestamp side effects stay in one place. Domain
+    errors (forbidden transitions, access denied) are captured into the
+    returned :class:`BulkResult`; unexpected exceptions propagate so the
+    caller can roll back.
+    """
+    result = BulkResult()
+    for order in orders:
+        try:
+            await transition_order(db, order=order, to_status=to_status, actor=actor)
+        except (ForbiddenTransition, ForbiddenActor, OrderAccessDenied, OrderError) as exc:
+            result.errors[order.id] = str(exc) or exc.__class__.__name__
+            continue
+        result.succeeded.append(order.id)
+    return result
 
 
 # ---------------------------------------------------------------------------

@@ -65,3 +65,5 @@ logs/
 # uv
 # Note: uv.lock IS checked in for reproducible builds. Only the venv is ignored.
 .venv/
+.claude/
+ultraplan.md
