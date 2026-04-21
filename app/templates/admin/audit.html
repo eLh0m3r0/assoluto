@@ -1,0 +1,122 @@
+{% extends "app_base.html" %}
+
+{% block title %}Assoluto — {{ _('Audit log') }} · {{ tenant.name }}{% endblock %}
+
+{% block content %}
+    <div class="mb-6">
+        <a href="/app" class="text-sm text-slate-500 hover:text-slate-900">&larr; {{ _('Dashboard') }}</a>
+        <h1 class="mt-2 text-2xl font-bold text-slate-900">{{ _('Audit log') }}</h1>
+        <p class="text-sm text-slate-500">
+            {{ _('Append-only record of every tracked action in this tenant.') }}
+        </p>
+    </div>
+
+    {% include "_flash.html" %}
+
+    <form method="get" action="/app/admin/audit" data-no-busy
+          class="mb-4 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-5">
+        <input type="text" name="q" value="{{ filters.q }}"
+               placeholder="{{ _('Search action, entity, actor…') }}"
+               class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+        <select name="entity_type"
+                class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+            {% for value, label in entity_choices %}
+                <option value="{{ value }}" {% if filters.entity_type == value %}selected{% endif %}>
+                    {{ _(label) }}
+                </option>
+            {% endfor %}
+        </select>
+        <input type="date" name="from" value="{{ filters['from'] }}"
+               class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+        <input type="date" name="to" value="{{ filters.to }}"
+               class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+        <button type="submit"
+                class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+            {{ _('Filter') }}
+        </button>
+    </form>
+
+    {% if events %}
+        <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <tr>
+                        <th class="px-4 py-3 text-left">{{ _('When') }}</th>
+                        <th class="px-4 py-3 text-left">{{ _('Actor') }}</th>
+                        <th class="px-4 py-3 text-left">{{ _('Action') }}</th>
+                        <th class="px-4 py-3 text-left">{{ _('Entity') }}</th>
+                        <th class="px-4 py-3 text-left">{{ _('Change') }}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for ev in events %}
+                        <tr>
+                            <td class="px-4 py-3 align-top whitespace-nowrap text-slate-600">
+                                {{ ev.occurred_at.strftime('%Y-%m-%d %H:%M') }}
+                            </td>
+                            <td class="px-4 py-3 align-top text-slate-700">
+                                <div>{{ ev.actor_label }}</div>
+                                <div class="text-xs text-slate-400">{{ ev.actor_type }}</div>
+                            </td>
+                            <td class="px-4 py-3 align-top">
+                                <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-800">{{ ev.action }}</code>
+                            </td>
+                            <td class="px-4 py-3 align-top">
+                                <div class="text-slate-900">{{ ev.entity_label }}</div>
+                                <div class="text-xs text-slate-400">{{ ev.entity_type }}</div>
+                            </td>
+                            <td class="px-4 py-3 align-top text-xs text-slate-600">
+                                {% if ev.diff %}
+                                    <details>
+                                        <summary class="cursor-pointer text-slate-500 hover:text-slate-900">
+                                            {% set after = ev.diff.get('after') or {} %}
+                                            {% set before = ev.diff.get('before') or {} %}
+                                            {% if after or before %}
+                                                {% set keys = (after.keys() | list) + (before.keys() | list) %}
+                                                {% set summary_key = keys[0] if keys else '' %}
+                                                {% if summary_key %}
+                                                    {{ summary_key }}: {{ (before.get(summary_key, '—'))|string|truncate(40) }}
+                                                    → {{ (after.get(summary_key, '—'))|string|truncate(40) }}
+                                                {% else %}
+                                                    {{ _('Show details') }}
+                                                {% endif %}
+                                            {% else %}
+                                                {{ _('Show details') }}
+                                            {% endif %}
+                                        </summary>
+                                        <pre class="mt-2 whitespace-pre-wrap break-words rounded bg-slate-50 p-2 text-[11px] leading-snug text-slate-700">{{ ev.diff|tojson(indent=2) }}</pre>
+                                    </details>
+                                {% else %}
+                                    <span class="text-slate-400">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if total_pages > 1 %}
+            <nav class="mt-4 flex items-center justify-between text-sm text-slate-600">
+                <span>
+                    {{ _('Page') }} {{ page }} / {{ total_pages }} · {{ total }} {{ _('records') }}
+                </span>
+                <div class="flex gap-2">
+                    {% set qs_base = 'entity_type=' ~ filters.entity_type ~ '&actor_id=' ~ filters.actor_id ~ '&from=' ~ filters['from'] ~ '&to=' ~ filters.to ~ '&q=' ~ filters.q %}
+                    {% if page > 1 %}
+                        <a href="/app/admin/audit?{{ qs_base }}&page={{ page - 1 }}"
+                           class="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50">{{ _('Previous') }}</a>
+                    {% endif %}
+                    {% if page < total_pages %}
+                        <a href="/app/admin/audit?{{ qs_base }}&page={{ page + 1 }}"
+                           class="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50">{{ _('Next') }}</a>
+                    {% endif %}
+                </div>
+            </nav>
+        {% endif %}
+    {% else %}
+        <p class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+            {{ _('No audit events match the current filters.') }}
+        </p>
+    {% endif %}
+{% endblock %}

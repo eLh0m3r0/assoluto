@@ -12,6 +12,7 @@
             <a href="/app/products" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">{{ _("Catalog") }}</a>
             {% if principal.role == "tenant_admin" %}
                 <a href="/app/admin/users" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">{{ _("Team") }}</a>
+                <a href="/app/admin/audit" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">{{ _("Audit") }}</a>
                 {% if feature_platform %}
                     <a href="/platform/billing" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">{{ _("Billing") }}</a>
                 {% endif %}

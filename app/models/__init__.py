@@ -6,6 +6,7 @@ inspects `Base.metadata`.
 
 from app.models.asset import Asset, AssetMovement  # noqa: F401
 from app.models.attachment import OrderAttachment  # noqa: F401
+from app.models.audit_event import AuditEvent  # noqa: F401
 from app.models.customer import Customer, CustomerContact  # noqa: F401
 from app.models.order import (  # noqa: F401
     Order,
