@@ -105,6 +105,79 @@
     });
   });
 
+  // -------- theme toggle (system / light / dark) --------
+  // The FOUC-prevention snippet in base.html <head> already applied the
+  // correct `dark` class to <html>. Here we wire up the cycling button.
+  // Cycle order: system → light → dark → system. Persists `theme` key in
+  // localStorage; absence means "system" (follow prefers-color-scheme).
+  function readTheme() {
+    try {
+      var v = localStorage.getItem("theme");
+      return v === "light" || v === "dark" ? v : "system";
+    } catch (e) {
+      return "system";
+    }
+  }
+
+  function writeTheme(mode) {
+    try {
+      if (mode === "system") localStorage.removeItem("theme");
+      else localStorage.setItem("theme", mode);
+    } catch (e) { /* ignore — storage might be blocked */ }
+  }
+
+  function applyTheme(mode) {
+    var sysDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var wantDark = mode === "dark" || (mode === "system" && sysDark);
+    document.documentElement.classList.toggle("dark", wantDark);
+  }
+
+  function renderThemeButton(btn, mode) {
+    // Toggle icon visibility — exactly one shows.
+    var icons = btn.querySelectorAll("[data-theme-icon]");
+    icons.forEach(function (el) {
+      el.classList.toggle("hidden", el.getAttribute("data-theme-icon") !== mode);
+    });
+    // Update the sr-only label and the accessible name.
+    var labelKey = "data-label-" + mode;
+    var label = btn.getAttribute(labelKey) || btn.getAttribute("aria-label") || "";
+    btn.setAttribute("aria-label", label);
+    btn.setAttribute("title", label);
+    var srLabel = btn.querySelector("[data-theme-label]");
+    if (srLabel) srLabel.textContent = label;
+  }
+
+  function initThemeToggle() {
+    var btn = document.getElementById("theme-toggle");
+    if (!btn) return;
+    var current = readTheme();
+    renderThemeButton(btn, current);
+
+    btn.addEventListener("click", function () {
+      var order = ["system", "light", "dark"];
+      var next = order[(order.indexOf(readTheme()) + 1) % order.length];
+      writeTheme(next);
+      applyTheme(next);
+      renderThemeButton(btn, next);
+    });
+
+    // If the user is in "system" mode, track live OS preference changes.
+    if (window.matchMedia) {
+      var mq = window.matchMedia("(prefers-color-scheme: dark)");
+      var onChange = function () {
+        if (readTheme() === "system") applyTheme("system");
+      };
+      if (mq.addEventListener) mq.addEventListener("change", onChange);
+      else if (mq.addListener) mq.addListener(onChange); // Safari < 14
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initThemeToggle);
+  } else {
+    initThemeToggle();
+  }
+
   // -------- order item product picker --------
   // When a staff/contact picks a product from the dropdown on the order
   // detail page, pre-fill the description, unit, and unit_price inputs.

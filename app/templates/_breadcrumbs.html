@@ -1,17 +1,17 @@
 {# Breadcrumb trail. Caller passes ``items`` = list of (label, href) tuples;
    the last item renders as a non-link heading. Separator is a subtle chevron. #}
 {% if items %}
-    <nav aria-label="Breadcrumb" class="mb-2 text-sm text-slate-500">
+    <nav aria-label="Breadcrumb" class="mb-2 text-sm text-slate-500 dark:text-slate-400">
         <ol class="flex flex-wrap items-center gap-1.5">
             {% for label, href in items %}
                 <li class="flex items-center gap-1.5">
                     {% if loop.last or not href %}
-                        <span class="font-medium text-slate-700" aria-current="page">{{ label }}</span>
+                        <span class="font-medium text-slate-700 dark:text-slate-200" aria-current="page">{{ label }}</span>
                     {% else %}
-                        <a href="{{ href }}" class="hover:text-slate-900">{{ label }}</a>
+                        <a href="{{ href }}" class="hover:text-slate-900 dark:hover:text-slate-100">{{ label }}</a>
                     {% endif %}
                     {% if not loop.last %}
-                        <svg aria-hidden="true" class="h-3 w-3 text-slate-400"
+                        <svg aria-hidden="true" class="h-3 w-3 text-slate-400 dark:text-slate-500"
                              viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
                                   d="M7.05 4.95a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06L11 10 7.05 6.05a.75.75 0 0 1 0-1.1z"

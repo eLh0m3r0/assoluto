@@ -275,6 +275,22 @@ msgstr "Transparentní objednávkový proces mezi výrobcem a jeho klienty. Kata
 msgid "Toggle menu"
 msgstr "Otevřít menu"
 
+#: app/templates/base.html
+msgid "Toggle theme"
+msgstr "Přepnout motiv"
+
+#: app/templates/base.html
+msgid "Theme: system"
+msgstr "Motiv: systémový"
+
+#: app/templates/base.html
+msgid "Theme: light"
+msgstr "Motiv: světlý"
+
+#: app/templates/base.html
+msgid "Theme: dark"
+msgstr "Motiv: tmavý"
+
 #: app/templates/products/detail.html
 msgid "Edit product"
 msgstr "Upravit produkt"

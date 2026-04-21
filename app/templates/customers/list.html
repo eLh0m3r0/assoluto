@@ -4,7 +4,7 @@
 
 {% block content %}
     <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-slate-900">{{ _('Clients') }}</h1>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('Clients') }}</h1>
         <a href="/app/customers/new"
            class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
             {{ _('New client') }}
@@ -12,28 +12,28 @@
     </div>
 
     {% if customers %}
-        <ul class="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white shadow-sm">
+        <ul class="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white shadow-sm dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">
             {% for customer in customers %}
-                <li class="px-5 py-4 hover:bg-slate-50">
+                <li class="px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <a href="/app/customers/{{ customer.id }}" class="block">
-                        <div class="font-medium text-slate-900">{{ customer.name }}</div>
+                        <div class="font-medium text-slate-900 dark:text-slate-100">{{ customer.name }}</div>
                         {% if customer.ico %}
-                            <div class="text-xs text-slate-500">IČO {{ customer.ico }}</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">IČO {{ customer.ico }}</div>
                         {% endif %}
                     </a>
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <div class="rounded-lg border border-dashed border-slate-300 p-10 text-center">
-            <svg aria-hidden="true" class="mx-auto mb-3 h-12 w-12 text-slate-300"
+        <div class="rounded-lg border border-dashed border-slate-300 p-10 text-center dark:border-slate-700">
+            <svg aria-hidden="true" class="mx-auto mb-3 h-12 w-12 text-slate-300 dark:text-slate-600"
                  viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="18" cy="18" r="6"/>
                 <circle cx="34" cy="22" r="4"/>
                 <path stroke-linecap="round" d="M6 40c2-6 7-9 12-9s10 3 12 9"/>
                 <path stroke-linecap="round" d="M32 30c4 0 9 2 10 8"/>
             </svg>
-            <p class="text-slate-500">{{ _('No clients yet.') }}</p>
+            <p class="text-slate-500 dark:text-slate-400">{{ _('No clients yet.') }}</p>
             <a href="/app/customers/new"
                class="mt-3 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
                 {{ _('Add the first client') }}
