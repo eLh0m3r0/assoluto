@@ -164,7 +164,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     # Adds Content-Security-Policy to every response. The other security
     # headers (HSTS, X-Frame-Options, etc.) come from Caddy / uvicorn.
-    app.add_middleware(SecurityHeadersMiddleware)
+    # Passing ``platform_cookie_domain`` (e.g. ``.assoluto.eu``) lets the
+    # middleware widen ``form-action`` to allow cross-subdomain redirects
+    # required by the /platform/switch handoff in multi-tenant setups.
+    app.add_middleware(
+        SecurityHeadersMiddleware,
+        subdomain_apex=settings.platform_cookie_domain or None,
+    )
 
     # Resolve the UI locale once per request (cookie -> Accept-Language ->
     # default). Result is available on ``request.state.locale`` and used
