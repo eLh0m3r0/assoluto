@@ -1598,3 +1598,24 @@ msgstr "je neměnný (subdoména, S3 prefix). Pro přejmenování založ nového
 
 msgid "Slug"
 msgstr "Slug"
+
+msgid "active"
+msgstr "aktivní"
+
+msgid "disabled"
+msgstr "deaktivován"
+
+msgid "New tenant"
+msgstr "Nový tenant"
+
+msgid "Recent signups"
+msgstr "Nedávné registrace"
+
+msgid "No signups yet."
+msgstr "Zatím žádné registrace."
+
+msgid "of which"
+msgstr "z toho"
+
+msgid "Filtered by"
+msgstr "Filtrováno"
