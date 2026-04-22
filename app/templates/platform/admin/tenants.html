@@ -17,11 +17,11 @@
             <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
                 <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
                     <tr>
-                        <th class="px-4 py-3 text-left">Slug</th>
-                        <th class="px-4 py-3 text-left">Název</th>
-                        <th class="px-4 py-3 text-left">Fakturační e-mail</th>
-                        <th class="px-4 py-3 text-left">Stav</th>
-                        <th class="px-4 py-3 text-left">Váš přístup</th>
+                        <th class="px-4 py-3 text-left">{{ _("Slug") }}</th>
+                        <th class="px-4 py-3 text-left">{{ _("Name") }}</th>
+                        <th class="px-4 py-3 text-left">{{ _("Billing email") }}</th>
+                        <th class="px-4 py-3 text-left">{{ _("Status") }}</th>
+                        <th class="px-4 py-3 text-left">{{ _("Your access") }}</th>
                         <th class="px-4 py-3"></th>
                     </tr>
                 </thead>
@@ -41,14 +41,14 @@
                             <td class="px-4 py-3 text-xs">
                                 {% set my_access = access_by_tenant_id.get(t.id|string) %}
                                 {% if my_access == "member" %}
-                                    <span title="Jsi běžný člen týmu tohoto tenantu."
+                                    <span title="{{ _('You are a regular team member of this tenant.') }}"
                                           class="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
-                                        člen
+                                        {{ _("member") }}
                                     </span>
                                 {% elif my_access == "support" %}
-                                    <span title="Support přístup — můžeš ho kdykoli zrušit."
+                                    <span title="{{ _('Support access — you can revoke it at any time.') }}"
                                           class="rounded-full bg-amber-100 px-2 py-0.5 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
-                                        ⚙ support
+                                        ⚙ {{ _("support") }}
                                     </span>
                                 {% else %}
                                     <span class="text-slate-400 dark:text-slate-500">—</span>
@@ -58,44 +58,44 @@
                                 <div class="flex items-center justify-end gap-3 text-xs">
                                     <a href="/platform/admin/tenants/{{ t.id }}/edit"
                                        class="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">
-                                        Upravit
+                                        {{ _("Edit") }}
                                     </a>
                                     {% if t.is_active %}
                                         {% if my_access == "support" %}
                                             <form method="post"
                                                   action="/platform/admin/tenants/{{ t.id }}/revoke-support"
                                                   class="inline"
-                                                  data-confirm="Zrušit svůj support přístup do tenantu {{ t.slug }}? Akce je zalogovaná v audit logu tenantu.">
+                                                  data-confirm="{{ _('Revoke your support access to tenant') }} {{ t.slug }}? {{ _('The action is logged in the tenant audit log.') }}">
                                                 {{ csrf_input() }}
                                                 <button type="submit"
                                                         class="text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200">
-                                                    Zrušit support
+                                                    {{ _("Revoke support") }}
                                                 </button>
                                             </form>
                                         {% elif not my_access %}
                                             <form method="post"
                                                   action="/platform/admin/tenants/{{ t.id }}/support-access"
                                                   class="inline"
-                                                  data-confirm="Přidat se do tenantu {{ t.slug }} jako support? Akce je zalogovaná v audit logu tenantu.">
+                                                  data-confirm="{{ _('Join tenant') }} {{ t.slug }} {{ _('as support?') }} {{ _('The action is logged in the tenant audit log.') }}">
                                                 {{ csrf_input() }}
                                                 <button type="submit"
                                                         class="text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200">
-                                                    Support přístup
+                                                    {{ _("Support access") }}
                                                 </button>
                                             </form>
                                         {% endif %}
                                         <form method="post" action="/platform/admin/tenants/{{ t.id }}/deactivate" class="inline"
-                                              data-confirm="Deaktivovat tenanta {{ t.slug }}?">
+                                              data-confirm="{{ _('Deactivate tenant') }} {{ t.slug }}?">
                                             {{ csrf_input() }}
                                             <button type="submit" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
-                                                Deaktivovat
+                                                {{ _("Deactivate") }}
                                             </button>
                                         </form>
                                     {% else %}
                                         <form method="post" action="/platform/admin/tenants/{{ t.id }}/reactivate" class="inline">
                                             {{ csrf_input() }}
                                             <button type="submit" class="text-emerald-700 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300">
-                                                Reaktivovat
+                                                {{ _("Reactivate") }}
                                             </button>
                                         </form>
                                     {% endif %}
@@ -108,7 +108,7 @@
         </div>
     {% else %}
         <div class="mb-8 rounded-lg border border-dashed border-slate-300 p-10 text-center dark:border-slate-700">
-            <p class="text-slate-500 dark:text-slate-400">Zatím žádní tenanti.</p>
+            <p class="text-slate-500 dark:text-slate-400">{{ _("No tenants yet.") }}</p>
         </div>
     {% endif %}
 
@@ -117,37 +117,37 @@
         <form method="post" action="/platform/admin/tenants" class="grid gap-3 sm:grid-cols-2">
             {{ csrf_input() }}
             <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Slug *</label>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Slug") }} *</label>
                 <input type="text" name="slug" required pattern="[a-z0-9-]+"
                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Název firmy *</label>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Company name") }} *</label>
                 <input type="text" name="name" required
                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Vlastník — e-mail *</label>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Owner — email") }} *</label>
                 <input type="email" name="owner_email" required
                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Vlastník — jméno *</label>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Owner — name") }} *</label>
                 <input type="text" name="owner_full_name" required
                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
             </div>
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Vlastník — heslo *</label>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Owner — password") }} *</label>
                 <input type="password" name="owner_password" required minlength="8"
                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
                 <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    Pošle se novému vlastníkovi bezpečným kanálem mimo portál.
+                    {{ _("Send it to the new owner over a secure channel outside the portal.") }}
                 </p>
             </div>
             <div class="sm:col-span-2 text-right">
                 <button type="submit"
                         class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-                    Založit tenant
+                    {{ _("Create tenant") }}
                 </button>
             </div>
         </form>

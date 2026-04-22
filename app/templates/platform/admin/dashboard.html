@@ -11,19 +11,19 @@
 
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Celkem tenantů</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ _("Total tenants") }}</p>
             <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">{{ metrics.total_tenants }}</p>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">z toho {{ metrics.active_tenants }} aktivních</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _("of which active:") }} {{ metrics.active_tenants }}</p>
         </div>
         <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Nové registrace (7 dní)</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ _("New signups (7 days)") }}</p>
             <p class="mt-2 text-3xl font-bold text-emerald-600">{{ metrics.signups_this_week }}</p>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ metrics.signups_this_month }} za 30 dní</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ metrics.signups_this_month }} {{ _("in 30 days") }}</p>
         </div>
         <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Aktivní předplatné</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ _("Active subscriptions") }}</p>
             <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">{{ metrics.subs_active }}</p>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ metrics.subs_trialing }} ve zkušební verzi</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ metrics.subs_trialing }} {{ _("in trial") }}</p>
         </div>
         <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
             <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">MRR</p>
@@ -31,8 +31,8 @@
                 {{ metrics.mrr_cents|money(metrics.mrr_currency) }}
             </p>
             <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                aktivní plány (bez trial)
-                · 30 d tržby {{ metrics.paid_30d_cents|money(metrics.mrr_currency) }}
+                {{ _("active plans (excluding trial)") }}
+                · {{ _("30-day revenue") }} {{ metrics.paid_30d_cents|money(metrics.mrr_currency) }}
             </p>
         </div>
     </div>
@@ -43,10 +43,10 @@
             <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
                 <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
                     <tr>
-                        <th class="px-4 py-2 text-left">Slug</th>
-                        <th class="px-4 py-2 text-left">Název</th>
-                        <th class="px-4 py-2 text-left">Vytvořen</th>
-                        <th class="px-4 py-2 text-left">Stav</th>
+                        <th class="px-4 py-2 text-left">{{ _("Slug") }}</th>
+                        <th class="px-4 py-2 text-left">{{ _("Name") }}</th>
+                        <th class="px-4 py-2 text-left">{{ _("Created") }}</th>
+                        <th class="px-4 py-2 text-left">{{ _("Status") }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">

@@ -30,52 +30,51 @@
         {{ csrf_input() }}
 
         <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Název firmy *</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Company name") }} *</label>
             <input type="text" name="name" required
                    value="{{ tenant.name }}"
                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
             <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                Zobrazované jméno — proklikne se do záhlaví portálu, e-mailových šablon
-                a platformového selectoru.
+                {{ _("Display name — visible in the portal header, email templates, and the platform selector.") }}
             </p>
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Fakturační e-mail *</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Billing email") }} *</label>
             <input type="email" name="billing_email" required
                    value="{{ tenant.billing_email }}"
                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
             <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                Kam chodí Stripe faktury + notifikace o předplatném.
+                {{ _("Where Stripe invoices and subscription notifications are delivered.") }}
             </p>
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-slate-500 dark:text-slate-400">Slug (pouze ke čtení)</label>
+            <label class="block text-sm font-medium text-slate-500 dark:text-slate-400">{{ _("Slug (read-only)") }}</label>
             <input type="text" disabled value="{{ tenant.slug }}"
                    class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-500">
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-slate-500 dark:text-slate-400">Stav</label>
+            <label class="block text-sm font-medium text-slate-500 dark:text-slate-400">{{ _("Status") }}</label>
             <p class="mt-1 text-sm text-slate-700 dark:text-slate-300">
                 {% if tenant.is_active %}
                     <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">{{ _("active") }}</span>
                 {% else %}
                     <span class="rounded-full bg-slate-200 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-700 dark:text-slate-300">{{ _("disabled") }}</span>
                 {% endif %}
-                — změna stavu se dělá tlačítky Deaktivovat / Reaktivovat na seznamu.
+                — {{ _("change the status via the Deactivate / Reactivate buttons in the list.") }}
             </p>
         </div>
 
         <div class="flex items-center justify-between pt-2">
             <a href="/platform/admin/tenants"
                class="text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
-                Zrušit
+                {{ _("Cancel") }}
             </a>
             <button type="submit"
                     class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-                Uložit změny
+                {{ _("Save changes") }}
             </button>
         </div>
     </form>

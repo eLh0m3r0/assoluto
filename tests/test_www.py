@@ -27,7 +27,9 @@ async def test_features_page_renders(www_client) -> None:
     client, _ = www_client
     resp = await client.get("/features")
     assert resp.status_code == 200
-    assert "What Assoluto can do" in resp.text
+    # Accept EN msgid or CS translation — default locale is CS so
+    # pages render translated copy.
+    assert "What Assoluto can do" in resp.text or "Co Assoluto umí" in resp.text
 
 
 async def test_pricing_page_renders_all_tiers(www_client) -> None:
@@ -113,7 +115,7 @@ async def test_contact_form_renders_empty(www_client) -> None:
     client, _ = www_client
     resp = await client.get("/contact")
     assert resp.status_code == 200
-    assert "Write to us" in resp.text
+    assert "Write to us" in resp.text or "Napište nám" in resp.text
 
 
 async def test_contact_form_submission_sends_email(www_client) -> None:
@@ -127,7 +129,7 @@ async def test_contact_form_submission_sends_email(www_client) -> None:
         },
     )
     assert resp.status_code == 200
-    assert "Message sent" in resp.text
+    assert "Message sent" in resp.text or "Zpráva odeslána" in resp.text
     # Background task ran by the TestClient in-process.
     assert len(sender.outbox) == 1
     assert "Jan Novák" in sender.outbox[0].text

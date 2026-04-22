@@ -44,7 +44,7 @@
     </div>
 
     {% if breadcrumbs %}
-        <nav class="mb-3 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400" aria-label="breadcrumb">
+        <nav class="mb-3 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400" aria-label="{{ _('Breadcrumb') }}">
             {% for crumb in breadcrumbs %}
                 {% if not loop.last and crumb.href %}
                     <a href="{{ crumb.href }}" class="hover:text-slate-900 dark:hover:text-slate-100">{{ crumb.label }}</a>

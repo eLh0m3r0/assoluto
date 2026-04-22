@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Přihlášení · {{ tenant.name if tenant else "Assoluto" }}{% endblock %}
+{% block title %}{{ _('Sign in') }} · {{ tenant.name if tenant else "Assoluto" }}{% endblock %}
 
 {% block content %}
 <div class="flex min-h-[60vh] items-center justify-center">

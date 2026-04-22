@@ -1,7 +1,7 @@
 {# Breadcrumb trail. Caller passes ``items`` = list of (label, href) tuples;
    the last item renders as a non-link heading. Separator is a subtle chevron. #}
 {% if items %}
-    <nav aria-label="Breadcrumb" class="mb-2 text-sm text-slate-500 dark:text-slate-400">
+    <nav aria-label="{{ _('Breadcrumb') }}" class="mb-2 text-sm text-slate-500 dark:text-slate-400">
         <ol class="flex flex-wrap items-center gap-1.5">
             {% for label, href in items %}
                 <li class="flex items-center gap-1.5">
