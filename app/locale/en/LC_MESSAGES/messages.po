@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-22 18:00+0200\n"
+"POT-Creation-Date: 2026-04-22 18:06+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -88,8 +88,8 @@ msgstr "In production"
 msgid "Close"
 msgstr "Closed"
 
-#: app/i18n_messages.py:52 app/templates/admin/user_edit.html:50
-#: app/templates/assets/form.html:54 app/templates/customers/form.html:81
+#: app/i18n_messages.py:52 app/templates/admin/user_edit.html:67
+#: app/templates/assets/form.html:54 app/templates/customers/form.html:98
 #: app/templates/orders/form.html:55
 #: app/templates/platform/admin/tenant_edit.html:73
 #: app/templates/products/form.html:70
@@ -460,7 +460,7 @@ msgid ""
 "open the link below — it is valid for 7 days:"
 msgstr ""
 
-#: app/routers/customers.py:296
+#: app/routers/customers.py:306
 msgid "A contact with the same email already exists."
 msgstr ""
 
@@ -572,11 +572,11 @@ msgstr ""
 msgid "A user with this email already exists."
 msgstr ""
 
-#: app/routers/tenant_admin.py:285 app/routers/tenant_admin.py:400
+#: app/routers/tenant_admin.py:286 app/routers/tenant_admin.py:421
 msgid "Name cannot be empty."
 msgstr ""
 
-#: app/routers/tenant_admin.py:429
+#: app/routers/tenant_admin.py:451
 msgid "New passwords do not match."
 msgstr ""
 
@@ -633,11 +633,11 @@ msgid "Catalog"
 msgstr "Catalog"
 
 #: app/templates/admin/audit.html:7 app/templates/admin/profile.html:7
-#: app/templates/admin/sla.html:7 app/templates/admin/users.html:7
-#: app/templates/app_base.html:11 app/templates/customers/detail.html:8
-#: app/templates/customers/form.html:9 app/templates/customers/form.html:13
-#: app/templates/dashboard/index.html:3 app/templates/dashboard/index.html:7
-#: app/templates/orders/detail.html:29
+#: app/templates/admin/sla.html:7 app/templates/admin/tenant_settings.html:7
+#: app/templates/admin/users.html:7 app/templates/app_base.html:11
+#: app/templates/customers/detail.html:8 app/templates/customers/form.html:9
+#: app/templates/customers/form.html:13 app/templates/dashboard/index.html:3
+#: app/templates/dashboard/index.html:7 app/templates/orders/detail.html:29
 #: app/templates/platform/admin/_header.html:21
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:7
@@ -668,26 +668,33 @@ msgstr "Team"
 msgid "Audit"
 msgstr ""
 
-#: app/templates/app_base.html:32
+#: app/templates/admin/tenant_settings.html:3
+#: app/templates/admin/tenant_settings.html:7
+#: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:31
+#, fuzzy
+msgid "Tenant settings"
+msgstr "Manage tenants"
+
+#: app/templates/app_base.html:33
 msgid "Billing"
 msgstr ""
 
-#: app/templates/app_base.html:49
+#: app/templates/app_base.html:50
 #, fuzzy
 msgid "Switch portal"
 msgstr "Switch to"
 
-#: app/templates/app_base.html:50
+#: app/templates/app_base.html:51
 #, fuzzy
 msgid "Switch"
 msgstr "Switch to"
 
 #: app/templates/admin/profile.html:3 app/templates/admin/profile.html:8
-#: app/templates/app_base.html:73
+#: app/templates/app_base.html:74
 msgid "Profile"
 msgstr ""
 
-#: app/templates/app_base.html:79 app/templates/platform/admin/_header.html:14
+#: app/templates/app_base.html:80 app/templates/platform/admin/_header.html:14
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:10
 #: app/templates/platform/admin/tenant_edit.html:3
@@ -696,7 +703,7 @@ msgstr ""
 msgid "Platform admin"
 msgstr "Platform"
 
-#: app/templates/app_base.html:89 app/templates/platform/admin/_header.html:40
+#: app/templates/app_base.html:90 app/templates/platform/admin/_header.html:40
 #: app/templates/platform/select_tenant.html:17
 msgid "Sign out"
 msgstr "Sign out"
@@ -822,7 +829,7 @@ msgid "Account"
 msgstr ""
 
 #: app/templates/admin/profile.html:19 app/templates/admin/user_edit.html:32
-#: app/templates/admin/users.html:21
+#: app/templates/admin/users.html:21 app/templates/customers/detail.html:93
 #, fuzzy
 msgid "Full name"
 msgstr "Your name"
@@ -839,37 +846,51 @@ msgstr "Email"
 msgid "Email changes need an administrator."
 msgstr ""
 
-#: app/templates/admin/profile.html:31
+#: app/templates/admin/profile.html:31 app/templates/admin/user_edit.html:49
+#: app/templates/customers/detail.html:98
+msgid "Email language"
+msgstr ""
+
+#: app/templates/admin/profile.html:36 app/templates/admin/user_edit.html:54
+#: app/templates/customers/form.html:55
+msgid "Automatic (tenant default)"
+msgstr ""
+
+#: app/templates/admin/profile.html:42
+msgid "Language used for notification emails sent to you."
+msgstr ""
+
+#: app/templates/admin/profile.html:47
 msgid "Save profile"
 msgstr ""
 
-#: app/templates/admin/profile.html:37
+#: app/templates/admin/profile.html:53
 #, fuzzy
 msgid "Change password"
 msgstr "Password"
 
-#: app/templates/admin/profile.html:42
+#: app/templates/admin/profile.html:58
 #, fuzzy
 msgid "Current password"
 msgstr "Password"
 
-#: app/templates/admin/profile.html:49 app/templates/auth/invite_accept.html:23
+#: app/templates/admin/profile.html:65 app/templates/auth/invite_accept.html:23
 #: app/templates/auth/password_reset_confirm.html:20
 #: app/templates/platform/password_reset_confirm.html:20
 msgid "New password (min. 8 characters)"
 msgstr ""
 
-#: app/templates/admin/profile.html:56
+#: app/templates/admin/profile.html:72
 #, fuzzy
 msgid "Confirm new password"
 msgstr "Confirmed"
 
-#: app/templates/admin/profile.html:64
+#: app/templates/admin/profile.html:80
 #, fuzzy
 msgid "Save new password"
 msgstr "Password"
 
-#: app/templates/admin/profile.html:67
+#: app/templates/admin/profile.html:83
 msgid "After changing your password you will be signed out and must log in again."
 msgstr ""
 
@@ -981,6 +1002,27 @@ msgstr ""
 msgid "No orders with a promised delivery date yet."
 msgstr ""
 
+#: app/templates/admin/tenant_settings.html:7
+#, fuzzy
+msgid "Administration"
+msgstr "Send a new verification link"
+
+#: app/templates/admin/tenant_settings.html:21
+msgid "Default email language"
+msgstr ""
+
+#: app/templates/admin/tenant_settings.html:29
+msgid ""
+"Used for all notification emails unless a client or individual user has "
+"their own preference."
+msgstr ""
+
+#: app/templates/admin/tenant_settings.html:36
+#: app/templates/admin/user_edit.html:71
+#: app/templates/platform/admin/tenant_edit.html:77
+msgid "Save changes"
+msgstr ""
+
 #: app/templates/admin/user_edit.html:3 app/templates/admin/user_edit.html:10
 msgid "Edit user"
 msgstr ""
@@ -1004,9 +1046,8 @@ msgstr "Platform"
 msgid "Administrator"
 msgstr ""
 
-#: app/templates/admin/user_edit.html:54
-#: app/templates/platform/admin/tenant_edit.html:77
-msgid "Save changes"
+#: app/templates/admin/user_edit.html:60
+msgid "Language used for notification emails sent to this user."
 msgstr ""
 
 #: app/templates/admin/users.html:10
@@ -1017,7 +1058,7 @@ msgstr ""
 msgid "State"
 msgstr ""
 
-#: app/templates/admin/users.html:38 app/templates/customers/detail.html:101
+#: app/templates/admin/users.html:38 app/templates/customers/detail.html:115
 #: app/templates/platform/admin/dashboard.html:62
 #: app/templates/platform/admin/tenant_edit.html:64
 #: app/templates/platform/admin/tenants.html:38
@@ -1040,7 +1081,7 @@ msgstr ""
 msgid "pending invite"
 msgstr ""
 
-#: app/templates/admin/users.html:47 app/templates/customers/detail.html:103
+#: app/templates/admin/users.html:47 app/templates/customers/detail.html:117
 #: app/templates/platform/admin/dashboard.html:60
 #: app/templates/platform/admin/tenant_edit.html:62
 #: app/templates/platform/admin/tenants.html:36
@@ -1056,11 +1097,11 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: app/templates/admin/users.html:62 app/templates/customers/detail.html:110
+#: app/templates/admin/users.html:62 app/templates/customers/detail.html:124
 msgid "Resend the invitation email?"
 msgstr ""
 
-#: app/templates/admin/users.html:65 app/templates/customers/detail.html:113
+#: app/templates/admin/users.html:65 app/templates/customers/detail.html:127
 msgid "Resend invite"
 msgstr ""
 
@@ -1068,12 +1109,12 @@ msgstr ""
 msgid "Deactivate this user?"
 msgstr ""
 
-#: app/templates/admin/users.html:74 app/templates/customers/detail.html:122
+#: app/templates/admin/users.html:74 app/templates/customers/detail.html:136
 #: app/templates/platform/admin/tenants.html:91
 msgid "Deactivate"
 msgstr ""
 
-#: app/templates/admin/users.html:81 app/templates/customers/detail.html:129
+#: app/templates/admin/users.html:81 app/templates/customers/detail.html:143
 #: app/templates/platform/admin/tenants.html:98
 msgid "Reactivate"
 msgstr ""
@@ -1091,11 +1132,11 @@ msgid "Invite user"
 msgstr ""
 
 #: app/templates/admin/users.html:103 app/templates/auth/login.html:29
-#: app/templates/customers/detail.html:146
+#: app/templates/customers/detail.html:160
 msgid "name@company.com"
 msgstr ""
 
-#: app/templates/admin/users.html:105 app/templates/customers/detail.html:148
+#: app/templates/admin/users.html:105 app/templates/customers/detail.html:162
 msgid "Name Surname"
 msgstr ""
 
@@ -1200,8 +1241,8 @@ msgstr ""
 msgid "Name"
 msgstr "Your name"
 
-#: app/templates/assets/form.html:57 app/templates/customers/detail.html:95
-#: app/templates/customers/form.html:83 app/templates/products/form.html:73
+#: app/templates/assets/form.html:57 app/templates/customers/detail.html:108
+#: app/templates/customers/form.html:100 app/templates/products/form.html:73
 msgid "Save"
 msgstr ""
 
@@ -1314,23 +1355,23 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
-#: app/templates/customers/detail.html:34 app/templates/customers/form.html:49
+#: app/templates/customers/detail.html:34 app/templates/customers/form.html:66
 msgid "Client order permissions"
 msgstr ""
 
-#: app/templates/customers/detail.html:42 app/templates/customers/form.html:56
+#: app/templates/customers/detail.html:42 app/templates/customers/form.html:73
 msgid "Can add items to an order"
 msgstr ""
 
-#: app/templates/customers/detail.html:50 app/templates/customers/form.html:62
+#: app/templates/customers/detail.html:50 app/templates/customers/form.html:79
 msgid "Can pick from the product catalog"
 msgstr ""
 
-#: app/templates/customers/detail.html:58 app/templates/customers/form.html:68
+#: app/templates/customers/detail.html:58 app/templates/customers/form.html:85
 msgid "Can set item prices"
 msgstr ""
 
-#: app/templates/customers/detail.html:66 app/templates/customers/form.html:74
+#: app/templates/customers/detail.html:66 app/templates/customers/form.html:91
 msgid "Can upload attachments"
 msgstr ""
 
@@ -1338,19 +1379,24 @@ msgstr ""
 msgid "Contacts"
 msgstr ""
 
-#: app/templates/customers/detail.html:105
+#: app/templates/customers/detail.html:101
+#, fuzzy
+msgid "auto"
+msgstr "Platform"
+
+#: app/templates/customers/detail.html:119
 msgid "invited"
 msgstr ""
 
-#: app/templates/customers/detail.html:119
+#: app/templates/customers/detail.html:133
 msgid "Deactivate this contact?"
 msgstr ""
 
-#: app/templates/customers/detail.html:138
+#: app/templates/customers/detail.html:152
 msgid "This client has no contacts yet."
 msgstr ""
 
-#: app/templates/customers/detail.html:152
+#: app/templates/customers/detail.html:166
 msgid "Invite contact"
 msgstr ""
 
@@ -1373,6 +1419,16 @@ msgid "Company name"
 msgstr "Company name"
 
 #: app/templates/customers/form.html:50
+msgid "Default email language for this client"
+msgstr ""
+
+#: app/templates/customers/form.html:61
+msgid ""
+"Applied to every contact of this client unless the contact has their own "
+"override."
+msgstr ""
+
+#: app/templates/customers/form.html:67
 msgid ""
 "Controls what contacts of this client can do when placing orders. Staff "
 "always has full access."

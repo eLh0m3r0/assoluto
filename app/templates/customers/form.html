@@ -45,6 +45,23 @@
                       class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">{{ form.notes or '' }}</textarea>
         </div>
 
+        <div>
+            <label for="preferred_locale" class="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
+                {{ _('Default email language for this client') }}
+            </label>
+            <select id="preferred_locale" name="preferred_locale"
+                    class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                <option value="" {% if not form.preferred_locale %}selected{% endif %}>
+                    {{ _('Automatic (tenant default)') }}
+                </option>
+                <option value="cs" {% if form.preferred_locale == 'cs' %}selected{% endif %}>Čeština</option>
+                <option value="en" {% if form.preferred_locale == 'en' %}selected{% endif %}>English</option>
+            </select>
+            <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">
+                {{ _('Applied to every contact of this client unless the contact has their own override.') }}
+            </p>
+        </div>
+
         <fieldset class="rounded-lg border border-gray-200 p-4 dark:border-slate-700">
             <legend class="px-2 text-sm font-semibold text-gray-700 dark:text-slate-300">{{ _('Client order permissions') }}</legend>
             <p class="mb-3 text-xs text-gray-500 dark:text-slate-400">{{ _('Controls what contacts of this client can do when placing orders. Staff always has full access.') }}</p>

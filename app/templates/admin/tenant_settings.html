@@ -1,0 +1,41 @@
+{% extends "app_base.html" %}
+
+{% block title %}Assoluto — {{ _('Tenant settings') }} · {{ tenant.name }}{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-xl">
+    {% with items=[(_('Dashboard'), '/app'), (_('Administration'), '/app/admin/users'), (_('Tenant settings'), None)] %}
+        {% include "_breadcrumbs.html" %}
+    {% endwith %}
+
+    <h1 class="mb-6 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('Tenant settings') }}</h1>
+
+    {% include "_flash.html" %}
+
+    <form method="post" action="/app/admin/tenant-settings"
+          class="space-y-5 rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        {{ csrf_input() }}
+
+        <div>
+            <label for="default_locale" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                {{ _('Default email language') }}
+            </label>
+            <select id="default_locale" name="default_locale"
+                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                <option value="cs" {% if tenant_default_locale == 'cs' %}selected{% endif %}>Čeština</option>
+                <option value="en" {% if tenant_default_locale == 'en' %}selected{% endif %}>English</option>
+            </select>
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                {{ _('Used for all notification emails unless a client or individual user has their own preference.') }}
+            </p>
+        </div>
+
+        <div class="flex items-center justify-end pt-2">
+            <button type="submit"
+                    class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                {{ _('Save changes') }}
+            </button>
+        </div>
+    </form>
+</section>
+{% endblock %}

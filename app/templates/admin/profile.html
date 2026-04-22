@@ -26,6 +26,22 @@
                 <p class="mt-1 text-sm text-slate-700 dark:text-slate-300">{{ principal.email }}</p>
                 <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">{{ _('Email changes need an administrator.') }}</p>
             </div>
+            <div>
+                <label for="preferred_locale" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    {{ _('Email language') }}
+                </label>
+                <select id="preferred_locale" name="preferred_locale"
+                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                    <option value="" {% if not user_preferred_locale %}selected{% endif %}>
+                        {{ _('Automatic (tenant default)') }}
+                    </option>
+                    <option value="cs" {% if user_preferred_locale == 'cs' %}selected{% endif %}>Čeština</option>
+                    <option value="en" {% if user_preferred_locale == 'en' %}selected{% endif %}>English</option>
+                </select>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    {{ _('Language used for notification emails sent to you.') }}
+                </p>
+            </div>
             <button type="submit"
                     class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
                 {{ _('Save profile') }}

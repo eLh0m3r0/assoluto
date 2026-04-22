@@ -189,6 +189,7 @@ async def customers_edit_form(
                 "can_use_catalog": "on" if perms.get("can_use_catalog", True) else "",
                 "can_set_prices": "on" if perms.get("can_set_prices", False) else "",
                 "can_upload_files": "on" if perms.get("can_upload_files", True) else "",
+                "preferred_locale": customer.preferred_locale or "",
             },
             "error": None,
             "notice": None,
@@ -209,8 +210,10 @@ async def customers_update(
     can_use_catalog: str = Form(""),
     can_set_prices: str = Form(""),
     can_upload_files: str = Form(""),
+    preferred_locale: str = Form(""),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> Response:
     customer = await get_customer(db, customer_id)
     if customer is None:
@@ -221,6 +224,11 @@ async def customers_update(
         "can_set_prices": can_set_prices == "on",
         "can_upload_files": can_upload_files == "on",
     }
+    from app.i18n import supported_locale_list
+
+    supported = supported_locale_list(settings.supported_locales)
+    loc = (preferred_locale or "").strip().lower().split("-", 1)[0]
+    clean_locale = loc if loc and loc in supported else None
     try:
         await update_customer(
             db,
@@ -230,6 +238,7 @@ async def customers_update(
             dic=dic,
             notes=notes,
             order_permissions=order_perms,
+            preferred_locale=clean_locale,
             audit_actor=actor_from_principal(principal),
         )
     except ValueError as exc:
@@ -249,6 +258,7 @@ async def customers_update(
                     "can_use_catalog": can_use_catalog,
                     "can_set_prices": can_set_prices,
                     "can_upload_files": can_upload_files,
+                    "preferred_locale": preferred_locale,
                 },
                 "error": str(exc),
                 "notice": None,
@@ -353,20 +363,27 @@ async def customers_contact_edit(
     customer_id: UUID,
     contact_id: UUID,
     full_name: str = Form(...),
+    preferred_locale: str = Form(""),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> Response:
     contact = await _get_contact(db, customer_id=customer_id, contact_id=contact_id)
     cleaned = (full_name or "").strip()
-    if cleaned:
-        contact.full_name = cleaned
-        await db.flush()
+    if not cleaned:
         return RedirectResponse(
-            url=f"/app/customers/{customer_id}?notice={quote('Změny uloženy.')}",
+            url=f"/app/customers/{customer_id}?error={quote('Jméno nesmí být prázdné.')}",
             status_code=303,
         )
+    from app.i18n import supported_locale_list
+
+    supported = supported_locale_list(settings.supported_locales)
+    loc = (preferred_locale or "").strip().lower().split("-", 1)[0]
+    contact.preferred_locale = loc if loc and loc in supported else None
+    contact.full_name = cleaned
+    await db.flush()
     return RedirectResponse(
-        url=f"/app/customers/{customer_id}?error={quote('Jméno nesmí být prázdné.')}",
+        url=f"/app/customers/{customer_id}?notice={quote('Změny uloženy.')}",
         status_code=303,
     )
 

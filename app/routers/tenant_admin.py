@@ -265,6 +265,7 @@ async def users_edit(
     request: Request,
     full_name: str = Form(...),
     role: str = Form(...),
+    preferred_locale: str = Form(""),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -301,11 +302,24 @@ async def users_edit(
 
     target.full_name = cleaned_name
     target.role = role_enum
+    target.preferred_locale = _normalise_locale(preferred_locale)
     await db.flush()
     return RedirectResponse(
         url=f"/app/admin/users?notice={quote('Změny uloženy.')}",
         status_code=303,
     )
+
+
+def _normalise_locale(raw: str) -> str | None:
+    """Accept only supported short codes; blank/unknown → NULL (inherit)."""
+    from app.config import get_settings
+    from app.i18n import supported_locale_list
+
+    code = (raw or "").strip().lower().split("-", 1)[0]
+    if not code:
+        return None
+    supported = supported_locale_list(get_settings().supported_locales)
+    return code if code in supported else None
 
 
 @router.post("/users/{user_id}/resend-invite", response_class=HTMLResponse)
@@ -368,13 +382,18 @@ async def profile_form(
     request: Request,
     saved: int = 0,
     principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
+    user_row = (
+        await db.execute(select(User).where(User.id == principal.id))
+    ).scalar_one_or_none()
     html = _templates(request).render(
         request,
         "admin/profile.html",
         {
             "principal": principal,
             "tenant": _tenant(request),
+            "user_preferred_locale": user_row.preferred_locale if user_row else None,
             "error": None,
             "notice": "Profil uložen." if saved else None,
         },
@@ -386,6 +405,7 @@ async def profile_form(
 async def profile_update(
     request: Request,
     full_name: str = Form(...),
+    preferred_locale: str = Form(""),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -397,6 +417,7 @@ async def profile_update(
             {
                 "principal": principal,
                 "tenant": _tenant(request),
+                "user_preferred_locale": None,
                 "error": _t(request, "Name cannot be empty."),
                 "notice": None,
             },
@@ -404,6 +425,7 @@ async def profile_update(
         return HTMLResponse(html, status_code=400)
     user = (await db.execute(select(User).where(User.id == principal.id))).scalar_one()
     user.full_name = full_name
+    user.preferred_locale = _normalise_locale(preferred_locale)
     await db.flush()
     await db.commit()
     # Redirect so the header badge picks up the new name on its own render.
@@ -462,6 +484,69 @@ async def profile_change_password(
 
     clear_session(response)
     return response
+
+
+# --------------------------------------------------------- tenant settings
+
+
+@router.get("/tenant-settings", response_class=HTMLResponse)
+async def tenant_settings_form(
+    request: Request,
+    saved: int = 0,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    """Tenant-admin-only screen for portal-wide settings (currently only
+    the default email locale)."""
+    _require_tenant_admin(principal)
+    tenant = _tenant(request)
+    # The current session's `request.state.tenant` is a snapshot captured
+    # at request start — fine for reads. Pull the live row so we can
+    # write to it on POST (below).
+    settings_blob = tenant.settings or {}
+    current_locale = str(settings_blob.get("default_locale") or "").lower() or "cs"
+    html = _templates(request).render(
+        request,
+        "admin/tenant_settings.html",
+        {
+            "principal": principal,
+            "tenant": tenant,
+            "tenant_default_locale": current_locale,
+            "notice": "Uloženo." if saved else None,
+            "error": None,
+        },
+    )
+    return HTMLResponse(html)
+
+
+@router.post("/tenant-settings", response_class=HTMLResponse)
+async def tenant_settings_update(
+    request: Request,
+    default_locale: str = Form(...),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    _require_tenant_admin(principal)
+    from app.config import get_settings
+    from app.i18n import supported_locale_list
+    from app.models.tenant import Tenant
+
+    settings = get_settings()
+    supported = supported_locale_list(settings.supported_locales)
+    code = (default_locale or "").strip().lower().split("-", 1)[0]
+    if code not in supported:
+        raise HTTPException(status_code=400, detail="Unsupported locale")
+
+    tenant = _tenant(request)
+    # Re-load the row under the current session so SQLAlchemy emits
+    # the UPDATE. ``request.state.tenant`` is read-only for this purpose.
+    row = (await db.execute(select(Tenant).where(Tenant.id == tenant.id))).scalar_one()
+    current = dict(row.settings or {})
+    current["default_locale"] = code
+    row.settings = current
+    await db.flush()
+    await db.commit()
+    return RedirectResponse(url="/app/admin/tenant-settings?saved=1", status_code=303)
 
 
 # --------------------------------------------------------------- audit log

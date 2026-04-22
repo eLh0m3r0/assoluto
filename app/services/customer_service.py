@@ -87,6 +87,7 @@ async def update_customer(
     dic: str | None,
     notes: str | None,
     order_permissions: dict | None = None,
+    preferred_locale: str | None = None,
     audit_actor: ActorInfo | None = None,
 ) -> Customer:
     name = name.strip()
@@ -96,7 +97,7 @@ async def update_customer(
     # Snapshot tracked fields BEFORE mutation so the diff picks up the
     # genuine prior state even after the attribute assignments below.
     before_snapshot = type("_CustomerSnapshot", (), {})()
-    for field in ("name", "ico", "dic", "notes", "order_permissions"):
+    for field in ("name", "ico", "dic", "notes", "order_permissions", "preferred_locale"):
         setattr(before_snapshot, field, getattr(customer, field, None))
 
     customer.name = name
@@ -105,12 +106,16 @@ async def update_customer(
     customer.notes = ((notes or None) and notes.strip()) or None
     if order_permissions is not None:
         customer.order_permissions = order_permissions
+    # ``None`` is a valid preferred_locale (NULL = inherit) so we always
+    # apply what the caller passed; callers that don't want to touch
+    # this field should omit the kwarg entirely.
+    customer.preferred_locale = preferred_locale
     await db.flush()
 
     diff = diff_from_models(
         before_snapshot,
         customer,
-        ["name", "ico", "dic", "notes", "order_permissions"],
+        ["name", "ico", "dic", "notes", "order_permissions", "preferred_locale"],
     )
     if diff:
         await audit_service.record(
