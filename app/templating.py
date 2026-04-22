@@ -223,6 +223,25 @@ class Templates:
 
         locale = getattr(request.state, "locale", self.settings.default_locale)
 
+        # Detect an active platform session so templates can surface a
+        # "switch portal" link when the visitor came in via /platform/login
+        # or signup. Cheap — just a cookie read + HMAC verify, no DB hit.
+        has_platform_session = False
+        is_platform_admin = False
+        if self.settings.feature_platform:
+            try:
+                from app.platform.session import read_platform_session
+
+                sess = read_platform_session(request, self.settings.app_secret_key)
+                if sess is not None:
+                    has_platform_session = True
+                    is_platform_admin = sess.is_platform_admin
+            except Exception:
+                # Defensive: a stale / malformed cookie must not break page
+                # render. read_platform_session already swallows signature
+                # errors; this is belt-and-braces.
+                has_platform_session = False
+
         context: dict = {
             "request": request,
             "app_version": __version__,
@@ -232,6 +251,8 @@ class Templates:
             "csrf_input": csrf_input,
             "locale": locale,
             "feature_platform": self.settings.feature_platform,
+            "has_platform_session": has_platform_session,
+            "is_platform_admin": is_platform_admin,
         }
         if extra:
             context.update(extra)

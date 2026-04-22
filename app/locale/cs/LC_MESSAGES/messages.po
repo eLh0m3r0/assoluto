@@ -1520,3 +1520,11 @@ msgstr "žádné objednávky"
 
 msgid "Weekly on-time heatmap"
 msgstr "Týdenní heatmapa včasnosti"
+
+# --- platform session nav additions ---
+
+msgid "Switch portal"
+msgstr "Přepnout portál"
+
+msgid "Platform admin"
+msgstr "Platform admin"
