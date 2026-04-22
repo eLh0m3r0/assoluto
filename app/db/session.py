@@ -27,7 +27,12 @@ def get_engine() -> AsyncEngine:
         settings.database_url,
         echo=False,
         future=True,
+        # pre_ping + recycle defends against stale connections after long
+        # idle periods (pgbouncer closures, Postgres idle timeout, etc.)
+        # that otherwise surface as 502s when the reverse proxy times out
+        # waiting for asyncpg to notice the TCP connection is dead.
         pool_pre_ping=True,
+        pool_recycle=1800,
     )
 
 

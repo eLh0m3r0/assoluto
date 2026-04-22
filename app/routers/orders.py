@@ -627,12 +627,15 @@ def _available_transitions(request: Request, order, principal: Principal) -> lis
     in logical workflow order (forward first, cancel last).
     """
     from app.i18n import gettext as _gettext
-    from app.services.order_service import ALL_STATUSES, CONTACT_ALLOWED_TRANSITIONS
+    from app.services.order_service import (
+        CONTACT_ALLOWED_TRANSITIONS,
+        STAFF_ALLOWED_TRANSITIONS,
+    )
 
     locale = getattr(request.state, "locale", None) or "cs"
 
     if principal.is_staff:
-        candidates = ALL_STATUSES - {order.status}
+        candidates = STAFF_ALLOWED_TRANSITIONS.get(order.status, set())
     else:
         candidates = CONTACT_ALLOWED_TRANSITIONS.get(order.status, set())
 

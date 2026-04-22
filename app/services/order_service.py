@@ -48,9 +48,8 @@ class OrderAccessDenied(OrderError):
 # State machine
 # ---------------------------------------------------------------------------
 
-# Allowed forward transitions for CUSTOMER CONTACTS. Staff (tenant users)
-# can set any status at any time — the state machine only constrains
-# the customer-facing side.
+# Allowed forward transitions for CUSTOMER CONTACTS. External portal
+# users can only request changes that advance or cancel the workflow.
 CONTACT_ALLOWED_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
     OrderStatus.DRAFT: {OrderStatus.SUBMITTED, OrderStatus.CANCELLED},
     OrderStatus.SUBMITTED: {OrderStatus.CANCELLED},
@@ -63,7 +62,27 @@ CONTACT_ALLOWED_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
     OrderStatus.CANCELLED: set(),
 }
 
-# All statuses — used by staff who can move an order to any status.
+# Allowed transitions for STAFF (tenant users). Roomier than the contact
+# policy — they can step one node back (for corrections) and reopen
+# cancelled orders into DRAFT, but they CANNOT leap across the
+# manufacturing pipeline (e.g. DRAFT → DELIVERED). Leaving that wide
+# open turned every status button into a "teleport" in the UI and
+# let typos skip SLA stamps.
+STAFF_ALLOWED_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
+    OrderStatus.DRAFT: {OrderStatus.SUBMITTED, OrderStatus.QUOTED, OrderStatus.CANCELLED},
+    OrderStatus.SUBMITTED: {OrderStatus.QUOTED, OrderStatus.DRAFT, OrderStatus.CANCELLED},
+    OrderStatus.QUOTED: {OrderStatus.CONFIRMED, OrderStatus.SUBMITTED, OrderStatus.CANCELLED},
+    OrderStatus.CONFIRMED: {OrderStatus.IN_PRODUCTION, OrderStatus.QUOTED, OrderStatus.CANCELLED},
+    OrderStatus.IN_PRODUCTION: {OrderStatus.READY, OrderStatus.CONFIRMED, OrderStatus.CANCELLED},
+    OrderStatus.READY: {OrderStatus.DELIVERED, OrderStatus.IN_PRODUCTION, OrderStatus.CANCELLED},
+    OrderStatus.DELIVERED: {OrderStatus.CLOSED, OrderStatus.READY},
+    OrderStatus.CLOSED: {OrderStatus.DELIVERED},
+    OrderStatus.CANCELLED: {OrderStatus.DRAFT},
+}
+
+# Legacy alias — retained so any caller that still imports ALL_STATUSES
+# sees the full set for iteration but SHOULD NOT use it as a transition
+# whitelist. Prefer STAFF_ALLOWED_TRANSITIONS.
 ALL_STATUSES: set[OrderStatus] = set(OrderStatus)
 
 
@@ -525,23 +544,24 @@ async def transition_order(
 ) -> Order:
     """Advance the order to `to_status` after validating the move.
 
-    **Staff (tenant users) can set any status at any time** — they have
-    full administrative control over the order lifecycle. The state
-    machine only constrains customer contacts.
+    Both staff and contacts are constrained by a state-machine graph —
+    staff just have a roomier one (one-step-back + reopen-cancelled)
+    than contacts. Nobody can leap across the pipeline.
     """
     if order.status == to_status:
         raise ForbiddenTransition("already in that status")
 
     if actor.type == "contact":
-        # Contacts are constrained by the state machine.
         allowed = CONTACT_ALLOWED_TRANSITIONS.get(order.status, set())
-        if to_status not in allowed:
-            raise ForbiddenTransition(
-                f"cannot transition from {order.status.value} to {to_status.value}"
-            )
         if order.customer_id != actor.customer_id:
             raise OrderAccessDenied()
-    # Staff: no transition restrictions — they can move to any status.
+    else:
+        allowed = STAFF_ALLOWED_TRANSITIONS.get(order.status, set())
+
+    if to_status not in allowed:
+        raise ForbiddenTransition(
+            f"cannot transition from {order.status.value} to {to_status.value}"
+        )
 
     # Side effects for specific transitions.
     now = datetime.now(UTC)

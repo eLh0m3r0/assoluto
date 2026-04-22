@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
@@ -86,6 +87,52 @@ async def _normalize_demo_subscriptions(settings: Settings) -> None:
         await engine.dispose()
 
 
+def _warn_if_smtp_suspicious(settings: Settings, log: Any) -> None:
+    """Flag SMTP configs that almost certainly won't deliver mail.
+
+    This is a best-effort sanity check; it cannot catch every weird
+    setup, but it catches the combos we've actually seen fail in
+    production:
+
+    * Real external host (not localhost / mailpit) on dev port 1025.
+    * Credentials set but no TLS / STARTTLS — the provider will
+      reject ``AUTH LOGIN`` in clear.
+    * STARTTLS requested on port 465 (465 is implicit-TLS, STARTTLS
+      belongs on 587).
+    """
+    host = (settings.smtp_host or "").strip().lower()
+    port = settings.smtp_port
+    has_auth = bool(settings.smtp_user)
+    starttls = settings.smtp_starttls
+
+    is_local = host in {"", "localhost", "127.0.0.1", "mailpit", "mailhog"}
+
+    if not is_local and port == 1025:
+        log.warning(
+            "smtp.suspicious_config",
+            reason="external_host_on_dev_port",
+            host=host,
+            port=port,
+            hint="Brevo/Gmail/M365 use 587 STARTTLS or 465 TLS, not 1025",
+        )
+    if has_auth and not starttls and port not in (465,):
+        log.warning(
+            "smtp.suspicious_config",
+            reason="auth_without_tls",
+            host=host,
+            port=port,
+            hint="SMTP AUTH over cleartext — set SMTP_STARTTLS=true (port 587) or use port 465",
+        )
+    if starttls and port == 465:
+        log.warning(
+            "smtp.suspicious_config",
+            reason="starttls_on_implicit_tls_port",
+            host=host,
+            port=port,
+            hint="Port 465 uses implicit TLS. Set SMTP_STARTTLS=false for 465, or use port 587.",
+        )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """App lifespan hook — starts the in-process scheduler.
@@ -117,6 +164,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
                 await _normalize_demo_subscriptions(settings)
             except Exception as exc:
                 log.warning("billing.demo_cleanup_failed", error=str(exc))
+
+        # SMTP sanity check — a misconfigured SMTP_PORT silently times out
+        # every send and leaves no breadcrumb. We caught ourselves once with
+        # prod pointing at Brevo (smtp-relay.brevo.com) on port 1025, which
+        # Brevo doesn't even listen on; 31 mails in 24h timed out before the
+        # next operator noticed.
+        _warn_if_smtp_suspicious(settings, log)
 
         scheduler = build_scheduler()
         scheduler.start()
