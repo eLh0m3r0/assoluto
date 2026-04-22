@@ -68,6 +68,13 @@ class Settings(BaseSettings):
     # Parent domain cookies for the cross-subdomain session, e.g.
     # `.portal.example.com`. Leave empty for single-host deployments.
     platform_cookie_domain: str = Field(default="", alias="PLATFORM_COOKIE_DOMAIN")
+    # Escape hatch for hosted *staging / demo* environments that want the
+    # platform UI without configuring Stripe yet. Normally the app refuses
+    # to start when FEATURE_PLATFORM=true + APP_ENV=production + no Stripe
+    # (because paid checkouts would silently succeed). Setting this to
+    # True acknowledges the risk and lets checkout stay in ``demo`` mode.
+    # Never set this on a real paying-customer deployment.
+    feature_platform_allow_demo: bool = Field(default=False, alias="FEATURE_PLATFORM_ALLOW_DEMO")
 
     # --- Platform operator (legal entity behind the hosted service) -------
     # Filled on every hosted deployment; templated into the Terms of

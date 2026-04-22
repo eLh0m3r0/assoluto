@@ -190,11 +190,31 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # /platform/billing/checkout/{plan} just flips the local
     # Subscription row to the chosen plan and redirects to success —
     # which is correct for dev but an expensive bug in prod.
-    if settings.is_production and settings.feature_platform and not settings.stripe_enabled:
+    if (
+        settings.is_production
+        and settings.feature_platform
+        and not settings.stripe_enabled
+        and not settings.feature_platform_allow_demo
+    ):
         raise RuntimeError(
             "FEATURE_PLATFORM is on in production but STRIPE_SECRET_KEY is "
             "empty. The billing checkout would silently grant paid plans. "
-            "Set STRIPE_SECRET_KEY or turn FEATURE_PLATFORM off."
+            "Set STRIPE_SECRET_KEY, turn FEATURE_PLATFORM off, or explicitly "
+            "set FEATURE_PLATFORM_ALLOW_DEMO=true for staging/demo environments."
+        )
+    if (
+        settings.is_production
+        and settings.feature_platform
+        and not settings.stripe_enabled
+        and settings.feature_platform_allow_demo
+    ):
+        import logging
+
+        logging.getLogger("app.platform").warning(
+            "FEATURE_PLATFORM=true in production WITHOUT Stripe; checkout runs "
+            "in demo mode (FEATURE_PLATFORM_ALLOW_DEMO is set). Plan changes "
+            "flip the local Subscription row without charging. Do NOT leave "
+            "this enabled on a real paying-customer deployment."
         )
 
     # Optional SaaS layer — loaded only when FEATURE_PLATFORM is on.

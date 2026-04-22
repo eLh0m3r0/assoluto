@@ -46,7 +46,25 @@ services:
       LOG_JSON: "true"
 
       FEATURE_PLATFORM: ${FEATURE_PLATFORM:-false}
+      FEATURE_PLATFORM_ALLOW_DEMO: ${FEATURE_PLATFORM_ALLOW_DEMO:-false}
       PLATFORM_COOKIE_DOMAIN: ${PLATFORM_COOKIE_DOMAIN:-}
+
+      # Platform operator legal block (templated into Terms/Privacy).
+      # Leaving blank hides the legal pages.
+      PLATFORM_OPERATOR_NAME: ${PLATFORM_OPERATOR_NAME:-}
+      PLATFORM_OPERATOR_ICO: ${PLATFORM_OPERATOR_ICO:-}
+      PLATFORM_OPERATOR_ADDRESS: ${PLATFORM_OPERATOR_ADDRESS:-}
+      PLATFORM_OPERATOR_EMAIL: ${PLATFORM_OPERATOR_EMAIL:-}
+
+      # Stripe — leave all empty for demo mode. FEATURE_PLATFORM_ALLOW_DEMO
+      # in /etc/assoluto/env acknowledges the no-Stripe demo path.
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_PRICE_STARTER: ${STRIPE_PRICE_STARTER:-}
+      STRIPE_PRICE_PRO: ${STRIPE_PRICE_PRO:-}
+
+      DEFAULT_TENANT_SLUG: ${DEFAULT_TENANT_SLUG:-}
     ports: !reset []
     expose:
       - "8000"
