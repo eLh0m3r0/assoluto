@@ -168,6 +168,13 @@ async def accept_invitation(
         raise InvalidInvitation("tenant mismatch")
     if not contact.is_active:
         raise InvalidInvitation("contact disabled")
+    # Invitation tokens are valid for 7 days. Once accepted they must
+    # NOT be replayable — otherwise an attacker who grabs the link out
+    # of an email (shared inbox, forwarded screenshot, browser history
+    # on a shared computer) can overwrite the contact's password and
+    # take over the account. Mirrors the same guard on accept_staff_invite.
+    if contact.accepted_at is not None:
+        raise InvalidInvitation("invitation already accepted")
 
     if len(password) < 8:
         raise InvalidInvitation("password must be at least 8 characters")
@@ -385,7 +392,17 @@ def create_password_reset_token(
     tenant_id: UUID,
     principal_type: str,
     principal_id: UUID,
+    session_version: int,
 ) -> str:
+    """Mint a password-reset token bound to the principal's current
+    ``session_version`` so the token is single-use.
+
+    On consumption the service bumps ``session_version`` — a second
+    attempt with the same token then sees ``token.sv != row.sv`` and
+    is rejected. Also, any unrelated event that bumps ``session_version``
+    (a login-change, a manual admin reset, or the user accepting a
+    fresh invitation) invalidates outstanding reset tokens automatically.
+    """
     return create_token(
         secret_key,
         TokenPurpose.PASSWORD_RESET,
@@ -393,13 +410,14 @@ def create_password_reset_token(
             "tid": str(tenant_id),
             "pt": principal_type,
             "pid": str(principal_id),
+            "sv": int(session_version),
         },
     )
 
 
 def decode_password_reset_token(
     secret_key: str, token: str, *, max_age_seconds: int
-) -> tuple[UUID, str, UUID]:
+) -> tuple[UUID, str, UUID, int]:
     try:
         payload = verify_token(secret_key, TokenPurpose.PASSWORD_RESET, token, max_age_seconds)
     except (InvalidToken, ExpiredToken) as exc:
@@ -409,6 +427,7 @@ def decode_password_reset_token(
             UUID(payload["tid"]),
             str(payload["pt"]),
             UUID(payload["pid"]),
+            int(payload.get("sv", 0)),
         )
     except (KeyError, ValueError) as exc:
         raise InvalidInvitation("malformed payload") from exc
@@ -439,8 +458,15 @@ async def reset_password_with_token(
     principal_type: str,
     principal_id: UUID,
     new_password: str,
+    token_session_version: int,
 ) -> None:
-    """Set a new password for the target principal + bump session_version."""
+    """Set a new password for the target principal + bump session_version.
+
+    Rejects a token whose embedded ``session_version`` no longer matches
+    the principal's current value — this is what makes the reset link
+    one-shot. A successful call bumps ``session_version``, so a second
+    call with the same token sees a mismatch and raises.
+    """
     if len(new_password) < 8:
         raise InvalidInvitation("password must be at least 8 characters")
     if principal_type == "user":
@@ -454,6 +480,12 @@ async def reset_password_with_token(
 
     if row is None or row.tenant_id != tenant_id or not row.is_active:
         raise InvalidInvitation("unknown principal")
+
+    # Token is bound to the session_version at mint time. If anything
+    # bumped it since (a previous reset, a password change, a contact
+    # accepting their invite), this token is stale and must not work.
+    if row.session_version != token_session_version:
+        raise InvalidInvitation("token already used or superseded")
 
     row.password_hash = hash_password(new_password)
     row.session_version += 1

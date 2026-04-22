@@ -646,6 +646,7 @@ async def password_reset_request_submit(
             tenant_id=tenant.id,
             principal_type=principal_type,
             principal_id=row.id,
+            session_version=row.session_version,
         )
         from app.urls import tenant_base_url
 
@@ -697,7 +698,7 @@ async def password_reset_confirm_form(
     settings: Settings = Depends(get_settings),
 ) -> HTMLResponse:
     try:
-        tenant_id, _pt, _pid = decode_password_reset_token(
+        tenant_id, _pt, _pid, _sv = decode_password_reset_token(
             settings.app_secret_key,
             token,
             max_age_seconds=PASSWORD_RESET_MAX_AGE_SECONDS,
@@ -751,7 +752,7 @@ async def password_reset_confirm_submit(
         return HTMLResponse(html, status_code=400)
 
     try:
-        tenant_id, principal_type, principal_id = decode_password_reset_token(
+        tenant_id, principal_type, principal_id, token_sv = decode_password_reset_token(
             settings.app_secret_key,
             token,
             max_age_seconds=PASSWORD_RESET_MAX_AGE_SECONDS,
@@ -779,6 +780,7 @@ async def password_reset_confirm_submit(
             principal_type=principal_type,
             principal_id=principal_id,
             new_password=password,
+            token_session_version=token_sv,
         )
     except InvalidInvitation as exc:
         html = _templates(request).render(
