@@ -75,7 +75,8 @@ async def test_admin_dashboard_renders_empty(admin_client) -> None:
     await _login_admin(admin_client)
     resp = await admin_client.get("/platform/admin/dashboard")
     assert resp.status_code == 200
-    assert "Platform Admin" in resp.text
+    # Brand wordmark rendered by the shared _header.html partial.
+    assert "Platform admin" in resp.text or "Platform Admin" in resp.text
     assert "Celkem tenantů" in resp.text
     assert "MRR" in resp.text
 
