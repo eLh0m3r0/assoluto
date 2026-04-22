@@ -1277,13 +1277,13 @@ msgid "No orders"
 msgstr "Žádné objednávky"
 
 msgid "&ge;90%% on time"
-msgstr "≥90 % včas"
+msgstr "≥90 %% včas"
 
 msgid "50-90%%"
-msgstr "50–90 %"
+msgstr "50–90 %%"
 
 msgid "&lt;50%%"
-msgstr "<50 %"
+msgstr "<50 %%"
 
 msgid "late"
 msgstr "pozdě"

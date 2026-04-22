@@ -413,42 +413,33 @@ async def sla_dashboard(
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
     """On-time delivery summary + per-customer weekly heatmap."""
-    import traceback
-
     days = _SLA_TIMEFRAMES.get(timeframe, 90)
     timeframe_value = timeframe if timeframe in _SLA_TIMEFRAMES else "90"
 
     today = date.today()
     date_from = today - timedelta(days=days)
 
-    try:
-        summary = await sla_service.on_time_rate(db, date_from=date_from, date_to=today)
-        heatmap_weeks = max(8, min(52, (days // 7) + 1))
-        cells = await sla_service.heatmap_data(db, weeks=heatmap_weeks)
-        grid = _heatmap_grid(cells)
+    summary = await sla_service.on_time_rate(db, date_from=date_from, date_to=today)
+    heatmap_weeks = max(8, min(52, (days // 7) + 1))
+    cells = await sla_service.heatmap_data(db, weeks=heatmap_weeks)
+    grid = _heatmap_grid(cells)
 
-        html = _templates(request).render(
-            request,
-            "admin/sla.html",
-            {
-                "principal": principal,
-                "tenant": _tenant(request),
-                "summary": summary,
-                "rate_pct": round(summary["rate"] * 100, 1),
-                "grid": grid,
-                "timeframe": timeframe_value,
-                "timeframes": list(_SLA_TIMEFRAMES.keys()),
-                "date_from": date_from,
-                "date_to": today,
-            },
-        )
-        return HTMLResponse(html)
-    except Exception as exc:
-        return HTMLResponse(
-            f"<pre style='padding:1rem;font:12px monospace;white-space:pre-wrap'>"
-            f"SLA DEBUG — {exc!r}\n\n{traceback.format_exc()}</pre>",
-            status_code=500,
-        )
+    html = _templates(request).render(
+        request,
+        "admin/sla.html",
+        {
+            "principal": principal,
+            "tenant": _tenant(request),
+            "summary": summary,
+            "rate_pct": round(summary["rate"] * 100, 1),
+            "grid": grid,
+            "timeframe": timeframe_value,
+            "timeframes": list(_SLA_TIMEFRAMES.keys()),
+            "date_from": date_from,
+            "date_to": today,
+        },
+    )
+    return HTMLResponse(html)
 
 
 # Re-export InvalidInvitation so other modules can pretend this router
