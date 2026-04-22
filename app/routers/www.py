@@ -16,6 +16,7 @@ from fastapi.responses import HTMLResponse
 from markupsafe import escape
 
 from app.config import Settings, get_settings
+from app.i18n import t as _t
 from app.security.csrf import verify_csrf
 from app.security.rate_limit import limit as rate_limit
 
@@ -120,18 +121,24 @@ async def contact_submit(
         return HTMLResponse(html, status_code=400)
 
     if not name or not email or not message:
-        return _reject("Vyplňte prosím všechna pole.")
+        return _reject(_t(request, "Please fill in all fields."))
     if len(name) > CONTACT_NAME_MAX_CHARS:
-        return _reject(f"Jméno může mít nejvýše {CONTACT_NAME_MAX_CHARS} znaků.")
+        return _reject(
+            _t(request, "Name may be at most {n} characters.").format(n=CONTACT_NAME_MAX_CHARS)
+        )
     if len(message) > CONTACT_MESSAGE_MAX_CHARS:
-        return _reject(f"Zpráva může mít nejvýše {CONTACT_MESSAGE_MAX_CHARS} znaků.")
+        return _reject(
+            _t(request, "Message may be at most {n} characters.").format(
+                n=CONTACT_MESSAGE_MAX_CHARS
+            )
+        )
     try:
         from email_validator import EmailNotValidError
         from email_validator import validate_email as _ve
 
         _ve(email, check_deliverability=False)
     except EmailNotValidError:
-        return _reject("Zadaný e-mail není platný.")
+        return _reject(_t(request, "Email address is not valid."))
 
     # Fire-and-forget: use the existing email sender to mail us the message.
     # Every piece of user input is HTML-escaped before being interpolated

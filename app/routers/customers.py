@@ -362,6 +362,7 @@ async def _get_contact(db: AsyncSession, *, customer_id: UUID, contact_id: UUID)
 async def customers_contact_edit(
     customer_id: UUID,
     contact_id: UUID,
+    request: Request,
     full_name: str = Form(...),
     preferred_locale: str = Form(""),
     principal: Principal = Depends(require_tenant_staff),
@@ -372,7 +373,7 @@ async def customers_contact_edit(
     cleaned = (full_name or "").strip()
     if not cleaned:
         return RedirectResponse(
-            url=f"/app/customers/{customer_id}?error={quote('Jméno nesmí být prázdné.')}",
+            url=f"/app/customers/{customer_id}?error={quote(_t(request, 'Name cannot be empty.'))}",
             status_code=303,
         )
     from app.i18n import supported_locale_list
@@ -383,7 +384,7 @@ async def customers_contact_edit(
     contact.full_name = cleaned
     await db.flush()
     return RedirectResponse(
-        url=f"/app/customers/{customer_id}?notice={quote('Změny uloženy.')}",
+        url=f"/app/customers/{customer_id}?notice={quote(_t(request, 'Changes saved.'))}",
         status_code=303,
     )
 
@@ -392,6 +393,7 @@ async def customers_contact_edit(
 async def customers_contact_disable(
     customer_id: UUID,
     contact_id: UUID,
+    request: Request,
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -400,7 +402,7 @@ async def customers_contact_disable(
     contact.session_version += 1
     await db.flush()
     return RedirectResponse(
-        url=f"/app/customers/{customer_id}?notice={quote('Kontakt deaktivován.')}",
+        url=f"/app/customers/{customer_id}?notice={quote(_t(request, 'Contact disabled.'))}",
         status_code=303,
     )
 
@@ -411,6 +413,7 @@ async def customers_contact_disable(
 async def customers_contact_reactivate(
     customer_id: UUID,
     contact_id: UUID,
+    request: Request,
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -418,7 +421,7 @@ async def customers_contact_reactivate(
     contact.is_active = True
     await db.flush()
     return RedirectResponse(
-        url=f"/app/customers/{customer_id}?notice={quote('Kontakt reaktivován.')}",
+        url=f"/app/customers/{customer_id}?notice={quote(_t(request, 'Contact reactivated.'))}",
         status_code=303,
     )
 
@@ -443,7 +446,7 @@ async def customers_contact_resend_invite(
         return RedirectResponse(
             url=(
                 f"/app/customers/{customer_id}?error="
-                + quote("Kontakt už má heslo; použijte reset hesla.")
+                + quote(_t(request, "This contact already has a password; use a password reset instead."))
             ),
             status_code=303,
         )
@@ -473,6 +476,6 @@ async def customers_contact_resend_invite(
         locale=locale,
     )
     return RedirectResponse(
-        url=f"/app/customers/{customer_id}?notice={quote('Pozvánka odeslána znovu.')}",
+        url=f"/app/customers/{customer_id}?notice={quote(_t(request, 'Invitation resent.'))}",
         status_code=303,
     )

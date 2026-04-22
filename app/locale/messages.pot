@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-22 18:06+0200\n"
+"POT-Creation-Date: 2026-04-22 18:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -83,7 +83,7 @@ msgstr ""
 
 #: app/i18n_messages.py:52 app/templates/admin/user_edit.html:67
 #: app/templates/assets/form.html:54 app/templates/customers/form.html:98
-#: app/templates/orders/form.html:55
+#: app/templates/orders/form.html:58
 #: app/templates/platform/admin/tenant_edit.html:73
 #: app/templates/products/form.html:70
 msgid "Cancel"
@@ -438,8 +438,37 @@ msgid ""
 "open the link below — it is valid for 7 days:"
 msgstr ""
 
+#: app/routers/assets.py:126
+msgid "An asset with this code already exists for this client."
+msgstr ""
+
 #: app/routers/customers.py:306
 msgid "A contact with the same email already exists."
+msgstr ""
+
+#: app/routers/customers.py:375 app/routers/tenant_admin.py:286
+#: app/routers/tenant_admin.py:424
+msgid "Name cannot be empty."
+msgstr ""
+
+#: app/routers/customers.py:386 app/routers/tenant_admin.py:308
+msgid "Changes saved."
+msgstr ""
+
+#: app/routers/customers.py:404
+msgid "Contact disabled."
+msgstr ""
+
+#: app/routers/customers.py:423
+msgid "Contact reactivated."
+msgstr ""
+
+#: app/routers/customers.py:448
+msgid "This contact already has a password; use a password reset instead."
+msgstr ""
+
+#: app/routers/customers.py:478 app/routers/tenant_admin.py:375
+msgid "Invitation resent."
 msgstr ""
 
 #: app/routers/orders.py:293
@@ -516,6 +545,10 @@ msgstr ""
 msgid "A product with this SKU already exists."
 msgstr ""
 
+#: app/routers/public.py:176
+msgid "Password changed. Sign in with your new password."
+msgstr ""
+
 #: app/routers/public.py:205
 msgid "Your account is disabled."
 msgstr ""
@@ -546,12 +579,46 @@ msgstr ""
 msgid "A user with this email already exists."
 msgstr ""
 
-#: app/routers/tenant_admin.py:286 app/routers/tenant_admin.py:421
-msgid "Name cannot be empty."
+#: app/routers/tenant_admin.py:214
+msgid "User disabled."
 msgstr ""
 
-#: app/routers/tenant_admin.py:451
+#: app/routers/tenant_admin.py:233
+msgid "User reactivated."
+msgstr ""
+
+#: app/routers/tenant_admin.py:348
+msgid "This user already has a password; use a password reset instead."
+msgstr ""
+
+#: app/routers/tenant_admin.py:401
+msgid "Profile saved."
+msgstr ""
+
+#: app/routers/tenant_admin.py:454
 msgid "New passwords do not match."
+msgstr ""
+
+#: app/routers/tenant_admin.py:518
+msgid "Saved."
+msgstr ""
+
+#: app/routers/www.py:124
+msgid "Please fill in all fields."
+msgstr ""
+
+#: app/routers/www.py:127
+#, python-brace-format
+msgid "Name may be at most {n} characters."
+msgstr ""
+
+#: app/routers/www.py:131
+#, python-brace-format
+msgid "Message may be at most {n} characters."
+msgstr ""
+
+#: app/routers/www.py:141
+msgid "Email address is not valid."
 msgstr ""
 
 #: app/templates/_breadcrumbs.html:4
@@ -578,7 +645,8 @@ msgstr ""
 #: app/templates/_palette_results.html:22
 #: app/templates/_palette_results.html:23 app/templates/app_base.html:12
 #: app/templates/dashboard/index.html:196 app/templates/orders/detail.html:29
-#: app/templates/orders/list.html:3 app/templates/orders/list.html:7
+#: app/templates/orders/form.html:6 app/templates/orders/list.html:3
+#: app/templates/orders/list.html:7
 msgid "Orders"
 msgstr ""
 
@@ -592,7 +660,7 @@ msgstr ""
 
 #: app/templates/_palette_results.html:55 app/templates/assets/detail.html:12
 #: app/templates/assets/form.html:14 app/templates/assets/list.html:26
-#: app/templates/orders/detail.html:48 app/templates/orders/form.html:22
+#: app/templates/orders/detail.html:48 app/templates/orders/form.html:25
 #: app/templates/orders/list.html:85 app/templates/products/form.html:55
 #: app/templates/products/list.html:21
 msgid "Client"
@@ -611,6 +679,7 @@ msgstr ""
 #: app/templates/customers/detail.html:8 app/templates/customers/form.html:9
 #: app/templates/customers/form.html:13 app/templates/dashboard/index.html:3
 #: app/templates/dashboard/index.html:7 app/templates/orders/detail.html:29
+#: app/templates/orders/form.html:6
 #: app/templates/platform/admin/_header.html:21
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:7
@@ -1131,7 +1200,7 @@ msgid "Quantity"
 msgstr ""
 
 #: app/templates/assets/detail.html:47 app/templates/assets/detail.html:87
-#: app/templates/orders/form.html:49
+#: app/templates/orders/form.html:52
 msgid "Note"
 msgstr ""
 
@@ -1167,7 +1236,7 @@ msgstr ""
 msgid "New asset record"
 msgstr ""
 
-#: app/templates/assets/form.html:17 app/templates/orders/form.html:25
+#: app/templates/assets/form.html:17 app/templates/orders/form.html:28
 msgid "choose a client"
 msgstr ""
 
@@ -1181,7 +1250,7 @@ msgid "Unit"
 msgstr ""
 
 #: app/templates/assets/form.html:38 app/templates/assets/list.html:24
-#: app/templates/orders/form.html:14 app/templates/orders/list.html:83
+#: app/templates/orders/form.html:17 app/templates/orders/list.html:83
 #: app/templates/platform/admin/dashboard.html:47
 #: app/templates/platform/admin/tenants.html:21
 #: app/templates/products/form.html:38 app/templates/products/list.html:20
@@ -1474,7 +1543,8 @@ msgid "Start a new order in"
 msgstr ""
 
 #: app/templates/dashboard/index.html:196 app/templates/orders/form.html:3
-#: app/templates/orders/form.html:6 app/templates/orders/list.html:21
+#: app/templates/orders/form.html:6 app/templates/orders/form.html:9
+#: app/templates/orders/list.html:21
 msgid "New order"
 msgstr ""
 
@@ -1521,7 +1591,7 @@ msgstr ""
 msgid "You do not have permission for this action."
 msgstr ""
 
-#: app/templates/errors/403.html:12
+#: app/templates/errors/403.html:12 app/templates/errors/500.html:13
 msgid "Back to dashboard"
 msgstr ""
 
@@ -1673,11 +1743,11 @@ msgstr ""
 msgid "Status history"
 msgstr ""
 
-#: app/templates/orders/form.html:38
+#: app/templates/orders/form.html:41
 msgid "Requested delivery date"
 msgstr ""
 
-#: app/templates/orders/form.html:58
+#: app/templates/orders/form.html:61
 msgid "Create draft"
 msgstr ""
 

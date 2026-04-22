@@ -173,7 +173,7 @@ async def login_form(
 
     banner = None
     if notice == "password_reset":
-        banner = "Heslo bylo úspěšně změněno. Přihlaste se novým heslem."
+        banner = _t(request, "Password changed. Sign in with your new password.")
     html = _templates(request).render(
         request,
         "auth/login.html",

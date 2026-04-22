@@ -14,6 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.deps import Principal, get_db, require_login, require_tenant_staff
+from app.i18n import t as _t
 from app.models.customer import Customer
 from app.models.enums import AssetMovementType
 from app.security.csrf import verify_csrf
@@ -122,7 +123,7 @@ async def assets_create(
     except (AssetError, IntegrityError) as exc:
         customers = await list_customers(db)
         error = (
-            "Majetek s tímto kódem už u klienta existuje."
+            _t(request, "An asset with this code already exists for this client.")
             if isinstance(exc, IntegrityError)
             else str(exc)
         )

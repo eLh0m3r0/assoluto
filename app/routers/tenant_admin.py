@@ -211,7 +211,7 @@ async def users_disable(
     target.session_version += 1  # kick out existing sessions
     await db.flush()
     return RedirectResponse(
-        url=f"/app/admin/users?notice={quote('Uživatel deaktivován.')}",
+        url=f"/app/admin/users?notice={quote(_t(request, 'User disabled.'))}",
         status_code=303,
     )
 
@@ -230,7 +230,7 @@ async def users_reactivate(
     target.is_active = True
     await db.flush()
     return RedirectResponse(
-        url=f"/app/admin/users?notice={quote('Uživatel reaktivován.')}",
+        url=f"/app/admin/users?notice={quote(_t(request, 'User reactivated.'))}",
         status_code=303,
     )
 
@@ -305,7 +305,7 @@ async def users_edit(
     target.preferred_locale = _normalise_locale(preferred_locale)
     await db.flush()
     return RedirectResponse(
-        url=f"/app/admin/users?notice={quote('Změny uloženy.')}",
+        url=f"/app/admin/users?notice={quote(_t(request, 'Changes saved.'))}",
         status_code=303,
     )
 
@@ -343,7 +343,10 @@ async def users_resend_invite(
         raise HTTPException(status_code=404, detail="User not found")
     if target.password_hash:
         return RedirectResponse(
-            url=("/app/admin/users?error=" + quote("Uživatel už má heslo; použijte reset hesla.")),
+            url=(
+                "/app/admin/users?error="
+                + quote(_t(request, "This user already has a password; use a password reset instead."))
+            ),
             status_code=303,
         )
 
@@ -369,7 +372,7 @@ async def users_resend_invite(
     )
 
     return RedirectResponse(
-        url=f"/app/admin/users?notice={quote('Pozvánka odeslána znovu.')}",
+        url=f"/app/admin/users?notice={quote(_t(request, 'Invitation resent.'))}",
         status_code=303,
     )
 
@@ -395,7 +398,7 @@ async def profile_form(
             "tenant": _tenant(request),
             "user_preferred_locale": user_row.preferred_locale if user_row else None,
             "error": None,
-            "notice": "Profil uložen." if saved else None,
+            "notice": _t(request, "Profile saved.") if saved else None,
         },
     )
     return HTMLResponse(html)
@@ -512,7 +515,7 @@ async def tenant_settings_form(
             "principal": principal,
             "tenant": tenant,
             "tenant_default_locale": current_locale,
-            "notice": "Uloženo." if saved else None,
+            "notice": _t(request, "Saved.") if saved else None,
             "error": None,
         },
     )

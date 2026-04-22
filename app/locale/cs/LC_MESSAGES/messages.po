@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-22 18:06+0200\n"
+"POT-Creation-Date: 2026-04-22 18:11+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -84,7 +84,7 @@ msgstr "Uzavřít"
 
 #: app/i18n_messages.py:52 app/templates/admin/user_edit.html:67
 #: app/templates/assets/form.html:54 app/templates/customers/form.html:98
-#: app/templates/orders/form.html:55
+#: app/templates/orders/form.html:58
 #: app/templates/platform/admin/tenant_edit.html:73
 #: app/templates/products/form.html:70
 msgid "Cancel"
@@ -409,9 +409,38 @@ msgstr "Pozvánka do týmu %(tenant_name)s — zákaznický portál"
 msgid "You have been added to the %(tenant_name)s team as an administrator of the customer portal. To set your password and log in for the first time, open the link below — it is valid for 7 days:"
 msgstr "Byli jste přidáni do týmu %(tenant_name)s jako administrátor zákaznického portálu. Pro nastavení hesla a první přihlášení otevřete následující odkaz — platí 7 dní:"
 
+#: app/routers/assets.py:126
+msgid "An asset with this code already exists for this client."
+msgstr "Majetek s tímto kódem už u klienta existuje."
+
 #: app/routers/customers.py:306
 msgid "A contact with the same email already exists."
 msgstr "Kontakt se stejným e-mailem už existuje."
+
+#: app/routers/customers.py:375 app/routers/tenant_admin.py:286
+#: app/routers/tenant_admin.py:424
+msgid "Name cannot be empty."
+msgstr "Jméno nesmí být prázdné."
+
+#: app/routers/customers.py:386 app/routers/tenant_admin.py:308
+msgid "Changes saved."
+msgstr "Změny uloženy."
+
+#: app/routers/customers.py:404
+msgid "Contact disabled."
+msgstr "Kontakt deaktivován."
+
+#: app/routers/customers.py:423
+msgid "Contact reactivated."
+msgstr "Kontakt reaktivován."
+
+#: app/routers/customers.py:448
+msgid "This contact already has a password; use a password reset instead."
+msgstr "Kontakt už má heslo; použijte reset hesla."
+
+#: app/routers/customers.py:478 app/routers/tenant_admin.py:375
+msgid "Invitation resent."
+msgstr "Pozvánka odeslána znovu."
 
 #: app/routers/orders.py:293
 msgid "Order number"
@@ -488,6 +517,10 @@ msgstr "{ok} převedeno, {failed} selhalo."
 msgid "A product with this SKU already exists."
 msgstr "Produkt s tímto SKU už existuje."
 
+#: app/routers/public.py:176
+msgid "Password changed. Sign in with your new password."
+msgstr "Heslo bylo úspěšně změněno. Přihlaste se novým heslem."
+
 #: app/routers/public.py:205
 msgid "Your account is disabled."
 msgstr "Účet je deaktivován."
@@ -518,13 +551,47 @@ msgstr "Odkaz je neplatný nebo vypršel."
 msgid "A user with this email already exists."
 msgstr "Uživatel s tímto e-mailem už existuje."
 
-#: app/routers/tenant_admin.py:286 app/routers/tenant_admin.py:421
-msgid "Name cannot be empty."
-msgstr "Jméno nesmí být prázdné."
+#: app/routers/tenant_admin.py:214
+msgid "User disabled."
+msgstr "Uživatel deaktivován."
 
-#: app/routers/tenant_admin.py:451
+#: app/routers/tenant_admin.py:233
+msgid "User reactivated."
+msgstr "Uživatel reaktivován."
+
+#: app/routers/tenant_admin.py:348
+msgid "This user already has a password; use a password reset instead."
+msgstr "Uživatel už má heslo; použijte reset hesla."
+
+#: app/routers/tenant_admin.py:401
+msgid "Profile saved."
+msgstr "Profil uložen."
+
+#: app/routers/tenant_admin.py:454
 msgid "New passwords do not match."
 msgstr "Nová hesla se neshodují."
+
+#: app/routers/tenant_admin.py:518
+msgid "Saved."
+msgstr "Uloženo."
+
+#: app/routers/www.py:124
+msgid "Please fill in all fields."
+msgstr "Vyplňte prosím všechna pole."
+
+#: app/routers/www.py:127
+#, python-brace-format
+msgid "Name may be at most {n} characters."
+msgstr "Jméno může mít nejvýše {n} znaků."
+
+#: app/routers/www.py:131
+#, python-brace-format
+msgid "Message may be at most {n} characters."
+msgstr "Zpráva může mít nejvýše {n} znaků."
+
+#: app/routers/www.py:141
+msgid "Email address is not valid."
+msgstr "Zadaný e-mail není platný."
 
 #: app/templates/_breadcrumbs.html:4
 #: app/templates/platform/admin/_header.html:47
@@ -551,7 +618,8 @@ msgstr "Nic nenalezeno pro"
 #: app/templates/_palette_results.html:22
 #: app/templates/_palette_results.html:23 app/templates/app_base.html:12
 #: app/templates/dashboard/index.html:196 app/templates/orders/detail.html:29
-#: app/templates/orders/list.html:3 app/templates/orders/list.html:7
+#: app/templates/orders/form.html:6 app/templates/orders/list.html:3
+#: app/templates/orders/list.html:7
 msgid "Orders"
 msgstr "Objednávky"
 
@@ -565,7 +633,7 @@ msgstr "Klienti"
 
 #: app/templates/_palette_results.html:55 app/templates/assets/detail.html:12
 #: app/templates/assets/form.html:14 app/templates/assets/list.html:26
-#: app/templates/orders/detail.html:48 app/templates/orders/form.html:22
+#: app/templates/orders/detail.html:48 app/templates/orders/form.html:25
 #: app/templates/orders/list.html:85 app/templates/products/form.html:55
 #: app/templates/products/list.html:21
 msgid "Client"
@@ -584,6 +652,7 @@ msgstr "Katalog"
 #: app/templates/customers/detail.html:8 app/templates/customers/form.html:9
 #: app/templates/customers/form.html:13 app/templates/dashboard/index.html:3
 #: app/templates/dashboard/index.html:7 app/templates/orders/detail.html:29
+#: app/templates/orders/form.html:6
 #: app/templates/platform/admin/_header.html:21
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:7
@@ -933,9 +1002,8 @@ msgid "No orders with a promised delivery date yet."
 msgstr "Zatím žádné objednávky se slíbeným datem dodání."
 
 #: app/templates/admin/tenant_settings.html:7
-#, fuzzy
 msgid "Administration"
-msgstr "Administrátor"
+msgstr "Administrace"
 
 #: app/templates/admin/tenant_settings.html:21
 msgid "Default email language"
@@ -1107,7 +1175,7 @@ msgid "Quantity"
 msgstr "Množství"
 
 #: app/templates/assets/detail.html:47 app/templates/assets/detail.html:87
-#: app/templates/orders/form.html:49
+#: app/templates/orders/form.html:52
 msgid "Note"
 msgstr "Poznámka"
 
@@ -1143,7 +1211,7 @@ msgstr "Přidat pohyb"
 msgid "New asset record"
 msgstr "Nový záznam majetku"
 
-#: app/templates/assets/form.html:17 app/templates/orders/form.html:25
+#: app/templates/assets/form.html:17 app/templates/orders/form.html:28
 msgid "choose a client"
 msgstr "vyberte klienta"
 
@@ -1157,7 +1225,7 @@ msgid "Unit"
 msgstr "Jednotka"
 
 #: app/templates/assets/form.html:38 app/templates/assets/list.html:24
-#: app/templates/orders/form.html:14 app/templates/orders/list.html:83
+#: app/templates/orders/form.html:17 app/templates/orders/list.html:83
 #: app/templates/platform/admin/dashboard.html:47
 #: app/templates/platform/admin/tenants.html:21
 #: app/templates/products/form.html:38 app/templates/products/list.html:20
@@ -1446,7 +1514,8 @@ msgid "Start a new order in"
 msgstr "Novou objednávku založíte v sekci"
 
 #: app/templates/dashboard/index.html:196 app/templates/orders/form.html:3
-#: app/templates/orders/form.html:6 app/templates/orders/list.html:21
+#: app/templates/orders/form.html:6 app/templates/orders/form.html:9
+#: app/templates/orders/list.html:21
 msgid "New order"
 msgstr "Nová objednávka"
 
@@ -1490,7 +1559,7 @@ msgstr "Přístup odepřen"
 msgid "You do not have permission for this action."
 msgstr "K této akci nemáte dostatečná oprávnění."
 
-#: app/templates/errors/403.html:12
+#: app/templates/errors/403.html:12 app/templates/errors/500.html:13
 msgid "Back to dashboard"
 msgstr "Zpět na přehled"
 
@@ -1642,11 +1711,11 @@ msgstr "Přidat komentář"
 msgid "Status history"
 msgstr "Historie stavů"
 
-#: app/templates/orders/form.html:38
+#: app/templates/orders/form.html:41
 msgid "Requested delivery date"
 msgstr "Požadovaný termín dodání"
 
-#: app/templates/orders/form.html:58
+#: app/templates/orders/form.html:61
 msgid "Create draft"
 msgstr "Vytvořit koncept"
 
