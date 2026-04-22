@@ -549,6 +549,45 @@ async def complete_switch(
         session_version=session_version,
     )
 
+    # When a platform admin enters a tenant via support-access, drop an
+    # audit event into the TENANT's log so tenant admins can see exactly
+    # when the operator was inside their portal. Without this, subsequent
+    # actions attribute to the support User row and look indistinguishable
+    # from a regular tenant-admin session.
+    from app.platform.models import MEMBERSHIP_ACCESS_SUPPORT
+
+    if selected.access_type == MEMBERSHIP_ACCESS_SUPPORT and isinstance(target, User):
+        from app.db.session import get_sessionmaker
+        from app.deps import set_tenant_context
+        from app.services.audit_service import ActorInfo, record
+
+        # A fresh RLS-scoped session so the audit row is written against
+        # the target tenant, not the platform-owner db we're on here.
+        sm = get_sessionmaker()
+        async with sm() as tenant_session, tenant_session.begin():
+            await set_tenant_context(tenant_session, str(tenant.id))
+            await record(
+                tenant_session,
+                action="platform.support_access_session_started",
+                entity_type="tenant",
+                entity_id=tenant.id,
+                entity_label=tenant.name,
+                actor=ActorInfo(
+                    type="user",
+                    id=target.id,
+                    label=f"{target.full_name} <{target.email}> (support)",
+                ),
+                after={
+                    "platform_identity_id": str(identity.id),
+                    "platform_identity_email": identity.email,
+                    "membership_id": str(selected.id),
+                    "granted_at": selected.created_at.isoformat()
+                    if selected.created_at
+                    else None,
+                },
+                tenant_id=tenant.id,
+            )
+
     response = RedirectResponse(url=next_path, status_code=303)
     write_session(
         response,
