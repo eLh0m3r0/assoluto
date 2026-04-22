@@ -16,7 +16,12 @@ from app.i18n import t as _t
 from app.models.tenant import Tenant
 from app.security.csrf import verify_csrf
 from app.security.rate_limit import limit as rate_limit
-from app.security.session import SessionData, clear_session, write_session
+from app.security.session import (
+    SessionData,
+    clear_session,
+    read_session,
+    write_session,
+)
 from app.services.auth_service import (
     AccountDisabled,
     InvalidCredentials,
@@ -113,17 +118,18 @@ def _persist_session(
 async def landing(
     request: Request,
     settings: Settings = Depends(get_settings),
-) -> HTMLResponse:
+) -> Response:
     """Root landing.
 
-    * If a tenant resolves (subdomain / header / DEFAULT_TENANT_SLUG) we
-      show the familiar tenant landing page.
-    * Otherwise, when the platform feature is enabled we render the
-      public marketing page so apex-domain visitors have somewhere to
-      land.
-    * In all other cases we fall back to the tenant landing, which will
-      itself raise 404 because no tenant resolves — matching previous
-      behaviour.
+    * If a tenant resolves AND the visitor is signed in → send them
+      straight to the portal (``/app``) — seeing a marketing-style
+      "Sign in" CTA when you're already signed in is confusing.
+    * If a tenant resolves but no session → show the tenant landing
+      with its primary "Sign in" CTA.
+    * If no tenant resolves and ``FEATURE_PLATFORM`` is on → render
+      the public marketing page on the apex.
+    * Otherwise fall back to the tenant landing, which 404s as
+      before.
     """
     from app.deps import resolve_tenant_slug
 
@@ -132,10 +138,14 @@ async def landing(
         html = _templates(request).render(request, "www/index.html", {"principal": None})
         return HTMLResponse(html)
 
-    # Resolve the tenant (may 404) and render the tenant landing.
     from app.deps import get_current_tenant as _get_current_tenant
 
     tenant = await _get_current_tenant(request, settings)
+
+    # Authenticated — skip the landing page entirely.
+    if read_session(request, settings.app_secret_key) is not None:
+        return RedirectResponse(url="/app", status_code=status.HTTP_303_SEE_OTHER)
+
     html = _templates(request).render(request, "index.html", {"tenant": tenant})
     return HTMLResponse(html)
 
@@ -147,9 +157,20 @@ async def landing(
 async def login_form(
     request: Request,
     tenant: Tenant = Depends(get_current_tenant),
+    settings: Settings = Depends(get_settings),
     notice: str | None = None,
     next: str | None = None,
-) -> HTMLResponse:
+) -> Response:
+    # Already-authenticated visitors should not see the login form —
+    # it looks broken ("why is the login page open?") and re-logging
+    # in churns session_version. Redirect straight to the portal or
+    # to the requested `next` if it's safe.
+    if read_session(request, settings.app_secret_key) is not None:
+        dest = _safe_next_path(next) if next else "/app"
+        if dest == "/":
+            dest = "/app"
+        return RedirectResponse(url=dest, status_code=status.HTTP_303_SEE_OTHER)
+
     banner = None
     if notice == "password_reset":
         banner = "Heslo bylo úspěšně změněno. Přihlaste se novým heslem."
@@ -565,7 +586,13 @@ async def staff_invite_submit(
 async def password_reset_request_form(
     request: Request,
     tenant: Tenant = Depends(get_current_tenant),
-) -> HTMLResponse:
+    settings: Settings = Depends(get_settings),
+) -> Response:
+    # Users who are already signed in change their password via the
+    # profile page — the public reset flow exists only for "I forgot
+    # my password" visitors.
+    if read_session(request, settings.app_secret_key) is not None:
+        return RedirectResponse(url="/app/admin/profile", status_code=status.HTTP_303_SEE_OTHER)
     html = _templates(request).render(
         request,
         "auth/password_reset_request.html",

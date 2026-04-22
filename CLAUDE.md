@@ -85,6 +85,155 @@ when `customer_id IS NULL`. App-level check in
 `app/platform/__init__.py` registers routes only when the flag is on.
 The test `test_platform_routes_not_mounted_when_flag_off` enforces this.
 
+Platform admin is **an operator role, not a super-user**. A platform
+admin has tenant CRUD + aggregate metrics, but accessing a tenant's
+business data still requires an explicit `TenantMembership`. The
+opt-in path is `/platform/admin/tenants/{id}/support-access` —
+creates a User row in the target tenant, a `TenantMembership` with
+`access_type='support'`, and an audit event
+`platform.support_access_granted` in the target tenant's log. The
+revoke flow is symmetric. Never add a code path that silently lets a
+platform admin read tenant data without going through this grant.
+
+### 7. i18n — `_t` vs `gettext`, `%%` escaping
+
+User-visible strings flow through **two different helpers**:
+
+- Jinja templates: `{{ _("...") }}` — standard gettext alias.
+- Python code: `_t(request, "...")` from `app.i18n` (the `request`
+  argument picks the locale). Using `_()` in Python is an error —
+  `app.i18n` does not define it.
+
+Because Babel's default keywords don't include `_t`, **`pybabel
+extract` blindly will mark every `_t`-only msgid as obsolete** and
+you'll ship the app in English even after a "full translation pass".
+This bit us twice. The fix is already in `babel.cfg`:
+
+```ini
+python_keyword = _t:2 _ gettext ngettext:1,2
+```
+
+Safe extract + compile workflow:
+
+```bash
+uv run pybabel extract -F babel.cfg -k _t:2 -k _ -k gettext \
+  -k 'ngettext:1,2' -o app/locale/messages.pot .
+uv run pybabel update -i app/locale/messages.pot -d app/locale
+uv run pybabel compile -d app/locale
+```
+
+**Never hand-write a different keyword list** — the command above
+is the one that matches the source. Verify by grepping the PO
+catalog afterwards for strings you know exist in Python (e.g.
+`Invalid email or password.`) — they must NOT be under `#~ msgid`
+(obsolete).
+
+**`%%` trap.** Jinja's i18n extension runs `rv % variables` on the
+gettext-returned string. A translated message containing a bare `%`
+(e.g. `'≥90 % včas'`) will try to interpret `%v` as a format spec
+and raise `ValueError: unsupported format character`. Rules:
+
+- If the msgid has `%%`, **the msgstr must also have `%%`** for any
+  literal `%`.
+- Prefer the split-form pattern
+  `{{ _('On time') }}: {{ value }}` over
+  `{{ _('On time %(v)s') % {'v': value} }}` — simpler to translate
+  and immune to the `%%` trap.
+
+### 8. Authenticated-state redirects
+
+Every GET page that presents an *unauthenticated* action (log in,
+sign up, reset password) **MUST redirect the already-authenticated
+visitor somewhere useful** rather than re-rendering the form. The
+canonical destinations:
+
+| Page | Target when logged in |
+|---|---|
+| `/auth/login` (tenant) | `/app` |
+| `/auth/password-reset` | `/app/admin/profile` (password change) |
+| `/platform/login` | `/platform/select-tenant` |
+| `/platform/signup` | `/platform/select-tenant` |
+| `/platform/password-reset` | `/platform/select-tenant` |
+| tenant `/` (index) | `/app` |
+
+`app/routers/public.py:login_form` does this for the tenant login
+already (via `require_login(optional=True)`). Match the pattern for
+any new auth-shaped route.
+
+### 9. Flash messages
+
+POST-redirect-GET uses **query-param flashes**, not cookies:
+
+```python
+return RedirectResponse(
+    url=f"/app/orders?notice={quote('Order submitted')}",
+    status_code=303,
+)
+```
+
+And in templates:
+
+```jinja
+{% include "_flash.html" %}   {# renders `notice` / `error` query params #}
+```
+
+**Every POST route that mutates data should flash on redirect**, both
+on success and recoverable-error paths. Silent redirects hide whether
+an action succeeded. This is especially important in platform admin
+routes, which historically were silent — audit trails help the
+operator verify, but a one-shot UI flash is the immediate feedback.
+
+### 10. CSP form-action for cross-subdomain handoffs
+
+`form-action 'self'` blocks *redirect chains* following a form POST
+that cross origins. When the platform `/switch/{slug}` endpoint
+redirects from the apex to `{slug}.apex/platform/complete-switch`,
+`form-action 'self'` cancels the redirect and the user silently
+stays on the previous page.
+
+`SecurityHeadersMiddleware` takes a `subdomain_apex` argument (wired
+from `settings.platform_cookie_domain`) that extends `form-action`
+with `https://*.{apex}`. Single-host dev keeps the tighter `'self'`
+policy. Don't hand-edit the CSP string in `headers.py` without
+running the /switch flow end-to-end afterwards.
+
+### 11. Deploy & env vars — single source of truth
+
+Production secrets live in `/etc/assoluto/env` on the VPS (mode 600,
+deploy-owned). The production compose file uses
+`env_file: - /etc/assoluto/env` so **every variable flows through
+automatically** — no per-var mapping in
+`docker-compose.prod.yml`. Compose-level `${VAR:?}` assertions
+remain for hard operator requirements (APP_SECRET_KEY,
+DATABASE_URL passwords, S3/SMTP).
+
+`deploy-production.yml` does `git reset --hard origin/production`
+before `docker compose up` so **compose-file changes in the repo
+propagate on every deploy** — there is no manual copy step.
+
+When you add a new setting:
+1. Add the Pydantic field in `app/config.py` with a safe default.
+2. Document in `.env.example`.
+3. Operator edits `/etc/assoluto/env`. Done — no compose edit.
+
+Deployment-fixed overrides (e.g. `APP_ENV: production`) stay in
+`docker-compose.prod.yml` because they must not be operator-tunable.
+
+### 12. When to write a plan doc vs just do it
+
+For polish passes that span 5+ pages or 3+ templates, **audit first,
+write a plan document, then implement**. Examples of past audits in
+commit history: `feat(ux): round-2 polish`, `UX audit — independent
+app walkthrough`. Two benefits:
+
+1. The user can reorder / trim scope before you spend hours on the
+   wrong priority.
+2. You notice connections between fixes (e.g. "auth redirects + nav
+   polish both need a new flash-on-redirect helper" — saves
+   duplicate work).
+
+One-line bug reports (`X broken, please fix`) can skip the plan.
+
 ## Test fixtures quick reference
 
 | Fixture | Needs PG | What |

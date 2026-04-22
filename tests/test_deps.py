@@ -22,7 +22,15 @@ from app.deps import _extract_subdomain, resolve_tenant_slug
         ("127.0.0.1:8000", None),
         ("", None),
         ("www.portal.example.com", None),
-        ("example.com", "example"),
+        # Registered domain (SLD.TLD) is the apex — no subdomain.
+        # Previously this returned ``example`` which made every apex
+        # hit 404 with "tenant not found"; now apex requests fall
+        # through to the www/platform landing.
+        ("example.com", None),
+        ("assoluto.eu", None),
+        # 3+ labels imply a real subdomain.
+        ("demo.assoluto.eu", "demo"),
+        ("test-a.assoluto.eu", "test-a"),
     ],
 )
 def test_extract_subdomain(host: str, expected: str | None) -> None:

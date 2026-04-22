@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
+from urllib.parse import quote
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
 from app.deps import Principal, get_db, require_tenant_staff
 from app.i18n import t as _t
+from app.models.customer import CustomerContact
 from app.models.tenant import Tenant
 from app.security.csrf import verify_csrf
 from app.services.audit_service import actor_from_principal
@@ -133,6 +136,8 @@ async def customers_create(
 async def customers_detail(
     customer_id: UUID,
     request: Request,
+    notice: str | None = None,
+    error: str | None = None,
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
@@ -149,8 +154,8 @@ async def customers_detail(
             "tenant": _tenant(principal, request),
             "customer": customer,
             "contacts": contacts,
-            "error": None,
-            "notice": None,
+            "error": error,
+            "notice": notice,
         },
     )
     return HTMLResponse(html)
@@ -322,3 +327,126 @@ async def customers_invite_contact(
     )
 
     return RedirectResponse(url=f"/app/customers/{customer.id}", status_code=303)
+
+
+async def _get_contact(db: AsyncSession, *, customer_id: UUID, contact_id: UUID) -> CustomerContact:
+    row = (
+        await db.execute(
+            select(CustomerContact).where(
+                CustomerContact.id == contact_id,
+                CustomerContact.customer_id == customer_id,
+            )
+        )
+    ).scalar_one_or_none()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Contact not found")
+    return row
+
+
+@router.post("/customers/{customer_id}/contacts/{contact_id}/edit", response_class=HTMLResponse)
+async def customers_contact_edit(
+    customer_id: UUID,
+    contact_id: UUID,
+    full_name: str = Form(...),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    contact = await _get_contact(db, customer_id=customer_id, contact_id=contact_id)
+    cleaned = (full_name or "").strip()
+    if cleaned:
+        contact.full_name = cleaned
+        await db.flush()
+        return RedirectResponse(
+            url=f"/app/customers/{customer_id}?notice={quote('Změny uloženy.')}",
+            status_code=303,
+        )
+    return RedirectResponse(
+        url=f"/app/customers/{customer_id}?error={quote('Jméno nesmí být prázdné.')}",
+        status_code=303,
+    )
+
+
+@router.post("/customers/{customer_id}/contacts/{contact_id}/disable", response_class=HTMLResponse)
+async def customers_contact_disable(
+    customer_id: UUID,
+    contact_id: UUID,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    contact = await _get_contact(db, customer_id=customer_id, contact_id=contact_id)
+    contact.is_active = False
+    contact.session_version += 1
+    await db.flush()
+    return RedirectResponse(
+        url=f"/app/customers/{customer_id}?notice={quote('Kontakt deaktivován.')}",
+        status_code=303,
+    )
+
+
+@router.post(
+    "/customers/{customer_id}/contacts/{contact_id}/reactivate", response_class=HTMLResponse
+)
+async def customers_contact_reactivate(
+    customer_id: UUID,
+    contact_id: UUID,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    contact = await _get_contact(db, customer_id=customer_id, contact_id=contact_id)
+    contact.is_active = True
+    await db.flush()
+    return RedirectResponse(
+        url=f"/app/customers/{customer_id}?notice={quote('Kontakt reaktivován.')}",
+        status_code=303,
+    )
+
+
+@router.post(
+    "/customers/{customer_id}/contacts/{contact_id}/resend-invite", response_class=HTMLResponse
+)
+async def customers_contact_resend_invite(
+    customer_id: UUID,
+    contact_id: UUID,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> Response:
+    contact = await _get_contact(db, customer_id=customer_id, contact_id=contact_id)
+    customer = await get_customer(db, customer_id)
+    if customer is None:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    if contact.password_hash:
+        return RedirectResponse(
+            url=(
+                f"/app/customers/{customer_id}?error="
+                + quote("Kontakt už má heslo; použijte reset hesla.")
+            ),
+            status_code=303,
+        )
+
+    await db.commit()
+
+    token = create_invitation_token(
+        settings.app_secret_key,
+        tenant_id=principal.tenant_id,
+        contact_id=contact.id,
+    )
+    from app.urls import tenant_base_url
+
+    tenant = _tenant(principal, request)
+    invite_url = f"{tenant_base_url(settings, tenant)}/invite/accept?token={token}"
+    background_tasks.add_task(
+        send_invitation,
+        request.app.state.email_sender,
+        to=contact.email,
+        tenant_name=tenant.name,
+        customer_name=customer.name,
+        contact_name=contact.full_name,
+        invite_url=invite_url,
+    )
+    return RedirectResponse(
+        url=f"/app/customers/{customer_id}?notice={quote('Pozvánka odeslána znovu.')}",
+        status_code=303,
+    )

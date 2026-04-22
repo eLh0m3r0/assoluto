@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
+from urllib.parse import quote
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Query, Request
@@ -54,6 +55,8 @@ def _require_tenant_admin(principal: Principal) -> None:
 @router.get("/users", response_class=HTMLResponse)
 async def users_index(
     request: Request,
+    notice: str | None = None,
+    error: str | None = None,
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
@@ -67,8 +70,8 @@ async def users_index(
             "principal": principal,
             "tenant": _tenant(request),
             "users": users,
-            "error": None,
-            "notice": None,
+            "error": error,
+            "notice": notice,
         },
     )
     return HTMLResponse(html)
@@ -167,7 +170,152 @@ async def users_disable(
     target.is_active = False
     target.session_version += 1  # kick out existing sessions
     await db.flush()
-    return RedirectResponse(url="/app/admin/users", status_code=303)
+    return RedirectResponse(
+        url=f"/app/admin/users?notice={quote('Uživatel deaktivován.')}",
+        status_code=303,
+    )
+
+
+@router.post("/users/{user_id}/reactivate", response_class=HTMLResponse)
+async def users_reactivate(
+    user_id: UUID,
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    _require_tenant_admin(principal)
+    target = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+    if target is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    target.is_active = True
+    await db.flush()
+    return RedirectResponse(
+        url=f"/app/admin/users?notice={quote('Uživatel reaktivován.')}",
+        status_code=303,
+    )
+
+
+@router.get("/users/{user_id}/edit", response_class=HTMLResponse)
+async def users_edit_form(
+    user_id: UUID,
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    _require_tenant_admin(principal)
+    target = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+    if target is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    html = _templates(request).render(
+        request,
+        "admin/user_edit.html",
+        {
+            "principal": principal,
+            "tenant": _tenant(request),
+            "user": target,
+            "error": None,
+        },
+    )
+    return HTMLResponse(html)
+
+
+@router.post("/users/{user_id}/edit", response_class=HTMLResponse)
+async def users_edit(
+    user_id: UUID,
+    request: Request,
+    full_name: str = Form(...),
+    role: str = Form(...),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    _require_tenant_admin(principal)
+    target = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+    if target is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    cleaned_name = (full_name or "").strip()
+    if not cleaned_name:
+        html = _templates(request).render(
+            request,
+            "admin/user_edit.html",
+            {
+                "principal": principal,
+                "tenant": _tenant(request),
+                "user": target,
+                "error": _t(request, "Name cannot be empty."),
+            },
+        )
+        return HTMLResponse(html, status_code=400)
+
+    try:
+        role_enum = UserRole(role)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Unknown role") from None
+    if role_enum not in (UserRole.TENANT_STAFF, UserRole.TENANT_ADMIN):
+        raise HTTPException(status_code=400, detail="Role not assignable") from None
+
+    # Demoting yourself would brick the admin UI — block it. Promoting
+    # others is fine. Role swaps on other admins are also fine.
+    if target.id == principal.id and role_enum != UserRole.TENANT_ADMIN:
+        raise HTTPException(status_code=400, detail="Cannot demote yourself")
+
+    target.full_name = cleaned_name
+    target.role = role_enum
+    await db.flush()
+    return RedirectResponse(
+        url=f"/app/admin/users?notice={quote('Změny uloženy.')}",
+        status_code=303,
+    )
+
+
+@router.post("/users/{user_id}/resend-invite", response_class=HTMLResponse)
+async def users_resend_invite(
+    user_id: UUID,
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Re-send the staff-invite email for a user who hasn't accepted yet.
+
+    Only valid when ``password_hash IS NULL``; users with a password
+    should go through the forgot-password flow instead.
+    """
+    from app.config import get_settings as _get_settings
+    from app.urls import tenant_base_url as _tenant_base_url
+
+    _require_tenant_admin(principal)
+    target = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+    if target is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if target.password_hash:
+        return RedirectResponse(
+            url=("/app/admin/users?error=" + quote("Uživatel už má heslo; použijte reset hesla.")),
+            status_code=303,
+        )
+
+    tenant = _tenant(request)
+    settings = _get_settings()
+    invite_token = create_staff_invite_token(
+        settings.app_secret_key,
+        user_id=target.id,
+        tenant_id=tenant.id,
+    )
+    invite_url = f"{_tenant_base_url(settings, tenant)}/invite/staff?token={invite_token}"
+
+    await db.commit()
+
+    send_staff_invitation(
+        request.app.state.email_sender,
+        to=target.email,
+        tenant_name=tenant.name,
+        invitee_name=target.full_name,
+        invite_url=invite_url,
+    )
+
+    return RedirectResponse(
+        url=f"/app/admin/users?notice={quote('Pozvánka odeslána znovu.')}",
+        status_code=303,
+    )
 
 
 # -------------------------------------------------------------- profile

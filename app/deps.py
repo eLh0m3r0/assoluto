@@ -29,12 +29,25 @@ from app.security.session import SessionData, read_session
 def _extract_subdomain(host: str) -> str | None:
     """Return the left-most label of a hostname, if it represents a tenant.
 
-    Handles common dev hostnames:
+    Handles common hostnames:
     - `4mex.portal.example.com` -> `4mex`
     - `4mex.localhost`          -> `4mex`
     - `4mex.localhost:8000`     -> `4mex`
+    - `assoluto.eu` (apex)      -> None   (only 2 labels → no subdomain)
     - `localhost`               -> None
     - `127.0.0.1`               -> None
+
+    A registered domain typically has the form ``<SLD>.<TLD>`` (two
+    labels). Anything longer implies at least one subdomain label in
+    front, which is what identifies the tenant. Without this 2-label
+    cutoff ``assoluto.eu`` would resolve slug=``assoluto`` and every
+    apex hit would 404 "tenant not found" — hiding the platform
+    landing page.
+
+    The test-friendly single-label hostnames (``*.localhost``) still
+    work because the host there is literally ``4mex.localhost`` — two
+    labels where the second IS effectively a TLD. The 2-label cutoff
+    excludes those too, so we special-case ``.localhost`` below.
     """
     if not host:
         return None
@@ -50,6 +63,14 @@ def _extract_subdomain(host: str) -> str | None:
     first = parts[0]
     # The plain `www` label is never a tenant slug.
     if first in ("www",):
+        return None
+    # ``<subdomain>.localhost`` is a dev convention — treat the first
+    # label as the tenant slug regardless of label count.
+    if parts[-1] == "localhost":
+        return first
+    # Registered domain ``<SLD>.<TLD>`` has exactly two labels and no
+    # tenant subdomain. Require ≥3 labels for a real subdomain hit.
+    if len(parts) < 3:
         return None
     return first
 

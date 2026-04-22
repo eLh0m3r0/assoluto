@@ -1,0 +1,59 @@
+{% extends "app_base.html" %}
+
+{% block title %}Assoluto — {{ _('Edit user') }} · {{ tenant.name }}{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-xl">
+    <nav class="mb-2 text-sm text-slate-500 dark:text-slate-400">
+        <a href="/app/admin/users" class="hover:text-slate-900 dark:hover:text-slate-100">&larr; {{ _('Team users') }}</a>
+    </nav>
+    <h1 class="mb-6 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('Edit user') }}</h1>
+
+    {% if error %}
+        <div role="alert"
+             class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-900/20 dark:text-red-300">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <form method="post" action="/app/admin/users/{{ user.id }}/edit"
+          class="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        {{ csrf_input() }}
+
+        <div>
+            <label class="block text-sm font-medium text-slate-500 dark:text-slate-400">{{ _('Email') }}</label>
+            <p class="mt-1 text-sm text-slate-700 dark:text-slate-300">{{ user.email }}</p>
+            <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                {{ _('Email changes need an administrator.') }}
+            </p>
+        </div>
+
+        <div>
+            <label for="full_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Full name') }}</label>
+            <input type="text" id="full_name" name="full_name" required maxlength="255"
+                   value="{{ user.full_name }}"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+        </div>
+
+        <div>
+            <label for="role" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Role') }}</label>
+            <select id="role" name="role"
+                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                <option value="tenant_staff" {% if user.role.value == "tenant_staff" %}selected{% endif %}>{{ _('Operator') }}</option>
+                <option value="tenant_admin" {% if user.role.value == "tenant_admin" %}selected{% endif %}>{{ _('Administrator') }}</option>
+            </select>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+            <a href="/app/admin/users"
+               class="text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
+                {{ _('Cancel') }}
+            </a>
+            <button type="submit"
+                    class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                {{ _('Save changes') }}
+            </button>
+        </div>
+    </form>
+</section>
+{% endblock %}

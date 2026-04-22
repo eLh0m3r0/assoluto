@@ -120,7 +120,17 @@ PLATFORM_RESET_MAX_AGE = 30 * 60  # 30 minutes
 
 
 @router.get("/platform/password-reset", response_class=HTMLResponse)
-async def platform_password_reset_form(request: Request) -> HTMLResponse:
+async def platform_password_reset_form(
+    request: Request,
+    identity: Identity | None = Depends(get_current_identity),
+) -> Response:
+    # Signed-in identities don't need the forgot-password flow. Send
+    # them to the tenant selector (where they can sign out if they
+    # hit this page by mistake).
+    if identity is not None:
+        return RedirectResponse(
+            url="/platform/select-tenant", status_code=status.HTTP_303_SEE_OTHER
+        )
     html = _templates(request).render(
         request,
         "platform/password_reset_request.html",

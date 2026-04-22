@@ -43,15 +43,41 @@
                                 {% endif %}
                             </td>
                             <td class="px-4 py-3 text-right">
-                                {% if u.is_active and u.id != principal.id %}
-                                    <form method="post" action="/app/admin/users/{{ u.id }}/disable"
-                                          data-confirm="{{ _('Deactivate this user?') }}" class="inline">
-                                        {{ csrf_input() }}
-                                        <button type="submit" class="text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
-                                            {{ _('Deactivate') }}
-                                        </button>
-                                    </form>
-                                {% endif %}
+                                <div class="flex items-center justify-end gap-3 text-xs">
+                                    {% if u.id != principal.id %}
+                                        <a href="/app/admin/users/{{ u.id }}/edit"
+                                           class="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">
+                                            {{ _('Edit') }}
+                                        </a>
+                                        {% if u.is_active and u.password_hash is none %}
+                                            <form method="post" action="/app/admin/users/{{ u.id }}/resend-invite" class="inline"
+                                                  data-confirm="{{ _('Resend the invitation email?') }}">
+                                                {{ csrf_input() }}
+                                                <button type="submit" class="text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200">
+                                                    {{ _('Resend invite') }}
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        {% if u.is_active %}
+                                            <form method="post" action="/app/admin/users/{{ u.id }}/disable"
+                                                  data-confirm="{{ _('Deactivate this user?') }}" class="inline">
+                                                {{ csrf_input() }}
+                                                <button type="submit" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                                                    {{ _('Deactivate') }}
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <form method="post" action="/app/admin/users/{{ u.id }}/reactivate" class="inline">
+                                                {{ csrf_input() }}
+                                                <button type="submit" class="text-emerald-700 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-200">
+                                                    {{ _('Reactivate') }}
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-slate-400 dark:text-slate-500">{{ _('(you)') }}</span>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                     {% endfor %}
