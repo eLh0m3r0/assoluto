@@ -6,6 +6,7 @@ Gated by `require_platform_admin`, so a regular Identity cannot see it.
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from urllib.parse import quote
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
@@ -30,6 +31,22 @@ from app.platform.service import (
 )
 from app.security.csrf import verify_csrf
 
+
+def _redir_tenants(notice: str | None = None, error: str | None = None) -> RedirectResponse:
+    """Redirect to the tenants list with an optional flash message.
+
+    POST-redirect-GET pattern: every mutating route should tell the
+    user whether their action succeeded, not silently 303 them to the
+    same page. Keeps platform admin actions auditable to the operator.
+    """
+    qs = []
+    if notice:
+        qs.append(f"notice={quote(notice)}")
+    if error:
+        qs.append(f"error={quote(error)}")
+    tail = "?" + "&".join(qs) if qs else ""
+    return RedirectResponse(url=f"/platform/admin/tenants{tail}", status_code=303)
+
 router = APIRouter(
     prefix="/platform/admin",
     tags=["platform-admin"],
@@ -44,6 +61,8 @@ def _templates(request: Request):
 @router.get("/tenants", response_class=HTMLResponse)
 async def tenants_index(
     request: Request,
+    notice: str | None = None,
+    error: str | None = None,
     identity: Identity = Depends(require_platform_admin),
     db: AsyncSession = Depends(get_platform_db),
 ) -> HTMLResponse:
@@ -69,8 +88,8 @@ async def tenants_index(
             "identity": identity,
             "tenants": tenants,
             "access_by_tenant_id": access_by_tenant_id,
-            "error": None,
-            "notice": None,
+            "error": error,
+            "notice": notice,
             "principal": None,
         },
     )
@@ -132,7 +151,7 @@ async def tenants_create(
         return HTMLResponse(html, status_code=400)
 
     await db.commit()
-    return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+    return _redir_tenants(notice=f"Tenant „{slug}“ vytvořen.")
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
@@ -255,7 +274,7 @@ async def tenants_deactivate(
     except PlatformError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from None
     await db.commit()
-    return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+    return _redir_tenants(notice="Tenant deaktivován.")
 
 
 @router.post("/tenants/{tenant_id}/reactivate")
@@ -269,7 +288,7 @@ async def tenants_reactivate(
     except PlatformError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from None
     await db.commit()
-    return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+    return _redir_tenants(notice="Tenant reaktivován.")
 
 
 @router.get("/tenants/{tenant_id}/edit", response_class=HTMLResponse)
@@ -327,7 +346,7 @@ async def tenants_edit(
         )
         return HTMLResponse(html, status_code=400)
     await db.commit()
-    return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+    return _redir_tenants(notice="Změny uloženy.")
 
 
 @router.post("/tenants/{tenant_id}/support-access")
@@ -375,7 +394,7 @@ async def tenants_grant_support_access(
         tenant_id=tenant_id,
     )
     await db.commit()
-    return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+    return _redir_tenants(notice="Support přístup přidělen.")
 
 
 @router.post("/tenants/{tenant_id}/revoke-support")
@@ -401,7 +420,7 @@ async def tenants_revoke_support_access(
     if result is None:
         # Nothing to revoke — treat as no-op so double-click from the
         # UI doesn't 500. The tenants page will show the correct state.
-        return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+        return _redir_tenants(notice="Žádný support přístup k zrušení.")
 
     user, _ = result
     await db.execute(
@@ -422,4 +441,4 @@ async def tenants_revoke_support_access(
         tenant_id=tenant_id,
     )
     await db.commit()
-    return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+    return _redir_tenants(notice="Support přístup zrušen.")

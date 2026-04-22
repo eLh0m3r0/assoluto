@@ -1551,3 +1551,50 @@ msgstr "Přepnout"
 
 msgid "Profile"
 msgstr "Profil"
+
+# --- Sprint A/B new strings ---
+
+msgid "Edit user"
+msgstr "Upravit uživatele"
+
+msgid "Save changes"
+msgstr "Uložit změny"
+
+msgid "Save"
+msgstr "Uložit"
+
+msgid "Cancel"
+msgstr "Zrušit"
+
+msgid "Reactivate"
+msgstr "Reaktivovat"
+
+msgid "Resend invite"
+msgstr "Poslat pozvánku znovu"
+
+msgid "Resend the invitation email?"
+msgstr "Poslat pozvánkový e-mail znovu?"
+
+msgid "(you)"
+msgstr "(vy)"
+
+msgid "Deactivate this contact?"
+msgstr "Deaktivovat tento kontakt?"
+
+msgid "Tenants"
+msgstr "Tenanti"
+
+msgid "My portals"
+msgstr "Moje portály"
+
+msgid "Edit tenant"
+msgstr "Upravit tenanta"
+
+msgid "Manage tenants"
+msgstr "Správa tenantů"
+
+msgid "is immutable (subdomain, S3 prefix). To rename, create a new tenant and migrate data manually."
+msgstr "je neměnný (subdoména, S3 prefix). Pro přejmenování založ nového tenanta a migruj data ručně."
+
+msgid "Slug"
+msgstr "Slug"
