@@ -47,6 +47,7 @@ def _redir_tenants(notice: str | None = None, error: str | None = None) -> Redir
     tail = "?" + "&".join(qs) if qs else ""
     return RedirectResponse(url=f"/platform/admin/tenants{tail}", status_code=303)
 
+
 router = APIRouter(
     prefix="/platform/admin",
     tags=["platform-admin"],
