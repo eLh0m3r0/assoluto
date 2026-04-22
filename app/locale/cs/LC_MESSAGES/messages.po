@@ -1494,3 +1494,29 @@ msgstr "Zadejte svůj e-mail. Pokud účet existuje, pošleme vám odkaz na nast
 
 msgid "Choose a new password for your platform account."
 msgstr "Vyberte si nové heslo pro váš účet na platformě."
+
+# --- SLA card subtitles + heatmap labels ---
+
+msgid "of delivered orders met the promised date"
+msgstr "z dodaných objednávek dodrželo slíbený termín"
+
+msgid "orders with recorded delivery"
+msgstr "objednávek se zaznamenaným dodáním"
+
+msgid "delivered past the promised date"
+msgstr "dodáno po slíbeném termínu"
+
+msgid "Pending (overdue)"
+msgstr "Čeká (po termínu)"
+
+msgid "promised date passed, not yet delivered"
+msgstr "slíbený termín uplynul, dosud nedodáno"
+
+msgid "No orders with a promised delivery date yet."
+msgstr "Zatím žádné objednávky se slíbeným datem dodání."
+
+msgid "no orders"
+msgstr "žádné objednávky"
+
+msgid "Weekly on-time heatmap"
+msgstr "Týdenní heatmapa včasnosti"
