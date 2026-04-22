@@ -4,9 +4,9 @@
 
 {% block content %}
 <section class="mx-auto max-w-xl">
-    <nav class="mb-2 text-sm text-slate-500 dark:text-slate-400">
-        <a href="/app/admin/users" class="hover:text-slate-900 dark:hover:text-slate-100">&larr; {{ _('Team users') }}</a>
-    </nav>
+    {% with items=[(_('Dashboard'), '/app'), (_('Team'), '/app/admin/users'), (user.full_name or _('Edit user'), None)] %}
+        {% include "_breadcrumbs.html" %}
+    {% endwith %}
     <h1 class="mb-6 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('Edit user') }}</h1>
 
     {% if error %}

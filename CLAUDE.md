@@ -234,6 +234,85 @@ app walkthrough`. Two benefits:
 
 One-line bug reports (`X broken, please fix`) can skip the plan.
 
+### 13. Session cookie is tenant-scoped — verify on every read
+
+``read_session(...)`` only checks the signature, not the ``tenant_id``
+embedded in the payload. Cookies are set without a ``Domain`` attribute
+(host-only), so in a correctly configured browser they can't cross
+subdomains. But callers on public pages (``/``, ``/auth/login``,
+``/auth/password-reset``) MUST additionally verify
+``session.tenant_id == tenant.id`` or they produce
+``ERR_TOO_MANY_REDIRECTS``: public route sees a decodable cookie →
+redirects to ``/app`` → ``get_current_principal`` rejects the tenant
+mismatch → 401 → bounces to ``/auth/login`` → sees the cookie again.
+
+Use :func:`app.security.session.read_session_for_tenant` for the decode
++ match in one call. When a mismatch is detected, stamp a Set-Cookie
+deletion via :func:`cookie_mismatches_tenant` + :func:`clear_session`
+so the zombie doesn't re-trigger on the next request.
+
+### 14. Recovery tokens must be single-use
+
+Password-reset, invitation-accept and staff-invitation tokens MUST
+become invalid after their first successful consumption. Otherwise an
+attacker who briefly has the URL (email intercepted, shared computer,
+screenshot) can replay it within the TTL to overwrite the victim's
+password on their behalf.
+
+Two patterns are in use:
+
+* **Session-version embedding** (password reset): include the
+  principal's current ``session_version`` in the token payload; on
+  consume, reject if ``token.sv != row.session_version`` and bump
+  after the mutation so the second attempt fails. Any unrelated
+  ``session_version`` bump (manual password change, admin reset,
+  contact accepting a fresh invite) also invalidates in-flight tokens.
+* **State flag check** (invitations): refuse acceptance when the row
+  already has ``password_hash IS NOT NULL`` (staff) or
+  ``accepted_at IS NOT NULL`` (customer contact).
+
+Both patterns are at the service layer so bypassing the UI by posting
+directly to the endpoint still hits them.
+
+### 15. Docker Compose env-var precedence: ``environment:`` wins over ``env_file:``
+
+When a service declares both, values from the ``environment:`` block
+override anything with the same key in an ``env_file:``. Our base
+``docker-compose.yml`` hard-codes a few dev defaults (``SMTP_PORT``,
+``SMTP_HOST``) in its ``environment:`` block. Production can't rely on
+merely listing an override in ``/etc/assoluto/env`` — we hit this
+once when prod emails silently timed out because the Brevo port in
+env_file was shadowed by ``SMTP_PORT: "1025"`` in base.
+
+The pattern in ``docker-compose.prod.yml`` is: anything the operator
+needs to tune MUST be explicitly re-listed in the prod overlay's
+``environment:`` as ``${VAR:?}``. That does two things — (a) the
+``${VAR:?}`` expansion reads from the env file that the compose CLI
+is already consuming via ``--env-file /etc/assoluto/env``, so the
+operator value wins; (b) a missing value loudly fails compose at
+``up`` time instead of silently shipping a broken container. See the
+``SMTP_PORT`` comment in the overlay for the standing example.
+
+### 16. TRUSTED_PROXIES must list the reverse-proxy container network
+
+slowapi defaults to ``request.client.host`` which in a docker-
+compose deployment is the Caddy container IP — i.e. one global
+bucket for every external client. ``TRUSTED_PROXIES`` tells
+``app.security.rate_limit._client_ip`` when to believe the
+``X-Forwarded-For`` header. Empty = don't trust anything = every
+request looks like it's from the proxy.
+
+For the docker-compose + Caddy deploy, trust the RFC1918 container
+bridge ranges:
+
+```
+TRUSTED_PROXIES=172.16.0.0/12,10.0.0.0/8
+```
+
+An attacker can't get a source IP in those ranges into our front-
+facing Caddy, so honouring XFF from there is safe. Add Cloudflare's
+published ranges if you stand up a CDN in front.
+
 ## Test fixtures quick reference
 
 | Fixture | Needs PG | What |

@@ -12,7 +12,7 @@
     </div>
 
     {% if products %}
-        <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
                 <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
                     <tr>
@@ -64,9 +64,14 @@
                 <path stroke-linejoin="round" d="M8 14l16 8 16-8"/>
                 <path stroke-linejoin="round" d="M24 22v20"/>
             </svg>
-            <p class="text-slate-500 dark:text-slate-400">{{ _('The catalog is empty.') }}</p>
+            <h2 class="mt-2 text-base font-semibold text-slate-900 dark:text-slate-100">
+                {{ _('Catalog is empty') }}
+            </h2>
+            <p class="mx-auto mt-1 max-w-md text-sm text-slate-500 dark:text-slate-400">
+                {{ _('The catalog holds items your clients can pick when placing an order (SKU, name, unit, price). You can also narrow a product to a specific client.') }}
+            </p>
             <a href="/app/products/new"
-               class="mt-3 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+               class="mt-4 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
                 {{ _('Add the first product') }}
             </a>
         </div>

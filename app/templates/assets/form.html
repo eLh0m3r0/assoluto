@@ -3,6 +3,9 @@
 {% block title %}Assoluto — {{ _('New asset record') }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
+    {% with items=[(_('Dashboard'), '/app'), (_('Assets'), '/app/assets'), (_('New asset record'), None)] %}
+        {% include "_breadcrumbs.html" %}
+    {% endwith %}
     <h1 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('New asset record') }}</h1>
 
     {% include "_flash.html" %}

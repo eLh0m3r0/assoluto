@@ -83,6 +83,9 @@
             <h2 class="font-semibold text-slate-900 dark:text-slate-100">{{ _('Items') }}</h2>
         </div>
         {% if items %}
+            {# Wrap in an overflow-x-auto so narrow viewports get a
+               horizontal scroll rather than squashed columns. #}
+            <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
                 <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
                     <tr>
@@ -106,6 +109,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         {% else %}
             <p class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">{{ _('No items.') }}</p>
         {% endif %}
