@@ -28,7 +28,11 @@ class Settings(BaseSettings):
     app_env: Literal["development", "test", "production"] = Field(
         default="development", alias="APP_ENV"
     )
-    app_debug: bool = Field(default=True, alias="APP_DEBUG")
+    # Safe default: ``false``. FastAPI with debug=True lets Starlette's
+    # ServerErrorMiddleware render a full traceback on unhandled
+    # exceptions, which leaks source paths + line numbers. Operators
+    # who want debug in dev must set APP_DEBUG=true explicitly.
+    app_debug: bool = Field(default=False, alias="APP_DEBUG")
     app_secret_key: str = Field(default="dev-insecure-secret-change-me", alias="APP_SECRET_KEY")
     app_base_url: str = Field(default="http://localhost:8000", alias="APP_BASE_URL")
 

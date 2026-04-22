@@ -23,6 +23,7 @@ language.
 
 from __future__ import annotations
 
+import time
 from collections.abc import Iterable
 
 from app.email.sender import EmailSender, render_email
@@ -30,6 +31,14 @@ from app.logging import get_logger
 from app.models.enums import OrderStatus
 
 log = get_logger("app.tasks.email")
+
+# Retry a failed send this many times before giving up. Kept small so
+# the background-task queue doesn't build up on a sustained outage —
+# if SMTP is down for more than a few minutes, operator intervention
+# is warranted. Backoff is exponential on the same-ish order as TCP's
+# typical retransmit window.
+_MAX_ATTEMPTS = 3
+_BACKOFF_BASE_SECONDS = 2.0
 
 
 # English msgids — the template's ``_(status_label)`` translates at
@@ -56,17 +65,44 @@ def _safe_send(
     html: str,
     text: str,
 ) -> None:
-    """Send one email, logging and swallowing errors.
+    """Send one email, retrying briefly on transient failures.
 
-    Fire-and-forget: the caller is a FastAPI BackgroundTask running after
-    the request has been served. Retry semantics arrive with the Dramatiq
-    migration (roadmap R0).
+    Fire-and-forget: the caller is a FastAPI BackgroundTask running
+    after the request has been served, so exceptions must not escape.
+    We retry up to :data:`_MAX_ATTEMPTS` times with exponential backoff
+    — this catches the SMTP-relay blips that would otherwise drop a
+    single password-reset or invite mail on the floor. Permanent
+    errors (auth failure, invalid recipient) fail on every attempt and
+    end up in the ``email.failed`` log with ``attempts`` set.
     """
-    try:
-        sender.send(to=to, subject=subject, html=html, text=text)
-        log.info("email.sent", kind=kind, to=to)
-    except Exception as exc:
-        log.error("email.failed", kind=kind, to=to, error=str(exc))
+    last_exc: Exception | None = None
+    for attempt in range(1, _MAX_ATTEMPTS + 1):
+        try:
+            sender.send(to=to, subject=subject, html=html, text=text)
+            if attempt == 1:
+                log.info("email.sent", kind=kind, to=to)
+            else:
+                log.info("email.sent", kind=kind, to=to, attempts=attempt)
+            return
+        except Exception as exc:
+            last_exc = exc
+            if attempt < _MAX_ATTEMPTS:
+                # Backoff: 2s, 4s, 8s …
+                time.sleep(_BACKOFF_BASE_SECONDS ** attempt)
+                log.warning(
+                    "email.retry",
+                    kind=kind,
+                    to=to,
+                    attempt=attempt,
+                    error=str(exc),
+                )
+    log.error(
+        "email.failed",
+        kind=kind,
+        to=to,
+        attempts=_MAX_ATTEMPTS,
+        error=str(last_exc) if last_exc else "unknown",
+    )
 
 
 def _render_and_send(

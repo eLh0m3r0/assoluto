@@ -451,6 +451,22 @@ async def customers_contact_resend_invite(
             status_code=303,
         )
 
+    from app.security.email_throttle import INVITE_RESEND_THROTTLE
+
+    if not INVITE_RESEND_THROTTLE.allow(contact.email):
+        return RedirectResponse(
+            url=(
+                f"/app/customers/{customer_id}?error="
+                + quote(
+                    _t(
+                        request,
+                        "Too many invitations sent recently. Try again later.",
+                    )
+                )
+            ),
+            status_code=303,
+        )
+
     await db.commit()
 
     token = create_invitation_token(

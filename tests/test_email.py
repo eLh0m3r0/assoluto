@@ -42,7 +42,12 @@ def test_send_invitation_uses_capture_sender() -> None:
     assert "http://example.com/invite/abc" in msg.html
 
 
-def test_send_invitation_swallows_exceptions() -> None:
+def test_send_invitation_swallows_exceptions(monkeypatch) -> None:
+    # Disable the retry backoff so the test is fast; we care about the
+    # exception-swallowing invariant, not the retry count.
+    import app.tasks.email_tasks as et
+    monkeypatch.setattr(et, "_MAX_ATTEMPTS", 1)
+
     class ExplodingSender:
         def send(self, **kwargs):
             raise RuntimeError("smtp down")
@@ -56,6 +61,31 @@ def test_send_invitation_swallows_exceptions() -> None:
         contact_name="n",
         invite_url="http://x",
     )
+
+
+def test_send_invitation_retries_on_transient_failure(monkeypatch) -> None:
+    """SMTP blip → first send fails, second succeeds, no error log."""
+    import app.tasks.email_tasks as et
+    # Collapse the backoff so this test doesn't sleep seconds.
+    monkeypatch.setattr(et, "_BACKOFF_BASE_SECONDS", 0)
+
+    calls = {"n": 0}
+
+    class BlipSender:
+        def send(self, **kwargs):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise RuntimeError("connection reset — transient")
+
+    send_invitation(
+        BlipSender(),  # type: ignore[arg-type]
+        to="x@example.com",
+        tenant_name="t",
+        customer_name="c",
+        contact_name="n",
+        invite_url="http://x",
+    )
+    assert calls["n"] == 2, "expected one retry after transient failure"
 
 
 def test_render_invitation_in_english_locale_produces_english_subject() -> None:

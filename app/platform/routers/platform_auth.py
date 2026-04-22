@@ -151,10 +151,11 @@ async def platform_password_reset_submit(
         create_platform_password_reset_token,
         find_identity_by_email,
     )
+    from app.security.email_throttle import PASSWORD_RESET_THROTTLE
     from app.tasks.email_tasks import send_password_reset
 
     identity = await find_identity_by_email(db, email)
-    if identity is not None and identity.is_active:
+    if identity is not None and identity.is_active and PASSWORD_RESET_THROTTLE.allow(email):
         reset_token = create_platform_password_reset_token(settings.app_secret_key, identity.id)
         reset_url = f"{settings.app_base_url}/platform/password-reset/confirm?token={reset_token}"
         sender = request.app.state.email_sender

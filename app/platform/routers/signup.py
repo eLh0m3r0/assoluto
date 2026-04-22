@@ -124,6 +124,31 @@ async def signup_submit(
         )
         return HTMLResponse(html, status_code=400)
 
+    # Per-email signup rate limit. Per-IP limit @rate_limit("10/15
+    # minutes") above is primary defence; this catches an attacker who
+    # rotates IPs but keeps hammering a single victim email (Identity
+    # has UNIQUE(email) so a duplicate would fail at DB level anyway,
+    # but we want to reject before we enqueue the verify mail to
+    # prevent inbox spam on the second attempt).
+    from app.security.email_throttle import SIGNUP_THROTTLE
+
+    if not SIGNUP_THROTTLE.allow(form.owner_email):
+        html = _templates(request).render(
+            request,
+            "platform/signup.html",
+            {
+                "errors": {
+                    "owner_email": (
+                        "Tato adresa už dnes zkoušela registraci. "
+                        "Zkuste to zítra nebo obnovte heslo."
+                    )
+                },
+                "form": form_raw,
+                "principal": None,
+            },
+        )
+        return HTMLResponse(html, status_code=429)
+
     # 2) Provision tenant + owner user + Identity
     try:
         tenant, _owner, identity = await signup_tenant(
@@ -375,6 +400,14 @@ async def resend_verification(
     if identity.email_verified_at is not None:
         return RedirectResponse(
             url="/platform/select-tenant", status_code=status.HTTP_303_SEE_OTHER
+        )
+    from app.security.email_throttle import VERIFY_RESEND_THROTTLE
+
+    if not VERIFY_RESEND_THROTTLE.allow(identity.email):
+        # Silently redirect — the endpoint's UX contract is "show
+        # verify-sent page again", no need to leak the throttle state.
+        return RedirectResponse(
+            url="/platform/verify-sent", status_code=status.HTTP_303_SEE_OTHER
         )
     # Look up the identity's first staff-owned tenant so the resent
     # email renders the company name (round-3 Backend P2 — previously

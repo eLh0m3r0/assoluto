@@ -638,8 +638,16 @@ async def password_reset_request_submit(
     The actual e-mail is only sent if the address matches an active
     principal. Otherwise we just log and return success.
     """
+    from app.security.email_throttle import PASSWORD_RESET_THROTTLE
+
     match = await find_principal_by_email(db, email)
-    if match is not None:
+    # Per-email throttle is checked BEFORE doing the token + queue work
+    # so an attacker cycling source IPs still can't force 10 reset
+    # mails into a victim's inbox. The response below is identical
+    # regardless of throttle or account existence, keeping the email-
+    # enumeration defence intact.
+    email_allowed = PASSWORD_RESET_THROTTLE.allow(email)
+    if match is not None and email_allowed:
         principal_type, row = match
         reset_token = create_password_reset_token(
             settings.app_secret_key,

@@ -350,6 +350,22 @@ async def users_resend_invite(
             status_code=303,
         )
 
+    from app.security.email_throttle import INVITE_RESEND_THROTTLE
+
+    if not INVITE_RESEND_THROTTLE.allow(target.email):
+        return RedirectResponse(
+            url=(
+                "/app/admin/users?error="
+                + quote(
+                    _t(
+                        request,
+                        "Too many invitations sent recently. Try again later.",
+                    )
+                )
+            ),
+            status_code=303,
+        )
+
     tenant = _tenant(request)
     settings = _get_settings()
     invite_token = create_staff_invite_token(
