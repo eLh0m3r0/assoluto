@@ -26,7 +26,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.config import get_settings
-from app.platform.models import Identity
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -50,6 +49,15 @@ async def _run(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return 2
+
+    # Deferred import: ``app.platform.models`` is re-exported from
+    # ``app.models.__init__``, so a module-level import here triggers a
+    # circular import when the script runs as ``python -m scripts.*``
+    # (the top-level import of app.models pulls in app.platform.models
+    # before this script's imports finish). Importing inside the
+    # coroutine — after ``app.config`` and the SQLAlchemy bases finish
+    # binding — sidesteps the cycle entirely.
+    from app.platform.models import Identity
 
     engine = create_async_engine(settings.database_owner_url, future=True)
     sm = async_sessionmaker(engine, expire_on_commit=False)
