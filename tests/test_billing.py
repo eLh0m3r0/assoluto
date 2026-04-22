@@ -180,12 +180,12 @@ async def test_billing_dashboard_upgrade_vs_downgrade_labels(billing_client, own
     # Starter is the current plan (from the trial attached at signup).
     # Pro is more expensive → "Upgrade"; Community is free → "Downgrade".
     # Accept either locale since the signup UI defaults to Czech.
-    assert ("Upgrade to Pro" in resp.text) or ("Přejít na Pro" in resp.text) or (
-        "Upgrade na Pro" in resp.text
+    assert (
+        ("Upgrade to Pro" in resp.text)
+        or ("Přejít na Pro" in resp.text)
+        or ("Upgrade na Pro" in resp.text)
     )
-    assert ("Downgrade to Community" in resp.text) or (
-        "Přejít na Community" in resp.text
-    )
+    assert ("Downgrade to Community" in resp.text) or ("Přejít na Community" in resp.text)
 
 
 async def test_checkout_demo_switches_plan_locally(billing_client, owner_engine) -> None:
