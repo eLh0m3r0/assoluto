@@ -50,14 +50,13 @@ async def _run(args: argparse.Namespace) -> int:
         )
         return 2
 
-    # Deferred import: ``app.platform.models`` is re-exported from
-    # ``app.models.__init__``, so a module-level import here triggers a
-    # circular import when the script runs as ``python -m scripts.*``
-    # (the top-level import of app.models pulls in app.platform.models
-    # before this script's imports finish). Importing inside the
-    # coroutine — after ``app.config`` and the SQLAlchemy bases finish
-    # binding — sidesteps the cycle entirely.
-    from app.platform.models import Identity
+    # Import via app.models (which re-exports Identity). Importing
+    # app.platform.models directly triggers a circular import because
+    # app.platform.models imports from app.models.mixins, and
+    # app/models/__init__.py imports Identity back from
+    # app.platform.models — bouncing through app.models first breaks
+    # the cycle.
+    from app.models import Identity  # re-exported
 
     engine = create_async_engine(settings.database_owner_url, future=True)
     sm = async_sessionmaker(engine, expire_on_commit=False)
