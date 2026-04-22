@@ -60,9 +60,45 @@ async def users_index(
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
+    """Render the team users table.
+
+    We additionally flag any User row that's reached here via the
+    platform-admin ``support-access`` opt-in — those rows have
+    ``password_hash IS NULL`` (login goes through the platform
+    session handoff, never the tenant login form), which the template
+    would otherwise misrender as 'pending invite'. Detection goes
+    through the platform membership table when FEATURE_PLATFORM is on.
+    """
     _require_tenant_admin(principal)
     result = await db.execute(select(User).order_by(User.full_name))
     users = list(result.scalars().all())
+
+    # Build a lookup of user_ids that are actually platform-support
+    # attachments rather than pending tenant invites.
+    support_user_ids: set = set()
+    app_settings = request.app.state.settings
+    if app_settings.feature_platform and users:
+        from sqlalchemy import text as _sql_text
+
+        # Bypass RLS so we can read the platform table (platform_tenant_memberships
+        # lives outside the tenant-scoped schema). Using ``set_config`` rather
+        # than a separate engine keeps us on the same transaction.
+        rows = (
+            await db.execute(
+                _sql_text(
+                    "SELECT user_id FROM platform_tenant_memberships "
+                    "WHERE access_type = 'support' "
+                    "AND tenant_id = :tid "
+                    "AND user_id = ANY(:ids)"
+                ),
+                {
+                    "tid": str(principal.tenant_id),
+                    "ids": [str(u.id) for u in users],
+                },
+            )
+        ).all()
+        support_user_ids = {str(r.user_id) for r in rows}
+
     html = _templates(request).render(
         request,
         "admin/users.html",
@@ -70,6 +106,7 @@ async def users_index(
             "principal": principal,
             "tenant": _tenant(request),
             "users": users,
+            "support_user_ids": support_user_ids,
             "error": error,
             "notice": notice,
         },

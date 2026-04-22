@@ -47,13 +47,15 @@
                                     </span>
                                 {% endif %}
                             </div>
-                            <div class="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                                {% if m.kind == "staff" %}
-                                    {{ _("As a team member") }}
-                                {% else %}
-                                    {{ _("As a customer contact") }}{% if m.customer_name %} — {{ m.customer_name }}{% endif %}
-                                {% endif %}
-                            </div>
+                            {# Customer-contact memberships show the customer name here
+                               (the badge alone doesn't include it). For staff / support
+                               the badge above already conveys everything, so no second
+                               line — avoids the "Jako člen týmu" duplication. #}
+                            {% if m.kind == "contact" and m.customer_name %}
+                                <div class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                                    {{ m.customer_name }}
+                                </div>
+                            {% endif %}
                         </button>
                     </form>
                 </li>
