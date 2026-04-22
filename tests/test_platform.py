@@ -178,7 +178,10 @@ async def test_platform_owner_sees_tenant_in_select(
     select_resp = await platform_client.get("/platform/select-tenant")
     assert select_resp.status_code == 200
     assert "4MEX s.r.o." in select_resp.text
-    assert "Jako člen týmu" in select_resp.text
+    # Earlier copy was "Jako člen týmu"; the tenant-picker now uses a
+    # compact "Člen týmu" badge (via the access_type label) instead of
+    # a leading preposition. Accept both.
+    assert "Člen týmu" in select_resp.text or "Jako člen týmu" in select_resp.text
 
 
 async def test_non_admin_cannot_see_tenants_index(

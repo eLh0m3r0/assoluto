@@ -223,7 +223,11 @@ async def test_staff_quoting_emails_customer_contacts(
     assert len(capture.outbox) == 1
     msg = capture.outbox[0]
     assert msg.to == "jan@acme.cz"
-    assert "Nacenění" in msg.subject
+    # Email i18n refactor routes status_label through gettext so the
+    # subject now carries "Naceněno" (status form) instead of
+    # "Nacenění" (noun). Accept either to stay stable across further
+    # catalogue edits.
+    assert "Naceněno" in msg.subject or "Nacenění" in msg.subject
     assert "Se cenou" in msg.html
 
 

@@ -141,7 +141,9 @@ async def test_billing_dashboard_renders(billing_client, owner_engine) -> None:
     assert resp.status_code == 303
     await _mark_verified(owner_engine, "o@dashco.cz")
 
-    resp = await client.get("/platform/billing")
+    # Accept-Language=en so the assertions target the English msgids
+    # rather than the CS catalog output (default locale is cs).
+    resp = await client.get("/platform/billing", headers={"Accept-Language": "en"})
     assert resp.status_code == 200
     assert "Subscription &amp; billing" in resp.text or "Subscription & billing" in resp.text
     assert "Demo mode" in resp.text or "Demo režim" in resp.text  # Stripe not configured

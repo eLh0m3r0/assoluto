@@ -102,11 +102,18 @@ async def test_staff_cannot_leap_draft_to_delivered(owner_engine, demo_tenant) -
 @pytest.mark.postgres
 async def test_staff_can_step_one_back_for_corrections(owner_engine, demo_tenant) -> None:
     """Staff noticed a typo in a SUBMITTED order → bounce back to DRAFT."""
-    from sqlalchemy import select
+    from sqlalchemy import select, text
 
     user, order = await _seed(owner_engine, demo_tenant.id, status=OrderStatus.SUBMITTED)
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
+        # Audit-event RLS is FORCE-ed; even as the owner we need
+        # ``app.tenant_id`` set before the transition triggers an
+        # ``audit_events`` INSERT.
+        await session.execute(
+            text("SELECT set_config('app.tenant_id', :t, true)"),
+            {"t": str(demo_tenant.id)},
+        )
         fresh = (
             await session.execute(select(Order).where(Order.id == order.id))
         ).scalar_one()
@@ -125,11 +132,15 @@ async def test_staff_can_step_one_back_for_corrections(owner_engine, demo_tenant
 
 @pytest.mark.postgres
 async def test_staff_can_reopen_cancelled_into_draft(owner_engine, demo_tenant) -> None:
-    from sqlalchemy import select
+    from sqlalchemy import select, text
 
     user, order = await _seed(owner_engine, demo_tenant.id, status=OrderStatus.CANCELLED)
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
+        await session.execute(
+            text("SELECT set_config('app.tenant_id', :t, true)"),
+            {"t": str(demo_tenant.id)},
+        )
         fresh = (
             await session.execute(select(Order).where(Order.id == order.id))
         ).scalar_one()

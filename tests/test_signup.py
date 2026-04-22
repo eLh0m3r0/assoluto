@@ -466,7 +466,10 @@ def test_signup_tenant_maps_integrityerror_without_preflight() -> None:
             except DuplicateTenantSlug:
                 pass
 
-    asyncio.get_event_loop().run_until_complete(_run())
+    # Python 3.12+ removed ``asyncio.get_event_loop()`` in thread
+    # contexts without a running loop; ``asyncio.run`` is the
+    # drop-in replacement for sync-test → async-fixture bridges.
+    asyncio.run(_run())
 
 
 async def test_signup_persists_selected_plan_on_tenant(signup_client, owner_engine) -> None:

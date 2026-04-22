@@ -219,7 +219,10 @@ async def test_landing_shows_marketing_when_platform_on_and_no_tenant(settings, 
     app = create_app(settings)
     transport = ASGITransport(app=app)
     async with CsrfAwareClient(transport=transport, base_url="http://testserver") as ac:
-        resp = await ac.get("/")
+        # Force the English catalogue so the assertion stays on the
+        # English msgid — otherwise the default locale (cs) would
+        # return the translated headline and the substring mismatches.
+        resp = await ac.get("/", headers={"Accept-Language": "en"})
     assert resp.status_code == 200
     assert "Replace emails and phone calls with" in resp.text
 
