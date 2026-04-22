@@ -312,6 +312,23 @@ async def select_tenant(
 # ------------------------------------------------- switch into a tenant
 
 
+def _target_tenant_base_url(settings: Settings, tenant_slug: str) -> str | None:
+    """Build an absolute URL for the target tenant subdomain, or None if
+    the deployment runs in single-host mode (no platform cookie domain).
+
+    Used by ``switch_to_tenant`` to hand off the session mint to the
+    tenant's subdomain. Single-host installs (local dev) stay on the
+    current host and let the existing in-place cookie work.
+    """
+    cookie_domain = (settings.platform_cookie_domain or "").strip()
+    if not cookie_domain or cookie_domain == ".":
+        return None
+    parent = cookie_domain.lstrip(".")
+    if not parent or "." not in parent:
+        return None
+    return f"https://{tenant_slug}.{parent}"
+
+
 @router.post("/platform/switch/{tenant_slug}")
 async def switch_to_tenant(
     tenant_slug: str,
@@ -321,18 +338,30 @@ async def switch_to_tenant(
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
-    """Drop a tenant-local session cookie and redirect to the dashboard.
+    """Verify membership and hand off to the tenant subdomain.
 
-    The endpoint verifies that the caller actually has a membership for
-    the target tenant before minting a local session. An optional
-    ``next`` form field redirects to a same-origin path (e.g. straight
-    into checkout after email verification); open-redirect protection
-    is delegated to ``_safe_next_path``.
+    Session cookies are per-subdomain by design (tenant isolation), so
+    minting a session on the platform apex and then redirecting to
+    ``tenant.example.com/app`` would lose it. Instead this endpoint:
+
+    1. Verifies membership + target account is active.
+    2. Signs a one-shot handoff token with (identity_id, membership_id).
+    3. 303-redirects to ``https://{slug}.<apex>/platform/complete-switch?token=…``.
+
+    The target subdomain's ``complete_switch`` endpoint re-verifies the
+    token against the still-valid platform session cookie (which rides
+    along cross-subdomain thanks to ``platform_cookie_domain`` being the
+    apex) and mints the tenant session cookie in the right scope.
+
+    In single-host dev (no ``platform_cookie_domain``) we fall back to
+    the historical same-host behaviour — the cookie lands on localhost
+    just like the app expects.
     """
     from sqlalchemy import select
 
     from app.models.tenant import Tenant
     from app.routers.public import _safe_next_path
+    from app.security.tokens import TokenPurpose, create_token
 
     tenant = (
         await db.execute(select(Tenant).where(Tenant.slug == tenant_slug))
@@ -358,6 +387,29 @@ async def switch_to_tenant(
     if not getattr(target, "is_active", True):
         raise HTTPException(status_code=403, detail="Target account is deactivated")
 
+    next_path = _safe_next_path(next) if next else "/app"
+    if next_path == "/":
+        next_path = "/app"
+
+    target_base = _target_tenant_base_url(settings, tenant_slug)
+    if target_base is not None:
+        # Cross-subdomain hand-off (normal hosted deployment).
+        token = create_token(
+            settings.app_secret_key,
+            TokenPurpose.PLATFORM_TENANT_HANDOFF,
+            {
+                "iid": str(identity.id),
+                "mid": str(selected.id),
+                "tid": str(tenant.id),
+                "next": next_path,
+            },
+        )
+        handoff_url = f"{target_base}/platform/complete-switch?token={token}"
+        return RedirectResponse(url=handoff_url, status_code=303)
+
+    # Single-host fallback (dev / self-host without subdomain routing).
+    # Mint the session cookie on the current host and redirect in-place,
+    # matching the pre-handoff behaviour.
     if isinstance(target, User):
         principal_type = "user"
         customer_id = None
@@ -378,17 +430,113 @@ async def switch_to_tenant(
         session_version=session_version,
     )
 
-    redirect_to = _safe_next_path(next) if next else "/app"
-    if redirect_to == "/":
-        redirect_to = "/app"
-    response = RedirectResponse(url=redirect_to, status_code=303)
+    response = RedirectResponse(url=next_path, status_code=303)
     write_session(
         response,
         settings.app_secret_key,
         session_data,
         secure=settings.is_production,
     )
-    # Keep the tenant header so in-process tests & single-domain dev
-    # still resolve the tenant after the redirect.
+    # Keep the tenant header so in-process tests still resolve the tenant.
     response.headers["X-Tenant-Slug"] = tenant.slug
+    return response
+
+
+@router.get("/platform/complete-switch")
+async def complete_switch(
+    request: Request,
+    token: str,
+    identity: Identity = Depends(require_identity),
+    db: AsyncSession = Depends(get_platform_db),
+    settings: Settings = Depends(get_settings),
+) -> Response:
+    """Consume the one-shot handoff token on the target tenant subdomain.
+
+    Sanity rules:
+    - The platform session must still be valid and match the token's
+      identity claim — a stolen token alone cannot mint a tenant session.
+    - Membership is re-checked by id (we don't trust the token to name a
+      tenant the identity doesn't actually belong to).
+    - Token max-age is 60 s; signatures expiring beyond that are rejected.
+    """
+    from sqlalchemy import select
+
+    from app.models.tenant import Tenant
+    from app.routers.public import _safe_next_path
+    from app.security.tokens import (
+        ExpiredToken,
+        InvalidToken,
+        TokenPurpose,
+        verify_token,
+    )
+
+    try:
+        payload = verify_token(
+            settings.app_secret_key,
+            TokenPurpose.PLATFORM_TENANT_HANDOFF,
+            token,
+            max_age_seconds=60,
+        )
+    except ExpiredToken:
+        raise HTTPException(status_code=400, detail="Handoff token expired") from None
+    except InvalidToken:
+        raise HTTPException(status_code=400, detail="Invalid handoff token") from None
+
+    # The identity that signed the handoff must match the cookie-holder.
+    if str(identity.id) != str(payload.get("iid")):
+        raise HTTPException(status_code=403, detail="Identity mismatch")
+
+    tenant_id = payload.get("tid")
+    membership_id = payload.get("mid")
+    next_path = _safe_next_path(payload.get("next") or "/app")
+    if next_path == "/":
+        next_path = "/app"
+
+    tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
+    if tenant is None or not tenant.is_active:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+
+    # Re-fetch the membership server-side — never trust the token alone.
+    memberships = await list_memberships_for_identity(db, identity_id=identity.id)
+    selected = None
+    for m in memberships:
+        if str(m.id) == str(membership_id) and m.tenant_id == tenant.id:
+            selected = m
+            break
+    if selected is None:
+        raise HTTPException(status_code=403, detail="No membership for this tenant")
+
+    _, target = await resolve_membership_targets(db, membership=selected)
+    if target is None:
+        raise HTTPException(status_code=404, detail="Membership target missing")
+    if not getattr(target, "is_active", True):
+        raise HTTPException(status_code=403, detail="Target account is deactivated")
+
+    if isinstance(target, User):
+        principal_type = "user"
+        customer_id = None
+        session_version = target.session_version
+        principal_id = target.id
+    else:
+        principal_type = "contact"
+        customer_id = target.customer_id
+        session_version = target.session_version
+        principal_id = target.id
+
+    session_data = SessionData(
+        principal_type=principal_type,  # type: ignore[arg-type]
+        principal_id=str(principal_id),
+        tenant_id=str(tenant.id),
+        customer_id=str(customer_id) if customer_id else None,
+        mfa_passed=False,
+        session_version=session_version,
+    )
+
+    response = RedirectResponse(url=next_path, status_code=303)
+    write_session(
+        response,
+        settings.app_secret_key,
+        session_data,
+        secure=settings.is_production,
+    )
     return response

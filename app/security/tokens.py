@@ -39,6 +39,11 @@ class TokenPurpose:
     PASSWORD_RESET = "password-reset"
     EMAIL_VERIFY = "platform-email-verify"
     PLATFORM_PASSWORD_RESET = "platform-password-reset"
+    # One-shot handoff from /platform/switch/{slug} on the platform apex
+    # to /platform/complete-switch on the target tenant subdomain. Carries
+    # the membership id; verifier also re-checks the platform session so
+    # a stolen token alone is useless. Valid for 60 s.
+    PLATFORM_TENANT_HANDOFF = "platform-tenant-handoff"
 
 
 def _serializer(secret_key: str, purpose: str) -> URLSafeTimedSerializer:

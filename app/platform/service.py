@@ -309,6 +309,121 @@ async def deactivate_tenant(db: AsyncSession, *, tenant_id: UUID) -> None:
     await db.flush()
 
 
+async def reactivate_tenant(db: AsyncSession, *, tenant_id: UUID) -> None:
+    """Flip ``is_active`` back to True — inverse of ``deactivate_tenant``.
+
+    Deactivation only toggles the flag, so a simple flip restores login
+    and subdomain access. No data is touched.
+    """
+    tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
+    if tenant is None:
+        raise PlatformError("tenant not found")
+    tenant.is_active = True
+    await db.flush()
+
+
+async def update_tenant(
+    db: AsyncSession,
+    *,
+    tenant_id: UUID,
+    name: str | None = None,
+    billing_email: str | None = None,
+) -> Tenant:
+    """Edit tenant display fields from the platform admin UI.
+
+    ``slug`` is deliberately immutable — it's baked into the storage
+    prefix, subdomain DNS, and any bookmarks customers already use.
+    Renaming a slug is effectively a new tenant; go through a full
+    migration, not a silent rename.
+    """
+    tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
+    if tenant is None:
+        raise PlatformError("tenant not found")
+    if name is not None:
+        cleaned = name.strip()
+        if not cleaned:
+            raise PlatformError("name cannot be empty")
+        tenant.name = cleaned
+    if billing_email is not None:
+        cleaned_email = billing_email.strip().lower()
+        if not cleaned_email:
+            raise PlatformError("billing_email cannot be empty")
+        tenant.billing_email = cleaned_email
+    await db.flush()
+    return tenant
+
+
+async def grant_platform_admin_support_access(
+    db: AsyncSession,
+    *,
+    identity: Identity,
+    tenant_id: UUID,
+) -> tuple[User, TenantMembership]:
+    """Materialise a platform admin's *support* access to a tenant.
+
+    Creates (or reuses) a ``User`` row inside the target tenant with
+    the platform admin's email + ``role=TENANT_ADMIN`` (password_hash
+    NULL — login is only via platform-session handoff), plus a
+    ``TenantMembership`` row linking the platform identity to that
+    user. The platform admin then sees the tenant in
+    ``/platform/select-tenant`` and uses the normal switch flow — no
+    special impersonation path is required anywhere else in the app.
+
+    Idempotent: repeated calls return the existing rows unchanged.
+    """
+    tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
+    if tenant is None:
+        raise PlatformError("tenant not found")
+    if not tenant.is_active:
+        raise PlatformError("tenant is deactivated — reactivate first")
+    if not identity.is_platform_admin:
+        raise PlatformError("identity is not a platform admin")
+
+    email_lower = identity.email.lower()
+    existing_user = (
+        await db.execute(select(User).where(User.tenant_id == tenant_id, User.email == email_lower))
+    ).scalar_one_or_none()
+
+    if existing_user is None:
+        user = User(
+            tenant_id=tenant_id,
+            email=email_lower,
+            full_name=email_lower,
+            password_hash=None,
+            role=UserRole.TENANT_ADMIN,
+        )
+        db.add(user)
+        await db.flush()
+    else:
+        user = existing_user
+        if not user.is_active:
+            user.is_active = True
+            await db.flush()
+
+    existing_membership = (
+        await db.execute(
+            select(TenantMembership).where(
+                TenantMembership.identity_id == identity.id,
+                TenantMembership.tenant_id == tenant_id,
+                TenantMembership.user_id == user.id,
+            )
+        )
+    ).scalar_one_or_none()
+    if existing_membership is not None:
+        return user, existing_membership
+
+    membership = TenantMembership(
+        id=uuid4(),
+        identity_id=identity.id,
+        tenant_id=tenant_id,
+        user_id=user.id,
+        contact_id=None,
+    )
+    db.add(membership)
+    await db.flush()
+    return user, membership
+
+
 # -------------------------------------------------------- self-signup flow
 
 

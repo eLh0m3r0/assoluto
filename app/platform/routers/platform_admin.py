@@ -22,7 +22,10 @@ from app.platform.service import (
     PlatformError,
     create_tenant_with_owner,
     deactivate_tenant,
+    grant_platform_admin_support_access,
     list_tenants,
+    reactivate_tenant,
+    update_tenant,
 )
 from app.security.csrf import verify_csrf
 
@@ -235,5 +238,126 @@ async def tenants_deactivate(
         await deactivate_tenant(db, tenant_id=tenant_id)
     except PlatformError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from None
+    await db.commit()
+    return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+
+
+@router.post("/tenants/{tenant_id}/reactivate")
+async def tenants_reactivate(
+    tenant_id: UUID,
+    identity: Identity = Depends(require_platform_admin),
+    db: AsyncSession = Depends(get_platform_db),
+) -> Response:
+    try:
+        await reactivate_tenant(db, tenant_id=tenant_id)
+    except PlatformError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from None
+    await db.commit()
+    return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+
+
+@router.get("/tenants/{tenant_id}/edit", response_class=HTMLResponse)
+async def tenants_edit_form(
+    tenant_id: UUID,
+    request: Request,
+    identity: Identity = Depends(require_platform_admin),
+    db: AsyncSession = Depends(get_platform_db),
+) -> HTMLResponse:
+    tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
+    if tenant is None:
+        raise HTTPException(status_code=404)
+    html = _templates(request).render(
+        request,
+        "platform/admin/tenant_edit.html",
+        {
+            "identity": identity,
+            "tenant": tenant,
+            "error": None,
+            "principal": None,
+        },
+    )
+    return HTMLResponse(html)
+
+
+@router.post("/tenants/{tenant_id}/edit", response_class=HTMLResponse)
+async def tenants_edit(
+    tenant_id: UUID,
+    request: Request,
+    name: str = Form(...),
+    billing_email: str = Form(...),
+    identity: Identity = Depends(require_platform_admin),
+    db: AsyncSession = Depends(get_platform_db),
+) -> Response:
+    try:
+        await update_tenant(
+            db,
+            tenant_id=tenant_id,
+            name=name,
+            billing_email=billing_email,
+        )
+    except PlatformError as exc:
+        tenant = (
+            await db.execute(select(Tenant).where(Tenant.id == tenant_id))
+        ).scalar_one_or_none()
+        html = _templates(request).render(
+            request,
+            "platform/admin/tenant_edit.html",
+            {
+                "identity": identity,
+                "tenant": tenant,
+                "error": str(exc),
+                "principal": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
+    await db.commit()
+    return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+
+
+@router.post("/tenants/{tenant_id}/support-access")
+async def tenants_grant_support_access(
+    tenant_id: UUID,
+    request: Request,
+    identity: Identity = Depends(require_platform_admin),
+    db: AsyncSession = Depends(get_platform_db),
+) -> Response:
+    """Enrol the platform admin as a tenant_admin User + TenantMembership
+    so they can enter the tenant via the normal /platform/select-tenant
+    switch flow. This is an explicit opt-in, auditable step — no silent
+    impersonation anywhere.
+    """
+    from app.services import audit_service
+
+    try:
+        user, _ = await grant_platform_admin_support_access(
+            db,
+            identity=identity,
+            tenant_id=tenant_id,
+        )
+    except PlatformError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from None
+
+    # Audit the act of self-granting inside the target tenant's log —
+    # the per-tenant audit stream is where a curious tenant admin looks
+    # to see who entered their portal.
+    from sqlalchemy import text
+
+    await db.execute(
+        text("SELECT set_config('app.tenant_id', :tid, true)"),
+        {"tid": str(tenant_id)},
+    )
+    await audit_service.record(
+        db,
+        action="platform.support_access_granted",
+        entity_type="user",
+        entity_id=user.id,
+        entity_label=identity.email,
+        actor=audit_service.ActorInfo(
+            type="system",
+            id=None,
+            label=f"platform-admin:{identity.email}",
+        ),
+        tenant_id=tenant_id,
+    )
     await db.commit()
     return RedirectResponse(url="/platform/admin/tenants", status_code=303)
