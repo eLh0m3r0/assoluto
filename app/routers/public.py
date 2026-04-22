@@ -19,7 +19,8 @@ from app.security.rate_limit import limit as rate_limit
 from app.security.session import (
     SessionData,
     clear_session,
-    read_session,
+    cookie_mismatches_tenant,
+    read_session_for_tenant,
     write_session,
 )
 from app.services.auth_service import (
@@ -142,12 +143,20 @@ async def landing(
 
     tenant = await _get_current_tenant(request, settings)
 
-    # Authenticated — skip the landing page entirely.
-    if read_session(request, settings.app_secret_key) is not None:
+    # Authenticated for THIS tenant — skip the landing page entirely.
+    # A cookie signed for a different tenant must NOT trigger the
+    # redirect (otherwise /app 401s → /auth/login → sees cookie →
+    # back to /app → loop).
+    if read_session_for_tenant(request, settings.app_secret_key, str(tenant.id)) is not None:
         return RedirectResponse(url="/app", status_code=status.HTTP_303_SEE_OTHER)
 
-    html = _templates(request).render(request, "index.html", {"tenant": tenant})
-    return HTMLResponse(html)
+    response = HTMLResponse(_templates(request).render(request, "index.html", {"tenant": tenant}))
+    # Cookie leaked across subdomains (or is otherwise stale) — clear
+    # it so the next request starts clean instead of re-triggering the
+    # mismatch path.
+    if cookie_mismatches_tenant(request, settings.app_secret_key, str(tenant.id)):
+        clear_session(response)
+    return response
 
 
 # ------------------------------------------------------------------ login
@@ -161,25 +170,33 @@ async def login_form(
     notice: str | None = None,
     next: str | None = None,
 ) -> Response:
-    # Already-authenticated visitors should not see the login form —
-    # it looks broken ("why is the login page open?") and re-logging
-    # in churns session_version. Redirect straight to the portal or
-    # to the requested `next` if it's safe.
-    if read_session(request, settings.app_secret_key) is not None:
+    # Already-authenticated visitors for THIS tenant should not see the
+    # login form. A cookie signed for a different tenant must NOT be
+    # honoured here — otherwise a visitor whose browser carries a stale
+    # cookie from tenant A hits ERR_TOO_MANY_REDIRECTS on tenant B
+    # because /app 401s (tenant mismatch) → /auth/login sees the cookie
+    # → bounces to /app → loop.
+    if read_session_for_tenant(request, settings.app_secret_key, str(tenant.id)) is not None:
         dest = _safe_next_path(next) if next else "/app"
-        if dest == "/":
+        if dest in ("/", "/auth/login"):
             dest = "/app"
         return RedirectResponse(url=dest, status_code=status.HTTP_303_SEE_OTHER)
 
     banner = None
     if notice == "password_reset":
         banner = _t(request, "Password changed. Sign in with your new password.")
-    html = _templates(request).render(
-        request,
-        "auth/login.html",
-        {"tenant": tenant, "error": None, "notice": banner, "next": next or ""},
+    response = HTMLResponse(
+        _templates(request).render(
+            request,
+            "auth/login.html",
+            {"tenant": tenant, "error": None, "notice": banner, "next": next or ""},
+        )
     )
-    return HTMLResponse(html)
+    # Stamp a Set-Cookie deletion if the inbound cookie was mismatched,
+    # so the next request doesn't re-trigger the same path.
+    if cookie_mismatches_tenant(request, settings.app_secret_key, str(tenant.id)):
+        clear_session(response)
+    return response
 
 
 @router.post("/auth/login", response_class=HTMLResponse)
@@ -588,17 +605,22 @@ async def password_reset_request_form(
     tenant: Tenant = Depends(get_current_tenant),
     settings: Settings = Depends(get_settings),
 ) -> Response:
-    # Users who are already signed in change their password via the
-    # profile page — the public reset flow exists only for "I forgot
-    # my password" visitors.
-    if read_session(request, settings.app_secret_key) is not None:
+    # Users already signed in to THIS tenant change their password via
+    # the profile page — the public reset flow exists only for "I
+    # forgot my password" visitors. Cross-tenant stale cookies are
+    # treated as "no session" here for the same reason as /auth/login.
+    if read_session_for_tenant(request, settings.app_secret_key, str(tenant.id)) is not None:
         return RedirectResponse(url="/app/admin/profile", status_code=status.HTTP_303_SEE_OTHER)
-    html = _templates(request).render(
-        request,
-        "auth/password_reset_request.html",
-        {"tenant": tenant, "error": None, "notice": None},
+    response = HTMLResponse(
+        _templates(request).render(
+            request,
+            "auth/password_reset_request.html",
+            {"tenant": tenant, "error": None, "notice": None},
+        )
     )
-    return HTMLResponse(html)
+    if cookie_mismatches_tenant(request, settings.app_secret_key, str(tenant.id)):
+        clear_session(response)
+    return response
 
 
 @router.post("/auth/password-reset", response_class=HTMLResponse)

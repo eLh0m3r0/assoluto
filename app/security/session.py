@@ -64,7 +64,14 @@ def _serializer(secret_key: str) -> URLSafeTimedSerializer:
 
 
 def read_session(request: Request, secret_key: str) -> SessionData | None:
-    """Decode the session cookie if present and valid, otherwise None."""
+    """Decode the session cookie if present and valid, otherwise None.
+
+    Does NOT check that the cookie's ``tenant_id`` matches the current
+    tenant — callers on public pages (landing, login form, reset form)
+    must additionally compare against the resolved tenant to avoid
+    honouring a cookie that leaked across subdomains. Use
+    :func:`read_session_for_tenant` when you have the tenant already.
+    """
     raw = request.cookies.get(SESSION_COOKIE_NAME)
     if not raw:
         return None
@@ -78,6 +85,48 @@ def read_session(request: Request, secret_key: str) -> SessionData | None:
         return SessionData.from_dict(payload)
     except (KeyError, TypeError, ValueError):
         return None
+
+
+def read_session_for_tenant(
+    request: Request, secret_key: str, tenant_id: str
+) -> SessionData | None:
+    """Return the session only if it belongs to ``tenant_id``.
+
+    Prevents the "valid signature, wrong tenant" redirect loop where a
+    public page sees ``read_session(...) is not None`` and bounces to
+    ``/app``, which then 401s because the session's tenant_id doesn't
+    match the resolved tenant, which bounces back to ``/auth/login``,
+    which sees the cookie, which bounces to ``/app``, ad infinitum.
+
+    Mismatched cookies should also be cleared on the response — see
+    :func:`cookie_mismatches_tenant`.
+    """
+    data = read_session(request, secret_key)
+    if data is None or data.tenant_id != tenant_id:
+        return None
+    return data
+
+
+def cookie_mismatches_tenant(
+    request: Request, secret_key: str, tenant_id: str
+) -> bool:
+    """True when the session cookie signature-validates but the
+    embedded tenant_id is not ``tenant_id``.
+
+    Callers should respond by stamping :func:`clear_session` on the
+    outgoing response — otherwise the zombie cookie keeps triggering
+    the tenant-mismatch path on every subsequent request.
+    """
+    raw = request.cookies.get(SESSION_COOKIE_NAME)
+    if not raw:
+        return False
+    data = read_session(request, secret_key)
+    if data is None:
+        # Cookie exists but signature is bad / expired — not a tenant
+        # mismatch per se, but still worth clearing. Return True so the
+        # caller clears it.
+        return True
+    return data.tenant_id != tenant_id
 
 
 def write_session(
