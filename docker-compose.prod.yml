@@ -1,12 +1,32 @@
 # Production overlay for docker-compose.
 #
 # Usage:
-#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#   docker compose --env-file /etc/assoluto/env \
+#                  -f docker-compose.yml -f docker-compose.prod.yml up -d
 #
-# This file expects the hosted image in GHCR and reads every credential
-# from env vars set on the host (or in /etc/assoluto/env passed via
-# `docker compose --env-file`). The defaults in .env.example must NOT
-# be used in production.
+# Env-var contract
+# ----------------
+# /etc/assoluto/env is the single source of truth for every operator-
+# tunable value. The deploy workflow uses `--env-file` for *compose-level*
+# variable substitution (``${VAR:?}`` assertions below), AND each service
+# that needs runtime config declares `env_file: - /etc/assoluto/env` so
+# every variable in that file reaches the container *automatically*.
+#
+# Practical effect: adding a new env var only requires editing
+# /etc/assoluto/env — no repo change needed unless the value is
+# required-at-deploy-time (add a ``${FOO:?}`` assertion below) or
+# deployment-fixed (add an override in ``environment:`` below).
+#
+# Security
+# --------
+# /etc/assoluto/env is file-mode 600, owned by the `deploy` user. It
+# never enters git — this compose file only references variable names
+# with either defaults or required-assertions. Public repo is safe.
+#
+# Caveat: `env_file:` dumps *every* key from the file into the container.
+# Caddy-only keys (PORKBUN_*) also land in web's env. Not a security
+# boundary because both services share a single host anyway; revisit
+# with split env files (env.web, env.caddy) if that changes.
 
 services:
   web:
@@ -16,55 +36,56 @@ services:
     depends_on: !override
       postgres:
         condition: service_healthy
+
+    # Bulk passthrough of every operator-set variable. Anything in
+    # /etc/assoluto/env is available in the container without an explicit
+    # mapping in the ``environment:`` block below.
+    env_file:
+      - /etc/assoluto/env
+
     environment:
+      # --- Deployment-fixed overrides (operator must NOT change) -------
       APP_ENV: production
       APP_DEBUG: "false"
+      LOG_JSON: "true"
+      S3_USE_SSL: "true"
+      SMTP_STARTTLS: "true"
+
+      # --- Required assertions (fail compose if missing from env file) -
+      # These are values the deploy cannot sensibly default. ``${VAR:?msg}``
+      # makes ``docker compose`` refuse to start the stack with a clear
+      # error message rather than silently shipping an unconfigured
+      # container. Every line here is BOTH an assertion (via compose
+      # substitution) AND an effective passthrough (same key name).
       APP_SECRET_KEY: ${APP_SECRET_KEY:?APP_SECRET_KEY must be set}
       APP_BASE_URL: ${APP_BASE_URL:?APP_BASE_URL must be set}
 
+      # --- Computed values (derived from other env vars) ---------------
+      # The database URLs bake the passwords in at compose-parse time so
+      # the app never needs to assemble them. Each uses ``:?`` so a
+      # missing password is a loud compose failure.
       DATABASE_URL: postgresql+asyncpg://portal_app:${PORTAL_APP_PASSWORD:?}@postgres:5432/portal
       DATABASE_SYNC_URL: postgresql+psycopg://portal:${PORTAL_OWNER_PASSWORD:?}@postgres:5432/portal
       DATABASE_OWNER_URL: postgresql+asyncpg://portal:${PORTAL_OWNER_PASSWORD:?}@postgres:5432/portal
 
+      # --- S3 / SMTP — required (app cannot function without them) -----
       S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:?}
-      S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL:-}
       S3_ACCESS_KEY: ${S3_ACCESS_KEY:?}
       S3_SECRET_KEY: ${S3_SECRET_KEY:?}
       S3_BUCKET: ${S3_BUCKET:?}
       S3_REGION: ${S3_REGION:?}
-      S3_USE_SSL: "true"
-
       SMTP_HOST: ${SMTP_HOST:?}
-      SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_USER: ${SMTP_USER:?}
       SMTP_PASSWORD: ${SMTP_PASSWORD:?}
       SMTP_FROM: ${SMTP_FROM:?}
-      SMTP_STARTTLS: "true"
 
-      MAX_UPLOAD_SIZE_MB: ${MAX_UPLOAD_SIZE_MB:-50}
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
-      LOG_JSON: "true"
+      # Everything else flows through ``env_file`` above:
+      # FEATURE_PLATFORM, FEATURE_PLATFORM_ALLOW_DEMO,
+      # PLATFORM_COOKIE_DOMAIN, PLATFORM_OPERATOR_*, STRIPE_*,
+      # LOG_LEVEL, MAX_UPLOAD_SIZE_MB, SMTP_PORT, S3_PUBLIC_ENDPOINT_URL,
+      # DEFAULT_TENANT_SLUG, TRUSTED_PROXIES — all automatic. No
+      # docker-compose edit needed to add new app-level settings.
 
-      FEATURE_PLATFORM: ${FEATURE_PLATFORM:-false}
-      FEATURE_PLATFORM_ALLOW_DEMO: ${FEATURE_PLATFORM_ALLOW_DEMO:-false}
-      PLATFORM_COOKIE_DOMAIN: ${PLATFORM_COOKIE_DOMAIN:-}
-
-      # Platform operator legal block (templated into Terms/Privacy).
-      # Leaving blank hides the legal pages.
-      PLATFORM_OPERATOR_NAME: ${PLATFORM_OPERATOR_NAME:-}
-      PLATFORM_OPERATOR_ICO: ${PLATFORM_OPERATOR_ICO:-}
-      PLATFORM_OPERATOR_ADDRESS: ${PLATFORM_OPERATOR_ADDRESS:-}
-      PLATFORM_OPERATOR_EMAIL: ${PLATFORM_OPERATOR_EMAIL:-}
-
-      # Stripe — leave all empty for demo mode. FEATURE_PLATFORM_ALLOW_DEMO
-      # in /etc/assoluto/env acknowledges the no-Stripe demo path.
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-      STRIPE_PRICE_STARTER: ${STRIPE_PRICE_STARTER:-}
-      STRIPE_PRICE_PRO: ${STRIPE_PRICE_PRO:-}
-
-      DEFAULT_TENANT_SLUG: ${DEFAULT_TENANT_SLUG:-}
     ports: !reset []
     expose:
       - "8000"
