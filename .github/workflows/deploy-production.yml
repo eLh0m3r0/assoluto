@@ -82,6 +82,14 @@ jobs:
             set -euo pipefail
             cd /opt/assoluto
 
+            # Pull the latest compose files + Caddyfile from the production
+            # branch so changes to docker-compose.prod.yml (new env vars,
+            # additional services) take effect without manually SSH-copying.
+            # Only tracked files are updated — /etc/assoluto/env stays put.
+            echo ">>> Syncing repo to production ref…"
+            git fetch --depth=1 origin production
+            git reset --hard origin/production
+
             # /etc/assoluto/env is deploy-owned (600) so sudo isn't needed.
             if grep -qE '^APP_IMAGE_TAG=' /etc/assoluto/env; then
                 sed -i -E "s|^APP_IMAGE_TAG=.*$|APP_IMAGE_TAG=${IMAGE_TAG}|" /etc/assoluto/env
