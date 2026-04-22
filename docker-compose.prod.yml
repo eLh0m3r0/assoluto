@@ -75,6 +75,14 @@ services:
       S3_BUCKET: ${S3_BUCKET:?}
       S3_REGION: ${S3_REGION:?}
       SMTP_HOST: ${SMTP_HOST:?}
+      # SMTP_PORT MUST be listed here explicitly, not left to env_file,
+      # because the base ``docker-compose.yml`` hard-codes the dev value
+      # (1025, Mailpit) in its ``environment:`` block. Compose's merge
+      # semantics have ``environment:`` win over ``env_file``, so without
+      # this explicit passthrough the operator's /etc/assoluto/env value
+      # is silently shadowed by the dev default and every outbound mail
+      # times out. Caught in prod 2026-04 — please don't remove.
+      SMTP_PORT: ${SMTP_PORT:?}
       SMTP_USER: ${SMTP_USER:?}
       SMTP_PASSWORD: ${SMTP_PASSWORD:?}
       SMTP_FROM: ${SMTP_FROM:?}
@@ -82,7 +90,7 @@ services:
       # Everything else flows through ``env_file`` above:
       # FEATURE_PLATFORM, FEATURE_PLATFORM_ALLOW_DEMO,
       # PLATFORM_COOKIE_DOMAIN, PLATFORM_OPERATOR_*, STRIPE_*,
-      # LOG_LEVEL, MAX_UPLOAD_SIZE_MB, SMTP_PORT, S3_PUBLIC_ENDPOINT_URL,
+      # LOG_LEVEL, MAX_UPLOAD_SIZE_MB, S3_PUBLIC_ENDPOINT_URL,
       # DEFAULT_TENANT_SLUG, TRUSTED_PROXIES — all automatic. No
       # docker-compose edit needed to add new app-level settings.
 
