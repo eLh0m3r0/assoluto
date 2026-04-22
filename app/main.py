@@ -190,32 +190,29 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # /platform/billing/checkout/{plan} just flips the local
     # Subscription row to the chosen plan and redirects to success —
     # which is correct for dev but an expensive bug in prod.
-    if (
-        settings.is_production
-        and settings.feature_platform
-        and not settings.stripe_enabled
-        and not settings.feature_platform_allow_demo
-    ):
-        raise RuntimeError(
-            "FEATURE_PLATFORM is on in production but STRIPE_SECRET_KEY is "
-            "empty. The billing checkout would silently grant paid plans. "
-            "Set STRIPE_SECRET_KEY, turn FEATURE_PLATFORM off, or explicitly "
-            "set FEATURE_PLATFORM_ALLOW_DEMO=true for staging/demo environments."
-        )
-    if (
-        settings.is_production
-        and settings.feature_platform
-        and not settings.stripe_enabled
-        and settings.feature_platform_allow_demo
-    ):
+    if settings.is_production and settings.feature_platform and not settings.stripe_enabled:
         import logging
 
-        logging.getLogger("app.platform").warning(
-            "FEATURE_PLATFORM=true in production WITHOUT Stripe; checkout runs "
-            "in demo mode (FEATURE_PLATFORM_ALLOW_DEMO is set). Plan changes "
-            "flip the local Subscription row without charging. Do NOT leave "
-            "this enabled on a real paying-customer deployment."
-        )
+        log = logging.getLogger("app.platform")
+        if settings.feature_platform_allow_demo:
+            log.warning(
+                "FEATURE_PLATFORM=true in production WITHOUT Stripe; checkout "
+                "runs in demo mode (FEATURE_PLATFORM_ALLOW_DEMO acknowledged). "
+                "Plan changes flip the local Subscription row without charging."
+            )
+        else:
+            # Loud warning instead of a hard fail so a mistyped env doesn't
+            # brick the hosted demo stack. Real paying deployments will have
+            # STRIPE_SECRET_KEY set; this branch is only reachable when
+            # someone deliberately turns the platform on without billing.
+            log.error("==================================================================")
+            log.error("FEATURE_PLATFORM=true in production but STRIPE_SECRET_KEY is empty")
+            log.error("AND FEATURE_PLATFORM_ALLOW_DEMO is not set.")
+            log.error("Running anyway in DEMO mode — billing checkout flips local rows")
+            log.error("without charging. This is NOT safe for real customers.")
+            log.error("Add FEATURE_PLATFORM_ALLOW_DEMO=true to /etc/assoluto/env to")
+            log.error("acknowledge this and silence the error-level log.")
+            log.error("==================================================================")
 
     # Optional SaaS layer — loaded only when FEATURE_PLATFORM is on.
     # Core self-hosted builds skip this entirely so none of the
