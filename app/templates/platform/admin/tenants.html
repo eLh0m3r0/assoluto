@@ -6,8 +6,8 @@
 <section class="mx-auto max-w-4xl">
     <div class="mb-6 flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-slate-900">Správa tenantů</h1>
-            <p class="text-sm text-slate-500">
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Správa tenantů</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
                 Přihlášen jako {{ identity.full_name }} ({{ identity.email }})
             </p>
         </div>
@@ -15,12 +15,12 @@
             <a href="/platform/admin/dashboard" class="text-brand-600 hover:text-brand-700">
                 Dashboard
             </a>
-            <a href="/platform/select-tenant" class="text-slate-500 hover:text-slate-900">
+            <a href="/platform/select-tenant" class="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
                 &larr; Zpět na výběr
             </a>
             <form method="post" action="/platform/logout" class="inline">
                 {{ csrf_input() }}
-                <button type="submit" class="text-slate-500 hover:text-slate-900">
+                <button type="submit" class="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
                     Odhlásit
                 </button>
             </form>
@@ -30,9 +30,9 @@
     {% include "_flash.html" %}
 
     {% if tenants %}
-        <div class="mb-8 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-            <table class="min-w-full divide-y divide-slate-200 text-sm">
-                <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <div class="mb-8 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:bg-slate-900 dark:border-slate-800">
+            <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+                <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
                     <tr>
                         <th class="px-4 py-3 text-left">Slug</th>
                         <th class="px-4 py-3 text-left">Název</th>
@@ -41,17 +41,17 @@
                         <th class="px-4 py-3"></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     {% for t in tenants %}
                         <tr class="{% if not t.is_active %}opacity-50{% endif %}">
-                            <td class="px-4 py-3 font-mono text-slate-700">{{ t.slug }}</td>
-                            <td class="px-4 py-3 text-slate-900">{{ t.name }}</td>
-                            <td class="px-4 py-3 text-slate-600">{{ t.billing_email }}</td>
+                            <td class="px-4 py-3 font-mono text-slate-700 dark:text-slate-300">{{ t.slug }}</td>
+                            <td class="px-4 py-3 text-slate-900 dark:text-slate-100">{{ t.name }}</td>
+                            <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ t.billing_email }}</td>
                             <td class="px-4 py-3 text-xs">
                                 {% if t.is_active %}
                                     <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700">aktivní</span>
                                 {% else %}
-                                    <span class="rounded-full bg-slate-200 px-2 py-0.5 text-slate-700">deaktivován</span>
+                                    <span class="rounded-full bg-slate-200 px-2 py-0.5 text-slate-700 dark:bg-slate-700 dark:text-slate-300">deaktivován</span>
                                 {% endif %}
                             </td>
                             <td class="px-4 py-3 text-right">
@@ -70,40 +70,40 @@
             </table>
         </div>
     {% else %}
-        <div class="mb-8 rounded-lg border border-dashed border-slate-300 p-10 text-center">
-            <p class="text-slate-500">Zatím žádní tenanti.</p>
+        <div class="mb-8 rounded-lg border border-dashed border-slate-300 p-10 text-center dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400">Zatím žádní tenanti.</p>
         </div>
     {% endif %}
 
-    <section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="mb-4 font-semibold text-slate-900">Nový tenant</h2>
+    <section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+        <h2 class="mb-4 font-semibold text-slate-900 dark:text-slate-100">Nový tenant</h2>
         <form method="post" action="/platform/admin/tenants" class="grid gap-3 sm:grid-cols-2">
             {{ csrf_input() }}
             <div>
-                <label class="block text-sm font-medium text-slate-700">Slug *</label>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Slug *</label>
                 <input type="text" name="slug" required pattern="[a-z0-9-]+"
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700">Název firmy *</label>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Název firmy *</label>
                 <input type="text" name="name" required
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700">Vlastník — e-mail *</label>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Vlastník — e-mail *</label>
                 <input type="email" name="owner_email" required
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700">Vlastník — jméno *</label>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Vlastník — jméno *</label>
                 <input type="text" name="owner_full_name" required
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
             </div>
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium text-slate-700">Vlastník — heslo *</label>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Vlastník — heslo *</label>
                 <input type="password" name="owner_password" required minlength="8"
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm">
-                <p class="mt-1 text-xs text-slate-500">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     Pošle se novému vlastníkovi bezpečným kanálem mimo portál.
                 </p>
             </div>

@@ -5,19 +5,19 @@
 {% block content %}
 <section class="mx-auto max-w-4xl pb-16">
     <div class="mb-10 text-center">
-        <h1 class="text-3xl font-bold text-slate-900">{{ _("What Assoluto can do") }}</h1>
-        <p class="mt-2 text-slate-600">
+        <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ _("What Assoluto can do") }}</h1>
+        <p class="mt-2 text-slate-600 dark:text-slate-300">
             {{ _("Built for manufacturing SMEs: orders with drawings, catalog, client assets, multi-tenant.") }}
         </p>
     </div>
 
     <div class="space-y-8">
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">{{ _("Order workflow") }}</h2>
-            <p class="mt-2 text-slate-600">
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Order workflow") }}</h2>
+            <p class="mt-2 text-slate-600 dark:text-slate-300">
                 {{ _("Eight-step process: DRAFT → SUBMITTED → QUOTED → CONFIRMED → IN_PRODUCTION → READY → DELIVERED → CLOSED. Every transition is audited (who, when, why).") }}
             </p>
-            <ul class="mt-4 list-disc space-y-1 pl-6 text-sm text-slate-600">
+            <ul class="mt-4 list-disc space-y-1 pl-6 text-sm text-slate-600 dark:text-slate-300">
                 <li>{{ _("Client enters items (free-text or from the catalog).") }}</li>
                 <li>{{ _("You quote and set the deadline.") }}</li>
                 <li>{{ _("Client confirms or proposes a change.") }}</li>
@@ -26,46 +26,46 @@
             </ul>
         </article>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">{{ _("Attachments and drawings") }}</h2>
-            <p class="mt-2 text-slate-600">
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Attachments and drawings") }}</h2>
+            <p class="mt-2 text-slate-600 dark:text-slate-300">
                 {{ _("Direct upload to S3 (max 50 MB). Thumbnails for PDFs and images. Attachments can be linked to the entire order or to a specific item.") }}
             </p>
         </article>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">{{ _("Product catalog") }}</h2>
-            <p class="mt-2 text-slate-600">
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Product catalog") }}</h2>
+            <p class="mt-2 text-slate-600 dark:text-slate-300">
                 {{ _("Shared per-tenant catalog and per-customer catalog (customized for a specific client). Autocomplete directly when placing an order, with pre-filled price and unit.") }}
             </p>
         </article>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">{{ _("Client asset tracking") }}</h2>
-            <p class="mt-2 text-slate-600">
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Client asset tracking") }}</h2>
+            <p class="mt-2 text-slate-600 dark:text-slate-300">
                 {{ _("Does your client store materials, tools, or semi-finished products with you? The portal tracks receipt, dispatch, and consumption. Current balance is recalculated automatically. Clients only see their own items.") }}
             </p>
         </article>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">{{ _("Multi-tenant from day one") }}</h2>
-            <p class="mt-2 text-slate-600">
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Multi-tenant from day one") }}</h2>
+            <p class="mt-2 text-slate-600 dark:text-slate-300">
                 {{ _("PostgreSQL Row-Level Security — data from different clients is physically separated at the database level. Subdomains") }}
                 <code>client-a.assoluto.eu</code>, <code>client-b.assoluto.eu</code>
                 {{ _("for each client separately.") }}
             </p>
         </article>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">{{ _("Permissions and security") }}</h2>
-            <p class="mt-2 text-slate-600">
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Permissions and security") }}</h2>
+            <p class="mt-2 text-slate-600 dark:text-slate-300">
                 {{ _("Roles: tenant_admin (owner), tenant_staff (your team), customer_admin (client representative), customer_user (client contact person). Per-customer settings for what the client can enter (catalog selection only / free-text / prices).") }}
             </p>
         </article>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-semibold text-slate-900">{{ _("Open source") }}</h2>
-            <p class="mt-2 text-slate-600">
+        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Open source") }}</h2>
+            <p class="mt-2 text-slate-600 dark:text-slate-300">
                 {{ _("The entire code is licensed under AGPL-3.0 on") }}
                 <a href="https://github.com/elh0m3r0/sme-client-portal" class="text-brand-600 hover:text-brand-700">{{ _("GitHub") }}</a>.
                 {{ _("You can self-host it (free), audit it, or fork it. We offer a hosted version with convenient management and support.") }}

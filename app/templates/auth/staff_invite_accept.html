@@ -4,10 +4,10 @@
 
 {% block content %}
 <section class="mx-auto mt-8 max-w-md">
-    <div class="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 class="mb-1 text-xl font-semibold text-slate-900">{{ _('Accept team invitation') }}</h1>
+    <div class="rounded-lg border border-slate-200 bg-white p-8 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+        <h1 class="mb-1 text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _('Accept team invitation') }}</h1>
         {% if user %}
-            <p class="mb-6 text-sm text-slate-500">
+            <p class="mb-6 text-sm text-slate-500 dark:text-slate-400">
                 {{ _('Hello,') }} <strong>{{ user.full_name }}</strong>.
                 {{ _('Set your password to access the %(tenant)s portal.', tenant=tenant.name) }}
             </p>
@@ -19,18 +19,18 @@
             {{ csrf_input() }}
             <input type="hidden" name="token" value="{{ token }}">
             <div>
-                <label for="password" class="block text-sm font-medium text-slate-700">
+                <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     {{ _('Password (min. 8 characters)') }}
                 </label>
                 <input type="password" name="password" id="password" required minlength="8" autofocus
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm dark:border-slate-700">
             </div>
             <div>
-                <label for="password_confirm" class="block text-sm font-medium text-slate-700">
+                <label for="password_confirm" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     {{ _('Confirm password') }}
                 </label>
                 <input type="password" name="password_confirm" id="password_confirm" required minlength="8"
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm dark:border-slate-700">
             </div>
             <button type="submit"
                     class="w-full rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">

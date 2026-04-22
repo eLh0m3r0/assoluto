@@ -1225,3 +1225,272 @@ msgstr "Tento dokument slouží pouze pro informaci."
 #: app/services/pdf_service.py
 msgid "Subtotal"
 msgstr "Mezisoučet"
+
+# --- Bulk CS translations (sweep) ---
+
+msgid "Action"
+msgstr "Akce"
+
+msgid "Actor"
+msgstr "Autor"
+
+msgid "Append-only record of every tracked action in this tenant."
+msgstr "Append-only záznam všech sledovaných akcí v tomto tenantovi."
+
+msgid "Change"
+msgstr "Změna"
+
+msgid "Entity"
+msgstr "Entita"
+
+msgid "When"
+msgstr "Kdy"
+
+msgid "Search action, entity, actor…"
+msgstr "Hledat akci, entitu, autora…"
+
+msgid "No audit events match the current filters."
+msgstr "Žádné události neodpovídají aktivním filtrům."
+
+msgid "Show details"
+msgstr "Zobrazit detaily"
+
+msgid "SLA tracking"
+msgstr "Sledování SLA"
+
+msgid "On-time delivery across dates"
+msgstr "Včasné dodání napříč obdobím"
+
+msgid "On-time rate"
+msgstr "Míra včasnosti"
+
+msgid "Delivered (total)"
+msgstr "Doručeno (celkem)"
+
+msgid "Apply"
+msgstr "Použít"
+
+msgid "Week of"
+msgstr "Týden"
+
+msgid "No orders"
+msgstr "Žádné objednávky"
+
+msgid "&ge;90%% on time"
+msgstr "≥90 % včas"
+
+msgid "50-90%%"
+msgstr "50–90 %"
+
+msgid "&lt;50%%"
+msgstr "<50 %"
+
+msgid "late"
+msgstr "pozdě"
+
+msgid "Order number"
+msgstr "Číslo objednávky"
+
+msgid "Customer"
+msgstr "Zákazník"
+
+msgid "Created at"
+msgstr "Vytvořeno"
+
+msgid "Submitted at"
+msgstr "Odesláno"
+
+msgid "Promised delivery at"
+msgstr "Slíbené dodání"
+
+msgid "Quoted total"
+msgstr "Cena dle nabídky"
+
+msgid "Currency"
+msgstr "Měna"
+
+msgid "Billing"
+msgstr "Fakturace"
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "Contact us"
+msgstr "Kontaktujte nás"
+
+msgid "Contact:"
+msgstr "Kontakt:"
+
+msgid "Contacts:"
+msgstr "Kontakty:"
+
+msgid "Current plan"
+msgstr "Aktuální plán"
+
+msgid "Amount"
+msgstr "Částka"
+
+msgid "Access remains until"
+msgstr "Přístup zachován do"
+
+msgid "Client contacts"
+msgstr "Kontakty klientů"
+
+msgid "/month"
+msgstr "/měsíc"
+
+msgid "Annual subscription"
+msgstr "Roční předplatné"
+
+msgid "Custom"
+msgstr "Na míru"
+
+msgid "Demo mode (Stripe not configured)"
+msgstr "Demo režim (Stripe není nakonfigurován)"
+
+msgid "Downgrade to "
+msgstr "Přejít na "
+
+msgid "Don"
+msgstr "Nemáš"
+
+msgid "Didn"
+msgstr "Nedo"
+
+msgid "Client portal for manufacturing SMEs"
+msgstr "Klientský portál pro výrobní malé firmy"
+
+msgid "Client assets at your warehouse"
+msgstr "Klientský majetek ve vašem skladu"
+
+msgid "Client uploads drawings, specifies quantities, you quote and set a deadline. 8-step workflow with audit trail."
+msgstr "Klient nahraje výkresy, zadá množství, vy oceníte a nastavíte termín. Osmikrokový workflow s auditní stopou."
+
+msgid "Email notifications"
+msgstr "E-mailové notifikace"
+
+msgid "Attachments and drawings"
+msgstr "Přílohy a výkresy"
+
+msgid "Automatic notifications on every status change."
+msgstr "Automatické notifikace při každé změně stavu."
+
+msgid "Built for manufacturing SMEs: orders with drawings, catalog, client assets, multi-tenant."
+msgstr "Postaveno pro výrobní malé firmy: objednávky s výkresy, katalog, klientský majetek, multi-tenant."
+
+msgid "Client asset tracking"
+msgstr "Sledování klientského majetku"
+
+msgid "Client confirms or proposes a change."
+msgstr "Klient potvrdí, nebo navrhne úpravu."
+
+msgid "Client enters items (free-text or from the catalog)."
+msgstr "Klient zadá položky (volným textem nebo z katalogu)."
+
+msgid "Comments on the order (with internal notes for the team)."
+msgstr "Komentáře k objednávce (včetně interních poznámek pro tým)."
+
+msgid "Direct upload to S3 (max 50 MB). Thumbnails for PDFs and images. Attachments can be linked to the entire order or to a specific item."
+msgstr "Přímý upload na S3 (max 50 MB). Náhledy pro PDF a obrázky. Přílohy lze připojit k celé objednávce nebo ke konkrétní položce."
+
+msgid "Does your client store materials, tools, or semi-finished products with you? The portal tracks receipt, dispatch, and consumption. Current balance is recalculated automatically. Clients only see their own items."
+msgstr "Skladuje klient u vás materiál, nástroje nebo polotovary? Portál sleduje příjem, výdej a spotřebu. Aktuální stav se přepočítá automaticky. Klient vidí pouze své položky."
+
+msgid "Eight-step process: DRAFT → SUBMITTED → QUOTED → CONFIRMED → IN_PRODUCTION → READY → DELIVERED → CLOSED. Every transition is audited (who, when, why)."
+msgstr "Osmikrokový proces: DRAFT → SUBMITTED → QUOTED → CONFIRMED → IN_PRODUCTION → READY → DELIVERED → CLOSED. Každý přechod je auditován (kdo, kdy, proč)."
+
+msgid "Email *"
+msgstr "E-mail *"
+
+msgid "14-day free trial. Prices exclude VAT."
+msgstr "14denní trial zdarma. Ceny bez DPH."
+
+msgid "2 months free — Starter 4 900 CZK/year, Pro 14 900 CZK/year."
+msgstr "2 měsíce zdarma — Starter 4 900 Kč/rok, Pro 14 900 Kč/rok."
+
+msgid "1 490 CZK"
+msgstr "1 490 Kč"
+
+msgid "490 CZK"
+msgstr "490 Kč"
+
+msgid "1. Data controller"
+msgstr "1. Správce údajů"
+
+msgid "1. Introduction"
+msgstr "1. Úvod"
+
+msgid "2. Description of the Service"
+msgstr "2. Popis služby"
+
+msgid "2. What data we process"
+msgstr "2. Jaké údaje zpracováváme"
+
+msgid "3. Registration and account"
+msgstr "3. Registrace a účet"
+
+msgid "3. Why we process data"
+msgstr "3. Proč údaje zpracováváme"
+
+msgid "4. Trial period and payments"
+msgstr "4. Trial a platby"
+
+msgid "4. Where data is stored"
+msgstr "4. Kde jsou data uložena"
+
+msgid "5. How long we retain data"
+msgstr "5. Jak dlouho údaje uchováváme"
+
+msgid "5. User obligations"
+msgstr "5. Povinnosti uživatele"
+
+msgid "6. Personal data protection"
+msgstr "6. Ochrana osobních údajů"
+
+msgid "6. Your rights"
+msgstr "6. Vaše práva"
+
+msgid "7. Cookies"
+msgstr "7. Cookies"
+
+msgid "7. Liability"
+msgstr "7. Odpovědnost"
+
+msgid "8. Termination"
+msgstr "8. Ukončení"
+
+msgid "9. Final provisions"
+msgstr "9. Závěrečná ustanovení"
+
+msgid "A new account receives a 14-day free trial. After its expiration, the User can continue only with an active subscription. Payments are processed through Stripe."
+msgstr "Nový účet získá 14denní trial zdarma. Po jeho vypršení lze pokračovat pouze s aktivním předplatným. Platby probíhají přes Stripe."
+
+msgid "Account identification data (name, email, company, Company ID, VAT ID)"
+msgstr "Identifikační údaje účtu (jméno, e-mail, firma, IČO, DIČ)"
+
+msgid "Active account data is retained for the duration of the account"
+msgstr "Data aktivního účtu uchováváme po dobu trvání účtu"
+
+msgid "Billing data, if you subscribe to a plan"
+msgstr "Fakturační údaje, pokud si předplatíte plán"
+
+msgid "Company ID"
+msgstr "IČO"
+
+msgid "Contract performance (operating the portal you ordered)"
+msgstr "Plnění smlouvy (provoz objednaného portálu)"
+
+msgid "Content created in the portal (orders, comments, attachments)"
+msgstr "Obsah vytvořený v portálu (objednávky, komentáře, přílohy)"
+
+msgid "Complete open source release under the AGPL-3.0 license. Host the portal on your own server — free and without limitations."
+msgstr "Kompletní open source release pod licencí AGPL-3.0. Provozujte portál na vlastním serveru — zdarma a bez omezení."
+
+msgid "Details:"
+msgstr "Detaily:"
+
+msgid "Enter your email. If an account exists, we will send you a link to set a new password."
+msgstr "Zadejte svůj e-mail. Pokud účet existuje, pošleme vám odkaz na nastavení nového hesla."
+
+msgid "Choose a new password for your platform account."
+msgstr "Vyberte si nové heslo pro váš účet na platformě."

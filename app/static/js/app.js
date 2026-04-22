@@ -179,6 +179,9 @@
     var btn = document.getElementById("theme-toggle");
     if (!btn) return;
     var current = readTheme();
+    // Belt-and-braces: ensure the `dark` class matches localStorage even
+    // if the head FOUC script was blocked (strict CSP, offline cache).
+    applyTheme(current);
     renderThemeButton(btn, current);
 
     btn.addEventListener("click", function () {

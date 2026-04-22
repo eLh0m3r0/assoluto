@@ -3,9 +3,9 @@
 {% block title %}{{ _("Privacy Policy") }} · Assoluto{% endblock %}
 
 {% block content %}
-<section class="mx-auto max-w-3xl pb-16 text-slate-700">
-    <h1 class="text-3xl font-bold text-slate-900">{{ _("Privacy Policy") }}</h1>
-    <p class="mt-2 text-sm text-slate-500">
+<section class="mx-auto max-w-3xl pb-16 text-slate-700 dark:text-slate-300">
+    <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ _("Privacy Policy") }}</h1>
+    <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
         {{ _("Version 1.0 · effective from May 1, 2026") }}
     </p>
 
@@ -15,7 +15,7 @@
         </div>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">{{ _("1. Data controller") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("1. Data controller") }}</h2>
             <p class="mt-2">
                 {{ _("The data controller is") }} <strong>{{ operator_name }}</strong>,
                 {{ _("Company ID") }} <strong>{{ operator_ico }}</strong>,
@@ -26,7 +26,7 @@
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">{{ _("2. What data we process") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("2. What data we process") }}</h2>
             <ul class="mt-2 list-disc space-y-1 pl-6">
                 <li>{{ _("Account identification data (name, email, company, Company ID, VAT ID)") }}</li>
                 <li>{{ _("Login credentials (password in Argon2-hashed form)") }}</li>
@@ -37,7 +37,7 @@
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">{{ _("3. Why we process data") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("3. Why we process data") }}</h2>
             <ul class="mt-2 list-disc space-y-1 pl-6">
                 <li>{{ _("Contract performance (operating the portal you ordered)") }}</li>
                 <li>{{ _("Invoicing and tax records (legitimate interest + legal obligation)") }}</li>
@@ -47,21 +47,21 @@
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">{{ _("4. Where data is stored") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("4. Where data is stored") }}</h2>
             <p class="mt-2">
                 {{ _("Servers are located in the European Union (Frankfurt, DE). Attachments (drawings, PDFs) in S3-compatible storage with EU location. Payments are processed by Stripe (USA, EU representation). Transactional emails are sent by a transactional email provider (EU regions — Resend, Postmark, or equivalent).") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">{{ _("5. How long we retain data") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("5. How long we retain data") }}</h2>
             <p class="mt-2">
                 {{ _("Active account data is retained for the duration of the account's existence. After account cancellation, 30 days (for possible reactivation), then permanent deletion. Billing data in accordance with the law (10 years from the end of the accounting period).") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">{{ _("6. Your rights") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("6. Your rights") }}</h2>
             <p class="mt-2">
                 {{ _("You have the right to access, rectification, erasure, restriction of processing, portability, and objection. Contact") }}
                 <a href="mailto:privacy@assoluto.eu" class="text-brand-600 hover:text-brand-700">privacy@assoluto.eu</a>;
@@ -74,7 +74,7 @@
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900">{{ _("7. Cookies") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("7. Cookies") }}</h2>
             <p class="mt-2">
                 {{ _("The portal uses only technical (session) cookies necessary for login and CSRF protection. We do not deploy analytics or marketing cookies without your consent.") }}
             </p>

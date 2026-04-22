@@ -106,32 +106,32 @@
         'user.invited': _('invited user'),
         'user.password_changed': _('changed password for'),
     } %}
-    <section class="mt-8 rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3">
-            <h2 class="font-semibold text-slate-900">{{ _('Recent activity') }}</h2>
+    <section class="mt-8 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3 dark:border-slate-800">
+            <h2 class="font-semibold text-slate-900 dark:text-slate-100">{{ _('Recent activity') }}</h2>
             {% if principal.is_staff %}
-                <a href="/app/admin/audit" class="text-xs font-medium text-blue-600 hover:text-blue-800">
+                <a href="/app/admin/audit" class="text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                     {{ _('Audit log') }} →
                 </a>
             {% endif %}
         </div>
         {% if recent_activity %}
-            <ul class="divide-y divide-slate-100">
+            <ul class="divide-y divide-slate-100 dark:divide-slate-800">
                 {% for event in recent_activity %}
                     <li class="flex items-start gap-3 px-5 py-3 text-sm">
-                        <span class="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-slate-100 text-xs text-slate-600"
+                        <span class="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-slate-100 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300"
                               aria-hidden="true">
                             {{ activity_icons.get(event.action, '•') }}
                         </span>
                         <div class="min-w-0 flex-1">
-                            <p class="truncate text-slate-900">
+                            <p class="truncate text-slate-900 dark:text-slate-100">
                                 <span class="font-medium">{{ event.actor_label or _('System') }}</span>
-                                <span class="text-slate-500">
+                                <span class="text-slate-500 dark:text-slate-400">
                                     {{ activity_verbs.get(event.action, event.action) }}
                                 </span>
-                                <span class="font-medium text-slate-900">{{ event.entity_label }}</span>
+                                <span class="font-medium text-slate-900 dark:text-slate-100">{{ event.entity_label }}</span>
                             </p>
-                            <p class="text-xs text-slate-400">
+                            <p class="text-xs text-slate-400 dark:text-slate-500">
                                 <time datetime="{{ event.occurred_at.isoformat() }}"
                                       title="{{ event.occurred_at.strftime('%Y-%m-%d %H:%M') }}">
                                     {{ event.occurred_at|timeago }}
@@ -143,7 +143,7 @@
                 {% endfor %}
             </ul>
         {% else %}
-            <p class="px-5 py-8 text-center text-sm text-slate-500">
+            <p class="px-5 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                 {{ _('No activity yet — actions will show up here as they happen.') }}
             </p>
         {% endif %}

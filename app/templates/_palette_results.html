@@ -14,24 +14,24 @@
     {# Short query: render nothing. Intentionally empty so the user
        doesn't see a flash of "no results" before they've typed. #}
 {% elif not has_any %}
-    <p class="px-4 py-6 text-center text-sm text-gray-500">
-        {{ _("Nothing found for") }} <span class="font-medium text-gray-700">“{{ query }}”</span>
+    <p class="px-4 py-6 text-center text-sm text-gray-500 dark:text-slate-400">
+        {{ _("Nothing found for") }} <span class="font-medium text-gray-700 dark:text-slate-200">“{{ query }}”</span>
     </p>
 {% else %}
     {% if results.orders %}
-        <section aria-label="{{ _('Orders') }}" class="border-b border-gray-100 last:border-b-0">
-            <h3 class="px-4 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">{{ _("Orders") }}</h3>
+        <section aria-label="{{ _('Orders') }}" class="border-b border-gray-100 last:border-b-0 dark:border-slate-800">
+            <h3 class="px-4 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-500">{{ _("Orders") }}</h3>
             <ul class="pb-2">
                 {% for item in results.orders %}
                     <li>
                         <a href="{{ item.href }}"
                            data-palette-item
-                           class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-800 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none">
+                           class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-800 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:focus:bg-slate-800">
                             <span class="flex items-center gap-2 truncate">
-                                <span class="font-medium text-gray-900">{{ item.label }}</span>
-                                {% if item.sublabel %}<span class="truncate text-gray-500">· {{ item.sublabel }}</span>{% endif %}
+                                <span class="font-medium text-gray-900 dark:text-slate-100">{{ item.label }}</span>
+                                {% if item.sublabel %}<span class="truncate text-gray-500 dark:text-slate-400">· {{ item.sublabel }}</span>{% endif %}
                             </span>
-                            <span class="flex-shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium uppercase text-gray-500">{{ _("Order") }}</span>
+                            <span class="flex-shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium uppercase text-gray-500 dark:bg-slate-800 dark:text-slate-400">{{ _("Order") }}</span>
                         </a>
                     </li>
                 {% endfor %}
@@ -40,19 +40,19 @@
     {% endif %}
 
     {% if results.customers %}
-        <section aria-label="{{ _('Clients') }}" class="border-b border-gray-100 last:border-b-0">
-            <h3 class="px-4 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">{{ _("Clients") }}</h3>
+        <section aria-label="{{ _('Clients') }}" class="border-b border-gray-100 last:border-b-0 dark:border-slate-800">
+            <h3 class="px-4 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-500">{{ _("Clients") }}</h3>
             <ul class="pb-2">
                 {% for item in results.customers %}
                     <li>
                         <a href="{{ item.href }}"
                            data-palette-item
-                           class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-800 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none">
+                           class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-800 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:focus:bg-slate-800">
                             <span class="flex items-center gap-2 truncate">
-                                <span class="font-medium text-gray-900">{{ item.label }}</span>
-                                {% if item.sublabel %}<span class="truncate text-gray-500">· {{ item.sublabel }}</span>{% endif %}
+                                <span class="font-medium text-gray-900 dark:text-slate-100">{{ item.label }}</span>
+                                {% if item.sublabel %}<span class="truncate text-gray-500 dark:text-slate-400">· {{ item.sublabel }}</span>{% endif %}
                             </span>
-                            <span class="flex-shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium uppercase text-gray-500">{{ _("Client") }}</span>
+                            <span class="flex-shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium uppercase text-gray-500 dark:bg-slate-800 dark:text-slate-400">{{ _("Client") }}</span>
                         </a>
                     </li>
                 {% endfor %}
@@ -61,19 +61,19 @@
     {% endif %}
 
     {% if results.products %}
-        <section aria-label="{{ _('Catalog') }}" class="border-b border-gray-100 last:border-b-0">
-            <h3 class="px-4 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">{{ _("Catalog") }}</h3>
+        <section aria-label="{{ _('Catalog') }}" class="border-b border-gray-100 last:border-b-0 dark:border-slate-800">
+            <h3 class="px-4 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-500">{{ _("Catalog") }}</h3>
             <ul class="pb-2">
                 {% for item in results.products %}
                     <li>
                         <a href="{{ item.href }}"
                            data-palette-item
-                           class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-800 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none">
+                           class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-800 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:focus:bg-slate-800">
                             <span class="flex items-center gap-2 truncate">
-                                <span class="font-medium text-gray-900">{{ item.label }}</span>
-                                {% if item.sublabel %}<span class="truncate text-gray-500">· {{ item.sublabel }}</span>{% endif %}
+                                <span class="font-medium text-gray-900 dark:text-slate-100">{{ item.label }}</span>
+                                {% if item.sublabel %}<span class="truncate text-gray-500 dark:text-slate-400">· {{ item.sublabel }}</span>{% endif %}
                             </span>
-                            <span class="flex-shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium uppercase text-gray-500">{{ _("Product") }}</span>
+                            <span class="flex-shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium uppercase text-gray-500 dark:bg-slate-800 dark:text-slate-400">{{ _("Product") }}</span>
                         </a>
                     </li>
                 {% endfor %}
