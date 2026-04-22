@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.tenant import Tenant
 from app.platform.billing.models import Invoice, Plan, Subscription
 from app.platform.deps import get_platform_db, require_platform_admin
-from app.platform.models import Identity
+from app.platform.models import Identity, TenantMembership
 from app.platform.service import (
     DuplicateTenantSlug,
     PlatformError,
@@ -25,6 +25,7 @@ from app.platform.service import (
     grant_platform_admin_support_access,
     list_tenants,
     reactivate_tenant,
+    revoke_platform_admin_support_access,
     update_tenant,
 )
 from app.security.csrf import verify_csrf
@@ -47,12 +48,27 @@ async def tenants_index(
     db: AsyncSession = Depends(get_platform_db),
 ) -> HTMLResponse:
     tenants = await list_tenants(db)
+    # Fetch the signed-in platform admin's memberships so the template
+    # can show "you already have support access" per tenant row.
+    own_memberships = (
+        (
+            await db.execute(
+                select(TenantMembership).where(TenantMembership.identity_id == identity.id)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    access_by_tenant_id: dict = {
+        str(m.tenant_id): m.access_type for m in own_memberships if m.is_active
+    }
     html = _templates(request).render(
         request,
         "platform/admin/tenants.html",
         {
             "identity": identity,
             "tenants": tenants,
+            "access_by_tenant_id": access_by_tenant_id,
             "error": None,
             "notice": None,
             "principal": None,
@@ -322,10 +338,12 @@ async def tenants_grant_support_access(
     db: AsyncSession = Depends(get_platform_db),
 ) -> Response:
     """Enrol the platform admin as a tenant_admin User + TenantMembership
-    so they can enter the tenant via the normal /platform/select-tenant
-    switch flow. This is an explicit opt-in, auditable step — no silent
-    impersonation anywhere.
+    with ``access_type=support`` so they can enter the tenant via the
+    normal /platform/select-tenant switch flow. This is an explicit
+    opt-in, auditable step — no silent impersonation anywhere.
     """
+    from sqlalchemy import text
+
     from app.services import audit_service
 
     try:
@@ -337,11 +355,8 @@ async def tenants_grant_support_access(
     except PlatformError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
 
-    # Audit the act of self-granting inside the target tenant's log —
-    # the per-tenant audit stream is where a curious tenant admin looks
-    # to see who entered their portal.
-    from sqlalchemy import text
-
+    # Audit to the target tenant's log — that's where the tenant admin
+    # looks to see who entered their portal.
     await db.execute(
         text("SELECT set_config('app.tenant_id', :tid, true)"),
         {"tid": str(tenant_id)},
@@ -349,6 +364,53 @@ async def tenants_grant_support_access(
     await audit_service.record(
         db,
         action="platform.support_access_granted",
+        entity_type="user",
+        entity_id=user.id,
+        entity_label=identity.email,
+        actor=audit_service.ActorInfo(
+            type="system",
+            id=None,
+            label=f"platform-admin:{identity.email}",
+        ),
+        tenant_id=tenant_id,
+    )
+    await db.commit()
+    return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+
+
+@router.post("/tenants/{tenant_id}/revoke-support")
+async def tenants_revoke_support_access(
+    tenant_id: UUID,
+    request: Request,
+    identity: Identity = Depends(require_platform_admin),
+    db: AsyncSession = Depends(get_platform_db),
+) -> Response:
+    """Drop the platform admin's ``access_type=support`` membership + the
+    matching User's active flag. Records a ``platform.support_access_revoked``
+    audit event so the tenant sees the full grant → revoke trail.
+    """
+    from sqlalchemy import text
+
+    from app.services import audit_service
+
+    result = await revoke_platform_admin_support_access(
+        db,
+        identity=identity,
+        tenant_id=tenant_id,
+    )
+    if result is None:
+        # Nothing to revoke — treat as no-op so double-click from the
+        # UI doesn't 500. The tenants page will show the correct state.
+        return RedirectResponse(url="/platform/admin/tenants", status_code=303)
+
+    user, _ = result
+    await db.execute(
+        text("SELECT set_config('app.tenant_id', :tid, true)"),
+        {"tid": str(tenant_id)},
+    )
+    await audit_service.record(
+        db,
+        action="platform.support_access_revoked",
         entity_type="user",
         entity_id=user.id,
         entity_label=identity.email,

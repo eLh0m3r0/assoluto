@@ -38,6 +38,7 @@
                         <th class="px-4 py-3 text-left">Název</th>
                         <th class="px-4 py-3 text-left">Fakturační e-mail</th>
                         <th class="px-4 py-3 text-left">Stav</th>
+                        <th class="px-4 py-3 text-left">Váš přístup</th>
                         <th class="px-4 py-3"></th>
                     </tr>
                 </thead>
@@ -54,6 +55,22 @@
                                     <span class="rounded-full bg-slate-200 px-2 py-0.5 text-slate-700 dark:bg-slate-700 dark:text-slate-300">deaktivován</span>
                                 {% endif %}
                             </td>
+                            <td class="px-4 py-3 text-xs">
+                                {% set my_access = access_by_tenant_id.get(t.id|string) %}
+                                {% if my_access == "member" %}
+                                    <span title="Jsi běžný člen týmu tohoto tenantu."
+                                          class="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
+                                        člen
+                                    </span>
+                                {% elif my_access == "support" %}
+                                    <span title="Support přístup — můžeš ho kdykoli zrušit."
+                                          class="rounded-full bg-amber-100 px-2 py-0.5 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
+                                        ⚙ support
+                                    </span>
+                                {% else %}
+                                    <span class="text-slate-400 dark:text-slate-500">—</span>
+                                {% endif %}
+                            </td>
                             <td class="px-4 py-3 text-right">
                                 <div class="flex items-center justify-end gap-3 text-xs">
                                     <a href="/platform/admin/tenants/{{ t.id }}/edit"
@@ -61,16 +78,29 @@
                                         Upravit
                                     </a>
                                     {% if t.is_active %}
-                                        <form method="post"
-                                              action="/platform/admin/tenants/{{ t.id }}/support-access"
-                                              class="inline"
-                                              data-confirm="Přidat se do tenantu {{ t.slug }} jako support? Akce je zalogovaná v audit logu tenantu.">
-                                            {{ csrf_input() }}
-                                            <button type="submit"
-                                                    class="text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200">
-                                                Support přístup
-                                            </button>
-                                        </form>
+                                        {% if my_access == "support" %}
+                                            <form method="post"
+                                                  action="/platform/admin/tenants/{{ t.id }}/revoke-support"
+                                                  class="inline"
+                                                  data-confirm="Zrušit svůj support přístup do tenantu {{ t.slug }}? Akce je zalogovaná v audit logu tenantu.">
+                                                {{ csrf_input() }}
+                                                <button type="submit"
+                                                        class="text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200">
+                                                    Zrušit support
+                                                </button>
+                                            </form>
+                                        {% elif not my_access %}
+                                            <form method="post"
+                                                  action="/platform/admin/tenants/{{ t.id }}/support-access"
+                                                  class="inline"
+                                                  data-confirm="Přidat se do tenantu {{ t.slug }} jako support? Akce je zalogovaná v audit logu tenantu.">
+                                                {{ csrf_input() }}
+                                                <button type="submit"
+                                                        class="text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200">
+                                                    Support přístup
+                                                </button>
+                                            </form>
+                                        {% endif %}
                                         <form method="post" action="/platform/admin/tenants/{{ t.id }}/deactivate" class="inline"
                                               data-confirm="Deaktivovat tenanta {{ t.slug }}?">
                                             {{ csrf_input() }}

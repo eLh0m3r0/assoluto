@@ -108,3 +108,19 @@ class TenantMembership(Base, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, server_default="true"
     )
+
+    # How this membership came to exist: ``"member"`` for the normal
+    # signup / invite path, ``"support"`` when a platform admin opted
+    # themselves in via /platform/admin/tenants/{id}/support-access.
+    # Surfaced in /platform/select-tenant + /platform/admin/tenants so
+    # the user can see (and the platform admin can revoke) the access.
+    access_type: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="member", server_default="member"
+    )
+
+
+# Constants for ``TenantMembership.access_type``. Module-level strings
+# so they serialise trivially in templates and audit diffs without
+# ``MyEnum.FOO.value`` ceremony.
+MEMBERSHIP_ACCESS_MEMBER = "member"
+MEMBERSHIP_ACCESS_SUPPORT = "support"

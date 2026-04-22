@@ -242,6 +242,17 @@ class Templates:
                 # errors; this is belt-and-braces.
                 has_platform_session = False
 
+        # Absolute URL to the platform-admin dashboard on the apex.
+        # Rendering it inside a tenant subdomain would work (same web
+        # app behind the wildcard Caddy), but we want the "⚙ Platform
+        # admin" link in the avatar menu to visibly *leave* the tenant
+        # portal and land on the operator surface. Falls back to a
+        # relative path on single-host dev.
+        platform_admin_url = "/platform/admin/dashboard"
+        apex = (self.settings.platform_cookie_domain or "").strip().lstrip(".")
+        if apex and "." in apex:
+            platform_admin_url = f"https://{apex}/platform/admin/dashboard"
+
         context: dict = {
             "request": request,
             "app_version": __version__,
@@ -253,6 +264,7 @@ class Templates:
             "feature_platform": self.settings.feature_platform,
             "has_platform_session": has_platform_session,
             "is_platform_admin": is_platform_admin,
+            "platform_admin_url": platform_admin_url,
         }
         if extra:
             context.update(extra)

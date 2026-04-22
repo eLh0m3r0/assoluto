@@ -19,7 +19,11 @@ from app.models.customer import Customer, CustomerContact
 from app.models.enums import UserRole
 from app.models.tenant import Tenant
 from app.models.user import User
-from app.platform.models import Identity, TenantMembership
+from app.platform.models import (
+    MEMBERSHIP_ACCESS_SUPPORT,
+    Identity,
+    TenantMembership,
+)
 from app.security.passwords import hash_password, verify_password
 
 
@@ -410,6 +414,13 @@ async def grant_platform_admin_support_access(
         )
     ).scalar_one_or_none()
     if existing_membership is not None:
+        # Reactivate + mark as support if it was previously revoked or
+        # created as a regular membership (shouldn't happen in normal
+        # flow, but keep the invariant tight).
+        if not existing_membership.is_active:
+            existing_membership.is_active = True
+        existing_membership.access_type = MEMBERSHIP_ACCESS_SUPPORT
+        await db.flush()
         return user, existing_membership
 
     membership = TenantMembership(
@@ -418,10 +429,56 @@ async def grant_platform_admin_support_access(
         tenant_id=tenant_id,
         user_id=user.id,
         contact_id=None,
+        access_type=MEMBERSHIP_ACCESS_SUPPORT,
     )
     db.add(membership)
     await db.flush()
     return user, membership
+
+
+async def revoke_platform_admin_support_access(
+    db: AsyncSession,
+    *,
+    identity: Identity,
+    tenant_id: UUID,
+) -> tuple[User, TenantMembership] | None:
+    """Undo ``grant_platform_admin_support_access``.
+
+    Removes the ``TenantMembership(access_type="support")`` row for the
+    given platform admin + tenant and deactivates the matching User row
+    (kept for foreign-key integrity with ``order_comments.author_user_id``
+    and friends — hard-delete would orphan every audit trail the support
+    admin produced while in the tenant).
+
+    Returns ``(user, membership)`` on success or ``None`` if nothing to
+    revoke (no support membership exists). Idempotent.
+    """
+    membership = (
+        await db.execute(
+            select(TenantMembership).where(
+                TenantMembership.identity_id == identity.id,
+                TenantMembership.tenant_id == tenant_id,
+                TenantMembership.access_type == MEMBERSHIP_ACCESS_SUPPORT,
+            )
+        )
+    ).scalar_one_or_none()
+    if membership is None:
+        return None
+
+    user = None
+    if membership.user_id is not None:
+        user = (
+            await db.execute(select(User).where(User.id == membership.user_id))
+        ).scalar_one_or_none()
+
+    # Wipe the membership first so a re-grant can fall back to the
+    # clean-insert path without tripping the composite unique
+    # constraint on (identity, tenant, user, contact).
+    await db.delete(membership)
+    if user is not None and user.is_active:
+        user.is_active = False
+    await db.flush()
+    return user, membership  # type: ignore[return-value]
 
 
 # -------------------------------------------------------- self-signup flow

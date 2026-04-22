@@ -1528,3 +1528,26 @@ msgstr "Přepnout portál"
 
 msgid "Platform admin"
 msgstr "Platform admin"
+
+# --- platform member badges + revoke support ---
+
+msgid "Team member"
+msgstr "Člen týmu"
+
+msgid "Customer contact"
+msgstr "Zákaznický kontakt"
+
+msgid "Support access"
+msgstr "Support přístup"
+
+msgid "Platform-admin support access — not a regular team membership."
+msgstr "Support přístup platform admina — ne běžné členství v týmu."
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Switch"
+msgstr "Přepnout"
+
+msgid "Profile"
+msgstr "Profil"

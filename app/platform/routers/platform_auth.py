@@ -292,6 +292,7 @@ async def select_tenant(
                 "tenant_name": tenant.name,
                 "kind": "staff" if isinstance(target, User) else "contact",
                 "customer_name": customer_name,
+                "access_type": m.access_type,
             }
         )
 

@@ -31,13 +31,23 @@
                         <button type="submit"
                                 aria-label="{{ _('Switch to') }} {{ m.tenant_name }}"
                                 class="w-full text-left">
-                            <div class="text-base font-semibold text-slate-900 dark:text-slate-100">
+                            <div class="flex flex-wrap items-center gap-2 text-base font-semibold text-slate-900 dark:text-slate-100">
                                 {{ m.tenant_name }}
-                                <span class="ml-2 text-xs font-normal text-slate-500 dark:text-slate-400">
+                                <span class="text-xs font-normal text-slate-500 dark:text-slate-400">
                                     ({{ m.tenant_slug }})
                                 </span>
+                                {% if m.access_type == "support" %}
+                                    <span title="{{ _('Platform-admin support access — not a regular team membership.') }}"
+                                          class="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
+                                        ⚙ {{ _("Support access") }}
+                                    </span>
+                                {% else %}
+                                    <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">
+                                        {% if m.kind == "staff" %}{{ _("Team member") }}{% else %}{{ _("Customer contact") }}{% endif %}
+                                    </span>
+                                {% endif %}
                             </div>
-                            <div class="text-sm text-slate-600 dark:text-slate-300">
+                            <div class="mt-1 text-sm text-slate-600 dark:text-slate-300">
                                 {% if m.kind == "staff" %}
                                     {{ _("As a team member") }}
                                 {% else %}
