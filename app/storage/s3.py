@@ -103,13 +103,43 @@ def delete_object(key: str) -> None:
     get_s3_client().delete_object(Bucket=settings.s3_bucket, Key=key)
 
 
-def generate_presigned_get(key: str, *, expires_in: int = 300) -> str:
+def generate_presigned_get(
+    key: str,
+    *,
+    expires_in: int = 300,
+    download_filename: str | None = None,
+) -> str:
+    """Return a short-lived GET URL for an S3 object.
+
+    When ``download_filename`` is provided the URL carries an
+    ``attachment`` Content-Disposition. S3 honours the client-supplied
+    ``response-content-disposition`` query parameter, overriding
+    whatever Content-Type the object was stored with. This is how we
+    stop a user-uploaded ``.html`` (or renamed ``image/*`` that's
+    really HTML) from being rendered inline in the browser — every
+    attachment is forced to download. Inline image previews should use
+    the separate ``/thumbnail`` endpoint which serves our server-
+    generated JPG instead of the raw file.
+    """
     settings = get_settings()
+    params: dict[str, object] = {"Bucket": settings.s3_bucket, "Key": key}
+    if download_filename:
+        # ASCII-safe filename plus a UTF-8 RFC 5987 fallback so non-Latin
+        # names survive without corrupting the header encoding.
+        ascii_name = (
+            download_filename.encode("ascii", errors="replace").decode("ascii").replace('"', "_")
+        )
+        from urllib.parse import quote
+
+        utf8_name = quote(download_filename, safe="")
+        params["ResponseContentDisposition"] = (
+            f'attachment; filename="{ascii_name}"; filename*=UTF-8\'\'{utf8_name}'
+        )
     # IMPORTANT: use the public client so the returned URL contains a host
     # the browser can reach. In docker-compose the internal endpoint is
     # `http://minio:9000` which is unreachable from outside.
     return get_public_s3_client().generate_presigned_url(
         "get_object",
-        Params={"Bucket": settings.s3_bucket, "Key": key},
+        Params=params,
         ExpiresIn=expires_in,
     )

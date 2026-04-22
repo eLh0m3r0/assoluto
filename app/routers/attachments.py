@@ -156,7 +156,14 @@ async def download_attachment(
     except (OrderNotFound, OrderAccessDenied):
         raise HTTPException(status_code=404, detail="Attachment not found") from None
 
-    url = s3_storage.generate_presigned_get(attachment.storage_key)
+    # Force-download via Content-Disposition so a user-uploaded HTML
+    # file cannot render inline in the browser (session-less XSS via
+    # the S3 origin). Inline image previews use the thumbnail endpoint,
+    # which serves our own server-generated JPG, not the raw upload.
+    url = s3_storage.generate_presigned_get(
+        attachment.storage_key,
+        download_filename=attachment.filename or "attachment",
+    )
     return RedirectResponse(url=url, status_code=302)
 
 
