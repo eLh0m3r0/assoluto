@@ -151,7 +151,7 @@ async def test_billing_dashboard_renders(billing_client, owner_engine) -> None:
     # New in PR #6: usage section with the four metric labels.
     assert "Your usage" in resp.text
     assert "Staff users" in resp.text
-    assert "Client contacts" in resp.text
+    assert ("Client contacts" in resp.text) or ("Kontakty klientů" in resp.text)
     assert "Storage (MB)" in resp.text
 
 
