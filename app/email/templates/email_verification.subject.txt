@@ -1,1 +1,1 @@
-Ověřte svou e-mailovou adresu — Assoluto
+{{ _("Verify your email — Assoluto") }}

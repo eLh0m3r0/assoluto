@@ -1,1 +1,1 @@
-Pozvánka do {{ tenant_name }} — zákaznický portál
+{% trans tenant_name=tenant_name %}Invitation to {{ tenant_name }} — customer portal{% endtrans %}

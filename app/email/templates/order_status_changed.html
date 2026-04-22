@@ -1,15 +1,24 @@
 <!doctype html>
-<html lang="cs"><body style="font-family:sans-serif;background:#f8fafc;padding:24px;">
+<html lang="{{ locale or 'cs' }}">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light only">
+<title>{% trans order_number=order_number %}Order {{ order_number }}{% endtrans %}</title>
+</head>
+<body style="font-family:sans-serif;background:#f8fafc;padding:24px;">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+    {% trans order_number=order_number, status_label=_(status_label) %}Order {{ order_number }} is now {{ status_label }}.{% endtrans %}
+</div>
 <table width="100%"><tr><td align="center"><table width="560" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:32px;">
 <tr><td>
-    <h1 style="margin-top:0;color:#0f172a;">Objednávka {{ order_number }}</h1>
+    <h1 style="margin-top:0;color:#0f172a;">{% trans order_number=order_number %}Order {{ order_number }}{% endtrans %}</h1>
     <p style="color:#334155;">
-        Stav se změnil na <strong>{{ status_label }}</strong>.
+        {% trans status_label=_(status_label) %}Status changed to <strong>{{ status_label }}</strong>.{% endtrans %}
     </p>
     <p style="color:#334155;">{{ order_title }}</p>
     <p>
         <a href="{{ order_url }}" style="display:inline-block;background:#2f5bd9;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;">
-            Zobrazit detail
+            {{ _("View detail") }}
         </a>
     </p>
     <p style="color:#94a3b8;font-size:12px;">{{ tenant_name }}</p>

@@ -1,1 +1,1 @@
-Nový komentář u objednávky {{ order_number }}
+{% trans order_number=order_number %}New comment on order {{ order_number }}{% endtrans %}

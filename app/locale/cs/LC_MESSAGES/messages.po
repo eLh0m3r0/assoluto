@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-22 15:26+0200\n"
+"POT-Creation-Date: 2026-04-22 18:00+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -115,7 +115,301 @@ msgstr "Uživatel"
 msgid "Customer contact"
 msgstr "Kontakt klienta"
 
-#: app/routers/customers.py:295
+#: app/email/templates/email_verification.html:6
+#: app/templates/platform/verify_sent.html:3
+msgid "Verify your email"
+msgstr "Ověřit e-mail"
+
+#: app/email/templates/email_verification.html:10
+msgid "Please confirm your email address to activate your portal account."
+msgstr "Potvrďte svou e-mailovou adresu pro aktivaci portálu."
+
+#: app/email/templates/email_verification.html:13
+#: app/email/templates/email_verification.txt:1
+msgid "Welcome to Assoluto"
+msgstr "Vítejte v Assolutu"
+
+#: app/email/templates/email_verification.html:14
+#: app/email/templates/email_verification.txt:3
+#, python-format
+msgid "Hello %(full_name)s,"
+msgstr "Dobrý den, %(full_name)s,"
+
+#: app/email/templates/email_verification.html:16
+#, python-format
+msgid "Thank you for registering the portal for your company <strong>%(company_name)s</strong>."
+msgstr "Děkujeme za registraci portálu pro vaši firmu <strong>%(company_name)s</strong>."
+
+#: app/email/templates/email_verification.html:19
+#: app/email/templates/email_verification.txt:7
+msgid "To finish registration, please click the link below and confirm your email address:"
+msgstr "Pro dokončení registrace klikněte na následující odkaz a potvrďte svou e-mailovou adresu:"
+
+#: app/email/templates/email_verification.html:24
+msgid "Verify email"
+msgstr "Ověřit e-mail"
+
+#: app/email/templates/email_verification.html:28
+msgid "The link is valid for 24 hours. If the button doesn't work, copy this URL into your browser:"
+msgstr "Odkaz je platný 24 hodin. Pokud nefunguje tlačítko, zkopírujte tento URL do prohlížeče:"
+
+#: app/email/templates/email_verification.html:33
+#: app/email/templates/email_verification.txt:13
+msgid "If you didn't request this registration, you can ignore this email."
+msgstr "Pokud jste o registraci nežádali, můžete tento e-mail ignorovat."
+
+#: app/email/templates/email_verification.subject.txt:1
+msgid "Verify your email — Assoluto"
+msgstr "Ověřte svůj e-mail — Assoluto"
+
+#: app/email/templates/email_verification.txt:5
+#, python-format
+msgid "Thank you for registering the portal for your company %(company_name)s."
+msgstr "Děkujeme za registraci portálu pro vaši firmu %(company_name)s."
+
+#: app/email/templates/email_verification.txt:11
+msgid "The link is valid for 24 hours."
+msgstr "Odkaz je platný 24 hodin."
+
+#: app/email/templates/invitation.html:6
+#, python-format
+msgid "Invitation to %(tenant_name)s"
+msgstr "Pozvánka do %(tenant_name)s"
+
+#: app/email/templates/invitation.html:10
+#, python-format
+msgid "You have been invited to the %(tenant_name)s customer portal."
+msgstr "Byli jste pozváni do zákaznického portálu %(tenant_name)s."
+
+#: app/email/templates/invitation.html:17 app/email/templates/invitation.txt:1
+#, python-format
+msgid "Hello %(contact_name)s!"
+msgstr "Dobrý den, %(contact_name)s!"
+
+#: app/email/templates/invitation.html:20
+#, python-format
+msgid "<strong>%(tenant_name)s</strong> invites you to the customer portal on behalf of <strong>%(customer_name)s</strong>."
+msgstr "Společnost <strong>%(tenant_name)s</strong> vás zve do zákaznického portálu za firmu <strong>%(customer_name)s</strong>."
+
+#: app/email/templates/invitation.html:24
+msgid "To finish registration, click the link below — it is valid for 7 days:"
+msgstr "Pro dokončení registrace klikněte na následující odkaz — platí 7 dní:"
+
+#: app/email/templates/invitation.html:31
+msgid "Accept the invitation"
+msgstr "Přijmout pozvánku"
+
+#: app/email/templates/invitation.html:36
+#: app/email/templates/staff_invitation.html:24
+msgid "If the button doesn't work, open the link manually:"
+msgstr "Pokud tlačítko nefunguje, otevřete odkaz ručně:"
+
+#: app/email/templates/invitation.html:43
+#, python-format
+msgid "This message was sent automatically by the %(tenant_name)s portal. If you didn't request this invitation, please ignore it."
+msgstr "Tato zpráva byla automaticky odeslána portálem %(tenant_name)s. Pokud jste o pozvánku nežádali, e-mail ignorujte."
+
+#: app/email/templates/invitation.subject.txt:1
+#, python-format
+msgid "Invitation to %(tenant_name)s — customer portal"
+msgstr "Pozvánka do %(tenant_name)s — zákaznický portál"
+
+#: app/email/templates/invitation.txt:3
+#, python-format
+msgid "%(tenant_name)s invites you to the customer portal on behalf of %(customer_name)s."
+msgstr "%(tenant_name)s vás zve do zákaznického portálu za firmu %(customer_name)s."
+
+#: app/email/templates/invitation.txt:5
+msgid "To finish registration, open the link below — it is valid for 7 days:"
+msgstr "Pro dokončení registrace otevřete následující odkaz — platí 7 dní:"
+
+#: app/email/templates/invitation.txt:9
+#: app/email/templates/staff_invitation.html:29
+#: app/email/templates/staff_invitation.txt:7
+msgid "If you didn't request this invitation, please ignore this email."
+msgstr "Pokud jste o pozvánku nežádali, tento e-mail ignorujte."
+
+#: app/email/templates/order_comment.html:6
+#: app/email/templates/order_comment.subject.txt:1
+#, python-format
+msgid "New comment on order %(order_number)s"
+msgstr "Nový komentář u objednávky %(order_number)s"
+
+#: app/email/templates/order_comment.html:10
+#, python-format
+msgid "A new comment was posted on order %(order_number)s."
+msgstr "U objednávky %(order_number)s byl přidán nový komentář."
+
+#: app/email/templates/order_comment.html:14
+msgid "New comment"
+msgstr "Nový komentář"
+
+#: app/email/templates/order_comment.html:16
+#, python-format
+msgid "%(author_name)s added a comment to order <strong>%(order_number)s</strong> — %(order_title)s."
+msgstr "%(author_name)s přidal/a komentář k objednávce <strong>%(order_number)s</strong> — %(order_title)s."
+
+#: app/email/templates/order_comment.html:23
+#: app/email/templates/order_submitted.html:20
+msgid "Open order"
+msgstr "Otevřít objednávku"
+
+#: app/email/templates/order_comment.txt:1
+#, python-format
+msgid "New comment on order %(order_number)s — %(order_title)s"
+msgstr "Nový komentář u objednávky %(order_number)s — %(order_title)s"
+
+#: app/email/templates/order_comment.txt:3
+#, python-format
+msgid "%(author_name)s wrote:"
+msgstr "%(author_name)s napsal/a:"
+
+#: app/email/templates/order_comment.txt:7
+#: app/email/templates/order_submitted.txt:5
+msgid "Open"
+msgstr "Otevřít"
+
+#: app/email/templates/order_status_changed.html:6
+#: app/email/templates/order_status_changed.html:14
+#, python-format
+msgid "Order %(order_number)s"
+msgstr "Objednávka %(order_number)s"
+
+#: app/email/templates/order_status_changed.html:10
+#, python-format
+msgid "Order %(order_number)s is now %(status_label)s."
+msgstr "Objednávka %(order_number)s má nový stav: %(status_label)s."
+
+#: app/email/templates/order_status_changed.html:16
+#, python-format
+msgid "Status changed to <strong>%(status_label)s</strong>."
+msgstr "Stav se změnil na <strong>%(status_label)s</strong>."
+
+#: app/email/templates/order_status_changed.html:21
+msgid "View detail"
+msgstr "Zobrazit detail"
+
+#: app/email/templates/order_status_changed.subject.txt:1
+#: app/email/templates/order_status_changed.txt:1
+#, python-format
+msgid "Order %(order_number)s — %(status_label)s"
+msgstr "Objednávka %(order_number)s — %(status_label)s"
+
+#: app/email/templates/order_status_changed.txt:5
+msgid "Detail"
+msgstr "Detail"
+
+#: app/email/templates/order_submitted.html:6
+#: app/email/templates/order_submitted.html:14
+#: app/email/templates/order_submitted.txt:1
+#, python-format
+msgid "New order %(order_number)s"
+msgstr "Nová objednávka %(order_number)s"
+
+#: app/email/templates/order_submitted.html:10
+#, python-format
+msgid "%(customer_name)s submitted a new order %(order_number)s."
+msgstr "%(customer_name)s odeslal/a novou objednávku %(order_number)s."
+
+#: app/email/templates/order_submitted.html:16
+#, python-format
+msgid "Client <strong>%(customer_name)s</strong> submitted a new order &bdquo;%(order_title)s&ldquo;."
+msgstr "Klient <strong>%(customer_name)s</strong> odeslal novou objednávku &bdquo;%(order_title)s&ldquo;."
+
+#: app/email/templates/order_submitted.subject.txt:1
+#, python-format
+msgid "New order %(order_number)s from %(customer_name)s"
+msgstr "Nová objednávka %(order_number)s od %(customer_name)s"
+
+#: app/email/templates/order_submitted.txt:3
+#, python-format
+msgid "Client %(customer_name)s submitted a new order \"%(order_title)s\"."
+msgstr "Klient %(customer_name)s odeslal novou objednávku „%(order_title)s\"."
+
+#: app/email/templates/password_reset.html:6
+#: app/email/templates/password_reset.html:14
+#: app/templates/auth/password_reset_request.html:3
+#: app/templates/auth/password_reset_request.html:8
+#: app/templates/platform/password_reset_request.html:3
+#: app/templates/platform/password_reset_request.html:8
+msgid "Password reset"
+msgstr "Obnovení hesla"
+
+#: app/email/templates/password_reset.html:10
+msgid "Use the enclosed link to set a new password. It expires in 30 minutes."
+msgstr "Pomocí přiloženého odkazu si nastavte nové heslo. Platí 30 minut."
+
+#: app/email/templates/password_reset.html:15
+#: app/email/templates/password_reset.txt:1
+#, python-format
+msgid "Hello %(full_name)s."
+msgstr "Dobrý den, %(full_name)s."
+
+#: app/email/templates/password_reset.html:17
+#, python-format
+msgid "We received a request to reset the password on your account at the <strong>%(tenant_name)s</strong> portal. To set a new password, click the link — it is valid for <strong>30 minutes</strong>:"
+msgstr "Dostali jsme žádost o obnovení hesla k účtu v portálu <strong>%(tenant_name)s</strong>. Pro zadání nového hesla klikněte na odkaz — platí <strong>30 minut</strong>:"
+
+#: app/email/templates/password_reset.html:21
+#: app/templates/auth/password_reset_confirm.html:34
+#: app/templates/platform/password_reset_confirm.html:34
+msgid "Set new password"
+msgstr "Nastavit nové heslo"
+
+#: app/email/templates/password_reset.html:27
+msgid "If you didn't request this reset, please ignore this email — your password will remain unchanged."
+msgstr "Pokud jste o obnovení hesla nežádali, tento e-mail ignorujte — heslo zůstane beze změny."
+
+#: app/email/templates/password_reset.subject.txt:1
+#, python-format
+msgid "Password reset — %(tenant_name)s"
+msgstr "Obnovení hesla — %(tenant_name)s"
+
+#: app/email/templates/password_reset.txt:3
+#, python-format
+msgid "We received a request to reset the password on your account at the %(tenant_name)s portal. To set a new password, open this link (valid for 30 minutes):"
+msgstr "Dostali jsme žádost o obnovení hesla k účtu v portálu %(tenant_name)s. Pro zadání nového hesla otevřete tento odkaz (platí 30 minut):"
+
+#: app/email/templates/password_reset.txt:7
+msgid "If you didn't request this reset, please ignore this email."
+msgstr "Pokud jste o obnovení hesla nežádali, tento e-mail ignorujte."
+
+#: app/email/templates/staff_invitation.html:6
+#, python-format
+msgid "Team invitation — %(tenant_name)s"
+msgstr "Pozvánka do týmu — %(tenant_name)s"
+
+#: app/email/templates/staff_invitation.html:10
+#, python-format
+msgid "You have been invited to the %(tenant_name)s team."
+msgstr "Byli jste pozváni do týmu %(tenant_name)s."
+
+#: app/email/templates/staff_invitation.html:14
+#: app/email/templates/staff_invitation.txt:1
+#, python-format
+msgid "Hello %(invitee_name)s!"
+msgstr "Dobrý den, %(invitee_name)s!"
+
+#: app/email/templates/staff_invitation.html:16
+#, python-format
+msgid "You have been added to the <strong>%(tenant_name)s</strong> team as an administrator of the customer portal. To set your password and log in for the first time, click the link below — it is valid for 7 days:"
+msgstr "Byli jste přidáni do týmu <strong>%(tenant_name)s</strong> jako administrátor zákaznického portálu. Pro nastavení hesla a první přihlášení klikněte na následující odkaz — platí 7 dní:"
+
+#: app/email/templates/staff_invitation.html:20
+msgid "Set password and log in"
+msgstr "Nastavit heslo a přihlásit se"
+
+#: app/email/templates/staff_invitation.subject.txt:1
+#, python-format
+msgid "Invitation to the %(tenant_name)s team — customer portal"
+msgstr "Pozvánka do týmu %(tenant_name)s — zákaznický portál"
+
+#: app/email/templates/staff_invitation.txt:3
+#, python-format
+msgid "You have been added to the %(tenant_name)s team as an administrator of the customer portal. To set your password and log in for the first time, open the link below — it is valid for 7 days:"
+msgstr "Byli jste přidáni do týmu %(tenant_name)s jako administrátor zákaznického portálu. Pro nastavení hesla a první přihlášení otevřete následující odkaz — platí 7 dní:"
+
+#: app/routers/customers.py:296
 msgid "A contact with the same email already exists."
 msgstr "Kontakt se stejným e-mailem už existuje."
 
@@ -159,32 +453,32 @@ msgstr "Položky"
 msgid "Choose a client."
 msgstr "Vyberte klienta."
 
-#: app/routers/orders.py:823
+#: app/routers/orders.py:826
 msgid "Invalid quantity"
 msgstr "Neplatné množství"
 
-#: app/routers/orders.py:833
+#: app/routers/orders.py:836
 msgid "Invalid unit_price"
 msgstr "Neplatná jednotková cena"
 
-#: app/routers/orders.py:864
+#: app/routers/orders.py:867
 msgid "This order is no longer a draft."
 msgstr "Tato objednávka už není koncept."
 
-#: app/routers/orders.py:966
+#: app/routers/orders.py:969
 msgid "Unknown status"
 msgstr "Neznámý stav"
 
-#: app/routers/orders.py:987
+#: app/routers/orders.py:990
 msgid "Select at least one order."
 msgstr "Vyberte alespoň jednu objednávku."
 
-#: app/routers/orders.py:1068
+#: app/routers/orders.py:1073
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr "{count} objednávek převedeno."
 
-#: app/routers/orders.py:1070
+#: app/routers/orders.py:1075
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr "{ok} převedeno, {failed} selhalo."
@@ -212,23 +506,23 @@ msgid "The invitation belongs to a different tenant."
 msgstr "Pozvánka patří k jinému tenantovi."
 
 #: app/routers/public.py:375 app/routers/public.py:522
-#: app/routers/public.py:712
+#: app/routers/public.py:725
 msgid "Passwords do not match."
 msgstr "Hesla se neshodují."
 
-#: app/routers/public.py:677
+#: app/routers/public.py:690
 msgid "The link is invalid or has expired."
 msgstr "Odkaz je neplatný nebo vypršel."
 
-#: app/routers/tenant_admin.py:151
+#: app/routers/tenant_admin.py:152
 msgid "A user with this email already exists."
 msgstr "Uživatel s tímto e-mailem už existuje."
 
-#: app/routers/tenant_admin.py:282 app/routers/tenant_admin.py:395
+#: app/routers/tenant_admin.py:285 app/routers/tenant_admin.py:400
 msgid "Name cannot be empty."
 msgstr "Jméno nesmí být prázdné."
 
-#: app/routers/tenant_admin.py:424
+#: app/routers/tenant_admin.py:429
 msgid "New passwords do not match."
 msgstr "Nová hesla se neshodují."
 
@@ -390,12 +684,8 @@ msgid "Customer portal for SMEs"
 msgstr "Zákaznický portál pro SME"
 
 #: app/templates/index.html:16
-msgid ""
-"Transparent order process between the manufacturer and its clients. "
-"Product catalog, attachments, client asset tracking."
-msgstr ""
-"Transparentní objednávkový proces mezi výrobcem a jeho klienty. Katalog "
-"produktů, přílohy k objednávkám, evidence klientského majetku."
+msgid "Transparent order process between the manufacturer and its clients. Product catalog, attachments, client asset tracking."
+msgstr "Transparentní objednávkový proces mezi výrobcem a jeho klienty. Katalog produktů, přílohy k objednávkám, evidence klientského majetku."
 
 #: app/templates/admin/audit.html:3 app/templates/admin/audit.html:8
 #: app/templates/dashboard/index.html:114
@@ -669,12 +959,8 @@ msgid "disabled"
 msgstr "deaktivován"
 
 #: app/templates/admin/users.html:40
-msgid ""
-"Platform-admin support access — logs in via the platform session handoff,"
-" not the tenant password form."
-msgstr ""
-"Support přístup platform-admina — přihlašuje se přes platformovou "
-"session, ne přes tenant login."
+msgid "Platform-admin support access — logs in via the platform session handoff, not the tenant password form."
+msgstr "Support přístup platform-admina — přihlašuje se přes platformovou session, ne přes tenant login."
 
 #: app/templates/admin/users.html:42
 #: app/templates/platform/admin/tenants.html:83
@@ -916,25 +1202,9 @@ msgstr "Nové heslo"
 msgid "Enter a new password for your account."
 msgstr "Zadejte nové heslo pro svůj účet."
 
-#: app/templates/auth/password_reset_confirm.html:34
-#: app/templates/platform/password_reset_confirm.html:34
-msgid "Set new password"
-msgstr "Nastavit nové heslo"
-
-#: app/templates/auth/password_reset_request.html:3
-#: app/templates/auth/password_reset_request.html:8
-#: app/templates/platform/password_reset_request.html:3
-#: app/templates/platform/password_reset_request.html:8
-msgid "Password reset"
-msgstr "Obnovení hesla"
-
 #: app/templates/auth/password_reset_request.html:10
-msgid ""
-"Enter your email. If we have an account for it, we will send a link to "
-"set a new password."
-msgstr ""
-"Zadejte svůj e-mail. Pokud u nás účet existuje, pošleme vám odkaz na "
-"nastavení nového hesla."
+msgid "Enter your email. If we have an account for it, we will send a link to set a new password."
+msgstr "Zadejte svůj e-mail. Pokud u nás účet existuje, pošleme vám odkaz na nastavení nového hesla."
 
 #: app/templates/auth/password_reset_request.html:24
 msgid "Send the link"
@@ -1021,12 +1291,8 @@ msgid "Company name"
 msgstr "Název firmy"
 
 #: app/templates/customers/form.html:50
-msgid ""
-"Controls what contacts of this client can do when placing orders. Staff "
-"always has full access."
-msgstr ""
-"Kontroluje, co kontakty tohoto klienta mohou dělat při zadávání "
-"objednávek. Staff má vždy plný přístup."
+msgid "Controls what contacts of this client can do when placing orders. Staff always has full access."
+msgstr "Kontroluje, co kontakty tohoto klienta mohou dělat při zadávání objednávek. Staff má vždy plný přístup."
 
 #: app/templates/customers/list.html:36
 msgid "No clients yet."
@@ -1115,9 +1381,7 @@ msgstr "Systém"
 
 #: app/templates/dashboard/index.html:147
 msgid "No activity yet — actions will show up here as they happen."
-msgstr ""
-"Zatím žádná aktivita — akce se budou zobrazovat zde, jakmile se něco "
-"stane."
+msgstr "Zatím žádná aktivita — akce se budou zobrazovat zde, jakmile se něco stane."
 
 #: app/templates/dashboard/index.html:155
 msgid "Recent orders"
@@ -1141,13 +1405,8 @@ msgid "Start by adding your first client"
 msgstr "Začněte tím, že přidáte prvního klienta"
 
 #: app/templates/dashboard/index.html:205
-msgid ""
-"A client is a company whose contacts will place orders through the "
-"portal. Then add products to the catalog or track their assets at your "
-"site."
-msgstr ""
-"Klient = firma, jejíž kontakty budou zadávat objednávky přes portál. Pak "
-"přidejte produkty do katalogu nebo sledujte jejich majetek u vás."
+msgid "A client is a company whose contacts will place orders through the portal. Then add products to the catalog or track their assets at your site."
+msgstr "Klient = firma, jejíž kontakty budou zadávat objednávky přes portál. Pak přidejte produkty do katalogu nebo sledujte jejich majetek u vás."
 
 #: app/templates/dashboard/index.html:212
 msgid "Add a client"
@@ -1195,9 +1454,7 @@ msgid "Page not found"
 msgstr "Stránka nebyla nalezena"
 
 #: app/templates/errors/404.html:8
-msgid ""
-"The path you were looking for does not exist or you do not have access to"
-" it."
+msgid "The path you were looking for does not exist or you do not have access to it."
 msgstr "Cesta, kterou jste hledali, neexistuje, nebo k ní nemáte přístup."
 
 #: app/templates/errors/404.html:13
@@ -1423,12 +1680,8 @@ msgid "Choose a new password for your platform account."
 msgstr "Vyberte si nové heslo pro váš účet na platformě."
 
 #: app/templates/platform/password_reset_request.html:10
-msgid ""
-"Enter your email. If an account exists, we will send you a link to set a "
-"new password."
-msgstr ""
-"Zadejte svůj e-mail. Pokud účet existuje, pošleme vám odkaz na nastavení "
-"nového hesla."
+msgid "Enter your email. If an account exists, we will send you a link to set a new password."
+msgstr "Zadejte svůj e-mail. Pokud účet existuje, pošleme vám odkaz na nastavení nového hesla."
 
 #: app/templates/platform/password_reset_request.html:24
 msgid "Send reset link"
@@ -1557,10 +1810,6 @@ msgstr "Nepodařilo se ověřit e-mail"
 msgid "Send a new verification link"
 msgstr "Poslat nový ověřovací odkaz"
 
-#: app/templates/platform/verify_sent.html:3
-msgid "Verify your email"
-msgstr "Ověřte svůj e-mail"
-
 #: app/templates/platform/verify_sent.html:11
 msgid "Check your email"
 msgstr "Zkontrolujte svůj e-mail"
@@ -1641,20 +1890,12 @@ msgid "Edit tenant"
 msgstr "Upravit tenanta"
 
 #: app/templates/platform/admin/tenant_edit.html:18
-msgid ""
-"is immutable (subdomain, S3 prefix). To rename, create a new tenant and "
-"migrate data manually."
-msgstr ""
-"je neměnný (subdoména, S3 prefix). Pro přejmenování založ nového tenanta "
-"a migruj data ručně."
+msgid "is immutable (subdomain, S3 prefix). To rename, create a new tenant and migrate data manually."
+msgstr "je neměnný (subdoména, S3 prefix). Pro přejmenování založ nového tenanta a migruj data ručně."
 
 #: app/templates/platform/admin/tenant_edit.html:38
-msgid ""
-"Display name — visible in the portal header, email templates, and the "
-"platform selector."
-msgstr ""
-"Zobrazované jméno — proklikne se do záhlaví portálu, e-mailových šablon a"
-" platformového selectoru."
+msgid "Display name — visible in the portal header, email templates, and the platform selector."
+msgstr "Zobrazované jméno — proklikne se do záhlaví portálu, e-mailových šablon a platformového selectoru."
 
 #: app/templates/platform/admin/tenant_edit.html:43
 #: app/templates/platform/admin/tenants.html:22
@@ -1902,12 +2143,8 @@ msgid "shared"
 msgstr "sdílené"
 
 #: app/templates/products/detail.html:29
-msgid ""
-"Delete this product? It will be removed from the catalog but historical "
-"orders keep their link."
-msgstr ""
-"Opravdu smazat tento produkt? Bude odebrán z katalogu, ale zůstane "
-"propojen s historickými objednávkami."
+msgid "Delete this product? It will be removed from the catalog but historical orders keep their link."
+msgstr "Opravdu smazat tento produkt? Bude odebrán z katalogu, ale zůstane propojen s historickými objednávkami."
 
 #: app/templates/products/detail.html:42 app/templates/products/form.html:49
 msgid "Default price"
@@ -1948,12 +2185,8 @@ msgid "Write to us"
 msgstr "Napište nám"
 
 #: app/templates/www/contact.html:9
-msgid ""
-"Need help with deployment, interested in the Enterprise plan, or found a "
-"bug? Write to us and we will get back to you within one business day."
-msgstr ""
-"Potřebujete pomoc s nasazením, zajímá vás Enterprise plán nebo jste našli"
-" chybu? Napište nám a my se vám ozveme do jednoho pracovního dne."
+msgid "Need help with deployment, interested in the Enterprise plan, or found a bug? Write to us and we will get back to you within one business day."
+msgstr "Potřebujete pomoc s nasazením, zajímá vás Enterprise plán nebo jste našli chybu? Napište nám a my se vám ozveme do jednoho pracovního dne."
 
 #: app/templates/www/contact.html:15
 msgid "Message sent"
@@ -1988,26 +2221,16 @@ msgid "What Assoluto can do"
 msgstr "Co Assoluto umí"
 
 #: app/templates/www/features.html:10
-msgid ""
-"Built for manufacturing SMEs: orders with drawings, catalog, client "
-"assets, multi-tenant."
-msgstr ""
-"Postaveno pro výrobní malé firmy: objednávky s výkresy, katalog, "
-"klientský majetek, multi-tenant."
+msgid "Built for manufacturing SMEs: orders with drawings, catalog, client assets, multi-tenant."
+msgstr "Postaveno pro výrobní malé firmy: objednávky s výkresy, katalog, klientský majetek, multi-tenant."
 
 #: app/templates/www/features.html:16
 msgid "Order workflow"
 msgstr "Proces objednávky"
 
 #: app/templates/www/features.html:18
-msgid ""
-"Eight-step process: DRAFT → SUBMITTED → QUOTED → CONFIRMED → "
-"IN_PRODUCTION → READY → DELIVERED → CLOSED. Every transition is audited "
-"(who, when, why)."
-msgstr ""
-"Osmikrokový proces: DRAFT → SUBMITTED → QUOTED → CONFIRMED → "
-"IN_PRODUCTION → READY → DELIVERED → CLOSED. Každý přechod je auditován "
-"(kdo, kdy, proč)."
+msgid "Eight-step process: DRAFT → SUBMITTED → QUOTED → CONFIRMED → IN_PRODUCTION → READY → DELIVERED → CLOSED. Every transition is audited (who, when, why)."
+msgstr "Osmikrokový proces: DRAFT → SUBMITTED → QUOTED → CONFIRMED → IN_PRODUCTION → READY → DELIVERED → CLOSED. Každý přechod je auditován (kdo, kdy, proč)."
 
 #: app/templates/www/features.html:21
 msgid "Client enters items (free-text or from the catalog)."
@@ -2034,48 +2257,28 @@ msgid "Attachments and drawings"
 msgstr "Přílohy a výkresy"
 
 #: app/templates/www/features.html:32
-msgid ""
-"Direct upload to S3 (max 50 MB). Thumbnails for PDFs and images. "
-"Attachments can be linked to the entire order or to a specific item."
-msgstr ""
-"Přímý upload na S3 (max 50 MB). Náhledy pro PDF a obrázky. Přílohy lze "
-"připojit k celé objednávce nebo ke konkrétní položce."
+msgid "Direct upload to S3 (max 50 MB). Thumbnails for PDFs and images. Attachments can be linked to the entire order or to a specific item."
+msgstr "Přímý upload na S3 (max 50 MB). Náhledy pro PDF a obrázky. Přílohy lze připojit k celé objednávce nebo ke konkrétní položce."
 
 #: app/templates/www/features.html:39
-msgid ""
-"Shared per-tenant catalog and per-customer catalog (customized for a "
-"specific client). Autocomplete directly when placing an order, with pre-"
-"filled price and unit."
-msgstr ""
-"Sdílený katalog pro tenant a katalog pro konkrétního klienta "
-"(customizovaný). Automatické doplňování přímo při zadávání objednávky, s "
-"předvyplněnou cenou a jednotkou."
+msgid "Shared per-tenant catalog and per-customer catalog (customized for a specific client). Autocomplete directly when placing an order, with pre-filled price and unit."
+msgstr "Sdílený katalog pro tenant a katalog pro konkrétního klienta (customizovaný). Automatické doplňování přímo při zadávání objednávky, s předvyplněnou cenou a jednotkou."
 
 #: app/templates/www/features.html:44
 msgid "Client asset tracking"
 msgstr "Sledování klientského majetku"
 
 #: app/templates/www/features.html:46
-msgid ""
-"Does your client store materials, tools, or semi-finished products with "
-"you? The portal tracks receipt, dispatch, and consumption. Current "
-"balance is recalculated automatically. Clients only see their own items."
-msgstr ""
-"Skladuje klient u vás materiál, nástroje nebo polotovary? Portál sleduje "
-"příjem, výdej a spotřebu. Aktuální stav se přepočítá automaticky. Klient "
-"vidí pouze své položky."
+msgid "Does your client store materials, tools, or semi-finished products with you? The portal tracks receipt, dispatch, and consumption. Current balance is recalculated automatically. Clients only see their own items."
+msgstr "Skladuje klient u vás materiál, nástroje nebo polotovary? Portál sleduje příjem, výdej a spotřebu. Aktuální stav se přepočítá automaticky. Klient vidí pouze své položky."
 
 #: app/templates/www/features.html:51
 msgid "Multi-tenant from day one"
 msgstr "Multi-tenant od prvního dne"
 
 #: app/templates/www/features.html:53
-msgid ""
-"PostgreSQL Row-Level Security — data from different clients is physically"
-" separated at the database level. Subdomains"
-msgstr ""
-"PostgreSQL Row-Level Security — data různých klientů jsou fyzicky "
-"oddělená na úrovni databáze. Subdomény"
+msgid "PostgreSQL Row-Level Security — data from different clients is physically separated at the database level. Subdomains"
+msgstr "PostgreSQL Row-Level Security — data různých klientů jsou fyzicky oddělená na úrovni databáze. Subdomény"
 
 #: app/templates/www/features.html:55
 msgid "for each client separately."
@@ -2086,15 +2289,8 @@ msgid "Permissions and security"
 msgstr "Oprávnění a bezpečnost"
 
 #: app/templates/www/features.html:62
-msgid ""
-"Roles: tenant_admin (owner), tenant_staff (your team), customer_admin "
-"(client representative), customer_user (client contact person). Per-"
-"customer settings for what the client can enter (catalog selection only /"
-" free-text / prices)."
-msgstr ""
-"Role: tenant_admin (majitel), tenant_staff (váš tým), customer_admin "
-"(zástupce klienta), customer_user (kontaktní osoba klienta). Per-klient "
-"nastavení, co klient smí zadat (jen výběr z katalogu / free-text / ceny)."
+msgid "Roles: tenant_admin (owner), tenant_staff (your team), customer_admin (client representative), customer_user (client contact person). Per-customer settings for what the client can enter (catalog selection only / free-text / prices)."
+msgstr "Role: tenant_admin (majitel), tenant_staff (váš tým), customer_admin (zástupce klienta), customer_user (kontaktní osoba klienta). Per-klient nastavení, co klient smí zadat (jen výběr z katalogu / free-text / ceny)."
 
 #: app/templates/www/features.html:67 app/templates/www/index.html:91
 msgid "Open source"
@@ -2109,12 +2305,8 @@ msgid "GitHub"
 msgstr "GitHubu"
 
 #: app/templates/www/features.html:71
-msgid ""
-"You can self-host it (free), audit it, or fork it. We offer a hosted "
-"version with convenient management and support."
-msgstr ""
-"Můžete si ho hostovat sami (zdarma), auditovat, nebo forknout. Nabízíme "
-"hostovanou verzi s pohodlnou správou a podporou."
+msgid "You can self-host it (free), audit it, or fork it. We offer a hosted version with convenient management and support."
+msgstr "Můžete si ho hostovat sami (zdarma), auditovat, nebo forknout. Nabízíme hostovanou verzi s pohodlnou správou a podporou."
 
 #: app/templates/www/features.html:79 app/templates/www/index.html:22
 #: app/templates/www/pricing.html:49 app/templates/www/pricing.html:72
@@ -2135,14 +2327,8 @@ msgid "a structured portal"
 msgstr "strukturovaným portálem"
 
 #: app/templates/www/index.html:17
-msgid ""
-"Let your clients place orders online, share drawings, track production "
-"status, and keep an overview of their materials at your warehouse. No "
-"complex ERP, no lengthy implementation."
-msgstr ""
-"Nechte svoje klienty zadávat objednávky online, sdílejte výkresy, "
-"sledujte stav výroby a mějte přehled o jejich materiálu ve vašem skladu. "
-"Žádný složitý ERP, žádná dlouhá implementace."
+msgid "Let your clients place orders online, share drawings, track production status, and keep an overview of their materials at your warehouse. No complex ERP, no lengthy implementation."
+msgstr "Nechte svoje klienty zadávat objednávky online, sdílejte výkresy, sledujte stav výroby a mějte přehled o jejich materiálu ve vašem skladu. Žádný složitý ERP, žádná dlouhá implementace."
 
 #: app/templates/www/index.html:26
 msgid "Self-hosted installation guide"
@@ -2161,74 +2347,48 @@ msgid "Orders with attachments"
 msgstr "Objednávky s přílohami"
 
 #: app/templates/www/index.html:48
-msgid ""
-"Client uploads drawings, specifies quantities, you quote and set a "
-"deadline. 8-step workflow with audit trail."
-msgstr ""
-"Klient nahraje výkresy, zadá množství, vy oceníte a nastavíte termín. "
-"Osmikrokový workflow s auditní stopou."
+msgid "Client uploads drawings, specifies quantities, you quote and set a deadline. 8-step workflow with audit trail."
+msgstr "Klient nahraje výkresy, zadá množství, vy oceníte a nastavíte termín. Osmikrokový workflow s auditní stopou."
 
 #: app/templates/www/index.html:57
 msgid "Share only the items relevant to each client. Prices, units, descriptions."
-msgstr ""
-"Sdílejte jen položky relevantní pro daného klienta. Ceny, jednotky, "
-"popisy."
+msgstr "Sdílejte jen položky relevantní pro daného klienta. Ceny, jednotky, popisy."
 
 #: app/templates/www/index.html:64
 msgid "Client assets at your warehouse"
 msgstr "Klientský majetek ve vašem skladu"
 
 #: app/templates/www/index.html:66
-msgid ""
-"Precise tracking of client materials/tools in stock. Receive, issue, "
-"consume, current balance."
-msgstr ""
-"Přesné sledování materiálů/nástrojů klienta ve skladu. Příjem, výdej, "
-"spotřeba, aktuální stav."
+msgid "Precise tracking of client materials/tools in stock. Receive, issue, consume, current balance."
+msgstr "Přesné sledování materiálů/nástrojů klienta ve skladu. Příjem, výdej, spotřeba, aktuální stav."
 
 #: app/templates/www/index.html:73
 msgid "Multi-tenant security"
 msgstr "Multi-tenant zabezpečení"
 
 #: app/templates/www/index.html:75
-msgid ""
-"PostgreSQL Row-Level Security isolates data at the database level. Each "
-"client sees only their own."
-msgstr ""
-"PostgreSQL Row-Level Security izoluje data na úrovni databáze. Každý "
-"klient vidí jen svoje."
+msgid "PostgreSQL Row-Level Security isolates data at the database level. Each client sees only their own."
+msgstr "PostgreSQL Row-Level Security izoluje data na úrovni databáze. Každý klient vidí jen svoje."
 
 #: app/templates/www/index.html:82
 msgid "Email notifications"
 msgstr "E-mailové notifikace"
 
 #: app/templates/www/index.html:84
-msgid ""
-"New orders, status changes, comments — automatically by email. Per-user "
-"preferences."
-msgstr ""
-"Nové objednávky, změny stavu, komentáře — automaticky e-mailem. Per-"
-"uživatel preference."
+msgid "New orders, status changes, comments — automatically by email. Per-user preferences."
+msgstr "Nové objednávky, změny stavu, komentáře — automaticky e-mailem. Per-uživatel preference."
 
 #: app/templates/www/index.html:93
-msgid ""
-"Full code under AGPL-3.0 on GitHub. Self-host it on your own "
-"infrastructure for free."
-msgstr ""
-"Kompletní kód pod AGPL-3.0 na GitHubu. Hostujte si ho na vlastní "
-"infrastruktuře zdarma."
+msgid "Full code under AGPL-3.0 on GitHub. Self-host it on your own infrastructure for free."
+msgstr "Kompletní kód pod AGPL-3.0 na GitHubu. Hostujte si ho na vlastní infrastruktuře zdarma."
 
 #: app/templates/www/index.html:103
 msgid "Get started in 5 minutes"
 msgstr "Začněte za 5 minut"
 
 #: app/templates/www/index.html:105
-msgid ""
-"Sign up, invite your first client, and accept your first order. No "
-"installation, no lengthy negotiations."
-msgstr ""
-"Registrujte se, pozvěte prvního klienta a přijměte první objednávku. Bez "
-"instalace, bez zdlouhavých vyjednávání."
+msgid "Sign up, invite your first client, and accept your first order. No installation, no lengthy negotiations."
+msgstr "Registrujte se, pozvěte prvního klienta a přijměte první objednávku. Bez instalace, bez zdlouhavých vyjednávání."
 
 #: app/templates/www/index.html:109 app/templates/www/www_base.html:21
 msgid "Try for free"
@@ -2373,15 +2533,11 @@ msgid "Frequently asked questions"
 msgstr "Často kladené otázky"
 
 #: app/templates/www/pricing.html:99
-msgid ""
-"We process credit cards through Stripe; you will receive an invoice by "
-"email."
+msgid "We process credit cards through Stripe; you will receive an invoice by email."
 msgstr "Platební karty zpracováváme přes Stripe; fakturu dostanete e-mailem."
 
 #: app/templates/www/pricing.html:100
-msgid ""
-"You can upgrade or downgrade your plan at any time; the difference will "
-"be prorated."
+msgid "You can upgrade or downgrade your plan at any time; the difference will be prorated."
 msgstr "Plán můžete kdykoli povýšit nebo snížit; rozdíl se pro-ratuje."
 
 #: app/templates/www/pricing.html:101
@@ -2401,12 +2557,8 @@ msgid "Notice:"
 msgstr "Upozornění:"
 
 #: app/templates/www/privacy.html:14
-msgid ""
-"This text is a template. It should be reviewed by a lawyer familiar with "
-"GDPR before going live."
-msgstr ""
-"Tento text je šablona. Před nasazením by ho měl zkontrolovat právník "
-"znalý GDPR."
+msgid "This text is a template. It should be reviewed by a lawyer familiar with GDPR before going live."
+msgstr "Tento text je šablona. Před nasazením by ho měl zkontrolovat právník znalý GDPR."
 
 #: app/templates/www/privacy.html:18
 msgid "1. Data controller"
@@ -2477,53 +2629,31 @@ msgid "4. Where data is stored"
 msgstr "4. Kde jsou data uložena"
 
 #: app/templates/www/privacy.html:52
-msgid ""
-"Servers are located in the European Union (Frankfurt, DE). Attachments "
-"(drawings, PDFs) in S3-compatible storage with EU location. Payments are "
-"processed by Stripe (USA, EU representation). Transactional emails are "
-"sent by a transactional email provider (EU regions — Resend, Postmark, or"
-" equivalent)."
-msgstr ""
-"Servery jsou umístěny v Evropské unii (Frankfurt, DE). Přílohy (výkresy, "
-"PDF) v S3-kompatibilním úložišti s EU lokací. Platby zpracovává Stripe "
-"(USA, EU zastoupení). Transakční e-maily odesílá transakční e-mailový "
-"poskytovatel (EU regiony — Resend, Postmark nebo ekvivalent)."
+msgid "Servers are located in the European Union (Frankfurt, DE). Attachments (drawings, PDFs) in S3-compatible storage with EU location. Payments are processed by Stripe (USA, EU representation). Transactional emails are sent by a transactional email provider (EU regions — Resend, Postmark, or equivalent)."
+msgstr "Servery jsou umístěny v Evropské unii (Frankfurt, DE). Přílohy (výkresy, PDF) v S3-kompatibilním úložišti s EU lokací. Platby zpracovává Stripe (USA, EU zastoupení). Transakční e-maily odesílá transakční e-mailový poskytovatel (EU regiony — Resend, Postmark nebo ekvivalent)."
 
 #: app/templates/www/privacy.html:57
 msgid "5. How long we retain data"
 msgstr "5. Jak dlouho údaje uchováváme"
 
 #: app/templates/www/privacy.html:59
-msgid ""
-"Active account data is retained for the duration of the account's "
-"existence. After account cancellation, 30 days (for possible "
-"reactivation), then permanent deletion. Billing data in accordance with "
-"the law (10 years from the end of the accounting period)."
-msgstr ""
-"Data aktivního účtu uchováváme po dobu trvání účtu. Po zrušení účtu 30 "
-"dní (pro případnou reaktivaci), poté trvalé smazání. Fakturační data v "
-"souladu se zákonem (10 let od konce účetního období)."
+msgid "Active account data is retained for the duration of the account's existence. After account cancellation, 30 days (for possible reactivation), then permanent deletion. Billing data in accordance with the law (10 years from the end of the accounting period)."
+msgstr "Data aktivního účtu uchováváme po dobu trvání účtu. Po zrušení účtu 30 dní (pro případnou reaktivaci), poté trvalé smazání. Fakturační data v souladu se zákonem (10 let od konce účetního období)."
 
 #: app/templates/www/privacy.html:64
 msgid "6. Your rights"
 msgstr "6. Vaše práva"
 
 #: app/templates/www/privacy.html:66
-msgid ""
-"You have the right to access, rectification, erasure, restriction of "
-"processing, portability, and objection. Contact"
-msgstr ""
-"Máte právo na přístup, opravu, výmaz, omezení zpracování, přenositelnost "
-"a námitku. Kontakt"
+msgid "You have the right to access, rectification, erasure, restriction of processing, portability, and objection. Contact"
+msgstr "Máte právo na přístup, opravu, výmaz, omezení zpracování, přenositelnost a námitku. Kontakt"
 
 #: app/templates/www/privacy.html:68
 msgid "we will respond within 30 days."
 msgstr "odpovíme do 30 dní."
 
 #: app/templates/www/privacy.html:71
-msgid ""
-"You also have the right to file a complaint with the Office for Personal "
-"Data Protection"
+msgid "You also have the right to file a complaint with the Office for Personal Data Protection"
 msgstr "Máte také právo podat stížnost Úřadu pro ochranu osobních údajů"
 
 #: app/templates/www/privacy.html:77
@@ -2531,14 +2661,8 @@ msgid "7. Cookies"
 msgstr "7. Cookies"
 
 #: app/templates/www/privacy.html:79
-msgid ""
-"The portal uses only technical (session) cookies necessary for login and "
-"CSRF protection. We do not deploy analytics or marketing cookies without "
-"your consent."
-msgstr ""
-"Portál používá pouze technické (session) cookies nezbytné pro přihlášení "
-"a ochranu CSRF. Analytické ani marketingové cookies bez vašeho souhlasu "
-"nenasazujeme."
+msgid "The portal uses only technical (session) cookies necessary for login and CSRF protection. We do not deploy analytics or marketing cookies without your consent."
+msgstr "Portál používá pouze technické (session) cookies nezbytné pro přihlášení a ochranu CSRF. Analytické ani marketingové cookies bez vašeho souhlasu nenasazujeme."
 
 #: app/templates/www/self_hosted.html:3 app/templates/www/www_base.html:12
 msgid "Self-hosted"
@@ -2549,12 +2673,8 @@ msgid "Self-hosted installation"
 msgstr "Vlastní instalace"
 
 #: app/templates/www/self_hosted.html:10
-msgid ""
-"Complete open source release under the AGPL-3.0 license. Host the portal "
-"on your own server — free and without limitations."
-msgstr ""
-"Kompletní open source release pod licencí AGPL-3.0. Provozujte portál na "
-"vlastním serveru — zdarma a bez omezení."
+msgid "Complete open source release under the AGPL-3.0 license. Host the portal on your own server — free and without limitations."
+msgstr "Kompletní open source release pod licencí AGPL-3.0. Provozujte portál na vlastním serveru — zdarma a bez omezení."
 
 #: app/templates/www/self_hosted.html:16
 msgid "Requirements"
@@ -2593,12 +2713,8 @@ msgid "The repo includes a"
 msgstr "Repozitář obsahuje"
 
 #: app/templates/www/self_hosted.html:44
-msgid ""
-"for production use behind an Nginx proxy with TLS configuration ready. "
-"Just fill in the ENV variables (SMTP, S3, domain) and run"
-msgstr ""
-"pro produkční nasazení za Nginx proxy s připravenou TLS konfigurací. "
-"Stačí doplnit ENV proměnné (SMTP, S3, doména) a spustit"
+msgid "for production use behind an Nginx proxy with TLS configuration ready. Just fill in the ENV variables (SMTP, S3, domain) and run"
+msgstr "pro produkční nasazení za Nginx proxy s připravenou TLS konfigurací. Stačí doplnit ENV proměnné (SMTP, S3, doména) a spustit"
 
 #: app/templates/www/self_hosted.html:48
 msgid "Details:"
@@ -2621,24 +2737,16 @@ msgid "single-tenant"
 msgstr "single-tenant"
 
 #: app/templates/www/self_hosted.html:57
-msgid ""
-"(one \"supplier\", multiple client contacts). If you need to run multiple"
-" separate suppliers on one instance, enable the"
-msgstr ""
-"(jeden \"dodavatel\", více kontaktů klientů). Pokud potřebujete na jedné "
-"instanci provozovat více oddělených dodavatelů, aktivujte proměnnou"
+msgid "(one \"supplier\", multiple client contacts). If you need to run multiple separate suppliers on one instance, enable the"
+msgstr "(jeden \"dodavatel\", více kontaktů klientů). Pokud potřebujete na jedné instanci provozovat více oddělených dodavatelů, aktivujte proměnnou"
 
 #: app/templates/www/self_hosted.html:57
 msgid "variable in"
 msgstr "proměnnou v"
 
 #: app/templates/www/self_hosted.html:57
-msgid ""
-"— this activates the opt-in SaaS layer with Identity, cross-tenant login,"
-" and admin CRUD for tenants."
-msgstr ""
-"— ta aktivuje opt-in SaaS vrstvu s Identitou, cross-tenant přihlašováním "
-"a admin CRUD pro tenanty."
+msgid "— this activates the opt-in SaaS layer with Identity, cross-tenant login, and admin CRUD for tenants."
+msgstr "— ta aktivuje opt-in SaaS vrstvu s Identitou, cross-tenant přihlašováním a admin CRUD pro tenanty."
 
 #: app/templates/www/self_hosted.html:62
 msgid "Support"
@@ -2653,24 +2761,16 @@ msgid "GitHub issues"
 msgstr "GitHub issues"
 
 #: app/templates/www/self_hosted.html:66
-msgid ""
-"and discussions. For commercial support, security audits, or custom "
-"development, use the"
-msgstr ""
-"a diskuse. Pro komerční podporu, bezpečnostní audity nebo vývoj na míru "
-"použijte"
+msgid "and discussions. For commercial support, security audits, or custom development, use the"
+msgstr "a diskuse. Pro komerční podporu, bezpečnostní audity nebo vývoj na míru použijte"
 
 #: app/templates/www/self_hosted.html:66
 msgid "contact form"
 msgstr "kontaktní formulář"
 
 #: app/templates/www/terms.html:14
-msgid ""
-"This text is a template and should be reviewed by a lawyer familiar with "
-"Czech law (GDPR, Civil Code) before going live."
-msgstr ""
-"Tento text je šablona a před nasazením by ho měl zkontrolovat právník "
-"znalý českého práva (GDPR, občanský zákoník)."
+msgid "This text is a template and should be reviewed by a lawyer familiar with Czech law (GDPR, Civil Code) before going live."
+msgstr "Tento text je šablona a před nasazením by ho měl zkontrolovat právník znalý českého práva (GDPR, občanský zákoník)."
 
 #: app/templates/www/terms.html:18
 msgid "1. Introduction"
@@ -2681,68 +2781,40 @@ msgid "The operator of Assoluto service (hereinafter the \"Service\") is"
 msgstr "Provozovatelem služby Assoluto (dále jen \\\"Služba\\\") je"
 
 #: app/templates/www/terms.html:22
-msgid ""
-"(hereinafter the \"Operator\"). These terms govern the relationship "
-"between the Operator and the person using the Service (hereinafter the "
-"\"User\")."
-msgstr ""
-"(dále jen \"Provozovatel\"). Tyto podmínky upravují vztah mezi "
-"Provozovatelem a osobou užívající Službu (dále jen \"Uživatel\")."
+msgid "(hereinafter the \"Operator\"). These terms govern the relationship between the Operator and the person using the Service (hereinafter the \"User\")."
+msgstr "(dále jen \"Provozovatel\"). Tyto podmínky upravují vztah mezi Provozovatelem a osobou užívající Službu (dále jen \"Uživatel\")."
 
 #: app/templates/www/terms.html:27
 msgid "2. Description of the Service"
 msgstr "2. Popis služby"
 
 #: app/templates/www/terms.html:29
-msgid ""
-"The Service provides a multi-tenant customer portal for manufacturing "
-"SMEs — management of orders, product catalog, client assets, and "
-"communication between the supplier and their clients."
-msgstr ""
-"Služba poskytuje multi-tenant klientský portál pro výrobní malé a střední"
-" podniky — správa objednávek, katalog produktů, majetek klientů a "
-"komunikace mezi dodavatelem a jeho klienty."
+msgid "The Service provides a multi-tenant customer portal for manufacturing SMEs — management of orders, product catalog, client assets, and communication between the supplier and their clients."
+msgstr "Služba poskytuje multi-tenant klientský portál pro výrobní malé a střední podniky — správa objednávek, katalog produktů, majetek klientů a komunikace mezi dodavatelem a jeho klienty."
 
 #: app/templates/www/terms.html:34
 msgid "3. Registration and account"
 msgstr "3. Registrace a účet"
 
 #: app/templates/www/terms.html:36
-msgid ""
-"Registration is required to use the Service. The User is obliged to "
-"provide truthful information and protect their login credentials. The "
-"Operator may block the account in case of serious violation of the terms."
-msgstr ""
-"Pro používání Služby je nutná registrace. Uživatel je povinen poskytnout "
-"pravdivé údaje a chránit svoje přihlašovací údaje. Provozovatel může v "
-"případě závažného porušení podmínek účet zablokovat."
+msgid "Registration is required to use the Service. The User is obliged to provide truthful information and protect their login credentials. The Operator may block the account in case of serious violation of the terms."
+msgstr "Pro používání Služby je nutná registrace. Uživatel je povinen poskytnout pravdivé údaje a chránit svoje přihlašovací údaje. Provozovatel může v případě závažného porušení podmínek účet zablokovat."
 
 #: app/templates/www/terms.html:41
 msgid "4. Trial period and payments"
 msgstr "4. Trial a platby"
 
 #: app/templates/www/terms.html:43
-msgid ""
-"A new account receives a 14-day free trial. After its expiration, the "
-"User can continue only with an active subscription. Payments are "
-"processed through Stripe."
-msgstr ""
-"Nový účet získá 14denní trial zdarma. Po jeho vypršení lze pokračovat "
-"pouze s aktivním předplatným. Platby probíhají přes Stripe."
+msgid "A new account receives a 14-day free trial. After its expiration, the User can continue only with an active subscription. Payments are processed through Stripe."
+msgstr "Nový účet získá 14denní trial zdarma. Po jeho vypršení lze pokračovat pouze s aktivním předplatným. Platby probíhají přes Stripe."
 
 #: app/templates/www/terms.html:48
 msgid "5. User obligations"
 msgstr "5. Povinnosti uživatele"
 
 #: app/templates/www/terms.html:50
-msgid ""
-"The User must not misuse the Service, circumvent security measures, "
-"interfere with operations, or use it for content that violates the laws "
-"of the Czech Republic or the EU."
-msgstr ""
-"Uživatel nesmí Službu zneužívat, obcházet bezpečnostní opatření, "
-"zasahovat do provozu ani ji používat k obsahu porušujícímu zákony České "
-"republiky nebo EU."
+msgid "The User must not misuse the Service, circumvent security measures, interfere with operations, or use it for content that violates the laws of the Czech Republic or the EU."
+msgstr "Uživatel nesmí Službu zneužívat, obcházet bezpečnostní opatření, zasahovat do provozu ani ji používat k obsahu porušujícímu zákony České republiky nebo EU."
 
 #: app/templates/www/terms.html:55
 msgid "6. Personal data protection"
@@ -2757,40 +2829,24 @@ msgid "7. Liability"
 msgstr "7. Odpovědnost"
 
 #: app/templates/www/terms.html:65
-msgid ""
-"The Service is provided \"as-is\". The Operator is not liable for damages"
-" caused by outages or data loss beyond the amount of the subscription "
-"paid for the given month. The User is obliged to maintain their own "
-"backups by exporting data."
-msgstr ""
-"Služba je poskytována \"tak jak je\". Provozovatel neodpovídá za škody "
-"způsobené výpadky nebo ztrátou dat nad rámec výše předplatného "
-"zaplaceného za daný měsíc. Uživatel je povinen udržovat vlastní zálohy "
-"exportem dat."
+msgid "The Service is provided \"as-is\". The Operator is not liable for damages caused by outages or data loss beyond the amount of the subscription paid for the given month. The User is obliged to maintain their own backups by exporting data."
+msgstr "Služba je poskytována \"tak jak je\". Provozovatel neodpovídá za škody způsobené výpadky nebo ztrátou dat nad rámec výše předplatného zaplaceného za daný měsíc. Uživatel je povinen udržovat vlastní zálohy exportem dat."
 
 #: app/templates/www/terms.html:70
 msgid "8. Termination"
 msgstr "8. Ukončení"
 
 #: app/templates/www/terms.html:72
-msgid ""
-"The User may cancel their account at any time. After termination, data "
-"will be retained for 30 days, then permanently deleted."
-msgstr ""
-"Uživatel může svůj účet kdykoli zrušit. Po zrušení se data uchovají 30 "
-"dní, poté dojde k trvalému smazání."
+msgid "The User may cancel their account at any time. After termination, data will be retained for 30 days, then permanently deleted."
+msgstr "Uživatel může svůj účet kdykoli zrušit. Po zrušení se data uchovají 30 dní, poté dojde k trvalému smazání."
 
 #: app/templates/www/terms.html:77
 msgid "9. Final provisions"
 msgstr "9. Závěrečná ustanovení"
 
 #: app/templates/www/terms.html:79
-msgid ""
-"These terms are governed by the laws of the Czech Republic. The Operator "
-"may modify the terms with 30 days' notice."
-msgstr ""
-"Tyto podmínky se řídí právem České republiky. Provozovatel může podmínky "
-"změnit s 30denní oznamovací lhůtou."
+msgid "These terms are governed by the laws of the Czech Republic. The Operator may modify the terms with 30 days' notice."
+msgstr "Tyto podmínky se řídí právem České republiky. Provozovatel může podmínky změnit s 30denní oznamovací lhůtou."
 
 #: app/templates/www/www_base.html:27
 msgid "Terms"

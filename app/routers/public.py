@@ -631,7 +631,19 @@ async def password_reset_request_submit(
             f"{tenant_base_url(settings, tenant)}/auth/password-reset/confirm?token={reset_token}"
         )
         sender = request.app.state.email_sender
+        from app.services.customer_service import get_customer
+        from app.services.locale_service import resolve_email_locale
         from app.tasks.email_tasks import send_password_reset
+
+        # For a customer contact, also look at the customer-level default
+        # (lets a tenant admin set an EN default for a US customer without
+        # having to flip each contact's row).
+        customer = None
+        if principal_type == "contact":
+            customer = await get_customer(db, row.customer_id)
+        locale = resolve_email_locale(
+            recipient=row, customer=customer, tenant=tenant, settings=settings
+        )
 
         background_tasks.add_task(
             send_password_reset,
@@ -640,6 +652,7 @@ async def password_reset_request_submit(
             tenant_name=tenant.name,
             full_name=row.full_name,
             reset_url=reset_url,
+            locale=locale,
         )
 
     html = _templates(request).render(

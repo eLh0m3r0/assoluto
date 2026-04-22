@@ -54,5 +54,12 @@ class User(Base, TimestampMixin, TenantMixin):
         JsonColumn, nullable=False, default=dict, server_default="{}"
     )
 
+    # Per-user email language override. NULL = inherit from tenant default
+    # (see ``app.services.locale_service.resolve_email_locale``). BCP-47
+    # short form — e.g. "cs", "en". Validation is application-side; we
+    # keep the column narrow but not constrained so we can add a new
+    # locale without a migration.
+    preferred_locale: Mapped[str | None] = mapped_column(String(8), nullable=True)
+
     def __repr__(self) -> str:  # pragma: no cover
         return f"<User id={self.id} email={self.email!r} role={self.role.value}>"

@@ -1,14 +1,13 @@
-Vítejte v Assolutu
+{{ _("Welcome to Assoluto") }}
 
-Dobrý den, {{ full_name }},
+{% trans full_name=full_name %}Hello {{ full_name }},{% endtrans %}
 
-děkujeme za registraci portálu pro vaši firmu {{ company_name }}.
+{% trans company_name=company_name %}Thank you for registering the portal for your company {{ company_name }}.{% endtrans %}
 
-Pro dokončení registrace prosím klikněte na následující odkaz
-a potvrďte svou e-mailovou adresu:
+{{ _("To finish registration, please click the link below and confirm your email address:") }}
 
     {{ verify_url }}
 
-Odkaz je platný 24 hodin.
+{{ _("The link is valid for 24 hours.") }}
 
-Pokud jste o registraci nežádali, můžete tento e-mail ignorovat.
+{{ _("If you didn't request this registration, you can ignore this email.") }}

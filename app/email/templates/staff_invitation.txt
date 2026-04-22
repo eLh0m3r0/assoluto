@@ -1,11 +1,9 @@
-Dobrý den, {{ invitee_name }}!
+{% trans invitee_name=invitee_name %}Hello {{ invitee_name }}!{% endtrans %}
 
-Byli jste přidáni do týmu {{ tenant_name }} jako administrátor
-zákaznického portálu. Pro nastavení hesla a první přihlášení otevřete
-následující odkaz — platí 7 dní:
+{% trans tenant_name=tenant_name %}You have been added to the {{ tenant_name }} team as an administrator of the customer portal. To set your password and log in for the first time, open the link below — it is valid for 7 days:{% endtrans %}
 
 {{ invite_url }}
 
-Pokud jste o pozvánku nežádali, ignorujte tento e-mail.
+{{ _("If you didn't request this invitation, please ignore this email.") }}
 
 -- {{ tenant_name }}

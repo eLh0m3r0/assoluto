@@ -1,15 +1,23 @@
 <!doctype html>
-<html lang="cs"><body style="font-family:sans-serif;background:#f8fafc;padding:24px;">
+<html lang="{{ locale or 'cs' }}">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light only">
+<title>{% trans order_number=order_number %}New order {{ order_number }}{% endtrans %}</title>
+</head>
+<body style="font-family:sans-serif;background:#f8fafc;padding:24px;">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+    {% trans customer_name=customer_name, order_number=order_number %}{{ customer_name }} submitted a new order {{ order_number }}.{% endtrans %}
+</div>
 <table width="100%"><tr><td align="center"><table width="560" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:32px;">
 <tr><td>
-    <h1 style="margin-top:0;color:#0f172a;">Nová objednávka {{ order_number }}</h1>
+    <h1 style="margin-top:0;color:#0f172a;">{% trans order_number=order_number %}New order {{ order_number }}{% endtrans %}</h1>
     <p style="color:#334155;">
-        Klient <strong>{{ customer_name }}</strong> odeslal novou objednávku
-        „{{ order_title }}".
+        {% trans customer_name=customer_name, order_title=order_title %}Client <strong>{{ customer_name }}</strong> submitted a new order &bdquo;{{ order_title }}&ldquo;.{% endtrans %}
     </p>
     <p>
         <a href="{{ order_url }}" style="display:inline-block;background:#2f5bd9;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;">
-            Otevřít objednávku
+            {{ _("Open order") }}
         </a>
     </p>
     <p style="color:#94a3b8;font-size:12px;">{{ tenant_name }}</p>

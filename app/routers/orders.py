@@ -1021,17 +1021,19 @@ async def orders_bulk_transition(
         if target == OrderStatus.SUBMITTED:
             payload = await build_order_submitted(
                 db,
-                tenant_name=tenant.name,
+                tenant=tenant,
                 order=order,
                 base_url=tenant_url,
+                settings=settings,
             )
         else:
             payload = await build_order_status_changed(
                 db,
-                tenant_name=tenant.name,
+                tenant=tenant,
                 order=order,
                 to_status=target,
                 base_url=tenant_url,
+                settings=settings,
             )
         if payload is not None:
             notifications.append((target, payload))
@@ -1045,7 +1047,7 @@ async def orders_bulk_transition(
             background_tasks.add_task(
                 send_order_submitted,
                 sender,
-                recipients=payload.recipients,
+                recipients_with_locale=payload.recipients_with_locale,
                 tenant_name=payload.tenant_name,
                 customer_name=payload.customer_name,
                 order_number=payload.order_number,
@@ -1056,7 +1058,7 @@ async def orders_bulk_transition(
             background_tasks.add_task(
                 send_order_status_changed,
                 sender,
-                recipients=payload.recipients,
+                recipients_with_locale=payload.recipients_with_locale,
                 tenant_name=payload.tenant_name,
                 order_number=payload.order_number,
                 order_title=payload.order_title,
@@ -1126,17 +1128,19 @@ async def orders_transition(
     if target == OrderStatus.SUBMITTED:
         notif_submitted = await build_order_submitted(
             db,
-            tenant_name=tenant.name,
+            tenant=tenant,
             order=order,
             base_url=tenant_url,
+            settings=settings,
         )
     else:
         notif_status = await build_order_status_changed(
             db,
-            tenant_name=tenant.name,
+            tenant=tenant,
             order=order,
             to_status=target,
             base_url=tenant_url,
+            settings=settings,
         )
 
     # Commit so the background task's fresh session can see the new state.
@@ -1148,7 +1152,7 @@ async def orders_transition(
         background_tasks.add_task(
             send_order_submitted,
             sender,
-            recipients=notif_submitted.recipients,
+            recipients_with_locale=notif_submitted.recipients_with_locale,
             tenant_name=notif_submitted.tenant_name,
             customer_name=notif_submitted.customer_name,
             order_number=notif_submitted.order_number,
@@ -1161,7 +1165,7 @@ async def orders_transition(
         background_tasks.add_task(
             send_order_status_changed,
             sender,
-            recipients=notif_status.recipients,
+            recipients_with_locale=notif_status.recipients_with_locale,
             tenant_name=notif_status.tenant_name,
             order_number=notif_status.order_number,
             order_title=notif_status.order_title,
@@ -1218,13 +1222,14 @@ async def orders_add_comment(
 
         notif = await build_order_comment(
             db,
-            tenant_name=tenant.name,
+            tenant=tenant,
             order=order,
             author_email=principal.email,
             author_name=principal.full_name,
             author_is_staff=principal.is_staff,
             body=body,
             base_url=tenant_base_url(settings, tenant),
+            settings=settings,
         )
 
     await db.commit()
@@ -1236,7 +1241,7 @@ async def orders_add_comment(
         background_tasks.add_task(
             send_order_comment,
             sender,
-            recipients=notif.recipients,
+            recipients_with_locale=notif.recipients_with_locale,
             tenant_name=notif.tenant_name,
             order_number=notif.order_number,
             order_title=notif.order_title,

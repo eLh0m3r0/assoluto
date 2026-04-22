@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-22 15:26+0200\n"
+"POT-Creation-Date: 2026-04-22 18:00+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -126,7 +126,341 @@ msgstr ""
 msgid "Customer contact"
 msgstr "As a customer contact"
 
-#: app/routers/customers.py:295
+#: app/email/templates/email_verification.html:6
+#: app/templates/platform/verify_sent.html:3
+msgid "Verify your email"
+msgstr "Verify your email"
+
+#: app/email/templates/email_verification.html:10
+msgid "Please confirm your email address to activate your portal account."
+msgstr ""
+
+#: app/email/templates/email_verification.html:13
+#: app/email/templates/email_verification.txt:1
+msgid "Welcome to Assoluto"
+msgstr ""
+
+#: app/email/templates/email_verification.html:14
+#: app/email/templates/email_verification.txt:3
+#, python-format
+msgid "Hello %(full_name)s,"
+msgstr ""
+
+#: app/email/templates/email_verification.html:16
+#, python-format
+msgid ""
+"Thank you for registering the portal for your company "
+"<strong>%(company_name)s</strong>."
+msgstr ""
+
+#: app/email/templates/email_verification.html:19
+#: app/email/templates/email_verification.txt:7
+msgid ""
+"To finish registration, please click the link below and confirm your "
+"email address:"
+msgstr ""
+
+#: app/email/templates/email_verification.html:24
+#, fuzzy
+msgid "Verify email"
+msgstr "Verify your email"
+
+#: app/email/templates/email_verification.html:28
+msgid ""
+"The link is valid for 24 hours. If the button doesn't work, copy this URL"
+" into your browser:"
+msgstr ""
+
+#: app/email/templates/email_verification.html:33
+#: app/email/templates/email_verification.txt:13
+msgid "If you didn't request this registration, you can ignore this email."
+msgstr ""
+
+#: app/email/templates/email_verification.subject.txt:1
+#, fuzzy
+msgid "Verify your email — Assoluto"
+msgstr "Verify your email"
+
+#: app/email/templates/email_verification.txt:5
+#, python-format
+msgid "Thank you for registering the portal for your company %(company_name)s."
+msgstr ""
+
+#: app/email/templates/email_verification.txt:11
+msgid "The link is valid for 24 hours."
+msgstr ""
+
+#: app/email/templates/invitation.html:6
+#, python-format
+msgid "Invitation to %(tenant_name)s"
+msgstr ""
+
+#: app/email/templates/invitation.html:10
+#, python-format
+msgid "You have been invited to the %(tenant_name)s customer portal."
+msgstr ""
+
+#: app/email/templates/invitation.html:17 app/email/templates/invitation.txt:1
+#, python-format
+msgid "Hello %(contact_name)s!"
+msgstr ""
+
+#: app/email/templates/invitation.html:20
+#, python-format
+msgid ""
+"<strong>%(tenant_name)s</strong> invites you to the customer portal on "
+"behalf of <strong>%(customer_name)s</strong>."
+msgstr ""
+
+#: app/email/templates/invitation.html:24
+msgid "To finish registration, click the link below — it is valid for 7 days:"
+msgstr ""
+
+#: app/email/templates/invitation.html:31
+#, fuzzy
+msgid "Accept the invitation"
+msgstr "Send a new verification link"
+
+#: app/email/templates/invitation.html:36
+#: app/email/templates/staff_invitation.html:24
+msgid "If the button doesn't work, open the link manually:"
+msgstr ""
+
+#: app/email/templates/invitation.html:43
+#, python-format
+msgid ""
+"This message was sent automatically by the %(tenant_name)s portal. If you"
+" didn't request this invitation, please ignore it."
+msgstr ""
+
+#: app/email/templates/invitation.subject.txt:1
+#, python-format
+msgid "Invitation to %(tenant_name)s — customer portal"
+msgstr ""
+
+#: app/email/templates/invitation.txt:3
+#, python-format
+msgid ""
+"%(tenant_name)s invites you to the customer portal on behalf of "
+"%(customer_name)s."
+msgstr ""
+
+#: app/email/templates/invitation.txt:5
+msgid "To finish registration, open the link below — it is valid for 7 days:"
+msgstr ""
+
+#: app/email/templates/invitation.txt:9
+#: app/email/templates/staff_invitation.html:29
+#: app/email/templates/staff_invitation.txt:7
+msgid "If you didn't request this invitation, please ignore this email."
+msgstr ""
+
+#: app/email/templates/order_comment.html:6
+#: app/email/templates/order_comment.subject.txt:1
+#, python-format
+msgid "New comment on order %(order_number)s"
+msgstr ""
+
+#: app/email/templates/order_comment.html:10
+#, python-format
+msgid "A new comment was posted on order %(order_number)s."
+msgstr ""
+
+#: app/email/templates/order_comment.html:14
+#, fuzzy
+msgid "New comment"
+msgstr "Clients"
+
+#: app/email/templates/order_comment.html:16
+#, python-format
+msgid ""
+"%(author_name)s added a comment to order "
+"<strong>%(order_number)s</strong> — %(order_title)s."
+msgstr ""
+
+#: app/email/templates/order_comment.html:23
+#: app/email/templates/order_submitted.html:20
+#, fuzzy
+msgid "Open order"
+msgstr "Orders"
+
+#: app/email/templates/order_comment.txt:1
+#, python-format
+msgid "New comment on order %(order_number)s — %(order_title)s"
+msgstr ""
+
+#: app/email/templates/order_comment.txt:3
+#, python-format
+msgid "%(author_name)s wrote:"
+msgstr ""
+
+#: app/email/templates/order_comment.txt:7
+#: app/email/templates/order_submitted.txt:5
+msgid "Open"
+msgstr ""
+
+#: app/email/templates/order_status_changed.html:6
+#: app/email/templates/order_status_changed.html:14
+#, python-format
+msgid "Order %(order_number)s"
+msgstr ""
+
+#: app/email/templates/order_status_changed.html:10
+#, python-format
+msgid "Order %(order_number)s is now %(status_label)s."
+msgstr ""
+
+#: app/email/templates/order_status_changed.html:16
+#, python-format
+msgid "Status changed to <strong>%(status_label)s</strong>."
+msgstr ""
+
+#: app/email/templates/order_status_changed.html:21
+#, fuzzy
+msgid "View detail"
+msgstr "Email"
+
+#: app/email/templates/order_status_changed.subject.txt:1
+#: app/email/templates/order_status_changed.txt:1
+#, python-format
+msgid "Order %(order_number)s — %(status_label)s"
+msgstr ""
+
+#: app/email/templates/order_status_changed.txt:5
+#, fuzzy
+msgid "Detail"
+msgstr "Email"
+
+#: app/email/templates/order_submitted.html:6
+#: app/email/templates/order_submitted.html:14
+#: app/email/templates/order_submitted.txt:1
+#, python-format
+msgid "New order %(order_number)s"
+msgstr ""
+
+#: app/email/templates/order_submitted.html:10
+#, python-format
+msgid "%(customer_name)s submitted a new order %(order_number)s."
+msgstr ""
+
+#: app/email/templates/order_submitted.html:16
+#, python-format
+msgid ""
+"Client <strong>%(customer_name)s</strong> submitted a new order "
+"&bdquo;%(order_title)s&ldquo;."
+msgstr ""
+
+#: app/email/templates/order_submitted.subject.txt:1
+#, python-format
+msgid "New order %(order_number)s from %(customer_name)s"
+msgstr ""
+
+#: app/email/templates/order_submitted.txt:3
+#, python-format
+msgid "Client %(customer_name)s submitted a new order \"%(order_title)s\"."
+msgstr ""
+
+#: app/email/templates/password_reset.html:6
+#: app/email/templates/password_reset.html:14
+#: app/templates/auth/password_reset_request.html:3
+#: app/templates/auth/password_reset_request.html:8
+#: app/templates/platform/password_reset_request.html:3
+#: app/templates/platform/password_reset_request.html:8
+#, fuzzy
+msgid "Password reset"
+msgstr "Password"
+
+#: app/email/templates/password_reset.html:10
+msgid "Use the enclosed link to set a new password. It expires in 30 minutes."
+msgstr ""
+
+#: app/email/templates/password_reset.html:15
+#: app/email/templates/password_reset.txt:1
+#, python-format
+msgid "Hello %(full_name)s."
+msgstr ""
+
+#: app/email/templates/password_reset.html:17
+#, python-format
+msgid ""
+"We received a request to reset the password on your account at the "
+"<strong>%(tenant_name)s</strong> portal. To set a new password, click the"
+" link — it is valid for <strong>30 minutes</strong>:"
+msgstr ""
+
+#: app/email/templates/password_reset.html:21
+#: app/templates/auth/password_reset_confirm.html:34
+#: app/templates/platform/password_reset_confirm.html:34
+#, fuzzy
+msgid "Set new password"
+msgstr "Password"
+
+#: app/email/templates/password_reset.html:27
+msgid ""
+"If you didn't request this reset, please ignore this email — your "
+"password will remain unchanged."
+msgstr ""
+
+#: app/email/templates/password_reset.subject.txt:1
+#, fuzzy, python-format
+msgid "Password reset — %(tenant_name)s"
+msgstr "Password"
+
+#: app/email/templates/password_reset.txt:3
+#, python-format
+msgid ""
+"We received a request to reset the password on your account at the "
+"%(tenant_name)s portal. To set a new password, open this link (valid for "
+"30 minutes):"
+msgstr ""
+
+#: app/email/templates/password_reset.txt:7
+msgid "If you didn't request this reset, please ignore this email."
+msgstr ""
+
+#: app/email/templates/staff_invitation.html:6
+#, python-format
+msgid "Team invitation — %(tenant_name)s"
+msgstr ""
+
+#: app/email/templates/staff_invitation.html:10
+#, python-format
+msgid "You have been invited to the %(tenant_name)s team."
+msgstr ""
+
+#: app/email/templates/staff_invitation.html:14
+#: app/email/templates/staff_invitation.txt:1
+#, python-format
+msgid "Hello %(invitee_name)s!"
+msgstr ""
+
+#: app/email/templates/staff_invitation.html:16
+#, python-format
+msgid ""
+"You have been added to the <strong>%(tenant_name)s</strong> team as an "
+"administrator of the customer portal. To set your password and log in for"
+" the first time, click the link below — it is valid for 7 days:"
+msgstr ""
+
+#: app/email/templates/staff_invitation.html:20
+#, fuzzy
+msgid "Set password and log in"
+msgstr "Password"
+
+#: app/email/templates/staff_invitation.subject.txt:1
+#, python-format
+msgid "Invitation to the %(tenant_name)s team — customer portal"
+msgstr ""
+
+#: app/email/templates/staff_invitation.txt:3
+#, python-format
+msgid ""
+"You have been added to the %(tenant_name)s team as an administrator of "
+"the customer portal. To set your password and log in for the first time, "
+"open the link below — it is valid for 7 days:"
+msgstr ""
+
+#: app/routers/customers.py:296
 msgid "A contact with the same email already exists."
 msgstr ""
 
@@ -174,32 +508,32 @@ msgstr "Team"
 msgid "Choose a client."
 msgstr ""
 
-#: app/routers/orders.py:823
+#: app/routers/orders.py:826
 msgid "Invalid quantity"
 msgstr ""
 
-#: app/routers/orders.py:833
+#: app/routers/orders.py:836
 msgid "Invalid unit_price"
 msgstr ""
 
-#: app/routers/orders.py:864
+#: app/routers/orders.py:867
 msgid "This order is no longer a draft."
 msgstr ""
 
-#: app/routers/orders.py:966
+#: app/routers/orders.py:969
 msgid "Unknown status"
 msgstr ""
 
-#: app/routers/orders.py:987
+#: app/routers/orders.py:990
 msgid "Select at least one order."
 msgstr ""
 
-#: app/routers/orders.py:1068
+#: app/routers/orders.py:1073
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr ""
 
-#: app/routers/orders.py:1070
+#: app/routers/orders.py:1075
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr ""
@@ -226,23 +560,23 @@ msgid "The invitation belongs to a different tenant."
 msgstr ""
 
 #: app/routers/public.py:375 app/routers/public.py:522
-#: app/routers/public.py:712
+#: app/routers/public.py:725
 msgid "Passwords do not match."
 msgstr ""
 
-#: app/routers/public.py:677
+#: app/routers/public.py:690
 msgid "The link is invalid or has expired."
 msgstr ""
 
-#: app/routers/tenant_admin.py:151
+#: app/routers/tenant_admin.py:152
 msgid "A user with this email already exists."
 msgstr ""
 
-#: app/routers/tenant_admin.py:282 app/routers/tenant_admin.py:395
+#: app/routers/tenant_admin.py:285 app/routers/tenant_admin.py:400
 msgid "Name cannot be empty."
 msgstr ""
 
-#: app/routers/tenant_admin.py:424
+#: app/routers/tenant_admin.py:429
 msgid "New passwords do not match."
 msgstr ""
 
@@ -945,20 +1279,6 @@ msgstr "Password"
 msgid "Enter a new password for your account."
 msgstr ""
 
-#: app/templates/auth/password_reset_confirm.html:34
-#: app/templates/platform/password_reset_confirm.html:34
-#, fuzzy
-msgid "Set new password"
-msgstr "Password"
-
-#: app/templates/auth/password_reset_request.html:3
-#: app/templates/auth/password_reset_request.html:8
-#: app/templates/platform/password_reset_request.html:3
-#: app/templates/platform/password_reset_request.html:8
-#, fuzzy
-msgid "Password reset"
-msgstr "Password"
-
 #: app/templates/auth/password_reset_request.html:10
 msgid ""
 "Enter your email. If we have an account for it, we will send a link to "
@@ -1598,10 +1918,6 @@ msgstr "Email verification failed"
 #: app/templates/platform/verify_sent.html:23
 msgid "Send a new verification link"
 msgstr "Send a new verification link"
-
-#: app/templates/platform/verify_sent.html:3
-msgid "Verify your email"
-msgstr "Verify your email"
 
 #: app/templates/platform/verify_sent.html:11
 msgid "Check your email"

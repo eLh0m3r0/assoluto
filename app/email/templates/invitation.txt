@@ -1,12 +1,11 @@
-Dobrý den, {{ contact_name }}!
+{% trans contact_name=contact_name %}Hello {{ contact_name }}!{% endtrans %}
 
-Společnost {{ tenant_name }} vás zve do zákaznického portálu
-za firmu {{ customer_name }}.
+{% trans tenant_name=tenant_name, customer_name=customer_name %}{{ tenant_name }} invites you to the customer portal on behalf of {{ customer_name }}.{% endtrans %}
 
-Pro dokončení registrace otevřete následující odkaz — platí 7 dní:
+{{ _("To finish registration, open the link below — it is valid for 7 days:") }}
 
 {{ invite_url }}
 
-Pokud jste o pozvánku nežádali, tento e-mail ignorujte.
+{{ _("If you didn't request this invitation, please ignore this email.") }}
 
 -- {{ tenant_name }}

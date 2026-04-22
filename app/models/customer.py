@@ -59,6 +59,12 @@ class Customer(Base, TimestampMixin, TenantMixin):
         Boolean, nullable=False, default=True, server_default="true"
     )
 
+    # Per-customer email language default. Lets a CZ tenant onboard a US
+    # customer and have all notification mails for that customer's
+    # contacts go out in English without each contact needing to flip
+    # their own preference. NULL = inherit from tenant default.
+    preferred_locale: Mapped[str | None] = mapped_column(String(8), nullable=True)
+
     def __repr__(self) -> str:  # pragma: no cover
         return f"<Customer id={self.id} name={self.name!r}>"
 
@@ -110,6 +116,12 @@ class CustomerContact(Base, TimestampMixin, TenantMixin):
     notification_prefs: Mapped[dict[str, Any]] = mapped_column(
         JsonColumn, nullable=False, default=dict, server_default="{}"
     )
+
+    # Per-contact email language override. NULL = inherit from customer
+    # default, then from tenant default. A contact can flip their own
+    # via the self-service profile page; a tenant admin can set it on
+    # their behalf.
+    preferred_locale: Mapped[str | None] = mapped_column(String(8), nullable=True)
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"<CustomerContact id={self.id} email={self.email!r} customer_id={self.customer_id}>"

@@ -1,9 +1,9 @@
-Nový komentář u objednávky {{ order_number }} — {{ order_title }}
+{% trans order_number=order_number, order_title=order_title %}New comment on order {{ order_number }} — {{ order_title }}{% endtrans %}
 
-{{ author_name }} napsal/a:
+{% trans author_name=author_name %}{{ author_name }} wrote:{% endtrans %}
 
     {{ body_excerpt }}
 
-Otevřít: {{ order_url }}
+{{ _("Open") }}: {{ order_url }}
 
 -- {{ tenant_name }}

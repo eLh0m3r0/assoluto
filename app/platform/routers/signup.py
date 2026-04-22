@@ -185,6 +185,7 @@ async def signup_submit(
 
     verify_url = _build_verify_url(settings, identity.id)
     sender = request.app.state.email_sender
+    locale = getattr(request.state, "locale", settings.default_locale)
     background_tasks.add_task(
         send_email_verification,
         sender,
@@ -192,6 +193,7 @@ async def signup_submit(
         full_name=identity.full_name,
         company_name=tenant.name,
         verify_url=verify_url,
+        locale=locale,
     )
 
     # 4) Log the new user straight in via the platform cookie — no need
@@ -380,6 +382,7 @@ async def resend_verification(
     # blank).
     company_name = await _company_name_for_identity(db, identity.id)
     verify_url = _build_verify_url(settings, identity.id)
+    locale = getattr(request.state, "locale", settings.default_locale)
     background_tasks.add_task(
         send_email_verification,
         request.app.state.email_sender,
@@ -387,6 +390,7 @@ async def resend_verification(
         full_name=identity.full_name,
         company_name=company_name,
         verify_url=verify_url,
+        locale=locale,
     )
     return RedirectResponse(url="/platform/verify-sent", status_code=status.HTTP_303_SEE_OTHER)
 

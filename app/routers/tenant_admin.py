@@ -25,6 +25,7 @@ from app.services.auth_service import (
     create_staff_invite_token,
     invite_tenant_staff,
 )
+from app.services.locale_service import resolve_email_locale
 from app.tasks.email_tasks import send_staff_invitation
 
 router = APIRouter(prefix="/app/admin", tags=["tenant-admin"], dependencies=[Depends(verify_csrf)])
@@ -178,6 +179,7 @@ async def users_invite(
     from app.urls import tenant_base_url
 
     invite_url = f"{tenant_base_url(settings, tenant)}/invite/staff?token={token}"
+    locale = resolve_email_locale(recipient=user, tenant=tenant, settings=settings)
     background_tasks.add_task(
         send_staff_invitation,
         sender,
@@ -185,6 +187,7 @@ async def users_invite(
         tenant_name=tenant.name,
         invitee_name=user.full_name,
         invite_url=invite_url,
+        locale=locale,
     )
 
     return RedirectResponse(url="/app/admin/users", status_code=303)
@@ -341,12 +344,14 @@ async def users_resend_invite(
 
     await db.commit()
 
+    locale = resolve_email_locale(recipient=target, tenant=tenant, settings=settings)
     send_staff_invitation(
         request.app.state.email_sender,
         to=target.email,
         tenant_name=tenant.name,
         invitee_name=target.full_name,
         invite_url=invite_url,
+        locale=locale,
     )
 
     return RedirectResponse(

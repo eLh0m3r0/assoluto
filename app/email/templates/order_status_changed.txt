@@ -1,7 +1,7 @@
-Objednávka {{ order_number }} — {{ status_label }}
+{% trans order_number=order_number, status_label=_(status_label) %}Order {{ order_number }} — {{ status_label }}{% endtrans %}
 
 {{ order_title }}
 
-Detail: {{ order_url }}
+{{ _("Detail") }}: {{ order_url }}
 
 -- {{ tenant_name }}

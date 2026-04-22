@@ -1,1 +1,1 @@
-Nová objednávka {{ order_number }} od {{ customer_name }}
+{% trans order_number=order_number, customer_name=customer_name %}New order {{ order_number }} from {{ customer_name }}{% endtrans %}

@@ -1,7 +1,24 @@
 """Background email tasks.
 
-Every public function here takes an `EmailSender` rather than reading a
-global so that tests can plug in a `CaptureSender` without monkey-patching.
+Every public function here takes an :class:`EmailSender` rather than
+reading a global so that tests can plug in a :class:`CaptureSender`
+without monkey-patching.
+
+### Locale handling
+
+Single-recipient emails (invitations, verification, password reset)
+take a ``locale`` keyword. The caller is responsible for resolving it
+via :func:`app.services.locale_service.resolve_email_locale` before
+scheduling the task — the service layer owns the
+recipient/customer/tenant lookup and keeps this task module free of
+DB plumbing.
+
+Multi-recipient emails (order notifications fanning out to tenant
+staff or to all contacts of a customer) take ``recipients_with_locale``,
+a sequence of ``(email, locale_or_none)`` tuples. Each recipient gets
+their own render so a US contact and a Czech staff user can both be
+on the same notification list and each see it in their preferred
+language.
 """
 
 from __future__ import annotations
@@ -15,16 +32,19 @@ from app.models.enums import OrderStatus
 log = get_logger("app.tasks.email")
 
 
+# English msgids — the template's ``_(status_label)`` translates at
+# render time using the recipient's locale. Keep the CS text OUT of
+# this module so one catalogue covers every surface.
 STATUS_LABELS: dict[OrderStatus, str] = {
-    OrderStatus.DRAFT: "Koncept",
-    OrderStatus.SUBMITTED: "Odesláno",
-    OrderStatus.QUOTED: "Nacenění",
-    OrderStatus.CONFIRMED: "Potvrzeno",
-    OrderStatus.IN_PRODUCTION: "Ve výrobě",
-    OrderStatus.READY: "Připraveno",
-    OrderStatus.DELIVERED: "Dodáno",
-    OrderStatus.CLOSED: "Uzavřeno",
-    OrderStatus.CANCELLED: "Zrušeno",
+    OrderStatus.DRAFT: "Draft",
+    OrderStatus.SUBMITTED: "Submitted",
+    OrderStatus.QUOTED: "Quoted",
+    OrderStatus.CONFIRMED: "Confirmed",
+    OrderStatus.IN_PRODUCTION: "In production",
+    OrderStatus.READY: "Ready",
+    OrderStatus.DELIVERED: "Delivered",
+    OrderStatus.CLOSED: "Closed",
+    OrderStatus.CANCELLED: "Cancelled",
 }
 
 
@@ -49,6 +69,19 @@ def _safe_send(
         log.error("email.failed", kind=kind, to=to, error=str(exc))
 
 
+def _render_and_send(
+    sender: EmailSender,
+    kind: str,
+    template: str,
+    to: str,
+    context: dict,
+    locale: str | None,
+) -> None:
+    """Render ``template`` in ``locale`` and hand it to the sender."""
+    rendered = render_email(template, context, locale=locale)
+    _safe_send(sender, kind, to, rendered.subject, rendered.html, rendered.text)
+
+
 def send_invitation(
     sender: EmailSender,
     *,
@@ -57,18 +90,22 @@ def send_invitation(
     customer_name: str,
     contact_name: str,
     invite_url: str,
+    locale: str | None = None,
 ) -> None:
     """Send an invitation email to a new customer contact."""
-    rendered = render_email(
+    _render_and_send(
+        sender,
         "invitation",
+        "invitation",
+        to,
         {
             "tenant_name": tenant_name,
             "customer_name": customer_name,
             "contact_name": contact_name,
             "invite_url": invite_url,
         },
+        locale,
     )
-    _safe_send(sender, "invitation", to, rendered.subject, rendered.html, rendered.text)
 
 
 def send_email_verification(
@@ -78,17 +115,21 @@ def send_email_verification(
     full_name: str,
     company_name: str,
     verify_url: str,
+    locale: str | None = None,
 ) -> None:
     """Send the platform signup email-verification link."""
-    rendered = render_email(
+    _render_and_send(
+        sender,
         "email_verification",
+        "email_verification",
+        to,
         {
             "full_name": full_name,
             "company_name": company_name,
             "verify_url": verify_url,
         },
+        locale,
     )
-    _safe_send(sender, "email_verification", to, rendered.subject, rendered.html, rendered.text)
 
 
 def send_staff_invitation(
@@ -98,17 +139,21 @@ def send_staff_invitation(
     tenant_name: str,
     invitee_name: str,
     invite_url: str,
+    locale: str | None = None,
 ) -> None:
     """Send an invitation email to a new tenant staff user."""
-    rendered = render_email(
+    _render_and_send(
+        sender,
         "staff_invitation",
+        "staff_invitation",
+        to,
         {
             "tenant_name": tenant_name,
             "invitee_name": invitee_name,
             "invite_url": invite_url,
         },
+        locale,
     )
-    _safe_send(sender, "staff_invitation", to, rendered.subject, rendered.html, rendered.text)
 
 
 def send_password_reset(
@@ -118,23 +163,30 @@ def send_password_reset(
     tenant_name: str,
     full_name: str,
     reset_url: str,
+    locale: str | None = None,
 ) -> None:
     """Send a password-reset e-mail carrying a one-shot URL."""
-    rendered = render_email(
+    _render_and_send(
+        sender,
         "password_reset",
+        "password_reset",
+        to,
         {
             "tenant_name": tenant_name,
             "full_name": full_name,
             "reset_url": reset_url,
         },
+        locale,
     )
-    _safe_send(sender, "password_reset", to, rendered.subject, rendered.html, rendered.text)
+
+
+RecipientLocales = Iterable[tuple[str, str | None]]
 
 
 def send_order_comment(
     sender: EmailSender,
     *,
-    recipients: Iterable[str],
+    recipients_with_locale: RecipientLocales,
     tenant_name: str,
     order_number: str,
     order_title: str,
@@ -142,32 +194,22 @@ def send_order_comment(
     author_name: str,
     body_excerpt: str,
 ) -> None:
-    rendered = render_email(
-        "order_comment",
-        {
-            "tenant_name": tenant_name,
-            "order_number": order_number,
-            "order_title": order_title,
-            "order_url": order_url,
-            "author_name": author_name,
-            "body_excerpt": body_excerpt,
-        },
-    )
-    for to in recipients:
-        _safe_send(
-            sender,
-            "order_comment",
-            to,
-            rendered.subject,
-            rendered.html,
-            rendered.text,
-        )
+    ctx = {
+        "tenant_name": tenant_name,
+        "order_number": order_number,
+        "order_title": order_title,
+        "order_url": order_url,
+        "author_name": author_name,
+        "body_excerpt": body_excerpt,
+    }
+    for to, locale in recipients_with_locale:
+        _render_and_send(sender, "order_comment", "order_comment", to, ctx, locale)
 
 
 def send_order_submitted(
     sender: EmailSender,
     *,
-    recipients: Iterable[str],
+    recipients_with_locale: RecipientLocales,
     tenant_name: str,
     customer_name: str,
     order_number: str,
@@ -175,31 +217,21 @@ def send_order_submitted(
     order_url: str,
 ) -> None:
     """Notify tenant staff that a customer just submitted an order."""
-    rendered = render_email(
-        "order_submitted",
-        {
-            "tenant_name": tenant_name,
-            "customer_name": customer_name,
-            "order_number": order_number,
-            "order_title": order_title,
-            "order_url": order_url,
-        },
-    )
-    for to in recipients:
-        _safe_send(
-            sender,
-            "order_submitted",
-            to,
-            rendered.subject,
-            rendered.html,
-            rendered.text,
-        )
+    ctx = {
+        "tenant_name": tenant_name,
+        "customer_name": customer_name,
+        "order_number": order_number,
+        "order_title": order_title,
+        "order_url": order_url,
+    }
+    for to, locale in recipients_with_locale:
+        _render_and_send(sender, "order_submitted", "order_submitted", to, ctx, locale)
 
 
 def send_order_status_changed(
     sender: EmailSender,
     *,
-    recipients: Iterable[str],
+    recipients_with_locale: RecipientLocales,
     tenant_name: str,
     order_number: str,
     order_title: str,
@@ -208,22 +240,14 @@ def send_order_status_changed(
 ) -> None:
     """Notify customer contacts that an order's status changed."""
     label = STATUS_LABELS.get(to_status, to_status.value)
-    rendered = render_email(
-        "order_status_changed",
-        {
-            "tenant_name": tenant_name,
-            "order_number": order_number,
-            "order_title": order_title,
-            "order_url": order_url,
-            "status_label": label,
-        },
-    )
-    for to in recipients:
-        _safe_send(
-            sender,
-            "order_status_changed",
-            to,
-            rendered.subject,
-            rendered.html,
-            rendered.text,
+    ctx = {
+        "tenant_name": tenant_name,
+        "order_number": order_number,
+        "order_title": order_title,
+        "order_url": order_url,
+        "status_label": label,
+    }
+    for to, locale in recipients_with_locale:
+        _render_and_send(
+            sender, "order_status_changed", "order_status_changed", to, ctx, locale
         )

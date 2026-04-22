@@ -30,6 +30,7 @@ from app.services.customer_service import (
     list_customers,
     update_customer,
 )
+from app.services.locale_service import resolve_email_locale
 from app.tasks.email_tasks import send_invitation
 
 router = APIRouter(prefix="/app", tags=["customers"], dependencies=[Depends(verify_csrf)])
@@ -316,6 +317,9 @@ async def customers_invite_contact(
     from app.urls import tenant_base_url
 
     invite_url = f"{tenant_base_url(settings, tenant)}/invite/accept?token={token}"
+    locale = resolve_email_locale(
+        recipient=contact, customer=customer, tenant=tenant, settings=settings
+    )
     background_tasks.add_task(
         send_invitation,
         sender,
@@ -324,6 +328,7 @@ async def customers_invite_contact(
         customer_name=customer.name,
         contact_name=contact.full_name,
         invite_url=invite_url,
+        locale=locale,
     )
 
     return RedirectResponse(url=f"/app/customers/{customer.id}", status_code=303)
@@ -437,6 +442,9 @@ async def customers_contact_resend_invite(
 
     tenant = _tenant(principal, request)
     invite_url = f"{tenant_base_url(settings, tenant)}/invite/accept?token={token}"
+    locale = resolve_email_locale(
+        recipient=contact, customer=customer, tenant=tenant, settings=settings
+    )
     background_tasks.add_task(
         send_invitation,
         request.app.state.email_sender,
@@ -445,6 +453,7 @@ async def customers_contact_resend_invite(
         customer_name=customer.name,
         contact_name=contact.full_name,
         invite_url=invite_url,
+        locale=locale,
     )
     return RedirectResponse(
         url=f"/app/customers/{customer_id}?notice={quote('Pozvánka odeslána znovu.')}",

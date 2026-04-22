@@ -158,12 +158,18 @@ async def platform_password_reset_submit(
         reset_token = create_platform_password_reset_token(settings.app_secret_key, identity.id)
         reset_url = f"{settings.app_base_url}/platform/password-reset/confirm?token={reset_token}"
         sender = request.app.state.email_sender
+        # Platform identities aren't scoped to a tenant, so there's no
+        # tenant default to inherit — use whatever the browser is
+        # currently showing the user (the language switcher on the
+        # public page sets this cookie).
+        locale = getattr(request.state, "locale", settings.default_locale)
         send_password_reset(
             sender,
             to=identity.email,
             tenant_name="Assoluto",
             full_name=identity.full_name,
             reset_url=reset_url,
+            locale=locale,
         )
 
     html = _templates(request).render(
