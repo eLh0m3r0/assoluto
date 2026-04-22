@@ -94,14 +94,18 @@ def _safe_send(
                     kind=kind,
                     to=to,
                     attempt=attempt,
-                    error=str(exc),
+                    # Log the exception *class*, not str(exc) — some SMTP
+                    # libraries include the message body in their error
+                    # repr, and structured logs shouldn't be a back-door
+                    # for leaking reset URLs / invite tokens.
+                    error_class=type(exc).__name__,
                 )
     log.error(
         "email.failed",
         kind=kind,
         to=to,
         attempts=_MAX_ATTEMPTS,
-        error=str(last_exc) if last_exc else "unknown",
+        error_class=type(last_exc).__name__ if last_exc else "unknown",
     )
 
 

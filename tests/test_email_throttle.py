@@ -67,3 +67,21 @@ def test_invalid_params() -> None:
         EmailThrottle(max_attempts=0, window_seconds=10)
     with pytest.raises(ValueError):
         EmailThrottle(max_attempts=3, window_seconds=0)
+
+
+def test_stale_buckets_evicted_over_time() -> None:
+    """Long-running process → unique-email streams → no unbounded growth."""
+    t = EmailThrottle(max_attempts=5, window_seconds=1)
+    # Force frequent sweeps for the test.
+    t._EVICT_EVERY_N = 10
+    for i in range(200):
+        t.allow(f"user-{i}@ex.com")
+    # 200 unique keys; the sweep should have run at least once.
+    # Wait long enough that every key is now "stale".
+    time.sleep(1.1 * t._EVICT_AFTER_WINDOWS)
+    # Force another sweep.
+    for i in range(20):
+        t.allow(f"fresh-{i}@ex.com")
+    # Only the fresh keys should remain.
+    # (Plus possibly a handful from the most recent batch.)
+    assert len(t._buckets) <= 30, f"expected stale eviction, got {len(t._buckets)}"

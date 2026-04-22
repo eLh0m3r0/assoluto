@@ -39,6 +39,14 @@ class EmailThrottle:
     happens on access (O(k) amortised). Process-local.
     """
 
+    # Evict keys whose newest timestamp is older than this many windows
+    # back. Bounded so a long-running process handling a stream of
+    # unique addresses doesn't accumulate dead buckets forever.
+    _EVICT_AFTER_WINDOWS = 4
+    # Run the sweep every N allow() calls. Amortises the O(bucket_count)
+    # sweep so individual requests don't get slow on big states.
+    _EVICT_EVERY_N = 512
+
     def __init__(self, max_attempts: int, window_seconds: int) -> None:
         if max_attempts <= 0 or window_seconds <= 0:
             raise ValueError("max_attempts and window_seconds must be positive")
@@ -46,6 +54,7 @@ class EmailThrottle:
         self._win = float(window_seconds)
         self._buckets: dict[str, deque[float]] = {}
         self._lock = Lock()
+        self._hits_since_sweep = 0
 
     def allow(self, email: str) -> bool:
         """Record a new attempt and return whether it's within the cap."""
@@ -56,6 +65,11 @@ class EmailThrottle:
         now = monotonic()
         cutoff = now - self._win
         with self._lock:
+            self._hits_since_sweep += 1
+            if self._hits_since_sweep >= self._EVICT_EVERY_N:
+                self._evict_stale_locked(now)
+                self._hits_since_sweep = 0
+
             q = self._buckets.get(key)
             if q is None:
                 q = deque()
@@ -67,10 +81,19 @@ class EmailThrottle:
             q.append(now)
             return True
 
+    def _evict_stale_locked(self, now: float) -> None:
+        """Drop buckets whose newest entry is older than ``_EVICT_AFTER_WINDOWS``
+        windows ago. Caller must hold ``self._lock``."""
+        stale_cutoff = now - self._win * self._EVICT_AFTER_WINDOWS
+        stale_keys = [k for k, q in self._buckets.items() if not q or q[-1] < stale_cutoff]
+        for k in stale_keys:
+            del self._buckets[k]
+
     def reset(self) -> None:
         """Drop all state. Used by tests."""
         with self._lock:
             self._buckets.clear()
+            self._hits_since_sweep = 0
 
 
 # Singleton throttles, tuned per endpoint. Thresholds are deliberately
