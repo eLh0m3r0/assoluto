@@ -144,7 +144,7 @@ async def test_billing_dashboard_renders(billing_client, owner_engine) -> None:
     resp = await client.get("/platform/billing")
     assert resp.status_code == 200
     assert "Subscription &amp; billing" in resp.text or "Subscription & billing" in resp.text
-    assert "Demo mode" in resp.text  # Stripe not configured
+    assert "Demo mode" in resp.text or "Demo režim" in resp.text  # Stripe not configured
     # All plan cards should be present.
     for plan_name in ("Community", "Starter", "Pro", "Enterprise"):
         assert plan_name in resp.text
@@ -179,8 +179,13 @@ async def test_billing_dashboard_upgrade_vs_downgrade_labels(billing_client, own
     assert resp.status_code == 200
     # Starter is the current plan (from the trial attached at signup).
     # Pro is more expensive → "Upgrade"; Community is free → "Downgrade".
-    assert "Upgrade to Pro" in resp.text
-    assert "Downgrade to Community" in resp.text
+    # Accept either locale since the signup UI defaults to Czech.
+    assert ("Upgrade to Pro" in resp.text) or ("Přejít na Pro" in resp.text) or (
+        "Upgrade na Pro" in resp.text
+    )
+    assert ("Downgrade to Community" in resp.text) or (
+        "Přejít na Community" in resp.text
+    )
 
 
 async def test_checkout_demo_switches_plan_locally(billing_client, owner_engine) -> None:

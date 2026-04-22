@@ -124,7 +124,7 @@ async def test_csv_has_bom_and_expected_header(
     assert len(cols) == 9
     # The English defaults appear when Accept-Language does not negotiate
     # a CZ catalog entry; either way the column order is deterministic.
-    assert cols[0] in ("Order number", "Číslo zakázky")
+    assert cols[0] in ("Order number", "Číslo zakázky", "Číslo objednávky")
     # Last columns cover currency + item_count.
     assert cols[-1] in ("Items", "Položky", "Položek", "Počet položek")
 
