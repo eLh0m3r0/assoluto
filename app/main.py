@@ -37,6 +37,76 @@ from app.templating import Templates, build_jinja_env
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 
+async def _sync_stripe_prices_from_env(settings: Settings, log: Any) -> None:
+    """UPSERT ``platform_plans.stripe_price_id`` from env for each plan.
+
+    Rationale
+    ---------
+    Plans are seeded by the ``1003_billing`` migration with ``stripe_price_id
+    = NULL`` because Stripe price IDs are per-environment (test vs. prod
+    Stripe accounts rotate them). Without this boot-time sync, the
+    ``create_checkout_session`` path silently no-ops — every upgrade
+    attempt would bail out at the ``not plan.stripe_price_id`` check.
+
+    Idempotent: if env is empty (Stripe not configured), no-op. If the
+    DB already has the same price_id, no UPDATE fires. Safe under
+    multi-worker boot because the UPSERT is atomic on a UNIQUE(code).
+    """
+    env_map = {
+        "starter": (settings.stripe_price_starter or "").strip(),
+        "pro": (settings.stripe_price_pro or "").strip(),
+    }
+    env_map = {code: pid for code, pid in env_map.items() if pid}
+    if not env_map:
+        return
+
+    from sqlalchemy import select, text, update
+    from sqlalchemy.ext.asyncio import create_async_engine
+
+    from app.platform.billing.models import Plan
+
+    engine = create_async_engine(settings.database_owner_url, pool_pre_ping=True)
+    try:
+        async with engine.begin() as conn:
+            # Advisory lock so concurrent worker boots don't race the
+            # compare-and-update pair. Key chosen not to clash with
+            # 42_004 used by the demo-subscription normaliser.
+            got_lock = (
+                await conn.execute(
+                    text("SELECT pg_try_advisory_lock(:id)"), {"id": 42_005}
+                )
+            ).scalar()
+            if not got_lock:
+                return
+            try:
+                for code, price_id in env_map.items():
+                    result = await conn.execute(
+                        select(Plan.id, Plan.stripe_price_id).where(Plan.code == code)
+                    )
+                    row = result.one_or_none()
+                    if row is None:
+                        log.warning("stripe_price.sync.plan_missing", code=code)
+                        continue
+                    plan_id, current = row
+                    if current != price_id:
+                        await conn.execute(
+                            update(Plan)
+                            .where(Plan.id == plan_id)
+                            .values(stripe_price_id=price_id)
+                        )
+                        log.info(
+                            "stripe_price.sync.updated",
+                            code=code,
+                            price_id=price_id,
+                        )
+            finally:
+                await conn.execute(
+                    text("SELECT pg_advisory_unlock(:id)"), {"id": 42_005}
+                )
+    finally:
+        await engine.dispose()
+
+
 async def _normalize_demo_subscriptions(settings: Settings) -> None:
     """Flip any ``status='demo'`` subscriptions to ``trialing`` on boot.
 
@@ -164,6 +234,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
                 await _normalize_demo_subscriptions(settings)
             except Exception as exc:
                 log.warning("billing.demo_cleanup_failed", error=str(exc))
+
+        # Pull Stripe price IDs from env into platform_plans so the
+        # checkout flow has a price to hand to Stripe. Without this the
+        # Starter / Pro plan rows retain stripe_price_id=NULL and every
+        # upgrade click falls through the ``not plan.stripe_price_id``
+        # guard in ``create_checkout_session`` — silent no-op.
+        if settings.feature_platform:
+            try:
+                await _sync_stripe_prices_from_env(settings, log)
+            except Exception as exc:
+                log.warning("billing.stripe_price_sync_failed", error=str(exc))
 
         # SMTP sanity check — a misconfigured SMTP_PORT silently times out
         # every send and leaves no breadcrumb. We caught ourselves once with
@@ -340,6 +421,54 @@ def _register_error_handlers(app: FastAPI) -> None:
             return HTMLResponse(html, status_code=exc.status_code)
         return JSONResponse(
             {"detail": exc.detail}, status_code=exc.status_code, headers=exc.headers
+        )
+
+    # Plan-limit overflows come from the service layer and map to 402
+    # Payment Required with a friendly page + Upgrade CTA. Catching here
+    # keeps the 4 enforcement call-sites silent (no try/except boilerplate
+    # in every router).
+    from app.platform.usage import PlanLimitExceeded
+
+    @app.exception_handler(PlanLimitExceeded)
+    async def plan_limit_handler(request: Request, exc: PlanLimitExceeded) -> Response:
+        get_logger("app.billing").info(
+            "plan_limit.exceeded",
+            path=request.url.path,
+            metric=exc.metric,
+            limit=exc.limit,
+            current=exc.current,
+        )
+        templates: Templates = request.app.state.templates
+        if _wants_html(request):
+            # Map the internal metric id to a localised human string so
+            # the error page reads naturally.
+            from app.i18n import t as _t
+
+            metric_labels = {
+                "users": _t(request, "staff users"),
+                "contacts": _t(request, "client contacts"),
+                "orders": _t(request, "orders this month"),
+                "storage_mb": _t(request, "MB of storage"),
+            }
+            html = templates.render(
+                request,
+                "errors/plan_limit.html",
+                {
+                    "principal": None,
+                    "metric_label": metric_labels.get(exc.metric, exc.metric),
+                    "current": exc.current,
+                    "limit": exc.limit,
+                },
+            )
+            return HTMLResponse(html, status_code=status.HTTP_402_PAYMENT_REQUIRED)
+        return JSONResponse(
+            {
+                "detail": "Plan limit exceeded",
+                "metric": exc.metric,
+                "limit": exc.limit,
+                "current": exc.current,
+            },
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
         )
 
     @app.exception_handler(Exception)

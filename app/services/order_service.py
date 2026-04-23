@@ -285,6 +285,12 @@ async def create_order(
         if customer is None:
             raise OrderError("unknown customer")
 
+    # Plan-limit gate (orders/month). Falls through for tenants on
+    # community / unlimited plans.
+    from app.platform.usage import ensure_within_limit
+
+    await ensure_within_limit(db, tenant_id=tenant_id, metric="orders")
+
     number = await _next_order_number(db, tenant_id=tenant_id)
 
     order = Order(

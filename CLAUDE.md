@@ -313,6 +313,37 @@ An attacker can't get a source IP in those ranges into our front-
 facing Caddy, so honouring XFF from there is safe. Add Cloudflare's
 published ranges if you stand up a CDN in front.
 
+### 17. Plans: DB owns structure, env owns Stripe price IDs
+
+Subscription plans (Starter, Pro, …) are rows in ``platform_plans``
+seeded by migration ``1003_billing``. ``platform_subscriptions.plan_id``
+is a foreign key to that row — so the plan row is stable long-term,
+even if prices or limits change later (new revision = new row).
+
+What lives **where**:
+
+* **DB** (``platform_plans``): code, name, ``monthly_price_cents``,
+  currency, ``max_users`` / ``max_contacts`` / ``max_orders_per_month``
+  / ``max_storage_mb``, ``is_active``. Seeded by the migration;
+  edited via ``psql`` today, admin UI later.
+* **ENV** (``STRIPE_PRICE_STARTER`` / ``STRIPE_PRICE_PRO``): Stripe
+  price IDs. They rotate per environment (test vs. live) and the
+  operator should be able to flip them without a migration.
+  ``_sync_stripe_prices_from_env`` (in ``app.main``) UPSERTs these
+  into ``platform_plans.stripe_price_id`` at boot; empty env leaves
+  the existing value alone, so staging can stay unconfigured.
+* **Templates** (``pricing.html``): marketing copy + headline prices.
+  Treat as editorial content; commit changes via git, not DB edits.
+
+Plan limits are enforced by ``ensure_within_limit`` (see
+``app.platform.usage``) called from the four creation services
+(``invite_tenant_staff``, ``invite_customer_contact``,
+``create_order``, ``create_attachment_row``). Throws
+``PlanLimitExceeded`` when ``current + delta > limit``; caught by a
+global exception handler in ``app.main`` and rendered as a friendly
+402 page with an Upgrade CTA. Tenants without a subscription (self-
+hosted, pre-billing signup) skip the check and stay unlimited.
+
 ## Test fixtures quick reference
 
 | Fixture | Needs PG | What |

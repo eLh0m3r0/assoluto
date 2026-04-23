@@ -93,6 +93,16 @@ async def create_attachment_row(
     if size_bytes > max_size_bytes:
         raise AttachmentTooLarge(f"file exceeds max size of {max_size_bytes} bytes")
 
+    # Plan storage quota — 2 GB on Starter, 20 GB on Pro, unlimited on
+    # community / Enterprise. Ceil to the next full MB so a 512-byte
+    # file still counts as 1 MB of pressure (cheap safety margin).
+    from app.platform.usage import ensure_within_limit
+
+    size_mb = max(1, (size_bytes + 1024 * 1024 - 1) // (1024 * 1024))
+    await ensure_within_limit(
+        db, tenant_id=tenant.id, metric="storage_mb", delta=size_mb
+    )
+
     attachment = OrderAttachment(
         id=uuid4(),
         tenant_id=tenant.id,

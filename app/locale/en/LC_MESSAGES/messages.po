@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-23 15:19+0200\n"
+"POT-Creation-Date: 2026-04-23 15:35+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -125,6 +125,24 @@ msgstr ""
 #, fuzzy
 msgid "Customer contact"
 msgstr "As a customer contact"
+
+#: app/main.py:448
+msgid "staff users"
+msgstr ""
+
+#: app/main.py:449
+#, fuzzy
+msgid "client contacts"
+msgstr "Clients"
+
+#: app/main.py:450
+#, fuzzy
+msgid "orders this month"
+msgstr "Orders"
+
+#: app/main.py:451
+msgid "MB of storage"
+msgstr ""
 
 #: app/email/templates/email_verification.html:6
 #: app/templates/platform/verify_sent.html:3
@@ -464,37 +482,37 @@ msgstr ""
 msgid "An asset with this code already exists for this client."
 msgstr ""
 
-#: app/routers/customers.py:308
+#: app/routers/customers.py:307
 msgid "A contact with the same email already exists."
 msgstr ""
 
-#: app/routers/customers.py:378 app/routers/tenant_admin.py:286
+#: app/routers/customers.py:377 app/routers/tenant_admin.py:286
 #: app/routers/tenant_admin.py:440
 msgid "Name cannot be empty."
 msgstr ""
 
-#: app/routers/customers.py:389 app/routers/tenant_admin.py:308
+#: app/routers/customers.py:388 app/routers/tenant_admin.py:308
 #, fuzzy
 msgid "Changes saved."
 msgstr "Password"
 
-#: app/routers/customers.py:407
+#: app/routers/customers.py:406
 msgid "Contact disabled."
 msgstr ""
 
-#: app/routers/customers.py:426
+#: app/routers/customers.py:425
 msgid "Contact reactivated."
 msgstr ""
 
-#: app/routers/customers.py:451
+#: app/routers/customers.py:450
 msgid "This contact already has a password; use a password reset instead."
 msgstr ""
 
-#: app/routers/customers.py:464 app/routers/tenant_admin.py:361
+#: app/routers/customers.py:463 app/routers/tenant_admin.py:361
 msgid "Too many invitations sent recently. Try again later."
 msgstr ""
 
-#: app/routers/customers.py:497 app/routers/tenant_admin.py:391
+#: app/routers/customers.py:496 app/routers/tenant_admin.py:391
 #, fuzzy
 msgid "Invitation resent."
 msgstr "Send a new verification link"
@@ -1768,6 +1786,7 @@ msgid "You do not have permission for this action."
 msgstr ""
 
 #: app/templates/errors/403.html:12 app/templates/errors/500.html:13
+#: app/templates/errors/plan_limit.html:27
 #, fuzzy
 msgid "Back to dashboard"
 msgstr "Dashboard"
@@ -1800,6 +1819,30 @@ msgstr ""
 
 #: app/templates/errors/500.html:9
 msgid "An unexpected error occurred. Please try again in a moment."
+msgstr ""
+
+#: app/templates/errors/plan_limit.html:2
+#: app/templates/errors/plan_limit.html:8
+msgid "Plan limit reached"
+msgstr ""
+
+#: app/templates/errors/plan_limit.html:11
+#, python-format
+msgid ""
+"\n"
+"                    Your current plan allows %(limit)s %(metric)s. You're"
+" already at %(current)s.\n"
+"                "
+msgstr ""
+
+#: app/templates/errors/plan_limit.html:16
+msgid ""
+"Upgrade your plan to increase the cap, or contact support if you believe "
+"this is a mistake."
+msgstr ""
+
+#: app/templates/errors/plan_limit.html:22
+msgid "Upgrade plan"
 msgstr ""
 
 #: app/templates/orders/_item_row.html:34

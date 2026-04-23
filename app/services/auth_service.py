@@ -208,6 +208,13 @@ async def invite_customer_contact(
     if customer is None:
         raise InvalidInvitation("unknown customer")
 
+    # Plan-limit gate. Only kicks in when the tenant has a subscription
+    # to a plan with a non-NULL ``max_contacts`` cap; community / unlimited
+    # / self-hosted tenants fall through silently (see ensure_within_limit).
+    from app.platform.usage import ensure_within_limit
+
+    await ensure_within_limit(db, tenant_id=tenant_id, metric="contacts")
+
     contact = CustomerContact(
         tenant_id=tenant_id,
         customer_id=customer_id,
@@ -301,6 +308,13 @@ async def invite_tenant_staff(
     themselves via `/invite/staff?token=...`. `is_active` stays True so
     the subsequent login works right after accept.
     """
+    # Plan-limit gate. See ensure_within_limit for the semantics — this
+    # throws PlanLimitExceeded which the router translates into a
+    # friendly 402 with an upgrade CTA.
+    from app.platform.usage import ensure_within_limit
+
+    await ensure_within_limit(db, tenant_id=tenant_id, metric="users")
+
     user = User(
         tenant_id=tenant_id,
         email=email.strip().lower(),

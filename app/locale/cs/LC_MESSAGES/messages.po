@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-23 15:19+0200\n"
+"POT-Creation-Date: 2026-04-23 15:35+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -114,6 +114,25 @@ msgstr "Uživatel"
 #: app/i18n_messages.py:61 app/templates/platform/select_tenant.html:46
 msgid "Customer contact"
 msgstr "Kontakt klienta"
+
+# "Ready", "Delivered", "Cancel" reuse the existing msgids from
+# orders/_status_badge.html and products/form.html (they share the
+# same Czech translation, so we don't duplicate entries).
+#: app/main.py:448
+msgid "staff users"
+msgstr "uživatelů týmu"
+
+#: app/main.py:449
+msgid "client contacts"
+msgstr "klientských kontaktů"
+
+#: app/main.py:450
+msgid "orders this month"
+msgstr "objednávek tento měsíc"
+
+#: app/main.py:451
+msgid "MB of storage"
+msgstr "MB úložiště"
 
 #: app/email/templates/email_verification.html:6
 #: app/templates/platform/verify_sent.html:3
@@ -413,36 +432,36 @@ msgstr "Byli jste přidáni do týmu %(tenant_name)s jako administrátor zákazn
 msgid "An asset with this code already exists for this client."
 msgstr "Majetek s tímto kódem už u klienta existuje."
 
-#: app/routers/customers.py:308
+#: app/routers/customers.py:307
 msgid "A contact with the same email already exists."
 msgstr "Kontakt se stejným e-mailem už existuje."
 
-#: app/routers/customers.py:378 app/routers/tenant_admin.py:286
+#: app/routers/customers.py:377 app/routers/tenant_admin.py:286
 #: app/routers/tenant_admin.py:440
 msgid "Name cannot be empty."
 msgstr "Jméno nesmí být prázdné."
 
-#: app/routers/customers.py:389 app/routers/tenant_admin.py:308
+#: app/routers/customers.py:388 app/routers/tenant_admin.py:308
 msgid "Changes saved."
 msgstr "Změny uloženy."
 
-#: app/routers/customers.py:407
+#: app/routers/customers.py:406
 msgid "Contact disabled."
 msgstr "Kontakt deaktivován."
 
-#: app/routers/customers.py:426
+#: app/routers/customers.py:425
 msgid "Contact reactivated."
 msgstr "Kontakt reaktivován."
 
-#: app/routers/customers.py:451
+#: app/routers/customers.py:450
 msgid "This contact already has a password; use a password reset instead."
 msgstr "Kontakt už má heslo; použijte reset hesla."
 
-#: app/routers/customers.py:464 app/routers/tenant_admin.py:361
+#: app/routers/customers.py:463 app/routers/tenant_admin.py:361
 msgid "Too many invitations sent recently. Try again later."
 msgstr "V poslední době bylo odesláno příliš mnoho pozvánek. Zkuste to později."
 
-#: app/routers/customers.py:497 app/routers/tenant_admin.py:391
+#: app/routers/customers.py:496 app/routers/tenant_admin.py:391
 msgid "Invitation resent."
 msgstr "Pozvánka odeslána znovu."
 
@@ -1648,6 +1667,7 @@ msgid "You do not have permission for this action."
 msgstr "K této akci nemáte dostatečná oprávnění."
 
 #: app/templates/errors/403.html:12 app/templates/errors/500.html:13
+#: app/templates/errors/plan_limit.html:27
 msgid "Back to dashboard"
 msgstr "Zpět na přehled"
 
@@ -1679,6 +1699,27 @@ msgstr "Něco se nepovedlo"
 #: app/templates/errors/500.html:9
 msgid "An unexpected error occurred. Please try again in a moment."
 msgstr "Nastala neočekávaná chyba. Zkuste to prosím za chvíli znovu."
+
+#: app/templates/errors/plan_limit.html:2
+#: app/templates/errors/plan_limit.html:8
+msgid "Plan limit reached"
+msgstr "Dosažen limit plánu"
+
+#: app/templates/errors/plan_limit.html:11
+#, python-format
+msgid ""
+"\n"
+"                    Your current plan allows %(limit)s %(metric)s. You're already at %(current)s.\n"
+"                "
+msgstr ""
+
+#: app/templates/errors/plan_limit.html:16
+msgid "Upgrade your plan to increase the cap, or contact support if you believe this is a mistake."
+msgstr "Navýšíte limit změnou plánu. Pokud si myslíte, že jde o chybu, napište nám."
+
+#: app/templates/errors/plan_limit.html:22
+msgid "Upgrade plan"
+msgstr "Změnit plán"
 
 #: app/templates/orders/_item_row.html:34
 msgid "Note (optional)"
