@@ -11,15 +11,49 @@
         </a>
     </div>
 
-    {% if customers %}
+    {% if stats %}
         <ul class="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white shadow-sm dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">
-            {% for customer in customers %}
-                <li class="px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <a href="/app/customers/{{ customer.id }}" class="block">
-                        <div class="font-medium text-slate-900 dark:text-slate-100">{{ customer.name }}</div>
-                        {% if customer.ico %}
-                            <div class="text-xs text-slate-500 dark:text-slate-400">IČO {{ customer.ico }}</div>
-                        {% endif %}
+            {% for s in stats %}
+                <li class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <a href="/app/customers/{{ s.customer.id }}" class="block px-5 py-4">
+                        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                            <div class="font-medium text-slate-900 dark:text-slate-100">{{ s.customer.name }}</div>
+                            {% if s.customer.ico %}
+                                <div class="text-xs text-slate-500 dark:text-slate-400">IČO {{ s.customer.ico }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mt-1.5 flex flex-wrap gap-2 text-xs">
+                            {# Contacts badge. 0 = dashed grey hint; >0 = solid slate. #}
+                            {% if s.contacts_active %}
+                                <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                    <svg aria-hidden="true" class="h-3 w-3" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2">
+                                        <circle cx="7" cy="7" r="3"/>
+                                        <circle cx="14" cy="8" r="2"/>
+                                        <path stroke-linecap="round" d="M1 18c1-3 3-4.5 6-4.5s5 1.5 6 4.5"/>
+                                    </svg>
+                                    {{ s.contacts_active }}&nbsp;{{ _('contacts') if s.contacts_active != 1 else _('contact') }}
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1 rounded-full border border-dashed border-slate-300 px-2 py-0.5 text-slate-500 dark:border-slate-700 dark:text-slate-500">
+                                    {{ _('no contacts') }}
+                                </span>
+                            {% endif %}
+                            {# Open-orders badge. Colour escalates with load. #}
+                            {% if s.orders_open >= 5 %}
+                                {% set order_colour = "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300" %}
+                            {% elif s.orders_open > 0 %}
+                                {% set order_colour = "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300" %}
+                            {% else %}
+                                {% set order_colour = "border border-dashed border-slate-300 text-slate-500 dark:border-slate-700 dark:text-slate-500" %}
+                            {% endif %}
+                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium {{ order_colour }}">
+                                {% if s.orders_open %}
+                                    {{ s.orders_open }}&nbsp;{{ _('open orders') if s.orders_open != 1 else _('open order') }}
+                                {% else %}
+                                    {{ _('no open orders') }}
+                                {% endif %}
+                            </span>
+                        </div>
                     </a>
                 </li>
             {% endfor %}

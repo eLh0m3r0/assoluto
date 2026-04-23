@@ -27,7 +27,6 @@ from app.services.customer_service import (
     create_customer,
     get_customer,
     list_contacts_for_customer,
-    list_customers,
     update_customer,
 )
 from app.services.locale_service import resolve_email_locale
@@ -53,14 +52,16 @@ async def customers_index(
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    customers = await list_customers(db)
+    from app.services.customer_service import list_customers_with_stats
+
+    stats = await list_customers_with_stats(db)
     html = _templates(request).render(
         request,
         "customers/list.html",
         {
             "principal": principal,
             "tenant": _tenant(principal, request),
-            "customers": customers,
+            "stats": stats,
         },
     )
     return HTMLResponse(html)

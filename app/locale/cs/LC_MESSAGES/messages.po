@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-23 08:44+0200\n"
+"POT-Creation-Date: 2026-04-23 15:19+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -413,36 +413,36 @@ msgstr "Byli jste přidáni do týmu %(tenant_name)s jako administrátor zákazn
 msgid "An asset with this code already exists for this client."
 msgstr "Majetek s tímto kódem už u klienta existuje."
 
-#: app/routers/customers.py:306
+#: app/routers/customers.py:308
 msgid "A contact with the same email already exists."
 msgstr "Kontakt se stejným e-mailem už existuje."
 
-#: app/routers/customers.py:376 app/routers/tenant_admin.py:286
+#: app/routers/customers.py:378 app/routers/tenant_admin.py:286
 #: app/routers/tenant_admin.py:440
 msgid "Name cannot be empty."
 msgstr "Jméno nesmí být prázdné."
 
-#: app/routers/customers.py:387 app/routers/tenant_admin.py:308
+#: app/routers/customers.py:389 app/routers/tenant_admin.py:308
 msgid "Changes saved."
 msgstr "Změny uloženy."
 
-#: app/routers/customers.py:405
+#: app/routers/customers.py:407
 msgid "Contact disabled."
 msgstr "Kontakt deaktivován."
 
-#: app/routers/customers.py:424
+#: app/routers/customers.py:426
 msgid "Contact reactivated."
 msgstr "Kontakt reaktivován."
 
-#: app/routers/customers.py:449
+#: app/routers/customers.py:451
 msgid "This contact already has a password; use a password reset instead."
 msgstr "Kontakt už má heslo; použijte reset hesla."
 
-#: app/routers/customers.py:462 app/routers/tenant_admin.py:361
+#: app/routers/customers.py:464 app/routers/tenant_admin.py:361
 msgid "Too many invitations sent recently. Try again later."
 msgstr "V poslední době bylo odesláno příliš mnoho pozvánek. Zkuste to později."
 
-#: app/routers/customers.py:495 app/routers/tenant_admin.py:391
+#: app/routers/customers.py:497 app/routers/tenant_admin.py:391
 msgid "Invitation resent."
 msgstr "Pozvánka odeslána znovu."
 
@@ -478,7 +478,7 @@ msgstr "Cena dle nabídky"
 msgid "Currency"
 msgstr "Měna"
 
-#: app/routers/orders.py:301 app/templates/orders/detail.html:83
+#: app/routers/orders.py:301 app/templates/orders/detail.html:79
 msgid "Items"
 msgstr "Položky"
 
@@ -486,35 +486,40 @@ msgstr "Položky"
 msgid "Choose a client."
 msgstr "Vyberte klienta."
 
-#: app/routers/orders.py:826
+#: app/routers/orders.py:828
 msgid "Invalid quantity"
 msgstr "Neplatné množství"
 
-#: app/routers/orders.py:836
+#: app/routers/orders.py:838
 msgid "Invalid unit_price"
 msgstr "Neplatná jednotková cena"
 
-#: app/routers/orders.py:867
+#: app/routers/orders.py:869
 msgid "This order is no longer a draft."
 msgstr "Tato objednávka už není koncept."
 
-#: app/routers/orders.py:969
+#: app/routers/orders.py:971
 msgid "Unknown status"
 msgstr "Neznámý stav"
 
-#: app/routers/orders.py:990
+#: app/routers/orders.py:992
 msgid "Select at least one order."
 msgstr "Vyberte alespoň jednu objednávku."
 
-#: app/routers/orders.py:1073
+#: app/routers/orders.py:1075
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr "{count} objednávek převedeno."
 
-#: app/routers/orders.py:1075
+#: app/routers/orders.py:1077
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr "{ok} převedeno, {failed} selhalo."
+
+#: app/routers/orders.py:1187
+#, fuzzy, python-brace-format
+msgid "Status changed to {status}."
+msgstr "změnil/a stav"
 
 # --- round-5: server errors, logo polish, breadcrumbs ---
 #: app/routers/products.py:129 app/routers/products.py:305
@@ -734,28 +739,28 @@ msgstr "Platform admin"
 msgid "Sign out"
 msgstr "Odhlásit"
 
-#: app/templates/base.html:35 app/templates/index.html:3
+#: app/templates/base.html:37 app/templates/index.html:3
 msgid "Home"
 msgstr "Domů"
 
-#: app/templates/base.html:44
+#: app/templates/base.html:46
 msgid "Toggle menu"
 msgstr "Otevřít menu"
 
-#: app/templates/base.html:61 app/templates/base.html:62
-#: app/templates/base.html:79
+#: app/templates/base.html:63 app/templates/base.html:64
+#: app/templates/base.html:81
 msgid "Toggle theme"
 msgstr "Přepnout motiv"
 
-#: app/templates/base.html:63
+#: app/templates/base.html:65
 msgid "Theme: system"
 msgstr "Motiv: systémový"
 
-#: app/templates/base.html:64
+#: app/templates/base.html:66
 msgid "Theme: light"
 msgstr "Motiv: světlý"
 
-#: app/templates/base.html:65
+#: app/templates/base.html:67
 msgid "Theme: dark"
 msgstr "Motiv: tmavý"
 
@@ -793,7 +798,7 @@ msgstr "Filtrováno"
 msgid "Entity"
 msgstr "Entita"
 
-#: app/templates/admin/audit.html:40 app/templates/orders/list.html:201
+#: app/templates/admin/audit.html:40 app/templates/orders/list.html:197
 msgid "Clear filters"
 msgstr "Zrušit filtry"
 
@@ -826,19 +831,19 @@ msgstr "Změna"
 msgid "Show details"
 msgstr "Zobrazit detaily"
 
-#: app/templates/admin/audit.html:131 app/templates/orders/list.html:169
+#: app/templates/admin/audit.html:131 app/templates/orders/list.html:165
 msgid "Page"
 msgstr "Strana"
 
-#: app/templates/admin/audit.html:131 app/templates/orders/list.html:170
+#: app/templates/admin/audit.html:131 app/templates/orders/list.html:166
 msgid "records"
 msgstr "záznamů"
 
-#: app/templates/admin/audit.html:137 app/templates/orders/list.html:176
+#: app/templates/admin/audit.html:137 app/templates/orders/list.html:172
 msgid "Previous"
 msgstr "Předchozí"
 
-#: app/templates/admin/audit.html:141 app/templates/orders/list.html:182
+#: app/templates/admin/audit.html:141 app/templates/orders/list.html:178
 msgid "Next"
 msgstr "Další"
 
@@ -1137,7 +1142,7 @@ msgstr "aktivní"
 #: app/templates/platform/admin/tenant_edit.html:10
 #: app/templates/platform/admin/tenants.html:61
 #: app/templates/products/detail.html:26 app/templates/products/form.html:9
-#: app/templates/products/list.html:51
+#: app/templates/products/list.html:47
 msgid "Edit"
 msgstr "Upravit"
 
@@ -1198,7 +1203,7 @@ msgid "Location"
 msgstr "Lokalita"
 
 #: app/templates/assets/detail.html:32 app/templates/assets/form.html:51
-#: app/templates/orders/detail.html:93 app/templates/products/detail.html:52
+#: app/templates/orders/detail.html:89 app/templates/products/detail.html:48
 #: app/templates/products/form.html:43
 msgid "Description"
 msgstr "Popis"
@@ -1216,8 +1221,8 @@ msgid "Type"
 msgstr "Typ"
 
 #: app/templates/assets/detail.html:48 app/templates/assets/detail.html:87
-#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:94
-#: app/templates/orders/detail.html:141
+#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:90
+#: app/templates/orders/detail.html:137
 msgid "Quantity"
 msgstr "Množství"
 
@@ -1471,11 +1476,35 @@ msgstr "Použije se pro všechny kontakty tohoto klienta, pokud si kontakt nenas
 msgid "Controls what contacts of this client can do when placing orders. Staff always has full access."
 msgstr "Kontroluje, co kontakty tohoto klienta mohou dělat při zadávání objednávek. Staff má vždy plný přístup."
 
-#: app/templates/customers/list.html:36
+#: app/templates/customers/list.html:34
+msgid "contacts"
+msgstr "kontaktů"
+
+#: app/templates/customers/list.html:34
+msgid "contact"
+msgstr "kontakt"
+
+#: app/templates/customers/list.html:38
+msgid "no contacts"
+msgstr "žádné kontakty"
+
+#: app/templates/customers/list.html:51
+msgid "open orders"
+msgstr "otevřených objednávek"
+
+#: app/templates/customers/list.html:51
+msgid "open order"
+msgstr "otevřená objednávka"
+
+#: app/templates/customers/list.html:53
+msgid "no open orders"
+msgstr "žádné otevřené objednávky"
+
+#: app/templates/customers/list.html:70
 msgid "No clients yet."
 msgstr "Zatím žádní klienti."
 
-#: app/templates/customers/list.html:39
+#: app/templates/customers/list.html:73
 msgid "Add the first client"
 msgstr "Založit prvního klienta"
 
@@ -1655,20 +1684,20 @@ msgstr "Nastala neočekávaná chyba. Zkuste to prosím za chvíli znovu."
 msgid "Note (optional)"
 msgstr "Poznámka (nepovinné)"
 
-#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:95
-#: app/templates/orders/detail.html:148
+#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:91
+#: app/templates/orders/detail.html:144
 msgid "Price/unit"
 msgstr "Cena/ks"
 
-#: app/templates/orders/_item_row.html:92
+#: app/templates/orders/_item_row.html:88
 msgid "Saving…"
 msgstr "Ukládám…"
 
-#: app/templates/orders/_item_row.html:96
+#: app/templates/orders/_item_row.html:92
 msgid "Saved"
 msgstr "Uloženo"
 
-#: app/templates/orders/_item_row.html:104 app/templates/orders/detail.html:205
+#: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:201
 #: app/templates/products/detail.html:33
 msgid "Delete"
 msgstr "Smazat"
@@ -1686,87 +1715,87 @@ msgstr "Potvrzená celková cena vyplněná staffem při přechodu do stavu Nace
 msgid "Quoted (confirmed)"
 msgstr "Nacenění (potvrzené)"
 
-#: app/templates/orders/detail.html:67
+#: app/templates/orders/detail.html:63
 msgid "Requested delivery"
 msgstr "Požadovaný termín"
 
-#: app/templates/orders/detail.html:73
+#: app/templates/orders/detail.html:69
 msgid "Promised delivery"
 msgstr "Slíbený termín"
 
-#: app/templates/orders/detail.html:96 app/templates/orders/list.html:88
+#: app/templates/orders/detail.html:92 app/templates/orders/list.html:88
 msgid "Total"
 msgstr "Celkem"
 
-#: app/templates/orders/detail.html:114
+#: app/templates/orders/detail.html:110
 msgid "No items."
 msgstr "Žádné položky."
 
-#: app/templates/orders/detail.html:127
+#: app/templates/orders/detail.html:123
 msgid "custom item (free-text)"
 msgstr "vlastní položka (free-text)"
 
-#: app/templates/orders/detail.html:143
+#: app/templates/orders/detail.html:139
 msgid "unit"
 msgstr "jed."
 
-#: app/templates/orders/detail.html:154
+#: app/templates/orders/detail.html:150
 msgid "Item description"
 msgstr "Popis položky"
 
-#: app/templates/orders/detail.html:159
+#: app/templates/orders/detail.html:155
 msgid "Add item"
 msgstr "Přidat položku"
 
-#: app/templates/orders/detail.html:169
+#: app/templates/orders/detail.html:165
 msgid "Attachments"
 msgstr "Přílohy"
 
-#: app/templates/orders/detail.html:194
+#: app/templates/orders/detail.html:190
 msgid "item"
 msgstr "položka"
 
-#: app/templates/orders/detail.html:213
+#: app/templates/orders/detail.html:209
 msgid "No attachments."
 msgstr "Žádné přílohy."
 
-#: app/templates/orders/detail.html:225
+#: app/templates/orders/detail.html:221
 msgid "to the whole order"
 msgstr "k celé objednávce"
 
-#: app/templates/orders/detail.html:234
+#: app/templates/orders/detail.html:230
 msgid "Upload"
 msgstr "Nahrát"
 
-#: app/templates/orders/detail.html:243
+#: app/templates/orders/detail.html:239
 msgid "Actions"
 msgstr "Akce"
 
-#: app/templates/orders/detail.html:255
+#: app/templates/orders/detail.html:251
 msgid "Comments"
 msgstr "Komentáře"
 
-#: app/templates/orders/detail.html:262
+#: app/templates/orders/detail.html:258
 msgid "internal"
 msgstr "interní"
 
-#: app/templates/orders/detail.html:267
+#: app/templates/orders/detail.html:263
 msgid "No comments."
 msgstr "Žádné komentáře."
 
-#: app/templates/orders/detail.html:273
+#: app/templates/orders/detail.html:269
 msgid "Write a comment…"
 msgstr "Napište komentář…"
 
-#: app/templates/orders/detail.html:279
+#: app/templates/orders/detail.html:275
 msgid "Internal (staff only)"
 msgstr "Interní (jen pro tým)"
 
-#: app/templates/orders/detail.html:286
+#: app/templates/orders/detail.html:282
 msgid "Add a comment"
 msgstr "Přidat komentář"
 
-#: app/templates/orders/detail.html:295
+#: app/templates/orders/detail.html:291
 msgid "Status history"
 msgstr "Historie stavů"
 
@@ -1804,36 +1833,36 @@ msgstr "Vytvořeno"
 msgid "Select order"
 msgstr "Vybrat objednávku"
 
-#: app/templates/orders/list.html:141
+#: app/templates/orders/list.html:137
 msgid "selected"
 msgstr "vybráno"
 
-#: app/templates/orders/list.html:143 app/templates/orders/list.html:146
+#: app/templates/orders/list.html:139 app/templates/orders/list.html:142
 msgid "Set status to…"
 msgstr "Nastavit stav na…"
 
-#: app/templates/orders/list.html:153
+#: app/templates/orders/list.html:149
 msgid "Apply to selected"
 msgstr "Použít na vybrané"
 
-#: app/templates/orders/list.html:157
+#: app/templates/orders/list.html:153
 msgid "Clear selection"
 msgstr "Zrušit výběr"
 
-#: app/templates/orders/list.html:169
+#: app/templates/orders/list.html:165
 msgid "of"
 msgstr "z"
 
 # --- filter + empty-state polish ---
-#: app/templates/orders/list.html:198
+#: app/templates/orders/list.html:194
 msgid "No orders match the filter."
 msgstr "Žádné objednávky neodpovídají filtru."
 
-#: app/templates/orders/list.html:204
+#: app/templates/orders/list.html:200
 msgid "No orders yet."
 msgstr "Zatím žádné objednávky."
 
-#: app/templates/orders/list.html:207
+#: app/templates/orders/list.html:203
 msgid "Create the first order"
 msgstr "Vytvořit první objednávku"
 
@@ -2359,16 +2388,16 @@ msgstr "Katalog produktů"
 msgid "Price"
 msgstr "Cena"
 
-#: app/templates/products/list.html:68
+#: app/templates/products/list.html:64
 #, fuzzy
 msgid "Catalog is empty"
 msgstr "Katalog je prázdný."
 
-#: app/templates/products/list.html:71
+#: app/templates/products/list.html:67
 msgid "The catalog holds items your clients can pick when placing an order (SKU, name, unit, price). You can also narrow a product to a specific client."
 msgstr "Katalog obsahuje položky, které si vaši klienti mohou vybírat při zadávání objednávky (SKU, název, jednotka, cena). Produkt lze také omezit na konkrétního klienta."
 
-#: app/templates/products/list.html:75
+#: app/templates/products/list.html:71
 msgid "Add the first product"
 msgstr "Přidat první produkt"
 

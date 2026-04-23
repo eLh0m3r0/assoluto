@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-23 08:44+0200\n"
+"POT-Creation-Date: 2026-04-23 15:19+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -464,37 +464,37 @@ msgstr ""
 msgid "An asset with this code already exists for this client."
 msgstr ""
 
-#: app/routers/customers.py:306
+#: app/routers/customers.py:308
 msgid "A contact with the same email already exists."
 msgstr ""
 
-#: app/routers/customers.py:376 app/routers/tenant_admin.py:286
+#: app/routers/customers.py:378 app/routers/tenant_admin.py:286
 #: app/routers/tenant_admin.py:440
 msgid "Name cannot be empty."
 msgstr ""
 
-#: app/routers/customers.py:387 app/routers/tenant_admin.py:308
+#: app/routers/customers.py:389 app/routers/tenant_admin.py:308
 #, fuzzy
 msgid "Changes saved."
 msgstr "Password"
 
-#: app/routers/customers.py:405
+#: app/routers/customers.py:407
 msgid "Contact disabled."
 msgstr ""
 
-#: app/routers/customers.py:424
+#: app/routers/customers.py:426
 msgid "Contact reactivated."
 msgstr ""
 
-#: app/routers/customers.py:449
+#: app/routers/customers.py:451
 msgid "This contact already has a password; use a password reset instead."
 msgstr ""
 
-#: app/routers/customers.py:462 app/routers/tenant_admin.py:361
+#: app/routers/customers.py:464 app/routers/tenant_admin.py:361
 msgid "Too many invitations sent recently. Try again later."
 msgstr ""
 
-#: app/routers/customers.py:495 app/routers/tenant_admin.py:391
+#: app/routers/customers.py:497 app/routers/tenant_admin.py:391
 #, fuzzy
 msgid "Invitation resent."
 msgstr "Send a new verification link"
@@ -534,7 +534,7 @@ msgstr "Quoted"
 msgid "Currency"
 msgstr ""
 
-#: app/routers/orders.py:301 app/templates/orders/detail.html:83
+#: app/routers/orders.py:301 app/templates/orders/detail.html:79
 #, fuzzy
 msgid "Items"
 msgstr "Team"
@@ -543,34 +543,39 @@ msgstr "Team"
 msgid "Choose a client."
 msgstr ""
 
-#: app/routers/orders.py:826
+#: app/routers/orders.py:828
 msgid "Invalid quantity"
 msgstr ""
 
-#: app/routers/orders.py:836
+#: app/routers/orders.py:838
 msgid "Invalid unit_price"
 msgstr ""
 
-#: app/routers/orders.py:867
+#: app/routers/orders.py:869
 msgid "This order is no longer a draft."
 msgstr ""
 
-#: app/routers/orders.py:969
+#: app/routers/orders.py:971
 msgid "Unknown status"
 msgstr ""
 
-#: app/routers/orders.py:990
+#: app/routers/orders.py:992
 msgid "Select at least one order."
-msgstr ""
-
-#: app/routers/orders.py:1073
-#, python-brace-format
-msgid "{count} orders transitioned."
 msgstr ""
 
 #: app/routers/orders.py:1075
 #, python-brace-format
+msgid "{count} orders transitioned."
+msgstr ""
+
+#: app/routers/orders.py:1077
+#, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
+msgstr ""
+
+#: app/routers/orders.py:1187
+#, python-brace-format
+msgid "Status changed to {status}."
 msgstr ""
 
 #: app/routers/products.py:129 app/routers/products.py:305
@@ -794,29 +799,29 @@ msgstr "Platform"
 msgid "Sign out"
 msgstr "Sign out"
 
-#: app/templates/base.html:35 app/templates/index.html:3
+#: app/templates/base.html:37 app/templates/index.html:3
 msgid "Home"
 msgstr "Home"
 
-#: app/templates/base.html:44
+#: app/templates/base.html:46
 #, fuzzy
 msgid "Toggle menu"
 msgstr "Toggle theme"
 
-#: app/templates/base.html:61 app/templates/base.html:62
-#: app/templates/base.html:79
+#: app/templates/base.html:63 app/templates/base.html:64
+#: app/templates/base.html:81
 msgid "Toggle theme"
 msgstr "Toggle theme"
 
-#: app/templates/base.html:63
+#: app/templates/base.html:65
 msgid "Theme: system"
 msgstr "Theme: system"
 
-#: app/templates/base.html:64
+#: app/templates/base.html:66
 msgid "Theme: light"
 msgstr "Theme: light"
 
-#: app/templates/base.html:65
+#: app/templates/base.html:67
 msgid "Theme: dark"
 msgstr "Theme: dark"
 
@@ -856,7 +861,7 @@ msgstr ""
 msgid "Entity"
 msgstr ""
 
-#: app/templates/admin/audit.html:40 app/templates/orders/list.html:201
+#: app/templates/admin/audit.html:40 app/templates/orders/list.html:197
 msgid "Clear filters"
 msgstr ""
 
@@ -889,20 +894,20 @@ msgstr ""
 msgid "Show details"
 msgstr ""
 
-#: app/templates/admin/audit.html:131 app/templates/orders/list.html:169
+#: app/templates/admin/audit.html:131 app/templates/orders/list.html:165
 msgid "Page"
 msgstr ""
 
-#: app/templates/admin/audit.html:131 app/templates/orders/list.html:170
+#: app/templates/admin/audit.html:131 app/templates/orders/list.html:166
 #, fuzzy
 msgid "records"
 msgstr "Orders"
 
-#: app/templates/admin/audit.html:137 app/templates/orders/list.html:176
+#: app/templates/admin/audit.html:137 app/templates/orders/list.html:172
 msgid "Previous"
 msgstr ""
 
-#: app/templates/admin/audit.html:141 app/templates/orders/list.html:182
+#: app/templates/admin/audit.html:141 app/templates/orders/list.html:178
 msgid "Next"
 msgstr ""
 
@@ -1218,7 +1223,7 @@ msgstr ""
 #: app/templates/platform/admin/tenant_edit.html:10
 #: app/templates/platform/admin/tenants.html:61
 #: app/templates/products/detail.html:26 app/templates/products/form.html:9
-#: app/templates/products/list.html:51
+#: app/templates/products/list.html:47
 msgid "Edit"
 msgstr ""
 
@@ -1280,7 +1285,7 @@ msgid "Location"
 msgstr ""
 
 #: app/templates/assets/detail.html:32 app/templates/assets/form.html:51
-#: app/templates/orders/detail.html:93 app/templates/products/detail.html:52
+#: app/templates/orders/detail.html:89 app/templates/products/detail.html:48
 #: app/templates/products/form.html:43
 msgid "Description"
 msgstr ""
@@ -1299,8 +1304,8 @@ msgid "Type"
 msgstr ""
 
 #: app/templates/assets/detail.html:48 app/templates/assets/detail.html:87
-#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:94
-#: app/templates/orders/detail.html:141
+#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:90
+#: app/templates/orders/detail.html:137
 msgid "Quantity"
 msgstr ""
 
@@ -1573,12 +1578,42 @@ msgid ""
 "always has full access."
 msgstr ""
 
-#: app/templates/customers/list.html:36
+#: app/templates/customers/list.html:34
+#, fuzzy
+msgid "contacts"
+msgstr "Clients"
+
+#: app/templates/customers/list.html:34
+#, fuzzy
+msgid "contact"
+msgstr "Clients"
+
+#: app/templates/customers/list.html:38
+#, fuzzy
+msgid "no contacts"
+msgstr "Clients"
+
+#: app/templates/customers/list.html:51
+#, fuzzy
+msgid "open orders"
+msgstr "Orders"
+
+#: app/templates/customers/list.html:51
+#, fuzzy
+msgid "open order"
+msgstr "Orders"
+
+#: app/templates/customers/list.html:53
+#, fuzzy
+msgid "no open orders"
+msgstr "Orders"
+
+#: app/templates/customers/list.html:70
 #, fuzzy
 msgid "No clients yet."
 msgstr "Clients"
 
-#: app/templates/customers/list.html:39
+#: app/templates/customers/list.html:73
 msgid "Add the first client"
 msgstr ""
 
@@ -1771,20 +1806,20 @@ msgstr ""
 msgid "Note (optional)"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:95
-#: app/templates/orders/detail.html:148
+#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:91
+#: app/templates/orders/detail.html:144
 msgid "Price/unit"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:92
+#: app/templates/orders/_item_row.html:88
 msgid "Saving…"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:96
+#: app/templates/orders/_item_row.html:92
 msgid "Saved"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:104 app/templates/orders/detail.html:205
+#: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:201
 #: app/templates/products/detail.html:33
 #, fuzzy
 msgid "Delete"
@@ -1803,90 +1838,90 @@ msgstr ""
 msgid "Quoted (confirmed)"
 msgstr "Confirmed"
 
-#: app/templates/orders/detail.html:67
+#: app/templates/orders/detail.html:63
 msgid "Requested delivery"
 msgstr ""
 
-#: app/templates/orders/detail.html:73
+#: app/templates/orders/detail.html:69
 msgid "Promised delivery"
 msgstr ""
 
-#: app/templates/orders/detail.html:96 app/templates/orders/list.html:88
+#: app/templates/orders/detail.html:92 app/templates/orders/list.html:88
 msgid "Total"
 msgstr ""
 
-#: app/templates/orders/detail.html:114
+#: app/templates/orders/detail.html:110
 msgid "No items."
 msgstr ""
 
-#: app/templates/orders/detail.html:127
+#: app/templates/orders/detail.html:123
 msgid "custom item (free-text)"
 msgstr ""
 
-#: app/templates/orders/detail.html:143
+#: app/templates/orders/detail.html:139
 msgid "unit"
 msgstr ""
 
-#: app/templates/orders/detail.html:154
+#: app/templates/orders/detail.html:150
 msgid "Item description"
 msgstr ""
 
-#: app/templates/orders/detail.html:159
+#: app/templates/orders/detail.html:155
 #, fuzzy
 msgid "Add item"
 msgstr "and the"
 
-#: app/templates/orders/detail.html:169
+#: app/templates/orders/detail.html:165
 msgid "Attachments"
 msgstr ""
 
-#: app/templates/orders/detail.html:194
+#: app/templates/orders/detail.html:190
 #, fuzzy
 msgid "item"
 msgstr "Team"
 
-#: app/templates/orders/detail.html:213
+#: app/templates/orders/detail.html:209
 msgid "No attachments."
 msgstr ""
 
-#: app/templates/orders/detail.html:225
+#: app/templates/orders/detail.html:221
 msgid "to the whole order"
 msgstr ""
 
-#: app/templates/orders/detail.html:234
+#: app/templates/orders/detail.html:230
 msgid "Upload"
 msgstr ""
 
-#: app/templates/orders/detail.html:243
+#: app/templates/orders/detail.html:239
 msgid "Actions"
 msgstr ""
 
-#: app/templates/orders/detail.html:255
+#: app/templates/orders/detail.html:251
 #, fuzzy
 msgid "Comments"
 msgstr "Clients"
 
-#: app/templates/orders/detail.html:262
+#: app/templates/orders/detail.html:258
 msgid "internal"
 msgstr ""
 
-#: app/templates/orders/detail.html:267
+#: app/templates/orders/detail.html:263
 msgid "No comments."
 msgstr ""
 
-#: app/templates/orders/detail.html:273
+#: app/templates/orders/detail.html:269
 msgid "Write a comment…"
 msgstr ""
 
-#: app/templates/orders/detail.html:279
+#: app/templates/orders/detail.html:275
 msgid "Internal (staff only)"
 msgstr ""
 
-#: app/templates/orders/detail.html:286
+#: app/templates/orders/detail.html:282
 msgid "Add a comment"
 msgstr ""
 
-#: app/templates/orders/detail.html:295
+#: app/templates/orders/detail.html:291
 msgid "Status history"
 msgstr ""
 
@@ -1928,36 +1963,36 @@ msgstr "Ready"
 msgid "Select order"
 msgstr "Select portal"
 
-#: app/templates/orders/list.html:141
+#: app/templates/orders/list.html:137
 msgid "selected"
 msgstr ""
 
-#: app/templates/orders/list.html:143 app/templates/orders/list.html:146
+#: app/templates/orders/list.html:139 app/templates/orders/list.html:142
 msgid "Set status to…"
 msgstr ""
 
-#: app/templates/orders/list.html:153
+#: app/templates/orders/list.html:149
 msgid "Apply to selected"
 msgstr ""
 
-#: app/templates/orders/list.html:157
+#: app/templates/orders/list.html:153
 msgid "Clear selection"
 msgstr ""
 
-#: app/templates/orders/list.html:169
+#: app/templates/orders/list.html:165
 msgid "of"
 msgstr ""
 
-#: app/templates/orders/list.html:198
+#: app/templates/orders/list.html:194
 msgid "No orders match the filter."
 msgstr ""
 
-#: app/templates/orders/list.html:204
+#: app/templates/orders/list.html:200
 #, fuzzy
 msgid "No orders yet."
 msgstr "Orders"
 
-#: app/templates/orders/list.html:207
+#: app/templates/orders/list.html:203
 msgid "Create the first order"
 msgstr ""
 
@@ -2507,18 +2542,18 @@ msgstr "Catalog"
 msgid "Price"
 msgstr ""
 
-#: app/templates/products/list.html:68
+#: app/templates/products/list.html:64
 #, fuzzy
 msgid "Catalog is empty"
 msgstr "Catalog"
 
-#: app/templates/products/list.html:71
+#: app/templates/products/list.html:67
 msgid ""
 "The catalog holds items your clients can pick when placing an order (SKU,"
 " name, unit, price). You can also narrow a product to a specific client."
 msgstr ""
 
-#: app/templates/products/list.html:75
+#: app/templates/products/list.html:71
 msgid "Add the first product"
 msgstr ""
 

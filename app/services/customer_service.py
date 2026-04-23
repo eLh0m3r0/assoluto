@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.customer import Customer, CustomerContact
+from app.models.enums import OrderStatus
+from app.models.order import Order
 from app.services import audit_service
 from app.services.audit_service import SYSTEM_ACTOR, ActorInfo, diff_from_models
 
@@ -18,6 +21,65 @@ async def list_customers(db: AsyncSession) -> list[Customer]:
         select(Customer).where(Customer.is_active.is_(True)).order_by(Customer.name)
     )
     return list(result.scalars().all())
+
+
+# Statuses that count as "open" for the engagement-metrics badge on
+# the customer list. CLOSED / CANCELLED / DELIVERED don't count —
+# those are terminal or near-terminal from the tenant's POV.
+_OPEN_ORDER_STATUSES: tuple[OrderStatus, ...] = (
+    OrderStatus.DRAFT,
+    OrderStatus.SUBMITTED,
+    OrderStatus.QUOTED,
+    OrderStatus.CONFIRMED,
+    OrderStatus.IN_PRODUCTION,
+    OrderStatus.READY,
+)
+
+
+@dataclass(frozen=True)
+class CustomerStats:
+    """Aggregated counts shown on the customer list card."""
+
+    customer: Customer
+    contacts_active: int
+    orders_open: int
+
+
+async def list_customers_with_stats(db: AsyncSession) -> list[CustomerStats]:
+    """Return every active customer with two counts attached.
+
+    One round-trip: the two scalar subqueries in the SELECT let Postgres
+    compute the aggregates without an N+1, and the index on
+    ``customer_contacts.customer_id`` + ``orders.customer_id`` keeps it
+    O(log n) per bucket. Honours RLS — no need for a separate tenant
+    filter because the session's ``app.tenant_id`` already scopes each
+    subquery.
+    """
+    contacts_subq = (
+        select(func.count())
+        .select_from(CustomerContact)
+        .where(
+            CustomerContact.customer_id == Customer.id,
+            CustomerContact.is_active.is_(True),
+        )
+        .scalar_subquery()
+    )
+    orders_subq = (
+        select(func.count())
+        .select_from(Order)
+        .where(
+            Order.customer_id == Customer.id,
+            Order.status.in_(_OPEN_ORDER_STATUSES),
+        )
+        .scalar_subquery()
+    )
+    stmt = (
+        select(Customer, contacts_subq, orders_subq)
+        .where(Customer.is_active.is_(True))
+        .order_by(Customer.name)
+    )
+    rows = (await db.execute(stmt)).all()
+    return [CustomerStats(customer=c, contacts_active=int(cc), orders_open=int(oo)) for c, cc, oo in rows]
 
 
 async def get_customer(db: AsyncSession, customer_id: UUID) -> Customer | None:
