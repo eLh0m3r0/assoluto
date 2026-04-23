@@ -4,6 +4,11 @@ Pre-launch tasks that **only you can do** (accounts, identity, legal).
 Everything codebase-side is already renamed to Assoluto. This doc is
 your one-page punch list for going live.
 
+> **Going live vs. staying live.** This checklist covers the one-time
+> pre-launch work. For the "day 2" ops work — enabling real Stripe
+> billing, DKIM/off-site-backups, managing plans after launch — see
+> [`OPERATOR_PLAYBOOK.md`](OPERATOR_PLAYBOOK.md).
+
 ---
 
 ## 1. Domain registrations
