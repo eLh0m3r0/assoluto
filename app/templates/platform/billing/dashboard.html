@@ -179,9 +179,21 @@
                             {{ inv.paid_at.strftime("%d.%m.%Y") if inv.paid_at else "—" }}
                         </td>
                         <td class="px-4 py-2 text-right">
-                            {% if inv.pdf_url %}
-                                <a href="{{ inv.pdf_url }}" target="_blank" class="text-xs text-brand-600 hover:text-brand-700">PDF</a>
-                            {% endif %}
+                            <div class="flex justify-end gap-2 text-xs">
+                                <a href="/platform/billing/invoices/{{ inv.id }}.pdf"
+                                   class="text-brand-600 hover:text-brand-700"
+                                   title="{{ _('Czech tax-compliant invoice (daňový doklad)') }}">
+                                    {{ _("Doklad") }}
+                                </a>
+                                {% if inv.pdf_url %}
+                                    <span class="text-slate-300 dark:text-slate-600">·</span>
+                                    <a href="{{ inv.pdf_url }}" target="_blank" rel="noopener"
+                                       class="text-slate-500 hover:text-slate-700 dark:text-slate-400"
+                                       title="{{ _('Stripe-hosted receipt') }}">
+                                        Stripe PDF
+                                    </a>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                 {% endfor %}

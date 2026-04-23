@@ -38,6 +38,7 @@ def _operator_context(settings: Settings) -> dict:
     return {
         "operator_name": settings.platform_operator_name,
         "operator_ico": settings.platform_operator_ico,
+        "operator_dic": settings.platform_operator_dic,
         "operator_address": settings.platform_operator_address,
         "operator_email": settings.platform_operator_email,
     }
@@ -192,6 +193,44 @@ async def privacy(request: Request, settings: Settings = Depends(get_settings)) 
     html = _templates(request).render(
         request,
         "www/privacy.html",
+        {"principal": None, **_operator_context(settings)},
+    )
+    return HTMLResponse(html)
+
+
+@router.get("/cookies", response_class=HTMLResponse)
+async def cookies_policy(
+    request: Request, settings: Settings = Depends(get_settings)
+) -> HTMLResponse:
+    """EU ePrivacy / CZ Act 127/2005 §89 cookies disclosure. Static.
+
+    We only use strictly-necessary cookies (session, CSRF, locale,
+    theme) so this page explains the analysis and lists each cookie
+    rather than asking for consent.
+    """
+    _require_operator_identity(settings)
+    html = _templates(request).render(
+        request,
+        "www/cookies.html",
+        {"principal": None, **_operator_context(settings)},
+    )
+    return HTMLResponse(html)
+
+
+@router.get("/imprint", response_class=HTMLResponse)
+async def imprint(
+    request: Request, settings: Settings = Depends(get_settings)
+) -> HTMLResponse:
+    """CZ Act 480/2004 §8 operator-identity disclosure.
+
+    Required on every Czech commercial website: legal name, seat,
+    company ID (IČO), tax ID (DIČ), contact. Populated from
+    ``PLATFORM_OPERATOR_*`` env vars via ``_operator_context``.
+    """
+    _require_operator_identity(settings)
+    html = _templates(request).render(
+        request,
+        "www/imprint.html",
         {"principal": None, **_operator_context(settings)},
     )
     return HTMLResponse(html)

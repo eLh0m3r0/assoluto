@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-22 18:11+0200\n"
+"POT-Creation-Date: 2026-04-23 08:44+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -83,7 +83,7 @@ msgid "Close"
 msgstr "Uzavřít"
 
 #: app/i18n_messages.py:52 app/templates/admin/user_edit.html:67
-#: app/templates/assets/form.html:54 app/templates/customers/form.html:98
+#: app/templates/assets/form.html:57 app/templates/customers/form.html:98
 #: app/templates/orders/form.html:58
 #: app/templates/platform/admin/tenant_edit.html:73
 #: app/templates/products/form.html:70
@@ -417,28 +417,32 @@ msgstr "Majetek s tímto kódem už u klienta existuje."
 msgid "A contact with the same email already exists."
 msgstr "Kontakt se stejným e-mailem už existuje."
 
-#: app/routers/customers.py:375 app/routers/tenant_admin.py:286
-#: app/routers/tenant_admin.py:424
+#: app/routers/customers.py:376 app/routers/tenant_admin.py:286
+#: app/routers/tenant_admin.py:440
 msgid "Name cannot be empty."
 msgstr "Jméno nesmí být prázdné."
 
-#: app/routers/customers.py:386 app/routers/tenant_admin.py:308
+#: app/routers/customers.py:387 app/routers/tenant_admin.py:308
 msgid "Changes saved."
 msgstr "Změny uloženy."
 
-#: app/routers/customers.py:404
+#: app/routers/customers.py:405
 msgid "Contact disabled."
 msgstr "Kontakt deaktivován."
 
-#: app/routers/customers.py:423
+#: app/routers/customers.py:424
 msgid "Contact reactivated."
 msgstr "Kontakt reaktivován."
 
-#: app/routers/customers.py:448
+#: app/routers/customers.py:449
 msgid "This contact already has a password; use a password reset instead."
 msgstr "Kontakt už má heslo; použijte reset hesla."
 
-#: app/routers/customers.py:478 app/routers/tenant_admin.py:375
+#: app/routers/customers.py:462 app/routers/tenant_admin.py:361
+msgid "Too many invitations sent recently. Try again later."
+msgstr "V poslední době bylo odesláno příliš mnoho pozvánek. Zkuste to později."
+
+#: app/routers/customers.py:495 app/routers/tenant_admin.py:391
 msgid "Invitation resent."
 msgstr "Pozvánka odeslána znovu."
 
@@ -517,33 +521,33 @@ msgstr "{ok} převedeno, {failed} selhalo."
 msgid "A product with this SKU already exists."
 msgstr "Produkt s tímto SKU už existuje."
 
-#: app/routers/public.py:176
+#: app/routers/public.py:187
 msgid "Password changed. Sign in with your new password."
 msgstr "Heslo bylo úspěšně změněno. Přihlaste se novým heslem."
 
-#: app/routers/public.py:205
+#: app/routers/public.py:222
 msgid "Your account is disabled."
 msgstr "Účet je deaktivován."
 
-#: app/routers/public.py:218
+#: app/routers/public.py:235
 msgid "Invalid email or password."
 msgstr "Neplatný e-mail nebo heslo."
 
-#: app/routers/public.py:299 app/routers/public.py:395
-#: app/routers/public.py:478
+#: app/routers/public.py:316 app/routers/public.py:412
+#: app/routers/public.py:495
 msgid "The invitation is invalid or has expired."
 msgstr "Pozvánka je neplatná nebo vypršela."
 
-#: app/routers/public.py:313 app/routers/public.py:409
+#: app/routers/public.py:330 app/routers/public.py:426
 msgid "The invitation belongs to a different tenant."
 msgstr "Pozvánka patří k jinému tenantovi."
 
-#: app/routers/public.py:375 app/routers/public.py:522
-#: app/routers/public.py:725
+#: app/routers/public.py:392 app/routers/public.py:539
+#: app/routers/public.py:756
 msgid "Passwords do not match."
 msgstr "Hesla se neshodují."
 
-#: app/routers/public.py:690
+#: app/routers/public.py:721
 msgid "The link is invalid or has expired."
 msgstr "Odkaz je neplatný nebo vypršel."
 
@@ -563,33 +567,41 @@ msgstr "Uživatel reaktivován."
 msgid "This user already has a password; use a password reset instead."
 msgstr "Uživatel už má heslo; použijte reset hesla."
 
-#: app/routers/tenant_admin.py:401
+#: app/routers/tenant_admin.py:417
 msgid "Profile saved."
 msgstr "Profil uložen."
 
-#: app/routers/tenant_admin.py:454
+#: app/routers/tenant_admin.py:470
 msgid "New passwords do not match."
 msgstr "Nová hesla se neshodují."
 
-#: app/routers/tenant_admin.py:518
+#: app/routers/tenant_admin.py:558
+msgid "Password does not match — deletion cancelled."
+msgstr "Heslo neodpovídá — mazání zrušeno."
+
+#: app/routers/tenant_admin.py:582
+msgid "You're the last administrator — promote someone else first."
+msgstr "Jste poslední administrátor — nejdřív povýšte někoho jiného."
+
+#: app/routers/tenant_admin.py:636
 msgid "Saved."
 msgstr "Uloženo."
 
-#: app/routers/www.py:124
+#: app/routers/www.py:125
 msgid "Please fill in all fields."
 msgstr "Vyplňte prosím všechna pole."
 
-#: app/routers/www.py:127
+#: app/routers/www.py:128
 #, python-brace-format
 msgid "Name may be at most {n} characters."
 msgstr "Jméno může mít nejvýše {n} znaků."
 
-#: app/routers/www.py:131
+#: app/routers/www.py:132
 #, python-brace-format
 msgid "Message may be at most {n} characters."
 msgstr "Zpráva může mít nejvýše {n} znaků."
 
-#: app/routers/www.py:141
+#: app/routers/www.py:142
 msgid "Email address is not valid."
 msgstr "Zadaný e-mail není platný."
 
@@ -631,8 +643,8 @@ msgstr "Objednávky"
 msgid "Clients"
 msgstr "Klienti"
 
-#: app/templates/_palette_results.html:55 app/templates/assets/detail.html:12
-#: app/templates/assets/form.html:14 app/templates/assets/list.html:26
+#: app/templates/_palette_results.html:55 app/templates/assets/detail.html:14
+#: app/templates/assets/form.html:17 app/templates/assets/list.html:26
 #: app/templates/orders/detail.html:48 app/templates/orders/form.html:25
 #: app/templates/orders/list.html:85 app/templates/products/form.html:55
 #: app/templates/products/list.html:21
@@ -648,11 +660,12 @@ msgstr "Katalog"
 
 #: app/templates/admin/audit.html:7 app/templates/admin/profile.html:7
 #: app/templates/admin/sla.html:7 app/templates/admin/tenant_settings.html:7
-#: app/templates/admin/users.html:7 app/templates/app_base.html:11
-#: app/templates/customers/detail.html:8 app/templates/customers/form.html:9
-#: app/templates/customers/form.html:13 app/templates/dashboard/index.html:3
-#: app/templates/dashboard/index.html:7 app/templates/orders/detail.html:29
-#: app/templates/orders/form.html:6
+#: app/templates/admin/user_edit.html:7 app/templates/admin/users.html:7
+#: app/templates/app_base.html:11 app/templates/assets/detail.html:6
+#: app/templates/assets/form.html:6 app/templates/customers/detail.html:8
+#: app/templates/customers/form.html:9 app/templates/customers/form.html:13
+#: app/templates/dashboard/index.html:3 app/templates/dashboard/index.html:7
+#: app/templates/orders/detail.html:29 app/templates/orders/form.html:6
 #: app/templates/platform/admin/_header.html:21
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:7
@@ -662,8 +675,8 @@ msgstr "Katalog"
 msgid "Dashboard"
 msgstr "Přehled"
 
-#: app/templates/app_base.html:13 app/templates/assets/detail.html:7
-#: app/templates/assets/list.html:3
+#: app/templates/app_base.html:13 app/templates/assets/detail.html:6
+#: app/templates/assets/form.html:6 app/templates/assets/list.html:3
 msgid "Assets"
 msgstr "Majetek"
 
@@ -675,7 +688,8 @@ msgstr "SLA"
 msgid "Admin"
 msgstr "Admin"
 
-#: app/templates/admin/users.html:3 app/templates/app_base.html:29
+#: app/templates/admin/user_edit.html:7 app/templates/admin/users.html:3
+#: app/templates/app_base.html:29
 msgid "Team"
 msgstr "Tým"
 
@@ -897,6 +911,38 @@ msgstr "Uložit nové heslo"
 msgid "After changing your password you will be signed out and must log in again."
 msgstr "Po změně hesla budete odhlášeni a musíte se znovu přihlásit."
 
+#: app/templates/admin/profile.html:89
+msgid "Your data (GDPR)"
+msgstr "Vaše data (GDPR)"
+
+#: app/templates/admin/profile.html:91
+msgid "Under EU law you can download everything we hold about you, and request erasure at any time."
+msgstr "Podle práva EU si můžete kdykoli stáhnout vše, co o vás uchováváme, a požádat o výmaz."
+
+#: app/templates/admin/profile.html:96
+msgid "Download my data (JSON)"
+msgstr "Stáhnout moje data (JSON)"
+
+#: app/templates/admin/profile.html:103
+msgid "Delete my account (irreversible)"
+msgstr "Smazat můj účet (nevratné)"
+
+#: app/templates/admin/profile.html:106
+msgid "This removes your personal data (name, email, phone, password) from this tenant. Orders and comments you created stay in the company record but are shown as \"erased\" in the author column. This cannot be undone."
+msgstr "Odstraní vaše osobní údaje (jméno, e-mail, telefon, heslo) z tohoto tenantu. Objednávky a komentáře, které jste vytvořili, zůstávají ve firemní evidenci, ale ve sloupci autora se zobrazují jako „smazáno“. Tuto akci nelze vrátit."
+
+#: app/templates/admin/profile.html:109
+msgid "Are you sure? This is irreversible."
+msgstr "Opravdu? Tato akce je nevratná."
+
+#: app/templates/admin/profile.html:113
+msgid "Confirm with your current password"
+msgstr "Potvrďte aktuálním heslem"
+
+#: app/templates/admin/profile.html:121
+msgid "Delete my account"
+msgstr "Smazat můj účet"
+
 #: app/templates/admin/sla.html:3 app/templates/admin/sla.html:8
 msgid "SLA tracking"
 msgstr "Sledování SLA"
@@ -1020,25 +1066,19 @@ msgid "Save changes"
 msgstr "Uložit změny"
 
 # --- Sprint A/B new strings ---
-#: app/templates/admin/user_edit.html:3 app/templates/admin/user_edit.html:10
+#: app/templates/admin/user_edit.html:3 app/templates/admin/user_edit.html:7
+#: app/templates/admin/user_edit.html:10
 msgid "Edit user"
 msgstr "Upravit uživatele"
-
-# "Ready", "Delivered", "Cancel" reuse the existing msgids from
-# orders/_status_badge.html and products/form.html (they share the
-# same Czech translation, so we don't duplicate entries).
-#: app/templates/admin/user_edit.html:8 app/templates/admin/users.html:8
-msgid "Team users"
-msgstr "Uživatelé týmu"
 
 #: app/templates/admin/user_edit.html:39 app/templates/admin/users.html:23
 msgid "Role"
 msgstr "Role"
 
 #: app/templates/admin/user_edit.html:42 app/templates/admin/users.html:34
-#: app/templates/admin/users.html:108
+#: app/templates/admin/users.html:108 app/templates/www/imprint.html:14
 msgid "Operator"
-msgstr "Operátor"
+msgstr "Provozovatel"
 
 #: app/templates/admin/user_edit.html:43 app/templates/admin/users.html:34
 #: app/templates/admin/users.html:109
@@ -1048,6 +1088,13 @@ msgstr "Administrátor"
 #: app/templates/admin/user_edit.html:60
 msgid "Language used for notification emails sent to this user."
 msgstr "Jazyk, ve kterém tento uživatel dostává notifikační e-maily."
+
+# "Ready", "Delivered", "Cancel" reuse the existing msgids from
+# orders/_status_badge.html and products/form.html (they share the
+# same Czech translation, so we don't duplicate entries).
+#: app/templates/admin/users.html:8
+msgid "Team users"
+msgstr "Uživatelé týmu"
 
 #: app/templates/admin/users.html:10
 msgid "Manage staff users — full access to all tenant data."
@@ -1141,98 +1188,100 @@ msgstr "Jméno Příjmení"
 msgid "Send invitation"
 msgstr "Odeslat pozvánku"
 
-#: app/templates/assets/detail.html:20
+#: app/templates/assets/detail.html:22
 msgid "Current stock"
 msgstr "Aktuální stav"
 
-#: app/templates/assets/detail.html:26 app/templates/assets/form.html:43
-#: app/templates/assets/list.html:29
+#: app/templates/assets/detail.html:28 app/templates/assets/form.html:46
+#: app/templates/assets/list.html:29 app/templates/www/privacy.html:61
 msgid "Location"
-msgstr "Umístění"
+msgstr "Lokalita"
 
-#: app/templates/assets/detail.html:30 app/templates/assets/form.html:48
-#: app/templates/orders/detail.html:90 app/templates/products/detail.html:52
+#: app/templates/assets/detail.html:32 app/templates/assets/form.html:51
+#: app/templates/orders/detail.html:93 app/templates/products/detail.html:52
 #: app/templates/products/form.html:43
 msgid "Description"
 msgstr "Popis"
 
-#: app/templates/assets/detail.html:38
+#: app/templates/assets/detail.html:40
 msgid "Movements"
 msgstr "Pohyby"
 
-#: app/templates/assets/detail.html:44
+#: app/templates/assets/detail.html:46
 msgid "Date"
 msgstr "Datum"
 
-#: app/templates/assets/detail.html:45
+#: app/templates/assets/detail.html:47
 msgid "Type"
 msgstr "Typ"
 
-#: app/templates/assets/detail.html:46 app/templates/assets/detail.html:85
-#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:91
-#: app/templates/orders/detail.html:137
+#: app/templates/assets/detail.html:48 app/templates/assets/detail.html:87
+#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:94
+#: app/templates/orders/detail.html:141
 msgid "Quantity"
 msgstr "Množství"
 
-#: app/templates/assets/detail.html:47 app/templates/assets/detail.html:87
+#: app/templates/assets/detail.html:49 app/templates/assets/detail.html:89
 #: app/templates/orders/form.html:52
 msgid "Note"
 msgstr "Poznámka"
 
-#: app/templates/assets/detail.html:57 app/templates/assets/detail.html:80
+#: app/templates/assets/detail.html:59 app/templates/assets/detail.html:82
 msgid "Receipt"
 msgstr "Příjem"
 
-#: app/templates/assets/detail.html:58 app/templates/assets/detail.html:81
+#: app/templates/assets/detail.html:60 app/templates/assets/detail.html:83
 msgid "Issue"
 msgstr "Výdej"
 
-#: app/templates/assets/detail.html:59 app/templates/assets/detail.html:82
+#: app/templates/assets/detail.html:61 app/templates/assets/detail.html:84
 msgid "Consumption"
 msgstr "Spotřeba"
 
-#: app/templates/assets/detail.html:60 app/templates/assets/detail.html:83
+#: app/templates/assets/detail.html:62 app/templates/assets/detail.html:85
 msgid "Correction"
 msgstr "Korekce"
 
-#: app/templates/assets/detail.html:72
+#: app/templates/assets/detail.html:74
 msgid "No movements."
 msgstr "Žádné pohyby."
 
-#: app/templates/assets/detail.html:90
+#: app/templates/assets/detail.html:92
 msgid "order"
 msgstr "objednávka"
 
-#: app/templates/assets/detail.html:97
+#: app/templates/assets/detail.html:99
 msgid "Add movement"
 msgstr "Přidat pohyb"
 
 #: app/templates/assets/form.html:3 app/templates/assets/form.html:6
+#: app/templates/assets/form.html:9
 msgid "New asset record"
 msgstr "Nový záznam majetku"
 
-#: app/templates/assets/form.html:17 app/templates/orders/form.html:28
+#: app/templates/assets/form.html:20 app/templates/orders/form.html:28
 msgid "choose a client"
 msgstr "vyberte klienta"
 
-#: app/templates/assets/form.html:27 app/templates/assets/list.html:23
+#: app/templates/assets/form.html:30 app/templates/assets/list.html:23
 msgid "Code"
 msgstr "Kód"
 
-#: app/templates/assets/form.html:32 app/templates/products/form.html:32
+#: app/templates/assets/form.html:35 app/templates/products/form.html:32
 #: app/templates/products/list.html:23
 msgid "Unit"
 msgstr "Jednotka"
 
-#: app/templates/assets/form.html:38 app/templates/assets/list.html:24
+#: app/templates/assets/form.html:41 app/templates/assets/list.html:24
 #: app/templates/orders/form.html:17 app/templates/orders/list.html:83
 #: app/templates/platform/admin/dashboard.html:47
 #: app/templates/platform/admin/tenants.html:21
 #: app/templates/products/form.html:38 app/templates/products/list.html:20
+#: app/templates/www/cookies.html:33
 msgid "Name"
 msgstr "Název"
 
-#: app/templates/assets/form.html:57 app/templates/customers/detail.html:108
+#: app/templates/assets/form.html:60 app/templates/customers/detail.html:108
 #: app/templates/customers/form.html:100 app/templates/products/form.html:73
 msgid "Save"
 msgstr "Uložit"
@@ -1245,7 +1294,7 @@ msgstr "Majetek klientů"
 msgid "My assets at the supplier"
 msgstr "Můj majetek u dodavatele"
 
-#: app/templates/assets/list.html:13 app/templates/assets/list.html:64
+#: app/templates/assets/list.html:13
 msgid "New record"
 msgstr "Nový záznam"
 
@@ -1253,9 +1302,19 @@ msgstr "Nový záznam"
 msgid "Stock"
 msgstr "Stav"
 
-#: app/templates/assets/list.html:60
-msgid "No assets recorded for this client yet."
-msgstr "Pro tohoto klienta zatím nejsou evidovány žádné aktiva."
+#: app/templates/assets/list.html:61
+#, fuzzy
+msgid "No assets yet"
+msgstr "Zatím žádní tenanti."
+
+#: app/templates/assets/list.html:64
+msgid "Assets are pieces of equipment you track on behalf of a client (machines at their site, rental tools, serialised items). Each asset has a code, location and history."
+msgstr "Majetek jsou položky, které evidujete pro klienta (stroje na jeho místě, pronajímané nářadí, sériové kusy). Každý majetek má kód, lokalitu a historii."
+
+#: app/templates/assets/list.html:69
+#, fuzzy
+msgid "Add the first asset"
+msgstr "Založit prvního klienta"
 
 #: app/templates/auth/invite_accept.html:3
 #: app/templates/auth/invite_accept.html:8
@@ -1596,8 +1655,8 @@ msgstr "Nastala neočekávaná chyba. Zkuste to prosím za chvíli znovu."
 msgid "Note (optional)"
 msgstr "Poznámka (nepovinné)"
 
-#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:92
-#: app/templates/orders/detail.html:144
+#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:95
+#: app/templates/orders/detail.html:148
 msgid "Price/unit"
 msgstr "Cena/ks"
 
@@ -1609,7 +1668,7 @@ msgstr "Ukládám…"
 msgid "Saved"
 msgstr "Uloženo"
 
-#: app/templates/orders/_item_row.html:104 app/templates/orders/detail.html:201
+#: app/templates/orders/_item_row.html:104 app/templates/orders/detail.html:205
 #: app/templates/products/detail.html:33
 msgid "Delete"
 msgstr "Smazat"
@@ -1635,79 +1694,79 @@ msgstr "Požadovaný termín"
 msgid "Promised delivery"
 msgstr "Slíbený termín"
 
-#: app/templates/orders/detail.html:93 app/templates/orders/list.html:88
+#: app/templates/orders/detail.html:96 app/templates/orders/list.html:88
 msgid "Total"
 msgstr "Celkem"
 
-#: app/templates/orders/detail.html:110
+#: app/templates/orders/detail.html:114
 msgid "No items."
 msgstr "Žádné položky."
 
-#: app/templates/orders/detail.html:123
+#: app/templates/orders/detail.html:127
 msgid "custom item (free-text)"
 msgstr "vlastní položka (free-text)"
 
-#: app/templates/orders/detail.html:139
+#: app/templates/orders/detail.html:143
 msgid "unit"
 msgstr "jed."
 
-#: app/templates/orders/detail.html:150
+#: app/templates/orders/detail.html:154
 msgid "Item description"
 msgstr "Popis položky"
 
-#: app/templates/orders/detail.html:155
+#: app/templates/orders/detail.html:159
 msgid "Add item"
 msgstr "Přidat položku"
 
-#: app/templates/orders/detail.html:165
+#: app/templates/orders/detail.html:169
 msgid "Attachments"
 msgstr "Přílohy"
 
-#: app/templates/orders/detail.html:190
+#: app/templates/orders/detail.html:194
 msgid "item"
 msgstr "položka"
 
-#: app/templates/orders/detail.html:209
+#: app/templates/orders/detail.html:213
 msgid "No attachments."
 msgstr "Žádné přílohy."
 
-#: app/templates/orders/detail.html:221
+#: app/templates/orders/detail.html:225
 msgid "to the whole order"
 msgstr "k celé objednávce"
 
-#: app/templates/orders/detail.html:230
+#: app/templates/orders/detail.html:234
 msgid "Upload"
 msgstr "Nahrát"
 
-#: app/templates/orders/detail.html:239
+#: app/templates/orders/detail.html:243
 msgid "Actions"
 msgstr "Akce"
 
-#: app/templates/orders/detail.html:251
+#: app/templates/orders/detail.html:255
 msgid "Comments"
 msgstr "Komentáře"
 
-#: app/templates/orders/detail.html:258
+#: app/templates/orders/detail.html:262
 msgid "internal"
 msgstr "interní"
 
-#: app/templates/orders/detail.html:263
+#: app/templates/orders/detail.html:267
 msgid "No comments."
 msgstr "Žádné komentáře."
 
-#: app/templates/orders/detail.html:269
+#: app/templates/orders/detail.html:273
 msgid "Write a comment…"
 msgstr "Napište komentář…"
 
-#: app/templates/orders/detail.html:275
+#: app/templates/orders/detail.html:279
 msgid "Internal (staff only)"
 msgstr "Interní (jen pro tým)"
 
-#: app/templates/orders/detail.html:282
+#: app/templates/orders/detail.html:286
 msgid "Add a comment"
 msgstr "Přidat komentář"
 
-#: app/templates/orders/detail.html:291
+#: app/templates/orders/detail.html:295
 msgid "Status history"
 msgstr "Historie stavů"
 
@@ -1882,8 +1941,8 @@ msgstr "Minimálně 8 znaků; vyhněte se běžným heslům."
 msgid "I agree to the"
 msgstr "Souhlasím s"
 
-#: app/templates/platform/signup.html:102 app/templates/www/terms.html:3
-#: app/templates/www/terms.html:7
+#: app/templates/platform/signup.html:102 app/templates/www/imprint.html:54
+#: app/templates/www/terms.html:3 app/templates/www/terms.html:7
 msgid "Terms of Service"
 msgstr "podmínkami služby"
 
@@ -1891,8 +1950,9 @@ msgstr "podmínkami služby"
 msgid "and the"
 msgstr "a se"
 
-#: app/templates/platform/signup.html:104 app/templates/www/privacy.html:3
-#: app/templates/www/privacy.html:7 app/templates/www/terms.html:58
+#: app/templates/platform/signup.html:104 app/templates/www/imprint.html:55
+#: app/templates/www/privacy.html:3 app/templates/www/privacy.html:7
+#: app/templates/www/terms.html:58
 msgid "Privacy Policy"
 msgstr "zpracováním osobních údajů"
 
@@ -2252,7 +2312,19 @@ msgstr "Částka"
 msgid "Paid"
 msgstr "Uhrazeno"
 
+#: app/templates/platform/billing/dashboard.html:185
+msgid "Czech tax-compliant invoice (daňový doklad)"
+msgstr "Daňový doklad (CZ-compliant)"
+
+#: app/templates/platform/billing/dashboard.html:186
+msgid "Doklad"
+msgstr "Doklad"
+
 #: app/templates/platform/billing/dashboard.html:192
+msgid "Stripe-hosted receipt"
+msgstr "Stripe stvrzenka"
+
+#: app/templates/platform/billing/dashboard.html:204
 msgid "No invoices yet."
 msgstr "Zatím žádné faktury."
 
@@ -2287,11 +2359,16 @@ msgstr "Katalog produktů"
 msgid "Price"
 msgstr "Cena"
 
-#: app/templates/products/list.html:67
-msgid "The catalog is empty."
+#: app/templates/products/list.html:68
+#, fuzzy
+msgid "Catalog is empty"
 msgstr "Katalog je prázdný."
 
-#: app/templates/products/list.html:70
+#: app/templates/products/list.html:71
+msgid "The catalog holds items your clients can pick when placing an order (SKU, name, unit, price). You can also narrow a product to a specific client."
+msgstr "Katalog obsahuje položky, které si vaši klienti mohou vybírat při zadávání objednávky (SKU, název, jednotka, cena). Produkt lze také omezit na konkrétního klienta."
+
+#: app/templates/products/list.html:75
 msgid "Add the first product"
 msgstr "Přidat první produkt"
 
@@ -2330,6 +2407,116 @@ msgstr "Vaše zpráva *"
 #: app/templates/www/contact.html:45
 msgid "Send"
 msgstr "Odeslat"
+
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:31
+msgid "Cookies"
+msgstr "Cookies"
+
+#: app/templates/www/cookies.html:7
+msgid "Cookies policy"
+msgstr "Zásady cookies"
+
+#: app/templates/www/cookies.html:9 app/templates/www/privacy.html:9
+#: app/templates/www/terms.html:9
+msgid "Version 1.0 · effective from May 1, 2026"
+msgstr "Verze 1.0 · účinnost od 1. května 2026"
+
+#: app/templates/www/cookies.html:14 app/templates/www/privacy.html:14
+#: app/templates/www/terms.html:14
+msgid "Notice:"
+msgstr "Upozornění:"
+
+#: app/templates/www/cookies.html:14
+#, fuzzy
+msgid "This text is a template. It should be reviewed by a lawyer familiar with the EU ePrivacy Directive and Czech law before going live."
+msgstr "Tento text je šablona. Před nasazením by ho měl zkontrolovat právník znalý GDPR."
+
+#: app/templates/www/cookies.html:18
+msgid "1. Do we need your consent?"
+msgstr "1. Potřebujeme váš souhlas?"
+
+#: app/templates/www/cookies.html:20
+msgid "Assoluto uses only cookies that are \"strictly necessary\" to deliver the service you explicitly requested (log you in, protect against CSRF, remember the language you chose). Under Article 5(3) of the ePrivacy Directive (2002/58/EC) and §89 of Czech Act 127/2005 Coll., strictly-necessary cookies do not require prior consent. We therefore do not show a cookie banner."
+msgstr "Assoluto používá pouze cookies, které jsou „nezbytně nutné“ k poskytování služby, kterou jste si vyžádali (přihlášení, ochrana proti CSRF, pamatování si jazyka). Podle čl. 5 odst. 3 směrnice ePrivacy (2002/58/ES) a §89 zákona č. 127/2005 Sb. nezbytně nutné cookies nevyžadují předchozí souhlas. Proto cookie lištu nezobrazujeme."
+
+#: app/templates/www/cookies.html:23
+msgid "We do not use advertising cookies. We do not use third-party analytics cookies. We do not track you across sites."
+msgstr "Nepoužíváme reklamní cookies. Nepoužíváme cookies analytických třetích stran. Nesledujeme vás napříč weby."
+
+#: app/templates/www/cookies.html:28
+#, fuzzy
+msgid "2. Cookies we set"
+msgstr "7. Cookies"
+
+#: app/templates/www/cookies.html:34 app/templates/www/privacy.html:59
+msgid "Purpose"
+msgstr "Účel"
+
+#: app/templates/www/cookies.html:35
+msgid "Lifetime"
+msgstr "Platnost"
+
+#: app/templates/www/cookies.html:36
+msgid "Scope"
+msgstr "Rozsah"
+
+#: app/templates/www/cookies.html:42
+msgid "Double-submit CSRF token. Prevents forged POSTs from other origins."
+msgstr "Double-submit CSRF token. Zabrání podvrženým POST požadavkům z jiných origin."
+
+#: app/templates/www/cookies.html:43
+msgid "7 days"
+msgstr "7 dní"
+
+#: app/templates/www/cookies.html:44 app/templates/www/cookies.html:50
+#: app/templates/www/cookies.html:62 app/templates/www/cookies.html:68
+msgid "Host-only"
+msgstr "Pouze doména"
+
+#: app/templates/www/cookies.html:48
+msgid "Signed session cookie identifying the logged-in tenant user. HttpOnly."
+msgstr "Podepsaný session cookie identifikující přihlášeného uživatele tenanta. HttpOnly."
+
+#: app/templates/www/cookies.html:49 app/templates/www/cookies.html:55
+msgid "14 days"
+msgstr "14 dní"
+
+#: app/templates/www/cookies.html:54
+msgid "Signed session cookie identifying the platform identity across tenant subdomains. HttpOnly."
+msgstr "Podepsaný session cookie identifikující platform identitu napříč tenant subdoménami. HttpOnly."
+
+#: app/templates/www/cookies.html:56
+msgid "Parent domain"
+msgstr "Nadřazená doména"
+
+#: app/templates/www/cookies.html:60
+msgid "Your chosen UI language (cs / en). Set when you click the language switcher."
+msgstr "Vámi zvolený jazyk UI (cs / en). Nastaven při kliku na přepínač jazyka."
+
+#: app/templates/www/cookies.html:61 app/templates/www/cookies.html:67
+msgid "1 year"
+msgstr "1 rok"
+
+#: app/templates/www/cookies.html:66
+msgid "Light / dark / system preference. Set when you click the theme toggle."
+msgstr "Preference světlý / tmavý / systém. Nastaven při kliku na přepínač tématu."
+
+#: app/templates/www/cookies.html:76
+msgid "3. How to delete cookies"
+msgstr "3. Jak cookies smazat"
+
+#: app/templates/www/cookies.html:78
+msgid "You can clear these cookies at any time from your browser's settings. Deleting the session cookies logs you out. Deleting the preference cookies reverts to defaults (Czech language, system theme)."
+msgstr "Cookies můžete kdykoli smazat v nastavení prohlížeče. Smazání session cookies vás odhlásí. Smazání preferenčních cookies vrátí výchozí hodnoty (čeština, systémové téma)."
+
+#: app/templates/www/cookies.html:83
+#, fuzzy
+msgid "4. Contact"
+msgstr "Kontakt"
+
+#: app/templates/www/cookies.html:85
+msgid "Questions about this cookies policy? Write to"
+msgstr "Dotazy k zásadám cookies? Napište nám na"
 
 #: app/templates/www/features.html:3 app/templates/www/www_base.html:6
 msgid "Features"
@@ -2431,6 +2618,47 @@ msgstr "Můžete si ho hostovat sami (zdarma), auditovat, nebo forknout. Nabíz�
 #: app/templates/www/pricing.html:49 app/templates/www/pricing.html:72
 msgid "Try free for 14 days"
 msgstr "Vyzkoušet zdarma na 14 dní"
+
+#: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
+#: app/templates/www/www_base.html:33
+msgid "Imprint"
+msgstr "Impressum"
+
+#: app/templates/www/imprint.html:9
+msgid "Operator-identity disclosure under §8 of Czech Act 480/2004 Coll. (information-society services)."
+msgstr "Identifikační údaje provozovatele podle §8 zákona č. 480/2004 Sb. (služby informační společnosti)."
+
+#: app/templates/www/imprint.html:17
+msgid "Registered office"
+msgstr "Sídlo"
+
+#: app/templates/www/imprint.html:29
+msgid "Not a VAT payer (§6 VAT Act)."
+msgstr "Neplátce DPH (§6 ZDPH)."
+
+#: app/templates/www/imprint.html:33
+msgid "Contact email"
+msgstr "Kontaktní e-mail"
+
+#: app/templates/www/imprint.html:38
+msgid "Regulatory supervision"
+msgstr "Dozorový orgán"
+
+#: app/templates/www/imprint.html:40
+msgid "Czech Trade Inspection Authority (Česká obchodní inspekce), Štěpánská 44, Prague — out-of-court consumer dispute resolution."
+msgstr "Česká obchodní inspekce, Štěpánská 44, Praha — mimosoudní řešení spotřebitelských sporů."
+
+#: app/templates/www/imprint.html:45
+msgid "EU ODR platform"
+msgstr "Platforma EU ODR"
+
+#: app/templates/www/imprint.html:52
+msgid "Related documents"
+msgstr "Související dokumenty"
+
+#: app/templates/www/imprint.html:56
+msgid "Cookies Policy"
+msgstr "Zásady cookies"
 
 #: app/templates/www/index.html:3 app/templates/www/index.html:10
 msgid "Client portal for manufacturing SMEs"
@@ -2667,14 +2895,6 @@ msgstr "Účet můžete kdykoli zrušit a data si exportovat (CSV)."
 msgid "Prices do not apply to the self-hosted version — it is free forever."
 msgstr "Ceny se netýkají self-hosted verze — ta je zdarma navždy."
 
-#: app/templates/www/privacy.html:9 app/templates/www/terms.html:9
-msgid "Version 1.0 · effective from May 1, 2026"
-msgstr "Verze 1.0 · účinnost od 1. května 2026"
-
-#: app/templates/www/privacy.html:14 app/templates/www/terms.html:14
-msgid "Notice:"
-msgstr "Upozornění:"
-
 #: app/templates/www/privacy.html:14
 msgid "This text is a template. It should be reviewed by a lawyer familiar with GDPR before going live."
 msgstr "Tento text je šablona. Před nasazením by ho měl zkontrolovat právník znalý GDPR."
@@ -2744,42 +2964,110 @@ msgid "Sending operational emails (consent / contract performance)"
 msgstr "Zasílání provozních e-mailů (souhlas / plnění smlouvy)"
 
 #: app/templates/www/privacy.html:50
-msgid "4. Where data is stored"
-msgstr "4. Kde jsou data uložena"
+msgid "4. Where data is stored + our subprocessors"
+msgstr "4. Kde data ukládáme + naši zpracovatelé"
 
 #: app/templates/www/privacy.html:52
-msgid "Servers are located in the European Union (Frankfurt, DE). Attachments (drawings, PDFs) in S3-compatible storage with EU location. Payments are processed by Stripe (USA, EU representation). Transactional emails are sent by a transactional email provider (EU regions — Resend, Postmark, or equivalent)."
-msgstr "Servery jsou umístěny v Evropské unii (Frankfurt, DE). Přílohy (výkresy, PDF) v S3-kompatibilním úložišti s EU lokací. Platby zpracovává Stripe (USA, EU zastoupení). Transakční e-maily odesílá transakční e-mailový poskytovatel (EU regiony — Resend, Postmark nebo ekvivalent)."
+msgid "We use the following third parties (subprocessors) to run the service. Data sharing is limited to what each subprocessor needs to do its job; no subprocessor receives marketing permissions on your data."
+msgstr "Pro provoz služby využíváme následující třetí strany (zpracovatele). Sdílení dat je omezeno na to, co každý zpracovatel potřebuje; žádný zpracovatel nedostává oprávnění marketingového využití."
 
-#: app/templates/www/privacy.html:57
+#: app/templates/www/privacy.html:58
+msgid "Subprocessor"
+msgstr "Zpracovatel"
+
+#: app/templates/www/privacy.html:60
+msgid "Data categories"
+msgstr "Kategorie dat"
+
+#: app/templates/www/privacy.html:67
+msgid "Hosting (VPS)"
+msgstr "Hosting (VPS)"
+
+#: app/templates/www/privacy.html:68
+msgid "All (at-rest, encrypted)"
+msgstr "Vše (at-rest, šifrováno)"
+
+#: app/templates/www/privacy.html:73
+msgid "Transactional email"
+msgstr "Transakční e-maily"
+
+#: app/templates/www/privacy.html:74
+msgid "Recipient email, name, body"
+msgstr "Adresa příjemce, jméno, tělo zprávy"
+
+#: app/templates/www/privacy.html:79
+msgid "Subscription billing"
+msgstr "Předplatné (účtování)"
+
+#: app/templates/www/privacy.html:80
+msgid "Billing email, company, tax ID, card (processor-held)"
+msgstr "Fakturační e-mail, firma, DIČ, karta (drží zpracovatel)"
+
+#: app/templates/www/privacy.html:85
+msgid "DNS + domain registrar"
+msgstr "DNS + registrátor domény"
+
+#: app/templates/www/privacy.html:86
+msgid "Public DNS records only"
+msgstr "Pouze veřejné DNS záznamy"
+
+#: app/templates/www/privacy.html:93
+msgid "Subprocessor changes are disclosed at least 30 days in advance by updating this page and emailing active tenant admins."
+msgstr "O změně zpracovatelů informujeme minimálně 30 dní dopředu aktualizací této stránky a e-mailem všem aktivním tenant adminům."
+
+#: app/templates/www/privacy.html:98
 msgid "5. How long we retain data"
 msgstr "5. Jak dlouho údaje uchováváme"
 
-#: app/templates/www/privacy.html:59
-msgid "Active account data is retained for the duration of the account's existence. After account cancellation, 30 days (for possible reactivation), then permanent deletion. Billing data in accordance with the law (10 years from the end of the accounting period)."
-msgstr "Data aktivního účtu uchováváme po dobu trvání účtu. Po zrušení účtu 30 dní (pro případnou reaktivaci), poté trvalé smazání. Fakturační data v souladu se zákonem (10 let od konce účetního období)."
+#: app/templates/www/privacy.html:100
+msgid "Active account data — for the lifetime of the subscription."
+msgstr "Data aktivního účtu — po dobu trvání předplatného."
 
-#: app/templates/www/privacy.html:64
+#: app/templates/www/privacy.html:101
+msgid "After account cancellation — 30 days grace (for reactivation), then anonymisation."
+msgstr "Po zrušení účtu — 30denní grace period pro reaktivaci, pak anonymizace."
+
+#: app/templates/www/privacy.html:102
+msgid "Authentication logs (last_login timestamps, failed login attempts) — 90 days."
+msgstr "Autentizační logy (čas posledního přihlášení, neúspěšné pokusy) — 90 dní."
+
+#: app/templates/www/privacy.html:103
+msgid "Audit trail of operator / admin actions — retained for the lifetime of the tenant, plus 3 years after closure for contractual dispute evidence."
+msgstr "Audit trail akcí operátora / administrátora — po dobu trvání tenantu plus 3 roky po uzavření jako důkaz pro případné spory."
+
+#: app/templates/www/privacy.html:104
+msgid "Billing records (invoices, subscription history) — 10 years from the end of the accounting period, as required by Czech Act 563/1991 Coll. on accounting."
+msgstr "Fakturační záznamy (faktury, historie předplatného) — 10 let od konce účetního období, podle zákona č. 563/1991 Sb. o účetnictví."
+
+#: app/templates/www/privacy.html:105
+msgid "Request / error logs — 14 days."
+msgstr "Logy požadavků / chyb — 14 dní."
+
+#: app/templates/www/privacy.html:106
+msgid "Database backups — 14 days rolling."
+msgstr "Zálohy databáze — 14 dní rotace."
+
+#: app/templates/www/privacy.html:111
 msgid "6. Your rights"
 msgstr "6. Vaše práva"
 
-#: app/templates/www/privacy.html:66
+#: app/templates/www/privacy.html:113
 msgid "You have the right to access, rectification, erasure, restriction of processing, portability, and objection. Contact"
 msgstr "Máte právo na přístup, opravu, výmaz, omezení zpracování, přenositelnost a námitku. Kontakt"
 
-#: app/templates/www/privacy.html:68
+#: app/templates/www/privacy.html:115
 msgid "we will respond within 30 days."
 msgstr "odpovíme do 30 dní."
 
-#: app/templates/www/privacy.html:71
+#: app/templates/www/privacy.html:118
 msgid "You also have the right to file a complaint with the Office for Personal Data Protection"
 msgstr "Máte také právo podat stížnost Úřadu pro ochranu osobních údajů"
 
-#: app/templates/www/privacy.html:77
+#: app/templates/www/privacy.html:124
 msgid "7. Cookies"
 msgstr "7. Cookies"
 
-#: app/templates/www/privacy.html:79
+#: app/templates/www/privacy.html:126
 msgid "The portal uses only technical (session) cookies necessary for login and CSRF protection. We do not deploy analytics or marketing cookies without your consent."
 msgstr "Portál používá pouze technické (session) cookies nezbytné pro přihlášení a ochranu CSRF. Analytické ani marketingové cookies bez vašeho souhlasu nenasazujeme."
 
@@ -2974,4 +3262,13 @@ msgstr "Podmínky"
 #: app/templates/www/www_base.html:29
 msgid "Privacy"
 msgstr "Soukromí"
+
+#~ msgid "No assets recorded for this client yet."
+#~ msgstr "Pro tohoto klienta zatím nejsou evidovány žádné aktiva."
+
+#~ msgid "Servers are located in the European Union (Frankfurt, DE). Attachments (drawings, PDFs) in S3-compatible storage with EU location. Payments are processed by Stripe (USA, EU representation). Transactional emails are sent by a transactional email provider (EU regions — Resend, Postmark, or equivalent)."
+#~ msgstr "Servery jsou umístěny v Evropské unii (Frankfurt, DE). Přílohy (výkresy, PDF) v S3-kompatibilním úložišti s EU lokací. Platby zpracovává Stripe (USA, EU zastoupení). Transakční e-maily odesílá transakční e-mailový poskytovatel (EU regiony — Resend, Postmark nebo ekvivalent)."
+
+#~ msgid "Active account data is retained for the duration of the account's existence. After account cancellation, 30 days (for possible reactivation), then permanent deletion. Billing data in accordance with the law (10 years from the end of the accounting period)."
+#~ msgstr "Data aktivního účtu uchováváme po dobu trvání účtu. Po zrušení účtu 30 dní (pro případnou reaktivaci), poté trvalé smazání. Fakturační data v souladu se zákonem (10 let od konce účetního období)."
 

@@ -505,6 +505,108 @@ async def profile_change_password(
     return response
 
 
+# ------------------------------------------------------------- GDPR
+
+
+@router.get("/profile/export")
+async def profile_export(
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """GDPR Art. 20 portability — return every piece of personal data
+    we hold about this tenant staff user in a single JSON download.
+    """
+    from fastapi.responses import JSONResponse
+
+    from app.services.gdpr_service import export_for_user
+
+    user = (await db.execute(select(User).where(User.id == principal.id))).scalar_one()
+    payload = await export_for_user(db, user=user)
+    filename = f"assoluto-export-{user.email}-{date.today().isoformat()}.json"
+    return JSONResponse(
+        payload,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("/profile/delete")
+async def profile_delete(
+    request: Request,
+    password: str = Form(...),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """GDPR Art. 17 erasure — anonymise this staff user's PII.
+
+    Password-confirmed so a hijacked session can't trigger deletion.
+    The row is NOT dropped; it's kept with nulled-out PII so orders,
+    audit events and status history stay intact but no longer carry
+    the data subject's identifying information.
+    """
+    from app.security.passwords import verify_password
+    from app.security.session import clear_session
+    from app.services.audit_service import actor_from_principal
+    from app.services.audit_service import record as audit_record
+    from app.services.gdpr_service import erase_user
+
+    user = (await db.execute(select(User).where(User.id == principal.id))).scalar_one()
+    if not user.password_hash or not verify_password(password, user.password_hash):
+        return RedirectResponse(
+            url=(
+                "/app/admin/profile?error="
+                + quote(_t(request, "Password does not match — deletion cancelled."))
+            ),
+            status_code=303,
+        )
+
+    # Block the last remaining tenant admin from erasing themselves —
+    # would leave the tenant without an admin. Operator has to
+    # promote someone first.
+    if user.role == UserRole.TENANT_ADMIN:
+        other_admins = (
+            await db.execute(
+                select(User).where(
+                    User.role == UserRole.TENANT_ADMIN,
+                    User.is_active.is_(True),
+                    User.id != user.id,
+                )
+            )
+        ).scalars().all()
+        if not other_admins:
+            return RedirectResponse(
+                url=(
+                    "/app/admin/profile?error="
+                    + quote(
+                        _t(
+                            request,
+                            "You're the last administrator — promote someone else first.",
+                        )
+                    )
+                ),
+                status_code=303,
+            )
+
+    original_label = f"{user.full_name} <{user.email}>"
+    await erase_user(db, user=user)
+    await audit_record(
+        db,
+        action="user.gdpr_erased",
+        entity_type="user",
+        entity_id=user.id,
+        entity_label=original_label,
+        actor=actor_from_principal(principal),
+        tenant_id=user.tenant_id,
+    )
+    await db.commit()
+
+    # Session cookie carries a stale session_version now — clear it
+    # explicitly alongside the redirect.
+    response = RedirectResponse(url="/auth/login?notice=account_deleted", status_code=303)
+    clear_session(response)
+    return response
+
+
 # --------------------------------------------------------- tenant settings
 
 

@@ -492,6 +492,8 @@ async def signup_tenant(
     owner_email: str,
     owner_full_name: str,
     owner_password: str,
+    consent_ip: str | None = None,
+    consent_version: str | None = None,
 ) -> tuple[Tenant, User, Identity]:
     """Create a tenant + admin user + Identity for the self-signup flow.
 
@@ -535,6 +537,15 @@ async def signup_tenant(
     identity = await find_identity_by_email(db, owner_email)
     assert identity is not None  # just created above
     identity.terms_accepted_at = datetime.now(UTC)
+    # Record which version the user ticked + from where, for GDPR
+    # consent-proof. Truncate to DB column widths so an unexpectedly
+    # long IPv6 literal or a bumped version string doesn't trip the
+    # VARCHAR limit — the GDPR value is "we have SOMETHING", not
+    # "we have the full byte-perfect match".
+    if consent_version:
+        identity.terms_accepted_version = consent_version[:32]
+    if consent_ip:
+        identity.terms_accepted_ip = consent_ip[:45]
     await db.flush()
 
     # Give the new tenant a 14-day trial on the starter plan by default.

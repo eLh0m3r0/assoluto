@@ -87,7 +87,17 @@ class Settings(BaseSettings):
     # that a user could legally accept against an unnamed party.
     platform_operator_name: str = Field(default="", alias="PLATFORM_OPERATOR_NAME")
     platform_operator_ico: str = Field(default="", alias="PLATFORM_OPERATOR_ICO")
+    # DIČ — optional; empty string means "not VAT-registered" and the
+    # CZ-tax invoice PDF falls back to the non-VAT path. Supplier
+    # IČO alone is legally sufficient for non-DPH invoices per
+    # §11 of Act 235/2004 (VAT Act).
+    platform_operator_dic: str = Field(default="", alias="PLATFORM_OPERATOR_DIC")
     platform_operator_address: str = Field(default="", alias="PLATFORM_OPERATOR_ADDRESS")
+    # Version tag stamped on every accepted Terms + Privacy consent so we
+    # can tell, per Identity, which revision they accepted. Bump when
+    # you publish a new version of ``terms.html`` / ``privacy.html``.
+    # Format is free but convention is ``YYYY.MM`` or semver.
+    legal_doc_version: str = Field(default="2026.05", alias="LEGAL_DOC_VERSION")
     platform_operator_email: str = Field(
         default="opensource@assoluto.eu", alias="PLATFORM_OPERATOR_EMAIL"
     )

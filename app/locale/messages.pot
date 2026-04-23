@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-22 18:11+0200\n"
+"POT-Creation-Date: 2026-04-23 08:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -82,7 +82,7 @@ msgid "Close"
 msgstr ""
 
 #: app/i18n_messages.py:52 app/templates/admin/user_edit.html:67
-#: app/templates/assets/form.html:54 app/templates/customers/form.html:98
+#: app/templates/assets/form.html:57 app/templates/customers/form.html:98
 #: app/templates/orders/form.html:58
 #: app/templates/platform/admin/tenant_edit.html:73
 #: app/templates/products/form.html:70
@@ -446,28 +446,32 @@ msgstr ""
 msgid "A contact with the same email already exists."
 msgstr ""
 
-#: app/routers/customers.py:375 app/routers/tenant_admin.py:286
-#: app/routers/tenant_admin.py:424
+#: app/routers/customers.py:376 app/routers/tenant_admin.py:286
+#: app/routers/tenant_admin.py:440
 msgid "Name cannot be empty."
 msgstr ""
 
-#: app/routers/customers.py:386 app/routers/tenant_admin.py:308
+#: app/routers/customers.py:387 app/routers/tenant_admin.py:308
 msgid "Changes saved."
 msgstr ""
 
-#: app/routers/customers.py:404
+#: app/routers/customers.py:405
 msgid "Contact disabled."
 msgstr ""
 
-#: app/routers/customers.py:423
+#: app/routers/customers.py:424
 msgid "Contact reactivated."
 msgstr ""
 
-#: app/routers/customers.py:448
+#: app/routers/customers.py:449
 msgid "This contact already has a password; use a password reset instead."
 msgstr ""
 
-#: app/routers/customers.py:478 app/routers/tenant_admin.py:375
+#: app/routers/customers.py:462 app/routers/tenant_admin.py:361
+msgid "Too many invitations sent recently. Try again later."
+msgstr ""
+
+#: app/routers/customers.py:495 app/routers/tenant_admin.py:391
 msgid "Invitation resent."
 msgstr ""
 
@@ -545,33 +549,33 @@ msgstr ""
 msgid "A product with this SKU already exists."
 msgstr ""
 
-#: app/routers/public.py:176
+#: app/routers/public.py:187
 msgid "Password changed. Sign in with your new password."
 msgstr ""
 
-#: app/routers/public.py:205
+#: app/routers/public.py:222
 msgid "Your account is disabled."
 msgstr ""
 
-#: app/routers/public.py:218
+#: app/routers/public.py:235
 msgid "Invalid email or password."
 msgstr ""
 
-#: app/routers/public.py:299 app/routers/public.py:395
-#: app/routers/public.py:478
+#: app/routers/public.py:316 app/routers/public.py:412
+#: app/routers/public.py:495
 msgid "The invitation is invalid or has expired."
 msgstr ""
 
-#: app/routers/public.py:313 app/routers/public.py:409
+#: app/routers/public.py:330 app/routers/public.py:426
 msgid "The invitation belongs to a different tenant."
 msgstr ""
 
-#: app/routers/public.py:375 app/routers/public.py:522
-#: app/routers/public.py:725
+#: app/routers/public.py:392 app/routers/public.py:539
+#: app/routers/public.py:756
 msgid "Passwords do not match."
 msgstr ""
 
-#: app/routers/public.py:690
+#: app/routers/public.py:721
 msgid "The link is invalid or has expired."
 msgstr ""
 
@@ -591,33 +595,41 @@ msgstr ""
 msgid "This user already has a password; use a password reset instead."
 msgstr ""
 
-#: app/routers/tenant_admin.py:401
+#: app/routers/tenant_admin.py:417
 msgid "Profile saved."
 msgstr ""
 
-#: app/routers/tenant_admin.py:454
+#: app/routers/tenant_admin.py:470
 msgid "New passwords do not match."
 msgstr ""
 
-#: app/routers/tenant_admin.py:518
+#: app/routers/tenant_admin.py:558
+msgid "Password does not match — deletion cancelled."
+msgstr ""
+
+#: app/routers/tenant_admin.py:582
+msgid "You're the last administrator — promote someone else first."
+msgstr ""
+
+#: app/routers/tenant_admin.py:636
 msgid "Saved."
 msgstr ""
 
-#: app/routers/www.py:124
+#: app/routers/www.py:125
 msgid "Please fill in all fields."
 msgstr ""
 
-#: app/routers/www.py:127
+#: app/routers/www.py:128
 #, python-brace-format
 msgid "Name may be at most {n} characters."
 msgstr ""
 
-#: app/routers/www.py:131
+#: app/routers/www.py:132
 #, python-brace-format
 msgid "Message may be at most {n} characters."
 msgstr ""
 
-#: app/routers/www.py:141
+#: app/routers/www.py:142
 msgid "Email address is not valid."
 msgstr ""
 
@@ -658,8 +670,8 @@ msgstr ""
 msgid "Clients"
 msgstr ""
 
-#: app/templates/_palette_results.html:55 app/templates/assets/detail.html:12
-#: app/templates/assets/form.html:14 app/templates/assets/list.html:26
+#: app/templates/_palette_results.html:55 app/templates/assets/detail.html:14
+#: app/templates/assets/form.html:17 app/templates/assets/list.html:26
 #: app/templates/orders/detail.html:48 app/templates/orders/form.html:25
 #: app/templates/orders/list.html:85 app/templates/products/form.html:55
 #: app/templates/products/list.html:21
@@ -675,11 +687,12 @@ msgstr ""
 
 #: app/templates/admin/audit.html:7 app/templates/admin/profile.html:7
 #: app/templates/admin/sla.html:7 app/templates/admin/tenant_settings.html:7
-#: app/templates/admin/users.html:7 app/templates/app_base.html:11
-#: app/templates/customers/detail.html:8 app/templates/customers/form.html:9
-#: app/templates/customers/form.html:13 app/templates/dashboard/index.html:3
-#: app/templates/dashboard/index.html:7 app/templates/orders/detail.html:29
-#: app/templates/orders/form.html:6
+#: app/templates/admin/user_edit.html:7 app/templates/admin/users.html:7
+#: app/templates/app_base.html:11 app/templates/assets/detail.html:6
+#: app/templates/assets/form.html:6 app/templates/customers/detail.html:8
+#: app/templates/customers/form.html:9 app/templates/customers/form.html:13
+#: app/templates/dashboard/index.html:3 app/templates/dashboard/index.html:7
+#: app/templates/orders/detail.html:29 app/templates/orders/form.html:6
 #: app/templates/platform/admin/_header.html:21
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:7
@@ -689,8 +702,8 @@ msgstr ""
 msgid "Dashboard"
 msgstr ""
 
-#: app/templates/app_base.html:13 app/templates/assets/detail.html:7
-#: app/templates/assets/list.html:3
+#: app/templates/app_base.html:13 app/templates/assets/detail.html:6
+#: app/templates/assets/form.html:6 app/templates/assets/list.html:3
 msgid "Assets"
 msgstr ""
 
@@ -702,7 +715,8 @@ msgstr ""
 msgid "Admin"
 msgstr ""
 
-#: app/templates/admin/users.html:3 app/templates/app_base.html:29
+#: app/templates/admin/user_edit.html:7 app/templates/admin/users.html:3
+#: app/templates/app_base.html:29
 msgid "Team"
 msgstr ""
 
@@ -923,6 +937,43 @@ msgstr ""
 msgid "After changing your password you will be signed out and must log in again."
 msgstr ""
 
+#: app/templates/admin/profile.html:89
+msgid "Your data (GDPR)"
+msgstr ""
+
+#: app/templates/admin/profile.html:91
+msgid ""
+"Under EU law you can download everything we hold about you, and request "
+"erasure at any time."
+msgstr ""
+
+#: app/templates/admin/profile.html:96
+msgid "Download my data (JSON)"
+msgstr ""
+
+#: app/templates/admin/profile.html:103
+msgid "Delete my account (irreversible)"
+msgstr ""
+
+#: app/templates/admin/profile.html:106
+msgid ""
+"This removes your personal data (name, email, phone, password) from this "
+"tenant. Orders and comments you created stay in the company record but "
+"are shown as \"erased\" in the author column. This cannot be undone."
+msgstr ""
+
+#: app/templates/admin/profile.html:109
+msgid "Are you sure? This is irreversible."
+msgstr ""
+
+#: app/templates/admin/profile.html:113
+msgid "Confirm with your current password"
+msgstr ""
+
+#: app/templates/admin/profile.html:121
+msgid "Delete my account"
+msgstr ""
+
 #: app/templates/admin/sla.html:3 app/templates/admin/sla.html:8
 msgid "SLA tracking"
 msgstr ""
@@ -1046,12 +1097,9 @@ msgstr ""
 msgid "Save changes"
 msgstr ""
 
-#: app/templates/admin/user_edit.html:3 app/templates/admin/user_edit.html:10
+#: app/templates/admin/user_edit.html:3 app/templates/admin/user_edit.html:7
+#: app/templates/admin/user_edit.html:10
 msgid "Edit user"
-msgstr ""
-
-#: app/templates/admin/user_edit.html:8 app/templates/admin/users.html:8
-msgid "Team users"
 msgstr ""
 
 #: app/templates/admin/user_edit.html:39 app/templates/admin/users.html:23
@@ -1059,7 +1107,7 @@ msgid "Role"
 msgstr ""
 
 #: app/templates/admin/user_edit.html:42 app/templates/admin/users.html:34
-#: app/templates/admin/users.html:108
+#: app/templates/admin/users.html:108 app/templates/www/imprint.html:14
 msgid "Operator"
 msgstr ""
 
@@ -1070,6 +1118,10 @@ msgstr ""
 
 #: app/templates/admin/user_edit.html:60
 msgid "Language used for notification emails sent to this user."
+msgstr ""
+
+#: app/templates/admin/users.html:8
+msgid "Team users"
 msgstr ""
 
 #: app/templates/admin/users.html:10
@@ -1166,98 +1218,100 @@ msgstr ""
 msgid "Send invitation"
 msgstr ""
 
-#: app/templates/assets/detail.html:20
+#: app/templates/assets/detail.html:22
 msgid "Current stock"
 msgstr ""
 
-#: app/templates/assets/detail.html:26 app/templates/assets/form.html:43
-#: app/templates/assets/list.html:29
+#: app/templates/assets/detail.html:28 app/templates/assets/form.html:46
+#: app/templates/assets/list.html:29 app/templates/www/privacy.html:61
 msgid "Location"
 msgstr ""
 
-#: app/templates/assets/detail.html:30 app/templates/assets/form.html:48
-#: app/templates/orders/detail.html:90 app/templates/products/detail.html:52
+#: app/templates/assets/detail.html:32 app/templates/assets/form.html:51
+#: app/templates/orders/detail.html:93 app/templates/products/detail.html:52
 #: app/templates/products/form.html:43
 msgid "Description"
 msgstr ""
 
-#: app/templates/assets/detail.html:38
+#: app/templates/assets/detail.html:40
 msgid "Movements"
 msgstr ""
 
-#: app/templates/assets/detail.html:44
+#: app/templates/assets/detail.html:46
 msgid "Date"
 msgstr ""
 
-#: app/templates/assets/detail.html:45
+#: app/templates/assets/detail.html:47
 msgid "Type"
 msgstr ""
 
-#: app/templates/assets/detail.html:46 app/templates/assets/detail.html:85
-#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:91
-#: app/templates/orders/detail.html:137
+#: app/templates/assets/detail.html:48 app/templates/assets/detail.html:87
+#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:94
+#: app/templates/orders/detail.html:141
 msgid "Quantity"
 msgstr ""
 
-#: app/templates/assets/detail.html:47 app/templates/assets/detail.html:87
+#: app/templates/assets/detail.html:49 app/templates/assets/detail.html:89
 #: app/templates/orders/form.html:52
 msgid "Note"
 msgstr ""
 
-#: app/templates/assets/detail.html:57 app/templates/assets/detail.html:80
+#: app/templates/assets/detail.html:59 app/templates/assets/detail.html:82
 msgid "Receipt"
 msgstr ""
 
-#: app/templates/assets/detail.html:58 app/templates/assets/detail.html:81
+#: app/templates/assets/detail.html:60 app/templates/assets/detail.html:83
 msgid "Issue"
 msgstr ""
 
-#: app/templates/assets/detail.html:59 app/templates/assets/detail.html:82
+#: app/templates/assets/detail.html:61 app/templates/assets/detail.html:84
 msgid "Consumption"
 msgstr ""
 
-#: app/templates/assets/detail.html:60 app/templates/assets/detail.html:83
+#: app/templates/assets/detail.html:62 app/templates/assets/detail.html:85
 msgid "Correction"
 msgstr ""
 
-#: app/templates/assets/detail.html:72
+#: app/templates/assets/detail.html:74
 msgid "No movements."
 msgstr ""
 
-#: app/templates/assets/detail.html:90
+#: app/templates/assets/detail.html:92
 msgid "order"
 msgstr ""
 
-#: app/templates/assets/detail.html:97
+#: app/templates/assets/detail.html:99
 msgid "Add movement"
 msgstr ""
 
 #: app/templates/assets/form.html:3 app/templates/assets/form.html:6
+#: app/templates/assets/form.html:9
 msgid "New asset record"
 msgstr ""
 
-#: app/templates/assets/form.html:17 app/templates/orders/form.html:28
+#: app/templates/assets/form.html:20 app/templates/orders/form.html:28
 msgid "choose a client"
 msgstr ""
 
-#: app/templates/assets/form.html:27 app/templates/assets/list.html:23
+#: app/templates/assets/form.html:30 app/templates/assets/list.html:23
 msgid "Code"
 msgstr ""
 
-#: app/templates/assets/form.html:32 app/templates/products/form.html:32
+#: app/templates/assets/form.html:35 app/templates/products/form.html:32
 #: app/templates/products/list.html:23
 msgid "Unit"
 msgstr ""
 
-#: app/templates/assets/form.html:38 app/templates/assets/list.html:24
+#: app/templates/assets/form.html:41 app/templates/assets/list.html:24
 #: app/templates/orders/form.html:17 app/templates/orders/list.html:83
 #: app/templates/platform/admin/dashboard.html:47
 #: app/templates/platform/admin/tenants.html:21
 #: app/templates/products/form.html:38 app/templates/products/list.html:20
+#: app/templates/www/cookies.html:33
 msgid "Name"
 msgstr ""
 
-#: app/templates/assets/form.html:57 app/templates/customers/detail.html:108
+#: app/templates/assets/form.html:60 app/templates/customers/detail.html:108
 #: app/templates/customers/form.html:100 app/templates/products/form.html:73
 msgid "Save"
 msgstr ""
@@ -1270,7 +1324,7 @@ msgstr ""
 msgid "My assets at the supplier"
 msgstr ""
 
-#: app/templates/assets/list.html:13 app/templates/assets/list.html:64
+#: app/templates/assets/list.html:13
 msgid "New record"
 msgstr ""
 
@@ -1278,8 +1332,19 @@ msgstr ""
 msgid "Stock"
 msgstr ""
 
-#: app/templates/assets/list.html:60
-msgid "No assets recorded for this client yet."
+#: app/templates/assets/list.html:61
+msgid "No assets yet"
+msgstr ""
+
+#: app/templates/assets/list.html:64
+msgid ""
+"Assets are pieces of equipment you track on behalf of a client (machines "
+"at their site, rental tools, serialised items). Each asset has a code, "
+"location and history."
+msgstr ""
+
+#: app/templates/assets/list.html:69
+msgid "Add the first asset"
 msgstr ""
 
 #: app/templates/auth/invite_accept.html:3
@@ -1629,8 +1694,8 @@ msgstr ""
 msgid "Note (optional)"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:92
-#: app/templates/orders/detail.html:144
+#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:95
+#: app/templates/orders/detail.html:148
 msgid "Price/unit"
 msgstr ""
 
@@ -1642,7 +1707,7 @@ msgstr ""
 msgid "Saved"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:104 app/templates/orders/detail.html:201
+#: app/templates/orders/_item_row.html:104 app/templates/orders/detail.html:205
 #: app/templates/products/detail.html:33
 msgid "Delete"
 msgstr ""
@@ -1667,79 +1732,79 @@ msgstr ""
 msgid "Promised delivery"
 msgstr ""
 
-#: app/templates/orders/detail.html:93 app/templates/orders/list.html:88
+#: app/templates/orders/detail.html:96 app/templates/orders/list.html:88
 msgid "Total"
 msgstr ""
 
-#: app/templates/orders/detail.html:110
+#: app/templates/orders/detail.html:114
 msgid "No items."
 msgstr ""
 
-#: app/templates/orders/detail.html:123
+#: app/templates/orders/detail.html:127
 msgid "custom item (free-text)"
 msgstr ""
 
-#: app/templates/orders/detail.html:139
+#: app/templates/orders/detail.html:143
 msgid "unit"
 msgstr ""
 
-#: app/templates/orders/detail.html:150
+#: app/templates/orders/detail.html:154
 msgid "Item description"
 msgstr ""
 
-#: app/templates/orders/detail.html:155
+#: app/templates/orders/detail.html:159
 msgid "Add item"
 msgstr ""
 
-#: app/templates/orders/detail.html:165
+#: app/templates/orders/detail.html:169
 msgid "Attachments"
 msgstr ""
 
-#: app/templates/orders/detail.html:190
+#: app/templates/orders/detail.html:194
 msgid "item"
 msgstr ""
 
-#: app/templates/orders/detail.html:209
+#: app/templates/orders/detail.html:213
 msgid "No attachments."
 msgstr ""
 
-#: app/templates/orders/detail.html:221
+#: app/templates/orders/detail.html:225
 msgid "to the whole order"
 msgstr ""
 
-#: app/templates/orders/detail.html:230
+#: app/templates/orders/detail.html:234
 msgid "Upload"
 msgstr ""
 
-#: app/templates/orders/detail.html:239
+#: app/templates/orders/detail.html:243
 msgid "Actions"
 msgstr ""
 
-#: app/templates/orders/detail.html:251
+#: app/templates/orders/detail.html:255
 msgid "Comments"
 msgstr ""
 
-#: app/templates/orders/detail.html:258
+#: app/templates/orders/detail.html:262
 msgid "internal"
 msgstr ""
 
-#: app/templates/orders/detail.html:263
+#: app/templates/orders/detail.html:267
 msgid "No comments."
 msgstr ""
 
-#: app/templates/orders/detail.html:269
+#: app/templates/orders/detail.html:273
 msgid "Write a comment…"
 msgstr ""
 
-#: app/templates/orders/detail.html:275
+#: app/templates/orders/detail.html:279
 msgid "Internal (staff only)"
 msgstr ""
 
-#: app/templates/orders/detail.html:282
+#: app/templates/orders/detail.html:286
 msgid "Add a comment"
 msgstr ""
 
-#: app/templates/orders/detail.html:291
+#: app/templates/orders/detail.html:295
 msgid "Status history"
 msgstr ""
 
@@ -1914,8 +1979,8 @@ msgstr ""
 msgid "I agree to the"
 msgstr ""
 
-#: app/templates/platform/signup.html:102 app/templates/www/terms.html:3
-#: app/templates/www/terms.html:7
+#: app/templates/platform/signup.html:102 app/templates/www/imprint.html:54
+#: app/templates/www/terms.html:3 app/templates/www/terms.html:7
 msgid "Terms of Service"
 msgstr ""
 
@@ -1923,8 +1988,9 @@ msgstr ""
 msgid "and the"
 msgstr ""
 
-#: app/templates/platform/signup.html:104 app/templates/www/privacy.html:3
-#: app/templates/www/privacy.html:7 app/templates/www/terms.html:58
+#: app/templates/platform/signup.html:104 app/templates/www/imprint.html:55
+#: app/templates/www/privacy.html:3 app/templates/www/privacy.html:7
+#: app/templates/www/terms.html:58
 msgid "Privacy Policy"
 msgstr ""
 
@@ -2282,7 +2348,19 @@ msgstr ""
 msgid "Paid"
 msgstr ""
 
+#: app/templates/platform/billing/dashboard.html:185
+msgid "Czech tax-compliant invoice (daňový doklad)"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:186
+msgid "Doklad"
+msgstr ""
+
 #: app/templates/platform/billing/dashboard.html:192
+msgid "Stripe-hosted receipt"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:204
 msgid "No invoices yet."
 msgstr ""
 
@@ -2319,11 +2397,17 @@ msgstr ""
 msgid "Price"
 msgstr ""
 
-#: app/templates/products/list.html:67
-msgid "The catalog is empty."
+#: app/templates/products/list.html:68
+msgid "Catalog is empty"
 msgstr ""
 
-#: app/templates/products/list.html:70
+#: app/templates/products/list.html:71
+msgid ""
+"The catalog holds items your clients can pick when placing an order (SKU,"
+" name, unit, price). You can also narrow a product to a specific client."
+msgstr ""
+
+#: app/templates/products/list.html:75
 msgid "Add the first product"
 msgstr ""
 
@@ -2363,6 +2447,130 @@ msgstr ""
 
 #: app/templates/www/contact.html:45
 msgid "Send"
+msgstr ""
+
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:31
+msgid "Cookies"
+msgstr ""
+
+#: app/templates/www/cookies.html:7
+msgid "Cookies policy"
+msgstr ""
+
+#: app/templates/www/cookies.html:9 app/templates/www/privacy.html:9
+#: app/templates/www/terms.html:9
+msgid "Version 1.0 · effective from May 1, 2026"
+msgstr ""
+
+#: app/templates/www/cookies.html:14 app/templates/www/privacy.html:14
+#: app/templates/www/terms.html:14
+msgid "Notice:"
+msgstr ""
+
+#: app/templates/www/cookies.html:14
+msgid ""
+"This text is a template. It should be reviewed by a lawyer familiar with "
+"the EU ePrivacy Directive and Czech law before going live."
+msgstr ""
+
+#: app/templates/www/cookies.html:18
+msgid "1. Do we need your consent?"
+msgstr ""
+
+#: app/templates/www/cookies.html:20
+msgid ""
+"Assoluto uses only cookies that are \"strictly necessary\" to deliver the"
+" service you explicitly requested (log you in, protect against CSRF, "
+"remember the language you chose). Under Article 5(3) of the ePrivacy "
+"Directive (2002/58/EC) and §89 of Czech Act 127/2005 Coll., strictly-"
+"necessary cookies do not require prior consent. We therefore do not show "
+"a cookie banner."
+msgstr ""
+
+#: app/templates/www/cookies.html:23
+msgid ""
+"We do not use advertising cookies. We do not use third-party analytics "
+"cookies. We do not track you across sites."
+msgstr ""
+
+#: app/templates/www/cookies.html:28
+msgid "2. Cookies we set"
+msgstr ""
+
+#: app/templates/www/cookies.html:34 app/templates/www/privacy.html:59
+msgid "Purpose"
+msgstr ""
+
+#: app/templates/www/cookies.html:35
+msgid "Lifetime"
+msgstr ""
+
+#: app/templates/www/cookies.html:36
+msgid "Scope"
+msgstr ""
+
+#: app/templates/www/cookies.html:42
+msgid "Double-submit CSRF token. Prevents forged POSTs from other origins."
+msgstr ""
+
+#: app/templates/www/cookies.html:43
+msgid "7 days"
+msgstr ""
+
+#: app/templates/www/cookies.html:44 app/templates/www/cookies.html:50
+#: app/templates/www/cookies.html:62 app/templates/www/cookies.html:68
+msgid "Host-only"
+msgstr ""
+
+#: app/templates/www/cookies.html:48
+msgid "Signed session cookie identifying the logged-in tenant user. HttpOnly."
+msgstr ""
+
+#: app/templates/www/cookies.html:49 app/templates/www/cookies.html:55
+msgid "14 days"
+msgstr ""
+
+#: app/templates/www/cookies.html:54
+msgid ""
+"Signed session cookie identifying the platform identity across tenant "
+"subdomains. HttpOnly."
+msgstr ""
+
+#: app/templates/www/cookies.html:56
+msgid "Parent domain"
+msgstr ""
+
+#: app/templates/www/cookies.html:60
+msgid ""
+"Your chosen UI language (cs / en). Set when you click the language "
+"switcher."
+msgstr ""
+
+#: app/templates/www/cookies.html:61 app/templates/www/cookies.html:67
+msgid "1 year"
+msgstr ""
+
+#: app/templates/www/cookies.html:66
+msgid "Light / dark / system preference. Set when you click the theme toggle."
+msgstr ""
+
+#: app/templates/www/cookies.html:76
+msgid "3. How to delete cookies"
+msgstr ""
+
+#: app/templates/www/cookies.html:78
+msgid ""
+"You can clear these cookies at any time from your browser's settings. "
+"Deleting the session cookies logs you out. Deleting the preference "
+"cookies reverts to defaults (Czech language, system theme)."
+msgstr ""
+
+#: app/templates/www/cookies.html:83
+msgid "4. Contact"
+msgstr ""
+
+#: app/templates/www/cookies.html:85
+msgid "Questions about this cookies policy? Write to"
 msgstr ""
 
 #: app/templates/www/features.html:3 app/templates/www/www_base.html:6
@@ -2485,6 +2693,51 @@ msgstr ""
 #: app/templates/www/features.html:79 app/templates/www/index.html:22
 #: app/templates/www/pricing.html:49 app/templates/www/pricing.html:72
 msgid "Try free for 14 days"
+msgstr ""
+
+#: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
+#: app/templates/www/www_base.html:33
+msgid "Imprint"
+msgstr ""
+
+#: app/templates/www/imprint.html:9
+msgid ""
+"Operator-identity disclosure under §8 of Czech Act 480/2004 Coll. "
+"(information-society services)."
+msgstr ""
+
+#: app/templates/www/imprint.html:17
+msgid "Registered office"
+msgstr ""
+
+#: app/templates/www/imprint.html:29
+msgid "Not a VAT payer (§6 VAT Act)."
+msgstr ""
+
+#: app/templates/www/imprint.html:33
+msgid "Contact email"
+msgstr ""
+
+#: app/templates/www/imprint.html:38
+msgid "Regulatory supervision"
+msgstr ""
+
+#: app/templates/www/imprint.html:40
+msgid ""
+"Czech Trade Inspection Authority (Česká obchodní inspekce), Štěpánská 44,"
+" Prague — out-of-court consumer dispute resolution."
+msgstr ""
+
+#: app/templates/www/imprint.html:45
+msgid "EU ODR platform"
+msgstr ""
+
+#: app/templates/www/imprint.html:52
+msgid "Related documents"
+msgstr ""
+
+#: app/templates/www/imprint.html:56
+msgid "Cookies Policy"
 msgstr ""
 
 #: app/templates/www/index.html:3 app/templates/www/index.html:10
@@ -2734,14 +2987,6 @@ msgstr ""
 msgid "Prices do not apply to the self-hosted version — it is free forever."
 msgstr ""
 
-#: app/templates/www/privacy.html:9 app/templates/www/terms.html:9
-msgid "Version 1.0 · effective from May 1, 2026"
-msgstr ""
-
-#: app/templates/www/privacy.html:14 app/templates/www/terms.html:14
-msgid "Notice:"
-msgstr ""
-
 #: app/templates/www/privacy.html:14
 msgid ""
 "This text is a template. It should be reviewed by a lawyer familiar with "
@@ -2813,55 +3058,128 @@ msgid "Sending operational emails (consent / contract performance)"
 msgstr ""
 
 #: app/templates/www/privacy.html:50
-msgid "4. Where data is stored"
+msgid "4. Where data is stored + our subprocessors"
 msgstr ""
 
 #: app/templates/www/privacy.html:52
 msgid ""
-"Servers are located in the European Union (Frankfurt, DE). Attachments "
-"(drawings, PDFs) in S3-compatible storage with EU location. Payments are "
-"processed by Stripe (USA, EU representation). Transactional emails are "
-"sent by a transactional email provider (EU regions — Resend, Postmark, or"
-" equivalent)."
+"We use the following third parties (subprocessors) to run the service. "
+"Data sharing is limited to what each subprocessor needs to do its job; no"
+" subprocessor receives marketing permissions on your data."
 msgstr ""
 
-#: app/templates/www/privacy.html:57
+#: app/templates/www/privacy.html:58
+msgid "Subprocessor"
+msgstr ""
+
+#: app/templates/www/privacy.html:60
+msgid "Data categories"
+msgstr ""
+
+#: app/templates/www/privacy.html:67
+msgid "Hosting (VPS)"
+msgstr ""
+
+#: app/templates/www/privacy.html:68
+msgid "All (at-rest, encrypted)"
+msgstr ""
+
+#: app/templates/www/privacy.html:73
+msgid "Transactional email"
+msgstr ""
+
+#: app/templates/www/privacy.html:74
+msgid "Recipient email, name, body"
+msgstr ""
+
+#: app/templates/www/privacy.html:79
+msgid "Subscription billing"
+msgstr ""
+
+#: app/templates/www/privacy.html:80
+msgid "Billing email, company, tax ID, card (processor-held)"
+msgstr ""
+
+#: app/templates/www/privacy.html:85
+msgid "DNS + domain registrar"
+msgstr ""
+
+#: app/templates/www/privacy.html:86
+msgid "Public DNS records only"
+msgstr ""
+
+#: app/templates/www/privacy.html:93
+msgid ""
+"Subprocessor changes are disclosed at least 30 days in advance by "
+"updating this page and emailing active tenant admins."
+msgstr ""
+
+#: app/templates/www/privacy.html:98
 msgid "5. How long we retain data"
 msgstr ""
 
-#: app/templates/www/privacy.html:59
-msgid ""
-"Active account data is retained for the duration of the account's "
-"existence. After account cancellation, 30 days (for possible "
-"reactivation), then permanent deletion. Billing data in accordance with "
-"the law (10 years from the end of the accounting period)."
+#: app/templates/www/privacy.html:100
+msgid "Active account data — for the lifetime of the subscription."
 msgstr ""
 
-#: app/templates/www/privacy.html:64
+#: app/templates/www/privacy.html:101
+msgid ""
+"After account cancellation — 30 days grace (for reactivation), then "
+"anonymisation."
+msgstr ""
+
+#: app/templates/www/privacy.html:102
+msgid ""
+"Authentication logs (last_login timestamps, failed login attempts) — 90 "
+"days."
+msgstr ""
+
+#: app/templates/www/privacy.html:103
+msgid ""
+"Audit trail of operator / admin actions — retained for the lifetime of "
+"the tenant, plus 3 years after closure for contractual dispute evidence."
+msgstr ""
+
+#: app/templates/www/privacy.html:104
+msgid ""
+"Billing records (invoices, subscription history) — 10 years from the end "
+"of the accounting period, as required by Czech Act 563/1991 Coll. on "
+"accounting."
+msgstr ""
+
+#: app/templates/www/privacy.html:105
+msgid "Request / error logs — 14 days."
+msgstr ""
+
+#: app/templates/www/privacy.html:106
+msgid "Database backups — 14 days rolling."
+msgstr ""
+
+#: app/templates/www/privacy.html:111
 msgid "6. Your rights"
 msgstr ""
 
-#: app/templates/www/privacy.html:66
+#: app/templates/www/privacy.html:113
 msgid ""
 "You have the right to access, rectification, erasure, restriction of "
 "processing, portability, and objection. Contact"
 msgstr ""
 
-#: app/templates/www/privacy.html:68
+#: app/templates/www/privacy.html:115
 msgid "we will respond within 30 days."
 msgstr ""
 
-#: app/templates/www/privacy.html:71
+#: app/templates/www/privacy.html:118
 msgid ""
 "You also have the right to file a complaint with the Office for Personal "
 "Data Protection"
 msgstr ""
 
-#: app/templates/www/privacy.html:77
+#: app/templates/www/privacy.html:124
 msgid "7. Cookies"
 msgstr ""
 
-#: app/templates/www/privacy.html:79
+#: app/templates/www/privacy.html:126
 msgid ""
 "The portal uses only technical (session) cookies necessary for login and "
 "CSRF protection. We do not deploy analytics or marketing cookies without "

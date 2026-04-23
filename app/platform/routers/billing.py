@@ -8,6 +8,8 @@ pretends to in demo mode).
 
 from __future__ import annotations
 
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -71,6 +73,54 @@ async def _resolve_current_tenant(
 
 
 # --------------------------------------------------------- billing dashboard
+
+
+@router.get("/platform/billing/invoices/{invoice_id}.pdf")
+async def invoice_pdf(
+    invoice_id: UUID,
+    request: Request,
+    identity: Identity = Depends(require_verified_identity),
+    db: AsyncSession = Depends(get_platform_db),
+    settings: Settings = Depends(get_settings),
+) -> Response:
+    """Download a CZ-tax-compliant PDF for a single invoice.
+
+    Scoped to the caller's tenant — an identity cannot pull another
+    tenant's invoice even if they know the UUID. Builds the PDF
+    on-the-fly rather than storing it; the source of truth stays in
+    Stripe, we just render a locally-compliant doklad each time.
+    """
+    from sqlalchemy import select
+
+    from app.models.tenant import Tenant
+    from app.platform.billing.models import Invoice
+    from app.services.invoice_pdf_service import _safe_filename_for, render_invoice_pdf
+
+    tenant, _ = await _resolve_current_tenant(db, identity)
+    if tenant is None:
+        raise HTTPException(status_code=404, detail="No tenant to manage")
+
+    invoice = (
+        await db.execute(
+            select(Invoice).where(Invoice.id == invoice_id, Invoice.tenant_id == tenant.id)
+        )
+    ).scalar_one_or_none()
+    if invoice is None:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+
+    # Re-fetch tenant as the ORM row so its ``settings`` JSONB is accessible.
+    tenant_row = (
+        await db.execute(select(Tenant).where(Tenant.id == tenant.id))
+    ).scalar_one()
+
+    pdf_bytes = render_invoice_pdf(invoice=invoice, tenant=tenant_row, settings=settings)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{_safe_filename_for(invoice)}"'
+        },
+    )
 
 
 @router.get("/platform/billing", response_class=HTMLResponse)

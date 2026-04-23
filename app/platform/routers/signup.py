@@ -149,7 +149,13 @@ async def signup_submit(
         )
         return HTMLResponse(html, status_code=429)
 
-    # 2) Provision tenant + owner user + Identity
+    # 2) Provision tenant + owner user + Identity. Capture the consent
+    # version + source IP so we have a defensible GDPR audit trail.
+    # The IP goes through the same trust-proxies plumbing used by the
+    # rate limiter — we read the real client, not the reverse-proxy
+    # container.
+    from app.security.rate_limit import _client_ip as _real_client_ip
+
     try:
         tenant, _owner, identity = await signup_tenant(
             db,
@@ -158,6 +164,8 @@ async def signup_submit(
             owner_email=form.owner_email,
             owner_full_name=form.owner_full_name,
             owner_password=form.password,
+            consent_ip=_real_client_ip(request),
+            consent_version=settings.legal_doc_version,
         )
     except DuplicateTenantSlug:
         html = _templates(request).render(

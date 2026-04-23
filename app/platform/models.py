@@ -61,6 +61,14 @@ class Identity(Base, TimestampMixin):
     terms_accepted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    # Which version of the ToS + Privacy document was ticked at
+    # signup. Operators can bump ``LEGAL_DOC_VERSION`` and re-prompt
+    # existing users to "re-consent" when the document changes.
+    terms_accepted_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    # Source IP from the consent submission. Strengthens the GDPR
+    # audit trail ("who accepted what, where, when"). Stored via
+    # Postgres ``inet`` — see migration 0013.
+    terms_accepted_ip: Mapped[str | None] = mapped_column(String(45), nullable=True)
 
 
 class TenantMembership(Base, TimestampMixin):

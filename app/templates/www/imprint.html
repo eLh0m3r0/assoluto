@@ -1,0 +1,61 @@
+{% extends "www/www_base.html" %}
+
+{% block title %}{{ _("Imprint") }} · Assoluto{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-3xl pb-16 text-slate-700 dark:text-slate-300">
+    <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ _("Imprint") }}</h1>
+    <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+        {{ _("Operator-identity disclosure under §8 of Czech Act 480/2004 Coll. (information-society services).") }}
+    </p>
+
+    <div class="mt-8 space-y-4 text-sm leading-relaxed">
+        <dl class="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-[auto_1fr] sm:gap-x-6">
+            <dt class="font-semibold text-slate-900 dark:text-slate-100">{{ _("Operator") }}</dt>
+            <dd>{{ operator_name }}</dd>
+
+            <dt class="font-semibold text-slate-900 dark:text-slate-100">{{ _("Registered office") }}</dt>
+            <dd>{{ operator_address }}</dd>
+
+            <dt class="font-semibold text-slate-900 dark:text-slate-100">IČO</dt>
+            <dd>{{ operator_ico }}</dd>
+
+            {% if operator_dic %}
+                <dt class="font-semibold text-slate-900 dark:text-slate-100">DIČ</dt>
+                <dd>{{ operator_dic }}</dd>
+            {% else %}
+                <dt class="font-semibold text-slate-900 dark:text-slate-100">DIČ</dt>
+                <dd class="text-slate-500 dark:text-slate-400">
+                    {{ _("Not a VAT payer (§6 VAT Act).") }}
+                </dd>
+            {% endif %}
+
+            <dt class="font-semibold text-slate-900 dark:text-slate-100">{{ _("Contact email") }}</dt>
+            <dd>
+                <a href="mailto:{{ operator_email }}" class="text-brand-600 hover:text-brand-700">{{ operator_email }}</a>
+            </dd>
+
+            <dt class="font-semibold text-slate-900 dark:text-slate-100">{{ _("Regulatory supervision") }}</dt>
+            <dd>
+                {{ _("Czech Trade Inspection Authority (Česká obchodní inspekce), Štěpánská 44, Prague — out-of-court consumer dispute resolution.") }}
+                <br>
+                <a href="https://adr.coi.cz/cs" class="text-brand-600 hover:text-brand-700">adr.coi.cz/cs</a>
+            </dd>
+
+            <dt class="font-semibold text-slate-900 dark:text-slate-100">{{ _("EU ODR platform") }}</dt>
+            <dd>
+                <a href="https://ec.europa.eu/consumers/odr/" class="text-brand-600 hover:text-brand-700">ec.europa.eu/consumers/odr</a>
+            </dd>
+        </dl>
+
+        <section class="mt-8">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Related documents") }}</h2>
+            <ul class="mt-2 list-disc space-y-1 pl-6 text-sm">
+                <li><a href="/terms" class="text-brand-600 hover:text-brand-700">{{ _("Terms of Service") }}</a></li>
+                <li><a href="/privacy" class="text-brand-600 hover:text-brand-700">{{ _("Privacy Policy") }}</a></li>
+                <li><a href="/cookies" class="text-brand-600 hover:text-brand-700">{{ _("Cookies Policy") }}</a></li>
+            </ul>
+        </section>
+    </div>
+</section>
+{% endblock %}

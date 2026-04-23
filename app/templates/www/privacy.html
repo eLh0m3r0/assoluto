@@ -47,17 +47,64 @@
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("4. Where data is stored") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("4. Where data is stored + our subprocessors") }}</h2>
             <p class="mt-2">
-                {{ _("Servers are located in the European Union (Frankfurt, DE). Attachments (drawings, PDFs) in S3-compatible storage with EU location. Payments are processed by Stripe (USA, EU representation). Transactional emails are sent by a transactional email provider (EU regions — Resend, Postmark, or equivalent).") }}
+                {{ _("We use the following third parties (subprocessors) to run the service. Data sharing is limited to what each subprocessor needs to do its job; no subprocessor receives marketing permissions on your data.") }}
+            </p>
+            <div class="mt-3 overflow-x-auto">
+            <table class="min-w-full border-collapse text-left text-sm">
+                <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-800/50 dark:text-slate-400">
+                    <tr>
+                        <th class="px-3 py-2">{{ _("Subprocessor") }}</th>
+                        <th class="px-3 py-2">{{ _("Purpose") }}</th>
+                        <th class="px-3 py-2">{{ _("Data categories") }}</th>
+                        <th class="px-3 py-2">{{ _("Location") }}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                    <tr>
+                        <td class="px-3 py-2 font-medium">Hetzner Online GmbH</td>
+                        <td class="px-3 py-2">{{ _("Hosting (VPS)") }}</td>
+                        <td class="px-3 py-2">{{ _("All (at-rest, encrypted)") }}</td>
+                        <td class="px-3 py-2">DE (EU)</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 font-medium">Brevo (Sendinblue)</td>
+                        <td class="px-3 py-2">{{ _("Transactional email") }}</td>
+                        <td class="px-3 py-2">{{ _("Recipient email, name, body") }}</td>
+                        <td class="px-3 py-2">FR (EU)</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 font-medium">Stripe Payments Europe, Ltd.</td>
+                        <td class="px-3 py-2">{{ _("Subscription billing") }}</td>
+                        <td class="px-3 py-2">{{ _("Billing email, company, tax ID, card (processor-held)") }}</td>
+                        <td class="px-3 py-2">IE / US (SCC)</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 font-medium">Porkbun LLC</td>
+                        <td class="px-3 py-2">{{ _("DNS + domain registrar") }}</td>
+                        <td class="px-3 py-2">{{ _("Public DNS records only") }}</td>
+                        <td class="px-3 py-2">US</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+            <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                {{ _("Subprocessor changes are disclosed at least 30 days in advance by updating this page and emailing active tenant admins.") }}
             </p>
         </section>
 
         <section>
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("5. How long we retain data") }}</h2>
-            <p class="mt-2">
-                {{ _("Active account data is retained for the duration of the account's existence. After account cancellation, 30 days (for possible reactivation), then permanent deletion. Billing data in accordance with the law (10 years from the end of the accounting period).") }}
-            </p>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("Active account data — for the lifetime of the subscription.") }}</li>
+                <li>{{ _("After account cancellation — 30 days grace (for reactivation), then anonymisation.") }}</li>
+                <li>{{ _("Authentication logs (last_login timestamps, failed login attempts) — 90 days.") }}</li>
+                <li>{{ _("Audit trail of operator / admin actions — retained for the lifetime of the tenant, plus 3 years after closure for contractual dispute evidence.") }}</li>
+                <li>{{ _("Billing records (invoices, subscription history) — 10 years from the end of the accounting period, as required by Czech Act 563/1991 Coll. on accounting.") }}</li>
+                <li>{{ _("Request / error logs — 14 days.") }}</li>
+                <li>{{ _("Database backups — 14 days rolling.") }}</li>
+            </ul>
         </section>
 
         <section>

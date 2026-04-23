@@ -1,0 +1,91 @@
+{% extends "www/www_base.html" %}
+
+{% block title %}{{ _("Cookies") }} · Assoluto{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-3xl pb-16 text-slate-700 dark:text-slate-300">
+    <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ _("Cookies policy") }}</h1>
+    <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+        {{ _("Version 1.0 · effective from May 1, 2026") }}
+    </p>
+
+    <div class="mt-8 space-y-6 text-sm leading-relaxed">
+        <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
+            <strong>{{ _("Notice:") }}</strong> {{ _("This text is a template. It should be reviewed by a lawyer familiar with the EU ePrivacy Directive and Czech law before going live.") }}
+        </div>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("1. Do we need your consent?") }}</h2>
+            <p class="mt-2">
+                {{ _('Assoluto uses only cookies that are "strictly necessary" to deliver the service you explicitly requested (log you in, protect against CSRF, remember the language you chose). Under Article 5(3) of the ePrivacy Directive (2002/58/EC) and §89 of Czech Act 127/2005 Coll., strictly-necessary cookies do not require prior consent. We therefore do not show a cookie banner.') }}
+            </p>
+            <p class="mt-2">
+                {{ _("We do not use advertising cookies. We do not use third-party analytics cookies. We do not track you across sites.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("2. Cookies we set") }}</h2>
+            <div class="mt-3 overflow-x-auto">
+            <table class="min-w-full border-collapse text-left text-sm">
+                <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-800/50 dark:text-slate-400">
+                    <tr>
+                        <th class="px-3 py-2">{{ _("Name") }}</th>
+                        <th class="px-3 py-2">{{ _("Purpose") }}</th>
+                        <th class="px-3 py-2">{{ _("Lifetime") }}</th>
+                        <th class="px-3 py-2">{{ _("Scope") }}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                    <tr>
+                        <td class="px-3 py-2 font-mono text-xs">csrftoken</td>
+                        <td class="px-3 py-2">{{ _("Double-submit CSRF token. Prevents forged POSTs from other origins.") }}</td>
+                        <td class="px-3 py-2">{{ _("7 days") }}</td>
+                        <td class="px-3 py-2">{{ _("Host-only") }}</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 font-mono text-xs">sme_portal_session</td>
+                        <td class="px-3 py-2">{{ _("Signed session cookie identifying the logged-in tenant user. HttpOnly.") }}</td>
+                        <td class="px-3 py-2">{{ _("14 days") }}</td>
+                        <td class="px-3 py-2">{{ _("Host-only") }}</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 font-mono text-xs">sme_portal_platform</td>
+                        <td class="px-3 py-2">{{ _("Signed session cookie identifying the platform identity across tenant subdomains. HttpOnly.") }}</td>
+                        <td class="px-3 py-2">{{ _("14 days") }}</td>
+                        <td class="px-3 py-2">{{ _("Parent domain") }}</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 font-mono text-xs">sme_locale</td>
+                        <td class="px-3 py-2">{{ _("Your chosen UI language (cs / en). Set when you click the language switcher.") }}</td>
+                        <td class="px-3 py-2">{{ _("1 year") }}</td>
+                        <td class="px-3 py-2">{{ _("Host-only") }}</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 font-mono text-xs">sme_theme</td>
+                        <td class="px-3 py-2">{{ _("Light / dark / system preference. Set when you click the theme toggle.") }}</td>
+                        <td class="px-3 py-2">{{ _("1 year") }}</td>
+                        <td class="px-3 py-2">{{ _("Host-only") }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("3. How to delete cookies") }}</h2>
+            <p class="mt-2">
+                {{ _("You can clear these cookies at any time from your browser's settings. Deleting the session cookies logs you out. Deleting the preference cookies reverts to defaults (Czech language, system theme).") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("4. Contact") }}</h2>
+            <p class="mt-2">
+                {{ _("Questions about this cookies policy? Write to") }}
+                <a href="mailto:{{ operator_email }}" class="text-brand-600 hover:text-brand-700">{{ operator_email }}</a>.
+            </p>
+        </section>
+    </div>
+</section>
+{% endblock %}
