@@ -71,6 +71,39 @@ def _money_filter(cents: Any, currency: str = "CZK") -> str:
     return f"{value} {symbol}"
 
 
+def _money_major_filter(value: Any, currency: str = "CZK") -> str:
+    """Render a major-unit Decimal amount with Czech formatting.
+
+    Use this for values stored in the major unit (e.g. ``order.quoted_total``
+    — Decimal("2050.00") meaning 2050 CZK). The ``money`` filter
+    operates on cents and is wrong for these columns.
+
+    Examples:
+        money_major("2050.00", "CZK") -> "2 050 Kč"
+        money_major("2050.50", "CZK") -> "2 050,50 Kč"
+        money_major(None, "CZK")      -> "—"
+    """
+    if value is None:
+        return "—"
+    try:
+        amount = Decimal(value)
+    except (TypeError, ValueError, ArithmeticError):
+        return "—"
+    code = (currency or "CZK").upper()
+    symbol = _CURRENCY_SYMBOLS.get(code, code)
+    # Quantise to 2 decimals.
+    q = amount.quantize(Decimal("0.01"))
+    whole_int = int(q)
+    # Fraction as integer cents.
+    frac = abs(int((q - whole_int) * 100))
+    whole_str = f"{abs(whole_int):,}".replace(",", " ")
+    sign = "-" if q < 0 else ""
+    value_str = (
+        f"{sign}{whole_str},{frac:02d}" if frac else f"{sign}{whole_str}"
+    )
+    return f"{value_str} {symbol}"
+
+
 def _timeago_filter(value: Any) -> str:
     """Render a datetime as a short relative-time string.
 
@@ -167,6 +200,7 @@ def _new_environment(locale: str | None = None) -> Environment:
     env.install_gettext_translations(translations, newstyle=True)  # type: ignore[attr-defined]
     env.filters["qty"] = _qty_filter
     env.filters["money"] = _money_filter
+    env.filters["money_major"] = _money_major_filter
     env.filters["timeago"] = _timeago_filter
     return env
 

@@ -529,6 +529,8 @@ async def orders_pdf(
 async def orders_detail(
     order_id: UUID,
     request: Request,
+    notice: str | None = None,
+    error: str | None = None,
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
@@ -582,8 +584,8 @@ async def orders_detail(
             "can_edit_items": _can_edit_items(order, principal),
             "available_transitions": available_transitions,
             "product_choices": product_choices,
-            "error": None,
-            "notice": None,
+            "error": error,
+            "notice": notice,
         },
     )
     return HTMLResponse(html)
@@ -1173,7 +1175,19 @@ async def orders_transition(
             to_status=notif_status.to_status,
         )
 
-    return RedirectResponse(url=f"/app/orders/{order.id}", status_code=303)
+    # Flash so the user gets a confirmation — silent redirects leave
+    # them wondering if the click did anything. Localised via _t()
+    # and the TRANSITION_META label so "in_production" → "Ve výrobě"
+    # (cs) / "In production" (en).
+    from urllib.parse import quote as _qp
+
+    status_label = _t(
+        request, TRANSITION_META.get(target, {}).get("label", target.value)
+    )
+    notice_msg = _t(request, "Status changed to {status}.").format(status=status_label)
+    return RedirectResponse(
+        url=f"/app/orders/{order.id}?notice={_qp(notice_msg)}", status_code=303
+    )
 
 
 # ------------------------------------------------------------------ comments

@@ -114,11 +114,7 @@
                                 {% endwith %}
                             </td>
                             <td class="px-4 py-3 text-right text-slate-700 dark:text-slate-300">
-                                {% if order.quoted_total is not none %}
-                                    {{ "%.2f"|format(order.quoted_total) }} {{ order.currency }}
-                                {% else %}
-                                    —
-                                {% endif %}
+                                {{ order.quoted_total | money_major(order.currency) }}
                             </td>
                             <td class="px-4 py-3 text-slate-500 dark:text-slate-400">
                                 {{ order.created_at.strftime("%d.%m.%Y") }}

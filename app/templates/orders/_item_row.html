@@ -67,11 +67,7 @@
         {% endif %}
     </td>
     <td class="px-4 py-2 align-top text-right text-slate-900 dark:text-slate-100">
-        {% if item.line_total is not none %}
-            {{ "%.2f"|format(item.line_total) }}
-        {% else %}
-            —
-        {% endif %}
+        {{ item.line_total | money_major(order.currency or 'CZK') }}
     </td>
     {% if can_edit_items %}
         <td class="px-4 py-2 align-top text-right">

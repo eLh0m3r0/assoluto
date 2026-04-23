@@ -49,11 +49,17 @@
   // Rows in list tables carry ``data-href`` instead of an inline onclick
   // (CSP ``script-src 'self'`` forbids inline handlers). A middle-click
   // or ctrl/cmd-click should open in a new tab, matching native <a>.
+  //
+  // NOTE: we intentionally do NOT skip when ``closest('form')`` matches.
+  // Orders list wraps the whole table body in a bulk-action form, so
+  // "inside a form" would be true for every cell and the navigation
+  // would never fire. We only skip on *interactive* elements (anchors,
+  // buttons, inputs, labels, selects) — those are legit inline actions
+  // we don't want to hijack.
   document.addEventListener("click", function (event) {
     var row = event.target.closest("[data-href]");
     if (!row) return;
-    // Don't steal clicks on inline actions (buttons, links, forms).
-    if (event.target.closest("a, button, input, form")) return;
+    if (event.target.closest("a, button, input, select, textarea, label")) return;
     var href = row.getAttribute("data-href");
     if (!href) return;
     if (event.ctrlKey || event.metaKey || event.button === 1) {
