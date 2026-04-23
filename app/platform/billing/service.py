@@ -19,7 +19,7 @@ from app.config import Settings
 from app.models.tenant import Tenant
 from app.platform.billing.models import Invoice, Plan, Subscription
 
-TRIAL_DAYS = 14
+TRIAL_DAYS = 30
 
 
 class BillingError(Exception):

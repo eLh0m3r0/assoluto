@@ -1,50 +1,122 @@
 {% extends "www/www_base.html" %}
 
 {% block title %}{{ _("Contact") }} · Assoluto{% endblock %}
+{% block meta_description %}{{ _("Email, demo, Enterprise plan, bug reports. Czech support, reply within one working day.") }}{% endblock %}
 
 {% block content %}
-<section class="mx-auto max-w-xl pb-16">
-    <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ _("Write to us") }}</h1>
-    <p class="mt-2 text-slate-600 dark:text-slate-300">
-        {{ _("Need help with deployment, interested in the Enterprise plan, or found a bug? Write to us and we will get back to you within one business day.") }}
-    </p>
+<section class="relative -mx-4 -mt-6 overflow-hidden px-4 pb-16 pt-14 sm:-mx-6 sm:px-6 sm:pt-20">
+    <div aria-hidden="true" class="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[360px] w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-br from-brand-400/20 via-indigo-400/15 to-purple-400/20 blur-3xl dark:from-brand-500/15 dark:via-indigo-500/10 dark:to-purple-500/15"></div>
 
-    {% if submitted %}
-        <div class="mt-8 rounded-lg border border-emerald-200 bg-emerald-50 p-6 text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-10 w-10 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <h2 class="mt-3 text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Message sent") }}</h2>
-            <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">{{ _("Thanks — we will reply within 24 hours.") }}</p>
+    <div class="mx-auto max-w-5xl">
+        <div class="mx-auto max-w-2xl text-center">
+            <p class="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{{ _("Contact") }}</p>
+            <h1 class="mt-2 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-slate-100">
+                {{ _("Write or call us") }}
+            </h1>
+            <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
+                {{ _("Questions about deployment, Enterprise plan, discount for schools, or a bug report? We get back to you within one working day.") }}
+            </p>
         </div>
-    {% else %}
-        {% if error %}
-            <div class="mt-6 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                {{ error }}
-            </div>
-        {% endif %}
-        <form method="post" action="/contact" class="mt-8 space-y-4">
-            {{ csrf_input() }}
+
+        <div class="mt-14 grid gap-8 lg:grid-cols-[1fr_1.2fr]">
+            {# Trust strip / contact methods #}
+            <aside class="space-y-4">
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-start gap-3">
+                        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400">
+                            <svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </span>
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ _("Email") }}</p>
+                            <a href="mailto:opensource@assoluto.eu" class="mt-0.5 block break-all text-sm text-brand-600 hover:text-brand-700 dark:text-brand-400">opensource@assoluto.eu</a>
+                            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _("Typical reply in 4 working hours") }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-start gap-3">
+                        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                            <svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ _("15-minute demo") }}</p>
+                            <p class="mt-0.5 text-sm text-slate-600 dark:text-slate-300">{{ _("Online walkthrough over Google Meet — real system, your questions, no slides.") }}</p>
+                            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _("Write \"demo\" in the message") }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-start gap-3">
+                        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+                            <svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ _("Security disclosures") }}</p>
+                            <a href="mailto:security@assoluto.eu" class="mt-0.5 block break-all text-sm text-brand-600 hover:text-brand-700 dark:text-brand-400">security@assoluto.eu</a>
+                            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _("GPG on request. We reply within 24 hours.") }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-brand-50 to-indigo-50 p-5 dark:border-slate-800 dark:from-brand-500/10 dark:to-indigo-500/10">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ _("Czech team") }}</p>
+                    <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">{{ _("We reply in Czech or English. Servers in the EU. Invoicing under Czech rules, VAT separately on every invoice.") }}</p>
+                </div>
+            </aside>
+
+            {# Form #}
             <div>
-                <label for="name" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Your name *") }}</label>
-                <input type="text" id="name" name="name" required
-                       value="{{ form.name if form else '' }}"
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700">
+                {% if submitted %}
+                    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-10 text-center dark:border-emerald-500/30 dark:bg-emerald-500/10">
+                        <div class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-white text-emerald-600 shadow-sm dark:bg-slate-900 dark:text-emerald-400">
+                            <svg aria-hidden="true" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <h2 class="mt-4 text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Message sent") }}</h2>
+                        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{{ _("Thanks — we will reply within 24 hours. For anything urgent, email us directly at opensource@assoluto.eu.") }}</p>
+                    </div>
+                {% else %}
+                    <div class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 dark:border-slate-800 dark:bg-slate-900">
+                        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Write to us") }}</h2>
+                        {% if error %}
+                            <div class="mt-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+                                {{ error }}
+                            </div>
+                        {% endif %}
+                        <form method="post" action="/contact" class="mt-5 space-y-4">
+                            {{ csrf_input() }}
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Your name") }} <span class="text-rose-500">*</span></label>
+                                <input type="text" id="name" name="name" required
+                                       value="{{ form.name if form else '' }}"
+                                       class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm placeholder-slate-400 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder-slate-500">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Email") }} <span class="text-rose-500">*</span></label>
+                                <input type="email" id="email" name="email" required
+                                       value="{{ form.email if form else '' }}"
+                                       class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm placeholder-slate-400 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder-slate-500">
+                            </div>
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Your message") }} <span class="text-rose-500">*</span></label>
+                                <textarea id="message" name="message" required rows="6"
+                                          placeholder="{{ _('Describe briefly — Enterprise plan? Questions about self-hosting? A demo? What kind of shop are you running?') }}"
+                                          class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm placeholder-slate-400 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder-slate-500">{{ form.message if form else '' }}</textarea>
+                            </div>
+                            <button type="submit"
+                                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-brand-600 to-brand-500 px-4 py-3 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition hover:shadow-md hover:brightness-105">
+                                {{ _("Send") }}
+                                <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                            </button>
+                            <p class="text-center text-xs text-slate-500 dark:text-slate-400">
+                                {{ _("By sending, you agree to the processing of your data for the purpose of replying (one-off, no newsletter).") }}
+                            </p>
+                        </form>
+                    </div>
+                {% endif %}
             </div>
-            <div>
-                <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Email *") }}</label>
-                <input type="email" id="email" name="email" required
-                       value="{{ form.email if form else '' }}"
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700">
-            </div>
-            <div>
-                <label for="message" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Your message *") }}</label>
-                <textarea id="message" name="message" required rows="5"
-                          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700">{{ form.message if form else '' }}</textarea>
-            </div>
-            <button type="submit"
-                    class="w-full rounded-md bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">
-                {{ _("Send") }}
-            </button>
-        </form>
-    {% endif %}
+        </div>
+    </div>
 </section>
 {% endblock %}

@@ -1,37 +1,86 @@
-{# Marketing layout: wider header nav, footer with legal links. #}
+{# Marketing layout — apex-domain pages.
+
+   Overrides the app header with a slimmer marketing nav + adds a rich
+   footer. Also exposes SEO blocks (meta_description, og_title,
+   og_image, schema_jsonld, body_class) that marketing pages fill in. #}
 {% extends "base.html" %}
 
+{% block head_extra %}
+    {# --- SEO basics. Each page can override description; default is safe. --- #}
+    <meta name="description" content="{% block meta_description %}{{ _('Client portal for Czech manufacturing SMEs. Orders, drawings, production status — all in one place. Replace emails and Excel. 30 days free, no card.') }}{% endblock %}">
+    <meta name="robots" content="index,follow">
+    <meta name="author" content="Assoluto">
+    <meta name="theme-color" content="#3b6efb">
+
+    {# --- OpenGraph + Twitter (social preview). --- #}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Assoluto">
+    <meta property="og:locale" content="{% if locale == 'en' %}en_US{% else %}cs_CZ{% endif %}">
+    <meta property="og:title" content="{% block og_title %}{{ self.title() | replace(' · Assoluto', '') }}{% endblock %}">
+    <meta property="og:description" content="{{ self.meta_description() }}">
+    <meta property="og:image" content="{% block og_image %}{{ url_for('static', path='og/assoluto-og.svg') }}{% endblock %}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ self.og_title() }}">
+    <meta name="twitter:description" content="{{ self.meta_description() }}">
+    <meta name="twitter:image" content="{{ self.og_image() }}">
+
+    {# --- Canonical --- #}
+    <link rel="canonical" href="{{ request.url._url.split('?')[0] }}">
+
+    {# --- Schema.org JSON-LD. Each page can extend. --- #}
+    {% block schema_jsonld %}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Assoluto",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "{{ _('Client portal for Czech manufacturing SMEs — orders, drawings, production status.') }}",
+        "url": "https://assoluto.eu",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "CZK",
+            "description": "{{ _('30-day free trial, no credit card required') }}"
+        }
+    }
+    </script>
+    {% endblock %}
+{% endblock %}
+
 {% block nav %}
-    <a href="/features" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100">
+    <a href="/features" class="rounded-md px-3 py-1.5 font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
         {{ _("Features") }}
     </a>
-    <a href="/pricing" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100">
+    <a href="/pricing" class="rounded-md px-3 py-1.5 font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
         {{ _("Pricing") }}
     </a>
-    <a href="/self-hosted" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100">
+    <a href="/self-hosted" class="rounded-md px-3 py-1.5 font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
         {{ _("Self-hosted") }}
     </a>
-    <a href="/contact" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100">
+    <a href="/contact" class="rounded-md px-3 py-1.5 font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
         {{ _("Contact") }}
     </a>
-    <a href="/platform/login" class="ml-2 rounded-md bg-white px-3 py-1.5 font-medium text-brand-600 ring-1 ring-inset ring-brand-200 transition hover:bg-brand-50 dark:bg-slate-900">
+    <a href="/platform/login" class="ml-2 rounded-md px-3 py-1.5 font-medium text-slate-700 ring-1 ring-inset ring-slate-200 transition hover:bg-slate-50 dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-800">
         {{ _("Sign in") }}
     </a>
-    <a href="/platform/signup" class="rounded-md bg-brand-600 px-3 py-1.5 font-semibold text-white transition hover:bg-brand-700">
-        {{ _("Try for free") }}
+    <a href="/platform/signup" class="rounded-md bg-gradient-to-r from-brand-600 to-brand-500 px-3.5 py-1.5 font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition hover:shadow-md hover:brightness-105">
+        {{ _("Try free") }}
     </a>
 {% endblock %}
 
 {% block footer_extra %}
-    <div class="flex flex-wrap items-center gap-3">
-        <a href="/terms" class="hover:text-gray-600">{{ _("Terms") }}</a>
-        <span>·</span>
-        <a href="/privacy" class="hover:text-gray-600">{{ _("Privacy") }}</a>
-        <span>·</span>
-        <a href="/cookies" class="hover:text-gray-600">{{ _("Cookies") }}</a>
-        <span>·</span>
-        <a href="/imprint" class="hover:text-gray-600">{{ _("Imprint") }}</a>
-        <span>·</span>
-        <a href="https://github.com/elh0m3r0/sme-client-portal" class="hover:text-gray-600">GitHub</a>
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+        <a href="/terms" class="hover:text-slate-700 dark:hover:text-slate-300">{{ _("Terms") }}</a>
+        <span class="text-slate-300 dark:text-slate-700">·</span>
+        <a href="/privacy" class="hover:text-slate-700 dark:hover:text-slate-300">{{ _("Privacy") }}</a>
+        <span class="text-slate-300 dark:text-slate-700">·</span>
+        <a href="/cookies" class="hover:text-slate-700 dark:hover:text-slate-300">{{ _("Cookies") }}</a>
+        <span class="text-slate-300 dark:text-slate-700">·</span>
+        <a href="/imprint" class="hover:text-slate-700 dark:hover:text-slate-300">{{ _("Imprint") }}</a>
+        <span class="text-slate-300 dark:text-slate-700">·</span>
+        <a href="https://github.com/elh0m3r0/sme-client-portal" class="hover:text-slate-700 dark:hover:text-slate-300">GitHub</a>
     </div>
 {% endblock %}

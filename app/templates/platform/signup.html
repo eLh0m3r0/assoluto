@@ -7,7 +7,7 @@
     <div class="rounded-lg border border-slate-200 bg-white p-8 shadow-sm dark:bg-slate-900 dark:border-slate-800">
         <h1 class="mb-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Create your portal") }}</h1>
         <p class="mb-6 text-sm text-slate-500 dark:text-slate-400">
-            {{ _("14-day free trial. No credit card required.") }}
+            {{ _("30-day free trial. No credit card required.") }}
         </p>
 
         <form method="post" action="/platform/signup" class="space-y-4">
@@ -98,10 +98,7 @@
                     <input type="checkbox" name="terms_accepted" value="1" required
                            class="mt-0.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-700">
                     <span>
-                        {{ _("I agree to the") }}
-                        <a href="/terms" target="_blank" class="text-brand-600 hover:text-brand-700">{{ _("Terms of Service") }}</a>
-                        {{ _("and the") }}
-                        <a href="/privacy" target="_blank" class="text-brand-600 hover:text-brand-700">{{ _("Privacy Policy") }}</a>.
+                        {% trans trimmed %}I agree to the <a href="/terms" target="_blank" class="text-brand-600 hover:text-brand-700">Terms of Service</a> and the <a href="/privacy" target="_blank" class="text-brand-600 hover:text-brand-700">Privacy Policy</a>.{% endtrans %}
                     </span>
                 </label>
                 {% if errors.terms_accepted %}

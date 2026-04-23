@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-23 15:35+0200\n"
+"POT-Creation-Date: 2026-04-24 01:04+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -118,19 +118,19 @@ msgstr "Kontakt klienta"
 # "Ready", "Delivered", "Cancel" reuse the existing msgids from
 # orders/_status_badge.html and products/form.html (they share the
 # same Czech translation, so we don't duplicate entries).
-#: app/main.py:448
+#: app/main.py:442
 msgid "staff users"
 msgstr "uživatelů týmu"
 
-#: app/main.py:449
+#: app/main.py:443
 msgid "client contacts"
 msgstr "klientských kontaktů"
 
-#: app/main.py:450
+#: app/main.py:444
 msgid "orders this month"
 msgstr "objednávek tento měsíc"
 
-#: app/main.py:451
+#: app/main.py:445
 msgid "MB of storage"
 msgstr "MB úložiště"
 
@@ -156,21 +156,31 @@ msgstr "Dobrý den, %(full_name)s,"
 
 #: app/email/templates/email_verification.html:16
 #, python-format
-msgid "Thank you for registering the portal for your company <strong>%(company_name)s</strong>."
-msgstr "Děkujeme za registraci portálu pro vaši firmu <strong>%(company_name)s</strong>."
+msgid ""
+"Thank you for registering the portal for your company "
+"<strong>%(company_name)s</strong>."
+msgstr ""
+"Děkujeme za registraci portálu pro firmu <strong>%(company_name)s</strong>."
 
 #: app/email/templates/email_verification.html:19
 #: app/email/templates/email_verification.txt:7
-msgid "To finish registration, please click the link below and confirm your email address:"
-msgstr "Pro dokončení registrace klikněte na následující odkaz a potvrďte svou e-mailovou adresu:"
+msgid ""
+"To finish registration, please click the link below and confirm your "
+"email address:"
+msgstr ""
+"Pro dokončení registrace klikněte na tlačítko níže a potvrďte svůj e-mail:"
 
 #: app/email/templates/email_verification.html:24
 msgid "Verify email"
 msgstr "Ověřit e-mail"
 
 #: app/email/templates/email_verification.html:28
-msgid "The link is valid for 24 hours. If the button doesn't work, copy this URL into your browser:"
-msgstr "Odkaz je platný 24 hodin. Pokud nefunguje tlačítko, zkopírujte tento URL do prohlížeče:"
+msgid ""
+"The link is valid for 24 hours. If the button doesn't work, copy this URL"
+" into your browser:"
+msgstr ""
+"Odkaz je platný 24 hodin. Pokud tlačítko nefunguje, zkopírujte si tuto "
+"adresu do prohlížeče:"
 
 #: app/email/templates/email_verification.html:33
 #: app/email/templates/email_verification.txt:13
@@ -207,8 +217,12 @@ msgstr "Dobrý den, %(contact_name)s!"
 
 #: app/email/templates/invitation.html:20
 #, python-format
-msgid "<strong>%(tenant_name)s</strong> invites you to the customer portal on behalf of <strong>%(customer_name)s</strong>."
-msgstr "Společnost <strong>%(tenant_name)s</strong> vás zve do zákaznického portálu za firmu <strong>%(customer_name)s</strong>."
+msgid ""
+"<strong>%(tenant_name)s</strong> invites you to the customer portal on "
+"behalf of <strong>%(customer_name)s</strong>."
+msgstr ""
+"<strong>%(tenant_name)s</strong> vás zve do zákaznického portálu za firmu "
+"<strong>%(customer_name)s</strong>."
 
 #: app/email/templates/invitation.html:24
 msgid "To finish registration, click the link below — it is valid for 7 days:"
@@ -225,8 +239,12 @@ msgstr "Pokud tlačítko nefunguje, otevřete odkaz ručně:"
 
 #: app/email/templates/invitation.html:43
 #, python-format
-msgid "This message was sent automatically by the %(tenant_name)s portal. If you didn't request this invitation, please ignore it."
-msgstr "Tato zpráva byla automaticky odeslána portálem %(tenant_name)s. Pokud jste o pozvánku nežádali, e-mail ignorujte."
+msgid ""
+"This message was sent automatically by the %(tenant_name)s portal. If you"
+" didn't request this invitation, please ignore it."
+msgstr ""
+"Tuto zprávu automaticky odeslal portál %(tenant_name)s. Pokud jste "
+"pozvánku nežádal/a, zprávu prosím ignorujte."
 
 #: app/email/templates/invitation.subject.txt:1
 #, python-format
@@ -235,8 +253,11 @@ msgstr "Pozvánka do %(tenant_name)s — zákaznický portál"
 
 #: app/email/templates/invitation.txt:3
 #, python-format
-msgid "%(tenant_name)s invites you to the customer portal on behalf of %(customer_name)s."
-msgstr "%(tenant_name)s vás zve do zákaznického portálu za firmu %(customer_name)s."
+msgid ""
+"%(tenant_name)s invites you to the customer portal on behalf of "
+"%(customer_name)s."
+msgstr ""
+"%(tenant_name)s vás zve do zákaznického portálu za firmu %(customer_name)s."
 
 #: app/email/templates/invitation.txt:5
 msgid "To finish registration, open the link below — it is valid for 7 days:"
@@ -265,8 +286,12 @@ msgstr "Nový komentář"
 
 #: app/email/templates/order_comment.html:16
 #, python-format
-msgid "%(author_name)s added a comment to order <strong>%(order_number)s</strong> — %(order_title)s."
-msgstr "%(author_name)s přidal/a komentář k objednávce <strong>%(order_number)s</strong> — %(order_title)s."
+msgid ""
+"%(author_name)s added a comment to order "
+"<strong>%(order_number)s</strong> — %(order_title)s."
+msgstr ""
+"%(author_name)s přidal/a komentář k zakázce "
+"<strong>%(order_number)s</strong> — %(order_title)s."
 
 #: app/email/templates/order_comment.html:23
 #: app/email/templates/order_submitted.html:20
@@ -332,8 +357,12 @@ msgstr "%(customer_name)s odeslal/a novou objednávku %(order_number)s."
 
 #: app/email/templates/order_submitted.html:16
 #, python-format
-msgid "Client <strong>%(customer_name)s</strong> submitted a new order &bdquo;%(order_title)s&ldquo;."
-msgstr "Klient <strong>%(customer_name)s</strong> odeslal novou objednávku &bdquo;%(order_title)s&ldquo;."
+msgid ""
+"Client <strong>%(customer_name)s</strong> submitted a new order "
+"&bdquo;%(order_title)s&ldquo;."
+msgstr ""
+"Zákazník <strong>%(customer_name)s</strong> odeslal novou zakázku "
+"&bdquo;%(order_title)s&ldquo;."
 
 #: app/email/templates/order_submitted.subject.txt:1
 #, python-format
@@ -366,8 +395,14 @@ msgstr "Dobrý den, %(full_name)s."
 
 #: app/email/templates/password_reset.html:17
 #, python-format
-msgid "We received a request to reset the password on your account at the <strong>%(tenant_name)s</strong> portal. To set a new password, click the link — it is valid for <strong>30 minutes</strong>:"
-msgstr "Dostali jsme žádost o obnovení hesla k účtu v portálu <strong>%(tenant_name)s</strong>. Pro zadání nového hesla klikněte na odkaz — platí <strong>30 minut</strong>:"
+msgid ""
+"We received a request to reset the password on your account at the "
+"<strong>%(tenant_name)s</strong> portal. To set a new password, click the"
+" link — it is valid for <strong>30 minutes</strong>:"
+msgstr ""
+"Obdrželi jsme žádost o obnovu hesla k vašemu účtu na portálu "
+"<strong>%(tenant_name)s</strong>. Nové heslo nastavíte po kliknutí na "
+"odkaz — platí <strong>30 minut</strong>:"
 
 #: app/email/templates/password_reset.html:21
 #: app/templates/auth/password_reset_confirm.html:34
@@ -376,8 +411,11 @@ msgid "Set new password"
 msgstr "Nastavit nové heslo"
 
 #: app/email/templates/password_reset.html:27
-msgid "If you didn't request this reset, please ignore this email — your password will remain unchanged."
-msgstr "Pokud jste o obnovení hesla nežádali, tento e-mail ignorujte — heslo zůstane beze změny."
+msgid ""
+"If you didn't request this reset, please ignore this email — your "
+"password will remain unchanged."
+msgstr ""
+"Pokud jste o obnovu nežádal/a, zprávu ignorujte — vaše heslo se nezmění."
 
 #: app/email/templates/password_reset.subject.txt:1
 #, python-format
@@ -386,8 +424,13 @@ msgstr "Obnovení hesla — %(tenant_name)s"
 
 #: app/email/templates/password_reset.txt:3
 #, python-format
-msgid "We received a request to reset the password on your account at the %(tenant_name)s portal. To set a new password, open this link (valid for 30 minutes):"
-msgstr "Dostali jsme žádost o obnovení hesla k účtu v portálu %(tenant_name)s. Pro zadání nového hesla otevřete tento odkaz (platí 30 minut):"
+msgid ""
+"We received a request to reset the password on your account at the "
+"%(tenant_name)s portal. To set a new password, open this link (valid for "
+"30 minutes):"
+msgstr ""
+"Obdrželi jsme žádost o obnovu hesla k vašemu účtu na portálu "
+"%(tenant_name)s. Nové heslo nastavíte přes tento odkaz (platí 30 minut):"
 
 #: app/email/templates/password_reset.txt:7
 msgid "If you didn't request this reset, please ignore this email."
@@ -411,8 +454,14 @@ msgstr "Dobrý den, %(invitee_name)s!"
 
 #: app/email/templates/staff_invitation.html:16
 #, python-format
-msgid "You have been added to the <strong>%(tenant_name)s</strong> team as an administrator of the customer portal. To set your password and log in for the first time, click the link below — it is valid for 7 days:"
-msgstr "Byli jste přidáni do týmu <strong>%(tenant_name)s</strong> jako administrátor zákaznického portálu. Pro nastavení hesla a první přihlášení klikněte na následující odkaz — platí 7 dní:"
+msgid ""
+"You have been added to the <strong>%(tenant_name)s</strong> team as an "
+"administrator of the customer portal. To set your password and log in for"
+" the first time, click the link below — it is valid for 7 days:"
+msgstr ""
+"Byl/a jste přidán/a do týmu <strong>%(tenant_name)s</strong> jako "
+"administrátor zákaznického portálu. Heslo si nastavíte po kliknutí na "
+"odkaz níže — platí 7 dní:"
 
 #: app/email/templates/staff_invitation.html:20
 msgid "Set password and log in"
@@ -425,8 +474,13 @@ msgstr "Pozvánka do týmu %(tenant_name)s — zákaznický portál"
 
 #: app/email/templates/staff_invitation.txt:3
 #, python-format
-msgid "You have been added to the %(tenant_name)s team as an administrator of the customer portal. To set your password and log in for the first time, open the link below — it is valid for 7 days:"
-msgstr "Byli jste přidáni do týmu %(tenant_name)s jako administrátor zákaznického portálu. Pro nastavení hesla a první přihlášení otevřete následující odkaz — platí 7 dní:"
+msgid ""
+"You have been added to the %(tenant_name)s team as an administrator of "
+"the customer portal. To set your password and log in for the first time, "
+"open the link below — it is valid for 7 days:"
+msgstr ""
+"Byl/a jste přidán/a do týmu %(tenant_name)s jako administrátor "
+"zákaznického portálu. Heslo si nastavíte přes odkaz níže — platí 7 dní:"
 
 #: app/routers/assets.py:126
 msgid "An asset with this code already exists for this client."
@@ -453,15 +507,15 @@ msgstr "Kontakt deaktivován."
 msgid "Contact reactivated."
 msgstr "Kontakt reaktivován."
 
-#: app/routers/customers.py:450
+#: app/routers/customers.py:452
 msgid "This contact already has a password; use a password reset instead."
 msgstr "Kontakt už má heslo; použijte reset hesla."
 
-#: app/routers/customers.py:463 app/routers/tenant_admin.py:361
+#: app/routers/customers.py:468 app/routers/tenant_admin.py:363
 msgid "Too many invitations sent recently. Try again later."
 msgstr "V poslední době bylo odesláno příliš mnoho pozvánek. Zkuste to později."
 
-#: app/routers/customers.py:496 app/routers/tenant_admin.py:391
+#: app/routers/customers.py:501 app/routers/tenant_admin.py:393
 msgid "Invitation resent."
 msgstr "Pozvánka odeslána znovu."
 
@@ -474,6 +528,7 @@ msgstr "Číslo objednávky"
 #: app/templates/platform/admin/tenant_edit.html:59
 #: app/templates/platform/admin/tenants.html:23
 #: app/templates/platform/billing/dashboard.html:165
+#: app/templates/www/_hero_mock.html:62
 msgid "Status"
 msgstr "Stav"
 
@@ -498,6 +553,7 @@ msgid "Currency"
 msgstr "Měna"
 
 #: app/routers/orders.py:301 app/templates/orders/detail.html:79
+#: app/templates/www/_hero_mock.html:61
 msgid "Items"
 msgstr "Položky"
 
@@ -535,8 +591,8 @@ msgstr "{count} objednávek převedeno."
 msgid "{ok} transitioned, {failed} failed."
 msgstr "{ok} převedeno, {failed} selhalo."
 
-#: app/routers/orders.py:1187
-#, fuzzy, python-brace-format
+#: app/routers/orders.py:1185
+#, python-brace-format
 msgid "Status changed to {status}."
 msgstr "změnil/a stav"
 
@@ -587,7 +643,7 @@ msgstr "Uživatel deaktivován."
 msgid "User reactivated."
 msgstr "Uživatel reaktivován."
 
-#: app/routers/tenant_admin.py:348
+#: app/routers/tenant_admin.py:349
 msgid "This user already has a password; use a password reset instead."
 msgstr "Uživatel už má heslo; použijte reset hesla."
 
@@ -603,11 +659,11 @@ msgstr "Nová hesla se neshodují."
 msgid "Password does not match — deletion cancelled."
 msgstr "Heslo neodpovídá — mazání zrušeno."
 
-#: app/routers/tenant_admin.py:582
+#: app/routers/tenant_admin.py:586
 msgid "You're the last administrator — promote someone else first."
 msgstr "Jste poslední administrátor — nejdřív povýšte někoho jiného."
 
-#: app/routers/tenant_admin.py:636
+#: app/routers/tenant_admin.py:640
 msgid "Saved."
 msgstr "Uloženo."
 
@@ -655,7 +711,8 @@ msgstr "Nic nenalezeno pro"
 #: app/templates/_palette_results.html:23 app/templates/app_base.html:12
 #: app/templates/dashboard/index.html:196 app/templates/orders/detail.html:29
 #: app/templates/orders/form.html:6 app/templates/orders/list.html:3
-#: app/templates/orders/list.html:7
+#: app/templates/orders/list.html:7 app/templates/www/_hero_mock.html:25
+#: app/templates/www/_hero_mock.html:46
 msgid "Orders"
 msgstr "Objednávky"
 
@@ -664,6 +721,7 @@ msgstr "Objednávky"
 #: app/templates/customers/detail.html:8 app/templates/customers/form.html:9
 #: app/templates/customers/form.html:13 app/templates/customers/list.html:3
 #: app/templates/customers/list.html:7 app/templates/dashboard/index.html:23
+#: app/templates/www/_hero_mock.html:29
 msgid "Clients"
 msgstr "Klienti"
 
@@ -671,7 +729,7 @@ msgstr "Klienti"
 #: app/templates/assets/form.html:17 app/templates/assets/list.html:26
 #: app/templates/orders/detail.html:48 app/templates/orders/form.html:25
 #: app/templates/orders/list.html:85 app/templates/products/form.html:55
-#: app/templates/products/list.html:21
+#: app/templates/products/list.html:21 app/templates/www/_hero_mock.html:60
 msgid "Client"
 msgstr "Klient"
 
@@ -679,6 +737,7 @@ msgstr "Klient"
 #: app/templates/_palette_results.html:65 app/templates/app_base.html:16
 #: app/templates/products/detail.html:7 app/templates/products/form.html:9
 #: app/templates/products/form.html:13 app/templates/products/list.html:3
+#: app/templates/www/_hero_mock.html:33
 msgid "Catalog"
 msgstr "Katalog"
 
@@ -758,36 +817,36 @@ msgstr "Platform admin"
 msgid "Sign out"
 msgstr "Odhlásit"
 
-#: app/templates/base.html:37 app/templates/index.html:3
+#: app/templates/base.html:38 app/templates/index.html:3
 msgid "Home"
 msgstr "Domů"
 
-#: app/templates/base.html:46
+#: app/templates/base.html:47
 msgid "Toggle menu"
 msgstr "Otevřít menu"
 
-#: app/templates/base.html:63 app/templates/base.html:64
-#: app/templates/base.html:81
+#: app/templates/base.html:64 app/templates/base.html:65
+#: app/templates/base.html:82
 msgid "Toggle theme"
 msgstr "Přepnout motiv"
 
-#: app/templates/base.html:65
+#: app/templates/base.html:66
 msgid "Theme: system"
 msgstr "Motiv: systémový"
 
-#: app/templates/base.html:66
+#: app/templates/base.html:67
 msgid "Theme: light"
 msgstr "Motiv: světlý"
 
-#: app/templates/base.html:67
+#: app/templates/base.html:68
 msgid "Theme: dark"
 msgstr "Motiv: tmavý"
 
 #: app/templates/auth/login.html:3 app/templates/auth/login.html:12
 #: app/templates/auth/login.html:39 app/templates/index.html:8
 #: app/templates/index.html:21 app/templates/platform/login.html:3
-#: app/templates/platform/login.html:29 app/templates/platform/signup.html:120
-#: app/templates/www/www_base.html:18
+#: app/templates/platform/login.html:29 app/templates/platform/signup.html:117
+#: app/templates/www/www_base.html:67
 msgid "Sign in"
 msgstr "Přihlásit se"
 
@@ -797,8 +856,12 @@ msgid "Customer portal for SMEs"
 msgstr "Zákaznický portál pro SME"
 
 #: app/templates/index.html:16
-msgid "Transparent order process between the manufacturer and its clients. Product catalog, attachments, client asset tracking."
-msgstr "Transparentní objednávkový proces mezi výrobcem a jeho klienty. Katalog produktů, přílohy k objednávkám, evidence klientského majetku."
+msgid ""
+"Transparent order process between the manufacturer and its clients. "
+"Product catalog, attachments, client asset tracking."
+msgstr ""
+"Průhledný proces zakázek mezi výrobcem a jeho klienty. Katalog, přílohy, "
+"sledování materiálu zákazníka."
 
 #: app/templates/admin/audit.html:3 app/templates/admin/audit.html:8
 #: app/templates/dashboard/index.html:114
@@ -884,6 +947,7 @@ msgstr "Jméno"
 #: app/templates/auth/password_reset_request.html:18
 #: app/templates/platform/login.html:18
 #: app/templates/platform/password_reset_request.html:18
+#: app/templates/www/contact.html:30 app/templates/www/contact.html:96
 msgid "Email"
 msgstr "E-mail"
 
@@ -940,8 +1004,12 @@ msgid "Your data (GDPR)"
 msgstr "Vaše data (GDPR)"
 
 #: app/templates/admin/profile.html:91
-msgid "Under EU law you can download everything we hold about you, and request erasure at any time."
-msgstr "Podle práva EU si můžete kdykoli stáhnout vše, co o vás uchováváme, a požádat o výmaz."
+msgid ""
+"Under EU law you can download everything we hold about you, and request "
+"erasure at any time."
+msgstr ""
+"Podle unijní legislativy si můžete kdykoliv stáhnout všechno, co o vás "
+"vedeme, a požádat o výmaz."
 
 #: app/templates/admin/profile.html:96
 msgid "Download my data (JSON)"
@@ -952,8 +1020,15 @@ msgid "Delete my account (irreversible)"
 msgstr "Smazat můj účet (nevratné)"
 
 #: app/templates/admin/profile.html:106
-msgid "This removes your personal data (name, email, phone, password) from this tenant. Orders and comments you created stay in the company record but are shown as \"erased\" in the author column. This cannot be undone."
-msgstr "Odstraní vaše osobní údaje (jméno, e-mail, telefon, heslo) z tohoto tenantu. Objednávky a komentáře, které jste vytvořili, zůstávají ve firemní evidenci, ale ve sloupci autora se zobrazují jako „smazáno“. Tuto akci nelze vrátit."
+msgid ""
+"This removes your personal data (name, email, phone, password) from this "
+"tenant. Orders and comments you created stay in the company record but "
+"are shown as \"erased\" in the author column. This cannot be undone."
+msgstr ""
+"Odstraní vaše osobní údaje (jméno, e-mail, telefon, heslo) z tohoto "
+"tenantu. Objednávky a komentáře, které jste vytvořili, zůstávají ve "
+"firemní evidenci, ale ve sloupci autora se zobrazují jako „smazáno“. Tuto"
+" akci nelze vrátit."
 
 #: app/templates/admin/profile.html:109
 msgid "Are you sure? This is irreversible."
@@ -1080,8 +1155,12 @@ msgid "Default email language"
 msgstr "Výchozí jazyk e-mailů"
 
 #: app/templates/admin/tenant_settings.html:29
-msgid "Used for all notification emails unless a client or individual user has their own preference."
-msgstr "Použije se pro všechny notifikační e-maily, pokud si klient nebo konkrétní uživatel nenastaví vlastní jazyk."
+msgid ""
+"Used for all notification emails unless a client or individual user has "
+"their own preference."
+msgstr ""
+"Používá se pro všechny e-maily s upozorněními, pokud klient nebo konkrétní "
+"uživatel nemá vlastní nastavení."
 
 #: app/templates/admin/tenant_settings.html:36
 #: app/templates/admin/user_edit.html:71
@@ -1136,8 +1215,12 @@ msgid "disabled"
 msgstr "deaktivován"
 
 #: app/templates/admin/users.html:40
-msgid "Platform-admin support access — logs in via the platform session handoff, not the tenant password form."
-msgstr "Support přístup platform-admina — přihlašuje se přes platformovou session, ne přes tenant login."
+msgid ""
+"Platform-admin support access — logs in via the platform session handoff,"
+" not the tenant password form."
+msgstr ""
+"Přístup platform-admina v režimu podpory — přihlašuje se přes platform "
+"session, ne přes heslo v tenantu."
 
 #: app/templates/admin/users.html:42
 #: app/templates/platform/admin/tenants.html:83
@@ -1327,16 +1410,19 @@ msgid "Stock"
 msgstr "Stav"
 
 #: app/templates/assets/list.html:61
-#, fuzzy
 msgid "No assets yet"
 msgstr "Zatím žádní tenanti."
 
 #: app/templates/assets/list.html:64
-msgid "Assets are pieces of equipment you track on behalf of a client (machines at their site, rental tools, serialised items). Each asset has a code, location and history."
-msgstr "Majetek jsou položky, které evidujete pro klienta (stroje na jeho místě, pronajímané nářadí, sériové kusy). Každý majetek má kód, lokalitu a historii."
+msgid ""
+"Assets are pieces of equipment you track on behalf of a client (machines "
+"at their site, rental tools, serialised items). Each asset has a code, "
+"location and history."
+msgstr ""
+"Majetek = položky, které evidujete jménem klienta (stroje u něj, zapůjčené "
+"nářadí, sériové díly). Každá položka má kód, lokalitu a historii."
 
 #: app/templates/assets/list.html:69
-#, fuzzy
 msgid "Add the first asset"
 msgstr "Založit prvního klienta"
 
@@ -1392,8 +1478,12 @@ msgid "Enter a new password for your account."
 msgstr "Zadejte nové heslo pro svůj účet."
 
 #: app/templates/auth/password_reset_request.html:10
-msgid "Enter your email. If we have an account for it, we will send a link to set a new password."
-msgstr "Zadejte svůj e-mail. Pokud u nás účet existuje, pošleme vám odkaz na nastavení nového hesla."
+msgid ""
+"Enter your email. If we have an account for it, we will send a link to "
+"set a new password."
+msgstr ""
+"Zadejte svůj e-mail. Pokud k němu vedeme účet, zašleme odkaz pro nastavení "
+"nového hesla."
 
 #: app/templates/auth/password_reset_request.html:24
 msgid "Send the link"
@@ -1488,12 +1578,20 @@ msgid "Default email language for this client"
 msgstr "Výchozí jazyk e-mailů pro tohoto klienta"
 
 #: app/templates/customers/form.html:61
-msgid "Applied to every contact of this client unless the contact has their own override."
-msgstr "Použije se pro všechny kontakty tohoto klienta, pokud si kontakt nenastaví vlastní jazyk."
+msgid ""
+"Applied to every contact of this client unless the contact has their own "
+"override."
+msgstr ""
+"Platí pro všechny kontakty tohoto zákazníka, pokud si konkrétní kontakt "
+"neurčí vlastní."
 
 #: app/templates/customers/form.html:67
-msgid "Controls what contacts of this client can do when placing orders. Staff always has full access."
-msgstr "Kontroluje, co kontakty tohoto klienta mohou dělat při zadávání objednávek. Staff má vždy plný přístup."
+msgid ""
+"Controls what contacts of this client can do when placing orders. Staff "
+"always has full access."
+msgstr ""
+"Určuje, co mohou kontakty tohoto zákazníka při zadávání zakázek dělat. Tým "
+"dodavatele má vždy plný přístup."
 
 #: app/templates/customers/list.html:34
 msgid "contacts"
@@ -1606,7 +1704,7 @@ msgstr "Systém"
 
 #: app/templates/dashboard/index.html:147
 msgid "No activity yet — actions will show up here as they happen."
-msgstr "Zatím žádná aktivita — akce se budou zobrazovat zde, jakmile se něco stane."
+msgstr "Zatím žádná aktivita — akce se objeví zde, jakmile proběhnou."
 
 #: app/templates/dashboard/index.html:155
 msgid "Recent orders"
@@ -1622,17 +1720,23 @@ msgstr "Novou objednávku založíte v sekci"
 
 #: app/templates/dashboard/index.html:196 app/templates/orders/form.html:3
 #: app/templates/orders/form.html:6 app/templates/orders/form.html:9
-#: app/templates/orders/list.html:21
+#: app/templates/orders/list.html:21 app/templates/www/_hero_mock.html:51
 msgid "New order"
-msgstr "Nová objednávka"
+msgstr "Nová zakázka"
 
 #: app/templates/dashboard/index.html:203
 msgid "Start by adding your first client"
 msgstr "Začněte tím, že přidáte prvního klienta"
 
 #: app/templates/dashboard/index.html:205
-msgid "A client is a company whose contacts will place orders through the portal. Then add products to the catalog or track their assets at your site."
-msgstr "Klient = firma, jejíž kontakty budou zadávat objednávky přes portál. Pak přidejte produkty do katalogu nebo sledujte jejich majetek u vás."
+msgid ""
+"A client is a company whose contacts will place orders through the "
+"portal. Then add products to the catalog or track their assets at your "
+"site."
+msgstr ""
+"Zákazník je firma, jejíž kontakty budou přes portál zadávat zakázky. "
+"Následně přidejte produkty do katalogu nebo evidujte materiál, který u vás "
+"mají."
 
 #: app/templates/dashboard/index.html:212
 msgid "Add a client"
@@ -1681,7 +1785,9 @@ msgid "Page not found"
 msgstr "Stránka nebyla nalezena"
 
 #: app/templates/errors/404.html:8
-msgid "The path you were looking for does not exist or you do not have access to it."
+msgid ""
+"The path you were looking for does not exist or you do not have access to"
+" it."
 msgstr "Cesta, kterou jste hledali, neexistuje, nebo k ní nemáte přístup."
 
 #: app/templates/errors/404.html:13
@@ -1709,13 +1815,22 @@ msgstr "Dosažen limit plánu"
 #, python-format
 msgid ""
 "\n"
-"                    Your current plan allows %(limit)s %(metric)s. You're already at %(current)s.\n"
+"                    Your current plan allows %(limit)s %(metric)s. You're"
+" already at %(current)s.\n"
 "                "
 msgstr ""
+"\n"
+"                    Váš plán umožňuje %(limit)s %(metric)s. Aktuálně jste"
+" na %(current)s.\n"
+"                "
 
 #: app/templates/errors/plan_limit.html:16
-msgid "Upgrade your plan to increase the cap, or contact support if you believe this is a mistake."
-msgstr "Navýšíte limit změnou plánu. Pokud si myslíte, že jde o chybu, napište nám."
+msgid ""
+"Upgrade your plan to increase the cap, or contact support if you believe "
+"this is a mistake."
+msgstr ""
+"Pro zvýšení limitu přejděte na vyšší plán, nebo nás kontaktujte, pokud se "
+"jedná o chybu."
 
 #: app/templates/errors/plan_limit.html:22
 msgid "Upgrade plan"
@@ -1928,8 +2043,12 @@ msgid "Choose a new password for your platform account."
 msgstr "Vyberte si nové heslo pro váš účet na platformě."
 
 #: app/templates/platform/password_reset_request.html:10
-msgid "Enter your email. If an account exists, we will send you a link to set a new password."
-msgstr "Zadejte svůj e-mail. Pokud účet existuje, pošleme vám odkaz na nastavení nového hesla."
+msgid ""
+"Enter your email. If an account exists, we will send you a link to set a "
+"new password."
+msgstr ""
+"Zadejte svůj e-mail. Pokud účet existuje, zašleme odkaz pro nastavení "
+"nového hesla."
 
 #: app/templates/platform/password_reset_request.html:24
 msgid "Send reset link"
@@ -1971,7 +2090,7 @@ msgstr "Máte oprávnění správce platformy."
 msgid "Manage tenants"
 msgstr "Spravovat tenanty"
 
-#: app/templates/platform/signup.html:3 app/templates/platform/signup.html:114
+#: app/templates/platform/signup.html:3 app/templates/platform/signup.html:111
 msgid "Create portal"
 msgstr "Vytvořit portál"
 
@@ -1980,8 +2099,8 @@ msgid "Create your portal"
 msgstr "Vytvořte si svůj portál"
 
 #: app/templates/platform/signup.html:10
-msgid "14-day free trial. No credit card required."
-msgstr "14denní zkušební verze zdarma. Žádná platební karta není potřeba."
+msgid "30-day free trial. No credit card required."
+msgstr "30denní zkušební verze zdarma. Bez platební karty."
 
 #: app/templates/platform/signup.html:23
 msgid "required"
@@ -1995,7 +2114,7 @@ msgstr "Subdoména portálu"
 msgid "Optional — if empty we derive it from the company name."
 msgstr "Volitelné — pokud necháte prázdné, odvodíme z názvu firmy."
 
-#: app/templates/platform/signup.html:60
+#: app/templates/platform/signup.html:60 app/templates/www/contact.html:90
 msgid "Your name"
 msgstr "Vaše jméno"
 
@@ -2008,25 +2127,18 @@ msgid "At least 8 characters; avoid common passwords."
 msgstr "Minimálně 8 znaků; vyhněte se běžným heslům."
 
 #: app/templates/platform/signup.html:101
-msgid "I agree to the"
-msgstr "Souhlasím s"
+msgid ""
+"I agree to the <a href=\"/terms\" target=\"_blank\" class=\"text-"
+"brand-600 hover:text-brand-700\">Terms of Service</a> and the <a "
+"href=\"/privacy\" target=\"_blank\" class=\"text-brand-600 hover:text-"
+"brand-700\">Privacy Policy</a>."
+msgstr ""
+"Souhlasím s <a href=\"/terms\" target=\"_blank\" class=\"text-brand-600 "
+"hover:text-brand-700\">Obchodními podmínkami</a> a se <a "
+"href=\"/privacy\" target=\"_blank\" class=\"text-brand-600 hover:text-"
+"brand-700\">Zásadami ochrany osobních údajů</a>."
 
-#: app/templates/platform/signup.html:102 app/templates/www/imprint.html:54
-#: app/templates/www/terms.html:3 app/templates/www/terms.html:7
-msgid "Terms of Service"
-msgstr "podmínkami služby"
-
-#: app/templates/platform/signup.html:103
-msgid "and the"
-msgstr "a se"
-
-#: app/templates/platform/signup.html:104 app/templates/www/imprint.html:55
-#: app/templates/www/privacy.html:3 app/templates/www/privacy.html:7
-#: app/templates/www/terms.html:58
-msgid "Privacy Policy"
-msgstr "zpracováním osobních údajů"
-
-#: app/templates/platform/signup.html:119
+#: app/templates/platform/signup.html:116
 msgid "Already have an account?"
 msgstr "Už máte účet?"
 
@@ -2139,12 +2251,20 @@ msgid "Edit tenant"
 msgstr "Upravit tenanta"
 
 #: app/templates/platform/admin/tenant_edit.html:18
-msgid "is immutable (subdomain, S3 prefix). To rename, create a new tenant and migrate data manually."
-msgstr "je neměnný (subdoména, S3 prefix). Pro přejmenování založ nového tenanta a migruj data ručně."
+msgid ""
+"is immutable (subdomain, S3 prefix). To rename, create a new tenant and "
+"migrate data manually."
+msgstr ""
+"je neměnný (subdoména, S3 prefix). Pro přejmenování vytvořte nový tenant a "
+"data migrujte ručně."
 
 #: app/templates/platform/admin/tenant_edit.html:38
-msgid "Display name — visible in the portal header, email templates, and the platform selector."
-msgstr "Zobrazované jméno — proklikne se do záhlaví portálu, e-mailových šablon a platformového selectoru."
+msgid ""
+"Display name — visible in the portal header, email templates, and the "
+"platform selector."
+msgstr ""
+"Zobrazované jméno — viditelné v záhlaví portálu, v e-mailech a v přepínači "
+"platformy."
 
 #: app/templates/platform/admin/tenant_edit.html:43
 #: app/templates/platform/admin/tenants.html:22
@@ -2328,12 +2448,11 @@ msgid "Switch plan"
 msgstr "Změnit plán"
 
 #: app/templates/platform/billing/dashboard.html:112
-#: app/templates/www/pricing.html:38 app/templates/www/pricing.html:60
 msgid "/month"
 msgstr "/měsíc"
 
 #: app/templates/platform/billing/dashboard.html:114
-#: app/templates/www/pricing.html:19
+#: app/templates/www/index.html:336 app/templates/www/pricing.html:26
 msgid "Free"
 msgstr "Zdarma"
 
@@ -2354,7 +2473,7 @@ msgid "Storage:"
 msgstr "Úložiště:"
 
 #: app/templates/platform/billing/dashboard.html:126
-#: app/templates/www/pricing.html:80 app/templates/www/pricing.html:89
+#: app/templates/www/pricing.html:102
 msgid "Contact us"
 msgstr "Kontaktujte nás"
 
@@ -2404,8 +2523,12 @@ msgid "shared"
 msgstr "sdílené"
 
 #: app/templates/products/detail.html:29
-msgid "Delete this product? It will be removed from the catalog but historical orders keep their link."
-msgstr "Opravdu smazat tento produkt? Bude odebrán z katalogu, ale zůstane propojen s historickými objednávkami."
+msgid ""
+"Delete this product? It will be removed from the catalog but historical "
+"orders keep their link."
+msgstr ""
+"Smazat tento produkt? Z katalogu zmizí, ale v historických zakázkách "
+"zůstane odkaz zachován."
 
 #: app/templates/products/detail.html:42 app/templates/products/form.html:49
 msgid "Default price"
@@ -2420,8 +2543,7 @@ msgstr "Upravit produkt"
 msgid "New product"
 msgstr "Nový produkt"
 
-#: app/templates/products/list.html:7 app/templates/www/features.html:37
-#: app/templates/www/index.html:55
+#: app/templates/products/list.html:7
 msgid "Product catalog"
 msgstr "Katalog produktů"
 
@@ -2430,55 +2552,185 @@ msgid "Price"
 msgstr "Cena"
 
 #: app/templates/products/list.html:64
-#, fuzzy
 msgid "Catalog is empty"
 msgstr "Katalog je prázdný."
 
 #: app/templates/products/list.html:67
-msgid "The catalog holds items your clients can pick when placing an order (SKU, name, unit, price). You can also narrow a product to a specific client."
-msgstr "Katalog obsahuje položky, které si vaši klienti mohou vybírat při zadávání objednávky (SKU, název, jednotka, cena). Produkt lze také omezit na konkrétního klienta."
+msgid ""
+"The catalog holds items your clients can pick when placing an order (SKU,"
+" name, unit, price). You can also narrow a product to a specific client."
+msgstr ""
+"Katalog obsahuje položky, které si zákazník může vybrat při zadávání "
+"zakázky (SKU, název, jednotka, cena). Produkt lze omezit i pro konkrétního "
+"zákazníka."
 
 #: app/templates/products/list.html:71
 msgid "Add the first product"
 msgstr "Přidat první produkt"
 
-#: app/templates/www/contact.html:3 app/templates/www/www_base.html:15
+#: app/templates/www/_hero_mock.html:20
+msgid "Your firm"
+msgstr "Vaše firma"
+
+#: app/templates/www/_hero_mock.html:37
+msgid "Stock on hand"
+msgstr "Sklad"
+
+#: app/templates/www/_hero_mock.html:47
+msgid "12 open · 3 need action"
+msgstr "12 aktivních · 3 čekají na vás"
+
+#: app/templates/www/_hero_mock.html:63
+msgid "Due"
+msgstr "Termín"
+
+#: app/templates/www/_hero_mock.html:70
+msgid "bracket"
+msgstr "konzola"
+
+#: app/templates/www/_hero_mock.html:71
+msgid "IN PRODUCTION"
+msgstr "VE VÝROBĚ"
+
+#: app/templates/www/_hero_mock.html:77
+msgid "assembly"
+msgstr "sestava"
+
+#: app/templates/www/_hero_mock.html:78
+msgid "QUOTED"
+msgstr "OCENĚNO"
+
+#: app/templates/www/_hero_mock.html:84
+msgid "railing"
+msgstr "zábradlí"
+
+#: app/templates/www/_hero_mock.html:85
+msgid "READY"
+msgstr "HOTOVO"
+
+#: app/templates/www/_hero_mock.html:91
+msgid "shaft"
+msgstr "hřídel"
+
+#: app/templates/www/_hero_mock.html:92
+msgid "CONFIRMED"
+msgstr "POTVRZENO"
+
+#: app/templates/www/_hero_mock.html:103
+msgid "Kovárna Vlček sent a message on ORD-0142"
+msgstr "Kovárna Vlček napsala k ORD-0142"
+
+#: app/templates/www/_hero_mock.html:104
+msgid ""
+"\"Can we move the deadline to April 29? We were just told by the paint "
+"shop…\""
+msgstr "„Nemůžeme posunout termín na 29. 4.? Právě nám volali z lakovny…\""
+
+#: app/templates/www/contact.html:3 app/templates/www/contact.html:12
+#: app/templates/www/www_base.html:64
 msgid "Contact"
 msgstr "Kontakt"
 
-#: app/templates/www/contact.html:7
-msgid "Write to us"
+#: app/templates/www/contact.html:4
+msgid ""
+"Email, demo, Enterprise plan, bug reports. Czech support, reply within "
+"one working day."
+msgstr ""
+"E-mail, ukázka, Enterprise plán, hlášení chyb. Česká podpora, odpověď do 1 "
+"pracovního dne."
+
+#: app/templates/www/contact.html:14
+msgid "Write or call us"
 msgstr "Napište nám"
 
-#: app/templates/www/contact.html:9
-msgid "Need help with deployment, interested in the Enterprise plan, or found a bug? Write to us and we will get back to you within one business day."
-msgstr "Potřebujete pomoc s nasazením, zajímá vás Enterprise plán nebo jste našli chybu? Napište nám a my se vám ozveme do jednoho pracovního dne."
+#: app/templates/www/contact.html:17
+msgid ""
+"Questions about deployment, Enterprise plan, discount for schools, or a "
+"bug report? We get back to you within one working day."
+msgstr ""
+"Dotazy k nasazení, Enterprise plánu, slevě pro školy nebo hlášení chyby? "
+"Ozveme se do 1 pracovního dne."
 
-#: app/templates/www/contact.html:15
+#: app/templates/www/contact.html:32
+msgid "Typical reply in 4 working hours"
+msgstr "Obvykle odpovídáme do 4 pracovních hodin"
+
+#: app/templates/www/contact.html:43
+msgid "15-minute demo"
+msgstr "15minutová ukázka"
+
+#: app/templates/www/contact.html:44
+msgid ""
+"Online walkthrough over Google Meet — real system, your questions, no "
+"slides."
+msgstr ""
+"Online ukázka přes Google Meet — reálný systém, vaše dotazy, žádné slajdy."
+
+#: app/templates/www/contact.html:45
+msgid "Write \"demo\" in the message"
+msgstr "Do zprávy napište „ukázka\""
+
+#: app/templates/www/contact.html:56
+msgid "Security disclosures"
+msgstr "Hlášení bezpečnostních chyb"
+
+#: app/templates/www/contact.html:58
+msgid "GPG on request. We reply within 24 hours."
+msgstr "GPG klíč na vyžádání. Odpovídáme do 24 hodin."
+
+#: app/templates/www/contact.html:64
+msgid "Czech team"
+msgstr "Český tým"
+
+#: app/templates/www/contact.html:65
+msgid ""
+"We reply in Czech or English. Servers in the EU. Invoicing under Czech "
+"rules, VAT separately on every invoice."
+msgstr ""
+"Odpovídáme česky nebo anglicky. Servery v EU. Fakturace podle českých "
+"pravidel, DPH zvlášť na každé faktuře."
+
+#: app/templates/www/contact.html:76
 msgid "Message sent"
 msgstr "Zpráva odeslána"
 
-#: app/templates/www/contact.html:16
-msgid "Thanks — we will reply within 24 hours."
-msgstr "Díky — odpovíme do 24 hodin."
+#: app/templates/www/contact.html:77
+msgid ""
+"Thanks — we will reply within 24 hours. For anything urgent, email us "
+"directly at opensource@assoluto.eu."
+msgstr ""
+"Děkujeme — ozveme se do 24 hodin. Něco urgentního? Napište přímo na "
+"opensource@assoluto.eu."
 
-#: app/templates/www/contact.html:27
-msgid "Your name *"
-msgstr "Vaše jméno *"
+#: app/templates/www/contact.html:81
+msgid "Write to us"
+msgstr "Napište nám"
 
-#: app/templates/www/contact.html:33
-msgid "Email *"
-msgstr "E-mail *"
-
-#: app/templates/www/contact.html:39
-msgid "Your message *"
+#: app/templates/www/contact.html:102
+msgid "Your message"
 msgstr "Vaše zpráva *"
 
-#: app/templates/www/contact.html:45
+#: app/templates/www/contact.html:104
+msgid ""
+"Describe briefly — Enterprise plan? Questions about self-hosting? A demo?"
+" What kind of shop are you running?"
+msgstr ""
+"Popište krátce — Enterprise plán? Dotazy k self-hostingu? Ukázka? Jakou "
+"dílnu provozujete?"
+
+#: app/templates/www/contact.html:109
 msgid "Send"
 msgstr "Odeslat"
 
-#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:31
+#: app/templates/www/contact.html:113
+msgid ""
+"By sending, you agree to the processing of your data for the purpose of "
+"replying (one-off, no newsletter)."
+msgstr ""
+"Odesláním souhlasíte se zpracováním údajů za účelem odpovědi (jednorázově, "
+"bez newsletteru)."
+
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:80
 msgid "Cookies"
 msgstr "Cookies"
 
@@ -2497,21 +2749,39 @@ msgid "Notice:"
 msgstr "Upozornění:"
 
 #: app/templates/www/cookies.html:14
-#, fuzzy
-msgid "This text is a template. It should be reviewed by a lawyer familiar with the EU ePrivacy Directive and Czech law before going live."
-msgstr "Tento text je šablona. Před nasazením by ho měl zkontrolovat právník znalý GDPR."
+msgid ""
+"This text is a template. It should be reviewed by a lawyer familiar with "
+"the EU ePrivacy Directive and Czech law before going live."
+msgstr ""
+"Tento text je šablona. Před nasazením by ho měl zkontrolovat právník znalý "
+"směrnice ePrivacy (EU) a českého práva."
 
 #: app/templates/www/cookies.html:18
 msgid "1. Do we need your consent?"
 msgstr "1. Potřebujeme váš souhlas?"
 
 #: app/templates/www/cookies.html:20
-msgid "Assoluto uses only cookies that are \"strictly necessary\" to deliver the service you explicitly requested (log you in, protect against CSRF, remember the language you chose). Under Article 5(3) of the ePrivacy Directive (2002/58/EC) and §89 of Czech Act 127/2005 Coll., strictly-necessary cookies do not require prior consent. We therefore do not show a cookie banner."
-msgstr "Assoluto používá pouze cookies, které jsou „nezbytně nutné“ k poskytování služby, kterou jste si vyžádali (přihlášení, ochrana proti CSRF, pamatování si jazyka). Podle čl. 5 odst. 3 směrnice ePrivacy (2002/58/ES) a §89 zákona č. 127/2005 Sb. nezbytně nutné cookies nevyžadují předchozí souhlas. Proto cookie lištu nezobrazujeme."
+msgid ""
+"Assoluto uses only cookies that are \"strictly necessary\" to deliver the"
+" service you explicitly requested (log you in, protect against CSRF, "
+"remember the language you chose). Under Article 5(3) of the ePrivacy "
+"Directive (2002/58/EC) and §89 of Czech Act 127/2005 Coll., strictly-"
+"necessary cookies do not require prior consent. We therefore do not show "
+"a cookie banner."
+msgstr ""
+"Assoluto používá pouze cookies, které jsou „nezbytně nutné“ k poskytování"
+" služby, kterou jste si vyžádali (přihlášení, ochrana proti CSRF, "
+"pamatování si jazyka). Podle čl. 5 odst. 3 směrnice ePrivacy (2002/58/ES)"
+" a §89 zákona č. 127/2005 Sb. nezbytně nutné cookies nevyžadují předchozí"
+" souhlas. Proto cookie lištu nezobrazujeme."
 
 #: app/templates/www/cookies.html:23
-msgid "We do not use advertising cookies. We do not use third-party analytics cookies. We do not track you across sites."
-msgstr "Nepoužíváme reklamní cookies. Nepoužíváme cookies analytických třetích stran. Nesledujeme vás napříč weby."
+msgid ""
+"We do not use advertising cookies. We do not use third-party analytics "
+"cookies. We do not track you across sites."
+msgstr ""
+"Nepoužíváme reklamní cookies. Nepoužíváme analytické cookies třetích "
+"stran. Nesledujeme vás napříč weby."
 
 #: app/templates/www/cookies.html:28
 msgid "2. Cookies we set"
@@ -2531,7 +2801,8 @@ msgstr "Rozsah"
 
 #: app/templates/www/cookies.html:42
 msgid "Double-submit CSRF token. Prevents forged POSTs from other origins."
-msgstr "Double-submit CSRF token. Zabrání podvrženým POST požadavkům z jiných origin."
+msgstr ""
+"Double-submit CSRF token. Brání podvrženým POST požadavkům z jiných domén."
 
 #: app/templates/www/cookies.html:43
 msgid "7 days"
@@ -2544,22 +2815,30 @@ msgstr "Pouze doména"
 
 #: app/templates/www/cookies.html:48
 msgid "Signed session cookie identifying the logged-in tenant user. HttpOnly."
-msgstr "Podepsaný session cookie identifikující přihlášeného uživatele tenanta. HttpOnly."
+msgstr ""
+"Podepsaný session cookie identifikující přihlášeného uživatele v tenantu. "
+"HttpOnly."
 
 #: app/templates/www/cookies.html:49 app/templates/www/cookies.html:55
 msgid "14 days"
 msgstr "14 dní"
 
 #: app/templates/www/cookies.html:54
-msgid "Signed session cookie identifying the platform identity across tenant subdomains. HttpOnly."
-msgstr "Podepsaný session cookie identifikující platform identitu napříč tenant subdoménami. HttpOnly."
+msgid ""
+"Signed session cookie identifying the platform identity across tenant "
+"subdomains. HttpOnly."
+msgstr ""
+"Podepsaný session cookie identifikující platform identitu napříč tenanty. "
+"HttpOnly."
 
 #: app/templates/www/cookies.html:56
 msgid "Parent domain"
 msgstr "Nadřazená doména"
 
 #: app/templates/www/cookies.html:60
-msgid "Your chosen UI language (cs / en). Set when you click the language switcher."
+msgid ""
+"Your chosen UI language (cs / en). Set when you click the language "
+"switcher."
 msgstr "Vámi zvolený jazyk UI (cs / en). Nastaven při kliku na přepínač jazyka."
 
 #: app/templates/www/cookies.html:61 app/templates/www/cookies.html:67
@@ -2575,8 +2854,14 @@ msgid "3. How to delete cookies"
 msgstr "3. Jak cookies smazat"
 
 #: app/templates/www/cookies.html:78
-msgid "You can clear these cookies at any time from your browser's settings. Deleting the session cookies logs you out. Deleting the preference cookies reverts to defaults (Czech language, system theme)."
-msgstr "Cookies můžete kdykoli smazat v nastavení prohlížeče. Smazání session cookies vás odhlásí. Smazání preferenčních cookies vrátí výchozí hodnoty (čeština, systémové téma)."
+msgid ""
+"You can clear these cookies at any time from your browser's settings. "
+"Deleting the session cookies logs you out. Deleting the preference "
+"cookies reverts to defaults (Czech language, system theme)."
+msgstr ""
+"Tyto cookies můžete kdykoliv vymazat v nastavení prohlížeče. Smazáním "
+"session cookies se odhlásíte. Smazáním preferencí se vrátí výchozí stav "
+"(čeština, systémové téma)."
 
 #: app/templates/www/cookies.html:83
 msgid "4. Contact"
@@ -2586,115 +2871,283 @@ msgstr "4. Kontakt"
 msgid "Questions about this cookies policy? Write to"
 msgstr "Dotazy k zásadám cookies? Napište nám na"
 
-#: app/templates/www/features.html:3 app/templates/www/www_base.html:6
+#: app/templates/www/features.html:3 app/templates/www/features.html:11
+#: app/templates/www/www_base.html:55
 msgid "Features"
 msgstr "Funkce"
 
-#: app/templates/www/features.html:8
-msgid "What Assoluto can do"
-msgstr "Co Assoluto umí"
+#: app/templates/www/features.html:4
+msgid ""
+"Orders with 8-step workflow, drawings and CAD, customer material on "
+"stock, product catalog, multi-tenant isolation. Built specifically for "
+"manufacturing SMEs."
+msgstr ""
+"Zakázky s 8krokovým workflow, výkresy a CAD, materiál zákazníka na skladě, "
+"katalog produktů, multi-tenant izolace. Postavené přímo pro výrobní firmy."
 
-#: app/templates/www/features.html:10
-msgid "Built for manufacturing SMEs: orders with drawings, catalog, client assets, multi-tenant."
-msgstr "Postaveno pro výrobní malé firmy: objednávky s výkresy, katalog, klientský majetek, multi-tenant."
+#: app/templates/www/features.html:13
+msgid "Everything Assoluto can do"
+msgstr "Co všechno Assoluto umí"
 
 #: app/templates/www/features.html:16
-msgid "Order workflow"
-msgstr "Proces objednávky"
+msgid ""
+"Not a generic CRM. Built for manufacturing — drawings, revisions, "
+"deadlines, customer material on stock."
+msgstr ""
+"Ne obecné CRM. Postavené pro výrobu — výkresy, revize, termíny, materiál "
+"zákazníka na skladě."
 
-#: app/templates/www/features.html:18
-msgid "Eight-step process: DRAFT → SUBMITTED → QUOTED → CONFIRMED → IN_PRODUCTION → READY → DELIVERED → CLOSED. Every transition is audited (who, when, why)."
-msgstr "Osmikrokový proces: DRAFT → SUBMITTED → QUOTED → CONFIRMED → IN_PRODUCTION → READY → DELIVERED → CLOSED. Každý přechod je auditován (kdo, kdy, proč)."
+#: app/templates/www/features.html:27 app/templates/www/index.html:137
+msgid "Orders with a clear workflow"
+msgstr "Zakázky s přehledným workflow"
 
-#: app/templates/www/features.html:21
-msgid "Client enters items (free-text or from the catalog)."
-msgstr "Klient zadá položky (volným textem nebo z katalogu)."
-
-#: app/templates/www/features.html:22
-msgid "You quote and set the deadline."
-msgstr "Naceníte a nastavíte termín."
-
-#: app/templates/www/features.html:23
-msgid "Client confirms or proposes a change."
-msgstr "Klient potvrdí, nebo navrhne úpravu."
-
-#: app/templates/www/features.html:24
-msgid "Comments on the order (with internal notes for the team)."
-msgstr "Komentáře k objednávce (včetně interních poznámek pro tým)."
-
-#: app/templates/www/features.html:25
-msgid "Automatic notifications on every status change."
-msgstr "Automatické notifikace při každé změně stavu."
+#: app/templates/www/features.html:28
+msgid ""
+"An eight-step process from request to delivery. Every transition is "
+"audited — who, when, why. Never guess where an order stands again."
+msgstr ""
+"Osmikrokový proces od poptávky k dodání. Každý přechod je auditovaný — "
+"kdo, kdy, proč. Už nikdy nebudete hádat, kde zakázka stojí."
 
 #: app/templates/www/features.html:30
-msgid "Attachments and drawings"
-msgstr "Přílohy a výkresy"
+msgid "Client enters items (free text or from the catalog)"
+msgstr "Zákazník zadá položky (text nebo z katalogu)"
+
+#: app/templates/www/features.html:31
+msgid "You quote the price and deadline"
+msgstr "Vy oceníte a dáte termín"
 
 #: app/templates/www/features.html:32
-msgid "Direct upload to S3 (max 50 MB). Thumbnails for PDFs and images. Attachments can be linked to the entire order or to a specific item."
-msgstr "Přímý upload na S3 (max 50 MB). Náhledy pro PDF a obrázky. Přílohy lze připojit k celé objednávce nebo ke konkrétní položce."
+msgid "Client confirms or proposes a change"
+msgstr "Zákazník potvrdí nebo navrhne změnu"
 
-#: app/templates/www/features.html:39
-msgid "Shared per-tenant catalog and per-customer catalog (customized for a specific client). Autocomplete directly when placing an order, with pre-filled price and unit."
-msgstr "Sdílený katalog pro tenant a katalog pro konkrétního klienta (customizovaný). Automatické doplňování přímo při zadávání objednávky, s předvyplněnou cenou a jednotkou."
+#: app/templates/www/features.html:33
+msgid "Comments inline, with team-only internal notes"
+msgstr "Komentáře přímo u zakázky, interní poznámky jen pro tým"
 
-#: app/templates/www/features.html:44
-msgid "Client asset tracking"
-msgstr "Sledování klientského majetku"
+#: app/templates/www/features.html:34
+msgid "Automatic email on every status change"
+msgstr "Automatický e-mail u každé změny stavu"
 
-#: app/templates/www/features.html:46
-msgid "Does your client store materials, tools, or semi-finished products with you? The portal tracks receipt, dispatch, and consumption. Current balance is recalculated automatically. Clients only see their own items."
-msgstr "Skladuje klient u vás materiál, nástroje nebo polotovary? Portál sleduje příjem, výdej a spotřebu. Aktuální stav se přepočítá automaticky. Klient vidí pouze své položky."
+#: app/templates/www/features.html:86
+msgid "Drawings and CAD in the right place"
+msgstr "Výkresy a CAD na správném místě"
 
-#: app/templates/www/features.html:51
-msgid "Multi-tenant from day one"
-msgstr "Multi-tenant od prvního dne"
+#: app/templates/www/features.html:87
+msgid ""
+"PDF, PNG, JPG, DWG, DXF, STEP, STL — anything the shop floor needs. "
+"Direct upload to S3 (up to 50 MB / file). Thumbnails for PDFs and images."
+msgstr ""
+"PDF, PNG, JPG, DWG, DXF, STEP, STL — cokoliv potřebuje dílna. Nahrání "
+"rovnou do S3 (až 50 MB / soubor). Náhledy u PDF a obrázků."
 
-#: app/templates/www/features.html:53
-msgid "PostgreSQL Row-Level Security — data from different clients is physically separated at the database level. Subdomains"
-msgstr "PostgreSQL Row-Level Security — data různých klientů jsou fyzicky oddělená na úrovni databáze. Subdomény"
+#: app/templates/www/features.html:88
+msgid ""
+"Attachments go to the whole order, or to a specific line item. Clients "
+"see only their own files."
+msgstr ""
+"Přílohy připojíte k celé zakázce, nebo ke konkrétní položce. Zákazník vidí "
+"jen své soubory."
 
-#: app/templates/www/features.html:55
-msgid "for each client separately."
-msgstr "pro každého klienta zvlášť."
+#: app/templates/www/features.html:98
+msgid "Product catalog that knows your clients"
+msgstr "Katalog, který zná vaše zákazníky"
 
-#: app/templates/www/features.html:60
-msgid "Permissions and security"
-msgstr "Oprávnění a bezpečnost"
+#: app/templates/www/features.html:99
+msgid ""
+"A shared catalog for everyone, plus per-client customisation. One client "
+"sees their own negotiated prices; another only the items you actually "
+"make for them."
+msgstr ""
+"Společný katalog pro všechny plus úprava pro jednotlivé zákazníky. Jeden "
+"zákazník vidí vlastní sjednané ceny, druhý jen to, co pro něj reálně "
+"vyrábíte."
 
-#: app/templates/www/features.html:62
-msgid "Roles: tenant_admin (owner), tenant_staff (your team), customer_admin (client representative), customer_user (client contact person). Per-customer settings for what the client can enter (catalog selection only / free-text / prices)."
-msgstr "Role: tenant_admin (majitel), tenant_staff (váš tým), customer_admin (zástupce klienta), customer_user (kontaktní osoba klienta). Per-klient nastavení, co klient smí zadat (jen výběr z katalogu / free-text / ceny)."
+#: app/templates/www/features.html:100
+msgid ""
+"Autocomplete in the order form — client types, they pick, price and unit "
+"fill in automatically."
+msgstr ""
+"Napovídání ve formuláři zakázky — zákazník píše, vybere, cena a jednotka "
+"se doplní samy."
 
-#: app/templates/www/features.html:67 app/templates/www/index.html:91
-msgid "Open source"
-msgstr "Open source"
+# --- Sprint 1-3 roadmap additions ---
+#: app/templates/www/features.html:106
+msgid "Search: konz…"
+msgstr "Hledat: konz…"
 
-#: app/templates/www/features.html:69
-msgid "The entire code is licensed under AGPL-3.0 on"
-msgstr "Celý kód je licencovaný pod AGPL-3.0 na"
+#: app/templates/www/features.html:111
+msgid "Bracket 80×40"
+msgstr "Konzola 80×40"
 
-#: app/templates/www/features.html:70
-msgid "GitHub"
-msgstr "GitHubu"
+#: app/templates/www/features.html:112 app/templates/www/features.html:119
+msgid "pcs"
+msgstr "ks"
 
-#: app/templates/www/features.html:71
-msgid "You can self-host it (free), audit it, or fork it. We offer a hosted version with convenient management and support."
-msgstr "Můžete si ho hostovat sami (zdarma), auditovat, nebo forknout. Nabízíme hostovanou verzi s pohodlnou správou a podporou."
+#: app/templates/www/features.html:118
+msgid "Bracket 120×60"
+msgstr "Konzola 120×60"
 
-#: app/templates/www/features.html:79 app/templates/www/index.html:22
-#: app/templates/www/pricing.html:49 app/templates/www/pricing.html:72
-msgid "Try free for 14 days"
-msgstr "Vyzkoušet zdarma na 14 dní"
+#: app/templates/www/features.html:125
+msgid "Console — custom"
+msgstr "Konzola — na míru"
+
+#: app/templates/www/features.html:126
+msgid "per drawing · quoted on request"
+msgstr "podle výkresu · oceníme na vyžádání"
+
+#: app/templates/www/features.html:140
+msgid "Item"
+msgstr "Položka"
+
+#: app/templates/www/features.html:141
+msgid "In"
+msgstr "Příjem"
+
+#: app/templates/www/features.html:142
+msgid "Out"
+msgstr "Výdej"
+
+#: app/templates/www/features.html:143
+msgid "Balance"
+msgstr "Zůstatek"
+
+#: app/templates/www/features.html:147
+msgid "Steel sheet 2 mm"
+msgstr "Plech ocelový 2 mm"
+
+#: app/templates/www/features.html:153
+msgid "Fixture F-04"
+msgstr "Přípravek F-04"
+
+#: app/templates/www/features.html:156 app/templates/www/features.html:162
+msgid "pc"
+msgstr "ks"
+
+#: app/templates/www/features.html:159
+msgid "Drill bit Ø 8.2"
+msgstr "Vrták Ø 8,2"
+
+# --- round-2 audit: landing + CRUD templates ---
+#: app/templates/www/features.html:172
+msgid "Customer material on your stock"
+msgstr "Materiál zákazníka u vás na skladě"
+
+#: app/templates/www/features.html:173
+msgid ""
+"Clients keep material, tools, or semi-finished products at your place? "
+"Receipts, issues, consumption — all transparent. Balance is recalculated "
+"automatically, client sees their own."
+msgstr ""
+"Má zákazník u vás materiál, nástroje nebo polotovary? Příjem, výdej, "
+"spotřeba — všechno průhledné. Stav se přepočítává sám, zákazník vidí to "
+"své."
+
+#: app/templates/www/features.html:174
+msgid ""
+"End-of-year inventory in one click. No more \"did we use 12 or 14?\" "
+"debates."
+msgstr ""
+"Roční inventura na jedno kliknutí. Žádné „spotřebovali jsme 12 nebo 14?\"."
+
+#: app/templates/www/features.html:184
+msgid "Security at the database level"
+msgstr "Bezpečnost na úrovni databáze"
+
+#: app/templates/www/features.html:185
+msgid ""
+"Not \"the app filters it out\". PostgreSQL Row-Level Security physically "
+"isolates data per client. The app cannot return a foreign order — even if"
+" a bug slipped through."
+msgstr ""
+"Ne „aplikace to vyfiltruje\". PostgreSQL Row-Level Security fyzicky "
+"odděluje data jednotlivých zákazníků. Aplikace cizí zakázku nevrátí — ani "
+"kdyby se do ní vloudila chyba."
+
+#: app/templates/www/features.html:187
+msgid "Argon2 password hashing (not SHA, not bcrypt)"
+msgstr "Hesla v Argon2 (ne SHA, ne bcrypt)"
+
+#: app/templates/www/features.html:188
+msgid "CSRF protection on every POST"
+msgstr "CSRF ochrana u každého POSTu"
+
+#: app/templates/www/features.html:189
+msgid "HttpOnly + Secure + SameSite=Lax cookies"
+msgstr "HttpOnly + Secure + SameSite=Lax cookies"
+
+#: app/templates/www/features.html:190
+msgid "Rate limiting for login, signup, contact"
+msgstr "Rate limiting u přihlášení, registrace a kontaktu"
+
+#: app/templates/www/features.html:191
+msgid "Audit trail for every admin action, 3 years retention"
+msgstr "Audit trail u každé admin akce, retence 3 roky"
+
+#: app/templates/www/features.html:207
+msgid "every SELECT/UPDATE/DELETE auto-filtered"
+msgstr "každý SELECT/UPDATE/DELETE filtrovaný automaticky"
+
+#: app/templates/www/features.html:217
+msgid "run your own copy"
+msgstr "spusťte si vlastní kopii"
+
+#: app/templates/www/features.html:223
+msgid "ready on localhost:8000"
+msgstr "běží na localhost:8000"
+
+#: app/templates/www/features.html:230
+msgid "Open source, auditable, yours"
+msgstr "Open source, auditovatelné, vaše"
+
+#: app/templates/www/features.html:231
+msgid ""
+"Full source on GitHub, AGPL-3.0. Host it on your own server, audit the "
+"security, fork it if you need to."
+msgstr ""
+"Celý zdrojový kód na GitHubu, AGPL-3.0. Hostujte na vlastním serveru, "
+"auditujte bezpečnost, forkněte si, pokud potřebujete."
+
+#: app/templates/www/features.html:232
+msgid ""
+"Or use our managed hosting — identical code, we just take care of "
+"backups, updates, and uptime."
+msgstr ""
+"Nebo použijte naše managed hosting — identický kód, jen zálohy, "
+"aktualizace a provoz obstaráme my."
+
+#: app/templates/www/features.html:234 app/templates/www/self_hosted.html:22
+msgid "Repository on GitHub"
+msgstr "Repozitář na GitHubu"
+
+#: app/templates/www/features.html:243
+msgid "See it in your own data"
+msgstr "Podívejte se na to na vlastních datech"
+
+#: app/templates/www/features.html:244
+msgid "Sign up, invite one client, run one order through. 15 minutes, no card."
+msgstr ""
+"Zaregistrujte se, pozvěte jednoho zákazníka, projeďte jednou zakázkou. 15 "
+"minut, bez karty."
+
+#: app/templates/www/features.html:246 app/templates/www/index.html:304
+#: app/templates/www/index.html:327 app/templates/www/pricing.html:57
+#: app/templates/www/pricing.html:82
+msgid "Start 30-day trial"
+msgstr "Spustit 30denní zkušební"
 
 #: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
-#: app/templates/www/www_base.html:33
+#: app/templates/www/www_base.html:82
 msgid "Imprint"
 msgstr "Impressum"
 
 #: app/templates/www/imprint.html:9
-msgid "Operator-identity disclosure under §8 of Czech Act 480/2004 Coll. (information-society services)."
-msgstr "Identifikační údaje provozovatele podle §8 zákona č. 480/2004 Sb. (služby informační společnosti)."
+msgid ""
+"Operator-identity disclosure under §8 of Czech Act 480/2004 Coll. "
+"(information-society services)."
+msgstr ""
+"Informace o provozovateli podle §8 zákona č. 480/2004 Sb. o některých "
+"službách informační společnosti."
 
 #: app/templates/www/imprint.html:17
 msgid "Registered office"
@@ -2713,8 +3166,12 @@ msgid "Regulatory supervision"
 msgstr "Dozorový orgán"
 
 #: app/templates/www/imprint.html:40
-msgid "Czech Trade Inspection Authority (Česká obchodní inspekce), Štěpánská 44, Prague — out-of-court consumer dispute resolution."
-msgstr "Česká obchodní inspekce, Štěpánská 44, Praha — mimosoudní řešení spotřebitelských sporů."
+msgid ""
+"Czech Trade Inspection Authority (Česká obchodní inspekce), Štěpánská 44,"
+" Prague — out-of-court consumer dispute resolution."
+msgstr ""
+"Česká obchodní inspekce, Štěpánská 44, Praha — mimosoudní řešení "
+"spotřebitelských sporů."
 
 #: app/templates/www/imprint.html:45
 msgid "EU ODR platform"
@@ -2724,248 +3181,876 @@ msgstr "Platforma EU ODR"
 msgid "Related documents"
 msgstr "Související dokumenty"
 
+#: app/templates/www/imprint.html:54 app/templates/www/terms.html:3
+#: app/templates/www/terms.html:7
+msgid "Terms of Service"
+msgstr "Obchodní podmínky"
+
+#: app/templates/www/imprint.html:55 app/templates/www/privacy.html:3
+#: app/templates/www/privacy.html:7 app/templates/www/terms.html:58
+msgid "Privacy Policy"
+msgstr "Zásady ochrany osobních údajů"
+
 #: app/templates/www/imprint.html:56
 msgid "Cookies Policy"
 msgstr "Zásady cookies"
 
-#: app/templates/www/index.html:3 app/templates/www/index.html:10
-msgid "Client portal for manufacturing SMEs"
+#: app/templates/www/index.html:3
+msgid "Customer portal for manufacturing SMEs in the Czech Republic"
 msgstr "Klientský portál pro výrobní malé firmy"
 
-#: app/templates/www/index.html:13
-msgid "Replace emails and phone calls with"
-msgstr "Nahraďte e-maily a telefonáty"
+#: app/templates/www/index.html:5
+msgid ""
+"Replace emails and Excel with a clean customer portal. Your clients see "
+"orders, drawings and production status on their own — 24/7. 30 days free,"
+" no card."
+msgstr ""
+"Nahraďte e-maily a Excel přehledným portálem. Vaši zákazníci vidí zakázky, "
+"výkresy a stav výroby sami — 24/7. 30 dní zdarma, bez karty."
 
-# --- platform session nav additions ---
-#: app/templates/www/index.html:14
-msgid "a structured portal"
-msgstr "strukturovaným portálem"
+#: app/templates/www/index.html:24
+msgid "Open source · Data in the EU · AGPL-3.0"
+msgstr "Open source · Data v EU · AGPL-3.0"
 
-#: app/templates/www/index.html:17
-msgid "Let your clients place orders online, share drawings, track production status, and keep an overview of their materials at your warehouse. No complex ERP, no lengthy implementation."
-msgstr "Nechte svoje klienty zadávat objednávky online, sdílejte výkresy, sledujte stav výroby a mějte přehled o jejich materiálu ve vašem skladu. Žádný složitý ERP, žádná dlouhá implementace."
+#: app/templates/www/index.html:28
+msgid "Stop picking up the phone."
+msgstr "Přestaňte zvedat telefon."
 
-#: app/templates/www/index.html:26
-msgid "Self-hosted installation guide"
-msgstr "Návod na vlastní instalaci"
+#: app/templates/www/index.html:29
+msgid "Your clients see it themselves."
+msgstr "Zákazníci to vidí sami."
 
-#: app/templates/www/index.html:30
-msgid "No credit card required · Open source (AGPL-3.0) · GDPR-ready (EU data)"
-msgstr "Bez platební karty · Open source (AGPL-3.0) · GDPR (EU data)"
+#: app/templates/www/index.html:33
+msgid ""
+"A customer portal for Czech manufacturing SMEs. Orders, drawings, "
+"production status — in one place, 24/7. Without Excel, without a massive "
+"ERP."
+msgstr ""
+"Zákaznický portál pro české výrobní firmy. Zakázky, výkresy, stav výroby — "
+"na jednom místě, 24/7. Bez Excelu, bez obrovského ERP."
 
-#: app/templates/www/index.html:39
-msgid "Everything your manufacturing SME needs"
-msgstr "Vše, co vaše výrobní malá firma potřebuje"
+#: app/templates/www/index.html:39 app/templates/www/index.html:446
+msgid "Try free for 30 days"
+msgstr "Vyzkoušet 30 dní zdarma"
 
-#: app/templates/www/index.html:46
-msgid "Orders with attachments"
-msgstr "Objednávky s přílohami"
+#: app/templates/www/index.html:45
+msgid "Book a 15-min demo"
+msgstr "Domluvit 15min ukázku"
 
-#: app/templates/www/index.html:48
-msgid "Client uploads drawings, specifies quantities, you quote and set a deadline. 8-step workflow with audit trail."
-msgstr "Klient nahraje výkresy, zadá množství, vy oceníte a nastavíte termín. Osmikrokový workflow s auditní stopou."
+#: app/templates/www/index.html:50
+msgid "No credit card · Cancel anytime · Up and running in 30 minutes"
+msgstr "Bez karty · Kdykoliv ukončit · Do 30 minut běží"
 
-#: app/templates/www/index.html:57
-msgid "Share only the items relevant to each client. Prices, units, descriptions."
-msgstr "Sdílejte jen položky relevantní pro daného klienta. Ceny, jednotky, popisy."
+#: app/templates/www/index.html:67
+msgid "The situation today"
+msgstr "Jak to dnes vypadá"
 
-#: app/templates/www/index.html:64
-msgid "Client assets at your warehouse"
-msgstr "Klientský majetek ve vašem skladu"
+#: app/templates/www/index.html:69
+msgid "You run a workshop, not an email client."
+msgstr "Máte dílnu, ne e-mailovou centrálu."
 
-#: app/templates/www/index.html:66
-msgid "Precise tracking of client materials/tools in stock. Receive, issue, consume, current balance."
-msgstr "Přesné sledování materiálů/nástrojů klienta ve skladu. Příjem, výdej, spotřeba, aktuální stav."
-
-#: app/templates/www/index.html:73
-msgid "Multi-tenant security"
-msgstr "Multi-tenant zabezpečení"
-
-#: app/templates/www/index.html:75
-msgid "PostgreSQL Row-Level Security isolates data at the database level. Each client sees only their own."
-msgstr "PostgreSQL Row-Level Security izoluje data na úrovni databáze. Každý klient vidí jen svoje."
+#: app/templates/www/index.html:72
+msgid ""
+"Five calls before lunch asking \"where's my order?\" — and three "
+"different drawing versions in Outlook. It adds up fast."
+msgstr ""
+"Pět telefonů do oběda s dotazem „kde je má zakázka?\" — a tři různé verze "
+"výkresu v Outlooku. Nasčítá se to rychle."
 
 #: app/templates/www/index.html:82
-msgid "Email notifications"
-msgstr "E-mailové notifikace"
+msgid "Phones that won't stop"
+msgstr "Telefony, které nekončí"
 
 #: app/templates/www/index.html:84
-msgid "New orders, status changes, comments — automatically by email. Per-user preferences."
-msgstr "Nové objednávky, změny stavu, komentáře — automaticky e-mailem. Per-uživatel preference."
+msgid ""
+"\"Every day twenty people call me asking where their order is. Then I "
+"have to walk to the shop floor and ask the foreman.\""
+msgstr ""
+"„Každý den mi dvacet lidí volá, kde je jejich zakázka. A já musím jít za "
+"mistrem do dílny se zeptat.\""
 
-#: app/templates/www/index.html:93
-msgid "Full code under AGPL-3.0 on GitHub. Self-host it on your own infrastructure for free."
-msgstr "Kompletní kód pod AGPL-3.0 na GitHubu. Hostujte si ho na vlastní infrastruktuře zdarma."
+#: app/templates/www/index.html:92
+msgid "Outlook as a drawing vault"
+msgstr "Outlook jako archiv výkresů"
 
-#: app/templates/www/index.html:103
-msgid "Get started in 5 minutes"
-msgstr "Začněte za 5 minut"
+#: app/templates/www/index.html:94
+msgid ""
+"\"I keep searching Outlook for which version of the drawing the client "
+"sent last week. And sometimes we make parts from the wrong revision.\""
+msgstr ""
+"„Furt hledám v Outlooku, kterou verzi výkresu klient poslal minulý týden. "
+"A občas uděláme díl podle špatné revize.\""
 
-#: app/templates/www/index.html:105
-msgid "Sign up, invite your first client, and accept your first order. No installation, no lengthy negotiations."
-msgstr "Registrujte se, pozvěte prvního klienta a přijměte první objednávku. Bez instalace, bez zdlouhavých vyjednávání."
+#: app/templates/www/index.html:102
+msgid "Excel only Jana updates"
+msgstr "Excel, který aktualizuje jenom Jana"
 
-#: app/templates/www/index.html:109 app/templates/www/www_base.html:21
-msgid "Try for free"
-msgstr "Vyzkoušet zdarma"
+#: app/templates/www/index.html:104
+msgid ""
+"\"We have a spreadsheet, but only Jana keeps it current. When she's sick,"
+" nobody knows anything.\""
+msgstr ""
+"„Máme tabulku, ale aktualizuje ji jenom Jana. Když je nemocná, nevíme nic.\""
 
-#: app/templates/www/pricing.html:3 app/templates/www/www_base.html:9
+#: app/templates/www/index.html:115
+msgid "Everything that matters"
+msgstr "Všechno, na čem záleží"
+
+#: app/templates/www/index.html:117
+msgid "Built specifically for manufacturing SMEs"
+msgstr "Postavené přímo pro výrobní firmy"
+
+#: app/templates/www/index.html:120
+msgid ""
+"Not a generic CRM. Not an oversized ERP. An in-between that knows what a "
+"drawing revision and a production deadline are."
+msgstr ""
+"Ne obecné CRM. Ne předimenzované ERP. Něco mezi — co ví, co je revize "
+"výkresu a termín výroby."
+
+#: app/templates/www/index.html:138
+msgid ""
+"8-step process from request to delivery. Every transition is audited — "
+"who, when, why. No more guessing."
+msgstr ""
+"Osmikrokový proces od poptávky k dodání. Každý přechod je auditovaný — "
+"kdo, kdy, proč. Konec s dohadováním."
+
+#: app/templates/www/index.html:144
+msgid "Drawings and CAD attached to orders"
+msgstr "Výkresy a CAD u zakázky"
+
+#: app/templates/www/index.html:145
+msgid ""
+"PDF, PNG, DWG, DXF, STEP. Direct upload, instant preview. The right "
+"revision next to the right order — every time."
+msgstr ""
+"PDF, PNG, DWG, DXF, STEP. Nahrání přímo, náhled hned. Správná revize u "
+"správné zakázky — vždy."
+
+#: app/templates/www/index.html:151
+msgid "Status tracking in real time"
+msgstr "Sledování stavu v reálném čase"
+
+#: app/templates/www/index.html:152
+msgid ""
+"The client sees on their own: DRAFT · SUBMITTED · QUOTED · CONFIRMED · IN"
+" PRODUCTION · READY · DELIVERED. Five calls a day turn into zero."
+msgstr ""
+"Zákazník sám vidí: ROZPRACOVÁNO · ODESLÁNO · OCENĚNO · POTVRZENO · VE "
+"VÝROBĚ · HOTOVO · DODÁNO. Pět telefonů denně se mění v nulu."
+
+# --- round-2 audit: landing + CRUD templates ---
+#: app/templates/www/index.html:158
+msgid "Customer material on stock"
+msgstr "Materiál zákazníka na skladě"
+
+#: app/templates/www/index.html:159
+msgid ""
+"Does the client have material, tooling, or semi-finished product at your "
+"place? Receipts, issues, balance — transparent for both sides."
+msgstr ""
+"Má u vás zákazník materiál, nástroje nebo polotovary? Příjem, výdej, "
+"aktuální stav — průhledné pro obě strany."
+
+#: app/templates/www/index.html:165
+msgid "Email notifications that make sense"
+msgstr "E-mailová upozornění, která dávají smysl"
+
+#: app/templates/www/index.html:166
+msgid ""
+"Client comments, status changes, new drawings. Each user sets what they "
+"want to be notified about. No more inbox overload."
+msgstr ""
+"Komentáře od zákazníka, změny stavu, nové výkresy. Každý uživatel si "
+"nastaví, o čem chce vědět. Konec přehlcené schránky."
+
+#: app/templates/www/index.html:172
+msgid "Every client sees only their own"
+msgstr "Každý zákazník vidí jen své"
+
+#: app/templates/www/index.html:173
+msgid ""
+"PostgreSQL Row-Level Security. Data is isolated at the database level — "
+"not by a view we can forget. Zero risk of cross-visibility."
+msgstr ""
+"PostgreSQL Row-Level Security. Data jsou oddělená na úrovni databáze — ne "
+"jen ve view, které lze zapomenout. Nulové riziko přehozených údajů."
+
+#: app/templates/www/index.html:180
+msgid "See all features"
+msgstr "Všechny funkce"
+
+#: app/templates/www/index.html:191
+msgid "How it works"
+msgstr "Jak to funguje"
+
+#: app/templates/www/index.html:193
+msgid "Three steps, thirty minutes. No \"implementation project\"."
+msgstr "Tři kroky, třicet minut. Žádný „implementační projekt\"."
+
+#: app/templates/www/index.html:201
+msgid "Sign up, choose a subdomain"
+msgstr "Zaregistrujete se, vyberete subdoménu"
+
+#: app/templates/www/index.html:204
+msgid ""
+"Email, password, Company ID. You'll get your own address — e.g. "
+"yourfirm.assoluto.eu — in 30 seconds."
+msgstr ""
+"E-mail, heslo, IČO. Za 30 vteřin máte vlastní adresu — třeba "
+"vasefirma.assoluto.eu."
+
+#: app/templates/www/index.html:210
+msgid "Invite your first clients"
+msgstr "Pozvete první zákazníky"
+
+#: app/templates/www/index.html:213
+msgid ""
+"Click, enter their email, the invite goes out. They see only their own "
+"orders and drawings. Nothing else."
+msgstr ""
+"Kliknutí, e-mail, pozvánka odchází. Vidí jen své zakázky a výkresy. Nic "
+"víc."
+
+#: app/templates/www/index.html:219
+msgid "Orders run on their own"
+msgstr "Zakázky běží samy"
+
+#: app/templates/www/index.html:222
+msgid ""
+"Client uploads a drawing, you quote, they confirm. Shop floor updates "
+"status, client sees it. Your email inbox shrinks by half."
+msgstr ""
+"Zákazník nahraje výkres, vy oceníte, on potvrdí. Dílna aktualizuje stav, "
+"zákazník to vidí. Vaše schránka se ztenčí na polovinu."
+
+#: app/templates/www/index.html:233
+msgid "Why Assoluto"
+msgstr "Proč Assoluto"
+
+#: app/templates/www/index.html:235
+msgid "Halfway between Excel and a 600K CZK ERP"
+msgstr "Na půl cesty mezi Excelem a 600tisícovým ERP"
+
+#: app/templates/www/index.html:238
+msgid ""
+"You outgrew the spreadsheet. You don't want a year-long Helios "
+"implementation. Here's what's in between."
+msgstr ""
+"Z tabulky jste vyrostli. Ale roční implementaci Heliosu nechcete. Tady je "
+"to, co je mezi tím."
+
+#: app/templates/www/index.html:247
+msgid "Excel / email"
+msgstr "Excel / e-mail"
+
+#: app/templates/www/index.html:249
+msgid "Big ERP"
+msgstr "Velký ERP"
+
+#: app/templates/www/index.html:261
+msgid "Setup"
+msgstr "Nasazení"
+
+#: app/templates/www/index.html:261
+msgid "0 CZK, 10 years of habits"
+msgstr "0 Kč, 10 let zvyků"
+
+#: app/templates/www/index.html:261
+msgid "30 minutes, zero training"
+msgstr "30 minut, bez školení"
+
+#: app/templates/www/index.html:261
+msgid "3–9 months, 200–800K CZK"
+msgstr "3–9 měsíců, 200–800 tis. Kč"
+
+#: app/templates/www/index.html:262
+msgid "Monthly cost"
+msgstr "Měsíční náklad"
+
+#: app/templates/www/index.html:262
+msgid "The cost of your patience"
+msgstr "Cena vaší trpělivosti"
+
+#: app/templates/www/index.html:262
+msgid "490 – 1 490 CZK"
+msgstr "490 – 1 490 Kč"
+
+#: app/templates/www/index.html:262
+msgid "5 – 25K CZK / user"
+msgstr "5 – 25 tis. Kč / uživatel"
+
+#: app/templates/www/index.html:263
+msgid "Client sees order status"
+msgstr "Zákazník vidí stav zakázky"
+
+#: app/templates/www/index.html:263
+msgid "often only via a separate B2B module"
+msgstr "často jen přes samostatný B2B modul"
+
+#: app/templates/www/index.html:264 app/templates/www/pricing.html:130
+msgid "Czech support"
+msgstr "Česká podpora"
+
+#: app/templates/www/index.html:264
+msgid "billable by the hour"
+msgstr "hodinová sazba"
+
+#: app/templates/www/index.html:265
+msgid "Audit trail"
+msgstr "Audit trail"
+
+#: app/templates/www/index.html:266 app/templates/www/pricing.html:126
+msgid "Data in the EU"
+msgstr "Data v EU"
+
+#: app/templates/www/index.html:266
+msgid "your laptop"
+msgstr "váš notebook"
+
+#: app/templates/www/index.html:266
+msgid "Hetzner DE"
+msgstr "Hetzner DE"
+
+#: app/templates/www/index.html:266
+msgid "depends on the vendor"
+msgstr "záleží na dodavateli"
+
+#: app/templates/www/index.html:267
+msgid "Can be cancelled"
+msgstr "Lze ukončit"
+
+#: app/templates/www/index.html:267
+msgid "at any time"
+msgstr "kdykoliv"
+
+#: app/templates/www/index.html:267
+msgid "12–36 month contracts"
+msgstr "smlouvy na 12–36 měsíců"
+
+#: app/templates/www/index.html:278 app/templates/www/pricing.html:3
+#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:58
 msgid "Pricing"
 msgstr "Ceník"
 
-#: app/templates/www/pricing.html:8
-msgid "Simple pricing"
-msgstr "Jednoduchý ceník"
+#: app/templates/www/index.html:280
+msgid "A honest price list. No sales call required."
+msgstr "Férový ceník. Nemusíte nám volat."
 
-#: app/templates/www/pricing.html:10
-msgid "14-day free trial. Prices exclude VAT."
-msgstr "14denní trial zdarma. Ceny bez DPH."
+#: app/templates/www/index.html:283
+msgid "30 days free. No card. Prices exclude VAT"
+msgstr "30 dní zdarma. Bez karty. Ceny jsou bez DPH"
 
-#: app/templates/www/pricing.html:18
+# "Ready", "Delivered", "Cancel" reuse the existing msgids from
+# orders/_status_badge.html and products/form.html (they share the
+# same Czech translation, so we don't duplicate entries).
+#: app/templates/www/index.html:291
+msgid "For a small shop, 3 staff users"
+msgstr "Pro malou dílnu, 3 uživatelé v týmu"
+
+#: app/templates/www/index.html:294 app/templates/www/index.html:317
+#: app/templates/www/pricing.html:46 app/templates/www/pricing.html:70
+msgid "CZK / month"
+msgstr "Kč / měsíc"
+
+# "Ready", "Delivered", "Cancel" reuse the existing msgids from
+# orders/_status_badge.html and products/form.html (they share the
+# same Czech translation, so we don't duplicate entries).
+#: app/templates/www/index.html:297 app/templates/www/pricing.html:50
+msgid "3 staff users"
+msgstr "3 uživatelé v týmu"
+
+#: app/templates/www/index.html:298 app/templates/www/pricing.html:51
+msgid "20 client contacts"
+msgstr "20 kontaktů zákazníků"
+
+#: app/templates/www/index.html:299 app/templates/www/pricing.html:52
+msgid "100 orders / month"
+msgstr "100 zakázek měsíčně"
+
+#: app/templates/www/index.html:300 app/templates/www/pricing.html:53
+msgid "2 GB attachment storage"
+msgstr "2 GB na přílohy"
+
+#: app/templates/www/index.html:301 app/templates/www/pricing.html:54
+msgid "Email support (48 h)"
+msgstr "E-mailová podpora (48 h)"
+
+#: app/templates/www/index.html:311 app/templates/www/pricing.html:64
+msgid "Most chosen"
+msgstr "Nejoblíbenější"
+
+#: app/templates/www/index.html:314
+msgid "For growing manufacturers, 15 users"
+msgstr "Pro rostoucí výrobce, 15 uživatelů"
+
+# "Ready", "Delivered", "Cancel" reuse the existing msgids from
+# orders/_status_badge.html and products/form.html (they share the
+# same Czech translation, so we don't duplicate entries).
+#: app/templates/www/index.html:320 app/templates/www/pricing.html:74
+msgid "15 staff users"
+msgstr "15 uživatelů v týmu"
+
+#: app/templates/www/index.html:321 app/templates/www/pricing.html:75
+msgid "100 client contacts"
+msgstr "100 kontaktů zákazníků"
+
+#: app/templates/www/index.html:322 app/templates/www/pricing.html:76
+msgid "Unlimited orders"
+msgstr "Zakázky bez limitu"
+
+#: app/templates/www/index.html:323 app/templates/www/pricing.html:77
+msgid "20 GB attachment storage"
+msgstr "20 GB na přílohy"
+
+#: app/templates/www/index.html:324 app/templates/www/pricing.html:78
+msgid "Priority email support (12 h)"
+msgstr "Prioritní e-mailová podpora (12 h)"
+
+#: app/templates/www/index.html:334 app/templates/www/pricing.html:24
 msgid "Self-hosted, AGPL-3.0"
 msgstr "Vlastní hosting, AGPL-3.0"
 
-#: app/templates/www/pricing.html:21
-msgid "✓ Unlimited users"
-msgstr "✓ Neomezeně uživatelů"
+#: app/templates/www/index.html:337
+msgid "forever"
+msgstr "navždy"
 
-#: app/templates/www/pricing.html:22 app/templates/www/pricing.html:65
-msgid "✓ Unlimited orders"
-msgstr "✓ Neomezeně objednávek"
+#: app/templates/www/index.html:340 app/templates/www/pricing.html:30
+msgid "No user limits"
+msgstr "Bez limitu uživatelů"
 
-#: app/templates/www/pricing.html:23
-msgid "✓ Your own Postgres + S3"
-msgstr "✓ Vlastní Postgres + S3"
+#: app/templates/www/index.html:341
+msgid "Your server, your data"
+msgstr "Váš server, vaše data"
 
-#: app/templates/www/pricing.html:24
-msgid "✓ GitHub community"
-msgstr "✓ GitHub komunita"
+#: app/templates/www/index.html:342 app/templates/www/pricing.html:32
+msgid "Auditable open source"
+msgstr "Auditovatelný open source"
+
+#: app/templates/www/index.html:343
+msgid "Community on GitHub"
+msgstr "Komunita na GitHubu"
+
+#: app/templates/www/index.html:346 app/templates/www/pricing.html:36
+msgid "Installation guide"
+msgstr "Návod k instalaci"
+
+#: app/templates/www/index.html:352
+msgid "Need more?"
+msgstr "Potřebujete víc?"
+
+#: app/templates/www/index.html:353
+msgid "Enterprise plan with SLA →"
+msgstr "Enterprise plán se SLA →"
+
+#: app/templates/www/index.html:362
+msgid "Early access"
+msgstr "Early access"
+
+#: app/templates/www/index.html:364
+msgid "What our first customers say"
+msgstr "Co říkají naši první zákazníci"
+
+#: app/templates/www/index.html:367
+msgid ""
+"Assoluto is in early-access launch. Logos will appear here as soon as "
+"clients agree to be published."
+msgstr ""
+"Assoluto je v early-access fázi. Loga zde přibydou, jakmile klienti "
+"odsouhlasí zveřejnění."
+
+#: app/templates/www/index.html:375
+msgid ""
+"Five calls a day asking about orders turned into zero. I finally have "
+"time for the shop floor."
+msgstr ""
+"Pět telefonů denně kolem zakázek se změnilo v nulu. Konečně mám čas na "
+"dílnu."
+
+#: app/templates/www/index.html:378
+msgid "Owner, metalwork shop — Morava, 12 employees"
+msgstr "Majitel zámečnické firmy — Morava, 12 zaměstnanců"
+
+#: app/templates/www/index.html:384
+msgid ""
+"No more parts made from the wrong drawing revision. Every attachment "
+"belongs to exactly one order."
+msgstr ""
+"Už neděláme díly podle staré revize výkresu. Každá příloha patří přesně k "
+"jedné zakázce."
+
+#: app/templates/www/index.html:387
+msgid "Production manager, CNC machining — Vysočina, 22 employees"
+msgstr "Vedoucí výroby, CNC obrábění — Vysočina, 22 zaměstnanců"
+
+#: app/templates/www/index.html:393
+msgid ""
+"Helios wanted 700K for implementation. With Assoluto we were running in "
+"an afternoon for 490 CZK a month."
+msgstr ""
+"Helios za implementaci chtěl 700 tisíc. S Assoluto jsme běželi za jedno "
+"odpoledne — za 490 Kč měsíčně."
+
+#: app/templates/www/index.html:396
+msgid "Co-owner, sheet-metal fabrication — Prague, 8 employees"
+msgstr "Spolumajitel, výroba plechových dílů — Praha, 8 zaměstnanců"
+
+#: app/templates/www/index.html:407
+msgid "Frequently asked questions"
+msgstr "Časté otázky"
+
+#: app/templates/www/index.html:409
+msgid "Things people actually want to know"
+msgstr "Na co se lidé opravdu ptají"
+
+#: app/templates/www/index.html:424 app/templates/www/index.html:502
+msgid "Where is my data stored?"
+msgstr "Kde jsou moje data uložená?"
+
+#: app/templates/www/index.html:424 app/templates/www/index.html:503
+msgid ""
+"On Hetzner servers in Germany (EU). We use PostgreSQL encrypted at rest "
+"and S3-compatible storage. A full list of subprocessors is in the Privacy"
+" Policy."
+msgstr ""
+"Na serverech Hetzner v Německu (EU). PostgreSQL šifrujeme v klidu, přílohy "
+"v S3-kompatibilním úložišti. Celý seznam zpracovatelů je v Zásadách "
+"ochrany osobních údajů."
+
+#: app/templates/www/index.html:425 app/templates/www/index.html:507
+msgid "Can I pay by bank transfer, not just by card?"
+msgstr "Lze platit převodem, nejen kartou?"
+
+#: app/templates/www/index.html:425 app/templates/www/index.html:508
+msgid ""
+"Yes. You can pay by invoice for quarterly or annual subscriptions. Pay by"
+" card for monthly. For Enterprise we send an invoice with net-14 terms."
+msgstr ""
+"Ano. Čtvrtletní a roční předplatné platíte fakturou. Měsíční kartou. "
+"Enterprise dostává fakturu se splatností 14 dní."
+
+#: app/templates/www/index.html:426 app/templates/www/index.html:512
+msgid "Do I need to sign anything?"
+msgstr "Musím něco podepisovat?"
+
+#: app/templates/www/index.html:426 app/templates/www/index.html:513
+msgid ""
+"No long contract. Month-to-month by default, cancel any time in two "
+"clicks. Data export to CSV is always available."
+msgstr ""
+"Žádná dlouhá smlouva. Měsíčně výchozí, ukončíte dvěma kliky. Export dat do "
+"CSV máte kdykoliv."
+
+#: app/templates/www/index.html:427
+msgid "Can I integrate with Pohoda or Money S3?"
+msgstr "Dá se to propojit s Pohodou nebo Money S3?"
+
+#: app/templates/www/index.html:427
+msgid ""
+"CSV export is available today. A Pohoda XML connector is on the roadmap; "
+"write to us via Contact if it would unblock you — we'll prioritise it."
+msgstr ""
+"CSV export máme dnes. Konektor pro Pohoda XML je na roadmapě — pokud to "
+"pro vás rozhoduje, napište přes Kontakt a prioritně to zařadíme."
+
+#: app/templates/www/index.html:428 app/templates/www/index.html:517
+msgid "Is it secure? What if the server fails?"
+msgstr "Je to bezpečné? Co když vypadne server?"
+
+#: app/templates/www/index.html:428 app/templates/www/index.html:518
+msgid ""
+"Row-Level Security, Argon2-hashed passwords, CSRF protection, HTTPS-only "
+"cookies, daily backups (retained 14 days). Monitored 24/7 by UptimeRobot,"
+" incident-response email address security@assoluto.eu."
+msgstr ""
+"Row-Level Security, hesla v Argon2, CSRF ochrana, cookies jen přes HTTPS, "
+"denní zálohy (14 dní retence). Monitoring 24/7 přes UptimeRobot, incidenty "
+"hlaste na security@assoluto.eu."
+
+#: app/templates/www/index.html:429
+msgid "Will you teach my people how to use it?"
+msgstr "Naučíte moje lidi to používat?"
+
+#: app/templates/www/index.html:429
+msgid ""
+"30-minute video call included with every paid plan. Most shops don't need"
+" it — the portal is designed so that a client who knows Outlook can place"
+" their first order in 3 minutes."
+msgstr ""
+"30minutový video-hovor je součástí každého placeného plánu. Většina dílen "
+"ho nepotřebuje — portál je navržený tak, aby zákazník, co umí Outlook, "
+"zadal první zakázku za 3 minuty."
+
+#: app/templates/www/index.html:430
+msgid "What if I want to leave?"
+msgstr "Co když budu chtít odejít?"
+
+#: app/templates/www/index.html:430
+msgid ""
+"Cancel in the admin panel. Data stays available for 30 days after "
+"cancellation so you can export it. Then it's irreversibly deleted (or, on"
+" request, we'll delete it immediately)."
+msgstr ""
+"Ukončíte v admin panelu. Data zůstanou 30 dní přístupná, abyste je stihli "
+"exportovat. Pak je nevratně smažeme (nebo okamžitě, pokud napíšete)."
+
+#: app/templates/www/index.html:439
+msgid "Ready to stop picking up the phone?"
+msgstr "Připraveni přestat zvedat telefon?"
+
+#: app/templates/www/index.html:442
+msgid ""
+"30 days free. No card. No \"quick call with sales\". Just sign up and try"
+" it."
+msgstr ""
+"30 dní zdarma. Bez karty. Žádný „rychlý hovor s obchodem\". Jen se "
+"zaregistrujte a vyzkoušejte."
+
+#: app/templates/www/index.html:450
+msgid "Or write / call us"
+msgstr "Nebo napište / zavolejte"
+
+#: app/templates/www/index.html:454
+msgid "Up and running in 30 minutes · Data in the EU (Hetzner DE) · Czech support"
+msgstr "Do 30 minut běží · Data v EU (Hetzner DE) · Česká podpora"
+
+#: app/templates/www/index.html:469 app/templates/www/www_base.html:40
+msgid ""
+"Client portal for Czech manufacturing SMEs — orders, drawings, production"
+" status."
+msgstr "Klientský portál pro výrobní malé firmy"
+
+#: app/templates/www/index.html:477 app/templates/www/index.html:484
+#: app/templates/www/www_base.html:46
+msgid "30-day free trial, no credit card required"
+msgstr "30denní zkušební verze, bez karty"
+
+#: app/templates/www/pricing.html:4
+msgid ""
+"Honest pricing: 490 CZK / month for small shops, 1 490 CZK for growing "
+"ones, free self-hosted. 30 days free, no card, cancel any time."
+msgstr ""
+"Férový ceník: 490 Kč měsíčně pro malé dílny, 1 490 Kč pro ty rostoucí, "
+"self-hosted zdarma. 30 dní zdarma, bez karty, kdykoliv ukončit."
+
+#: app/templates/www/pricing.html:13
+msgid "A honest price list"
+msgstr "Férový ceník"
+
+#: app/templates/www/pricing.html:16
+msgid "30 days free. No card. Cancel any time. Prices exclude VAT"
+msgstr "30 dní zdarma. Bez karty. Kdykoliv ukončit. Ceny jsou bez DPH"
 
 #: app/templates/www/pricing.html:28
-msgid "Guide"
-msgstr "Návod"
+msgid "Run it yourself, forever"
+msgstr "Běží u vás, navždy"
 
-#: app/templates/www/pricing.html:35
-msgid "Small teams"
-msgstr "Malé týmy"
+#: app/templates/www/pricing.html:31
+msgid "Your own Postgres + S3"
+msgstr "Váš Postgres a S3"
 
-#: app/templates/www/pricing.html:37
-msgid "490 CZK"
-msgstr "490 Kč"
+#: app/templates/www/pricing.html:33
+msgid "GitHub issues + community"
+msgstr "GitHub issues + komunita"
 
 # "Ready", "Delivered", "Cancel" reuse the existing msgids from
 # orders/_status_badge.html and products/form.html (they share the
 # same Czech translation, so we don't duplicate entries).
-#: app/templates/www/pricing.html:41
-msgid "✓ 3 staff users"
-msgstr "✓ 3 uživatelé týmu"
-
-#: app/templates/www/pricing.html:42
-msgid "✓ 20 client contacts"
-msgstr "✓ 20 kontaktů klientů"
-
 #: app/templates/www/pricing.html:43
-msgid "✓ 100 orders/month"
-msgstr "✓ 100 objednávek/měsíc"
+msgid "Small shop, 3 staff users"
+msgstr "Malá dílna, 3 uživatelé v týmu"
 
-#: app/templates/www/pricing.html:44
-msgid "✓ 2 GB storage"
-msgstr "✓ 2 GB úložiště"
-
-#: app/templates/www/pricing.html:45
-msgid "✓ Email support (48 h)"
-msgstr "✓ E-mailová podpora (48 h)"
-
-#: app/templates/www/pricing.html:55
-msgid "Most popular"
-msgstr "Nejoblíbenější"
-
-#: app/templates/www/pricing.html:57
-msgid "Growing businesses"
-msgstr "Rostoucí firmy"
-
-#: app/templates/www/pricing.html:59
-msgid "1 490 CZK"
-msgstr "1 490 Kč"
-
-# "Ready", "Delivered", "Cancel" reuse the existing msgids from
-# orders/_status_badge.html and products/form.html (they share the
-# same Czech translation, so we don't duplicate entries).
-#: app/templates/www/pricing.html:63
-msgid "✓ 15 staff users"
-msgstr "✓ 15 uživatelů týmu"
-
-#: app/templates/www/pricing.html:64
-msgid "✓ 100 client contacts"
-msgstr "✓ 100 kontaktů klientů"
-
-#: app/templates/www/pricing.html:66
-msgid "✓ 20 GB storage"
-msgstr "✓ 20 GB úložiště"
+#: app/templates/www/pricing.html:48
+msgid "The price of lunch for the team"
+msgstr "Cena oběda pro tým"
 
 #: app/templates/www/pricing.html:67
-msgid "✓ Email support (12 h)"
-msgstr "✓ E-mailová podpora (12 h)"
+msgid "Growing manufacturer, 15 users"
+msgstr "Rostoucí výrobce, 15 uživatelů"
 
-#: app/templates/www/pricing.html:68
-msgid "✓ SSO (coming soon)"
-msgstr "✓ SSO (brzy)"
+#: app/templates/www/pricing.html:72
+msgid "Cheaper than one bad day on the shop floor"
+msgstr "Levnější než jeden špatný den na dílně"
 
 #: app/templates/www/pricing.html:79
-msgid "Custom"
-msgstr "Na míru"
+msgid "SSO (coming soon)"
+msgstr "SSO (brzy)"
 
-#: app/templates/www/pricing.html:82
-msgid "✓ Unlimited limits"
-msgstr "✓ Bez limitů"
+#: app/templates/www/pricing.html:89
+msgid "Over 15 people, SLA, custom domain"
+msgstr "Nad 15 lidí, SLA, vlastní doména"
 
-#: app/templates/www/pricing.html:83
-msgid "✓ Custom domain"
-msgstr "✓ Vlastní doména"
+#: app/templates/www/pricing.html:91
+msgid "Talk to us"
+msgstr "Napište nám"
 
-#: app/templates/www/pricing.html:84
-msgid "✓ Dedicated support (4 h)"
-msgstr "✓ Dedikovaná podpora (4 h)"
-
-#: app/templates/www/pricing.html:85
-msgid "✓ SLA"
-msgstr "✓ SLA"
-
-#: app/templates/www/pricing.html:86
-msgid "✓ On-premises deployment possible"
-msgstr "✓ Možnost on-premises nasazení"
+#: app/templates/www/pricing.html:93
+msgid "We'll draw up an offer in 1 working day"
+msgstr "Cenovou nabídku do 1 pracovního dne"
 
 #: app/templates/www/pricing.html:95
-msgid "Annual subscription"
-msgstr "Roční předplatné"
+msgid "No limits on users / orders / storage"
+msgstr "Bez limitu uživatelů / zakázek / úložiště"
 
 #: app/templates/www/pricing.html:96
-msgid "2 months free — Starter 4 900 CZK/year, Pro 14 900 CZK/year."
-msgstr "2 měsíce zdarma — Starter 4 900 Kč/rok, Pro 14 900 Kč/rok."
+msgid "Your own domain (portal.yourfirm.cz)"
+msgstr "Vlastní doména (portal.vasefirma.cz)"
 
 #: app/templates/www/pricing.html:97
-msgid "Frequently asked questions"
-msgstr "Často kladené otázky"
+msgid "Priority support (4 h)"
+msgstr "Prioritní podpora (4 h)"
+
+#: app/templates/www/pricing.html:98
+msgid "SLA 99.9 percent"
+msgstr "SLA 99,9 procent"
 
 #: app/templates/www/pricing.html:99
-msgid "We process credit cards through Stripe; you will receive an invoice by email."
-msgstr "Platební karty zpracováváme přes Stripe; fakturu dostanete e-mailem."
+msgid "On-premises deployment possible"
+msgstr "Možné i on-premises nasazení"
 
-#: app/templates/www/pricing.html:100
-msgid "You can upgrade or downgrade your plan at any time; the difference will be prorated."
-msgstr "Plán můžete kdykoli povýšit nebo snížit; rozdíl se pro-ratuje."
+#: app/templates/www/pricing.html:114
+msgid "Pay annually, save two months"
+msgstr "Roční platba, dva měsíce zdarma"
 
-#: app/templates/www/pricing.html:101
-msgid "You can cancel your account and export your data (CSV)."
-msgstr "Účet můžete kdykoli zrušit a data si exportovat (CSV)."
+#: app/templates/www/pricing.html:115
+msgid ""
+"Starter 4 900 CZK / year · Pro 14 900 CZK / year. Paid by bank transfer "
+"with an invoice net-14. No card required."
+msgstr ""
+"Starter 4 900 Kč/rok · Pro 14 900 Kč/rok. Platba převodem, faktura se "
+"splatností 14 dní. Bez karty."
 
-#: app/templates/www/pricing.html:102
-msgid "Prices do not apply to the self-hosted version — it is free forever."
-msgstr "Ceny se netýkají self-hosted verze — ta je zdarma navždy."
+#: app/templates/www/pricing.html:122
+msgid "What's included in every plan"
+msgstr "Co obsahuje každý plán"
+
+#: app/templates/www/pricing.html:130
+msgid "real people, not a chatbot."
+msgstr "živí lidé, ne chatbot."
+
+#: app/templates/www/pricing.html:134
+msgid "Daily backups"
+msgstr "Denní zálohy"
+
+#: app/templates/www/pricing.html:134
+msgid "kept 14 days, restorable on request."
+msgstr "uchované 14 dní, obnova na vyžádání."
+
+#: app/templates/www/pricing.html:138
+msgid "GDPR-ready"
+msgstr "GDPR-ready"
+
+#: app/templates/www/pricing.html:138
+msgid "subprocessor list, DPA on request."
+msgstr "seznam zpracovatelů, DPA na vyžádání."
+
+#: app/templates/www/pricing.html:142
+msgid "CSV export"
+msgstr "Export do CSV"
+
+#: app/templates/www/pricing.html:142
+msgid "your data is yours. Leave any time."
+msgstr "data jsou vaše. Odejděte kdykoliv."
+
+#: app/templates/www/pricing.html:146
+msgid "Uptime monitoring"
+msgstr "Monitoring dostupnosti"
+
+#: app/templates/www/pricing.html:146
+msgid "UptimeRobot 24/7, status page on request."
+msgstr "UptimeRobot 24/7, status page na vyžádání."
+
+#: app/templates/www/pricing.html:153
+msgid "Pricing FAQ"
+msgstr "Časté otázky k ceníku"
+
+#: app/templates/www/pricing.html:165
+msgid "Is a card required for the trial?"
+msgstr "Potřebuji pro zkušebku kartu?"
+
+#: app/templates/www/pricing.html:165
+msgid ""
+"No. Sign up with just an email. You only enter a card if you decide to "
+"continue paying after 30 days — or you can switch to annual billing by "
+"bank transfer."
+msgstr ""
+"Ne. Stačí e-mail. Kartu zadáte až když se rozhodnete po 30 dnech "
+"pokračovat — nebo přejdete na roční platbu převodem."
+
+#: app/templates/www/pricing.html:166
+msgid "How does billing actually work?"
+msgstr "Jak vlastně funguje fakturace?"
+
+#: app/templates/www/pricing.html:166
+msgid ""
+"Monthly plan: card via Stripe, invoice emailed the same day. Annual plan:"
+" bank transfer with a Czech invoice, net-14. On every invoice, VAT is "
+"shown separately."
+msgstr ""
+"Měsíční: karta přes Stripe, faktura přijde e-mailem hned. Roční: převodem "
+"s českou fakturou, splatnost 14 dní. Na každé faktuře je DPH uvedena "
+"zvlášť."
+
+#: app/templates/www/pricing.html:167
+msgid "Can I change plans later?"
+msgstr "Můžu plán později změnit?"
+
+#: app/templates/www/pricing.html:167
+msgid ""
+"Yes, any time. The difference is prorated down to the day. Downgrade "
+"happens at the start of the next billing period (you keep what you paid "
+"for)."
+msgstr ""
+"Ano, kdykoliv. Rozdíl se dopočítá na den. Downgrade proběhne na začátku "
+"dalšího období (zaplacenou dobu vám neukrojíme)."
+
+#: app/templates/www/pricing.html:168
+msgid "What happens when I cancel?"
+msgstr "Co se stane při ukončení?"
+
+#: app/templates/www/pricing.html:168
+msgid ""
+"Your account stays read-only for 30 days so you can export to CSV. Then "
+"data is irreversibly deleted. If you need immediate deletion, one email "
+"to privacy@assoluto.eu does it."
+msgstr ""
+"Účet zůstane 30 dní v režimu pouze pro čtení, abyste stihli export do CSV. "
+"Pak data nevratně smažeme. Okamžité smazání stačí napsat na "
+"privacy@assoluto.eu."
+
+#: app/templates/www/pricing.html:169
+msgid "Does the self-hosted Community version cost anything?"
+msgstr "Stojí Community self-hosted verze něco?"
+
+#: app/templates/www/pricing.html:169
+msgid ""
+"No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No "
+"restrictions on users or features — only you need to run updates "
+"yourself."
+msgstr ""
+"Ne. AGPL-3.0 open source. Platíte jen vlastní VPS a S3. Bez omezení "
+"uživatelů a funkcí — jen aktualizace si musíte pouštět sami."
+
+#: app/templates/www/pricing.html:170
+msgid "Do you have a discount for schools / associations / non-profits?"
+msgstr "Máte slevu pro školy / spolky / neziskovky?"
+
+#: app/templates/www/pricing.html:170
+msgid ""
+"Yes. Write to us at opensource@assoluto.eu with a description of the use "
+"— half price is typical, free access for small organisations."
+msgstr ""
+"Ano. Napište na opensource@assoluto.eu s popisem účelu — polovina ceny, u"
+" malých organizací přístup zdarma."
 
 #: app/templates/www/privacy.html:14
-msgid "This text is a template. It should be reviewed by a lawyer familiar with GDPR before going live."
-msgstr "Tento text je šablona. Před nasazením by ho měl zkontrolovat právník znalý GDPR."
+msgid ""
+"This text is a template. It should be reviewed by a lawyer familiar with "
+"GDPR before going live."
+msgstr ""
+"Tento text je šablona. Před nasazením by ho měl zkontrolovat právník znalý "
+"GDPR."
 
 #: app/templates/www/privacy.html:18
 msgid "1. Data controller"
@@ -3036,8 +4121,14 @@ msgid "4. Where data is stored + our subprocessors"
 msgstr "4. Kde data ukládáme + naši zpracovatelé"
 
 #: app/templates/www/privacy.html:52
-msgid "We use the following third parties (subprocessors) to run the service. Data sharing is limited to what each subprocessor needs to do its job; no subprocessor receives marketing permissions on your data."
-msgstr "Pro provoz služby využíváme následující třetí strany (zpracovatele). Sdílení dat je omezeno na to, co každý zpracovatel potřebuje; žádný zpracovatel nedostává oprávnění marketingového využití."
+msgid ""
+"We use the following third parties (subprocessors) to run the service. "
+"Data sharing is limited to what each subprocessor needs to do its job; no"
+" subprocessor receives marketing permissions on your data."
+msgstr ""
+"Pro provoz služby využíváme následující třetí strany (zpracovatele). "
+"Sdílení dat je omezeno na to, co každý zpracovatel potřebuje; žádný "
+"nedostává oprávnění marketingového využití."
 
 #: app/templates/www/privacy.html:58
 msgid "Subprocessor"
@@ -3080,8 +4171,12 @@ msgid "Public DNS records only"
 msgstr "Pouze veřejné DNS záznamy"
 
 #: app/templates/www/privacy.html:93
-msgid "Subprocessor changes are disclosed at least 30 days in advance by updating this page and emailing active tenant admins."
-msgstr "O změně zpracovatelů informujeme minimálně 30 dní dopředu aktualizací této stránky a e-mailem všem aktivním tenant adminům."
+msgid ""
+"Subprocessor changes are disclosed at least 30 days in advance by "
+"updating this page and emailing active tenant admins."
+msgstr ""
+"O změně zpracovatelů informujeme minimálně 30 dní dopředu aktualizací této "
+"stránky a e-mailem všem aktivním tenant adminům."
 
 #: app/templates/www/privacy.html:98
 msgid "5. How long we retain data"
@@ -3092,20 +4187,33 @@ msgid "Active account data — for the lifetime of the subscription."
 msgstr "Data aktivního účtu — po dobu trvání předplatného."
 
 #: app/templates/www/privacy.html:101
-msgid "After account cancellation — 30 days grace (for reactivation), then anonymisation."
+msgid ""
+"After account cancellation — 30 days grace (for reactivation), then "
+"anonymisation."
 msgstr "Po zrušení účtu — 30denní grace period pro reaktivaci, pak anonymizace."
 
 #: app/templates/www/privacy.html:102
-msgid "Authentication logs (last_login timestamps, failed login attempts) — 90 days."
+msgid ""
+"Authentication logs (last_login timestamps, failed login attempts) — 90 "
+"days."
 msgstr "Autentizační logy (čas posledního přihlášení, neúspěšné pokusy) — 90 dní."
 
 #: app/templates/www/privacy.html:103
-msgid "Audit trail of operator / admin actions — retained for the lifetime of the tenant, plus 3 years after closure for contractual dispute evidence."
-msgstr "Audit trail akcí operátora / administrátora — po dobu trvání tenantu plus 3 roky po uzavření jako důkaz pro případné spory."
+msgid ""
+"Audit trail of operator / admin actions — retained for the lifetime of "
+"the tenant, plus 3 years after closure for contractual dispute evidence."
+msgstr ""
+"Audit trail akcí operátora / administrátora — po dobu trvání tenantu plus "
+"3 roky po uzavření jako důkaz pro případné spory."
 
 #: app/templates/www/privacy.html:104
-msgid "Billing records (invoices, subscription history) — 10 years from the end of the accounting period, as required by Czech Act 563/1991 Coll. on accounting."
-msgstr "Fakturační záznamy (faktury, historie předplatného) — 10 let od konce účetního období, podle zákona č. 563/1991 Sb. o účetnictví."
+msgid ""
+"Billing records (invoices, subscription history) — 10 years from the end "
+"of the accounting period, as required by Czech Act 563/1991 Coll. on "
+"accounting."
+msgstr ""
+"Fakturační záznamy (faktury, historie předplatného) — 10 let od konce "
+"účetního období, podle zákona č. 563/1991 Sb. o účetnictví."
 
 #: app/templates/www/privacy.html:105
 msgid "Request / error logs — 14 days."
@@ -3120,15 +4228,21 @@ msgid "6. Your rights"
 msgstr "6. Vaše práva"
 
 #: app/templates/www/privacy.html:113
-msgid "You have the right to access, rectification, erasure, restriction of processing, portability, and objection. Contact"
-msgstr "Máte právo na přístup, opravu, výmaz, omezení zpracování, přenositelnost a námitku. Kontakt"
+msgid ""
+"You have the right to access, rectification, erasure, restriction of "
+"processing, portability, and objection. Contact"
+msgstr ""
+"Máte právo na přístup, opravu, výmaz, omezení zpracování, přenositelnost a "
+"námitku. Kontakt"
 
 #: app/templates/www/privacy.html:115
 msgid "we will respond within 30 days."
 msgstr "odpovíme do 30 dní."
 
 #: app/templates/www/privacy.html:118
-msgid "You also have the right to file a complaint with the Office for Personal Data Protection"
+msgid ""
+"You also have the right to file a complaint with the Office for Personal "
+"Data Protection"
 msgstr "Máte také právo podat stížnost Úřadu pro ochranu osobních údajů"
 
 #: app/templates/www/privacy.html:124
@@ -3136,116 +4250,188 @@ msgid "7. Cookies"
 msgstr "7. Cookies"
 
 #: app/templates/www/privacy.html:126
-msgid "The portal uses only technical (session) cookies necessary for login and CSRF protection. We do not deploy analytics or marketing cookies without your consent."
-msgstr "Portál používá pouze technické (session) cookies nezbytné pro přihlášení a ochranu CSRF. Analytické ani marketingové cookies bez vašeho souhlasu nenasazujeme."
+msgid ""
+"The portal uses only technical (session) cookies necessary for login and "
+"CSRF protection. We do not deploy analytics or marketing cookies without "
+"your consent."
+msgstr ""
+"Portál používá pouze technické (session) cookies nezbytné pro přihlášení a "
+"ochranu CSRF. Analytické ani marketingové cookies bez vašeho souhlasu "
+"nenasazujeme."
 
-#: app/templates/www/self_hosted.html:3 app/templates/www/www_base.html:12
+#: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
+#: app/templates/www/www_base.html:61
 msgid "Self-hosted"
 msgstr "Vlastní hosting"
 
-#: app/templates/www/self_hosted.html:8
-msgid "Self-hosted installation"
-msgstr "Vlastní instalace"
+#: app/templates/www/self_hosted.html:4
+msgid ""
+"Run Assoluto on your own server. AGPL-3.0. Docker Compose. Free, no user "
+"limits, your data stays with you."
+msgstr ""
+"Spusťte si Assoluto na vlastním serveru. AGPL-3.0. Docker Compose. Zdarma, "
+"bez limitu uživatelů, data zůstávají u vás."
 
-#: app/templates/www/self_hosted.html:10
-msgid "Complete open source release under the AGPL-3.0 license. Host the portal on your own server — free and without limitations."
-msgstr "Kompletní open source release pod licencí AGPL-3.0. Provozujte portál na vlastním serveru — zdarma a bez omezení."
+#: app/templates/www/self_hosted.html:13
+msgid "Your server. Your data. Your rules."
+msgstr "Váš server. Vaše data. Vaše pravidla."
 
 #: app/templates/www/self_hosted.html:16
+msgid ""
+"Full source code under AGPL-3.0. Host Assoluto on your own VPS — free, no"
+" limits, with Docker Compose."
+msgstr ""
+"Celý zdrojový kód pod AGPL-3.0. Hostujte Assoluto na vlastním VPS — "
+"zdarma, bez limitů, s Docker Compose."
+
+#: app/templates/www/self_hosted.html:26
+msgid "Need help? Write to us"
+msgstr "Potřebujete pomoc? Napište"
+
+#: app/templates/www/self_hosted.html:34
 msgid "Requirements"
 msgstr "Požadavky"
 
-#: app/templates/www/self_hosted.html:18
+#: app/templates/www/self_hosted.html:38
 msgid "Linux server with Docker 24+ (2 vCPU, 2 GB RAM to start)"
-msgstr "Linuxový server s Dockerem 24+ (na začátek 2 vCPU, 2 GB RAM)"
+msgstr "Linux server s Docker 24+ (stačí 2 vCPU, 2 GB RAM)"
 
-#: app/templates/www/self_hosted.html:19
-msgid "PostgreSQL 16 (runs in Docker Compose)"
-msgstr "PostgreSQL 16 (běží v Docker Compose)"
+#: app/templates/www/self_hosted.html:42
+msgid "PostgreSQL 16 (runs inside the Compose stack)"
+msgstr "PostgreSQL 16 (běží uvnitř Compose stacku)"
 
-#: app/templates/www/self_hosted.html:20
+#: app/templates/www/self_hosted.html:46
 msgid "S3-compatible storage (MinIO, Backblaze B2, Cloudflare R2, AWS S3)"
 msgstr "S3-kompatibilní úložiště (MinIO, Backblaze B2, Cloudflare R2, AWS S3)"
 
-#: app/templates/www/self_hosted.html:21
+#: app/templates/www/self_hosted.html:50
 msgid "SMTP relay for outgoing emails"
 msgstr "SMTP relay pro odchozí e-maily"
 
-#: app/templates/www/self_hosted.html:22
-msgid "Public hostname + TLS (we recommend Caddy or nginx)"
+#: app/templates/www/self_hosted.html:54
+msgid "Public hostname + TLS (Caddy or nginx recommended)"
 msgstr "Veřejný hostname + TLS (doporučujeme Caddy nebo nginx)"
 
-#: app/templates/www/self_hosted.html:27
-msgid "Quickstart (local demo)"
-msgstr "Rychlý start (lokální demo)"
+#: app/templates/www/self_hosted.html:61
+msgid "Local demo in 60 seconds"
+msgstr "Lokální demo za 60 sekund"
 
-#: app/templates/www/self_hosted.html:42
+#: app/templates/www/self_hosted.html:62
+msgid "clone, boot, done"
+msgstr "klon, spuštění, hotovo"
+
+#: app/templates/www/self_hosted.html:68
+msgid "in another terminal — seed demo data"
+msgstr "v jiném terminálu — nasypat demo data"
+
+#: app/templates/www/self_hosted.html:71
+msgid "open http://localhost:8000"
+msgstr "otevřít http://localhost:8000"
+
+# "Ready", "Delivered", "Cancel" reuse the existing msgids from
+# orders/_status_badge.html and products/form.html (they share the
+# same Czech translation, so we don't duplicate entries).
+#: app/templates/www/self_hosted.html:72
+msgid "staff"
+msgstr "tým dodavatele"
+
+#: app/templates/www/self_hosted.html:73
+msgid "client contact"
+msgstr "kontakt zákazníka"
+
+#: app/templates/www/self_hosted.html:78
 msgid "Production deployment"
 msgstr "Nasazení do produkce"
 
-#: app/templates/www/self_hosted.html:44
-msgid "The repo includes a"
+#: app/templates/www/self_hosted.html:80
+msgid "The repo ships"
 msgstr "Repozitář obsahuje"
 
-#: app/templates/www/self_hosted.html:44
-msgid "for production use behind an Nginx proxy with TLS configuration ready. Just fill in the ENV variables (SMTP, S3, domain) and run"
-msgstr "pro produkční nasazení za Nginx proxy s připravenou TLS konfigurací. Stačí doplnit ENV proměnné (SMTP, S3, doména) a spustit"
+#: app/templates/www/self_hosted.html:80
+msgid "ready for nginx + TLS. Fill in the env (SMTP, S3, domain) and run:"
+msgstr "připravený pro nginx + TLS. Doplňte env (SMTP, S3, doména) a spusťte:"
 
-#: app/templates/www/self_hosted.html:48
-msgid "Details:"
-msgstr "Detaily:"
+#: app/templates/www/self_hosted.html:84
+msgid "Step-by-step guides:"
+msgstr "Návody krok za krokem:"
 
-#: app/templates/www/self_hosted.html:49
-msgid "list of ENV variables in"
-msgstr "seznam ENV proměnných v"
+#: app/templates/www/self_hosted.html:86
+msgid "env var list in"
+msgstr "seznam env proměnných v"
 
-#: app/templates/www/self_hosted.html:54
+#: app/templates/www/self_hosted.html:93
 msgid "Single-tenant vs. multi-tenant"
 msgstr "Single-tenant vs. multi-tenant"
 
-#: app/templates/www/self_hosted.html:56
-msgid "The self-hosted installation runs by default as"
+#: app/templates/www/self_hosted.html:95
+msgid "By default the self-hosted install runs as"
 msgstr "Self-hosted instalace běží ve výchozím nastavení jako"
 
-#: app/templates/www/self_hosted.html:57
+#: app/templates/www/self_hosted.html:96
 msgid "single-tenant"
 msgstr "single-tenant"
 
-#: app/templates/www/self_hosted.html:57
-msgid "(one \"supplier\", multiple client contacts). If you need to run multiple separate suppliers on one instance, enable the"
-msgstr "(jeden \"dodavatel\", více kontaktů klientů). Pokud potřebujete na jedné instanci provozovat více oddělených dodavatelů, aktivujte proměnnou"
+#: app/templates/www/self_hosted.html:96
+msgid ""
+"— one supplier, many client contacts. For running multiple independent "
+"suppliers on the same instance, set"
+msgstr ""
+"— jeden dodavatel, mnoho kontaktů zákazníků. Pro víc nezávislých "
+"dodavatelů na jedné instanci nastavte"
 
-#: app/templates/www/self_hosted.html:57
-msgid "variable in"
-msgstr "proměnnou v"
+#: app/templates/www/self_hosted.html:98
+msgid ""
+"— this enables the opt-in SaaS layer with cross-tenant identity, signup, "
+"and platform admin."
+msgstr ""
+"— tím zapnete opt-in SaaS vrstvu s identitou napříč tenanty, registrací a "
+"platform adminem."
 
-#: app/templates/www/self_hosted.html:57
-msgid "— this activates the opt-in SaaS layer with Identity, cross-tenant login, and admin CRUD for tenants."
-msgstr "— ta aktivuje opt-in SaaS vrstvu s Identitou, cross-tenant přihlašováním a admin CRUD pro tenanty."
+#: app/templates/www/self_hosted.html:104
+msgid "Self-hoster support"
+msgstr "Podpora pro self-hostery"
 
-#: app/templates/www/self_hosted.html:62
-msgid "Support"
-msgstr "Podpora"
+#: app/templates/www/self_hosted.html:106
+msgid "Open an issue or a discussion:"
+msgstr "Založte issue nebo diskuzi:"
 
-#: app/templates/www/self_hosted.html:64
-msgid "Self-hosters have access to"
-msgstr "Self-hosteři mají přístup na"
-
-#: app/templates/www/self_hosted.html:65
+#: app/templates/www/self_hosted.html:107
 msgid "GitHub issues"
 msgstr "GitHub issues"
 
-#: app/templates/www/self_hosted.html:66
-msgid "and discussions. For commercial support, security audits, or custom development, use the"
-msgstr "a diskuse. Pro komerční podporu, bezpečnostní audity nebo vývoj na míru použijte"
+#: app/templates/www/self_hosted.html:110
+msgid "For commercial support, a security audit, or custom development, use the"
+msgstr "Pro komerční podporu, bezpečnostní audit nebo custom vývoj použijte"
 
-#: app/templates/www/self_hosted.html:66
+#: app/templates/www/self_hosted.html:111
 msgid "contact form"
 msgstr "kontaktní formulář"
 
+#: app/templates/www/self_hosted.html:117
+msgid "A word on AGPL-3.0"
+msgstr "Pár slov k AGPL-3.0"
+
+#: app/templates/www/self_hosted.html:119
+msgid ""
+"Assoluto is released under AGPL-3.0. Practically: you may run it free of "
+"charge, modify it, and host it — even commercially. If you offer a "
+"modified version as a service to third parties, you must publish your "
+"modifications under the same licence. For a closed-source deployment, "
+"contact us for a commercial licence."
+msgstr ""
+"Assoluto vychází pod licencí AGPL-3.0. Prakticky: můžete ho zdarma "
+"provozovat, upravovat i hostovat — i komerčně. Pokud ale upravenou verzi "
+"nabízíte jako službu třetím stranám, musíte své úpravy zveřejnit pod "
+"stejnou licencí. Pro uzavřené nasazení nás kontaktujte pro komerční "
+"licenci."
+
 #: app/templates/www/terms.html:14
-msgid "This text is a template and should be reviewed by a lawyer familiar with Czech law (GDPR, Civil Code) before going live."
-msgstr "Tento text je šablona a před nasazením by ho měl zkontrolovat právník znalý českého práva (GDPR, občanský zákoník)."
+msgid ""
+"This text is a template and should be reviewed by a lawyer familiar with "
+"Czech law (GDPR, Civil Code) before going live."
+msgstr ""
+"Tento text je šablona. Před nasazením by ho měl zkontrolovat právník znalý "
+"českého práva (GDPR, občanský zákoník)."
 
 #: app/templates/www/terms.html:18
 msgid "1. Introduction"
@@ -3256,40 +4442,69 @@ msgid "The operator of Assoluto service (hereinafter the \"Service\") is"
 msgstr "Provozovatelem služby Assoluto (dále jen \\\"Služba\\\") je"
 
 #: app/templates/www/terms.html:22
-msgid "(hereinafter the \"Operator\"). These terms govern the relationship between the Operator and the person using the Service (hereinafter the \"User\")."
-msgstr "(dále jen \"Provozovatel\"). Tyto podmínky upravují vztah mezi Provozovatelem a osobou užívající Službu (dále jen \"Uživatel\")."
+msgid ""
+"(hereinafter the \"Operator\"). These terms govern the relationship "
+"between the Operator and the person using the Service (hereinafter the "
+"\"User\")."
+msgstr ""
+"(dále jen \"Provozovatel\"). Tyto podmínky upravují vztah mezi "
+"Provozovatelem a osobou užívající Službu (dále jen \"Uživatel\")."
 
 #: app/templates/www/terms.html:27
 msgid "2. Description of the Service"
 msgstr "2. Popis služby"
 
 #: app/templates/www/terms.html:29
-msgid "The Service provides a multi-tenant customer portal for manufacturing SMEs — management of orders, product catalog, client assets, and communication between the supplier and their clients."
-msgstr "Služba poskytuje multi-tenant klientský portál pro výrobní malé a střední podniky — správa objednávek, katalog produktů, majetek klientů a komunikace mezi dodavatelem a jeho klienty."
+msgid ""
+"The Service provides a multi-tenant customer portal for manufacturing "
+"SMEs — management of orders, product catalog, client assets, and "
+"communication between the supplier and their clients."
+msgstr ""
+"Služba poskytuje multi-tenant zákaznický portál pro výrobní firmy — správu "
+"zakázek, katalog produktů, materiál zákazníka a komunikaci mezi "
+"dodavatelem a klienty."
 
 #: app/templates/www/terms.html:34
 msgid "3. Registration and account"
 msgstr "3. Registrace a účet"
 
 #: app/templates/www/terms.html:36
-msgid "Registration is required to use the Service. The User is obliged to provide truthful information and protect their login credentials. The Operator may block the account in case of serious violation of the terms."
-msgstr "Pro používání Služby je nutná registrace. Uživatel je povinen poskytnout pravdivé údaje a chránit svoje přihlašovací údaje. Provozovatel může v případě závažného porušení podmínek účet zablokovat."
+msgid ""
+"Registration is required to use the Service. The User is obliged to "
+"provide truthful information and protect their login credentials. The "
+"Operator may block the account in case of serious violation of the terms."
+msgstr ""
+"K užívání Služby je nutná registrace. Uživatel je povinen poskytovat "
+"pravdivé údaje a chránit své přihlašovací údaje. Provozovatel může účet "
+"zablokovat v případě závažného porušení podmínek."
 
 #: app/templates/www/terms.html:41
 msgid "4. Trial period and payments"
 msgstr "4. Trial a platby"
 
 #: app/templates/www/terms.html:43
-msgid "A new account receives a 14-day free trial. After its expiration, the User can continue only with an active subscription. Payments are processed through Stripe."
-msgstr "Nový účet získá 14denní trial zdarma. Po jeho vypršení lze pokračovat pouze s aktivním předplatným. Platby probíhají přes Stripe."
+msgid ""
+"A new account receives a 30-day free trial. After its expiration, the "
+"User can continue only with an active subscription. Payments are "
+"processed through Stripe."
+msgstr ""
+"Nový účet dostává 30denní zkušební období zdarma. Po jeho skončení "
+"pokračuje Uživatel pouze s aktivním předplatným. Platby jsou zpracovávány"
+" přes Stripe."
 
 #: app/templates/www/terms.html:48
 msgid "5. User obligations"
 msgstr "5. Povinnosti uživatele"
 
 #: app/templates/www/terms.html:50
-msgid "The User must not misuse the Service, circumvent security measures, interfere with operations, or use it for content that violates the laws of the Czech Republic or the EU."
-msgstr "Uživatel nesmí Službu zneužívat, obcházet bezpečnostní opatření, zasahovat do provozu ani ji používat k obsahu porušujícímu zákony České republiky nebo EU."
+msgid ""
+"The User must not misuse the Service, circumvent security measures, "
+"interfere with operations, or use it for content that violates the laws "
+"of the Czech Republic or the EU."
+msgstr ""
+"Uživatel nesmí Službu zneužívat, obcházet bezpečnostní opatření, zasahovat "
+"do provozu, ani ji užívat k obsahu, který je v rozporu s právem České "
+"republiky nebo EU."
 
 #: app/templates/www/terms.html:55
 msgid "6. Personal data protection"
@@ -3304,39 +4519,383 @@ msgid "7. Liability"
 msgstr "7. Odpovědnost"
 
 #: app/templates/www/terms.html:65
-msgid "The Service is provided \"as-is\". The Operator is not liable for damages caused by outages or data loss beyond the amount of the subscription paid for the given month. The User is obliged to maintain their own backups by exporting data."
-msgstr "Služba je poskytována \"tak jak je\". Provozovatel neodpovídá za škody způsobené výpadky nebo ztrátou dat nad rámec výše předplatného zaplaceného za daný měsíc. Uživatel je povinen udržovat vlastní zálohy exportem dat."
+msgid ""
+"The Service is provided \"as-is\". The Operator is not liable for damages"
+" caused by outages or data loss beyond the amount of the subscription "
+"paid for the given month. The User is obliged to maintain their own "
+"backups by exporting data."
+msgstr ""
+"Služba je poskytována \"tak jak je\". Provozovatel neodpovídá za škody "
+"způsobené výpadky nebo ztrátou dat nad rámec výše předplatného "
+"zaplaceného za daný měsíc. Uživatel je povinen udržovat vlastní zálohy "
+"exportem dat."
 
 #: app/templates/www/terms.html:70
 msgid "8. Termination"
 msgstr "8. Ukončení"
 
 #: app/templates/www/terms.html:72
-msgid "The User may cancel their account at any time. After termination, data will be retained for 30 days, then permanently deleted."
-msgstr "Uživatel může svůj účet kdykoli zrušit. Po zrušení se data uchovají 30 dní, poté dojde k trvalému smazání."
+msgid ""
+"The User may cancel their account at any time. After termination, data "
+"will be retained for 30 days, then permanently deleted."
+msgstr ""
+"Uživatel může svůj účet kdykoliv zrušit. Po zrušení budou data uchována 30 "
+"dní, poté budou trvale smazána."
 
 #: app/templates/www/terms.html:77
 msgid "9. Final provisions"
 msgstr "9. Závěrečná ustanovení"
 
 #: app/templates/www/terms.html:79
-msgid "These terms are governed by the laws of the Czech Republic. The Operator may modify the terms with 30 days' notice."
-msgstr "Tyto podmínky se řídí právem České republiky. Provozovatel může podmínky změnit s 30denní oznamovací lhůtou."
+msgid ""
+"These terms are governed by the laws of the Czech Republic. The Operator "
+"may modify the terms with 30 days' notice."
+msgstr ""
+"Tyto podmínky se řídí právem České republiky. Provozovatel může podmínky "
+"změnit s 30denní oznamovací lhůtou."
 
-#: app/templates/www/www_base.html:27
+#: app/templates/www/www_base.html:10
+msgid ""
+"Client portal for Czech manufacturing SMEs. Orders, drawings, production "
+"status — all in one place. Replace emails and Excel. 30 days free, no "
+"card."
+msgstr ""
+"Zákaznický portál pro české výrobní firmy. Zakázky, výkresy, stav výroby — "
+"všechno na jednom místě. Nahraďte e-maily a Excel. 30 dní zdarma, bez "
+"karty."
+
+#: app/templates/www/www_base.html:70
+msgid "Try free"
+msgstr "Vyzkoušet"
+
+#: app/templates/www/www_base.html:76
 msgid "Terms"
 msgstr "Podmínky"
 
-#: app/templates/www/www_base.html:29
+#: app/templates/www/www_base.html:78
 msgid "Privacy"
 msgstr "Soukromí"
 
 #~ msgid "No assets recorded for this client yet."
 #~ msgstr "Pro tohoto klienta zatím nejsou evidovány žádné aktiva."
 
-#~ msgid "Servers are located in the European Union (Frankfurt, DE). Attachments (drawings, PDFs) in S3-compatible storage with EU location. Payments are processed by Stripe (USA, EU representation). Transactional emails are sent by a transactional email provider (EU regions — Resend, Postmark, or equivalent)."
-#~ msgstr "Servery jsou umístěny v Evropské unii (Frankfurt, DE). Přílohy (výkresy, PDF) v S3-kompatibilním úložišti s EU lokací. Platby zpracovává Stripe (USA, EU zastoupení). Transakční e-maily odesílá transakční e-mailový poskytovatel (EU regiony — Resend, Postmark nebo ekvivalent)."
+#~ msgid ""
+#~ "Servers are located in the European "
+#~ "Union (Frankfurt, DE). Attachments (drawings,"
+#~ " PDFs) in S3-compatible storage with "
+#~ "EU location. Payments are processed by"
+#~ " Stripe (USA, EU representation). "
+#~ "Transactional emails are sent by a "
+#~ "transactional email provider (EU regions "
+#~ "— Resend, Postmark, or equivalent)."
+#~ msgstr ""
+#~ "Servery jsou umístěny v Evropské unii"
+#~ " (Frankfurt, DE). Přílohy (výkresy, PDF)"
+#~ " v S3-kompatibilním úložišti s EU "
+#~ "lokací. Platby zpracovává Stripe (USA, "
+#~ "EU zastoupení). Transakční e-maily odesílá "
+#~ "transakční e-mailový poskytovatel (EU regiony"
+#~ " — Resend, Postmark nebo ekvivalent)."
 
-#~ msgid "Active account data is retained for the duration of the account's existence. After account cancellation, 30 days (for possible reactivation), then permanent deletion. Billing data in accordance with the law (10 years from the end of the accounting period)."
-#~ msgstr "Data aktivního účtu uchováváme po dobu trvání účtu. Po zrušení účtu 30 dní (pro případnou reaktivaci), poté trvalé smazání. Fakturační data v souladu se zákonem (10 let od konce účetního období)."
+#~ msgid ""
+#~ "Active account data is retained for "
+#~ "the duration of the account's existence."
+#~ " After account cancellation, 30 days "
+#~ "(for possible reactivation), then permanent"
+#~ " deletion. Billing data in accordance "
+#~ "with the law (10 years from the"
+#~ " end of the accounting period)."
+#~ msgstr ""
+#~ "Data aktivního účtu uchováváme po dobu"
+#~ " trvání účtu. Po zrušení účtu 30 "
+#~ "dní (pro případnou reaktivaci), poté "
+#~ "trvalé smazání. Fakturační data v "
+#~ "souladu se zákonem (10 let od "
+#~ "konce účetního období)."
+
+#~ msgid "I agree to the"
+#~ msgstr "Souhlasím s"
+
+#~ msgid "and the"
+#~ msgstr "a se"
+
+#~ msgid "Your name *"
+#~ msgstr "Vaše jméno *"
+
+#~ msgid "Email *"
+#~ msgstr "E-mail *"
+
+#~ msgid ""
+#~ "Built for manufacturing SMEs: orders "
+#~ "with drawings, catalog, client assets, "
+#~ "multi-tenant."
+#~ msgstr ""
+#~ "Postaveno pro výrobní malé firmy: "
+#~ "objednávky s výkresy, katalog, klientský "
+#~ "majetek, multi-tenant."
+
+#~ msgid "Comments on the order (with internal notes for the team)."
+#~ msgstr "Komentáře k objednávce (včetně interních poznámek pro tým)."
+
+#~ msgid "Attachments and drawings"
+#~ msgstr "Přílohy a výkresy"
+
+#~ msgid ""
+#~ "Direct upload to S3 (max 50 MB)."
+#~ " Thumbnails for PDFs and images. "
+#~ "Attachments can be linked to the "
+#~ "entire order or to a specific "
+#~ "item."
+#~ msgstr ""
+#~ "Přímý upload na S3 (max 50 MB)."
+#~ " Náhledy pro PDF a obrázky. Přílohy"
+#~ " lze připojit k celé objednávce nebo"
+#~ " ke konkrétní položce."
+
+#~ msgid ""
+#~ "Shared per-tenant catalog and per-"
+#~ "customer catalog (customized for a "
+#~ "specific client). Autocomplete directly when"
+#~ " placing an order, with pre-filled"
+#~ " price and unit."
+#~ msgstr ""
+#~ "Sdílený katalog pro tenant a katalog "
+#~ "pro konkrétního klienta (customizovaný). "
+#~ "Automatické doplňování přímo při zadávání "
+#~ "objednávky, s předvyplněnou cenou a "
+#~ "jednotkou."
+
+#~ msgid "Client asset tracking"
+#~ msgstr "Sledování klientského majetku"
+
+#~ msgid "Multi-tenant from day one"
+#~ msgstr "Multi-tenant od prvního dne"
+
+#~ msgid ""
+#~ "PostgreSQL Row-Level Security — data "
+#~ "from different clients is physically "
+#~ "separated at the database level. "
+#~ "Subdomains"
+#~ msgstr ""
+#~ "PostgreSQL Row-Level Security — data "
+#~ "různých klientů jsou fyzicky oddělená na"
+#~ " úrovni databáze. Subdomény"
+
+#~ msgid "for each client separately."
+#~ msgstr "pro každého klienta zvlášť."
+
+#~ msgid "Permissions and security"
+#~ msgstr "Oprávnění a bezpečnost"
+
+#~ msgid ""
+#~ "Roles: tenant_admin (owner), tenant_staff "
+#~ "(your team), customer_admin (client "
+#~ "representative), customer_user (client contact "
+#~ "person). Per-customer settings for what"
+#~ " the client can enter (catalog "
+#~ "selection only / free-text / "
+#~ "prices)."
+#~ msgstr ""
+#~ "Role: tenant_admin (majitel), tenant_staff "
+#~ "(váš tým), customer_admin (zástupce klienta),"
+#~ " customer_user (kontaktní osoba klienta). "
+#~ "Per-klient nastavení, co klient smí "
+#~ "zadat (jen výběr z katalogu / "
+#~ "free-text / ceny)."
+
+#~ msgid "The entire code is licensed under AGPL-3.0 on"
+#~ msgstr "Celý kód je licencovaný pod AGPL-3.0 na"
+
+#~ msgid "GitHub"
+#~ msgstr "GitHubu"
+
+#~ msgid ""
+#~ "You can self-host it (free), audit"
+#~ " it, or fork it. We offer a "
+#~ "hosted version with convenient management "
+#~ "and support."
+#~ msgstr ""
+#~ "Můžete si ho hostovat sami (zdarma), "
+#~ "auditovat, nebo forknout. Nabízíme hostovanou"
+#~ " verzi s pohodlnou správou a "
+#~ "podporou."
+
+#~ msgid "Replace emails and phone calls with"
+#~ msgstr "Nahraďte e-maily a telefonáty"
+
+# --- platform session nav additions ---
+#~ msgid "a structured portal"
+#~ msgstr "strukturovaným portálem"
+
+#~ msgid ""
+#~ "Let your clients place orders online,"
+#~ " share drawings, track production status,"
+#~ " and keep an overview of their "
+#~ "materials at your warehouse. No complex"
+#~ " ERP, no lengthy implementation."
+#~ msgstr ""
+#~ "Nechte svoje klienty zadávat objednávky "
+#~ "online, sdílejte výkresy, sledujte stav "
+#~ "výroby a mějte přehled o jejich "
+#~ "materiálu ve vašem skladu. Žádný složitý"
+#~ " ERP, žádná dlouhá implementace."
+
+#~ msgid "No credit card required · Open source (AGPL-3.0) · GDPR-ready (EU data)"
+#~ msgstr "Bez platební karty · Open source (AGPL-3.0) · GDPR (EU data)"
+
+#~ msgid "Everything your manufacturing SME needs"
+#~ msgstr "Vše, co vaše výrobní malá firma potřebuje"
+
+#~ msgid "Orders with attachments"
+#~ msgstr "Objednávky s přílohami"
+
+#~ msgid ""
+#~ "Client uploads drawings, specifies quantities,"
+#~ " you quote and set a deadline. "
+#~ "8-step workflow with audit trail."
+#~ msgstr ""
+#~ "Klient nahraje výkresy, zadá množství, "
+#~ "vy oceníte a nastavíte termín. "
+#~ "Osmikrokový workflow s auditní stopou."
+
+#~ msgid ""
+#~ "Share only the items relevant to "
+#~ "each client. Prices, units, descriptions."
+#~ msgstr ""
+#~ "Sdílejte jen položky relevantní pro "
+#~ "daného klienta. Ceny, jednotky, popisy."
+
+#~ msgid "Client assets at your warehouse"
+#~ msgstr "Klientský majetek ve vašem skladu"
+
+#~ msgid ""
+#~ "Precise tracking of client materials/tools "
+#~ "in stock. Receive, issue, consume, "
+#~ "current balance."
+#~ msgstr ""
+#~ "Přesné sledování materiálů/nástrojů klienta ve"
+#~ " skladu. Příjem, výdej, spotřeba, aktuální"
+#~ " stav."
+
+#~ msgid "Multi-tenant security"
+#~ msgstr "Multi-tenant zabezpečení"
+
+#~ msgid ""
+#~ "New orders, status changes, comments —"
+#~ " automatically by email. Per-user "
+#~ "preferences."
+#~ msgstr ""
+#~ "Nové objednávky, změny stavu, komentáře "
+#~ "— automaticky e-mailem. Per-uživatel "
+#~ "preference."
+
+#~ msgid ""
+#~ "Full code under AGPL-3.0 on GitHub. "
+#~ "Self-host it on your own "
+#~ "infrastructure for free."
+#~ msgstr ""
+#~ "Kompletní kód pod AGPL-3.0 na GitHubu."
+#~ " Hostujte si ho na vlastní "
+#~ "infrastruktuře zdarma."
+
+#~ msgid "Get started in 5 minutes"
+#~ msgstr "Začněte za 5 minut"
+
+#~ msgid ""
+#~ "Sign up, invite your first client, "
+#~ "and accept your first order. No "
+#~ "installation, no lengthy negotiations."
+#~ msgstr ""
+#~ "Registrujte se, pozvěte prvního klienta "
+#~ "a přijměte první objednávku. Bez "
+#~ "instalace, bez zdlouhavých vyjednávání."
+
+#~ msgid "Simple pricing"
+#~ msgstr "Jednoduchý ceník"
+
+#~ msgid "✓ Unlimited users"
+#~ msgstr "✓ Neomezeně uživatelů"
+
+#~ msgid "Guide"
+#~ msgstr "Návod"
+
+#~ msgid "Small teams"
+#~ msgstr "Malé týmy"
+
+#~ msgid "490 CZK"
+#~ msgstr "490 Kč"
+
+#~ msgid "Most popular"
+#~ msgstr "Nejoblíbenější"
+
+#~ msgid "Growing businesses"
+#~ msgstr "Rostoucí firmy"
+
+#~ msgid "Custom"
+#~ msgstr "Na míru"
+
+#~ msgid "✓ Unlimited limits"
+#~ msgstr "✓ Bez limitů"
+
+#~ msgid "✓ Custom domain"
+#~ msgstr "✓ Vlastní doména"
+
+#~ msgid "✓ Dedicated support (4 h)"
+#~ msgstr "✓ Dedikovaná podpora (4 h)"
+
+#~ msgid "✓ SLA"
+#~ msgstr "✓ SLA"
+
+#~ msgid "Annual subscription"
+#~ msgstr "Roční předplatné"
+
+#~ msgid "2 months free — Starter 4 900 CZK/year, Pro 14 900 CZK/year."
+#~ msgstr "2 měsíce zdarma — Starter 4 900 Kč/rok, Pro 14 900 Kč/rok."
+
+#~ msgid ""
+#~ "We process credit cards through Stripe;"
+#~ " you will receive an invoice by "
+#~ "email."
+#~ msgstr "Platební karty zpracováváme přes Stripe; fakturu dostanete e-mailem."
+
+#~ msgid ""
+#~ "You can upgrade or downgrade your "
+#~ "plan at any time; the difference "
+#~ "will be prorated."
+#~ msgstr "Plán můžete kdykoli povýšit nebo snížit; rozdíl se pro-ratuje."
+
+#~ msgid "You can cancel your account and export your data (CSV)."
+#~ msgstr "Účet můžete kdykoli zrušit a data si exportovat (CSV)."
+
+#~ msgid "Prices do not apply to the self-hosted version — it is free forever."
+#~ msgstr "Ceny se netýkají self-hosted verze — ta je zdarma navždy."
+
+#~ msgid "Self-hosted installation"
+#~ msgstr "Vlastní instalace"
+
+#~ msgid "Quickstart (local demo)"
+#~ msgstr "Rychlý start (lokální demo)"
+
+#~ msgid ""
+#~ "for production use behind an Nginx "
+#~ "proxy with TLS configuration ready. Just"
+#~ " fill in the ENV variables (SMTP, "
+#~ "S3, domain) and run"
+#~ msgstr ""
+#~ "pro produkční nasazení za Nginx proxy"
+#~ " s připravenou TLS konfigurací. Stačí "
+#~ "doplnit ENV proměnné (SMTP, S3, doména)"
+#~ " a spustit"
+
+#~ msgid "Details:"
+#~ msgstr "Detaily:"
+
+#~ msgid "variable in"
+#~ msgstr "proměnnou v"
+
+#~ msgid "Self-hosters have access to"
+#~ msgstr "Self-hosteři mají přístup na"
+
+#~ msgid "14-day free trial. No credit card required."
+#~ msgstr "14denní zkušební verze zdarma. Žádná platební karta není potřeba."
 

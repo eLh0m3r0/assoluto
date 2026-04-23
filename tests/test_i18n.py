@@ -170,7 +170,7 @@ async def test_signup_page_renders_in_english_when_locale_is_en(settings, wipe_d
     assert '<html lang="en"' in resp.text
     # English copy from the en catalog.
     assert "Create your portal" in resp.text
-    assert "14-day free trial" in resp.text
+    assert "30-day free trial" in resp.text
     # The Czech original must NOT be present.
     assert "Vytvořte si svůj portál" not in resp.text
 

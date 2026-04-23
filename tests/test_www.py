@@ -29,7 +29,7 @@ async def test_features_page_renders(www_client) -> None:
     assert resp.status_code == 200
     # Accept EN msgid or CS translation — default locale is CS so
     # pages render translated copy.
-    assert "What Assoluto can do" in resp.text or "Co Assoluto umí" in resp.text
+    assert "Everything Assoluto can do" in resp.text or "Co všechno Assoluto umí" in resp.text
 
 
 async def test_pricing_page_renders_all_tiers(www_client) -> None:
@@ -44,7 +44,9 @@ async def test_self_hosted_page_mentions_docker_and_agpl(www_client) -> None:
     client, _ = www_client
     resp = await client.get("/self-hosted")
     assert resp.status_code == 200
-    assert "docker compose" in resp.text
+    # Docker command appears in highlighted code blocks with <span> wrapping
+    # individual words — check for distinctive tokens that survive markup.
+    assert "docker-compose.prod.yml" in resp.text or "docker compose" in resp.text
     assert "AGPL" in resp.text
 
 
@@ -224,6 +226,6 @@ async def test_landing_shows_marketing_when_platform_on_and_no_tenant(settings, 
         # return the translated headline and the substring mismatches.
         resp = await ac.get("/", headers={"Accept-Language": "en"})
     assert resp.status_code == 200
-    assert "Replace emails and phone calls with" in resp.text
+    assert "Stop picking up the phone" in resp.text
 
     reset_platform_engine()

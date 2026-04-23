@@ -1,71 +1,124 @@
 {% extends "www/www_base.html" %}
 
 {% block title %}{{ _("Self-hosted") }} · Assoluto{% endblock %}
+{% block meta_description %}{{ _("Run Assoluto on your own server. AGPL-3.0. Docker Compose. Free, no user limits, your data stays with you.") }}{% endblock %}
 
 {% block content %}
-<section class="mx-auto max-w-3xl pb-16">
-    <div class="mb-10 text-center">
-        <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ _("Self-hosted installation") }}</h1>
-        <p class="mt-2 text-slate-600 dark:text-slate-300">
-            {{ _("Complete open source release under the AGPL-3.0 license. Host the portal on your own server — free and without limitations.") }}
+<section class="relative -mx-4 -mt-6 overflow-hidden px-4 pb-16 pt-14 sm:-mx-6 sm:px-6 sm:pt-20">
+    <div aria-hidden="true" class="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[360px] w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-br from-brand-400/20 via-indigo-400/15 to-purple-400/20 blur-3xl dark:from-brand-500/15 dark:via-indigo-500/10 dark:to-purple-500/15"></div>
+
+    <div class="mx-auto max-w-3xl text-center">
+        <p class="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{{ _("Self-hosted") }}</p>
+        <h1 class="mt-2 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-slate-100">
+            {{ _("Your server. Your data. Your rules.") }}
+        </h1>
+        <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
+            {{ _("Full source code under AGPL-3.0. Host Assoluto on your own VPS — free, no limits, with Docker Compose.") }}
         </p>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <a href="https://github.com/elh0m3r0/sme-client-portal"
+               class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">
+                <svg aria-hidden="true" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                {{ _("Repository on GitHub") }}
+            </a>
+            <a href="/contact"
+               class="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-800">
+                {{ _("Need help? Write to us") }}
+            </a>
+        </div>
     </div>
 
-    <div class="space-y-8">
-        <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+    <div class="mx-auto mt-16 max-w-3xl space-y-6">
+        {# Requirements #}
+        <article class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Requirements") }}</h2>
-            <ul class="mt-3 list-disc space-y-1 pl-6 text-sm text-slate-600 dark:text-slate-300">
-                <li>{{ _("Linux server with Docker 24+ (2 vCPU, 2 GB RAM to start)") }}</li>
-                <li>{{ _("PostgreSQL 16 (runs in Docker Compose)") }}</li>
-                <li>{{ _("S3-compatible storage (MinIO, Backblaze B2, Cloudflare R2, AWS S3)") }}</li>
-                <li>{{ _("SMTP relay for outgoing emails") }}</li>
-                <li>{{ _("Public hostname + TLS (we recommend Caddy or nginx)") }}</li>
+            <ul class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                <li class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
+                    <span class="mt-0.5 text-emerald-500">✓</span>
+                    <span>{{ _("Linux server with Docker 24+ (2 vCPU, 2 GB RAM to start)") }}</span>
+                </li>
+                <li class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
+                    <span class="mt-0.5 text-emerald-500">✓</span>
+                    <span>{{ _("PostgreSQL 16 (runs inside the Compose stack)") }}</span>
+                </li>
+                <li class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
+                    <span class="mt-0.5 text-emerald-500">✓</span>
+                    <span>{{ _("S3-compatible storage (MinIO, Backblaze B2, Cloudflare R2, AWS S3)") }}</span>
+                </li>
+                <li class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
+                    <span class="mt-0.5 text-emerald-500">✓</span>
+                    <span>{{ _("SMTP relay for outgoing emails") }}</span>
+                </li>
+                <li class="flex items-start gap-2 text-slate-600 dark:text-slate-300 sm:col-span-2">
+                    <span class="mt-0.5 text-emerald-500">✓</span>
+                    <span>{{ _("Public hostname + TLS (Caddy or nginx recommended)") }}</span>
+                </li>
             </ul>
-        </section>
+        </article>
 
-        <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Quickstart (local demo)") }}</h2>
-            <pre class="mt-3 overflow-x-auto rounded-md bg-slate-900 p-4 text-xs leading-relaxed text-slate-100"><code>git clone https://github.com/elh0m3r0/sme-client-portal.git
-cd sme-client-portal
-cp .env.example .env
-docker compose up --build
+        {# Quickstart #}
+        <article class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Local demo in 60 seconds") }}</h2>
+            <pre class="mt-4 overflow-x-auto rounded-xl bg-slate-900 p-5 text-xs leading-relaxed text-slate-100 dark:bg-slate-950"><code><span class="text-slate-500"># {{ _("clone, boot, done") }}</span>
+<span class="text-brand-400">git</span> clone https://github.com/elh0m3r0/sme-client-portal.git
+<span class="text-brand-400">cd</span> sme-client-portal
+<span class="text-brand-400">cp</span> .env.example .env
+<span class="text-brand-400">docker</span> compose up --build
 
-# v jiném terminálu — připrav demo data
-docker compose exec web python -m scripts.seed_dev
+<span class="text-slate-500"># {{ _("in another terminal — seed demo data") }}</span>
+<span class="text-brand-400">docker</span> compose exec web python -m scripts.seed_dev
 
-# přihlas se na http://localhost:8000
-# owner@4mex.cz / demo1234 (staff)
-# jan@acme.cz   / demo1234 (kontakt klienta)</code></pre>
-        </section>
+<span class="text-slate-500"># {{ _("open http://localhost:8000") }}</span>
+<span class="text-slate-500"># owner@4mex.cz / demo1234 ({{ _("staff") }})</span>
+<span class="text-slate-500"># jan@acme.cz   / demo1234 ({{ _("client contact") }})</span></code></pre>
+        </article>
 
-        <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+        {# Production #}
+        <article class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Production deployment") }}</h2>
-            <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                {{ _("The repo includes a") }} <code>docker-compose.prod.yml</code> {{ _("for production use behind an Nginx proxy with TLS configuration ready. Just fill in the ENV variables (SMTP, S3, domain) and run") }}
-                <code>docker compose -f docker-compose.prod.yml up -d</code>.
+            <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                {{ _("The repo ships") }} <code class="rounded bg-slate-100 px-1.5 py-0.5 text-[12px] text-slate-900 dark:bg-slate-800 dark:text-slate-100">docker-compose.prod.yml</code> {{ _("ready for nginx + TLS. Fill in the env (SMTP, S3, domain) and run:") }}
             </p>
-            <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                {{ _("Details:") }} <a href="https://github.com/elh0m3r0/sme-client-portal/blob/main/docs/SELF_HOST.md" class="text-brand-600 hover:text-brand-700">docs/SELF_HOST.md</a>,
-                {{ _("list of ENV variables in") }} <a href="https://github.com/elh0m3r0/sme-client-portal/blob/main/docs/ENV.md" class="text-brand-600 hover:text-brand-700">docs/ENV.md</a>.
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-slate-900 p-5 text-xs leading-relaxed text-slate-100 dark:bg-slate-950"><code><span class="text-brand-400">docker</span> compose -f docker-compose.prod.yml up -d</code></pre>
+            <p class="mt-4 text-sm text-slate-600 dark:text-slate-300">
+                {{ _("Step-by-step guides:") }}
+                <a href="https://github.com/elh0m3r0/sme-client-portal/blob/main/docs/SELF_HOST.md" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">docs/SELF_HOST.md</a>,
+                {{ _("env var list in") }}
+                <a href="https://github.com/elh0m3r0/sme-client-portal/blob/main/docs/ENV.md" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">docs/ENV.md</a>.
             </p>
-        </section>
+        </article>
 
-        <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+        {# Single vs multi #}
+        <article class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Single-tenant vs. multi-tenant") }}</h2>
-            <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                {{ _("The self-hosted installation runs by default as") }}
-                <strong>{{ _("single-tenant") }}</strong> {{ _("(one \"supplier\", multiple client contacts). If you need to run multiple separate suppliers on one instance, enable the") }} <code>FEATURE_PLATFORM=true</code> {{ _("variable in") }} <code>.env</code> {{ _("— this activates the opt-in SaaS layer with Identity, cross-tenant login, and admin CRUD for tenants.") }}
+            <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                {{ _("By default the self-hosted install runs as") }}
+                <strong>{{ _("single-tenant") }}</strong> {{ _("— one supplier, many client contacts. For running multiple independent suppliers on the same instance, set") }}
+                <code class="rounded bg-slate-100 px-1.5 py-0.5 text-[12px] text-slate-900 dark:bg-slate-800 dark:text-slate-100">FEATURE_PLATFORM=true</code>
+                {{ _("— this enables the opt-in SaaS layer with cross-tenant identity, signup, and platform admin.") }}
             </p>
-        </section>
+        </article>
 
-        <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Support") }}</h2>
-            <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                {{ _("Self-hosters have access to") }}
-                <a href="https://github.com/elh0m3r0/sme-client-portal/issues" class="text-brand-600 hover:text-brand-700">{{ _("GitHub issues") }}</a>
-                {{ _("and discussions. For commercial support, security audits, or custom development, use the") }} <a href="/contact" class="text-brand-600 hover:text-brand-700">{{ _("contact form") }}</a>.
+        {# Support #}
+        <article class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Self-hoster support") }}</h2>
+            <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                {{ _("Open an issue or a discussion:") }}
+                <a href="https://github.com/elh0m3r0/sme-client-portal/issues" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">{{ _("GitHub issues") }}</a>.
             </p>
-        </section>
+            <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                {{ _("For commercial support, a security audit, or custom development, use the") }}
+                <a href="/contact" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">{{ _("contact form") }}</a>.
+            </p>
+        </article>
+
+        {# License #}
+        <article class="rounded-2xl border border-amber-200 bg-amber-50/60 p-6 text-sm text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
+            <h2 class="text-base font-semibold">{{ _("A word on AGPL-3.0") }}</h2>
+            <p class="mt-2">
+                {{ _("Assoluto is released under AGPL-3.0. Practically: you may run it free of charge, modify it, and host it — even commercially. If you offer a modified version as a service to third parties, you must publish your modifications under the same licence. For a closed-source deployment, contact us for a commercial licence.") }}
+            </p>
+        </article>
     </div>
 </section>
 {% endblock %}

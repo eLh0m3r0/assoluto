@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+    <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#0b1220"/>
+            <stop offset="100%" stop-color="#1a2b5f"/>
+        </linearGradient>
+        <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#60a5fa"/>
+            <stop offset="50%" stop-color="#a78bfa"/>
+            <stop offset="100%" stop-color="#f472b6"/>
+        </linearGradient>
+        <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#1d4ed8"/>
+        </linearGradient>
+        <radialGradient id="glow" cx="0.8" cy="0.2" r="0.7">
+            <stop offset="0%" stop-color="#3b6efb" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#3b6efb" stop-opacity="0"/>
+        </radialGradient>
+        <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="1" fill="#ffffff" opacity="0.05"/>
+        </pattern>
+    </defs>
+
+    <rect width="1200" height="630" fill="url(#bg)"/>
+    <rect width="1200" height="630" fill="url(#dots)"/>
+    <rect width="1200" height="630" fill="url(#glow)"/>
+
+    <!-- logo -->
+    <g transform="translate(80, 80)">
+        <rect width="80" height="80" rx="18" fill="url(#logoGrad)"/>
+        <path d="M16 62 L40 22 L64 62" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M26 48 L54 48" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="40" cy="12" r="4" fill="#ffffff"/>
+        <text x="100" y="52" fill="#ffffff" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="700" font-size="40" letter-spacing="-0.02em">Assoluto</text>
+    </g>
+
+    <!-- headline -->
+    <g transform="translate(80, 260)">
+        <text fill="#ffffff" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="800" font-size="72" letter-spacing="-0.03em">
+            <tspan x="0" dy="0">Zákaznický portál pro</tspan>
+            <tspan x="0" dy="86" fill="url(#accent)">výrobní firmy v ČR</tspan>
+        </text>
+        <text x="0" y="220" fill="#cbd5e1" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="400" font-size="30">
+            Zakázky, výkresy, stav výroby — všechno na jednom místě.
+        </text>
+    </g>
+
+    <!-- trust chips -->
+    <g transform="translate(80, 540)" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="20" font-weight="500">
+        <g>
+            <rect x="0" y="0" width="210" height="44" rx="22" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.15"/>
+            <text x="22" y="28" fill="#ffffff">30 dní zdarma</text>
+        </g>
+        <g transform="translate(230, 0)">
+            <rect x="0" y="0" width="170" height="44" rx="22" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.15"/>
+            <text x="22" y="28" fill="#ffffff">Bez karty</text>
+        </g>
+        <g transform="translate(420, 0)">
+            <rect x="0" y="0" width="180" height="44" rx="22" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.15"/>
+            <text x="22" y="28" fill="#ffffff">Data v EU</text>
+        </g>
+        <g transform="translate(620, 0)">
+            <rect x="0" y="0" width="220" height="44" rx="22" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.15"/>
+            <text x="22" y="28" fill="#ffffff">Česká podpora</text>
+        </g>
+    </g>
+
+    <!-- URL badge -->
+    <text x="1120" y="595" text-anchor="end" fill="#94a3b8" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="22" font-weight="500">assoluto.eu</text>
+</svg>

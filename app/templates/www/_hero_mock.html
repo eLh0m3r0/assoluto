@@ -1,0 +1,109 @@
+{# Hero mock — a screenshot-like UI rendered as HTML so it inherits
+   dark mode + Tailwind. CSP-safe (no external assets). #}
+<div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/40">
+    {# window chrome #}
+    <div class="flex items-center gap-1.5 border-b border-slate-200 bg-slate-50 px-4 py-2.5 dark:border-slate-800 dark:bg-slate-900/80">
+        <span class="h-2.5 w-2.5 rounded-full bg-rose-400"></span>
+        <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+        <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+        <span class="ml-4 flex h-5 items-center gap-1 rounded-md bg-white px-2 text-[10px] font-medium text-slate-500 ring-1 ring-inset ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700">
+            <svg aria-hidden="true" class="h-3 w-3 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            yourfirm.assoluto.eu/app/orders
+        </span>
+    </div>
+
+    <div class="grid grid-cols-[180px_1fr] text-sm">
+        {# sidebar #}
+        <aside class="hidden border-r border-slate-200 bg-slate-50/60 p-4 sm:block dark:border-slate-800 dark:bg-slate-900/50">
+            <div class="flex items-center gap-2">
+                <div class="grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-brand-500 to-indigo-600 text-xs font-bold text-white">A</div>
+                <span class="text-xs font-semibold text-slate-900 dark:text-slate-100">{{ _("Your firm") }}</span>
+            </div>
+            <nav class="mt-5 space-y-1 text-xs">
+                <div class="flex items-center gap-2 rounded-md bg-brand-50 px-2.5 py-1.5 font-medium text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
+                    <svg aria-hidden="true" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    {{ _("Orders") }}
+                </div>
+                <div class="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-slate-600 dark:text-slate-400">
+                    <svg aria-hidden="true" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    {{ _("Clients") }}
+                </div>
+                <div class="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-slate-600 dark:text-slate-400">
+                    <svg aria-hidden="true" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7l9-4 9 4M5 9v11a2 2 0 002 2h10a2 2 0 002-2V9"/></svg>
+                    {{ _("Catalog") }}
+                </div>
+                <div class="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-slate-600 dark:text-slate-400">
+                    <svg aria-hidden="true" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>
+                    {{ _("Stock on hand") }}
+                </div>
+            </nav>
+        </aside>
+
+        {# main content #}
+        <div class="p-5 sm:p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100">{{ _("Orders") }}</h4>
+                    <p class="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{{ _("12 open · 3 need action") }}</p>
+                </div>
+                <span class="inline-flex items-center gap-1.5 rounded-md bg-gradient-to-r from-brand-600 to-brand-500 px-3 py-1.5 text-xs font-semibold text-white">
+                    <svg aria-hidden="true" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    {{ _("New order") }}
+                </span>
+            </div>
+
+            <div class="mt-4 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-xs">
+                    <thead class="bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500 dark:bg-slate-900/50 dark:text-slate-400">
+                        <tr>
+                            <th class="px-3 py-2 text-left font-semibold">#</th>
+                            <th class="px-3 py-2 text-left font-semibold">{{ _("Client") }}</th>
+                            <th class="px-3 py-2 text-left font-semibold">{{ _("Items") }}</th>
+                            <th class="px-3 py-2 text-left font-semibold">{{ _("Status") }}</th>
+                            <th class="px-3 py-2 text-left font-semibold">{{ _("Due") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                        <tr class="bg-white dark:bg-slate-900">
+                            <td class="px-3 py-2.5 font-mono text-slate-500 dark:text-slate-400">ORD-0142</td>
+                            <td class="px-3 py-2.5 text-slate-900 dark:text-slate-100">Kovárna Vlček</td>
+                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">12 × {{ _("bracket") }}</td>
+                            <td class="px-3 py-2.5"><span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700 ring-1 ring-inset ring-blue-100 dark:bg-blue-500/10 dark:text-blue-300 dark:ring-blue-900/40"><span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>{{ _("IN PRODUCTION") }}</span></td>
+                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">25. 4.</td>
+                        </tr>
+                        <tr class="bg-white dark:bg-slate-900">
+                            <td class="px-3 py-2.5 font-mono text-slate-500 dark:text-slate-400">ORD-0141</td>
+                            <td class="px-3 py-2.5 text-slate-900 dark:text-slate-100">TriStav s.r.o.</td>
+                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">6 × {{ _("assembly") }}</td>
+                            <td class="px-3 py-2.5"><span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700 ring-1 ring-inset ring-amber-100 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-900/40"><span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>{{ _("QUOTED") }}</span></td>
+                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">28. 4.</td>
+                        </tr>
+                        <tr class="bg-white dark:bg-slate-900">
+                            <td class="px-3 py-2.5 font-mono text-slate-500 dark:text-slate-400">ORD-0140</td>
+                            <td class="px-3 py-2.5 text-slate-900 dark:text-slate-100">Zámečnictví Horák</td>
+                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">24 × {{ _("railing") }}</td>
+                            <td class="px-3 py-2.5"><span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-900/40"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>{{ _("READY") }}</span></td>
+                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">22. 4.</td>
+                        </tr>
+                        <tr class="bg-white dark:bg-slate-900">
+                            <td class="px-3 py-2.5 font-mono text-slate-500 dark:text-slate-400">ORD-0139</td>
+                            <td class="px-3 py-2.5 text-slate-900 dark:text-slate-100">Novák Engineering</td>
+                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">48 × {{ _("shaft") }}</td>
+                            <td class="px-3 py-2.5"><span class="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-medium text-violet-700 ring-1 ring-inset ring-violet-100 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-900/40"><span class="h-1.5 w-1.5 rounded-full bg-violet-500"></span>{{ _("CONFIRMED") }}</span></td>
+                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">2. 5.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            {# floating notification card #}
+            <div class="mt-4 hidden items-start gap-3 rounded-lg border border-brand-200 bg-brand-50/60 p-3 text-xs text-brand-800 sm:flex dark:border-brand-500/30 dark:bg-brand-500/10 dark:text-brand-200">
+                <svg aria-hidden="true" class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <div>
+                    <p class="font-semibold">{{ _("Kovárna Vlček sent a message on ORD-0142") }}</p>
+                    <p class="mt-0.5 text-brand-700 dark:text-brand-300/80">{{ _("\"Can we move the deadline to April 29? We were just told by the paint shop…\"") }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

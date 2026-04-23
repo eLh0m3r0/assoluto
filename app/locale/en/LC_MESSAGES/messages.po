@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-23 15:35+0200\n"
+"POT-Creation-Date: 2026-04-24 01:04+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -126,21 +126,21 @@ msgstr ""
 msgid "Customer contact"
 msgstr "As a customer contact"
 
-#: app/main.py:448
+#: app/main.py:442
 msgid "staff users"
 msgstr ""
 
-#: app/main.py:449
+#: app/main.py:443
 #, fuzzy
 msgid "client contacts"
 msgstr "Clients"
 
-#: app/main.py:450
+#: app/main.py:444
 #, fuzzy
 msgid "orders this month"
 msgstr "Orders"
 
-#: app/main.py:451
+#: app/main.py:445
 msgid "MB of storage"
 msgstr ""
 
@@ -504,15 +504,15 @@ msgstr ""
 msgid "Contact reactivated."
 msgstr ""
 
-#: app/routers/customers.py:450
+#: app/routers/customers.py:452
 msgid "This contact already has a password; use a password reset instead."
 msgstr ""
 
-#: app/routers/customers.py:463 app/routers/tenant_admin.py:361
+#: app/routers/customers.py:468 app/routers/tenant_admin.py:363
 msgid "Too many invitations sent recently. Try again later."
 msgstr ""
 
-#: app/routers/customers.py:496 app/routers/tenant_admin.py:391
+#: app/routers/customers.py:501 app/routers/tenant_admin.py:393
 #, fuzzy
 msgid "Invitation resent."
 msgstr "Send a new verification link"
@@ -526,6 +526,7 @@ msgstr ""
 #: app/templates/platform/admin/tenant_edit.html:59
 #: app/templates/platform/admin/tenants.html:23
 #: app/templates/platform/billing/dashboard.html:165
+#: app/templates/www/_hero_mock.html:62
 msgid "Status"
 msgstr ""
 
@@ -553,6 +554,7 @@ msgid "Currency"
 msgstr ""
 
 #: app/routers/orders.py:301 app/templates/orders/detail.html:79
+#: app/templates/www/_hero_mock.html:61
 #, fuzzy
 msgid "Items"
 msgstr "Team"
@@ -591,7 +593,7 @@ msgstr ""
 msgid "{ok} transitioned, {failed} failed."
 msgstr ""
 
-#: app/routers/orders.py:1187
+#: app/routers/orders.py:1185
 #, python-brace-format
 msgid "Status changed to {status}."
 msgstr ""
@@ -642,7 +644,7 @@ msgstr ""
 msgid "User reactivated."
 msgstr ""
 
-#: app/routers/tenant_admin.py:348
+#: app/routers/tenant_admin.py:349
 msgid "This user already has a password; use a password reset instead."
 msgstr ""
 
@@ -658,11 +660,11 @@ msgstr ""
 msgid "Password does not match — deletion cancelled."
 msgstr ""
 
-#: app/routers/tenant_admin.py:582
+#: app/routers/tenant_admin.py:586
 msgid "You're the last administrator — promote someone else first."
 msgstr ""
 
-#: app/routers/tenant_admin.py:636
+#: app/routers/tenant_admin.py:640
 #, fuzzy
 msgid "Saved."
 msgstr "Dashboard"
@@ -710,7 +712,8 @@ msgstr ""
 #: app/templates/_palette_results.html:23 app/templates/app_base.html:12
 #: app/templates/dashboard/index.html:196 app/templates/orders/detail.html:29
 #: app/templates/orders/form.html:6 app/templates/orders/list.html:3
-#: app/templates/orders/list.html:7
+#: app/templates/orders/list.html:7 app/templates/www/_hero_mock.html:25
+#: app/templates/www/_hero_mock.html:46
 msgid "Orders"
 msgstr "Orders"
 
@@ -719,6 +722,7 @@ msgstr "Orders"
 #: app/templates/customers/detail.html:8 app/templates/customers/form.html:9
 #: app/templates/customers/form.html:13 app/templates/customers/list.html:3
 #: app/templates/customers/list.html:7 app/templates/dashboard/index.html:23
+#: app/templates/www/_hero_mock.html:29
 msgid "Clients"
 msgstr "Clients"
 
@@ -726,7 +730,7 @@ msgstr "Clients"
 #: app/templates/assets/form.html:17 app/templates/assets/list.html:26
 #: app/templates/orders/detail.html:48 app/templates/orders/form.html:25
 #: app/templates/orders/list.html:85 app/templates/products/form.html:55
-#: app/templates/products/list.html:21
+#: app/templates/products/list.html:21 app/templates/www/_hero_mock.html:60
 #, fuzzy
 msgid "Client"
 msgstr "Clients"
@@ -735,6 +739,7 @@ msgstr "Clients"
 #: app/templates/_palette_results.html:65 app/templates/app_base.html:16
 #: app/templates/products/detail.html:7 app/templates/products/form.html:9
 #: app/templates/products/form.html:13 app/templates/products/list.html:3
+#: app/templates/www/_hero_mock.html:33
 msgid "Catalog"
 msgstr "Catalog"
 
@@ -817,37 +822,37 @@ msgstr "Platform"
 msgid "Sign out"
 msgstr "Sign out"
 
-#: app/templates/base.html:37 app/templates/index.html:3
+#: app/templates/base.html:38 app/templates/index.html:3
 msgid "Home"
 msgstr "Home"
 
-#: app/templates/base.html:46
+#: app/templates/base.html:47
 #, fuzzy
 msgid "Toggle menu"
 msgstr "Toggle theme"
 
-#: app/templates/base.html:63 app/templates/base.html:64
-#: app/templates/base.html:81
+#: app/templates/base.html:64 app/templates/base.html:65
+#: app/templates/base.html:82
 msgid "Toggle theme"
 msgstr "Toggle theme"
 
-#: app/templates/base.html:65
+#: app/templates/base.html:66
 msgid "Theme: system"
 msgstr "Theme: system"
 
-#: app/templates/base.html:66
+#: app/templates/base.html:67
 msgid "Theme: light"
 msgstr "Theme: light"
 
-#: app/templates/base.html:67
+#: app/templates/base.html:68
 msgid "Theme: dark"
 msgstr "Theme: dark"
 
 #: app/templates/auth/login.html:3 app/templates/auth/login.html:12
 #: app/templates/auth/login.html:39 app/templates/index.html:8
 #: app/templates/index.html:21 app/templates/platform/login.html:3
-#: app/templates/platform/login.html:29 app/templates/platform/signup.html:120
-#: app/templates/www/www_base.html:18
+#: app/templates/platform/login.html:29 app/templates/platform/signup.html:117
+#: app/templates/www/www_base.html:67
 msgid "Sign in"
 msgstr "Sign in"
 
@@ -948,6 +953,7 @@ msgstr "Your name"
 #: app/templates/auth/password_reset_request.html:18
 #: app/templates/platform/login.html:18
 #: app/templates/platform/password_reset_request.html:18
+#: app/templates/www/contact.html:30 app/templates/www/contact.html:96
 msgid "Email"
 msgstr "Email"
 
@@ -1735,7 +1741,7 @@ msgstr ""
 
 #: app/templates/dashboard/index.html:196 app/templates/orders/form.html:3
 #: app/templates/orders/form.html:6 app/templates/orders/form.html:9
-#: app/templates/orders/list.html:21
+#: app/templates/orders/list.html:21 app/templates/www/_hero_mock.html:51
 #, fuzzy
 msgid "New order"
 msgstr "Orders"
@@ -2106,7 +2112,7 @@ msgstr "You have platform-admin permissions."
 msgid "Manage tenants"
 msgstr "Manage tenants"
 
-#: app/templates/platform/signup.html:3 app/templates/platform/signup.html:114
+#: app/templates/platform/signup.html:3 app/templates/platform/signup.html:111
 msgid "Create portal"
 msgstr "Create portal"
 
@@ -2115,7 +2121,8 @@ msgid "Create your portal"
 msgstr "Create your portal"
 
 #: app/templates/platform/signup.html:10
-msgid "14-day free trial. No credit card required."
+#, fuzzy
+msgid "30-day free trial. No credit card required."
 msgstr "14-day free trial. No credit card required."
 
 #: app/templates/platform/signup.html:23
@@ -2130,7 +2137,7 @@ msgstr "Portal subdomain"
 msgid "Optional — if empty we derive it from the company name."
 msgstr "Optional — if empty we derive it from the company name."
 
-#: app/templates/platform/signup.html:60
+#: app/templates/platform/signup.html:60 app/templates/www/contact.html:90
 msgid "Your name"
 msgstr "Your name"
 
@@ -2143,25 +2150,14 @@ msgid "At least 8 characters; avoid common passwords."
 msgstr "At least 8 characters; avoid common passwords."
 
 #: app/templates/platform/signup.html:101
-msgid "I agree to the"
-msgstr "I agree to the"
+msgid ""
+"I agree to the <a href=\"/terms\" target=\"_blank\" class=\"text-"
+"brand-600 hover:text-brand-700\">Terms of Service</a> and the <a "
+"href=\"/privacy\" target=\"_blank\" class=\"text-brand-600 hover:text-"
+"brand-700\">Privacy Policy</a>."
+msgstr ""
 
-#: app/templates/platform/signup.html:102 app/templates/www/imprint.html:54
-#: app/templates/www/terms.html:3 app/templates/www/terms.html:7
-msgid "Terms of Service"
-msgstr "Terms of Service"
-
-#: app/templates/platform/signup.html:103
-msgid "and the"
-msgstr "and the"
-
-#: app/templates/platform/signup.html:104 app/templates/www/imprint.html:55
-#: app/templates/www/privacy.html:3 app/templates/www/privacy.html:7
-#: app/templates/www/terms.html:58
-msgid "Privacy Policy"
-msgstr "Privacy Policy"
-
-#: app/templates/platform/signup.html:119
+#: app/templates/platform/signup.html:116
 msgid "Already have an account?"
 msgstr "Already have an account?"
 
@@ -2477,12 +2473,11 @@ msgid "Switch plan"
 msgstr "Switch to"
 
 #: app/templates/platform/billing/dashboard.html:112
-#: app/templates/www/pricing.html:38 app/templates/www/pricing.html:60
 msgid "/month"
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:114
-#: app/templates/www/pricing.html:19
+#: app/templates/www/index.html:336 app/templates/www/pricing.html:26
 msgid "Free"
 msgstr ""
 
@@ -2504,7 +2499,7 @@ msgid "Storage:"
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:126
-#: app/templates/www/pricing.html:80 app/templates/www/pricing.html:89
+#: app/templates/www/pricing.html:102
 msgid "Contact us"
 msgstr ""
 
@@ -2575,8 +2570,7 @@ msgstr "In production"
 msgid "New product"
 msgstr "In production"
 
-#: app/templates/products/list.html:7 app/templates/www/features.html:37
-#: app/templates/www/index.html:55
+#: app/templates/products/list.html:7
 #, fuzzy
 msgid "Product catalog"
 msgstr "Catalog"
@@ -2600,51 +2594,167 @@ msgstr ""
 msgid "Add the first product"
 msgstr ""
 
-#: app/templates/www/contact.html:3 app/templates/www/www_base.html:15
+#: app/templates/www/_hero_mock.html:20
+#, fuzzy
+msgid "Your firm"
+msgstr "Your name"
+
+#: app/templates/www/_hero_mock.html:37
+msgid "Stock on hand"
+msgstr ""
+
+#: app/templates/www/_hero_mock.html:47
+msgid "12 open · 3 need action"
+msgstr ""
+
+#: app/templates/www/_hero_mock.html:63
+msgid "Due"
+msgstr ""
+
+#: app/templates/www/_hero_mock.html:70
+msgid "bracket"
+msgstr ""
+
+#: app/templates/www/_hero_mock.html:71
+#, fuzzy
+msgid "IN PRODUCTION"
+msgstr "In production"
+
+#: app/templates/www/_hero_mock.html:77
+msgid "assembly"
+msgstr ""
+
+#: app/templates/www/_hero_mock.html:78
+#, fuzzy
+msgid "QUOTED"
+msgstr "Quoted"
+
+#: app/templates/www/_hero_mock.html:84
+msgid "railing"
+msgstr ""
+
+#: app/templates/www/_hero_mock.html:85
+#, fuzzy
+msgid "READY"
+msgstr "Ready"
+
+#: app/templates/www/_hero_mock.html:91
+#, fuzzy
+msgid "shaft"
+msgstr "Draft"
+
+#: app/templates/www/_hero_mock.html:92
+#, fuzzy
+msgid "CONFIRMED"
+msgstr "Confirmed"
+
+#: app/templates/www/_hero_mock.html:103
+msgid "Kovárna Vlček sent a message on ORD-0142"
+msgstr ""
+
+#: app/templates/www/_hero_mock.html:104
+msgid ""
+"\"Can we move the deadline to April 29? We were just told by the paint "
+"shop…\""
+msgstr ""
+
+#: app/templates/www/contact.html:3 app/templates/www/contact.html:12
+#: app/templates/www/www_base.html:64
 msgid "Contact"
 msgstr ""
 
-#: app/templates/www/contact.html:7
-#, fuzzy
-msgid "Write to us"
-msgstr "Switch to"
-
-#: app/templates/www/contact.html:9
+#: app/templates/www/contact.html:4
 msgid ""
-"Need help with deployment, interested in the Enterprise plan, or found a "
-"bug? Write to us and we will get back to you within one business day."
+"Email, demo, Enterprise plan, bug reports. Czech support, reply within "
+"one working day."
 msgstr ""
 
-#: app/templates/www/contact.html:15
+#: app/templates/www/contact.html:14
+#, fuzzy
+msgid "Write or call us"
+msgstr "Switch to"
+
+#: app/templates/www/contact.html:17
+msgid ""
+"Questions about deployment, Enterprise plan, discount for schools, or a "
+"bug report? We get back to you within one working day."
+msgstr ""
+
+#: app/templates/www/contact.html:32
+msgid "Typical reply in 4 working hours"
+msgstr ""
+
+#: app/templates/www/contact.html:43
+msgid "15-minute demo"
+msgstr ""
+
+#: app/templates/www/contact.html:44
+msgid ""
+"Online walkthrough over Google Meet — real system, your questions, no "
+"slides."
+msgstr ""
+
+#: app/templates/www/contact.html:45
+msgid "Write \"demo\" in the message"
+msgstr ""
+
+#: app/templates/www/contact.html:56
+msgid "Security disclosures"
+msgstr ""
+
+#: app/templates/www/contact.html:58
+msgid "GPG on request. We reply within 24 hours."
+msgstr ""
+
+#: app/templates/www/contact.html:64
+msgid "Czech team"
+msgstr ""
+
+#: app/templates/www/contact.html:65
+msgid ""
+"We reply in Czech or English. Servers in the EU. Invoicing under Czech "
+"rules, VAT separately on every invoice."
+msgstr ""
+
+#: app/templates/www/contact.html:76
 #, fuzzy
 msgid "Message sent"
 msgstr "Manage tenants"
 
-#: app/templates/www/contact.html:16
-msgid "Thanks — we will reply within 24 hours."
+#: app/templates/www/contact.html:77
+msgid ""
+"Thanks — we will reply within 24 hours. For anything urgent, email us "
+"directly at opensource@assoluto.eu."
 msgstr ""
 
-#: app/templates/www/contact.html:27
+#: app/templates/www/contact.html:81
 #, fuzzy
-msgid "Your name *"
+msgid "Write to us"
+msgstr "Switch to"
+
+#: app/templates/www/contact.html:102
+#, fuzzy
+msgid "Your message"
 msgstr "Your name"
 
-#: app/templates/www/contact.html:33
-#, fuzzy
-msgid "Email *"
-msgstr "Email"
+#: app/templates/www/contact.html:104
+msgid ""
+"Describe briefly — Enterprise plan? Questions about self-hosting? A demo?"
+" What kind of shop are you running?"
+msgstr ""
 
-#: app/templates/www/contact.html:39
-#, fuzzy
-msgid "Your message *"
-msgstr "Your name"
-
-#: app/templates/www/contact.html:45
+#: app/templates/www/contact.html:109
 #, fuzzy
 msgid "Send"
 msgstr "Closed"
 
-#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:31
+#: app/templates/www/contact.html:113
+msgid ""
+"By sending, you agree to the processing of your data for the purpose of "
+"replying (one-off, no newsletter)."
+msgstr ""
+
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:80
 msgid "Cookies"
 msgstr ""
 
@@ -2771,130 +2881,246 @@ msgstr "Clients"
 msgid "Questions about this cookies policy? Write to"
 msgstr ""
 
-#: app/templates/www/features.html:3 app/templates/www/www_base.html:6
+#: app/templates/www/features.html:3 app/templates/www/features.html:11
+#: app/templates/www/www_base.html:55
 msgid "Features"
 msgstr ""
 
-#: app/templates/www/features.html:8
-msgid "What Assoluto can do"
+#: app/templates/www/features.html:4
+msgid ""
+"Orders with 8-step workflow, drawings and CAD, customer material on "
+"stock, product catalog, multi-tenant isolation. Built specifically for "
+"manufacturing SMEs."
 msgstr ""
 
-#: app/templates/www/features.html:10
-msgid ""
-"Built for manufacturing SMEs: orders with drawings, catalog, client "
-"assets, multi-tenant."
+#: app/templates/www/features.html:13
+msgid "Everything Assoluto can do"
 msgstr ""
 
 #: app/templates/www/features.html:16
-msgid "Order workflow"
-msgstr ""
-
-#: app/templates/www/features.html:18
 msgid ""
-"Eight-step process: DRAFT → SUBMITTED → QUOTED → CONFIRMED → "
-"IN_PRODUCTION → READY → DELIVERED → CLOSED. Every transition is audited "
-"(who, when, why)."
+"Not a generic CRM. Built for manufacturing — drawings, revisions, "
+"deadlines, customer material on stock."
 msgstr ""
 
-#: app/templates/www/features.html:21
-msgid "Client enters items (free-text or from the catalog)."
+#: app/templates/www/features.html:27 app/templates/www/index.html:137
+msgid "Orders with a clear workflow"
 msgstr ""
 
-#: app/templates/www/features.html:22
-msgid "You quote and set the deadline."
-msgstr ""
-
-#: app/templates/www/features.html:23
-msgid "Client confirms or proposes a change."
-msgstr ""
-
-#: app/templates/www/features.html:24
-msgid "Comments on the order (with internal notes for the team)."
-msgstr ""
-
-#: app/templates/www/features.html:25
-msgid "Automatic notifications on every status change."
+#: app/templates/www/features.html:28
+msgid ""
+"An eight-step process from request to delivery. Every transition is "
+"audited — who, when, why. Never guess where an order stands again."
 msgstr ""
 
 #: app/templates/www/features.html:30
-msgid "Attachments and drawings"
+msgid "Client enters items (free text or from the catalog)"
+msgstr ""
+
+#: app/templates/www/features.html:31
+msgid "You quote the price and deadline"
 msgstr ""
 
 #: app/templates/www/features.html:32
+msgid "Client confirms or proposes a change"
+msgstr ""
+
+#: app/templates/www/features.html:33
+msgid "Comments inline, with team-only internal notes"
+msgstr ""
+
+#: app/templates/www/features.html:34
+msgid "Automatic email on every status change"
+msgstr ""
+
+#: app/templates/www/features.html:86
+msgid "Drawings and CAD in the right place"
+msgstr ""
+
+#: app/templates/www/features.html:87
 msgid ""
-"Direct upload to S3 (max 50 MB). Thumbnails for PDFs and images. "
-"Attachments can be linked to the entire order or to a specific item."
+"PDF, PNG, JPG, DWG, DXF, STEP, STL — anything the shop floor needs. "
+"Direct upload to S3 (up to 50 MB / file). Thumbnails for PDFs and images."
 msgstr ""
 
-#: app/templates/www/features.html:39
+#: app/templates/www/features.html:88
 msgid ""
-"Shared per-tenant catalog and per-customer catalog (customized for a "
-"specific client). Autocomplete directly when placing an order, with pre-"
-"filled price and unit."
+"Attachments go to the whole order, or to a specific line item. Clients "
+"see only their own files."
 msgstr ""
 
-#: app/templates/www/features.html:44
-msgid "Client asset tracking"
+#: app/templates/www/features.html:98
+msgid "Product catalog that knows your clients"
 msgstr ""
 
-#: app/templates/www/features.html:46
+#: app/templates/www/features.html:99
 msgid ""
-"Does your client store materials, tools, or semi-finished products with "
-"you? The portal tracks receipt, dispatch, and consumption. Current "
-"balance is recalculated automatically. Clients only see their own items."
+"A shared catalog for everyone, plus per-client customisation. One client "
+"sees their own negotiated prices; another only the items you actually "
+"make for them."
 msgstr ""
 
-#: app/templates/www/features.html:51
-msgid "Multi-tenant from day one"
-msgstr ""
-
-#: app/templates/www/features.html:53
+#: app/templates/www/features.html:100
 msgid ""
-"PostgreSQL Row-Level Security — data from different clients is physically"
-" separated at the database level. Subdomains"
+"Autocomplete in the order form — client types, they pick, price and unit "
+"fill in automatically."
 msgstr ""
 
-#: app/templates/www/features.html:55
-msgid "for each client separately."
+#: app/templates/www/features.html:106
+msgid "Search: konz…"
 msgstr ""
 
-#: app/templates/www/features.html:60
-msgid "Permissions and security"
+#: app/templates/www/features.html:111
+msgid "Bracket 80×40"
 msgstr ""
 
-#: app/templates/www/features.html:62
+#: app/templates/www/features.html:112 app/templates/www/features.html:119
+msgid "pcs"
+msgstr ""
+
+#: app/templates/www/features.html:118
+msgid "Bracket 120×60"
+msgstr ""
+
+#: app/templates/www/features.html:125
+msgid "Console — custom"
+msgstr ""
+
+#: app/templates/www/features.html:126
+msgid "per drawing · quoted on request"
+msgstr ""
+
+#: app/templates/www/features.html:140
+#, fuzzy
+msgid "Item"
+msgstr "Team"
+
+#: app/templates/www/features.html:141
+msgid "In"
+msgstr ""
+
+#: app/templates/www/features.html:142
+#, fuzzy
+msgid "Out"
+msgstr "In production"
+
+#: app/templates/www/features.html:143
+#, fuzzy
+msgid "Balance"
+msgstr "Cancelled"
+
+#: app/templates/www/features.html:147
+msgid "Steel sheet 2 mm"
+msgstr ""
+
+#: app/templates/www/features.html:153
+msgid "Fixture F-04"
+msgstr ""
+
+#: app/templates/www/features.html:156 app/templates/www/features.html:162
+msgid "pc"
+msgstr ""
+
+#: app/templates/www/features.html:159
+msgid "Drill bit Ø 8.2"
+msgstr ""
+
+#: app/templates/www/features.html:172
+msgid "Customer material on your stock"
+msgstr ""
+
+#: app/templates/www/features.html:173
 msgid ""
-"Roles: tenant_admin (owner), tenant_staff (your team), customer_admin "
-"(client representative), customer_user (client contact person). Per-"
-"customer settings for what the client can enter (catalog selection only /"
-" free-text / prices)."
+"Clients keep material, tools, or semi-finished products at your place? "
+"Receipts, issues, consumption — all transparent. Balance is recalculated "
+"automatically, client sees their own."
 msgstr ""
 
-#: app/templates/www/features.html:67 app/templates/www/index.html:91
-msgid "Open source"
-msgstr ""
-
-#: app/templates/www/features.html:69
-msgid "The entire code is licensed under AGPL-3.0 on"
-msgstr ""
-
-#: app/templates/www/features.html:70
-msgid "GitHub"
-msgstr ""
-
-#: app/templates/www/features.html:71
+#: app/templates/www/features.html:174
 msgid ""
-"You can self-host it (free), audit it, or fork it. We offer a hosted "
-"version with convenient management and support."
+"End-of-year inventory in one click. No more \"did we use 12 or 14?\" "
+"debates."
 msgstr ""
 
-#: app/templates/www/features.html:79 app/templates/www/index.html:22
-#: app/templates/www/pricing.html:49 app/templates/www/pricing.html:72
-msgid "Try free for 14 days"
+#: app/templates/www/features.html:184
+msgid "Security at the database level"
+msgstr ""
+
+#: app/templates/www/features.html:185
+msgid ""
+"Not \"the app filters it out\". PostgreSQL Row-Level Security physically "
+"isolates data per client. The app cannot return a foreign order — even if"
+" a bug slipped through."
+msgstr ""
+
+#: app/templates/www/features.html:187
+msgid "Argon2 password hashing (not SHA, not bcrypt)"
+msgstr ""
+
+#: app/templates/www/features.html:188
+msgid "CSRF protection on every POST"
+msgstr ""
+
+#: app/templates/www/features.html:189
+msgid "HttpOnly + Secure + SameSite=Lax cookies"
+msgstr ""
+
+#: app/templates/www/features.html:190
+msgid "Rate limiting for login, signup, contact"
+msgstr ""
+
+#: app/templates/www/features.html:191
+msgid "Audit trail for every admin action, 3 years retention"
+msgstr ""
+
+#: app/templates/www/features.html:207
+msgid "every SELECT/UPDATE/DELETE auto-filtered"
+msgstr ""
+
+#: app/templates/www/features.html:217
+msgid "run your own copy"
+msgstr ""
+
+#: app/templates/www/features.html:223
+msgid "ready on localhost:8000"
+msgstr ""
+
+#: app/templates/www/features.html:230
+msgid "Open source, auditable, yours"
+msgstr ""
+
+#: app/templates/www/features.html:231
+msgid ""
+"Full source on GitHub, AGPL-3.0. Host it on your own server, audit the "
+"security, fork it if you need to."
+msgstr ""
+
+#: app/templates/www/features.html:232
+msgid ""
+"Or use our managed hosting — identical code, we just take care of "
+"backups, updates, and uptime."
+msgstr ""
+
+#: app/templates/www/features.html:234 app/templates/www/self_hosted.html:22
+msgid "Repository on GitHub"
+msgstr ""
+
+#: app/templates/www/features.html:243
+msgid "See it in your own data"
+msgstr ""
+
+#: app/templates/www/features.html:244
+msgid "Sign up, invite one client, run one order through. 15 minutes, no card."
+msgstr ""
+
+#: app/templates/www/features.html:246 app/templates/www/index.html:304
+#: app/templates/www/index.html:327 app/templates/www/pricing.html:57
+#: app/templates/www/pricing.html:82
+msgid "Start 30-day trial"
 msgstr ""
 
 #: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
-#: app/templates/www/www_base.html:33
+#: app/templates/www/www_base.html:82
 msgid "Imprint"
 msgstr ""
 
@@ -2937,257 +3163,798 @@ msgstr "Platform"
 msgid "Related documents"
 msgstr "Create portal"
 
+#: app/templates/www/imprint.html:54 app/templates/www/terms.html:3
+#: app/templates/www/terms.html:7
+msgid "Terms of Service"
+msgstr "Terms of Service"
+
+#: app/templates/www/imprint.html:55 app/templates/www/privacy.html:3
+#: app/templates/www/privacy.html:7 app/templates/www/terms.html:58
+msgid "Privacy Policy"
+msgstr "Privacy Policy"
+
 #: app/templates/www/imprint.html:56
 msgid "Cookies Policy"
 msgstr ""
 
-#: app/templates/www/index.html:3 app/templates/www/index.html:10
-msgid "Client portal for manufacturing SMEs"
+#: app/templates/www/index.html:3
+msgid "Customer portal for manufacturing SMEs in the Czech Republic"
 msgstr ""
 
-#: app/templates/www/index.html:13
-msgid "Replace emails and phone calls with"
-msgstr ""
-
-#: app/templates/www/index.html:14
-#, fuzzy
-msgid "a structured portal"
-msgstr "Select portal"
-
-#: app/templates/www/index.html:17
+#: app/templates/www/index.html:5
 msgid ""
-"Let your clients place orders online, share drawings, track production "
-"status, and keep an overview of their materials at your warehouse. No "
-"complex ERP, no lengthy implementation."
+"Replace emails and Excel with a clean customer portal. Your clients see "
+"orders, drawings and production status on their own — 24/7. 30 days free,"
+" no card."
 msgstr ""
 
-#: app/templates/www/index.html:26
-msgid "Self-hosted installation guide"
+#: app/templates/www/index.html:24
+msgid "Open source · Data in the EU · AGPL-3.0"
 msgstr ""
 
-#: app/templates/www/index.html:30
-msgid "No credit card required · Open source (AGPL-3.0) · GDPR-ready (EU data)"
+#: app/templates/www/index.html:28
+msgid "Stop picking up the phone."
 msgstr ""
 
-#: app/templates/www/index.html:39
-msgid "Everything your manufacturing SME needs"
+#: app/templates/www/index.html:29
+msgid "Your clients see it themselves."
 msgstr ""
 
-#: app/templates/www/index.html:46
-msgid "Orders with attachments"
-msgstr ""
-
-#: app/templates/www/index.html:48
+#: app/templates/www/index.html:33
 msgid ""
-"Client uploads drawings, specifies quantities, you quote and set a "
-"deadline. 8-step workflow with audit trail."
+"A customer portal for Czech manufacturing SMEs. Orders, drawings, "
+"production status — in one place, 24/7. Without Excel, without a massive "
+"ERP."
 msgstr ""
 
-#: app/templates/www/index.html:57
-msgid "Share only the items relevant to each client. Prices, units, descriptions."
+#: app/templates/www/index.html:39 app/templates/www/index.html:446
+msgid "Try free for 30 days"
 msgstr ""
 
-#: app/templates/www/index.html:64
-msgid "Client assets at your warehouse"
+#: app/templates/www/index.html:45
+msgid "Book a 15-min demo"
 msgstr ""
 
-#: app/templates/www/index.html:66
+#: app/templates/www/index.html:50
+msgid "No credit card · Cancel anytime · Up and running in 30 minutes"
+msgstr ""
+
+#: app/templates/www/index.html:67
+msgid "The situation today"
+msgstr ""
+
+#: app/templates/www/index.html:69
+msgid "You run a workshop, not an email client."
+msgstr ""
+
+#: app/templates/www/index.html:72
 msgid ""
-"Precise tracking of client materials/tools in stock. Receive, issue, "
-"consume, current balance."
-msgstr ""
-
-#: app/templates/www/index.html:73
-msgid "Multi-tenant security"
-msgstr ""
-
-#: app/templates/www/index.html:75
-msgid ""
-"PostgreSQL Row-Level Security isolates data at the database level. Each "
-"client sees only their own."
+"Five calls before lunch asking \"where's my order?\" — and three "
+"different drawing versions in Outlook. It adds up fast."
 msgstr ""
 
 #: app/templates/www/index.html:82
-#, fuzzy
-msgid "Email notifications"
-msgstr "Email verification"
+msgid "Phones that won't stop"
+msgstr ""
 
 #: app/templates/www/index.html:84
 msgid ""
-"New orders, status changes, comments — automatically by email. Per-user "
-"preferences."
+"\"Every day twenty people call me asking where their order is. Then I "
+"have to walk to the shop floor and ask the foreman.\""
 msgstr ""
 
-#: app/templates/www/index.html:93
+#: app/templates/www/index.html:92
+msgid "Outlook as a drawing vault"
+msgstr ""
+
+#: app/templates/www/index.html:94
 msgid ""
-"Full code under AGPL-3.0 on GitHub. Self-host it on your own "
-"infrastructure for free."
+"\"I keep searching Outlook for which version of the drawing the client "
+"sent last week. And sometimes we make parts from the wrong revision.\""
 msgstr ""
 
-#: app/templates/www/index.html:103
-msgid "Get started in 5 minutes"
+#: app/templates/www/index.html:102
+msgid "Excel only Jana updates"
 msgstr ""
 
-#: app/templates/www/index.html:105
+#: app/templates/www/index.html:104
 msgid ""
-"Sign up, invite your first client, and accept your first order. No "
-"installation, no lengthy negotiations."
+"\"We have a spreadsheet, but only Jana keeps it current. When she's sick,"
+" nobody knows anything.\""
 msgstr ""
 
-#: app/templates/www/index.html:109 app/templates/www/www_base.html:21
-msgid "Try for free"
+#: app/templates/www/index.html:115
+msgid "Everything that matters"
 msgstr ""
 
-#: app/templates/www/pricing.html:3 app/templates/www/www_base.html:9
+#: app/templates/www/index.html:117
+msgid "Built specifically for manufacturing SMEs"
+msgstr ""
+
+#: app/templates/www/index.html:120
+msgid ""
+"Not a generic CRM. Not an oversized ERP. An in-between that knows what a "
+"drawing revision and a production deadline are."
+msgstr ""
+
+#: app/templates/www/index.html:138
+msgid ""
+"8-step process from request to delivery. Every transition is audited — "
+"who, when, why. No more guessing."
+msgstr ""
+
+#: app/templates/www/index.html:144
+msgid "Drawings and CAD attached to orders"
+msgstr ""
+
+#: app/templates/www/index.html:145
+msgid ""
+"PDF, PNG, DWG, DXF, STEP. Direct upload, instant preview. The right "
+"revision next to the right order — every time."
+msgstr ""
+
+#: app/templates/www/index.html:151
+msgid "Status tracking in real time"
+msgstr ""
+
+#: app/templates/www/index.html:152
+msgid ""
+"The client sees on their own: DRAFT · SUBMITTED · QUOTED · CONFIRMED · IN"
+" PRODUCTION · READY · DELIVERED. Five calls a day turn into zero."
+msgstr ""
+
+#: app/templates/www/index.html:158
+#, fuzzy
+msgid "Customer material on stock"
+msgstr "As a customer contact"
+
+#: app/templates/www/index.html:159
+msgid ""
+"Does the client have material, tooling, or semi-finished product at your "
+"place? Receipts, issues, balance — transparent for both sides."
+msgstr ""
+
+#: app/templates/www/index.html:165
+#, fuzzy
+msgid "Email notifications that make sense"
+msgstr "Email verification"
+
+#: app/templates/www/index.html:166
+msgid ""
+"Client comments, status changes, new drawings. Each user sets what they "
+"want to be notified about. No more inbox overload."
+msgstr ""
+
+#: app/templates/www/index.html:172
+msgid "Every client sees only their own"
+msgstr ""
+
+#: app/templates/www/index.html:173
+msgid ""
+"PostgreSQL Row-Level Security. Data is isolated at the database level — "
+"not by a view we can forget. Zero risk of cross-visibility."
+msgstr ""
+
+#: app/templates/www/index.html:180
+msgid "See all features"
+msgstr ""
+
+#: app/templates/www/index.html:191
+msgid "How it works"
+msgstr ""
+
+#: app/templates/www/index.html:193
+msgid "Three steps, thirty minutes. No \"implementation project\"."
+msgstr ""
+
+#: app/templates/www/index.html:201
+#, fuzzy
+msgid "Sign up, choose a subdomain"
+msgstr "Portal subdomain"
+
+#: app/templates/www/index.html:204
+msgid ""
+"Email, password, Company ID. You'll get your own address — e.g. "
+"yourfirm.assoluto.eu — in 30 seconds."
+msgstr ""
+
+#: app/templates/www/index.html:210
+msgid "Invite your first clients"
+msgstr ""
+
+#: app/templates/www/index.html:213
+msgid ""
+"Click, enter their email, the invite goes out. They see only their own "
+"orders and drawings. Nothing else."
+msgstr ""
+
+#: app/templates/www/index.html:219
+#, fuzzy
+msgid "Orders run on their own"
+msgstr "Orders"
+
+#: app/templates/www/index.html:222
+msgid ""
+"Client uploads a drawing, you quote, they confirm. Shop floor updates "
+"status, client sees it. Your email inbox shrinks by half."
+msgstr ""
+
+#: app/templates/www/index.html:233
+msgid "Why Assoluto"
+msgstr ""
+
+#: app/templates/www/index.html:235
+msgid "Halfway between Excel and a 600K CZK ERP"
+msgstr ""
+
+#: app/templates/www/index.html:238
+msgid ""
+"You outgrew the spreadsheet. You don't want a year-long Helios "
+"implementation. Here's what's in between."
+msgstr ""
+
+#: app/templates/www/index.html:247
+#, fuzzy
+msgid "Excel / email"
+msgstr "Check your email"
+
+#: app/templates/www/index.html:249
+msgid "Big ERP"
+msgstr ""
+
+#: app/templates/www/index.html:261
+msgid "Setup"
+msgstr ""
+
+#: app/templates/www/index.html:261
+msgid "0 CZK, 10 years of habits"
+msgstr ""
+
+#: app/templates/www/index.html:261
+msgid "30 minutes, zero training"
+msgstr ""
+
+#: app/templates/www/index.html:261
+msgid "3–9 months, 200–800K CZK"
+msgstr ""
+
+#: app/templates/www/index.html:262
+msgid "Monthly cost"
+msgstr ""
+
+#: app/templates/www/index.html:262
+msgid "The cost of your patience"
+msgstr ""
+
+#: app/templates/www/index.html:262
+msgid "490 – 1 490 CZK"
+msgstr ""
+
+#: app/templates/www/index.html:262
+msgid "5 – 25K CZK / user"
+msgstr ""
+
+#: app/templates/www/index.html:263
+#, fuzzy
+msgid "Client sees order status"
+msgstr "Clients"
+
+#: app/templates/www/index.html:263
+msgid "often only via a separate B2B module"
+msgstr ""
+
+#: app/templates/www/index.html:264 app/templates/www/pricing.html:130
+msgid "Czech support"
+msgstr ""
+
+#: app/templates/www/index.html:264
+msgid "billable by the hour"
+msgstr ""
+
+#: app/templates/www/index.html:265
+#, fuzzy
+msgid "Audit trail"
+msgstr "Catalog"
+
+#: app/templates/www/index.html:266 app/templates/www/pricing.html:126
+msgid "Data in the EU"
+msgstr ""
+
+#: app/templates/www/index.html:266
+#, fuzzy
+msgid "your laptop"
+msgstr "Your name"
+
+#: app/templates/www/index.html:266
+msgid "Hetzner DE"
+msgstr ""
+
+#: app/templates/www/index.html:266
+msgid "depends on the vendor"
+msgstr ""
+
+#: app/templates/www/index.html:267
+#, fuzzy
+msgid "Can be cancelled"
+msgstr "Cancelled"
+
+#: app/templates/www/index.html:267
+#, fuzzy
+msgid "at any time"
+msgstr "Confirmed"
+
+#: app/templates/www/index.html:267
+#, fuzzy
+msgid "12–36 month contracts"
+msgstr "Clients"
+
+#: app/templates/www/index.html:278 app/templates/www/pricing.html:3
+#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:58
 msgid "Pricing"
 msgstr ""
 
-#: app/templates/www/pricing.html:8
-msgid "Simple pricing"
+#: app/templates/www/index.html:280
+msgid "A honest price list. No sales call required."
 msgstr ""
 
-#: app/templates/www/pricing.html:10
-msgid "14-day free trial. Prices exclude VAT."
+#: app/templates/www/index.html:283
+msgid "30 days free. No card. Prices exclude VAT"
 msgstr ""
 
-#: app/templates/www/pricing.html:18
+#: app/templates/www/index.html:291
+msgid "For a small shop, 3 staff users"
+msgstr ""
+
+#: app/templates/www/index.html:294 app/templates/www/index.html:317
+#: app/templates/www/pricing.html:46 app/templates/www/pricing.html:70
+msgid "CZK / month"
+msgstr ""
+
+#: app/templates/www/index.html:297 app/templates/www/pricing.html:50
+msgid "3 staff users"
+msgstr ""
+
+#: app/templates/www/index.html:298 app/templates/www/pricing.html:51
+#, fuzzy
+msgid "20 client contacts"
+msgstr "Clients"
+
+#: app/templates/www/index.html:299 app/templates/www/pricing.html:52
+#, fuzzy
+msgid "100 orders / month"
+msgstr "Orders"
+
+#: app/templates/www/index.html:300 app/templates/www/pricing.html:53
+msgid "2 GB attachment storage"
+msgstr ""
+
+#: app/templates/www/index.html:301 app/templates/www/pricing.html:54
+msgid "Email support (48 h)"
+msgstr ""
+
+#: app/templates/www/index.html:311 app/templates/www/pricing.html:64
+msgid "Most chosen"
+msgstr ""
+
+#: app/templates/www/index.html:314
+msgid "For growing manufacturers, 15 users"
+msgstr ""
+
+#: app/templates/www/index.html:320 app/templates/www/pricing.html:74
+msgid "15 staff users"
+msgstr ""
+
+#: app/templates/www/index.html:321 app/templates/www/pricing.html:75
+#, fuzzy
+msgid "100 client contacts"
+msgstr "Clients"
+
+#: app/templates/www/index.html:322 app/templates/www/pricing.html:76
+#, fuzzy
+msgid "Unlimited orders"
+msgstr "Orders"
+
+#: app/templates/www/index.html:323 app/templates/www/pricing.html:77
+msgid "20 GB attachment storage"
+msgstr ""
+
+#: app/templates/www/index.html:324 app/templates/www/pricing.html:78
+msgid "Priority email support (12 h)"
+msgstr ""
+
+#: app/templates/www/index.html:334 app/templates/www/pricing.html:24
 msgid "Self-hosted, AGPL-3.0"
 msgstr ""
 
-#: app/templates/www/pricing.html:21
-msgid "✓ Unlimited users"
+#: app/templates/www/index.html:337
+#, fuzzy
+msgid "forever"
+msgstr "Orders"
+
+#: app/templates/www/index.html:340 app/templates/www/pricing.html:30
+msgid "No user limits"
 msgstr ""
 
-#: app/templates/www/pricing.html:22 app/templates/www/pricing.html:65
-msgid "✓ Unlimited orders"
+#: app/templates/www/index.html:341
+msgid "Your server, your data"
 msgstr ""
 
-#: app/templates/www/pricing.html:23
-msgid "✓ Your own Postgres + S3"
+#: app/templates/www/index.html:342 app/templates/www/pricing.html:32
+msgid "Auditable open source"
 msgstr ""
 
-#: app/templates/www/pricing.html:24
-msgid "✓ GitHub community"
+#: app/templates/www/index.html:343
+msgid "Community on GitHub"
 msgstr ""
 
-#: app/templates/www/pricing.html:28
-msgid "Guide"
+#: app/templates/www/index.html:346 app/templates/www/pricing.html:36
+msgid "Installation guide"
 msgstr ""
 
-#: app/templates/www/pricing.html:35
-msgid "Small teams"
+#: app/templates/www/index.html:352
+#, fuzzy
+msgid "Need more?"
+msgstr "Orders"
+
+#: app/templates/www/index.html:353
+msgid "Enterprise plan with SLA →"
 msgstr ""
 
-#: app/templates/www/pricing.html:37
-msgid "490 CZK"
+#: app/templates/www/index.html:362
+#, fuzzy
+msgid "Early access"
+msgstr "Your name"
+
+#: app/templates/www/index.html:364
+msgid "What our first customers say"
 msgstr ""
 
-#: app/templates/www/pricing.html:41
-msgid "✓ 3 staff users"
+#: app/templates/www/index.html:367
+msgid ""
+"Assoluto is in early-access launch. Logos will appear here as soon as "
+"clients agree to be published."
 msgstr ""
 
-#: app/templates/www/pricing.html:42
-msgid "✓ 20 client contacts"
+#: app/templates/www/index.html:375
+msgid ""
+"Five calls a day asking about orders turned into zero. I finally have "
+"time for the shop floor."
 msgstr ""
 
-#: app/templates/www/pricing.html:43
-msgid "✓ 100 orders/month"
+#: app/templates/www/index.html:378
+msgid "Owner, metalwork shop — Morava, 12 employees"
 msgstr ""
 
-#: app/templates/www/pricing.html:44
-msgid "✓ 2 GB storage"
+#: app/templates/www/index.html:384
+msgid ""
+"No more parts made from the wrong drawing revision. Every attachment "
+"belongs to exactly one order."
 msgstr ""
 
-#: app/templates/www/pricing.html:45
-msgid "✓ Email support (48 h)"
+#: app/templates/www/index.html:387
+msgid "Production manager, CNC machining — Vysočina, 22 employees"
 msgstr ""
 
-#: app/templates/www/pricing.html:55
-msgid "Most popular"
+#: app/templates/www/index.html:393
+msgid ""
+"Helios wanted 700K for implementation. With Assoluto we were running in "
+"an afternoon for 490 CZK a month."
 msgstr ""
 
-#: app/templates/www/pricing.html:57
-msgid "Growing businesses"
+#: app/templates/www/index.html:396
+msgid "Co-owner, sheet-metal fabrication — Prague, 8 employees"
 msgstr ""
 
-#: app/templates/www/pricing.html:59
-msgid "1 490 CZK"
-msgstr ""
-
-#: app/templates/www/pricing.html:63
-msgid "✓ 15 staff users"
-msgstr ""
-
-#: app/templates/www/pricing.html:64
-msgid "✓ 100 client contacts"
-msgstr ""
-
-#: app/templates/www/pricing.html:66
-msgid "✓ 20 GB storage"
-msgstr ""
-
-#: app/templates/www/pricing.html:67
-msgid "✓ Email support (12 h)"
-msgstr ""
-
-#: app/templates/www/pricing.html:68
-msgid "✓ SSO (coming soon)"
-msgstr ""
-
-#: app/templates/www/pricing.html:79
-msgid "Custom"
-msgstr ""
-
-#: app/templates/www/pricing.html:82
-msgid "✓ Unlimited limits"
-msgstr ""
-
-#: app/templates/www/pricing.html:83
-msgid "✓ Custom domain"
-msgstr ""
-
-#: app/templates/www/pricing.html:84
-msgid "✓ Dedicated support (4 h)"
-msgstr ""
-
-#: app/templates/www/pricing.html:85
-msgid "✓ SLA"
-msgstr ""
-
-#: app/templates/www/pricing.html:86
-msgid "✓ On-premises deployment possible"
-msgstr ""
-
-#: app/templates/www/pricing.html:95
-msgid "Annual subscription"
-msgstr ""
-
-#: app/templates/www/pricing.html:96
-msgid "2 months free — Starter 4 900 CZK/year, Pro 14 900 CZK/year."
-msgstr ""
-
-#: app/templates/www/pricing.html:97
+#: app/templates/www/index.html:407
 msgid "Frequently asked questions"
 msgstr ""
 
+#: app/templates/www/index.html:409
+msgid "Things people actually want to know"
+msgstr ""
+
+#: app/templates/www/index.html:424 app/templates/www/index.html:502
+msgid "Where is my data stored?"
+msgstr ""
+
+#: app/templates/www/index.html:424 app/templates/www/index.html:503
+msgid ""
+"On Hetzner servers in Germany (EU). We use PostgreSQL encrypted at rest "
+"and S3-compatible storage. A full list of subprocessors is in the Privacy"
+" Policy."
+msgstr ""
+
+#: app/templates/www/index.html:425 app/templates/www/index.html:507
+msgid "Can I pay by bank transfer, not just by card?"
+msgstr ""
+
+#: app/templates/www/index.html:425 app/templates/www/index.html:508
+msgid ""
+"Yes. You can pay by invoice for quarterly or annual subscriptions. Pay by"
+" card for monthly. For Enterprise we send an invoice with net-14 terms."
+msgstr ""
+
+#: app/templates/www/index.html:426 app/templates/www/index.html:512
+msgid "Do I need to sign anything?"
+msgstr ""
+
+#: app/templates/www/index.html:426 app/templates/www/index.html:513
+msgid ""
+"No long contract. Month-to-month by default, cancel any time in two "
+"clicks. Data export to CSV is always available."
+msgstr ""
+
+#: app/templates/www/index.html:427
+msgid "Can I integrate with Pohoda or Money S3?"
+msgstr ""
+
+#: app/templates/www/index.html:427
+msgid ""
+"CSV export is available today. A Pohoda XML connector is on the roadmap; "
+"write to us via Contact if it would unblock you — we'll prioritise it."
+msgstr ""
+
+#: app/templates/www/index.html:428 app/templates/www/index.html:517
+msgid "Is it secure? What if the server fails?"
+msgstr ""
+
+#: app/templates/www/index.html:428 app/templates/www/index.html:518
+msgid ""
+"Row-Level Security, Argon2-hashed passwords, CSRF protection, HTTPS-only "
+"cookies, daily backups (retained 14 days). Monitored 24/7 by UptimeRobot,"
+" incident-response email address security@assoluto.eu."
+msgstr ""
+
+#: app/templates/www/index.html:429
+msgid "Will you teach my people how to use it?"
+msgstr ""
+
+#: app/templates/www/index.html:429
+msgid ""
+"30-minute video call included with every paid plan. Most shops don't need"
+" it — the portal is designed so that a client who knows Outlook can place"
+" their first order in 3 minutes."
+msgstr ""
+
+#: app/templates/www/index.html:430
+msgid "What if I want to leave?"
+msgstr ""
+
+#: app/templates/www/index.html:430
+msgid ""
+"Cancel in the admin panel. Data stays available for 30 days after "
+"cancellation so you can export it. Then it's irreversibly deleted (or, on"
+" request, we'll delete it immediately)."
+msgstr ""
+
+#: app/templates/www/index.html:439
+msgid "Ready to stop picking up the phone?"
+msgstr ""
+
+#: app/templates/www/index.html:442
+msgid ""
+"30 days free. No card. No \"quick call with sales\". Just sign up and try"
+" it."
+msgstr ""
+
+#: app/templates/www/index.html:450
+#, fuzzy
+msgid "Or write / call us"
+msgstr "Switch to"
+
+#: app/templates/www/index.html:454
+msgid "Up and running in 30 minutes · Data in the EU (Hetzner DE) · Czech support"
+msgstr ""
+
+#: app/templates/www/index.html:469 app/templates/www/www_base.html:40
+msgid ""
+"Client portal for Czech manufacturing SMEs — orders, drawings, production"
+" status."
+msgstr ""
+
+#: app/templates/www/index.html:477 app/templates/www/index.html:484
+#: app/templates/www/www_base.html:46
+#, fuzzy
+msgid "30-day free trial, no credit card required"
+msgstr "14-day free trial. No credit card required."
+
+#: app/templates/www/pricing.html:4
+msgid ""
+"Honest pricing: 490 CZK / month for small shops, 1 490 CZK for growing "
+"ones, free self-hosted. 30 days free, no card, cancel any time."
+msgstr ""
+
+#: app/templates/www/pricing.html:13
+msgid "A honest price list"
+msgstr ""
+
+#: app/templates/www/pricing.html:16
+msgid "30 days free. No card. Cancel any time. Prices exclude VAT"
+msgstr ""
+
+#: app/templates/www/pricing.html:28
+msgid "Run it yourself, forever"
+msgstr ""
+
+#: app/templates/www/pricing.html:31
+msgid "Your own Postgres + S3"
+msgstr ""
+
+#: app/templates/www/pricing.html:33
+msgid "GitHub issues + community"
+msgstr ""
+
+#: app/templates/www/pricing.html:43
+msgid "Small shop, 3 staff users"
+msgstr ""
+
+#: app/templates/www/pricing.html:48
+msgid "The price of lunch for the team"
+msgstr ""
+
+#: app/templates/www/pricing.html:67
+msgid "Growing manufacturer, 15 users"
+msgstr ""
+
+#: app/templates/www/pricing.html:72
+msgid "Cheaper than one bad day on the shop floor"
+msgstr ""
+
+#: app/templates/www/pricing.html:79
+msgid "SSO (coming soon)"
+msgstr ""
+
+#: app/templates/www/pricing.html:89
+msgid "Over 15 people, SLA, custom domain"
+msgstr ""
+
+#: app/templates/www/pricing.html:91
+#, fuzzy
+msgid "Talk to us"
+msgstr "Switch to"
+
+#: app/templates/www/pricing.html:93
+msgid "We'll draw up an offer in 1 working day"
+msgstr ""
+
+#: app/templates/www/pricing.html:95
+msgid "No limits on users / orders / storage"
+msgstr ""
+
+#: app/templates/www/pricing.html:96
+msgid "Your own domain (portal.yourfirm.cz)"
+msgstr ""
+
+#: app/templates/www/pricing.html:97
+msgid "Priority support (4 h)"
+msgstr ""
+
+#: app/templates/www/pricing.html:98
+msgid "SLA 99.9 percent"
+msgstr ""
+
 #: app/templates/www/pricing.html:99
+msgid "On-premises deployment possible"
+msgstr ""
+
+#: app/templates/www/pricing.html:114
+msgid "Pay annually, save two months"
+msgstr ""
+
+#: app/templates/www/pricing.html:115
 msgid ""
-"We process credit cards through Stripe; you will receive an invoice by "
-"email."
+"Starter 4 900 CZK / year · Pro 14 900 CZK / year. Paid by bank transfer "
+"with an invoice net-14. No card required."
 msgstr ""
 
-#: app/templates/www/pricing.html:100
+#: app/templates/www/pricing.html:122
+msgid "What's included in every plan"
+msgstr ""
+
+#: app/templates/www/pricing.html:130
+msgid "real people, not a chatbot."
+msgstr ""
+
+#: app/templates/www/pricing.html:134
+msgid "Daily backups"
+msgstr ""
+
+#: app/templates/www/pricing.html:134
+msgid "kept 14 days, restorable on request."
+msgstr ""
+
+#: app/templates/www/pricing.html:138
+#, fuzzy
+msgid "GDPR-ready"
+msgstr "Ready"
+
+#: app/templates/www/pricing.html:138
+msgid "subprocessor list, DPA on request."
+msgstr ""
+
+#: app/templates/www/pricing.html:142
+msgid "CSV export"
+msgstr ""
+
+#: app/templates/www/pricing.html:142
+msgid "your data is yours. Leave any time."
+msgstr ""
+
+#: app/templates/www/pricing.html:146
+msgid "Uptime monitoring"
+msgstr ""
+
+#: app/templates/www/pricing.html:146
+msgid "UptimeRobot 24/7, status page on request."
+msgstr ""
+
+#: app/templates/www/pricing.html:153
+msgid "Pricing FAQ"
+msgstr ""
+
+#: app/templates/www/pricing.html:165
+msgid "Is a card required for the trial?"
+msgstr ""
+
+#: app/templates/www/pricing.html:165
 msgid ""
-"You can upgrade or downgrade your plan at any time; the difference will "
-"be prorated."
+"No. Sign up with just an email. You only enter a card if you decide to "
+"continue paying after 30 days — or you can switch to annual billing by "
+"bank transfer."
 msgstr ""
 
-#: app/templates/www/pricing.html:101
-msgid "You can cancel your account and export your data (CSV)."
+#: app/templates/www/pricing.html:166
+msgid "How does billing actually work?"
 msgstr ""
 
-#: app/templates/www/pricing.html:102
-msgid "Prices do not apply to the self-hosted version — it is free forever."
+#: app/templates/www/pricing.html:166
+msgid ""
+"Monthly plan: card via Stripe, invoice emailed the same day. Annual plan:"
+" bank transfer with a Czech invoice, net-14. On every invoice, VAT is "
+"shown separately."
+msgstr ""
+
+#: app/templates/www/pricing.html:167
+msgid "Can I change plans later?"
+msgstr ""
+
+#: app/templates/www/pricing.html:167
+msgid ""
+"Yes, any time. The difference is prorated down to the day. Downgrade "
+"happens at the start of the next billing period (you keep what you paid "
+"for)."
+msgstr ""
+
+#: app/templates/www/pricing.html:168
+msgid "What happens when I cancel?"
+msgstr ""
+
+#: app/templates/www/pricing.html:168
+msgid ""
+"Your account stays read-only for 30 days so you can export to CSV. Then "
+"data is irreversibly deleted. If you need immediate deletion, one email "
+"to privacy@assoluto.eu does it."
+msgstr ""
+
+#: app/templates/www/pricing.html:169
+msgid "Does the self-hosted Community version cost anything?"
+msgstr ""
+
+#: app/templates/www/pricing.html:169
+msgid ""
+"No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No "
+"restrictions on users or features — only you need to run updates "
+"yourself."
+msgstr ""
+
+#: app/templates/www/pricing.html:170
+msgid "Do you have a discount for schools / associations / non-profits?"
+msgstr ""
+
+#: app/templates/www/pricing.html:170
+msgid ""
+"Yes. Write to us at opensource@assoluto.eu with a description of the use "
+"— half price is typical, free access for small organisations."
 msgstr ""
 
 #: app/templates/www/privacy.html:14
@@ -3390,123 +4157,160 @@ msgid ""
 "your consent."
 msgstr ""
 
-#: app/templates/www/self_hosted.html:3 app/templates/www/www_base.html:12
+#: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
+#: app/templates/www/www_base.html:61
 msgid "Self-hosted"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:8
-msgid "Self-hosted installation"
+#: app/templates/www/self_hosted.html:4
+msgid ""
+"Run Assoluto on your own server. AGPL-3.0. Docker Compose. Free, no user "
+"limits, your data stays with you."
 msgstr ""
 
-#: app/templates/www/self_hosted.html:10
-msgid ""
-"Complete open source release under the AGPL-3.0 license. Host the portal "
-"on your own server — free and without limitations."
+#: app/templates/www/self_hosted.html:13
+msgid "Your server. Your data. Your rules."
 msgstr ""
 
 #: app/templates/www/self_hosted.html:16
+msgid ""
+"Full source code under AGPL-3.0. Host Assoluto on your own VPS — free, no"
+" limits, with Docker Compose."
+msgstr ""
+
+#: app/templates/www/self_hosted.html:26
+#, fuzzy
+msgid "Need help? Write to us"
+msgstr "Switch to"
+
+#: app/templates/www/self_hosted.html:34
 #, fuzzy
 msgid "Requirements"
 msgstr "required"
 
-#: app/templates/www/self_hosted.html:18
+#: app/templates/www/self_hosted.html:38
 msgid "Linux server with Docker 24+ (2 vCPU, 2 GB RAM to start)"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:19
-msgid "PostgreSQL 16 (runs in Docker Compose)"
+#: app/templates/www/self_hosted.html:42
+msgid "PostgreSQL 16 (runs inside the Compose stack)"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:20
+#: app/templates/www/self_hosted.html:46
 msgid "S3-compatible storage (MinIO, Backblaze B2, Cloudflare R2, AWS S3)"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:21
+#: app/templates/www/self_hosted.html:50
 msgid "SMTP relay for outgoing emails"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:22
-msgid "Public hostname + TLS (we recommend Caddy or nginx)"
+#: app/templates/www/self_hosted.html:54
+msgid "Public hostname + TLS (Caddy or nginx recommended)"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:27
-msgid "Quickstart (local demo)"
+#: app/templates/www/self_hosted.html:61
+msgid "Local demo in 60 seconds"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:42
+#: app/templates/www/self_hosted.html:62
+msgid "clone, boot, done"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:68
+msgid "in another terminal — seed demo data"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:71
+msgid "open http://localhost:8000"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:72
+msgid "staff"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:73
+#, fuzzy
+msgid "client contact"
+msgstr "Clients"
+
+#: app/templates/www/self_hosted.html:78
 msgid "Production deployment"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:44
-msgid "The repo includes a"
+#: app/templates/www/self_hosted.html:80
+msgid "The repo ships"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:44
-msgid ""
-"for production use behind an Nginx proxy with TLS configuration ready. "
-"Just fill in the ENV variables (SMTP, S3, domain) and run"
+#: app/templates/www/self_hosted.html:80
+msgid "ready for nginx + TLS. Fill in the env (SMTP, S3, domain) and run:"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:48
-#, fuzzy
-msgid "Details:"
-msgstr "Email"
-
-#: app/templates/www/self_hosted.html:49
-msgid "list of ENV variables in"
+#: app/templates/www/self_hosted.html:84
+msgid "Step-by-step guides:"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:54
+#: app/templates/www/self_hosted.html:86
+msgid "env var list in"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:93
 msgid "Single-tenant vs. multi-tenant"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:56
-msgid "The self-hosted installation runs by default as"
+#: app/templates/www/self_hosted.html:95
+msgid "By default the self-hosted install runs as"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:57
+#: app/templates/www/self_hosted.html:96
 #, fuzzy
 msgid "single-tenant"
 msgstr "Manage tenants"
 
-#: app/templates/www/self_hosted.html:57
+#: app/templates/www/self_hosted.html:96
 msgid ""
-"(one \"supplier\", multiple client contacts). If you need to run multiple"
-" separate suppliers on one instance, enable the"
+"— one supplier, many client contacts. For running multiple independent "
+"suppliers on the same instance, set"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:57
-msgid "variable in"
-msgstr ""
-
-#: app/templates/www/self_hosted.html:57
+#: app/templates/www/self_hosted.html:98
 msgid ""
-"— this activates the opt-in SaaS layer with Identity, cross-tenant login,"
-" and admin CRUD for tenants."
+"— this enables the opt-in SaaS layer with cross-tenant identity, signup, "
+"and platform admin."
 msgstr ""
 
-#: app/templates/www/self_hosted.html:62
-msgid "Support"
+#: app/templates/www/self_hosted.html:104
+msgid "Self-hoster support"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:64
-msgid "Self-hosters have access to"
+#: app/templates/www/self_hosted.html:106
+msgid "Open an issue or a discussion:"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:65
+#: app/templates/www/self_hosted.html:107
 msgid "GitHub issues"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:66
-msgid ""
-"and discussions. For commercial support, security audits, or custom "
-"development, use the"
+#: app/templates/www/self_hosted.html:110
+msgid "For commercial support, a security audit, or custom development, use the"
 msgstr ""
 
-#: app/templates/www/self_hosted.html:66
+#: app/templates/www/self_hosted.html:111
 #, fuzzy
 msgid "contact form"
 msgstr "Platform"
+
+#: app/templates/www/self_hosted.html:117
+msgid "A word on AGPL-3.0"
+msgstr ""
+
+#: app/templates/www/self_hosted.html:119
+msgid ""
+"Assoluto is released under AGPL-3.0. Practically: you may run it free of "
+"charge, modify it, and host it — even commercially. If you offer a "
+"modified version as a service to third parties, you must publish your "
+"modifications under the same licence. For a closed-source deployment, "
+"contact us for a commercial licence."
+msgstr ""
 
 #: app/templates/www/terms.html:14
 msgid ""
@@ -3558,7 +4362,7 @@ msgstr ""
 
 #: app/templates/www/terms.html:43
 msgid ""
-"A new account receives a 14-day free trial. After its expiration, the "
+"A new account receives a 30-day free trial. After its expiration, the "
 "User can continue only with an active subscription. Payments are "
 "processed through Stripe."
 msgstr ""
@@ -3614,12 +4418,23 @@ msgid ""
 "may modify the terms with 30 days' notice."
 msgstr ""
 
-#: app/templates/www/www_base.html:27
+#: app/templates/www/www_base.html:10
+msgid ""
+"Client portal for Czech manufacturing SMEs. Orders, drawings, production "
+"status — all in one place. Replace emails and Excel. 30 days free, no "
+"card."
+msgstr ""
+
+#: app/templates/www/www_base.html:70
+msgid "Try free"
+msgstr ""
+
+#: app/templates/www/www_base.html:76
 #, fuzzy
 msgid "Terms"
 msgstr "Team"
 
-#: app/templates/www/www_base.html:29
+#: app/templates/www/www_base.html:78
 #, fuzzy
 msgid "Privacy"
 msgstr "Privacy Policy"
@@ -3652,5 +4467,437 @@ msgstr "Privacy Policy"
 #~ " deletion. Billing data in accordance "
 #~ "with the law (10 years from the"
 #~ " end of the accounting period)."
+#~ msgstr ""
+
+#~ msgid "I agree to the"
+#~ msgstr "I agree to the"
+
+#~ msgid "and the"
+#~ msgstr "and the"
+
+#~ msgid ""
+#~ "Need help with deployment, interested in"
+#~ " the Enterprise plan, or found a "
+#~ "bug? Write to us and we will "
+#~ "get back to you within one "
+#~ "business day."
+#~ msgstr ""
+
+#~ msgid "Thanks — we will reply within 24 hours."
+#~ msgstr ""
+
+#~ msgid "Your name *"
+#~ msgstr "Your name"
+
+#~ msgid "Email *"
+#~ msgstr "Email"
+
+#~ msgid "What Assoluto can do"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Built for manufacturing SMEs: orders "
+#~ "with drawings, catalog, client assets, "
+#~ "multi-tenant."
+#~ msgstr ""
+
+#~ msgid "Order workflow"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Eight-step process: DRAFT → SUBMITTED"
+#~ " → QUOTED → CONFIRMED → IN_PRODUCTION"
+#~ " → READY → DELIVERED → CLOSED. "
+#~ "Every transition is audited (who, when,"
+#~ " why)."
+#~ msgstr ""
+
+#~ msgid "Client enters items (free-text or from the catalog)."
+#~ msgstr ""
+
+#~ msgid "You quote and set the deadline."
+#~ msgstr ""
+
+#~ msgid "Client confirms or proposes a change."
+#~ msgstr ""
+
+#~ msgid "Comments on the order (with internal notes for the team)."
+#~ msgstr ""
+
+#~ msgid "Automatic notifications on every status change."
+#~ msgstr ""
+
+#~ msgid "Attachments and drawings"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Direct upload to S3 (max 50 MB)."
+#~ " Thumbnails for PDFs and images. "
+#~ "Attachments can be linked to the "
+#~ "entire order or to a specific "
+#~ "item."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Shared per-tenant catalog and per-"
+#~ "customer catalog (customized for a "
+#~ "specific client). Autocomplete directly when"
+#~ " placing an order, with pre-filled"
+#~ " price and unit."
+#~ msgstr ""
+
+#~ msgid "Client asset tracking"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Does your client store materials, tools,"
+#~ " or semi-finished products with you?"
+#~ " The portal tracks receipt, dispatch, "
+#~ "and consumption. Current balance is "
+#~ "recalculated automatically. Clients only see"
+#~ " their own items."
+#~ msgstr ""
+
+#~ msgid "Multi-tenant from day one"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "PostgreSQL Row-Level Security — data "
+#~ "from different clients is physically "
+#~ "separated at the database level. "
+#~ "Subdomains"
+#~ msgstr ""
+
+#~ msgid "for each client separately."
+#~ msgstr ""
+
+#~ msgid "Permissions and security"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Roles: tenant_admin (owner), tenant_staff "
+#~ "(your team), customer_admin (client "
+#~ "representative), customer_user (client contact "
+#~ "person). Per-customer settings for what"
+#~ " the client can enter (catalog "
+#~ "selection only / free-text / "
+#~ "prices)."
+#~ msgstr ""
+
+#~ msgid "Open source"
+#~ msgstr ""
+
+#~ msgid "The entire code is licensed under AGPL-3.0 on"
+#~ msgstr ""
+
+#~ msgid "GitHub"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You can self-host it (free), audit"
+#~ " it, or fork it. We offer a "
+#~ "hosted version with convenient management "
+#~ "and support."
+#~ msgstr ""
+
+#~ msgid "Try free for 14 days"
+#~ msgstr ""
+
+#~ msgid "Client portal for manufacturing SMEs"
+#~ msgstr ""
+
+#~ msgid "Replace emails and phone calls with"
+#~ msgstr ""
+
+#~ msgid "a structured portal"
+#~ msgstr "Select portal"
+
+#~ msgid ""
+#~ "Let your clients place orders online,"
+#~ " share drawings, track production status,"
+#~ " and keep an overview of their "
+#~ "materials at your warehouse. No complex"
+#~ " ERP, no lengthy implementation."
+#~ msgstr ""
+
+#~ msgid "Self-hosted installation guide"
+#~ msgstr ""
+
+#~ msgid "No credit card required · Open source (AGPL-3.0) · GDPR-ready (EU data)"
+#~ msgstr ""
+
+#~ msgid "Everything your manufacturing SME needs"
+#~ msgstr ""
+
+#~ msgid "Orders with attachments"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Client uploads drawings, specifies quantities,"
+#~ " you quote and set a deadline. "
+#~ "8-step workflow with audit trail."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Share only the items relevant to "
+#~ "each client. Prices, units, descriptions."
+#~ msgstr ""
+
+#~ msgid "Client assets at your warehouse"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Precise tracking of client materials/tools "
+#~ "in stock. Receive, issue, consume, "
+#~ "current balance."
+#~ msgstr ""
+
+#~ msgid "Multi-tenant security"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "PostgreSQL Row-Level Security isolates "
+#~ "data at the database level. Each "
+#~ "client sees only their own."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "New orders, status changes, comments —"
+#~ " automatically by email. Per-user "
+#~ "preferences."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Full code under AGPL-3.0 on GitHub. "
+#~ "Self-host it on your own "
+#~ "infrastructure for free."
+#~ msgstr ""
+
+#~ msgid "Get started in 5 minutes"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Sign up, invite your first client, "
+#~ "and accept your first order. No "
+#~ "installation, no lengthy negotiations."
+#~ msgstr ""
+
+#~ msgid "Try for free"
+#~ msgstr ""
+
+#~ msgid "Simple pricing"
+#~ msgstr ""
+
+#~ msgid "14-day free trial. Prices exclude VAT."
+#~ msgstr ""
+
+#~ msgid "✓ Unlimited users"
+#~ msgstr ""
+
+#~ msgid "✓ Unlimited orders"
+#~ msgstr ""
+
+#~ msgid "✓ Your own Postgres + S3"
+#~ msgstr ""
+
+#~ msgid "✓ GitHub community"
+#~ msgstr ""
+
+#~ msgid "Guide"
+#~ msgstr ""
+
+#~ msgid "Small teams"
+#~ msgstr ""
+
+#~ msgid "490 CZK"
+#~ msgstr ""
+
+#~ msgid "✓ 3 staff users"
+#~ msgstr ""
+
+#~ msgid "✓ 20 client contacts"
+#~ msgstr ""
+
+#~ msgid "✓ 100 orders/month"
+#~ msgstr ""
+
+#~ msgid "✓ 2 GB storage"
+#~ msgstr ""
+
+#~ msgid "✓ Email support (48 h)"
+#~ msgstr ""
+
+#~ msgid "Most popular"
+#~ msgstr ""
+
+#~ msgid "Growing businesses"
+#~ msgstr ""
+
+#~ msgid "1 490 CZK"
+#~ msgstr ""
+
+#~ msgid "✓ 15 staff users"
+#~ msgstr ""
+
+#~ msgid "✓ 100 client contacts"
+#~ msgstr ""
+
+#~ msgid "✓ 20 GB storage"
+#~ msgstr ""
+
+#~ msgid "✓ Email support (12 h)"
+#~ msgstr ""
+
+#~ msgid "✓ SSO (coming soon)"
+#~ msgstr ""
+
+#~ msgid "Custom"
+#~ msgstr ""
+
+#~ msgid "✓ Unlimited limits"
+#~ msgstr ""
+
+#~ msgid "✓ Custom domain"
+#~ msgstr ""
+
+#~ msgid "✓ Dedicated support (4 h)"
+#~ msgstr ""
+
+#~ msgid "✓ SLA"
+#~ msgstr ""
+
+#~ msgid "✓ On-premises deployment possible"
+#~ msgstr ""
+
+#~ msgid "Annual subscription"
+#~ msgstr ""
+
+#~ msgid "2 months free — Starter 4 900 CZK/year, Pro 14 900 CZK/year."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "We process credit cards through Stripe;"
+#~ " you will receive an invoice by "
+#~ "email."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You can upgrade or downgrade your "
+#~ "plan at any time; the difference "
+#~ "will be prorated."
+#~ msgstr ""
+
+#~ msgid "You can cancel your account and export your data (CSV)."
+#~ msgstr ""
+
+#~ msgid "Prices do not apply to the self-hosted version — it is free forever."
+#~ msgstr ""
+
+#~ msgid "Self-hosted installation"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Complete open source release under the"
+#~ " AGPL-3.0 license. Host the portal on"
+#~ " your own server — free and "
+#~ "without limitations."
+#~ msgstr ""
+
+#~ msgid "PostgreSQL 16 (runs in Docker Compose)"
+#~ msgstr ""
+
+#~ msgid "Public hostname + TLS (we recommend Caddy or nginx)"
+#~ msgstr ""
+
+#~ msgid "Quickstart (local demo)"
+#~ msgstr ""
+
+#~ msgid "The repo includes a"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "for production use behind an Nginx "
+#~ "proxy with TLS configuration ready. Just"
+#~ " fill in the ENV variables (SMTP, "
+#~ "S3, domain) and run"
+#~ msgstr ""
+
+#~ msgid "Details:"
+#~ msgstr "Email"
+
+#~ msgid "list of ENV variables in"
+#~ msgstr ""
+
+#~ msgid "The self-hosted installation runs by default as"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "(one \"supplier\", multiple client contacts)."
+#~ " If you need to run multiple "
+#~ "separate suppliers on one instance, "
+#~ "enable the"
+#~ msgstr ""
+
+#~ msgid "variable in"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "— this activates the opt-in SaaS"
+#~ " layer with Identity, cross-tenant "
+#~ "login, and admin CRUD for tenants."
+#~ msgstr ""
+
+#~ msgid "Support"
+#~ msgstr ""
+
+#~ msgid "Self-hosters have access to"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "and discussions. For commercial support, "
+#~ "security audits, or custom development, "
+#~ "use the"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Yes. Write to us at "
+#~ "opensource@assoluto.eu with a description of"
+#~ " the use — typically 50 % off"
+#~ " or free access for small "
+#~ "organisations."
+#~ msgstr ""
+
+#~ msgid "14-day free trial. No credit card required."
+#~ msgstr "14-day free trial. No credit card required."
+
+#~ msgid ""
+#~ "A new account receives a 14-day "
+#~ "free trial. After its expiration, the"
+#~ " User can continue only with an "
+#~ "active subscription. Payments are processed"
+#~ " through Stripe."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "We reply in Czech or English. "
+#~ "Servers in the EU. Invoicing under "
+#~ "Czech rules (DPH 21 %)."
+#~ msgstr ""
+
+#~ msgid "30 days free. No card. Prices exclude VAT (21 %)."
+#~ msgstr ""
+
+#~ msgid "30 days free. No card. Cancel any time. Prices exclude VAT (21 %)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Monthly plan: card via Stripe, invoice"
+#~ " emailed the same day. Annual plan:"
+#~ " bank transfer with a Czech invoice,"
+#~ " net-14. Both plans: VAT (21 %) "
+#~ "is shown separately on every invoice."
+#~ msgstr ""
+
+#~ msgid "SLA 99.9 %"
 #~ msgstr ""
 

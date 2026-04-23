@@ -54,6 +54,11 @@ ALLOWED_LITERALS: set[str] = {
     "Jan Novák",
     "ACME s.r.o.",
     "name@company.com",
+    # Mock client firm names in the hero screenshot — intentionally Czech
+    # to signal "this is for Czech firms" regardless of UI locale.
+    "Kovárna Vlček",
+    "Zámečnictví Horák",
+    "Novák Engineering",
     # Units / currencies that are language-neutral.
     "CZK",
     "EUR",

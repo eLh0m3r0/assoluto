@@ -1,82 +1,250 @@
 {% extends "www/www_base.html" %}
 
 {% block title %}{{ _("Features") }} · Assoluto{% endblock %}
+{% block meta_description %}{{ _("Orders with 8-step workflow, drawings and CAD, customer material on stock, product catalog, multi-tenant isolation. Built specifically for manufacturing SMEs.") }}{% endblock %}
 
 {% block content %}
-<section class="mx-auto max-w-4xl pb-16">
-    <div class="mb-10 text-center">
-        <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ _("What Assoluto can do") }}</h1>
-        <p class="mt-2 text-slate-600 dark:text-slate-300">
-            {{ _("Built for manufacturing SMEs: orders with drawings, catalog, client assets, multi-tenant.") }}
+<section class="relative -mx-4 -mt-6 overflow-hidden px-4 pb-16 pt-14 sm:-mx-6 sm:px-6 sm:pt-20">
+    <div aria-hidden="true" class="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[420px] w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-br from-brand-400/20 via-indigo-400/15 to-purple-400/20 blur-3xl dark:from-brand-500/15 dark:via-indigo-500/10 dark:to-purple-500/15"></div>
+
+    <div class="mx-auto max-w-2xl text-center">
+        <p class="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{{ _("Features") }}</p>
+        <h1 class="mt-2 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-slate-100">
+            {{ _("Everything Assoluto can do") }}
+        </h1>
+        <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
+            {{ _("Not a generic CRM. Built for manufacturing — drawings, revisions, deadlines, customer material on stock.") }}
         </p>
     </div>
 
-    <div class="space-y-8">
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Order workflow") }}</h2>
-            <p class="mt-2 text-slate-600 dark:text-slate-300">
-                {{ _("Eight-step process: DRAFT → SUBMITTED → QUOTED → CONFIRMED → IN_PRODUCTION → READY → DELIVERED → CLOSED. Every transition is audited (who, when, why).") }}
-            </p>
-            <ul class="mt-4 list-disc space-y-1 pl-6 text-sm text-slate-600 dark:text-slate-300">
-                <li>{{ _("Client enters items (free-text or from the catalog).") }}</li>
-                <li>{{ _("You quote and set the deadline.") }}</li>
-                <li>{{ _("Client confirms or proposes a change.") }}</li>
-                <li>{{ _("Comments on the order (with internal notes for the team).") }}</li>
-                <li>{{ _("Automatic notifications on every status change.") }}</li>
-            </ul>
+    <div class="mx-auto mt-16 max-w-5xl space-y-10">
+        {# -------- Feature 1: Orders #}
+        <article class="grid gap-6 rounded-2xl border border-slate-200 bg-white p-6 md:grid-cols-[1fr_1.2fr] md:gap-8 md:p-8 dark:border-slate-800 dark:bg-slate-900">
+            <div>
+                <div class="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400">
+                    <svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ _("Orders with a clear workflow") }}</h2>
+                <p class="mt-3 text-slate-600 dark:text-slate-300">{{ _("An eight-step process from request to delivery. Every transition is audited — who, when, why. Never guess where an order stands again.") }}</p>
+                <ul class="mt-5 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Client enters items (free text or from the catalog)") }}</li>
+                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("You quote the price and deadline") }}</li>
+                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Client confirms or proposes a change") }}</li>
+                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Comments inline, with team-only internal notes") }}</li>
+                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Automatic email on every status change") }}</li>
+                </ul>
+            </div>
+            <div class="flex items-center">
+                {# State diagram #}
+                <div class="w-full rounded-xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900/60">
+                    <div class="flex flex-col gap-2 text-xs">
+                        {% macro state_row(label, tint, active=false) %}
+                        <div class="flex items-center gap-2 rounded-md px-3 py-2 {% if active %}bg-white ring-1 ring-inset ring-{{ tint }}-200 dark:bg-slate-900 dark:ring-{{ tint }}-500/30{% endif %}">
+                            <span class="h-2 w-2 rounded-full bg-{{ tint }}-500"></span>
+                            <span class="font-medium text-slate-900 dark:text-slate-100">{{ label }}</span>
+                        </div>
+                        {% endmacro %}
+                        {{ state_row("DRAFT", "slate") }}
+                        {{ state_row("SUBMITTED", "blue") }}
+                        {{ state_row("QUOTED", "amber", active=true) }}
+                        {{ state_row("CONFIRMED", "violet") }}
+                        {{ state_row("IN PRODUCTION", "indigo") }}
+                        {{ state_row("READY", "emerald") }}
+                        {{ state_row("DELIVERED", "teal") }}
+                        {{ state_row("CLOSED", "slate") }}
+                    </div>
+                </div>
+            </div>
         </article>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Attachments and drawings") }}</h2>
-            <p class="mt-2 text-slate-600 dark:text-slate-300">
-                {{ _("Direct upload to S3 (max 50 MB). Thumbnails for PDFs and images. Attachments can be linked to the entire order or to a specific item.") }}
-            </p>
+        {# -------- Feature 2: Drawings + CAD #}
+        <article class="grid gap-6 rounded-2xl border border-slate-200 bg-white p-6 md:grid-cols-[1.2fr_1fr] md:gap-8 md:p-8 dark:border-slate-800 dark:bg-slate-900">
+            <div class="order-2 md:order-1">
+                <div class="rounded-xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900/60">
+                    <div class="space-y-2.5">
+                        {% macro file_row(ext, name, size, tint) %}
+                        <div class="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-{{ tint }}-100 text-[10px] font-bold text-{{ tint }}-700 dark:bg-{{ tint }}-500/20 dark:text-{{ tint }}-300">{{ ext }}</span>
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{{ name }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">{{ size }}</p>
+                            </div>
+                            <svg aria-hidden="true" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        </div>
+                        {% endmacro %}
+                        {{ file_row("DWG", "konzola-rev-B.dwg", "214 KB", "blue") }}
+                        {{ file_row("PDF", "vykres-montaze.pdf", "1.2 MB", "rose") }}
+                        {{ file_row("STEP", "sestava.step", "4.6 MB", "indigo") }}
+                        {{ file_row("JPG", "foto-dilu.jpg", "820 KB", "amber") }}
+                    </div>
+                </div>
+            </div>
+            <div class="order-1 md:order-2">
+                <div class="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                    <svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ _("Drawings and CAD in the right place") }}</h2>
+                <p class="mt-3 text-slate-600 dark:text-slate-300">{{ _("PDF, PNG, JPG, DWG, DXF, STEP, STL — anything the shop floor needs. Direct upload to S3 (up to 50 MB / file). Thumbnails for PDFs and images.") }}</p>
+                <p class="mt-3 text-slate-600 dark:text-slate-300">{{ _("Attachments go to the whole order, or to a specific line item. Clients see only their own files.") }}</p>
+            </div>
         </article>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Product catalog") }}</h2>
-            <p class="mt-2 text-slate-600 dark:text-slate-300">
-                {{ _("Shared per-tenant catalog and per-customer catalog (customized for a specific client). Autocomplete directly when placing an order, with pre-filled price and unit.") }}
-            </p>
+        {# -------- Feature 3: Catalog #}
+        <article class="grid gap-6 rounded-2xl border border-slate-200 bg-white p-6 md:grid-cols-[1fr_1.2fr] md:gap-8 md:p-8 dark:border-slate-800 dark:bg-slate-900">
+            <div>
+                <div class="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400">
+                    <svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7l9-4 9 4M5 9v11a2 2 0 002 2h10a2 2 0 002-2V9"/></svg>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ _("Product catalog that knows your clients") }}</h2>
+                <p class="mt-3 text-slate-600 dark:text-slate-300">{{ _("A shared catalog for everyone, plus per-client customisation. One client sees their own negotiated prices; another only the items you actually make for them.") }}</p>
+                <p class="mt-3 text-slate-600 dark:text-slate-300">{{ _("Autocomplete in the order form — client types, they pick, price and unit fill in automatically.") }}</p>
+            </div>
+            <div class="flex items-center">
+                <div class="w-full rounded-xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900/60">
+                    <div class="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-800 dark:bg-slate-900">
+                        <svg aria-hidden="true" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10 17a7 7 0 110-14 7 7 0 010 14z"/></svg>
+                        <span class="text-slate-400">{{ _("Search: konz…") }}</span>
+                    </div>
+                    <div class="mt-3 space-y-2">
+                        <div class="flex items-center justify-between rounded-md bg-white p-2.5 ring-1 ring-inset ring-brand-200 dark:bg-slate-900 dark:ring-brand-500/30">
+                            <div>
+                                <p class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ _("Bracket 80×40") }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">SKU KZ-80-40 · {{ _("pcs") }}</p>
+                            </div>
+                            <span class="text-sm font-semibold text-slate-900 dark:text-slate-100">124 Kč</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-md bg-white p-2.5 dark:bg-slate-900">
+                            <div>
+                                <p class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ _("Bracket 120×60") }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">SKU KZ-120-60 · {{ _("pcs") }}</p>
+                            </div>
+                            <span class="text-sm font-semibold text-slate-900 dark:text-slate-100">218 Kč</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-md bg-white p-2.5 dark:bg-slate-900">
+                            <div>
+                                <p class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ _("Console — custom") }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">{{ _("per drawing · quoted on request") }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </article>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Client asset tracking") }}</h2>
-            <p class="mt-2 text-slate-600 dark:text-slate-300">
-                {{ _("Does your client store materials, tools, or semi-finished products with you? The portal tracks receipt, dispatch, and consumption. Current balance is recalculated automatically. Clients only see their own items.") }}
-            </p>
+        {# -------- Feature 4: Stock #}
+        <article class="grid gap-6 rounded-2xl border border-slate-200 bg-white p-6 md:grid-cols-[1.2fr_1fr] md:gap-8 md:p-8 dark:border-slate-800 dark:bg-slate-900">
+            <div class="order-2 md:order-1">
+                <div class="rounded-xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900/60">
+                    <div class="overflow-hidden rounded-md border border-slate-200 bg-white text-xs dark:border-slate-800 dark:bg-slate-900">
+                        <div class="grid grid-cols-[1fr_auto_auto_auto] gap-3 border-b border-slate-200 bg-slate-50 px-3 py-2 text-[10px] uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400">
+                            <span>{{ _("Item") }}</span>
+                            <span>{{ _("In") }}</span>
+                            <span>{{ _("Out") }}</span>
+                            <span>{{ _("Balance") }}</span>
+                        </div>
+                        <div class="divide-y divide-slate-200 dark:divide-slate-800">
+                            <div class="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-3 py-2.5">
+                                <span class="text-slate-900 dark:text-slate-100">{{ _("Steel sheet 2 mm") }}</span>
+                                <span class="text-emerald-600 dark:text-emerald-400">+ 18</span>
+                                <span class="text-rose-600 dark:text-rose-400">− 4</span>
+                                <span class="font-semibold text-slate-900 dark:text-slate-100">14 m²</span>
+                            </div>
+                            <div class="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-3 py-2.5">
+                                <span class="text-slate-900 dark:text-slate-100">{{ _("Fixture F-04") }}</span>
+                                <span class="text-emerald-600 dark:text-emerald-400">+ 1</span>
+                                <span class="text-slate-400">−</span>
+                                <span class="font-semibold text-slate-900 dark:text-slate-100">1 {{ _("pc") }}</span>
+                            </div>
+                            <div class="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-3 py-2.5">
+                                <span class="text-slate-900 dark:text-slate-100">{{ _("Drill bit Ø 8.2") }}</span>
+                                <span class="text-emerald-600 dark:text-emerald-400">+ 12</span>
+                                <span class="text-rose-600 dark:text-rose-400">− 11</span>
+                                <span class="font-semibold text-amber-600 dark:text-amber-400">1 {{ _("pc") }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="order-1 md:order-2">
+                <div class="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+                    <svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ _("Customer material on your stock") }}</h2>
+                <p class="mt-3 text-slate-600 dark:text-slate-300">{{ _("Clients keep material, tools, or semi-finished products at your place? Receipts, issues, consumption — all transparent. Balance is recalculated automatically, client sees their own.") }}</p>
+                <p class="mt-3 text-slate-600 dark:text-slate-300">{{ _("End-of-year inventory in one click. No more \"did we use 12 or 14?\" debates.") }}</p>
+            </div>
         </article>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Multi-tenant from day one") }}</h2>
-            <p class="mt-2 text-slate-600 dark:text-slate-300">
-                {{ _("PostgreSQL Row-Level Security — data from different clients is physically separated at the database level. Subdomains") }}
-                <code>client-a.assoluto.eu</code>, <code>client-b.assoluto.eu</code>
-                {{ _("for each client separately.") }}
-            </p>
+        {# -------- Feature 5: Multi-tenant security #}
+        <article class="grid gap-6 rounded-2xl border border-slate-200 bg-white p-6 md:grid-cols-[1fr_1.2fr] md:gap-8 md:p-8 dark:border-slate-800 dark:bg-slate-900">
+            <div>
+                <div class="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+                    <svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ _("Security at the database level") }}</h2>
+                <p class="mt-3 text-slate-600 dark:text-slate-300">{{ _("Not \"the app filters it out\". PostgreSQL Row-Level Security physically isolates data per client. The app cannot return a foreign order — even if a bug slipped through.") }}</p>
+                <ul class="mt-5 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Argon2 password hashing (not SHA, not bcrypt)") }}</li>
+                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("CSRF protection on every POST") }}</li>
+                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("HttpOnly + Secure + SameSite=Lax cookies") }}</li>
+                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Rate limiting for login, signup, contact") }}</li>
+                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Audit trail for every admin action, 3 years retention") }}</li>
+                </ul>
+            </div>
+            <div class="flex items-center">
+                <div class="w-full rounded-xl bg-slate-900 p-5 font-mono text-[11px] leading-relaxed text-slate-100 dark:bg-slate-950">
+                    <div class="flex items-center gap-1.5 pb-3">
+                        <span class="h-2 w-2 rounded-full bg-rose-400/80"></span>
+                        <span class="h-2 w-2 rounded-full bg-amber-400/80"></span>
+                        <span class="h-2 w-2 rounded-full bg-emerald-400/80"></span>
+                        <span class="ml-2 text-slate-500">postgres=&gt;</span>
+                    </div>
+                    <div class="space-y-1">
+                        <div><span class="text-violet-400">CREATE POLICY</span> tenant_isolation</div>
+                        <div class="pl-4"><span class="text-sky-400">ON</span> orders <span class="text-sky-400">USING</span></div>
+                        <div class="pl-4">(tenant_id = <span class="text-emerald-400">current_setting</span>(</div>
+                        <div class="pl-8"><span class="text-amber-300">'app.tenant_id'</span>)::uuid);</div>
+                        <div class="pt-2 text-slate-500"># {{ _("every SELECT/UPDATE/DELETE auto-filtered") }}</div>
+                    </div>
+                </div>
+            </div>
         </article>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Permissions and security") }}</h2>
-            <p class="mt-2 text-slate-600 dark:text-slate-300">
-                {{ _("Roles: tenant_admin (owner), tenant_staff (your team), customer_admin (client representative), customer_user (client contact person). Per-customer settings for what the client can enter (catalog selection only / free-text / prices).") }}
-            </p>
-        </article>
-
-        <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Open source") }}</h2>
-            <p class="mt-2 text-slate-600 dark:text-slate-300">
-                {{ _("The entire code is licensed under AGPL-3.0 on") }}
-                <a href="https://github.com/elh0m3r0/sme-client-portal" class="text-brand-600 hover:text-brand-700">{{ _("GitHub") }}</a>.
-                {{ _("You can self-host it (free), audit it, or fork it. We offer a hosted version with convenient management and support.") }}
-            </p>
+        {# -------- Feature 6: Open source #}
+        <article class="grid gap-6 rounded-2xl border border-slate-200 bg-white p-6 md:grid-cols-[1.2fr_1fr] md:gap-8 md:p-8 dark:border-slate-800 dark:bg-slate-900">
+            <div class="order-2 md:order-1">
+                <div class="rounded-xl bg-slate-900 p-5 font-mono text-[11px] leading-relaxed text-slate-100 dark:bg-slate-950">
+                    <div class="text-slate-500"># {{ _("run your own copy") }}</div>
+                    <div class="mt-1"><span class="text-brand-400">git</span> clone https://github.com/elh0m3r0/</div>
+                    <div class="pl-4">sme-client-portal.git</div>
+                    <div class="mt-1"><span class="text-brand-400">cd</span> sme-client-portal</div>
+                    <div class="mt-1"><span class="text-brand-400">cp</span> .env.example .env</div>
+                    <div class="mt-1"><span class="text-brand-400">docker</span> compose up --build</div>
+                    <div class="mt-3 text-emerald-400">✓ {{ _("ready on localhost:8000") }}</div>
+                </div>
+            </div>
+            <div class="order-1 md:order-2">
+                <div class="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400">
+                    <svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ _("Open source, auditable, yours") }}</h2>
+                <p class="mt-3 text-slate-600 dark:text-slate-300">{{ _("Full source on GitHub, AGPL-3.0. Host it on your own server, audit the security, fork it if you need to.") }}</p>
+                <p class="mt-3 text-slate-600 dark:text-slate-300">{{ _("Or use our managed hosting — identical code, we just take care of backups, updates, and uptime.") }}</p>
+                <a href="https://github.com/elh0m3r0/sme-client-portal" class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400">
+                    {{ _("Repository on GitHub") }}
+                    <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </a>
+            </div>
         </article>
     </div>
 
-    <div class="mt-12 text-center">
-        <a href="/platform/signup"
-           class="inline-block rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700">
-            {{ _("Try free for 14 days") }}
+    {# CTA strip #}
+    <div class="mx-auto mt-16 max-w-3xl rounded-2xl bg-gradient-to-br from-slate-900 via-brand-900 to-slate-900 p-10 text-center dark:from-slate-950 dark:via-brand-900/70 dark:to-slate-950">
+        <h2 class="text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ _("See it in your own data") }}</h2>
+        <p class="mt-3 text-brand-100">{{ _("Sign up, invite one client, run one order through. 15 minutes, no card.") }}</p>
+        <a href="/platform/signup" class="mt-6 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3.5 text-sm font-semibold text-slate-900 shadow-lg transition hover:bg-slate-100">
+            {{ _("Start 30-day trial") }}
+            <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
         </a>
     </div>
 </section>

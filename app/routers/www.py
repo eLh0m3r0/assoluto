@@ -12,7 +12,7 @@ prefer).
 from __future__ import annotations
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from markupsafe import escape
 
 from app.config import Settings, get_settings
@@ -215,6 +215,69 @@ async def cookies_policy(
         {"principal": None, **_operator_context(settings)},
     )
     return HTMLResponse(html)
+
+
+@router.get("/robots.txt", response_class=PlainTextResponse, include_in_schema=False)
+async def robots_txt(request: Request) -> PlainTextResponse:
+    """Bot guidance: allow public marketing pages, disallow app/platform/auth
+    surfaces. Sitemap URL is generated from the request's scheme+host so it
+    works both on assoluto.eu and local dev without extra config.
+    """
+    base = f"{request.url.scheme}://{request.url.netloc}"
+    body = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /app\n"
+        "Disallow: /app/\n"
+        "Disallow: /auth/\n"
+        "Disallow: /platform/admin\n"
+        "Disallow: /platform/admin/\n"
+        "Disallow: /platform/login\n"
+        "Disallow: /platform/signup\n"
+        "Disallow: /platform/password-reset\n"
+        "\n"
+        f"Sitemap: {base}/sitemap.xml\n"
+    )
+    return PlainTextResponse(body, media_type="text/plain")
+
+
+@router.get("/sitemap.xml", include_in_schema=False)
+async def sitemap_xml(request: Request) -> Response:
+    """Sitemap of public marketing pages.
+
+    Legal pages (``/terms``, ``/privacy``, ``/cookies``, ``/imprint``) are
+    only listed when the operator identity is configured — otherwise they
+    404 and would poison the sitemap.
+    """
+    from app.config import get_settings as _gs
+
+    settings = _gs()
+    base = f"{request.url.scheme}://{request.url.netloc}"
+    pages: list[tuple[str, str]] = [
+        ("/", "1.0"),
+        ("/features", "0.9"),
+        ("/pricing", "0.9"),
+        ("/self-hosted", "0.7"),
+        ("/contact", "0.6"),
+    ]
+    if settings.operator_identity_complete:
+        pages += [
+            ("/terms", "0.3"),
+            ("/privacy", "0.3"),
+            ("/cookies", "0.3"),
+            ("/imprint", "0.3"),
+        ]
+    urls = "\n".join(
+        f'  <url><loc>{base}{path}</loc><priority>{p}</priority></url>'
+        for path, p in pages
+    )
+    body = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"{urls}\n"
+        "</urlset>\n"
+    )
+    return Response(body, media_type="application/xml")
 
 
 @router.get("/imprint", response_class=HTMLResponse)
