@@ -268,8 +268,7 @@ async def sitemap_xml(request: Request) -> Response:
             ("/imprint", "0.3"),
         ]
     urls = "\n".join(
-        f'  <url><loc>{base}{path}</loc><priority>{p}</priority></url>'
-        for path, p in pages
+        f"  <url><loc>{base}{path}</loc><priority>{p}</priority></url>" for path, p in pages
     )
     body = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
