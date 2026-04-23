@@ -2444,9 +2444,8 @@ msgid "We do not use advertising cookies. We do not use third-party analytics co
 msgstr "Nepoužíváme reklamní cookies. Nepoužíváme cookies analytických třetích stran. Nesledujeme vás napříč weby."
 
 #: app/templates/www/cookies.html:28
-#, fuzzy
 msgid "2. Cookies we set"
-msgstr "7. Cookies"
+msgstr "2. Cookies, které nastavujeme"
 
 #: app/templates/www/cookies.html:34 app/templates/www/privacy.html:59
 msgid "Purpose"
@@ -2510,9 +2509,8 @@ msgid "You can clear these cookies at any time from your browser's settings. Del
 msgstr "Cookies můžete kdykoli smazat v nastavení prohlížeče. Smazání session cookies vás odhlásí. Smazání preferenčních cookies vrátí výchozí hodnoty (čeština, systémové téma)."
 
 #: app/templates/www/cookies.html:83
-#, fuzzy
 msgid "4. Contact"
-msgstr "Kontakt"
+msgstr "4. Kontakt"
 
 #: app/templates/www/cookies.html:85
 msgid "Questions about this cookies policy? Write to"

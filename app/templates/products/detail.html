@@ -41,11 +41,7 @@
         <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <h2 class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ _('Default price') }}</h2>
             <p class="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                {% if product.default_price is not none %}
-                    {{ "%.2f"|format(product.default_price) }} {{ product.currency }}
-                {% else %}
-                    <span class="text-slate-400 dark:text-slate-500">—</span>
-                {% endif %}
+                {{ product.default_price | money_major(product.currency) }}
             </p>
         </div>
         <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
