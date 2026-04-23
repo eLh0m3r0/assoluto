@@ -345,7 +345,9 @@ async def users_resend_invite(
         return RedirectResponse(
             url=(
                 "/app/admin/users?error="
-                + quote(_t(request, "This user already has a password; use a password reset instead."))
+                + quote(
+                    _t(request, "This user already has a password; use a password reset instead.")
+                )
             ),
             status_code=303,
         )
@@ -403,9 +405,7 @@ async def profile_form(
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    user_row = (
-        await db.execute(select(User).where(User.id == principal.id))
-    ).scalar_one_or_none()
+    user_row = (await db.execute(select(User).where(User.id == principal.id))).scalar_one_or_none()
     html = _templates(request).render(
         request,
         "admin/profile.html",
@@ -565,14 +565,18 @@ async def profile_delete(
     # promote someone first.
     if user.role == UserRole.TENANT_ADMIN:
         other_admins = (
-            await db.execute(
-                select(User).where(
-                    User.role == UserRole.TENANT_ADMIN,
-                    User.is_active.is_(True),
-                    User.id != user.id,
+            (
+                await db.execute(
+                    select(User).where(
+                        User.role == UserRole.TENANT_ADMIN,
+                        User.is_active.is_(True),
+                        User.id != user.id,
+                    )
                 )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         if not other_admins:
             return RedirectResponse(
                 url=(

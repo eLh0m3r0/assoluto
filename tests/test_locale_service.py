@@ -26,9 +26,10 @@ def test_recipient_override_wins() -> None:
     recipient = SimpleNamespace(preferred_locale="en")
     customer = SimpleNamespace(preferred_locale=None)
     tenant = SimpleNamespace(settings={})
-    assert resolve_email_locale(
-        recipient=recipient, customer=customer, tenant=tenant, settings=s
-    ) == "en"
+    assert (
+        resolve_email_locale(recipient=recipient, customer=customer, tenant=tenant, settings=s)
+        == "en"
+    )
 
 
 def test_customer_default_beats_tenant_and_app() -> None:
@@ -36,9 +37,10 @@ def test_customer_default_beats_tenant_and_app() -> None:
     recipient = SimpleNamespace(preferred_locale=None)
     customer = SimpleNamespace(preferred_locale="en")
     tenant = SimpleNamespace(settings={"default_locale": "cs"})
-    assert resolve_email_locale(
-        recipient=recipient, customer=customer, tenant=tenant, settings=s
-    ) == "en"
+    assert (
+        resolve_email_locale(recipient=recipient, customer=customer, tenant=tenant, settings=s)
+        == "en"
+    )
 
 
 def test_tenant_default_from_settings_jsonb() -> None:
@@ -54,9 +56,10 @@ def test_unsupported_locale_falls_through() -> None:
     customer = SimpleNamespace(preferred_locale="fr")
     tenant = SimpleNamespace(settings={"default_locale": "en"})
     # First supported match in chain = "en" from tenant settings.
-    assert resolve_email_locale(
-        recipient=recipient, customer=customer, tenant=tenant, settings=s
-    ) == "en"
+    assert (
+        resolve_email_locale(recipient=recipient, customer=customer, tenant=tenant, settings=s)
+        == "en"
+    )
 
 
 def test_locale_is_normalised() -> None:

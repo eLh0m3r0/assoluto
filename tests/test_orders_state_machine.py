@@ -74,8 +74,7 @@ def test_contact_graph_is_a_subset_of_staff_graph() -> None:
     for status, contact_targets in CONTACT_ALLOWED_TRANSITIONS.items():
         staff_targets = STAFF_ALLOWED_TRANSITIONS.get(status, set())
         assert contact_targets.issubset(staff_targets), (
-            f"{status.value}: contacts can go to {contact_targets - staff_targets} "
-            f"but staff cannot"
+            f"{status.value}: contacts can go to {contact_targets - staff_targets} but staff cannot"
         )
 
 
@@ -87,9 +86,7 @@ async def test_staff_cannot_leap_draft_to_delivered(owner_engine, demo_tenant) -
     user, order = await _seed(owner_engine, demo_tenant.id, status=OrderStatus.DRAFT)
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
-        fresh = (
-            await session.execute(select(Order).where(Order.id == order.id))
-        ).scalar_one()
+        fresh = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
         with pytest.raises(ForbiddenTransition):
             await transition_order(
                 session,
@@ -114,9 +111,7 @@ async def test_staff_can_step_one_back_for_corrections(owner_engine, demo_tenant
             text("SELECT set_config('app.tenant_id', :t, true)"),
             {"t": str(demo_tenant.id)},
         )
-        fresh = (
-            await session.execute(select(Order).where(Order.id == order.id))
-        ).scalar_one()
+        fresh = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
         await transition_order(
             session,
             order=fresh,
@@ -124,9 +119,7 @@ async def test_staff_can_step_one_back_for_corrections(owner_engine, demo_tenant
             actor=ActorRef(type="user", id=user.id),
         )
     async with sm() as session:
-        got = (
-            await session.execute(select(Order).where(Order.id == order.id))
-        ).scalar_one()
+        got = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
         assert got.status == OrderStatus.DRAFT
 
 
@@ -141,9 +134,7 @@ async def test_staff_can_reopen_cancelled_into_draft(owner_engine, demo_tenant) 
             text("SELECT set_config('app.tenant_id', :t, true)"),
             {"t": str(demo_tenant.id)},
         )
-        fresh = (
-            await session.execute(select(Order).where(Order.id == order.id))
-        ).scalar_one()
+        fresh = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
         await transition_order(
             session,
             order=fresh,
@@ -153,18 +144,14 @@ async def test_staff_can_reopen_cancelled_into_draft(owner_engine, demo_tenant) 
 
 
 @pytest.mark.postgres
-async def test_closed_is_near_terminal_only_delivered_reopen(
-    owner_engine, demo_tenant
-) -> None:
+async def test_closed_is_near_terminal_only_delivered_reopen(owner_engine, demo_tenant) -> None:
     """CLOSED can only step back to DELIVERED (for re-issue), nothing else."""
     from sqlalchemy import select
 
     user, order = await _seed(owner_engine, demo_tenant.id, status=OrderStatus.CLOSED)
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
-        fresh = (
-            await session.execute(select(Order).where(Order.id == order.id))
-        ).scalar_one()
+        fresh = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
         with pytest.raises(ForbiddenTransition):
             await transition_order(
                 session,

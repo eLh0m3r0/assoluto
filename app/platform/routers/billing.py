@@ -109,17 +109,13 @@ async def invoice_pdf(
         raise HTTPException(status_code=404, detail="Invoice not found")
 
     # Re-fetch tenant as the ORM row so its ``settings`` JSONB is accessible.
-    tenant_row = (
-        await db.execute(select(Tenant).where(Tenant.id == tenant.id))
-    ).scalar_one()
+    tenant_row = (await db.execute(select(Tenant).where(Tenant.id == tenant.id))).scalar_one()
 
     pdf_bytes = render_invoice_pdf(invoice=invoice, tenant=tenant_row, settings=settings)
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
-        headers={
-            "Content-Disposition": f'attachment; filename="{_safe_filename_for(invoice)}"'
-        },
+        headers={"Content-Disposition": f'attachment; filename="{_safe_filename_for(invoice)}"'},
     )
 
 

@@ -414,9 +414,7 @@ async def resend_verification(
     if not VERIFY_RESEND_THROTTLE.allow(identity.email):
         # Silently redirect — the endpoint's UX contract is "show
         # verify-sent page again", no need to leak the throttle state.
-        return RedirectResponse(
-            url="/platform/verify-sent", status_code=status.HTTP_303_SEE_OTHER
-        )
+        return RedirectResponse(url="/platform/verify-sent", status_code=status.HTTP_303_SEE_OTHER)
     # Look up the identity's first staff-owned tenant so the resent
     # email renders the company name (round-3 Backend P2 — previously
     # ``company_name=""`` produced "Vítejte ve firmě " with a trailing

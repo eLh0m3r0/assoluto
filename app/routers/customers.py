@@ -447,7 +447,12 @@ async def customers_contact_resend_invite(
         return RedirectResponse(
             url=(
                 f"/app/customers/{customer_id}?error="
-                + quote(_t(request, "This contact already has a password; use a password reset instead."))
+                + quote(
+                    _t(
+                        request,
+                        "This contact already has a password; use a password reset instead.",
+                    )
+                )
             ),
             status_code=303,
         )

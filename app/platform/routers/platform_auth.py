@@ -582,9 +582,7 @@ async def complete_switch(
                     "platform_identity_id": str(identity.id),
                     "platform_identity_email": identity.email,
                     "membership_id": str(selected.id),
-                    "granted_at": selected.created_at.isoformat()
-                    if selected.created_at
-                    else None,
+                    "granted_at": selected.created_at.isoformat() if selected.created_at else None,
                 },
                 tenant_id=tenant.id,
             )

@@ -72,9 +72,7 @@ async def _sync_stripe_prices_from_env(settings: Settings, log: Any) -> None:
             # compare-and-update pair. Key chosen not to clash with
             # 42_004 used by the demo-subscription normaliser.
             got_lock = (
-                await conn.execute(
-                    text("SELECT pg_try_advisory_lock(:id)"), {"id": 42_005}
-                )
+                await conn.execute(text("SELECT pg_try_advisory_lock(:id)"), {"id": 42_005})
             ).scalar()
             if not got_lock:
                 return
@@ -90,9 +88,7 @@ async def _sync_stripe_prices_from_env(settings: Settings, log: Any) -> None:
                     plan_id, current = row
                     if current != price_id:
                         await conn.execute(
-                            update(Plan)
-                            .where(Plan.id == plan_id)
-                            .values(stripe_price_id=price_id)
+                            update(Plan).where(Plan.id == plan_id).values(stripe_price_id=price_id)
                         )
                         log.info(
                             "stripe_price.sync.updated",
@@ -100,9 +96,7 @@ async def _sync_stripe_prices_from_env(settings: Settings, log: Any) -> None:
                             price_id=price_id,
                         )
             finally:
-                await conn.execute(
-                    text("SELECT pg_advisory_unlock(:id)"), {"id": 42_005}
-                )
+                await conn.execute(text("SELECT pg_advisory_unlock(:id)"), {"id": 42_005})
     finally:
         await engine.dispose()
 

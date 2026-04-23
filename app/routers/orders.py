@@ -1181,13 +1181,9 @@ async def orders_transition(
     # (cs) / "In production" (en).
     from urllib.parse import quote as _qp
 
-    status_label = _t(
-        request, TRANSITION_META.get(target, {}).get("label", target.value)
-    )
+    status_label = _t(request, TRANSITION_META.get(target, {}).get("label", target.value))
     notice_msg = _t(request, "Status changed to {status}.").format(status=status_label)
-    return RedirectResponse(
-        url=f"/app/orders/{order.id}?notice={_qp(notice_msg)}", status_code=303
-    )
+    return RedirectResponse(url=f"/app/orders/{order.id}?notice={_qp(notice_msg)}", status_code=303)
 
 
 # ------------------------------------------------------------------ comments

@@ -99,9 +99,7 @@ async def create_attachment_row(
     from app.platform.usage import ensure_within_limit
 
     size_mb = max(1, (size_bytes + 1024 * 1024 - 1) // (1024 * 1024))
-    await ensure_within_limit(
-        db, tenant_id=tenant.id, metric="storage_mb", delta=size_mb
-    )
+    await ensure_within_limit(db, tenant_id=tenant.id, metric="storage_mb", delta=size_mb)
 
     attachment = OrderAttachment(
         id=uuid4(),

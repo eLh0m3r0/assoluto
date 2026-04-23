@@ -79,7 +79,10 @@ async def list_customers_with_stats(db: AsyncSession) -> list[CustomerStats]:
         .order_by(Customer.name)
     )
     rows = (await db.execute(stmt)).all()
-    return [CustomerStats(customer=c, contacts_active=int(cc), orders_open=int(oo)) for c, cc, oo in rows]
+    return [
+        CustomerStats(customer=c, contacts_active=int(cc), orders_open=int(oo))
+        for c, cc, oo in rows
+    ]
 
 
 async def get_customer(db: AsyncSession, customer_id: UUID) -> Customer | None:

@@ -218,9 +218,7 @@ async def cookies_policy(
 
 
 @router.get("/imprint", response_class=HTMLResponse)
-async def imprint(
-    request: Request, settings: Settings = Depends(get_settings)
-) -> HTMLResponse:
+async def imprint(request: Request, settings: Settings = Depends(get_settings)) -> HTMLResponse:
     """CZ Act 480/2004 §8 operator-identity disclosure.
 
     Required on every Czech commercial website: legal name, seat,

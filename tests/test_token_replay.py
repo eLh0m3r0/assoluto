@@ -113,9 +113,7 @@ async def test_staff_invitation_cannot_be_replayed(owner_engine, demo_tenant) ->
                 password="attacker-chosen-pw",
             )
     async with sm() as session:
-        fresh = (
-            await session.execute(select(User).where(User.id == user.id))
-        ).scalar_one()
+        fresh = (await session.execute(select(User).where(User.id == user.id))).scalar_one()
         assert fresh.password_hash == user.password_hash
 
 
@@ -131,9 +129,7 @@ async def test_password_reset_token_is_single_use(owner_engine, demo_tenant) -> 
         principal_id=user.id,
         session_version=user.session_version,
     )
-    _tid, _pt, _pid, token_sv = decode_password_reset_token(
-        SECRET, token, max_age_seconds=1800
-    )
+    _tid, _pt, _pid, token_sv = decode_password_reset_token(SECRET, token, max_age_seconds=1800)
     assert token_sv == user.session_version
 
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
@@ -163,12 +159,11 @@ async def test_password_reset_token_is_single_use(owner_engine, demo_tenant) -> 
 
     # Confirm the password set by the first legitimate consumer stuck.
     async with sm() as session:
-        fresh = (
-            await session.execute(select(User).where(User.id == user.id))
-        ).scalar_one()
+        fresh = (await session.execute(select(User).where(User.id == user.id))).scalar_one()
         # Hash differs from the original AND from the attacker attempt.
         assert fresh.password_hash != user.password_hash
         from app.security.passwords import verify_password
+
         assert verify_password("victim-chosen-pw1", fresh.password_hash)
         assert not verify_password("attacker-chosen-pw2", fresh.password_hash)
 
@@ -191,17 +186,14 @@ async def test_password_reset_invalidated_by_unrelated_session_bump(
         principal_id=user.id,
         session_version=user.session_version,
     )
-    _tid, _pt, _pid, token_sv = decode_password_reset_token(
-        SECRET, token, max_age_seconds=1800
-    )
+    _tid, _pt, _pid, token_sv = decode_password_reset_token(SECRET, token, max_age_seconds=1800)
 
     # Simulate an unrelated session_version bump (manual password change).
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
         from sqlalchemy import select
-        fresh = (
-            await session.execute(select(User).where(User.id == user.id))
-        ).scalar_one()
+
+        fresh = (await session.execute(select(User).where(User.id == user.id))).scalar_one()
         fresh.session_version += 1
 
     async with sm() as session, session.begin():

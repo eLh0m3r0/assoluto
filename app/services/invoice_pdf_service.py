@@ -90,10 +90,14 @@ def render_invoice_pdf(
         bottomMargin=16 * mm,
     )
     styles = getSampleStyleSheet()
-    base = ParagraphStyle("base", parent=styles["Normal"], fontName=regular, fontSize=10, leading=13)
+    base = ParagraphStyle(
+        "base", parent=styles["Normal"], fontName=regular, fontSize=10, leading=13
+    )
     h1 = ParagraphStyle("h1", parent=base, fontName=bold, fontSize=16, leading=20)
     h2 = ParagraphStyle("h2", parent=base, fontName=bold, fontSize=11, leading=15)
-    small = ParagraphStyle("small", parent=base, fontSize=8, leading=10, textColor=colors.HexColor("#64748b"))
+    small = ParagraphStyle(
+        "small", parent=base, fontSize=8, leading=10, textColor=colors.HexColor("#64748b")
+    )
 
     supplier_is_vat = bool((settings.platform_operator_dic or "").strip())
 
@@ -117,8 +121,9 @@ def render_invoice_pdf(
         Paragraph("<b>Dodavatel</b>", h2),
         Paragraph(settings.platform_operator_name or "&lt;not configured&gt;", base),
         Paragraph(
-            (settings.platform_operator_address or "&lt;address not configured&gt;")
-            .replace("\n", "<br/>"),
+            (settings.platform_operator_address or "&lt;address not configured&gt;").replace(
+                "\n", "<br/>"
+            ),
             base,
         ),
         Paragraph(f"IČO: {settings.platform_operator_ico or '—'}", base),
@@ -186,7 +191,7 @@ def render_invoice_pdf(
         [
             f"Předplatné Assoluto – měsíc{period_label}"  # noqa: RUF001,
             f"{_dot_amount(base_amount)} {currency}",
-            f"{int(CZ_VAT_STANDARD*100)}%" if supplier_is_vat else "—",
+            f"{int(CZ_VAT_STANDARD * 100)}%" if supplier_is_vat else "—",
             f"{_dot_amount(vat_amount)} {currency}" if supplier_is_vat else "—",
             f"{_dot_amount(gross)} {currency}",
         ],
@@ -217,10 +222,12 @@ def render_invoice_pdf(
     if supplier_is_vat:
         summary_rows.append(["Základ DPH", f"{_dot_amount(base_amount)} {currency}"])
         summary_rows.append(
-            [f"DPH {int(CZ_VAT_STANDARD*100)}%", f"{_dot_amount(vat_amount)} {currency}"]
+            [f"DPH {int(CZ_VAT_STANDARD * 100)}%", f"{_dot_amount(vat_amount)} {currency}"]
         )
     summary_rows.append(["<b>Celkem k úhradě</b>", f"<b>{_dot_amount(gross)} {currency}</b>"])
-    summary_data = [[Paragraph(label, base), Paragraph(value, base)] for label, value in summary_rows]
+    summary_data = [
+        [Paragraph(label, base), Paragraph(value, base)] for label, value in summary_rows
+    ]
 
     story.append(
         Table(
@@ -258,9 +265,7 @@ def render_invoice_pdf(
     return buf.getvalue()
 
 
-def _example_invoice_for_preview(
-    *, tenant, settings
-):  # pragma: no cover - dev helper
+def _example_invoice_for_preview(*, tenant, settings):  # pragma: no cover - dev helper
     """Render a dummy invoice for manual layout inspection."""
     from datetime import datetime as _dt
     from types import SimpleNamespace

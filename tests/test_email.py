@@ -46,6 +46,7 @@ def test_send_invitation_swallows_exceptions(monkeypatch) -> None:
     # Disable the retry backoff so the test is fast; we care about the
     # exception-swallowing invariant, not the retry count.
     import app.tasks.email_tasks as et
+
     monkeypatch.setattr(et, "_MAX_ATTEMPTS", 1)
 
     class ExplodingSender:
@@ -66,6 +67,7 @@ def test_send_invitation_swallows_exceptions(monkeypatch) -> None:
 def test_send_invitation_retries_on_transient_failure(monkeypatch) -> None:
     """SMTP blip → first send fails, second succeeds, no error log."""
     import app.tasks.email_tasks as et
+
     # Collapse the backoff so this test doesn't sleep seconds.
     monkeypatch.setattr(et, "_BACKOFF_BASE_SECONDS", 0)
 

@@ -107,9 +107,7 @@ def read_session_for_tenant(
     return data
 
 
-def cookie_mismatches_tenant(
-    request: Request, secret_key: str, tenant_id: str
-) -> bool:
+def cookie_mismatches_tenant(request: Request, secret_key: str, tenant_id: str) -> bool:
     """True when the session cookie signature-validates but the
     embedded tenant_id is not ``tenant_id``.
 

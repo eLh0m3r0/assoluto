@@ -98,9 +98,7 @@ def _money_major_filter(value: Any, currency: str = "CZK") -> str:
     frac = abs(int((q - whole_int) * 100))
     whole_str = f"{abs(whole_int):,}".replace(",", " ")
     sign = "-" if q < 0 else ""
-    value_str = (
-        f"{sign}{whole_str},{frac:02d}" if frac else f"{sign}{whole_str}"
-    )
+    value_str = f"{sign}{whole_str},{frac:02d}" if frac else f"{sign}{whole_str}"
     return f"{value_str} {symbol}"
 
 

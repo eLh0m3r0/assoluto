@@ -149,9 +149,7 @@ async def test_invite_tenant_staff_honours_limit(owner_engine, demo_tenant):
 
 async def test_invite_contact_honours_limit(owner_engine, demo_tenant):
     """invite_customer_contact must call ensure_within_limit."""
-    await _attach_plan_to_tenant(
-        owner_engine, tenant_id=demo_tenant.id, max_contacts=1
-    )
+    await _attach_plan_to_tenant(owner_engine, tenant_id=demo_tenant.id, max_contacts=1)
     cust_id = await _seed_customer(owner_engine, demo_tenant.id)
 
     from app.models.customer import CustomerContact
@@ -182,9 +180,7 @@ async def test_invite_contact_honours_limit(owner_engine, demo_tenant):
 
 async def test_null_limit_means_unlimited(owner_engine, demo_tenant):
     """A plan with NULL max_users (unlimited) never raises, even at 100."""
-    await _attach_plan_to_tenant(
-        owner_engine, tenant_id=demo_tenant.id, max_users=None
-    )
+    await _attach_plan_to_tenant(owner_engine, tenant_id=demo_tenant.id, max_users=None)
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session:
         # Doesn't matter what the current count is — NULL means no cap.
@@ -227,8 +223,11 @@ async def test_stripe_price_sync_idempotent(owner_engine):
         def __init__(self) -> None:
             self.calls: list = []
 
-        def warning(self, *a, **kw): self.calls.append(("warning", a, kw))
-        def info(self, *a, **kw): self.calls.append(("info", a, kw))
+        def warning(self, *a, **kw):
+            self.calls.append(("warning", a, kw))
+
+        def info(self, *a, **kw):
+            self.calls.append(("info", a, kw))
 
     log = FakeLog()
     # First call: should UPDATE.

@@ -88,7 +88,7 @@ def _safe_send(
             last_exc = exc
             if attempt < _MAX_ATTEMPTS:
                 # Backoff: 2s, 4s, 8s …
-                time.sleep(_BACKOFF_BASE_SECONDS ** attempt)
+                time.sleep(_BACKOFF_BASE_SECONDS**attempt)
                 log.warning(
                     "email.retry",
                     kind=kind,
@@ -288,6 +288,4 @@ def send_order_status_changed(
         "status_label": label,
     }
     for to, locale in recipients_with_locale:
-        _render_and_send(
-            sender, "order_status_changed", "order_status_changed", to, ctx, locale
-        )
+        _render_and_send(sender, "order_status_changed", "order_status_changed", to, ctx, locale)

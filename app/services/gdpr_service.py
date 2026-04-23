@@ -55,14 +55,10 @@ async def export_for_user(db: AsyncSession, *, user: User) -> dict[str, Any]:
     - Audit events where they are the actor
     """
     orders = (
-        (await db.execute(select(Order).where(Order.created_by_user_id == user.id)))
-        .scalars()
-        .all()
+        (await db.execute(select(Order).where(Order.created_by_user_id == user.id))).scalars().all()
     )
     events = (
-        (await db.execute(select(AuditEvent).where(AuditEvent.actor_id == user.id)))
-        .scalars()
-        .all()
+        (await db.execute(select(AuditEvent).where(AuditEvent.actor_id == user.id))).scalars().all()
     )
 
     return {
@@ -103,9 +99,7 @@ async def export_for_user(db: AsyncSession, *, user: User) -> dict[str, Any]:
     }
 
 
-async def export_for_contact(
-    db: AsyncSession, *, contact: CustomerContact
-) -> dict[str, Any]:
+async def export_for_contact(db: AsyncSession, *, contact: CustomerContact) -> dict[str, Any]:
     """Assemble data about a customer contact.
 
     Contact owns less — their customer's orders belong to the customer,
@@ -280,9 +274,7 @@ async def find_target_rows_for_email(
     ``tenant_id`` is set.
     """
     users_q = select(User.id).where(User.email == email.lower().strip())
-    contacts_q = select(CustomerContact.id).where(
-        CustomerContact.email == email.lower().strip()
-    )
+    contacts_q = select(CustomerContact.id).where(CustomerContact.email == email.lower().strip())
     if tenant_id is not None:
         users_q = users_q.where(User.tenant_id == tenant_id)
         contacts_q = contacts_q.where(CustomerContact.tenant_id == tenant_id)

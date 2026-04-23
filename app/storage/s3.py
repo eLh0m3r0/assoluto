@@ -133,7 +133,7 @@ def generate_presigned_get(
 
         utf8_name = quote(download_filename, safe="")
         params["ResponseContentDisposition"] = (
-            f'attachment; filename="{ascii_name}"; filename*=UTF-8\'\'{utf8_name}'
+            f"attachment; filename=\"{ascii_name}\"; filename*=UTF-8''{utf8_name}"
         )
     # IMPORTANT: use the public client so the returned URL contains a host
     # the browser can reach. In docker-compose the internal endpoint is

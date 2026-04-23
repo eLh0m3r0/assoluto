@@ -78,9 +78,7 @@ async def _staff_recipients(
     return [
         (
             u.email,
-            resolve_email_locale(
-                recipient=u, customer=None, tenant=tenant, settings=settings
-            ),
+            resolve_email_locale(recipient=u, customer=None, tenant=tenant, settings=settings),
         )
         for u in rows
     ]
@@ -110,9 +108,7 @@ async def _contact_recipients(
     return [
         (
             c.email,
-            resolve_email_locale(
-                recipient=c, customer=customer, tenant=tenant, settings=settings
-            ),
+            resolve_email_locale(recipient=c, customer=customer, tenant=tenant, settings=settings),
         )
         for c in rows
     ]
