@@ -133,6 +133,8 @@ def upgrade() -> None:
     )
 
     # Seed built-in plans so signup can attach a default immediately.
+    # ``max_orders_per_month`` is NULL on every row — we don't cap order
+    # volume on any tier (see migration 1006 for rationale).
     op.execute(
         """
         INSERT INTO platform_plans
@@ -140,7 +142,7 @@ def upgrade() -> None:
              max_users, max_contacts, max_orders_per_month, max_storage_mb)
         VALUES
             (gen_random_uuid(), 'community', 'Community',     0,    'CZK', NULL, NULL, NULL, NULL),
-            (gen_random_uuid(), 'starter',   'Starter',    49000, 'CZK', 3,    20,   100,  2048),
+            (gen_random_uuid(), 'starter',   'Starter',    49000, 'CZK', 3,    20,   NULL, 2048),
             (gen_random_uuid(), 'pro',       'Pro',       149000, 'CZK', 15,   100,  NULL, 20480),
             (gen_random_uuid(), 'enterprise','Enterprise',     0, 'CZK', NULL, NULL, NULL, NULL)
         ON CONFLICT (code) DO NOTHING;

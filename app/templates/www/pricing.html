@@ -13,7 +13,7 @@
             {{ _("A honest price list") }}
         </h1>
         <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
-            {{ _("30 days free. No card. Cancel any time. Prices exclude VAT") }} (21&nbsp;%).
+            {{ _("30 days free. No card. Cancel any time.") }}
         </p>
     </div>
 
@@ -49,7 +49,7 @@
             <ul class="mt-6 grow space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("3 staff users") }}</li>
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("20 client contacts") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("100 orders / month") }}</li>
+                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Unlimited orders") }}</li>
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("2 GB attachment storage") }}</li>
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Email support (48 h)") }}</li>
             </ul>
@@ -163,7 +163,7 @@
             {% endmacro %}
 
             {{ pfaq(_("Is a card required for the trial?"), _("No. Sign up with just an email. You only enter a card if you decide to continue paying after 30 days — or you can switch to annual billing by bank transfer.")) }}
-            {{ pfaq(_("How does billing actually work?"), _("Monthly plan: card via Stripe, invoice emailed the same day. Annual plan: bank transfer with a Czech invoice, net-14. On every invoice, VAT is shown separately.")) }}
+            {{ pfaq(_("How does billing actually work?"), _("Monthly plan: card via Stripe, invoice emailed the same day. Annual plan: bank transfer with a Czech invoice, net-14.")) }}
             {{ pfaq(_("Can I change plans later?"), _("Yes, any time. The difference is prorated down to the day. Downgrade happens at the start of the next billing period (you keep what you paid for).")) }}
             {{ pfaq(_("What happens when I cancel?"), _("Your account stays read-only for 30 days so you can export to CSV. Then data is irreversibly deleted. If you need immediate deletion, one email to privacy@assoluto.eu does it.")) }}
             {{ pfaq(_("Does the self-hosted Community version cost anything?"), _("No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No restrictions on users or features — only you need to run updates yourself.")) }}

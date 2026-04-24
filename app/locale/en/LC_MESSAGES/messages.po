@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-24 01:04+0200\n"
+"POT-Creation-Date: 2026-04-24 09:19+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -2713,7 +2713,7 @@ msgstr ""
 #: app/templates/www/contact.html:65
 msgid ""
 "We reply in Czech or English. Servers in the EU. Invoicing under Czech "
-"rules, VAT separately on every invoice."
+"rules."
 msgstr ""
 
 #: app/templates/www/contact.html:76
@@ -3389,7 +3389,7 @@ msgstr ""
 
 #: app/templates/www/index.html:238
 msgid ""
-"You outgrew the spreadsheet. You don't want a year-long Helios "
+"You outgrew the spreadsheet. You don't want a year-long ERP "
 "implementation. Here's what's in between."
 msgstr ""
 
@@ -3497,8 +3497,8 @@ msgstr ""
 msgid "A honest price list. No sales call required."
 msgstr ""
 
-#: app/templates/www/index.html:283
-msgid "30 days free. No card. Prices exclude VAT"
+#: app/templates/www/index.html:283 app/templates/www/pricing.html:16
+msgid "30 days free. No card. Cancel any time."
 msgstr ""
 
 #: app/templates/www/index.html:291
@@ -3519,9 +3519,10 @@ msgstr ""
 msgid "20 client contacts"
 msgstr "Clients"
 
-#: app/templates/www/index.html:299 app/templates/www/pricing.html:52
+#: app/templates/www/index.html:299 app/templates/www/index.html:322
+#: app/templates/www/pricing.html:52 app/templates/www/pricing.html:76
 #, fuzzy
-msgid "100 orders / month"
+msgid "Unlimited orders"
 msgstr "Orders"
 
 #: app/templates/www/index.html:300 app/templates/www/pricing.html:53
@@ -3548,11 +3549,6 @@ msgstr ""
 #, fuzzy
 msgid "100 client contacts"
 msgstr "Clients"
-
-#: app/templates/www/index.html:322 app/templates/www/pricing.html:76
-#, fuzzy
-msgid "Unlimited orders"
-msgstr "Orders"
 
 #: app/templates/www/index.html:323 app/templates/www/pricing.html:77
 msgid "20 GB attachment storage"
@@ -3637,8 +3633,8 @@ msgstr ""
 
 #: app/templates/www/index.html:393
 msgid ""
-"Helios wanted 700K for implementation. With Assoluto we were running in "
-"an afternoon for 490 CZK a month."
+"Big ERPs wanted hundreds of thousands for implementation. With Assoluto "
+"we were running in an afternoon for 490 CZK a month."
 msgstr ""
 
 #: app/templates/www/index.html:396
@@ -3766,10 +3762,6 @@ msgstr ""
 
 #: app/templates/www/pricing.html:13
 msgid "A honest price list"
-msgstr ""
-
-#: app/templates/www/pricing.html:16
-msgid "30 days free. No card. Cancel any time. Prices exclude VAT"
 msgstr ""
 
 #: app/templates/www/pricing.html:28
@@ -3910,8 +3902,7 @@ msgstr ""
 #: app/templates/www/pricing.html:166
 msgid ""
 "Monthly plan: card via Stripe, invoice emailed the same day. Annual plan:"
-" bank transfer with a Czech invoice, net-14. On every invoice, VAT is "
-"shown separately."
+" bank transfer with a Czech invoice, net-14."
 msgstr ""
 
 #: app/templates/www/pricing.html:167
@@ -4899,5 +4890,41 @@ msgstr "Privacy Policy"
 #~ msgstr ""
 
 #~ msgid "SLA 99.9 %"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "We reply in Czech or English. "
+#~ "Servers in the EU. Invoicing under "
+#~ "Czech rules, VAT separately on every "
+#~ "invoice."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You outgrew the spreadsheet. You don't"
+#~ " want a year-long Helios "
+#~ "implementation. Here's what's in between."
+#~ msgstr ""
+
+#~ msgid "30 days free. No card. Prices exclude VAT"
+#~ msgstr ""
+
+#~ msgid "100 orders / month"
+#~ msgstr "Orders"
+
+#~ msgid ""
+#~ "Helios wanted 700K for implementation. "
+#~ "With Assoluto we were running in "
+#~ "an afternoon for 490 CZK a month."
+#~ msgstr ""
+
+#~ msgid "30 days free. No card. Cancel any time. Prices exclude VAT"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Monthly plan: card via Stripe, invoice"
+#~ " emailed the same day. Annual plan:"
+#~ " bank transfer with a Czech invoice,"
+#~ " net-14. On every invoice, VAT is "
+#~ "shown separately."
 #~ msgstr ""
 
