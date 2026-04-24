@@ -23,7 +23,9 @@ from collections.abc import Sequence
 from alembic import op
 
 revision: str = "1006_drop_starter_orders_cap"
-down_revision: str | Sequence[str] | None = "1005_tenant_customer_uq"
+# The chain is already merged at 0010 (parents 0009 + 1005), so the
+# current single head is 0013. Attach here so we stay single-head.
+down_revision: str | Sequence[str] | None = "0013_consent_record"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
