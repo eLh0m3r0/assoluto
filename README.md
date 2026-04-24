@@ -135,7 +135,7 @@ terms of the AGPL-3.0. If you run a modified version over a network
 code of your modified version available to users of that network service.
 
 For commercial licensing inquiries (proprietary forks, OEM integration,
-etc.) contact: `opensource@assoluto.eu`
+etc.) contact: `team@assoluto.eu`
 
 ## Community
 
@@ -202,7 +202,7 @@ Demo přihlašovací údaje: `owner@4mex.cz` / `demo1234` (staff),
 upravené verze zpřístupnili uživatelům dané síťové služby.
 
 Pro komerční licencování (proprietární forky, OEM integrace apod.):
-`opensource@assoluto.eu`.
+`team@assoluto.eu`.
 
 ### Komunita
 

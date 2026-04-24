@@ -6,7 +6,7 @@ If you discover a security vulnerability in Assoluto, please
 **do not open a public GitHub issue**. Instead, report it privately by
 email so we can investigate and release a fix before details become public.
 
-**Contact:** security@assoluto.eu
+**Contact:** team@assoluto.eu
 
 Please include:
 
@@ -83,7 +83,7 @@ Pokud objevíte bezpečnostní zranitelnost v Assolutu,
 e-mailem, ať ji můžeme prozkoumat a vydat opravu dřív, než se detaily
 dostanou na veřejnost.
 
-**Kontakt:** security@assoluto.eu
+**Kontakt:** team@assoluto.eu
 
 Prosím uveďte:
 

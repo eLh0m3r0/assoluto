@@ -99,7 +99,7 @@ class Settings(BaseSettings):
     # Format is free but convention is ``YYYY.MM`` or semver.
     legal_doc_version: str = Field(default="2026.05", alias="LEGAL_DOC_VERSION")
     platform_operator_email: str = Field(
-        default="opensource@assoluto.eu", alias="PLATFORM_OPERATOR_EMAIL"
+        default="team@assoluto.eu", alias="PLATFORM_OPERATOR_EMAIL"
     )
 
     # --- Billing (Stripe) --------------------------------------------------
@@ -138,7 +138,7 @@ class Settings(BaseSettings):
     smtp_port: int = Field(default=1025, alias="SMTP_PORT")
     smtp_user: str = Field(default="", alias="SMTP_USER")
     smtp_password: str = Field(default="", alias="SMTP_PASSWORD")
-    smtp_from: str = Field(default="Assoluto <noreply@localhost>", alias="SMTP_FROM")
+    smtp_from: str = Field(default="Assoluto <team@localhost>", alias="SMTP_FROM")
     smtp_starttls: bool = Field(default=False, alias="SMTP_STARTTLS")
 
     # --- Uploads -----------------------------------------------------------

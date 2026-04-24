@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-24 09:19+0200\n"
+"POT-Creation-Date: 2026-04-24 09:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2596,7 +2596,7 @@ msgstr ""
 #: app/templates/www/contact.html:77
 msgid ""
 "Thanks — we will reply within 24 hours. For anything urgent, email us "
-"directly at opensource@assoluto.eu."
+"directly at team@assoluto.eu."
 msgstr ""
 
 #: app/templates/www/contact.html:81
@@ -3541,7 +3541,7 @@ msgstr ""
 msgid ""
 "Row-Level Security, Argon2-hashed passwords, CSRF protection, HTTPS-only "
 "cookies, daily backups (retained 14 days). Monitored 24/7 by UptimeRobot,"
-" incident-response email address security@assoluto.eu."
+" incident-response email address team@assoluto.eu."
 msgstr ""
 
 #: app/templates/www/index.html:429
@@ -3763,7 +3763,7 @@ msgstr ""
 msgid ""
 "Your account stays read-only for 30 days so you can export to CSV. Then "
 "data is irreversibly deleted. If you need immediate deletion, one email "
-"to privacy@assoluto.eu does it."
+"to team@assoluto.eu does it."
 msgstr ""
 
 #: app/templates/www/pricing.html:169
@@ -3783,8 +3783,8 @@ msgstr ""
 
 #: app/templates/www/pricing.html:170
 msgid ""
-"Yes. Write to us at opensource@assoluto.eu with a description of the use "
-"— half price is typical, free access for small organisations."
+"Yes. Write to us at team@assoluto.eu with a description of the use — half"
+" price is typical, free access for small organisations."
 msgstr ""
 
 #: app/templates/www/privacy.html:14

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-24 09:19+0200\n"
+"POT-Creation-Date: 2026-04-24 09:48+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -2687,8 +2687,8 @@ msgid ""
 "We reply in Czech or English. Servers in the EU. Invoicing under Czech "
 "rules."
 msgstr ""
-"Odpovídáme česky nebo anglicky. Servery v EU. Fakturace podle "
-"českých pravidel."
+"Odpovídáme česky nebo anglicky. Servery v EU. Fakturace podle českých "
+"pravidel."
 
 #: app/templates/www/contact.html:76
 msgid "Message sent"
@@ -2697,10 +2697,10 @@ msgstr "Zpráva odeslána"
 #: app/templates/www/contact.html:77
 msgid ""
 "Thanks — we will reply within 24 hours. For anything urgent, email us "
-"directly at opensource@assoluto.eu."
+"directly at team@assoluto.eu."
 msgstr ""
-"Děkujeme — ozveme se do 24 hodin. Něco urgentního? Napište přímo na "
-"opensource@assoluto.eu."
+"Děkujeme — ozveme se do 24 hodin. Pokud je to urgentní, napište přímo "
+"na team@assoluto.eu."
 
 #: app/templates/www/contact.html:81
 msgid "Write to us"
@@ -2838,7 +2838,7 @@ msgstr "Nadřazená doména"
 msgid ""
 "Your chosen UI language (cs / en). Set when you click the language "
 "switcher."
-msgstr "Vámi zvolený jazyk UI (cs / en). Nastaven při kliku na přepínač jazyka."
+msgstr "Vámi zvolený jazyk rozhraní (cs / en). Nastavuje se při kliknutí na přepínač jazyka."
 
 #: app/templates/www/cookies.html:61 app/templates/www/cookies.html:67
 msgid "1 year"
@@ -2846,7 +2846,7 @@ msgstr "1 rok"
 
 #: app/templates/www/cookies.html:66
 msgid "Light / dark / system preference. Set when you click the theme toggle."
-msgstr "Preference světlý / tmavý / systém. Nastaven při kliku na přepínač tématu."
+msgstr "Preference světlý / tmavý / systém. Nastavuje se při kliknutí na přepínač motivu."
 
 #: app/templates/www/cookies.html:76
 msgid "3. How to delete cookies"
@@ -2915,7 +2915,7 @@ msgstr "Zákazník zadá položky (text nebo z katalogu)"
 
 #: app/templates/www/features.html:31
 msgid "You quote the price and deadline"
-msgstr "Vy oceníte a dáte termín"
+msgstr "Oceníte a stanovíte termín"
 
 #: app/templates/www/features.html:32
 msgid "Client confirms or proposes a change"
@@ -3133,7 +3133,7 @@ msgstr ""
 #: app/templates/www/index.html:327 app/templates/www/pricing.html:57
 #: app/templates/www/pricing.html:82
 msgid "Start 30-day trial"
-msgstr "Spustit 30denní zkušební"
+msgstr "Spustit 30denní zkušební období"
 
 #: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
 #: app/templates/www/www_base.html:82
@@ -3196,7 +3196,7 @@ msgstr "Zásady cookies"
 
 #: app/templates/www/index.html:3
 msgid "Customer portal for manufacturing SMEs in the Czech Republic"
-msgstr "Klientský portál pro výrobní malé firmy"
+msgstr "Zákaznický portál pro výrobní firmy v ČR"
 
 #: app/templates/www/index.html:5
 msgid ""
@@ -3238,7 +3238,7 @@ msgstr "Domluvit 15min ukázku"
 
 #: app/templates/www/index.html:50
 msgid "No credit card · Cancel anytime · Up and running in 30 minutes"
-msgstr "Bez karty · Kdykoliv ukončit · Do 30 minut běží"
+msgstr "Bez platební karty · Lze kdykoliv ukončit · Spustíte do 30 minut"
 
 #: app/templates/www/index.html:67
 msgid "The situation today"
@@ -3265,8 +3265,8 @@ msgid ""
 "\"Every day twenty people call me asking where their order is. Then I "
 "have to walk to the shop floor and ask the foreman.\""
 msgstr ""
-"„Každý den mi dvacet lidí volá, kde je jejich zakázka. A já musím jít za "
-"mistrem do dílny se zeptat.\""
+"„Každý den mi dvacet lidí volá, kde je jejich zakázka. A já se pak musím "
+"jít zeptat mistra do dílny.\""
 
 #: app/templates/www/index.html:92
 msgid "Outlook as a drawing vault"
@@ -3325,7 +3325,7 @@ msgid ""
 "PDF, PNG, DWG, DXF, STEP. Direct upload, instant preview. The right "
 "revision next to the right order — every time."
 msgstr ""
-"PDF, PNG, DWG, DXF, STEP. Nahrání přímo, náhled hned. Správná revize u "
+"PDF, PNG, DWG, DXF, STEP. Nahrajete přímo, náhled máte hned. Správná revize u "
 "správné zakázky — vždy."
 
 #: app/templates/www/index.html:151
@@ -3337,8 +3337,8 @@ msgid ""
 "The client sees on their own: DRAFT · SUBMITTED · QUOTED · CONFIRMED · IN"
 " PRODUCTION · READY · DELIVERED. Five calls a day turn into zero."
 msgstr ""
-"Zákazník sám vidí: ROZPRACOVÁNO · ODESLÁNO · OCENĚNO · POTVRZENO · VE "
-"VÝROBĚ · HOTOVO · DODÁNO. Pět telefonů denně se mění v nulu."
+"Zákazník sám vidí stav: ROZPRACOVÁNO · ODESLÁNO · OCENĚNO · POTVRZENO · VE "
+"VÝROBĚ · HOTOVO · DODÁNO. Pět telefonů denně se promění v nulu."
 
 # --- round-2 audit: landing + CRUD templates ---
 #: app/templates/www/index.html:158
@@ -3375,7 +3375,7 @@ msgid ""
 "not by a view we can forget. Zero risk of cross-visibility."
 msgstr ""
 "PostgreSQL Row-Level Security. Data jsou oddělená na úrovni databáze — ne"
-" jen ve view, které lze zapomenout. Nulové riziko přehozených údajů."
+" jen ve view, které lze zapomenout. Nulové riziko úniku dat mezi zákazníky."
 
 #: app/templates/www/index.html:180
 msgid "See all features"
@@ -3403,15 +3403,15 @@ msgstr ""
 
 #: app/templates/www/index.html:210
 msgid "Invite your first clients"
-msgstr "Pozvete první zákazníky"
+msgstr "Pozvete své první zákazníky"
 
 #: app/templates/www/index.html:213
 msgid ""
 "Click, enter their email, the invite goes out. They see only their own "
 "orders and drawings. Nothing else."
 msgstr ""
-"Kliknutí, e-mail, pozvánka odchází. Vidí jen své zakázky a výkresy. Nic "
-"víc."
+"Kliknete, zadáte e-mail, pozvánka odchází. Zákazník vidí jen své "
+"zakázky a výkresy. Nic víc."
 
 #: app/templates/www/index.html:219
 msgid "Orders run on their own"
@@ -3438,8 +3438,8 @@ msgid ""
 "You outgrew the spreadsheet. You don't want a year-long ERP "
 "implementation. Here's what's in between."
 msgstr ""
-"Z tabulky jste vyrostli. Ale roční ERP implementaci nechcete. Tady je "
-"to, co je mezi tím."
+"Z tabulky jste vyrostli. Ale roční implementaci ERP si nepřejete. "
+"Tohle je ta cesta mezi."
 
 #: app/templates/www/index.html:247
 msgid "Excel / email"
@@ -3540,7 +3540,7 @@ msgstr "Férový ceník. Nemusíte nám volat."
 
 #: app/templates/www/index.html:283 app/templates/www/pricing.html:16
 msgid "30 days free. No card. Cancel any time."
-msgstr "30 dní zdarma. Bez karty. Kdykoliv ukončit."
+msgstr "30 dní zdarma. Bez platební karty. Lze kdykoliv ukončit."
 
 # "Ready", "Delivered", "Cancel" reuse the existing msgids from
 # orders/_status_badge.html and products/form.html (they share the
@@ -3724,8 +3724,8 @@ msgid ""
 "Yes. You can pay by invoice for quarterly or annual subscriptions. Pay by"
 " card for monthly. For Enterprise we send an invoice with net-14 terms."
 msgstr ""
-"Ano. Čtvrtletní a roční předplatné platíte fakturou. Měsíční kartou. "
-"Enterprise dostává fakturu se splatností 14 dní."
+"Ano. Čtvrtletní a roční předplatné platíte fakturou, měsíční kartou "
+"přes Stripe. Enterprise dostává fakturu se splatností 14 dní."
 
 #: app/templates/www/index.html:426 app/templates/www/index.html:512
 msgid "Do I need to sign anything?"
@@ -3736,8 +3736,8 @@ msgid ""
 "No long contract. Month-to-month by default, cancel any time in two "
 "clicks. Data export to CSV is always available."
 msgstr ""
-"Žádná dlouhá smlouva. Měsíčně výchozí, ukončíte dvěma kliky. Export dat "
-"do CSV máte kdykoliv."
+"Žádná dlouhá smlouva. Výchozí je měsíční varianta, ukončíte dvěma "
+"kliknutími. Export dat do CSV máte kdykoliv."
 
 #: app/templates/www/index.html:427
 msgid "Can I integrate with Pohoda or Money S3?"
@@ -3759,11 +3759,11 @@ msgstr "Je to bezpečné? Co když vypadne server?"
 msgid ""
 "Row-Level Security, Argon2-hashed passwords, CSRF protection, HTTPS-only "
 "cookies, daily backups (retained 14 days). Monitored 24/7 by UptimeRobot,"
-" incident-response email address security@assoluto.eu."
+" incident-response email address team@assoluto.eu."
 msgstr ""
 "Row-Level Security, hesla v Argon2, CSRF ochrana, cookies jen přes HTTPS,"
 " denní zálohy (14 dní retence). Monitoring 24/7 přes UptimeRobot, "
-"incidenty hlaste na security@assoluto.eu."
+"incidenty hlaste na team@assoluto.eu."
 
 #: app/templates/www/index.html:429
 msgid "Will you teach my people how to use it?"
@@ -3801,8 +3801,8 @@ msgid ""
 "30 days free. No card. No \"quick call with sales\". Just sign up and try"
 " it."
 msgstr ""
-"30 dní zdarma. Bez karty. Žádný „rychlý hovor s obchodem\". Jen se "
-"zaregistrujte a vyzkoušejte."
+"30 dní zdarma. Bez platební karty. Žádný „rychlý hovor s obchodem\". "
+"Jen se zaregistrujte a vyzkoušejte."
 
 #: app/templates/www/index.html:450
 msgid "Or write / call us"
@@ -3810,13 +3810,13 @@ msgstr "Nebo napište / zavolejte"
 
 #: app/templates/www/index.html:454
 msgid "Up and running in 30 minutes · Data in the EU (Hetzner DE) · Czech support"
-msgstr "Do 30 minut běží · Data v EU (Hetzner DE) · Česká podpora"
+msgstr "Spustíte do 30 minut · Data v EU (Hetzner DE) · Česká podpora"
 
 #: app/templates/www/index.html:469 app/templates/www/www_base.html:40
 msgid ""
 "Client portal for Czech manufacturing SMEs — orders, drawings, production"
 " status."
-msgstr "Klientský portál pro výrobní malé firmy"
+msgstr "Zákaznický portál pro výrobní firmy v ČR"
 
 #: app/templates/www/index.html:477 app/templates/www/index.html:484
 #: app/templates/www/www_base.html:46
@@ -3880,7 +3880,7 @@ msgstr "Napište nám"
 
 #: app/templates/www/pricing.html:93
 msgid "We'll draw up an offer in 1 working day"
-msgstr "Cenovou nabídku do 1 pracovního dne"
+msgstr "Cenovou nabídku pošleme do 1 pracovního dne"
 
 #: app/templates/www/pricing.html:95
 msgid "No limits on users / orders / storage"
@@ -3968,7 +3968,7 @@ msgid ""
 "continue paying after 30 days — or you can switch to annual billing by "
 "bank transfer."
 msgstr ""
-"Ne. Stačí e-mail. Kartu zadáte až když se rozhodnete po 30 dnech "
+"Ne. Stačí e-mail. Kartu zadáte, teprve až se po 30 dnech rozhodnete "
 "pokračovat — nebo přejdete na roční platbu převodem."
 
 #: app/templates/www/pricing.html:166
@@ -3980,12 +3980,12 @@ msgid ""
 "Monthly plan: card via Stripe, invoice emailed the same day. Annual plan:"
 " bank transfer with a Czech invoice, net-14."
 msgstr ""
-"Měsíční: karta přes Stripe, faktura přijde e-mailem hned. Roční: "
-"převodem s českou fakturou, splatnost 14 dní."
+"Měsíční: karta přes Stripe, faktura přijde e-mailem hned. Roční: převodem"
+" s českou fakturou, splatnost 14 dní."
 
 #: app/templates/www/pricing.html:167
 msgid "Can I change plans later?"
-msgstr "Můžu plán později změnit?"
+msgstr "Lze plán později změnit?"
 
 #: app/templates/www/pricing.html:167
 msgid ""
@@ -4004,15 +4004,15 @@ msgstr "Co se stane při ukončení?"
 msgid ""
 "Your account stays read-only for 30 days so you can export to CSV. Then "
 "data is irreversibly deleted. If you need immediate deletion, one email "
-"to privacy@assoluto.eu does it."
+"to team@assoluto.eu does it."
 msgstr ""
 "Účet zůstane 30 dní v režimu pouze pro čtení, abyste stihli export do "
 "CSV. Pak data nevratně smažeme. Okamžité smazání stačí napsat na "
-"privacy@assoluto.eu."
+"team@assoluto.eu."
 
 #: app/templates/www/pricing.html:169
 msgid "Does the self-hosted Community version cost anything?"
-msgstr "Stojí Community self-hosted verze něco?"
+msgstr "Stojí Community (self-hosted) verze něco?"
 
 #: app/templates/www/pricing.html:169
 msgid ""
@@ -4029,11 +4029,11 @@ msgstr "Máte slevu pro školy / spolky / neziskovky?"
 
 #: app/templates/www/pricing.html:170
 msgid ""
-"Yes. Write to us at opensource@assoluto.eu with a description of the use "
-"— half price is typical, free access for small organisations."
+"Yes. Write to us at team@assoluto.eu with a description of the use — half"
+" price is typical, free access for small organisations."
 msgstr ""
-"Ano. Napište na opensource@assoluto.eu s popisem účelu — polovina ceny, u"
-" malých organizací přístup zdarma."
+"Ano. Napište na team@assoluto.eu s popisem účelu — polovina ceny, u "
+"malých organizací přístup zdarma."
 
 #: app/templates/www/privacy.html:14
 msgid ""
@@ -4309,11 +4309,11 @@ msgstr "Lokální demo za 60 sekund"
 
 #: app/templates/www/self_hosted.html:62
 msgid "clone, boot, done"
-msgstr "klon, spuštění, hotovo"
+msgstr "naklonovat, spustit, hotovo"
 
 #: app/templates/www/self_hosted.html:68
 msgid "in another terminal — seed demo data"
-msgstr "v jiném terminálu — nasypat demo data"
+msgstr "v druhém terminálu — naplňte demo data"
 
 #: app/templates/www/self_hosted.html:71
 msgid "open http://localhost:8000"
@@ -4340,7 +4340,7 @@ msgstr "Repozitář obsahuje"
 
 #: app/templates/www/self_hosted.html:80
 msgid "ready for nginx + TLS. Fill in the env (SMTP, S3, domain) and run:"
-msgstr "připravený pro nginx + TLS. Doplňte env (SMTP, S3, doména) a spusťte:"
+msgstr "připravený pro nginx + TLS. Doplňte proměnné prostředí (SMTP, S3, doména) a spusťte:"
 
 #: app/templates/www/self_hosted.html:84
 msgid "Step-by-step guides:"

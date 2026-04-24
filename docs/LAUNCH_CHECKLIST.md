@@ -75,21 +75,19 @@ Tooling: [namechk.com](https://namechk.com/) checks all at once.
 
 ## 4. Email infrastructure
 
-Brand emails are already referenced in the codebase:
+One single address is referenced throughout the codebase:
 
-- `opensource@assoluto.eu` — commercial licensing inquiries
-- `security@assoluto.eu` — vulnerability disclosures
-- `conduct@assoluto.eu` — Code of Conduct violations
-- `ops@assoluto.eu` — Let's Encrypt + monitoring alerts
-- `no-reply@assoluto.eu` — transactional outbound (SMTP_FROM)
-- `privacy@assoluto.eu` — GDPR / privacy requests (templated in Privacy Policy)
+- `team@assoluto.eu` — one inbox for everything: licensing inquiries,
+  security disclosures, Code of Conduct, Let's Encrypt / monitoring
+  alerts, transactional outbound (SMTP_FROM) and GDPR / privacy
+  requests. Simpler to run one than six.
 
 **Set these up:**
 
 - [ ] Postmark / Resend / SES account for sending (transactional)
 - [ ] Receiving: Google Workspace, Fastmail, or Zoho Mail routing to your inbox
 - [ ] SPF, DKIM, DMARC DNS records (your email provider will guide you)
-- [ ] Verify domain in Postmark/Resend → unlock `no-reply@assoluto.eu` sending
+- [ ] Verify domain in Postmark/Resend → unlock `team@assoluto.eu` sending
 
 ---
 
@@ -160,10 +158,9 @@ As of this commit, the repo is ready for Assoluto:
 
 - ✅ All user-facing branding renamed from "SME Portal" → "Assoluto"
 - ✅ HTML titles, meta descriptions, email templates, www pages
-- ✅ Brand emails: `security@assoluto.eu`, `opensource@assoluto.eu`,
-     `conduct@assoluto.eu`
-- ✅ Default `PLATFORM_OPERATOR_EMAIL = opensource@assoluto.eu`
-- ✅ Default `SMTP_FROM = "Assoluto <noreply@localhost>"`
+- ✅ Single brand inbox: `team@assoluto.eu` (one address, no per-function split)
+- ✅ Default `PLATFORM_OPERATOR_EMAIL = team@assoluto.eu`
+- ✅ Default `SMTP_FROM = "Assoluto <team@localhost>"`
 - ✅ `docs/DEPLOY_HETZNER.md` — production guide with real `assoluto.eu`
 - ✅ `docs/DEPLOY_SAAS.md` — hosted SaaS guide with real `assoluto.eu`
 - ✅ `docker/nginx.conf.example` — `server_name assoluto.eu *.assoluto.eu`

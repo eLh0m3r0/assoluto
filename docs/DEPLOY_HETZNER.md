@@ -139,7 +139,7 @@ a billing card, or a DNS record you alone can create.
 
 - [ ] `PORTAL_DOMAIN` — e.g. `assoluto.eu`
 - [ ] `ACME_EMAIL` — the address Let's Encrypt will email on cert
-      expiry (e.g. `ops@assoluto.eu`)
+      expiry (e.g. `team@assoluto.eu`)
 - [ ] Two **A records** created at your registrar / DNS host:
       `assoluto.eu → <VPS IP>` and
       `*.assoluto.eu → <VPS IP>`
@@ -168,7 +168,7 @@ a billing card, or a DNS record you alone can create.
       registrar and **verified** in the provider dashboard
 - [ ] `SMTP_HOST`, `SMTP_PORT` (usually `587`)
 - [ ] `SMTP_USER`, `SMTP_PASSWORD`
-- [ ] `SMTP_FROM` — e.g. `no-reply@assoluto.eu`
+- [ ] `SMTP_FROM` — e.g. `team@assoluto.eu`
 
 **Stripe** (skip if you're not selling subscriptions yet — leave
 `FEATURE_PLATFORM=false`)
@@ -329,7 +329,7 @@ sudo certbot certonly \
     --dns-cloudflare-credentials /etc/letsencrypt/secrets/cloudflare.ini \
     -d assoluto.eu \
     -d '*.assoluto.eu' \
-    --agree-tos --email ops@assoluto.eu --non-interactive
+    --agree-tos --email team@assoluto.eu --non-interactive
 ```
 
 Certbot stores the cert at
@@ -386,7 +386,7 @@ SMTP_HOST=smtp.postmarkapp.com
 SMTP_PORT=587
 SMTP_USER=<Server API token>
 SMTP_PASSWORD=<Server API token>     # Postmark uses the same value for both
-SMTP_FROM=no-reply@assoluto.eu
+SMTP_FROM=team@assoluto.eu
 ```
 
 Send a test email once the app is running via the signup flow or a
@@ -515,7 +515,7 @@ SMTP_HOST=smtp.postmarkapp.com
 SMTP_PORT=587
 SMTP_USER=<postmark token>
 SMTP_PASSWORD=<postmark token>
-SMTP_FROM=no-reply@assoluto.eu
+SMTP_FROM=team@assoluto.eu
 
 # ---- Platform / SaaS (set true only when billing + signup are live) ----
 FEATURE_PLATFORM=false
@@ -940,7 +940,7 @@ execute the plan end-to-end and report at each major milestone.
 
 ===== Values to use =====
 PORTAL_DOMAIN=assoluto.eu
-ACME_EMAIL=ops@assoluto.eu
+ACME_EMAIL=team@assoluto.eu
 REPO_URL=https://github.com/<your-org>/sme-client-portal.git
 
 # Deploy keypair — public half goes into deploy@'s authorized_keys
@@ -961,7 +961,7 @@ SMTP_HOST=smtp.postmarkapp.com
 SMTP_PORT=587
 SMTP_USER=<token>
 SMTP_PASSWORD=<token>
-SMTP_FROM=no-reply@assoluto.eu
+SMTP_FROM=team@assoluto.eu
 
 # Platform / SaaS (leave FEATURE_PLATFORM=false until Stripe is live)
 FEATURE_PLATFORM=false

@@ -122,7 +122,7 @@ SMTP_HOST=smtp.resend.com
 SMTP_PORT=587
 SMTP_USER=<resend smtp user>
 SMTP_PASSWORD=<resend smtp pass>
-SMTP_FROM=Assoluto <noreply@assoluto.eu>
+SMTP_FROM=Assoluto <team@assoluto.eu>
 SMTP_STARTTLS=true
 
 STRIPE_SECRET_KEY=sk_live_xxx

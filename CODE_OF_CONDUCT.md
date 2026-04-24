@@ -36,7 +36,7 @@ This Code of Conduct applies within all community spaces, and also applies when 
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at **conduct@assoluto.eu**. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at **team@assoluto.eu**. All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the reporter of any incident.
 
@@ -103,12 +103,12 @@ Stručně:
   přijímáme i dáváme zpětnou vazbu; přijímáme odpovědnost za chyby.
   Nepoužíváme sexualizovaný jazyk, netrollujeme, neobtěžujeme,
   nezveřejňujeme cizí osobní údaje bez souhlasu.
-- **Vynucení.** Porušení lze nahlásit na **conduct@assoluto.eu**.
+- **Vynucení.** Porušení lze nahlásit na **team@assoluto.eu**.
   Všechny stížnosti budou posouzeny rychle a férově; identita
   oznamovatele je chráněna.
 - **Sankce.** Podle závažnosti: soukromé napomenutí → varování →
   dočasný ban → trvalý ban. Detaily v anglické verzi výše
   (sekce *Enforcement Guidelines*).
 
-Pokud máte dotazy k výkladu, napište na `conduct@assoluto.eu` nebo se
+Pokud máte dotazy k výkladu, napište na `team@assoluto.eu` nebo se
 podívejte do [FAQ][FAQ].
