@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import Settings, get_settings
 from app.deps import get_current_tenant, get_db
 from app.i18n import t as _t
+from app.logging import get_logger
 from app.models.tenant import Tenant
 from app.security.csrf import verify_csrf
 from app.security.rate_limit import limit as rate_limit
@@ -23,6 +24,8 @@ from app.security.session import (
     read_session_for_tenant,
     write_session,
 )
+from app.services import audit_service
+from app.services.audit_service import ActorInfo
 from app.services.auth_service import (
     AccountDisabled,
     InvalidCredentials,
@@ -38,6 +41,8 @@ from app.services.auth_service import (
     find_principal_by_email,
     reset_password_with_token,
 )
+
+_auth_logger = get_logger("app.auth")
 
 router = APIRouter(tags=["public"], dependencies=[Depends(verify_csrf)])
 
@@ -210,9 +215,20 @@ async def login_submit(
     db: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
+    client_ip = (request.client.host if request.client else "?") or "?"
     try:
         login = await authenticate(db, email, password)
     except AccountDisabled:
+        # Account exists but is disabled — log to security stream so this
+        # is investigable without polluting audit_events with anonymous
+        # rows. Use the email the visitor typed so a brute-force pattern
+        # is visible in logs.
+        _auth_logger.warning(
+            "auth.login.disabled",
+            email=email[:255],
+            tenant=tenant.slug,
+            ip=client_ip,
+        )
         html = _templates(request).render(
             request,
             "auth/login.html",
@@ -226,6 +242,12 @@ async def login_submit(
         )
         return HTMLResponse(html, status_code=status.HTTP_403_FORBIDDEN)
     except InvalidCredentials:
+        _auth_logger.warning(
+            "auth.login.failed",
+            email=email[:255],
+            tenant=tenant.slug,
+            ip=client_ip,
+        )
         html = _templates(request).render(
             request,
             "auth/login.html",
@@ -238,6 +260,30 @@ async def login_submit(
             },
         )
         return HTMLResponse(html, status_code=status.HTTP_401_UNAUTHORIZED)
+
+    # Successful login: write a real audit_events row and a security log.
+    # The audit row makes "who logged in to this tenant when" queryable
+    # by tenant admins; the log line surfaces the IP for incident response.
+    await audit_service.record(
+        db,
+        action="auth.login",
+        entity_type=login.principal_type,
+        entity_id=login.principal_id,
+        entity_label=login.email,
+        actor=ActorInfo(
+            type=login.principal_type,
+            id=login.principal_id,
+            label=login.email,
+        ),
+    )
+    _auth_logger.info(
+        "auth.login.success",
+        email=login.email,
+        tenant=tenant.slug,
+        principal_type=login.principal_type,
+        principal_id=str(login.principal_id),
+        ip=client_ip,
+    )
 
     dest = _safe_next_path(next) if next else "/app"
     response = RedirectResponse(url=dest, status_code=status.HTTP_303_SEE_OTHER)

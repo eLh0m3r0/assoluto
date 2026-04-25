@@ -306,10 +306,35 @@ async def create_tenant_with_owner(
 
 
 async def deactivate_tenant(db: AsyncSession, *, tenant_id: UUID) -> None:
+    """Flip ``is_active`` to False AND invalidate every existing session.
+
+    Without bumping ``session_version`` on every user + customer contact
+    in the tenant, anyone with an active browser session keeps their
+    cookie working — they just hit a 404 on the next request, but the
+    cookie itself remains valid until expiry. For the
+    suspended-for-non-payment scenario this is the wrong default.
+    Bumping the version forces re-authentication on the next request.
+    """
+    from sqlalchemy import text
+
     tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
     if tenant is None:
         raise PlatformError("tenant not found")
     tenant.is_active = False
+    # Bump session_version on staff users + customer contacts so any
+    # in-flight browser session immediately fails next request.
+    # ORM update_all would re-fetch each row; raw text() is one round-trip.
+    await db.execute(
+        text("UPDATE users SET session_version = session_version + 1 WHERE tenant_id = :tid"),
+        {"tid": tenant_id},
+    )
+    await db.execute(
+        text(
+            "UPDATE customer_contacts SET session_version = session_version + 1 "
+            "WHERE tenant_id = :tid"
+        ),
+        {"tid": tenant_id},
+    )
     await db.flush()
 
 

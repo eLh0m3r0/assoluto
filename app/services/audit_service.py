@@ -246,6 +246,7 @@ async def list_events(
     date_from: date | None = None,
     date_to: date | None = None,
     q: str | None = None,
+    exclude_actions: list[str] | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> tuple[list[AuditEvent], int]:
@@ -281,6 +282,8 @@ async def list_events(
                 AuditEvent.actor_label.ilike(pattern),
             )
         )
+    if exclude_actions:
+        stmt = stmt.where(AuditEvent.action.notin_(exclude_actions))
 
     count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
     total = int((await db.execute(count_stmt)).scalar() or 0)
@@ -302,6 +305,17 @@ async def list_recent(
     "Recent activity" widget (§7). Reuses the same scoping rules — staff
     see everything in the tenant, contacts see only ``order`` events on
     their own customer's orders — and the same RLS session guarantee.
+
+    Auth events (``auth.login``, ``auth.logout``) are excluded — they
+    belong in the full audit log at ``/app/admin/audit`` for forensics,
+    but cluttering the dashboard activity widget with "Alice logged in"
+    every few minutes obscures real business events.
     """
-    events, _ = await list_events(db, principal=principal, limit=limit, offset=0)
+    events, _ = await list_events(
+        db,
+        principal=principal,
+        limit=limit,
+        offset=0,
+        exclude_actions=["auth.login", "auth.logout"],
+    )
     return events
