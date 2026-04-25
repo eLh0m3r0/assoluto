@@ -43,13 +43,18 @@ def _tenant(request: Request):
     return tenant
 
 
-def _ensure_contact(principal: Principal) -> None:
-    """Bounce staff to the staff profile route — they're not the audience."""
+def _ensure_contact_or_redirect(principal: Principal) -> RedirectResponse | None:
+    """Return a redirect for staff (they belong on /app/admin/profile),
+    or None for contacts (which is who this router is for).
+
+    The previous version raised ``HTTPException(303, ...)`` which fell
+    through the JSON error handler and emitted ``content-type:
+    application/json`` on a 303. Browsers followed it fine but it was an
+    untidy response shape.
+    """
     if principal.is_staff:
-        raise HTTPException(
-            status_code=303,
-            headers={"Location": "/app/admin/profile"},
-        )
+        return RedirectResponse(url="/app/admin/profile", status_code=303)
+    return None
 
 
 _ALLOWED_LOCALES = {"cs", "en"}
@@ -69,7 +74,9 @@ async def profile_form(
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    _ensure_contact(principal)
+    redirect = _ensure_contact_or_redirect(principal)
+    if redirect is not None:
+        return redirect
     contact = (
         await db.execute(select(CustomerContact).where(CustomerContact.id == principal.id))
     ).scalar_one()
@@ -101,7 +108,9 @@ async def profile_update(
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
-    _ensure_contact(principal)
+    redirect = _ensure_contact_or_redirect(principal)
+    if redirect is not None:
+        return redirect
     cleaned_name = (full_name or "").strip()
     if not cleaned_name:
         return RedirectResponse(
@@ -127,7 +136,9 @@ async def profile_change_password(
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
-    _ensure_contact(principal)
+    redirect = _ensure_contact_or_redirect(principal)
+    if redirect is not None:
+        return redirect
     if new_password != new_password_confirm:
         return RedirectResponse(
             url="/app/me/profile?error=" + quote(_t(request, "New passwords do not match.")),

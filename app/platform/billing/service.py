@@ -166,12 +166,12 @@ async def downgrade_to_community(
 
     subscription.cancel_at_period_end = True
     await db.flush()
-    period_end_ts = stripe_sub.get("current_period_end") if isinstance(stripe_sub, dict) else (
-        getattr(stripe_sub, "current_period_end", None)
+    period_end_ts = (
+        stripe_sub.get("current_period_end")
+        if isinstance(stripe_sub, dict)
+        else (getattr(stripe_sub, "current_period_end", None))
     )
-    period_end_dt = (
-        datetime.fromtimestamp(int(period_end_ts), tz=UTC) if period_end_ts else None
-    )
+    period_end_dt = datetime.fromtimestamp(int(period_end_ts), tz=UTC) if period_end_ts else None
     return ("scheduled", period_end_dt)
 
 
