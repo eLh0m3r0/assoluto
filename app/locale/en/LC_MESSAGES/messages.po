@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-25 11:11+0200\n"
+"POT-Creation-Date: 2026-04-25 11:38+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -126,21 +126,21 @@ msgstr ""
 msgid "Customer contact"
 msgstr "As a customer contact"
 
-#: app/main.py:442
+#: app/main.py:450
 msgid "staff users"
 msgstr ""
 
-#: app/main.py:443
+#: app/main.py:451
 #, fuzzy
 msgid "client contacts"
 msgstr "Clients"
 
-#: app/main.py:444
+#: app/main.py:452
 #, fuzzy
 msgid "orders this month"
 msgstr "Orders"
 
-#: app/main.py:445
+#: app/main.py:453
 msgid "MB of storage"
 msgstr ""
 
@@ -602,33 +602,33 @@ msgstr ""
 msgid "A product with this SKU already exists."
 msgstr ""
 
-#: app/routers/public.py:187
+#: app/routers/public.py:192
 msgid "Password changed. Sign in with your new password."
 msgstr ""
 
-#: app/routers/public.py:222
+#: app/routers/public.py:238
 msgid "Your account is disabled."
 msgstr ""
 
-#: app/routers/public.py:235
+#: app/routers/public.py:257
 msgid "Invalid email or password."
 msgstr ""
 
-#: app/routers/public.py:316 app/routers/public.py:412
-#: app/routers/public.py:495
+#: app/routers/public.py:362 app/routers/public.py:458
+#: app/routers/public.py:541
 msgid "The invitation is invalid or has expired."
 msgstr ""
 
-#: app/routers/public.py:330 app/routers/public.py:426
+#: app/routers/public.py:376 app/routers/public.py:472
 msgid "The invitation belongs to a different tenant."
 msgstr ""
 
-#: app/routers/public.py:392 app/routers/public.py:539
-#: app/routers/public.py:756
+#: app/routers/public.py:438 app/routers/public.py:585
+#: app/routers/public.py:802
 msgid "Passwords do not match."
 msgstr ""
 
-#: app/routers/public.py:721
+#: app/routers/public.py:767
 msgid "The link is invalid or has expired."
 msgstr ""
 
@@ -1392,7 +1392,7 @@ msgstr ""
 #: app/templates/platform/admin/dashboard.html:47
 #: app/templates/platform/admin/tenants.html:21
 #: app/templates/products/form.html:38 app/templates/products/list.html:20
-#: app/templates/www/cookies.html:33
+#: app/templates/www/cookies.html:29
 #, fuzzy
 msgid "Name"
 msgstr "Your name"
@@ -2768,20 +2768,10 @@ msgid "Version 1.0 · effective from May 1, 2026"
 msgstr ""
 
 #: app/templates/www/cookies.html:14
-msgid "Notice:"
-msgstr ""
-
-#: app/templates/www/cookies.html:14
-msgid ""
-"This text is a template. It should be reviewed by a lawyer familiar with "
-"the EU ePrivacy Directive and Czech law before going live."
-msgstr ""
-
-#: app/templates/www/cookies.html:18
 msgid "1. Do we need your consent?"
 msgstr ""
 
-#: app/templates/www/cookies.html:20
+#: app/templates/www/cookies.html:16
 msgid ""
 "Assoluto uses only cookies that are \"strictly necessary\" to deliver the"
 " service you explicitly requested (log you in, protect against CSRF, "
@@ -2791,92 +2781,92 @@ msgid ""
 "a cookie banner."
 msgstr ""
 
-#: app/templates/www/cookies.html:23
+#: app/templates/www/cookies.html:19
 msgid ""
 "We do not use advertising cookies. We do not use third-party analytics "
 "cookies. We do not track you across sites."
 msgstr ""
 
-#: app/templates/www/cookies.html:28
+#: app/templates/www/cookies.html:24
 msgid "2. Cookies we set"
 msgstr ""
 
-#: app/templates/www/cookies.html:34 app/templates/www/privacy.html:55
+#: app/templates/www/cookies.html:30 app/templates/www/privacy.html:55
 msgid "Purpose"
 msgstr ""
 
-#: app/templates/www/cookies.html:35
+#: app/templates/www/cookies.html:31
 msgid "Lifetime"
 msgstr ""
 
-#: app/templates/www/cookies.html:36
+#: app/templates/www/cookies.html:32
 #, fuzzy
 msgid "Scope"
 msgstr "Orders"
 
-#: app/templates/www/cookies.html:42
+#: app/templates/www/cookies.html:38
 msgid "Double-submit CSRF token. Prevents forged POSTs from other origins."
 msgstr ""
 
-#: app/templates/www/cookies.html:43
+#: app/templates/www/cookies.html:39
 msgid "7 days"
 msgstr ""
 
-#: app/templates/www/cookies.html:44 app/templates/www/cookies.html:50
-#: app/templates/www/cookies.html:62 app/templates/www/cookies.html:68
+#: app/templates/www/cookies.html:40 app/templates/www/cookies.html:46
+#: app/templates/www/cookies.html:58 app/templates/www/cookies.html:64
 msgid "Host-only"
 msgstr ""
 
-#: app/templates/www/cookies.html:48
+#: app/templates/www/cookies.html:44
 msgid "Signed session cookie identifying the logged-in tenant user. HttpOnly."
 msgstr ""
 
-#: app/templates/www/cookies.html:49 app/templates/www/cookies.html:55
+#: app/templates/www/cookies.html:45 app/templates/www/cookies.html:51
 msgid "14 days"
 msgstr ""
 
-#: app/templates/www/cookies.html:54
+#: app/templates/www/cookies.html:50
 msgid ""
 "Signed session cookie identifying the platform identity across tenant "
 "subdomains. HttpOnly."
 msgstr ""
 
-#: app/templates/www/cookies.html:56
+#: app/templates/www/cookies.html:52
 #, fuzzy
 msgid "Parent domain"
 msgstr "Portal subdomain"
 
-#: app/templates/www/cookies.html:60
+#: app/templates/www/cookies.html:56
 msgid ""
 "Your chosen UI language (cs / en). Set when you click the language "
 "switcher."
 msgstr ""
 
-#: app/templates/www/cookies.html:61 app/templates/www/cookies.html:67
+#: app/templates/www/cookies.html:57 app/templates/www/cookies.html:63
 msgid "1 year"
 msgstr ""
 
-#: app/templates/www/cookies.html:66
+#: app/templates/www/cookies.html:62
 msgid "Light / dark / system preference. Set when you click the theme toggle."
 msgstr ""
 
-#: app/templates/www/cookies.html:76
+#: app/templates/www/cookies.html:72
 msgid "3. How to delete cookies"
 msgstr ""
 
-#: app/templates/www/cookies.html:78
+#: app/templates/www/cookies.html:74
 msgid ""
 "You can clear these cookies at any time from your browser's settings. "
 "Deleting the session cookies logs you out. Deleting the preference "
 "cookies reverts to defaults (Czech language, system theme)."
 msgstr ""
 
-#: app/templates/www/cookies.html:83
+#: app/templates/www/cookies.html:79
 #, fuzzy
 msgid "4. Contact"
 msgstr "Clients"
 
-#: app/templates/www/cookies.html:85
+#: app/templates/www/cookies.html:81
 msgid "Questions about this cookies policy? Write to"
 msgstr ""
 
@@ -3316,7 +3306,7 @@ msgstr ""
 #: app/templates/www/index.html:165
 #, fuzzy
 msgid "Email notifications that make sense"
-msgstr "Email verification"
+msgstr "Email verification failed"
 
 #: app/templates/www/index.html:166
 msgid ""
@@ -3654,9 +3644,10 @@ msgstr ""
 
 #: app/templates/www/index.html:424 app/templates/www/index.html:503
 msgid ""
-"On Hetzner servers in Germany (EU). We use PostgreSQL encrypted at rest "
-"and S3-compatible storage. A full list of subprocessors is in the Privacy"
-" Policy."
+"Your data lives exclusively on Hetzner servers in Germany (EU). The "
+"PostgreSQL database is encrypted at rest; drawings and attachments are "
+"stored in EU-based cloud storage. Backups run daily and are kept for 14 "
+"days. The full subprocessor list is in our Privacy Policy."
 msgstr ""
 
 #: app/templates/www/index.html:425 app/templates/www/index.html:507
@@ -3665,8 +3656,10 @@ msgstr ""
 
 #: app/templates/www/index.html:425 app/templates/www/index.html:508
 msgid ""
-"Yes. You can pay by invoice for quarterly or annual subscriptions. Pay by"
-" card for monthly. For Enterprise we send an invoice with net-14 terms."
+"Monthly plans are paid by card via Stripe. Annual plans can be arranged "
+"by bank transfer with a Czech invoice (net-14). Enterprise customers "
+"always receive an invoice. Questions about VAT or Czech tax documents? "
+"Email team@assoluto.eu."
 msgstr ""
 
 #: app/templates/www/index.html:426 app/templates/www/index.html:512
@@ -3675,51 +3668,61 @@ msgstr ""
 
 #: app/templates/www/index.html:426 app/templates/www/index.html:513
 msgid ""
-"No long contract. Month-to-month by default, cancel any time in two "
-"clicks. Data export to CSV is always available."
+"No paper contract. At signup you accept our Terms of Service by clicking "
+"a button. Subscriptions are monthly with no commitment; cancel any time "
+"from your account settings. Your data is exportable to CSV and stays "
+"accessible for 30 days after cancellation."
 msgstr ""
 
-#: app/templates/www/index.html:427
+#: app/templates/www/index.html:427 app/templates/www/index.html:517
 msgid "Can I integrate with Pohoda or Money S3?"
 msgstr ""
 
-#: app/templates/www/index.html:427
+#: app/templates/www/index.html:427 app/templates/www/index.html:518
 msgid ""
-"CSV export is available today. A Pohoda XML connector is on the roadmap; "
-"write to us via Contact if it would unblock you — we'll prioritise it."
+"Direct integration with Pohoda or Money S3 is not available yet — we "
+"offer CSV export for manual import. A Pohoda XML connector is on our "
+"roadmap. If this is a deciding factor, write to us via the Contact page —"
+" customer demand directly shapes what we build next."
 msgstr ""
 
-#: app/templates/www/index.html:428 app/templates/www/index.html:517
+#: app/templates/www/index.html:428 app/templates/www/index.html:522
 msgid "Is it secure? What if the server fails?"
 msgstr ""
 
-#: app/templates/www/index.html:428 app/templates/www/index.html:518
+#: app/templates/www/index.html:428 app/templates/www/index.html:523
 msgid ""
-"Row-Level Security, Argon2-hashed passwords, CSRF protection, HTTPS-only "
-"cookies, daily backups (retained 14 days). Monitored 24/7 by UptimeRobot,"
-" incident-response email address team@assoluto.eu."
+"Security: each client sees only their own data — enforced at the database"
+" level, not just in the application. Passwords are never stored in "
+"readable form. Login is brute-force protected. Outages: Hetzner runs "
+"redundant infrastructure. We back up daily (14-day retention) and monitor"
+" uptime 24/7. Target uptime: 99.9 percent. The Enterprise plan includes a"
+" written SLA."
 msgstr ""
 
-#: app/templates/www/index.html:429
+#: app/templates/www/index.html:429 app/templates/www/index.html:527
 msgid "Will you teach my people how to use it?"
 msgstr ""
 
-#: app/templates/www/index.html:429
+#: app/templates/www/index.html:429 app/templates/www/index.html:528
 msgid ""
-"30-minute video call included with every paid plan. Most shops don't need"
-" it — the portal is designed so that a client who knows Outlook can place"
-" their first order in 3 minutes."
+"Every paid plan includes a 30-minute online walkthrough — we show the "
+"system with your actual setup, not demo data. Most shops do not need it: "
+"the portal is designed so a client who can use email can place their "
+"first order in 3 minutes without training. Need more? Contact us."
 msgstr ""
 
-#: app/templates/www/index.html:430
+#: app/templates/www/index.html:430 app/templates/www/index.html:532
 msgid "What if I want to leave?"
 msgstr ""
 
-#: app/templates/www/index.html:430
+#: app/templates/www/index.html:430 app/templates/www/index.html:533
 msgid ""
-"Cancel in the admin panel. Data stays available for 30 days after "
-"cancellation so you can export it. Then it's irreversibly deleted (or, on"
-" request, we'll delete it immediately)."
+"Cancel in your account settings — no sales call, no approval queue. After"
+" cancellation your data stays accessible for 30 days (orders and "
+"customers as CSV, attachments as ZIP). After 30 days it is permanently "
+"deleted. For immediate deletion (GDPR Art. 17) email team@assoluto.eu — "
+"we action requests within 48 hours."
 msgstr ""
 
 #: app/templates/www/index.html:439
@@ -4954,5 +4957,441 @@ msgstr "Privacy Policy"
 #~ " be reviewed by a lawyer familiar "
 #~ "with Czech law (GDPR, Civil Code) "
 #~ "before going live."
+#~ msgstr ""
+
+#~ msgid "Notice:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This text is a template. It should"
+#~ " be reviewed by a lawyer familiar "
+#~ "with the EU ePrivacy Directive and "
+#~ "Czech law before going live."
+#~ msgstr ""
+
+#~ msgid "Customer portal for manufacturing SMEs in the Czech Republic"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Replace emails and Excel with a "
+#~ "clean customer portal. Your clients see"
+#~ " orders, drawings and production status "
+#~ "on their own — 24/7. 30 days "
+#~ "free, no card."
+#~ msgstr ""
+
+#~ msgid "Open source · Data in the EU · AGPL-3.0"
+#~ msgstr ""
+
+#~ msgid "Stop picking up the phone."
+#~ msgstr ""
+
+#~ msgid "Your clients see it themselves."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "A customer portal for Czech "
+#~ "manufacturing SMEs. Orders, drawings, "
+#~ "production status — in one place, "
+#~ "24/7. Without Excel, without a massive"
+#~ " ERP."
+#~ msgstr ""
+
+#~ msgid "Try free for 30 days"
+#~ msgstr ""
+
+#~ msgid "Book a 15-min demo"
+#~ msgstr ""
+
+#~ msgid "No credit card · Cancel anytime · Up and running in 30 minutes"
+#~ msgstr ""
+
+#~ msgid "The situation today"
+#~ msgstr ""
+
+#~ msgid "You run a workshop, not an email client."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Five calls before lunch asking \"where's"
+#~ " my order?\" — and three different"
+#~ " drawing versions in Outlook. It adds"
+#~ " up fast."
+#~ msgstr ""
+
+#~ msgid "Phones that won't stop"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\"Every day twenty people call me "
+#~ "asking where their order is. Then "
+#~ "I have to walk to the shop "
+#~ "floor and ask the foreman.\""
+#~ msgstr ""
+
+#~ msgid "Outlook as a drawing vault"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\"I keep searching Outlook for which "
+#~ "version of the drawing the client "
+#~ "sent last week. And sometimes we "
+#~ "make parts from the wrong revision.\""
+#~ msgstr ""
+
+#~ msgid "Excel only Jana updates"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\"We have a spreadsheet, but only "
+#~ "Jana keeps it current. When she's "
+#~ "sick, nobody knows anything.\""
+#~ msgstr ""
+
+#~ msgid "Everything that matters"
+#~ msgstr ""
+
+#~ msgid "Built specifically for manufacturing SMEs"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Not a generic CRM. Not an "
+#~ "oversized ERP. An in-between that "
+#~ "knows what a drawing revision and "
+#~ "a production deadline are."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "8-step process from request to delivery."
+#~ " Every transition is audited — who,"
+#~ " when, why. No more guessing."
+#~ msgstr ""
+
+#~ msgid "Drawings and CAD attached to orders"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "PDF, PNG, DWG, DXF, STEP. Direct "
+#~ "upload, instant preview. The right "
+#~ "revision next to the right order —"
+#~ " every time."
+#~ msgstr ""
+
+#~ msgid "Status tracking in real time"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The client sees on their own: "
+#~ "DRAFT · SUBMITTED · QUOTED · "
+#~ "CONFIRMED · IN PRODUCTION · READY "
+#~ "· DELIVERED. Five calls a day turn"
+#~ " into zero."
+#~ msgstr ""
+
+#~ msgid "Customer material on stock"
+#~ msgstr "As a customer contact"
+
+#~ msgid ""
+#~ "Does the client have material, tooling,"
+#~ " or semi-finished product at your "
+#~ "place? Receipts, issues, balance — "
+#~ "transparent for both sides."
+#~ msgstr ""
+
+#~ msgid "Email notifications that make sense"
+#~ msgstr "Email verification"
+
+#~ msgid ""
+#~ "Client comments, status changes, new "
+#~ "drawings. Each user sets what they "
+#~ "want to be notified about. No more"
+#~ " inbox overload."
+#~ msgstr ""
+
+#~ msgid "Every client sees only their own"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "PostgreSQL Row-Level Security. Data is"
+#~ " isolated at the database level — "
+#~ "not by a view we can forget. "
+#~ "Zero risk of cross-visibility."
+#~ msgstr ""
+
+#~ msgid "See all features"
+#~ msgstr ""
+
+#~ msgid "How it works"
+#~ msgstr ""
+
+#~ msgid "Three steps, thirty minutes. No \"implementation project\"."
+#~ msgstr ""
+
+#~ msgid "Sign up, choose a subdomain"
+#~ msgstr "Portal subdomain"
+
+#~ msgid ""
+#~ "Email, password, Company ID. You'll get"
+#~ " your own address — e.g. "
+#~ "yourfirm.assoluto.eu — in 30 seconds."
+#~ msgstr ""
+
+#~ msgid "Invite your first clients"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Click, enter their email, the invite "
+#~ "goes out. They see only their own"
+#~ " orders and drawings. Nothing else."
+#~ msgstr ""
+
+#~ msgid "Orders run on their own"
+#~ msgstr "Orders"
+
+#~ msgid ""
+#~ "Client uploads a drawing, you quote, "
+#~ "they confirm. Shop floor updates status,"
+#~ " client sees it. Your email inbox "
+#~ "shrinks by half."
+#~ msgstr ""
+
+#~ msgid "Why Assoluto"
+#~ msgstr ""
+
+#~ msgid "Halfway between Excel and a 600K CZK ERP"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You outgrew the spreadsheet. You don't"
+#~ " want a year-long ERP implementation."
+#~ " Here's what's in between."
+#~ msgstr ""
+
+#~ msgid "Excel / email"
+#~ msgstr "Check your email"
+
+#~ msgid "Big ERP"
+#~ msgstr ""
+
+#~ msgid "Setup"
+#~ msgstr ""
+
+#~ msgid "0 CZK, 10 years of habits"
+#~ msgstr ""
+
+#~ msgid "30 minutes, zero training"
+#~ msgstr ""
+
+#~ msgid "3–9 months, 200–800K CZK"
+#~ msgstr ""
+
+#~ msgid "Monthly cost"
+#~ msgstr ""
+
+#~ msgid "The cost of your patience"
+#~ msgstr ""
+
+#~ msgid "490 – 1 490 CZK"
+#~ msgstr ""
+
+#~ msgid "5 – 25K CZK / user"
+#~ msgstr ""
+
+#~ msgid "Client sees order status"
+#~ msgstr "Clients"
+
+#~ msgid "often only via a separate B2B module"
+#~ msgstr ""
+
+#~ msgid "billable by the hour"
+#~ msgstr ""
+
+#~ msgid "Audit trail"
+#~ msgstr "Catalog"
+
+#~ msgid "your laptop"
+#~ msgstr "Your name"
+
+#~ msgid "Hetzner DE"
+#~ msgstr ""
+
+#~ msgid "depends on the vendor"
+#~ msgstr ""
+
+#~ msgid "Can be cancelled"
+#~ msgstr "Cancelled"
+
+#~ msgid "at any time"
+#~ msgstr "Confirmed"
+
+#~ msgid "12–36 month contracts"
+#~ msgstr "Clients"
+
+#~ msgid "A honest price list. No sales call required."
+#~ msgstr ""
+
+#~ msgid "For a small shop, 3 staff users"
+#~ msgstr ""
+
+#~ msgid "Most chosen"
+#~ msgstr ""
+
+#~ msgid "For growing manufacturers, 15 users"
+#~ msgstr ""
+
+#~ msgid "forever"
+#~ msgstr "Orders"
+
+#~ msgid "Your server, your data"
+#~ msgstr ""
+
+#~ msgid "Community on GitHub"
+#~ msgstr ""
+
+#~ msgid "Need more?"
+#~ msgstr "Orders"
+
+#~ msgid "Enterprise plan with SLA →"
+#~ msgstr ""
+
+#~ msgid "Early access"
+#~ msgstr "Your name"
+
+#~ msgid "What our first customers say"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Assoluto is in early-access launch. "
+#~ "Logos will appear here as soon as"
+#~ " clients agree to be published."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Five calls a day asking about "
+#~ "orders turned into zero. I finally "
+#~ "have time for the shop floor."
+#~ msgstr ""
+
+#~ msgid "Owner, metalwork shop — Morava, 12 employees"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "No more parts made from the wrong"
+#~ " drawing revision. Every attachment belongs"
+#~ " to exactly one order."
+#~ msgstr ""
+
+#~ msgid "Production manager, CNC machining — Vysočina, 22 employees"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Big ERPs wanted hundreds of thousands"
+#~ " for implementation. With Assoluto we "
+#~ "were running in an afternoon for "
+#~ "490 CZK a month."
+#~ msgstr ""
+
+#~ msgid "Co-owner, sheet-metal fabrication — Prague, 8 employees"
+#~ msgstr ""
+
+#~ msgid "Frequently asked questions"
+#~ msgstr ""
+
+#~ msgid "Things people actually want to know"
+#~ msgstr ""
+
+#~ msgid "Where is my data stored?"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "On Hetzner servers in Germany (EU). "
+#~ "We use PostgreSQL encrypted at rest "
+#~ "and S3-compatible storage. A full list"
+#~ " of subprocessors is in the Privacy"
+#~ " Policy."
+#~ msgstr ""
+
+#~ msgid "Can I pay by bank transfer, not just by card?"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Yes. You can pay by invoice for"
+#~ " quarterly or annual subscriptions. Pay "
+#~ "by card for monthly. For Enterprise "
+#~ "we send an invoice with net-14 "
+#~ "terms."
+#~ msgstr ""
+
+#~ msgid "Do I need to sign anything?"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "No long contract. Month-to-month "
+#~ "by default, cancel any time in two"
+#~ " clicks. Data export to CSV is "
+#~ "always available."
+#~ msgstr ""
+
+#~ msgid "Can I integrate with Pohoda or Money S3?"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "CSV export is available today. A "
+#~ "Pohoda XML connector is on the "
+#~ "roadmap; write to us via Contact "
+#~ "if it would unblock you — we'll"
+#~ " prioritise it."
+#~ msgstr ""
+
+#~ msgid "Is it secure? What if the server fails?"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Row-Level Security, Argon2-hashed passwords,"
+#~ " CSRF protection, HTTPS-only cookies, "
+#~ "daily backups (retained 14 days). "
+#~ "Monitored 24/7 by UptimeRobot, incident-"
+#~ "response email address team@assoluto.eu."
+#~ msgstr ""
+
+#~ msgid "Will you teach my people how to use it?"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "30-minute video call included with every"
+#~ " paid plan. Most shops don't need "
+#~ "it — the portal is designed so "
+#~ "that a client who knows Outlook "
+#~ "can place their first order in 3"
+#~ " minutes."
+#~ msgstr ""
+
+#~ msgid "What if I want to leave?"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Cancel in the admin panel. Data "
+#~ "stays available for 30 days after "
+#~ "cancellation so you can export it. "
+#~ "Then it's irreversibly deleted (or, on"
+#~ " request, we'll delete it immediately)."
+#~ msgstr ""
+
+#~ msgid "Ready to stop picking up the phone?"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "30 days free. No card. No \"quick"
+#~ " call with sales\". Just sign up "
+#~ "and try it."
+#~ msgstr ""
+
+#~ msgid "Or write / call us"
+#~ msgstr "Switch to"
+
+#~ msgid ""
+#~ "Up and running in 30 minutes · "
+#~ "Data in the EU (Hetzner DE) · "
+#~ "Czech support"
 #~ msgstr ""
 

@@ -421,13 +421,13 @@
             </details>
             {% endmacro %}
 
-            {{ faq(_("Where is my data stored?"), _("On Hetzner servers in Germany (EU). We use PostgreSQL encrypted at rest and S3-compatible storage. A full list of subprocessors is in the Privacy Policy.")) }}
-            {{ faq(_("Can I pay by bank transfer, not just by card?"), _("Yes. You can pay by invoice for quarterly or annual subscriptions. Pay by card for monthly. For Enterprise we send an invoice with net-14 terms.")) }}
-            {{ faq(_("Do I need to sign anything?"), _("No long contract. Month-to-month by default, cancel any time in two clicks. Data export to CSV is always available.")) }}
-            {{ faq(_("Can I integrate with Pohoda or Money S3?"), _("CSV export is available today. A Pohoda XML connector is on the roadmap; write to us via Contact if it would unblock you — we'll prioritise it.")) }}
-            {{ faq(_("Is it secure? What if the server fails?"), _("Row-Level Security, Argon2-hashed passwords, CSRF protection, HTTPS-only cookies, daily backups (retained 14 days). Monitored 24/7 by UptimeRobot, incident-response email address team@assoluto.eu.")) }}
-            {{ faq(_("Will you teach my people how to use it?"), _("30-minute video call included with every paid plan. Most shops don't need it — the portal is designed so that a client who knows Outlook can place their first order in 3 minutes.")) }}
-            {{ faq(_("What if I want to leave?"), _("Cancel in the admin panel. Data stays available for 30 days after cancellation so you can export it. Then it's irreversibly deleted (or, on request, we'll delete it immediately).")) }}
+            {{ faq(_("Where is my data stored?"), _("Your data lives exclusively on Hetzner servers in Germany (EU). The PostgreSQL database is encrypted at rest; drawings and attachments are stored in EU-based cloud storage. Backups run daily and are kept for 14 days. The full subprocessor list is in our Privacy Policy.")) }}
+            {{ faq(_("Can I pay by bank transfer, not just by card?"), _("Monthly plans are paid by card via Stripe. Annual plans can be arranged by bank transfer with a Czech invoice (net-14). Enterprise customers always receive an invoice. Questions about VAT or Czech tax documents? Email team@assoluto.eu.")) }}
+            {{ faq(_("Do I need to sign anything?"), _("No paper contract. At signup you accept our Terms of Service by clicking a button. Subscriptions are monthly with no commitment; cancel any time from your account settings. Your data is exportable to CSV and stays accessible for 30 days after cancellation.")) }}
+            {{ faq(_("Can I integrate with Pohoda or Money S3?"), _("Direct integration with Pohoda or Money S3 is not available yet — we offer CSV export for manual import. A Pohoda XML connector is on our roadmap. If this is a deciding factor, write to us via the Contact page — customer demand directly shapes what we build next.")) }}
+            {{ faq(_("Is it secure? What if the server fails?"), _("Security: each client sees only their own data — enforced at the database level, not just in the application. Passwords are never stored in readable form. Login is brute-force protected. Outages: Hetzner runs redundant infrastructure. We back up daily (14-day retention) and monitor uptime 24/7. Target uptime: 99.9 percent. The Enterprise plan includes a written SLA.")) }}
+            {{ faq(_("Will you teach my people how to use it?"), _("Every paid plan includes a 30-minute online walkthrough — we show the system with your actual setup, not demo data. Most shops do not need it: the portal is designed so a client who can use email can place their first order in 3 minutes without training. Need more? Contact us.")) }}
+            {{ faq(_("What if I want to leave?"), _("Cancel in your account settings — no sales call, no approval queue. After cancellation your data stays accessible for 30 days (orders and customers as CSV, attachments as ZIP). After 30 days it is permanently deleted. For immediate deletion (GDPR Art. 17) email team@assoluto.eu — we action requests within 48 hours.")) }}
         </dl>
     </div>
 </section>
@@ -500,22 +500,37 @@
         {
             "@type": "Question",
             "name": "{{ _('Where is my data stored?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('On Hetzner servers in Germany (EU). We use PostgreSQL encrypted at rest and S3-compatible storage. A full list of subprocessors is in the Privacy Policy.') }}"}
+            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Your data lives exclusively on Hetzner servers in Germany (EU). The PostgreSQL database is encrypted at rest; drawings and attachments are stored in EU-based cloud storage. Backups run daily and are kept for 14 days. The full subprocessor list is in our Privacy Policy.') }}"}
         },
         {
             "@type": "Question",
             "name": "{{ _('Can I pay by bank transfer, not just by card?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Yes. You can pay by invoice for quarterly or annual subscriptions. Pay by card for monthly. For Enterprise we send an invoice with net-14 terms.') }}"}
+            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Monthly plans are paid by card via Stripe. Annual plans can be arranged by bank transfer with a Czech invoice (net-14). Enterprise customers always receive an invoice. Questions about VAT or Czech tax documents? Email team@assoluto.eu.') }}"}
         },
         {
             "@type": "Question",
             "name": "{{ _('Do I need to sign anything?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('No long contract. Month-to-month by default, cancel any time in two clicks. Data export to CSV is always available.') }}"}
+            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('No paper contract. At signup you accept our Terms of Service by clicking a button. Subscriptions are monthly with no commitment; cancel any time from your account settings. Your data is exportable to CSV and stays accessible for 30 days after cancellation.') }}"}
+        },
+        {
+            "@type": "Question",
+            "name": "{{ _('Can I integrate with Pohoda or Money S3?') }}",
+            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Direct integration with Pohoda or Money S3 is not available yet — we offer CSV export for manual import. A Pohoda XML connector is on our roadmap. If this is a deciding factor, write to us via the Contact page — customer demand directly shapes what we build next.') }}"}
         },
         {
             "@type": "Question",
             "name": "{{ _('Is it secure? What if the server fails?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Row-Level Security, Argon2-hashed passwords, CSRF protection, HTTPS-only cookies, daily backups (retained 14 days). Monitored 24/7 by UptimeRobot, incident-response email address team@assoluto.eu.') }}"}
+            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Security: each client sees only their own data — enforced at the database level, not just in the application. Passwords are never stored in readable form. Login is brute-force protected. Outages: Hetzner runs redundant infrastructure. We back up daily (14-day retention) and monitor uptime 24/7. Target uptime: 99.9 percent. The Enterprise plan includes a written SLA.') }}"}
+        },
+        {
+            "@type": "Question",
+            "name": "{{ _('Will you teach my people how to use it?') }}",
+            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Every paid plan includes a 30-minute online walkthrough — we show the system with your actual setup, not demo data. Most shops do not need it: the portal is designed so a client who can use email can place their first order in 3 minutes without training. Need more? Contact us.') }}"}
+        },
+        {
+            "@type": "Question",
+            "name": "{{ _('What if I want to leave?') }}",
+            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Cancel in your account settings — no sales call, no approval queue. After cancellation your data stays accessible for 30 days (orders and customers as CSV, attachments as ZIP). After 30 days it is permanently deleted. For immediate deletion (GDPR Art. 17) email team@assoluto.eu — we action requests within 48 hours.') }}"}
         }
     ]
 }
