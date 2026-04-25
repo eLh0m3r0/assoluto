@@ -154,9 +154,23 @@ def create_checkout_session(
     return a stale cached session.
     """
     stripe = _get_stripe(settings)
-    if stripe is None or not plan.stripe_price_id:
-        # Demo: pretend the user clicked "Pay", go straight to success.
+    if stripe is None:
+        # Demo mode (no Stripe configured): pretend the user clicked
+        # "Pay", go straight to success. The local subscription was
+        # already flipped by the caller.
         return success_url
+    if not plan.stripe_price_id:
+        # Live mode but the plan has no Stripe price ID. This is a
+        # configuration error (env var missing, sync failed, or the
+        # plan is the free Community tier which has no checkout flow
+        # at all). Returning ``success_url`` here would silently no-op
+        # the upgrade — the user thinks they paid, nothing happened.
+        # Better to fail loud so the operator sees it.
+        raise BillingError(
+            f"Plan '{plan.code}' has no stripe_price_id configured — "
+            "checkout cannot proceed. Set STRIPE_PRICE_* env vars or "
+            "remove this plan from the upgrade UI."
+        )
 
     # Stripe design: metadata on the Session does NOT propagate onto the
     # Subscription / Invoice the session creates — you must also set it

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-24 09:48+0200\n"
+"POT-Creation-Date: 2026-04-25 11:11+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -1304,7 +1304,7 @@ msgid "Current stock"
 msgstr ""
 
 #: app/templates/assets/detail.html:28 app/templates/assets/form.html:46
-#: app/templates/assets/list.html:29 app/templates/www/privacy.html:61
+#: app/templates/assets/list.html:29 app/templates/www/privacy.html:57
 msgid "Location"
 msgstr ""
 
@@ -2499,7 +2499,7 @@ msgid "Storage:"
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:126
-#: app/templates/www/pricing.html:102
+#: app/templates/www/pricing.html:101
 msgid "Contact us"
 msgstr ""
 
@@ -2767,8 +2767,7 @@ msgstr ""
 msgid "Version 1.0 · effective from May 1, 2026"
 msgstr ""
 
-#: app/templates/www/cookies.html:14 app/templates/www/privacy.html:14
-#: app/templates/www/terms.html:14
+#: app/templates/www/cookies.html:14
 msgid "Notice:"
 msgstr ""
 
@@ -2802,7 +2801,7 @@ msgstr ""
 msgid "2. Cookies we set"
 msgstr ""
 
-#: app/templates/www/cookies.html:34 app/templates/www/privacy.html:59
+#: app/templates/www/cookies.html:34 app/templates/www/privacy.html:55
 msgid "Purpose"
 msgstr ""
 
@@ -3115,7 +3114,7 @@ msgstr ""
 
 #: app/templates/www/features.html:246 app/templates/www/index.html:304
 #: app/templates/www/index.html:327 app/templates/www/pricing.html:57
-#: app/templates/www/pricing.html:82
+#: app/templates/www/pricing.html:81
 msgid "Start 30-day trial"
 msgstr ""
 
@@ -3169,7 +3168,7 @@ msgid "Terms of Service"
 msgstr "Terms of Service"
 
 #: app/templates/www/imprint.html:55 app/templates/www/privacy.html:3
-#: app/templates/www/privacy.html:7 app/templates/www/terms.html:58
+#: app/templates/www/privacy.html:7 app/templates/www/terms.html:54
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
 
@@ -3443,7 +3442,7 @@ msgstr "Clients"
 msgid "often only via a separate B2B module"
 msgstr ""
 
-#: app/templates/www/index.html:264 app/templates/www/pricing.html:130
+#: app/templates/www/index.html:264 app/templates/www/pricing.html:129
 msgid "Czech support"
 msgstr ""
 
@@ -3456,7 +3455,7 @@ msgstr ""
 msgid "Audit trail"
 msgstr "Catalog"
 
-#: app/templates/www/index.html:266 app/templates/www/pricing.html:126
+#: app/templates/www/index.html:266 app/templates/www/pricing.html:125
 msgid "Data in the EU"
 msgstr ""
 
@@ -3533,7 +3532,7 @@ msgstr ""
 msgid "Email support (48 h)"
 msgstr ""
 
-#: app/templates/www/index.html:311 app/templates/www/pricing.html:64
+#: app/templates/www/index.html:311
 msgid "Most chosen"
 msgstr ""
 
@@ -3784,6 +3783,10 @@ msgstr ""
 msgid "The price of lunch for the team"
 msgstr ""
 
+#: app/templates/www/pricing.html:64
+msgid "Recommended"
+msgstr ""
+
 #: app/templates/www/pricing.html:67
 msgid "Growing manufacturer, 15 users"
 msgstr ""
@@ -3792,356 +3795,347 @@ msgstr ""
 msgid "Cheaper than one bad day on the shop floor"
 msgstr ""
 
-#: app/templates/www/pricing.html:79
-msgid "SSO (coming soon)"
-msgstr ""
-
-#: app/templates/www/pricing.html:89
+#: app/templates/www/pricing.html:88
 msgid "Over 15 people, SLA, custom domain"
 msgstr ""
 
-#: app/templates/www/pricing.html:91
+#: app/templates/www/pricing.html:90
 #, fuzzy
 msgid "Talk to us"
 msgstr "Switch to"
 
-#: app/templates/www/pricing.html:93
+#: app/templates/www/pricing.html:92
 msgid "We'll draw up an offer in 1 working day"
 msgstr ""
 
-#: app/templates/www/pricing.html:95
+#: app/templates/www/pricing.html:94
 msgid "No limits on users / orders / storage"
 msgstr ""
 
-#: app/templates/www/pricing.html:96
+#: app/templates/www/pricing.html:95
 msgid "Your own domain (portal.yourfirm.cz)"
 msgstr ""
 
-#: app/templates/www/pricing.html:97
+#: app/templates/www/pricing.html:96
 msgid "Priority support (4 h)"
 msgstr ""
 
-#: app/templates/www/pricing.html:98
+#: app/templates/www/pricing.html:97
 msgid "SLA 99.9 percent"
 msgstr ""
 
-#: app/templates/www/pricing.html:99
+#: app/templates/www/pricing.html:98
 msgid "On-premises deployment possible"
 msgstr ""
 
+#: app/templates/www/pricing.html:113
+msgid "Annual billing on request"
+msgstr ""
+
 #: app/templates/www/pricing.html:114
-msgid "Pay annually, save two months"
-msgstr ""
-
-#: app/templates/www/pricing.html:115
 msgid ""
-"Starter 4 900 CZK / year · Pro 14 900 CZK / year. Paid by bank transfer "
-"with an invoice net-14. No card required."
+"Want to pay yearly with a Czech invoice and bank transfer? Email "
+"team@assoluto.eu and we'll send you a custom offer (typically two months "
+"free)."
 msgstr ""
 
-#: app/templates/www/pricing.html:122
+#: app/templates/www/pricing.html:121
 msgid "What's included in every plan"
 msgstr ""
 
-#: app/templates/www/pricing.html:130
+#: app/templates/www/pricing.html:129
 msgid "real people, not a chatbot."
 msgstr ""
 
-#: app/templates/www/pricing.html:134
+#: app/templates/www/pricing.html:133
 msgid "Daily backups"
 msgstr ""
 
-#: app/templates/www/pricing.html:134
+#: app/templates/www/pricing.html:133
 msgid "kept 14 days, restorable on request."
 msgstr ""
 
-#: app/templates/www/pricing.html:138
+#: app/templates/www/pricing.html:137
 #, fuzzy
 msgid "GDPR-ready"
 msgstr "Ready"
 
-#: app/templates/www/pricing.html:138
+#: app/templates/www/pricing.html:137
 msgid "subprocessor list, DPA on request."
 msgstr ""
 
-#: app/templates/www/pricing.html:142
+#: app/templates/www/pricing.html:141
 msgid "CSV export"
 msgstr ""
 
-#: app/templates/www/pricing.html:142
+#: app/templates/www/pricing.html:141
 msgid "your data is yours. Leave any time."
 msgstr ""
 
-#: app/templates/www/pricing.html:146
+#: app/templates/www/pricing.html:145
 msgid "Uptime monitoring"
 msgstr ""
 
-#: app/templates/www/pricing.html:146
+#: app/templates/www/pricing.html:145
 msgid "UptimeRobot 24/7, status page on request."
 msgstr ""
 
-#: app/templates/www/pricing.html:153
+#: app/templates/www/pricing.html:152
 msgid "Pricing FAQ"
 msgstr ""
 
-#: app/templates/www/pricing.html:165
+#: app/templates/www/pricing.html:164
 msgid "Is a card required for the trial?"
 msgstr ""
 
-#: app/templates/www/pricing.html:165
+#: app/templates/www/pricing.html:164
 msgid ""
 "No. Sign up with just an email. You only enter a card if you decide to "
-"continue paying after 30 days — or you can switch to annual billing by "
-"bank transfer."
+"continue paying after 30 days — or you can request annual invoicing by "
+"emailing team@assoluto.eu."
 msgstr ""
 
-#: app/templates/www/pricing.html:166
+#: app/templates/www/pricing.html:165
 msgid "How does billing actually work?"
 msgstr ""
 
-#: app/templates/www/pricing.html:166
+#: app/templates/www/pricing.html:165
 msgid ""
 "Monthly plan: card via Stripe, invoice emailed the same day. Annual plan:"
-" bank transfer with a Czech invoice, net-14."
+" arranged on request — bank transfer with a Czech invoice, net-14."
 msgstr ""
 
-#: app/templates/www/pricing.html:167
+#: app/templates/www/pricing.html:166
 msgid "Can I change plans later?"
 msgstr ""
 
-#: app/templates/www/pricing.html:167
+#: app/templates/www/pricing.html:166
 msgid ""
 "Yes, any time. The difference is prorated down to the day. Downgrade "
 "happens at the start of the next billing period (you keep what you paid "
 "for)."
 msgstr ""
 
-#: app/templates/www/pricing.html:168
+#: app/templates/www/pricing.html:167
 msgid "What happens when I cancel?"
 msgstr ""
 
-#: app/templates/www/pricing.html:168
+#: app/templates/www/pricing.html:167
 msgid ""
 "Your account stays read-only for 30 days so you can export to CSV. Then "
 "data is irreversibly deleted. If you need immediate deletion, one email "
 "to team@assoluto.eu does it."
 msgstr ""
 
-#: app/templates/www/pricing.html:169
+#: app/templates/www/pricing.html:168
 msgid "Does the self-hosted Community version cost anything?"
 msgstr ""
 
-#: app/templates/www/pricing.html:169
+#: app/templates/www/pricing.html:168
 msgid ""
 "No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No "
 "restrictions on users or features — only you need to run updates "
 "yourself."
 msgstr ""
 
-#: app/templates/www/pricing.html:170
+#: app/templates/www/pricing.html:169
 msgid "Do you have a discount for schools / associations / non-profits?"
 msgstr ""
 
-#: app/templates/www/pricing.html:170
+#: app/templates/www/pricing.html:169
 msgid ""
 "Yes. Write to us at team@assoluto.eu with a description of the use — half"
 " price is typical, free access for small organisations."
 msgstr ""
 
 #: app/templates/www/privacy.html:14
-msgid ""
-"This text is a template. It should be reviewed by a lawyer familiar with "
-"GDPR before going live."
-msgstr ""
-
-#: app/templates/www/privacy.html:18
 msgid "1. Data controller"
 msgstr ""
 
-#: app/templates/www/privacy.html:20
+#: app/templates/www/privacy.html:16
 msgid "The data controller is"
 msgstr ""
 
-#: app/templates/www/privacy.html:21 app/templates/www/terms.html:21
+#: app/templates/www/privacy.html:17 app/templates/www/terms.html:17
 #, fuzzy
 msgid "Company ID"
 msgstr "Company name"
 
-#: app/templates/www/privacy.html:22 app/templates/www/terms.html:22
+#: app/templates/www/privacy.html:18 app/templates/www/terms.html:18
 msgid "with registered office at"
 msgstr ""
 
-#: app/templates/www/privacy.html:23
+#: app/templates/www/privacy.html:19
 msgid "Contact:"
 msgstr ""
 
-#: app/templates/www/privacy.html:29
+#: app/templates/www/privacy.html:25
 msgid "2. What data we process"
 msgstr ""
 
-#: app/templates/www/privacy.html:31
+#: app/templates/www/privacy.html:27
 msgid "Account identification data (name, email, company, Company ID, VAT ID)"
 msgstr ""
 
-#: app/templates/www/privacy.html:32
+#: app/templates/www/privacy.html:28
 msgid "Login credentials (password in Argon2-hashed form)"
 msgstr ""
 
-#: app/templates/www/privacy.html:33
+#: app/templates/www/privacy.html:29
 msgid "Content created in the portal (orders, comments, attachments)"
 msgstr ""
 
-#: app/templates/www/privacy.html:34
+#: app/templates/www/privacy.html:30
 msgid "Billing data, if you subscribe to a plan"
 msgstr ""
 
-#: app/templates/www/privacy.html:35
+#: app/templates/www/privacy.html:31
 msgid "Technical logs (IP address, User-Agent) for operational security"
 msgstr ""
 
-#: app/templates/www/privacy.html:40
+#: app/templates/www/privacy.html:36
 msgid "3. Why we process data"
 msgstr ""
 
-#: app/templates/www/privacy.html:42
+#: app/templates/www/privacy.html:38
 msgid "Contract performance (operating the portal you ordered)"
 msgstr ""
 
-#: app/templates/www/privacy.html:43
+#: app/templates/www/privacy.html:39
 msgid "Invoicing and tax records (legitimate interest + legal obligation)"
 msgstr ""
 
-#: app/templates/www/privacy.html:44
+#: app/templates/www/privacy.html:40
 msgid "Security and abuse prevention (legitimate interest)"
 msgstr ""
 
-#: app/templates/www/privacy.html:45
+#: app/templates/www/privacy.html:41
 msgid "Sending operational emails (consent / contract performance)"
 msgstr ""
 
-#: app/templates/www/privacy.html:50
+#: app/templates/www/privacy.html:46
 msgid "4. Where data is stored + our subprocessors"
 msgstr ""
 
-#: app/templates/www/privacy.html:52
+#: app/templates/www/privacy.html:48
 msgid ""
 "We use the following third parties (subprocessors) to run the service. "
 "Data sharing is limited to what each subprocessor needs to do its job; no"
 " subprocessor receives marketing permissions on your data."
 msgstr ""
 
-#: app/templates/www/privacy.html:58
+#: app/templates/www/privacy.html:54
 msgid "Subprocessor"
 msgstr ""
 
-#: app/templates/www/privacy.html:60
+#: app/templates/www/privacy.html:56
 msgid "Data categories"
 msgstr ""
 
-#: app/templates/www/privacy.html:67
+#: app/templates/www/privacy.html:63
 msgid "Hosting (VPS)"
 msgstr ""
 
-#: app/templates/www/privacy.html:68
+#: app/templates/www/privacy.html:64
 msgid "All (at-rest, encrypted)"
 msgstr ""
 
-#: app/templates/www/privacy.html:73
+#: app/templates/www/privacy.html:69
 msgid "Transactional email"
 msgstr ""
 
-#: app/templates/www/privacy.html:74
+#: app/templates/www/privacy.html:70
 msgid "Recipient email, name, body"
 msgstr ""
 
-#: app/templates/www/privacy.html:79
+#: app/templates/www/privacy.html:75
 msgid "Subscription billing"
 msgstr ""
 
-#: app/templates/www/privacy.html:80
+#: app/templates/www/privacy.html:76
 msgid "Billing email, company, tax ID, card (processor-held)"
 msgstr ""
 
-#: app/templates/www/privacy.html:85
+#: app/templates/www/privacy.html:81
 msgid "DNS + domain registrar"
 msgstr ""
 
-#: app/templates/www/privacy.html:86
+#: app/templates/www/privacy.html:82
 msgid "Public DNS records only"
 msgstr ""
 
-#: app/templates/www/privacy.html:93
+#: app/templates/www/privacy.html:89
 msgid ""
 "Subprocessor changes are disclosed at least 30 days in advance by "
 "updating this page and emailing active tenant admins."
 msgstr ""
 
-#: app/templates/www/privacy.html:98
+#: app/templates/www/privacy.html:94
 msgid "5. How long we retain data"
 msgstr ""
 
-#: app/templates/www/privacy.html:100
+#: app/templates/www/privacy.html:96
 msgid "Active account data — for the lifetime of the subscription."
 msgstr ""
 
-#: app/templates/www/privacy.html:101
+#: app/templates/www/privacy.html:97
 msgid ""
 "After account cancellation — 30 days grace (for reactivation), then "
 "anonymisation."
 msgstr ""
 
-#: app/templates/www/privacy.html:102
+#: app/templates/www/privacy.html:98
 msgid ""
 "Authentication logs (last_login timestamps, failed login attempts) — 90 "
 "days."
 msgstr ""
 
-#: app/templates/www/privacy.html:103
+#: app/templates/www/privacy.html:99
 msgid ""
 "Audit trail of operator / admin actions — retained for the lifetime of "
 "the tenant, plus 3 years after closure for contractual dispute evidence."
 msgstr ""
 
-#: app/templates/www/privacy.html:104
+#: app/templates/www/privacy.html:100
 msgid ""
 "Billing records (invoices, subscription history) — 10 years from the end "
 "of the accounting period, as required by Czech Act 563/1991 Coll. on "
 "accounting."
 msgstr ""
 
-#: app/templates/www/privacy.html:105
+#: app/templates/www/privacy.html:101
 msgid "Request / error logs — 14 days."
 msgstr ""
 
-#: app/templates/www/privacy.html:106
+#: app/templates/www/privacy.html:102
 msgid "Database backups — 14 days rolling."
 msgstr ""
 
-#: app/templates/www/privacy.html:111
+#: app/templates/www/privacy.html:107
 msgid "6. Your rights"
 msgstr ""
 
-#: app/templates/www/privacy.html:113
+#: app/templates/www/privacy.html:109
 msgid ""
 "You have the right to access, rectification, erasure, restriction of "
 "processing, portability, and objection. Contact"
 msgstr ""
 
-#: app/templates/www/privacy.html:115
+#: app/templates/www/privacy.html:111
 msgid "we will respond within 30 days."
 msgstr ""
 
-#: app/templates/www/privacy.html:118
+#: app/templates/www/privacy.html:114
 msgid ""
 "You also have the right to file a complaint with the Office for Personal "
 "Data Protection"
 msgstr ""
 
-#: app/templates/www/privacy.html:124
+#: app/templates/www/privacy.html:120
 msgid "7. Cookies"
 msgstr ""
 
-#: app/templates/www/privacy.html:126
+#: app/templates/www/privacy.html:122
 msgid ""
 "The portal uses only technical (session) cookies necessary for login and "
 "CSRF protection. We do not deploy analytics or marketing cookies without "
@@ -4304,84 +4298,78 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/terms.html:14
-msgid ""
-"This text is a template and should be reviewed by a lawyer familiar with "
-"Czech law (GDPR, Civil Code) before going live."
-msgstr ""
-
-#: app/templates/www/terms.html:18
 #, fuzzy
 msgid "1. Introduction"
 msgstr "In production"
 
-#: app/templates/www/terms.html:20
+#: app/templates/www/terms.html:16
 msgid "The operator of Assoluto service (hereinafter the \"Service\") is"
 msgstr ""
 
-#: app/templates/www/terms.html:22
+#: app/templates/www/terms.html:18
 msgid ""
 "(hereinafter the \"Operator\"). These terms govern the relationship "
 "between the Operator and the person using the Service (hereinafter the "
 "\"User\")."
 msgstr ""
 
-#: app/templates/www/terms.html:27
+#: app/templates/www/terms.html:23
 msgid "2. Description of the Service"
 msgstr ""
 
-#: app/templates/www/terms.html:29
+#: app/templates/www/terms.html:25
 msgid ""
 "The Service provides a multi-tenant customer portal for manufacturing "
 "SMEs — management of orders, product catalog, client assets, and "
 "communication between the supplier and their clients."
 msgstr ""
 
-#: app/templates/www/terms.html:34
+#: app/templates/www/terms.html:30
 msgid "3. Registration and account"
 msgstr ""
 
-#: app/templates/www/terms.html:36
+#: app/templates/www/terms.html:32
 msgid ""
 "Registration is required to use the Service. The User is obliged to "
 "provide truthful information and protect their login credentials. The "
 "Operator may block the account in case of serious violation of the terms."
 msgstr ""
 
-#: app/templates/www/terms.html:41
+#: app/templates/www/terms.html:37
 msgid "4. Trial period and payments"
 msgstr ""
 
-#: app/templates/www/terms.html:43
+#: app/templates/www/terms.html:39
 msgid ""
 "A new account receives a 30-day free trial. After its expiration, the "
 "User can continue only with an active subscription. Payments are "
 "processed through Stripe."
 msgstr ""
 
-#: app/templates/www/terms.html:48
+#: app/templates/www/terms.html:44
 msgid "5. User obligations"
 msgstr ""
 
-#: app/templates/www/terms.html:50
+#: app/templates/www/terms.html:46
 msgid ""
 "The User must not misuse the Service, circumvent security measures, "
 "interfere with operations, or use it for content that violates the laws "
 "of the Czech Republic or the EU."
 msgstr ""
 
-#: app/templates/www/terms.html:55
+#: app/templates/www/terms.html:51
 msgid "6. Personal data protection"
 msgstr ""
 
-#: app/templates/www/terms.html:57
+#: app/templates/www/terms.html:53
 msgid "The processing of personal data is governed by a separate document"
 msgstr ""
 
-#: app/templates/www/terms.html:63
+#: app/templates/www/terms.html:59
 msgid "7. Liability"
 msgstr ""
 
-#: app/templates/www/terms.html:65
+#: app/templates/www/terms.html:61
 msgid ""
 "The Service is provided \"as-is\". The Operator is not liable for damages"
 " caused by outages or data loss beyond the amount of the subscription "
@@ -4389,21 +4377,21 @@ msgid ""
 "backups by exporting data."
 msgstr ""
 
-#: app/templates/www/terms.html:70
+#: app/templates/www/terms.html:66
 msgid "8. Termination"
 msgstr ""
 
-#: app/templates/www/terms.html:72
+#: app/templates/www/terms.html:68
 msgid ""
 "The User may cancel their account at any time. After termination, data "
 "will be retained for 30 days, then permanently deleted."
 msgstr ""
 
-#: app/templates/www/terms.html:77
+#: app/templates/www/terms.html:73
 msgid "9. Final provisions"
 msgstr ""
 
-#: app/templates/www/terms.html:79
+#: app/templates/www/terms.html:75
 msgid ""
 "These terms are governed by the laws of the Czech Republic. The Operator "
 "may modify the terms with 30 days' notice."
@@ -4925,5 +4913,46 @@ msgstr "Privacy Policy"
 #~ " bank transfer with a Czech invoice,"
 #~ " net-14. On every invoice, VAT is "
 #~ "shown separately."
+#~ msgstr ""
+
+#~ msgid "SSO (coming soon)"
+#~ msgstr ""
+
+#~ msgid "Pay annually, save two months"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Starter 4 900 CZK / year · "
+#~ "Pro 14 900 CZK / year. Paid "
+#~ "by bank transfer with an invoice "
+#~ "net-14. No card required."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "No. Sign up with just an email."
+#~ " You only enter a card if you"
+#~ " decide to continue paying after 30"
+#~ " days — or you can switch to"
+#~ " annual billing by bank transfer."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Monthly plan: card via Stripe, invoice"
+#~ " emailed the same day. Annual plan:"
+#~ " bank transfer with a Czech invoice,"
+#~ " net-14."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This text is a template. It should"
+#~ " be reviewed by a lawyer familiar "
+#~ "with GDPR before going live."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This text is a template and should"
+#~ " be reviewed by a lawyer familiar "
+#~ "with Czech law (GDPR, Civil Code) "
+#~ "before going live."
 #~ msgstr ""
 

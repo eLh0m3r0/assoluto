@@ -104,7 +104,7 @@ def render_invoice_pdf(
     story: list = []
 
     # ---------- Header ----------
-    doc_label = "Daňový doklad – faktura"  # noqa: RUF001 if supplier_is_vat else "Faktura"
+    doc_label = "Daňový doklad – faktura" if supplier_is_vat else "Faktura"  # noqa: RUF001
     invoice_number = invoice.number or invoice.stripe_invoice_id or str(invoice.id)[:8]
     story.append(Paragraph(f"<b>{doc_label}</b>", h1))
     story.append(Paragraph(f"Číslo dokladu: <b>{invoice_number}</b>", base))
@@ -189,7 +189,7 @@ def render_invoice_pdf(
     item_rows: list[list[str]] = [
         ["Popis", "Cena bez DPH", "Sazba", "DPH", "Celkem"],
         [
-            f"Předplatné Assoluto – měsíc{period_label}"  # noqa: RUF001,
+            f"Předplatné Assoluto – měsíc{period_label}",  # noqa: RUF001
             f"{_dot_amount(base_amount)} {currency}",
             f"{int(CZ_VAT_STANDARD * 100)}%" if supplier_is_vat else "—",
             f"{_dot_amount(vat_amount)} {currency}" if supplier_is_vat else "—",

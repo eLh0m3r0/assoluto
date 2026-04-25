@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-24 09:48+0200\n"
+"POT-Creation-Date: 2026-04-25 11:11+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -594,7 +594,7 @@ msgstr "{ok} převedeno, {failed} selhalo."
 #: app/routers/orders.py:1185
 #, python-brace-format
 msgid "Status changed to {status}."
-msgstr "změnil/a stav"
+msgstr "Stav změněn na {status}."
 
 # --- round-5: server errors, logo polish, breadcrumbs ---
 #: app/routers/products.py:129 app/routers/products.py:305
@@ -1300,7 +1300,7 @@ msgid "Current stock"
 msgstr "Aktuální stav"
 
 #: app/templates/assets/detail.html:28 app/templates/assets/form.html:46
-#: app/templates/assets/list.html:29 app/templates/www/privacy.html:61
+#: app/templates/assets/list.html:29 app/templates/www/privacy.html:57
 msgid "Location"
 msgstr "Lokalita"
 
@@ -1411,7 +1411,7 @@ msgstr "Stav"
 
 #: app/templates/assets/list.html:61
 msgid "No assets yet"
-msgstr "Zatím žádní tenanti."
+msgstr "Zatím žádný majetek."
 
 #: app/templates/assets/list.html:64
 msgid ""
@@ -1425,7 +1425,7 @@ msgstr ""
 
 #: app/templates/assets/list.html:69
 msgid "Add the first asset"
-msgstr "Založit prvního klienta"
+msgstr "Přidat první majetek"
 
 #: app/templates/auth/invite_accept.html:3
 #: app/templates/auth/invite_accept.html:8
@@ -2474,7 +2474,7 @@ msgid "Storage:"
 msgstr "Úložiště:"
 
 #: app/templates/platform/billing/dashboard.html:126
-#: app/templates/www/pricing.html:102
+#: app/templates/www/pricing.html:101
 msgid "Contact us"
 msgstr "Kontaktujte nás"
 
@@ -2699,8 +2699,8 @@ msgid ""
 "Thanks — we will reply within 24 hours. For anything urgent, email us "
 "directly at team@assoluto.eu."
 msgstr ""
-"Děkujeme — ozveme se do 24 hodin. Pokud je to urgentní, napište přímo "
-"na team@assoluto.eu."
+"Děkujeme — ozveme se do 24 hodin. Pokud je to urgentní, napište přímo na "
+"team@assoluto.eu."
 
 #: app/templates/www/contact.html:81
 msgid "Write to us"
@@ -2743,8 +2743,7 @@ msgstr "Zásady cookies"
 msgid "Version 1.0 · effective from May 1, 2026"
 msgstr "Verze 1.0 · účinnost od 1. května 2026"
 
-#: app/templates/www/cookies.html:14 app/templates/www/privacy.html:14
-#: app/templates/www/terms.html:14
+#: app/templates/www/cookies.html:14
 msgid "Notice:"
 msgstr "Upozornění:"
 
@@ -2787,7 +2786,7 @@ msgstr ""
 msgid "2. Cookies we set"
 msgstr "2. Cookies, které nastavujeme"
 
-#: app/templates/www/cookies.html:34 app/templates/www/privacy.html:59
+#: app/templates/www/cookies.html:34 app/templates/www/privacy.html:55
 msgid "Purpose"
 msgstr "Účel"
 
@@ -2838,7 +2837,9 @@ msgstr "Nadřazená doména"
 msgid ""
 "Your chosen UI language (cs / en). Set when you click the language "
 "switcher."
-msgstr "Vámi zvolený jazyk rozhraní (cs / en). Nastavuje se při kliknutí na přepínač jazyka."
+msgstr ""
+"Vámi zvolený jazyk rozhraní (cs / en). Nastavuje se při kliknutí na "
+"přepínač jazyka."
 
 #: app/templates/www/cookies.html:61 app/templates/www/cookies.html:67
 msgid "1 year"
@@ -2846,7 +2847,9 @@ msgstr "1 rok"
 
 #: app/templates/www/cookies.html:66
 msgid "Light / dark / system preference. Set when you click the theme toggle."
-msgstr "Preference světlý / tmavý / systém. Nastavuje se při kliknutí na přepínač motivu."
+msgstr ""
+"Preference světlý / tmavý / systém. Nastavuje se při kliknutí na přepínač"
+" motivu."
 
 #: app/templates/www/cookies.html:76
 msgid "3. How to delete cookies"
@@ -3131,7 +3134,7 @@ msgstr ""
 
 #: app/templates/www/features.html:246 app/templates/www/index.html:304
 #: app/templates/www/index.html:327 app/templates/www/pricing.html:57
-#: app/templates/www/pricing.html:82
+#: app/templates/www/pricing.html:81
 msgid "Start 30-day trial"
 msgstr "Spustit 30denní zkušební období"
 
@@ -3186,7 +3189,7 @@ msgid "Terms of Service"
 msgstr "Obchodní podmínky"
 
 #: app/templates/www/imprint.html:55 app/templates/www/privacy.html:3
-#: app/templates/www/privacy.html:7 app/templates/www/terms.html:58
+#: app/templates/www/privacy.html:7 app/templates/www/terms.html:54
 msgid "Privacy Policy"
 msgstr "Zásady ochrany osobních údajů"
 
@@ -3325,8 +3328,8 @@ msgid ""
 "PDF, PNG, DWG, DXF, STEP. Direct upload, instant preview. The right "
 "revision next to the right order — every time."
 msgstr ""
-"PDF, PNG, DWG, DXF, STEP. Nahrajete přímo, náhled máte hned. Správná revize u "
-"správné zakázky — vždy."
+"PDF, PNG, DWG, DXF, STEP. Nahrajete přímo, náhled máte hned. Správná "
+"revize u správné zakázky — vždy."
 
 #: app/templates/www/index.html:151
 msgid "Status tracking in real time"
@@ -3337,8 +3340,8 @@ msgid ""
 "The client sees on their own: DRAFT · SUBMITTED · QUOTED · CONFIRMED · IN"
 " PRODUCTION · READY · DELIVERED. Five calls a day turn into zero."
 msgstr ""
-"Zákazník sám vidí stav: ROZPRACOVÁNO · ODESLÁNO · OCENĚNO · POTVRZENO · VE "
-"VÝROBĚ · HOTOVO · DODÁNO. Pět telefonů denně se promění v nulu."
+"Zákazník sám vidí stav: ROZPRACOVÁNO · ODESLÁNO · OCENĚNO · POTVRZENO · "
+"VE VÝROBĚ · HOTOVO · DODÁNO. Pět telefonů denně se promění v nulu."
 
 # --- round-2 audit: landing + CRUD templates ---
 #: app/templates/www/index.html:158
@@ -3375,7 +3378,8 @@ msgid ""
 "not by a view we can forget. Zero risk of cross-visibility."
 msgstr ""
 "PostgreSQL Row-Level Security. Data jsou oddělená na úrovni databáze — ne"
-" jen ve view, které lze zapomenout. Nulové riziko úniku dat mezi zákazníky."
+" jen ve view, které lze zapomenout. Nulové riziko úniku dat mezi "
+"zákazníky."
 
 #: app/templates/www/index.html:180
 msgid "See all features"
@@ -3410,8 +3414,8 @@ msgid ""
 "Click, enter their email, the invite goes out. They see only their own "
 "orders and drawings. Nothing else."
 msgstr ""
-"Kliknete, zadáte e-mail, pozvánka odchází. Zákazník vidí jen své "
-"zakázky a výkresy. Nic víc."
+"Kliknete, zadáte e-mail, pozvánka odchází. Zákazník vidí jen své zakázky "
+"a výkresy. Nic víc."
 
 #: app/templates/www/index.html:219
 msgid "Orders run on their own"
@@ -3438,8 +3442,8 @@ msgid ""
 "You outgrew the spreadsheet. You don't want a year-long ERP "
 "implementation. Here's what's in between."
 msgstr ""
-"Z tabulky jste vyrostli. Ale roční implementaci ERP si nepřejete. "
-"Tohle je ta cesta mezi."
+"Z tabulky jste vyrostli. Ale roční implementaci ERP si nepřejete. Tohle "
+"je ta cesta mezi."
 
 #: app/templates/www/index.html:247
 msgid "Excel / email"
@@ -3489,7 +3493,7 @@ msgstr "Zákazník vidí stav zakázky"
 msgid "often only via a separate B2B module"
 msgstr "často jen přes samostatný B2B modul"
 
-#: app/templates/www/index.html:264 app/templates/www/pricing.html:130
+#: app/templates/www/index.html:264 app/templates/www/pricing.html:129
 msgid "Czech support"
 msgstr "Česká podpora"
 
@@ -3501,7 +3505,7 @@ msgstr "hodinová sazba"
 msgid "Audit trail"
 msgstr "Audit trail"
 
-#: app/templates/www/index.html:266 app/templates/www/pricing.html:126
+#: app/templates/www/index.html:266 app/templates/www/pricing.html:125
 msgid "Data in the EU"
 msgstr "Data v EU"
 
@@ -3578,7 +3582,7 @@ msgstr "2 GB na přílohy"
 msgid "Email support (48 h)"
 msgstr "E-mailová podpora (48 h)"
 
-#: app/templates/www/index.html:311 app/templates/www/pricing.html:64
+#: app/templates/www/index.html:311
 msgid "Most chosen"
 msgstr "Nejoblíbenější"
 
@@ -3724,8 +3728,8 @@ msgid ""
 "Yes. You can pay by invoice for quarterly or annual subscriptions. Pay by"
 " card for monthly. For Enterprise we send an invoice with net-14 terms."
 msgstr ""
-"Ano. Čtvrtletní a roční předplatné platíte fakturou, měsíční kartou "
-"přes Stripe. Enterprise dostává fakturu se splatností 14 dní."
+"Ano. Čtvrtletní a roční předplatné platíte fakturou, měsíční kartou přes "
+"Stripe. Enterprise dostává fakturu se splatností 14 dní."
 
 #: app/templates/www/index.html:426 app/templates/www/index.html:512
 msgid "Do I need to sign anything?"
@@ -3801,8 +3805,8 @@ msgid ""
 "30 days free. No card. No \"quick call with sales\". Just sign up and try"
 " it."
 msgstr ""
-"30 dní zdarma. Bez platební karty. Žádný „rychlý hovor s obchodem\". "
-"Jen se zaregistrujte a vyzkoušejte."
+"30 dní zdarma. Bez platební karty. Žádný „rychlý hovor s obchodem\". Jen "
+"se zaregistrujte a vyzkoušejte."
 
 #: app/templates/www/index.html:450
 msgid "Or write / call us"
@@ -3858,6 +3862,10 @@ msgstr "Malá dílna, 3 uživatelé v týmu"
 msgid "The price of lunch for the team"
 msgstr "Cena oběda pro tým"
 
+#: app/templates/www/pricing.html:64
+msgid "Recommended"
+msgstr "Doporučujeme"
+
 #: app/templates/www/pricing.html:67
 msgid "Growing manufacturer, 15 users"
 msgstr "Rostoucí výrobce, 15 uživatelů"
@@ -3866,128 +3874,127 @@ msgstr "Rostoucí výrobce, 15 uživatelů"
 msgid "Cheaper than one bad day on the shop floor"
 msgstr "Levnější než jeden špatný den na dílně"
 
-#: app/templates/www/pricing.html:79
-msgid "SSO (coming soon)"
-msgstr "SSO (brzy)"
-
-#: app/templates/www/pricing.html:89
+#: app/templates/www/pricing.html:88
 msgid "Over 15 people, SLA, custom domain"
 msgstr "Nad 15 lidí, SLA, vlastní doména"
 
-#: app/templates/www/pricing.html:91
+#: app/templates/www/pricing.html:90
 msgid "Talk to us"
 msgstr "Napište nám"
 
-#: app/templates/www/pricing.html:93
+#: app/templates/www/pricing.html:92
 msgid "We'll draw up an offer in 1 working day"
 msgstr "Cenovou nabídku pošleme do 1 pracovního dne"
 
-#: app/templates/www/pricing.html:95
+#: app/templates/www/pricing.html:94
 msgid "No limits on users / orders / storage"
 msgstr "Bez limitu uživatelů / zakázek / úložiště"
 
-#: app/templates/www/pricing.html:96
+#: app/templates/www/pricing.html:95
 msgid "Your own domain (portal.yourfirm.cz)"
 msgstr "Vlastní doména (portal.vasefirma.cz)"
 
-#: app/templates/www/pricing.html:97
+#: app/templates/www/pricing.html:96
 msgid "Priority support (4 h)"
 msgstr "Prioritní podpora (4 h)"
 
-#: app/templates/www/pricing.html:98
+#: app/templates/www/pricing.html:97
 msgid "SLA 99.9 percent"
 msgstr "SLA 99,9 procent"
 
-#: app/templates/www/pricing.html:99
+#: app/templates/www/pricing.html:98
 msgid "On-premises deployment possible"
 msgstr "Možné i on-premises nasazení"
 
+#: app/templates/www/pricing.html:113
+msgid "Annual billing on request"
+msgstr "Roční fakturace na vyžádání"
+
 #: app/templates/www/pricing.html:114
-msgid "Pay annually, save two months"
-msgstr "Roční platba, dva měsíce zdarma"
-
-#: app/templates/www/pricing.html:115
 msgid ""
-"Starter 4 900 CZK / year · Pro 14 900 CZK / year. Paid by bank transfer "
-"with an invoice net-14. No card required."
+"Want to pay yearly with a Czech invoice and bank transfer? Email "
+"team@assoluto.eu and we'll send you a custom offer (typically two months "
+"free)."
 msgstr ""
-"Starter 4 900 Kč/rok · Pro 14 900 Kč/rok. Platba převodem, faktura se "
-"splatností 14 dní. Bez karty."
+"Chcete platit ročně s českou fakturou a bankovním převodem? Napište na "
+"team@assoluto.eu a pošleme vám individuální nabídku (zpravidla dva měsíce "
+"zdarma)."
 
-#: app/templates/www/pricing.html:122
+#: app/templates/www/pricing.html:121
 msgid "What's included in every plan"
 msgstr "Co obsahuje každý plán"
 
-#: app/templates/www/pricing.html:130
+#: app/templates/www/pricing.html:129
 msgid "real people, not a chatbot."
 msgstr "živí lidé, ne chatbot."
 
-#: app/templates/www/pricing.html:134
+#: app/templates/www/pricing.html:133
 msgid "Daily backups"
 msgstr "Denní zálohy"
 
-#: app/templates/www/pricing.html:134
+#: app/templates/www/pricing.html:133
 msgid "kept 14 days, restorable on request."
 msgstr "uchované 14 dní, obnova na vyžádání."
 
-#: app/templates/www/pricing.html:138
+#: app/templates/www/pricing.html:137
 msgid "GDPR-ready"
 msgstr "GDPR-ready"
 
-#: app/templates/www/pricing.html:138
+#: app/templates/www/pricing.html:137
 msgid "subprocessor list, DPA on request."
 msgstr "seznam zpracovatelů, DPA na vyžádání."
 
-#: app/templates/www/pricing.html:142
+#: app/templates/www/pricing.html:141
 msgid "CSV export"
 msgstr "Export do CSV"
 
-#: app/templates/www/pricing.html:142
+#: app/templates/www/pricing.html:141
 msgid "your data is yours. Leave any time."
 msgstr "data jsou vaše. Odejděte kdykoliv."
 
-#: app/templates/www/pricing.html:146
+#: app/templates/www/pricing.html:145
 msgid "Uptime monitoring"
 msgstr "Monitoring dostupnosti"
 
-#: app/templates/www/pricing.html:146
+#: app/templates/www/pricing.html:145
 msgid "UptimeRobot 24/7, status page on request."
 msgstr "UptimeRobot 24/7, status page na vyžádání."
 
-#: app/templates/www/pricing.html:153
+#: app/templates/www/pricing.html:152
 msgid "Pricing FAQ"
 msgstr "Časté otázky k ceníku"
 
-#: app/templates/www/pricing.html:165
+#: app/templates/www/pricing.html:164
 msgid "Is a card required for the trial?"
 msgstr "Potřebuji pro zkušebku kartu?"
 
-#: app/templates/www/pricing.html:165
+#: app/templates/www/pricing.html:164
 msgid ""
 "No. Sign up with just an email. You only enter a card if you decide to "
-"continue paying after 30 days — or you can switch to annual billing by "
-"bank transfer."
+"continue paying after 30 days — or you can request annual invoicing by "
+"emailing team@assoluto.eu."
 msgstr ""
 "Ne. Stačí e-mail. Kartu zadáte, teprve až se po 30 dnech rozhodnete "
-"pokračovat — nebo přejdete na roční platbu převodem."
+"pokračovat — roční fakturaci převodem domluvíte e-mailem na "
+"team@assoluto.eu."
 
-#: app/templates/www/pricing.html:166
+#: app/templates/www/pricing.html:165
 msgid "How does billing actually work?"
 msgstr "Jak vlastně funguje fakturace?"
 
-#: app/templates/www/pricing.html:166
+#: app/templates/www/pricing.html:165
 msgid ""
 "Monthly plan: card via Stripe, invoice emailed the same day. Annual plan:"
-" bank transfer with a Czech invoice, net-14."
+" arranged on request — bank transfer with a Czech invoice, net-14."
 msgstr ""
-"Měsíční: karta přes Stripe, faktura přijde e-mailem hned. Roční: převodem"
-" s českou fakturou, splatnost 14 dní."
+"Měsíční: karta přes Stripe, faktura přijde e-mailem hned. Roční: na "
+"vyžádání — převodem s českou fakturou, splatnost 14 dní."
 
-#: app/templates/www/pricing.html:167
+#: app/templates/www/pricing.html:166
 msgid "Can I change plans later?"
 msgstr "Lze plán později změnit?"
 
-#: app/templates/www/pricing.html:167
+#: app/templates/www/pricing.html:166
 msgid ""
 "Yes, any time. The difference is prorated down to the day. Downgrade "
 "happens at the start of the next billing period (you keep what you paid "
@@ -3996,11 +4003,11 @@ msgstr ""
 "Ano, kdykoliv. Rozdíl se dopočítá na den. Downgrade proběhne na začátku "
 "dalšího období (zaplacenou dobu vám neukrojíme)."
 
-#: app/templates/www/pricing.html:168
+#: app/templates/www/pricing.html:167
 msgid "What happens when I cancel?"
 msgstr "Co se stane při ukončení?"
 
-#: app/templates/www/pricing.html:168
+#: app/templates/www/pricing.html:167
 msgid ""
 "Your account stays read-only for 30 days so you can export to CSV. Then "
 "data is irreversibly deleted. If you need immediate deletion, one email "
@@ -4010,11 +4017,11 @@ msgstr ""
 "CSV. Pak data nevratně smažeme. Okamžité smazání stačí napsat na "
 "team@assoluto.eu."
 
-#: app/templates/www/pricing.html:169
+#: app/templates/www/pricing.html:168
 msgid "Does the self-hosted Community version cost anything?"
 msgstr "Stojí Community (self-hosted) verze něco?"
 
-#: app/templates/www/pricing.html:169
+#: app/templates/www/pricing.html:168
 msgid ""
 "No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No "
 "restrictions on users or features — only you need to run updates "
@@ -4023,11 +4030,11 @@ msgstr ""
 "Ne. AGPL-3.0 open source. Platíte jen vlastní VPS a S3. Bez omezení "
 "uživatelů a funkcí — jen aktualizace si musíte pouštět sami."
 
-#: app/templates/www/pricing.html:170
+#: app/templates/www/pricing.html:169
 msgid "Do you have a discount for schools / associations / non-profits?"
 msgstr "Máte slevu pro školy / spolky / neziskovky?"
 
-#: app/templates/www/pricing.html:170
+#: app/templates/www/pricing.html:169
 msgid ""
 "Yes. Write to us at team@assoluto.eu with a description of the use — half"
 " price is typical, free access for small organisations."
@@ -4036,82 +4043,74 @@ msgstr ""
 "malých organizací přístup zdarma."
 
 #: app/templates/www/privacy.html:14
-msgid ""
-"This text is a template. It should be reviewed by a lawyer familiar with "
-"GDPR before going live."
-msgstr ""
-"Tento text je šablona. Před nasazením by ho měl zkontrolovat právník "
-"znalý GDPR."
-
-#: app/templates/www/privacy.html:18
 msgid "1. Data controller"
 msgstr "1. Správce údajů"
 
-#: app/templates/www/privacy.html:20
+#: app/templates/www/privacy.html:16
 msgid "The data controller is"
 msgstr "Správcem údajů je"
 
-#: app/templates/www/privacy.html:21 app/templates/www/terms.html:21
+#: app/templates/www/privacy.html:17 app/templates/www/terms.html:17
 msgid "Company ID"
 msgstr "IČO"
 
-#: app/templates/www/privacy.html:22 app/templates/www/terms.html:22
+#: app/templates/www/privacy.html:18 app/templates/www/terms.html:18
 msgid "with registered office at"
 msgstr "se sídlem"
 
-#: app/templates/www/privacy.html:23
+#: app/templates/www/privacy.html:19
 msgid "Contact:"
 msgstr "Kontakt:"
 
-#: app/templates/www/privacy.html:29
+#: app/templates/www/privacy.html:25
 msgid "2. What data we process"
 msgstr "2. Jaké údaje zpracováváme"
 
-#: app/templates/www/privacy.html:31
+#: app/templates/www/privacy.html:27
 msgid "Account identification data (name, email, company, Company ID, VAT ID)"
 msgstr "Identifikační údaje účtu (jméno, e-mail, firma, IČO, DIČ)"
 
-#: app/templates/www/privacy.html:32
+#: app/templates/www/privacy.html:28
 msgid "Login credentials (password in Argon2-hashed form)"
 msgstr "Přihlašovací údaje (heslo v Argon2-hashované podobě)"
 
-#: app/templates/www/privacy.html:33
+#: app/templates/www/privacy.html:29
 msgid "Content created in the portal (orders, comments, attachments)"
 msgstr "Obsah vytvořený v portálu (objednávky, komentáře, přílohy)"
 
-#: app/templates/www/privacy.html:34
+#: app/templates/www/privacy.html:30
 msgid "Billing data, if you subscribe to a plan"
 msgstr "Fakturační údaje, pokud si předplatíte plán"
 
-#: app/templates/www/privacy.html:35
+#: app/templates/www/privacy.html:31
 msgid "Technical logs (IP address, User-Agent) for operational security"
 msgstr "Technické logy (IP adresa, User-Agent) pro provozní bezpečnost"
 
-#: app/templates/www/privacy.html:40
+#: app/templates/www/privacy.html:36
 msgid "3. Why we process data"
 msgstr "3. Proč údaje zpracováváme"
 
-#: app/templates/www/privacy.html:42
+#: app/templates/www/privacy.html:38
 msgid "Contract performance (operating the portal you ordered)"
 msgstr "Plnění smlouvy (provoz objednaného portálu)"
 
-#: app/templates/www/privacy.html:43
+#: app/templates/www/privacy.html:39
 msgid "Invoicing and tax records (legitimate interest + legal obligation)"
 msgstr "Fakturace a daňová evidence (oprávněný zájem + právní povinnost)"
 
-#: app/templates/www/privacy.html:44
+#: app/templates/www/privacy.html:40
 msgid "Security and abuse prevention (legitimate interest)"
 msgstr "Bezpečnost a prevence zneužití (oprávněný zájem)"
 
-#: app/templates/www/privacy.html:45
+#: app/templates/www/privacy.html:41
 msgid "Sending operational emails (consent / contract performance)"
 msgstr "Zasílání provozních e-mailů (souhlas / plnění smlouvy)"
 
-#: app/templates/www/privacy.html:50
+#: app/templates/www/privacy.html:46
 msgid "4. Where data is stored + our subprocessors"
 msgstr "4. Kde data ukládáme + naši zpracovatelé"
 
-#: app/templates/www/privacy.html:52
+#: app/templates/www/privacy.html:48
 msgid ""
 "We use the following third parties (subprocessors) to run the service. "
 "Data sharing is limited to what each subprocessor needs to do its job; no"
@@ -4121,47 +4120,47 @@ msgstr ""
 "Sdílení dat je omezeno na to, co každý zpracovatel potřebuje; žádný "
 "nedostává oprávnění marketingového využití."
 
-#: app/templates/www/privacy.html:58
+#: app/templates/www/privacy.html:54
 msgid "Subprocessor"
 msgstr "Zpracovatel"
 
-#: app/templates/www/privacy.html:60
+#: app/templates/www/privacy.html:56
 msgid "Data categories"
 msgstr "Kategorie dat"
 
-#: app/templates/www/privacy.html:67
+#: app/templates/www/privacy.html:63
 msgid "Hosting (VPS)"
 msgstr "Hosting (VPS)"
 
-#: app/templates/www/privacy.html:68
+#: app/templates/www/privacy.html:64
 msgid "All (at-rest, encrypted)"
 msgstr "Vše (at-rest, šifrováno)"
 
-#: app/templates/www/privacy.html:73
+#: app/templates/www/privacy.html:69
 msgid "Transactional email"
 msgstr "Transakční e-maily"
 
-#: app/templates/www/privacy.html:74
+#: app/templates/www/privacy.html:70
 msgid "Recipient email, name, body"
 msgstr "Adresa příjemce, jméno, tělo zprávy"
 
-#: app/templates/www/privacy.html:79
+#: app/templates/www/privacy.html:75
 msgid "Subscription billing"
 msgstr "Předplatné (účtování)"
 
-#: app/templates/www/privacy.html:80
+#: app/templates/www/privacy.html:76
 msgid "Billing email, company, tax ID, card (processor-held)"
 msgstr "Fakturační e-mail, firma, DIČ, karta (drží zpracovatel)"
 
-#: app/templates/www/privacy.html:85
+#: app/templates/www/privacy.html:81
 msgid "DNS + domain registrar"
 msgstr "DNS + registrátor domény"
 
-#: app/templates/www/privacy.html:86
+#: app/templates/www/privacy.html:82
 msgid "Public DNS records only"
 msgstr "Pouze veřejné DNS záznamy"
 
-#: app/templates/www/privacy.html:93
+#: app/templates/www/privacy.html:89
 msgid ""
 "Subprocessor changes are disclosed at least 30 days in advance by "
 "updating this page and emailing active tenant admins."
@@ -4169,27 +4168,27 @@ msgstr ""
 "O změně zpracovatelů informujeme minimálně 30 dní dopředu aktualizací "
 "této stránky a e-mailem všem aktivním tenant adminům."
 
-#: app/templates/www/privacy.html:98
+#: app/templates/www/privacy.html:94
 msgid "5. How long we retain data"
 msgstr "5. Jak dlouho údaje uchováváme"
 
-#: app/templates/www/privacy.html:100
+#: app/templates/www/privacy.html:96
 msgid "Active account data — for the lifetime of the subscription."
 msgstr "Data aktivního účtu — po dobu trvání předplatného."
 
-#: app/templates/www/privacy.html:101
+#: app/templates/www/privacy.html:97
 msgid ""
 "After account cancellation — 30 days grace (for reactivation), then "
 "anonymisation."
 msgstr "Po zrušení účtu — 30denní grace period pro reaktivaci, pak anonymizace."
 
-#: app/templates/www/privacy.html:102
+#: app/templates/www/privacy.html:98
 msgid ""
 "Authentication logs (last_login timestamps, failed login attempts) — 90 "
 "days."
 msgstr "Autentizační logy (čas posledního přihlášení, neúspěšné pokusy) — 90 dní."
 
-#: app/templates/www/privacy.html:103
+#: app/templates/www/privacy.html:99
 msgid ""
 "Audit trail of operator / admin actions — retained for the lifetime of "
 "the tenant, plus 3 years after closure for contractual dispute evidence."
@@ -4197,7 +4196,7 @@ msgstr ""
 "Audit trail akcí operátora / administrátora — po dobu trvání tenantu plus"
 " 3 roky po uzavření jako důkaz pro případné spory."
 
-#: app/templates/www/privacy.html:104
+#: app/templates/www/privacy.html:100
 msgid ""
 "Billing records (invoices, subscription history) — 10 years from the end "
 "of the accounting period, as required by Czech Act 563/1991 Coll. on "
@@ -4206,19 +4205,19 @@ msgstr ""
 "Fakturační záznamy (faktury, historie předplatného) — 10 let od konce "
 "účetního období, podle zákona č. 563/1991 Sb. o účetnictví."
 
-#: app/templates/www/privacy.html:105
+#: app/templates/www/privacy.html:101
 msgid "Request / error logs — 14 days."
 msgstr "Logy požadavků / chyb — 14 dní."
 
-#: app/templates/www/privacy.html:106
+#: app/templates/www/privacy.html:102
 msgid "Database backups — 14 days rolling."
 msgstr "Zálohy databáze — 14 dní rotace."
 
-#: app/templates/www/privacy.html:111
+#: app/templates/www/privacy.html:107
 msgid "6. Your rights"
 msgstr "6. Vaše práva"
 
-#: app/templates/www/privacy.html:113
+#: app/templates/www/privacy.html:109
 msgid ""
 "You have the right to access, rectification, erasure, restriction of "
 "processing, portability, and objection. Contact"
@@ -4226,21 +4225,21 @@ msgstr ""
 "Máte právo na přístup, opravu, výmaz, omezení zpracování, přenositelnost "
 "a námitku. Kontakt"
 
-#: app/templates/www/privacy.html:115
+#: app/templates/www/privacy.html:111
 msgid "we will respond within 30 days."
 msgstr "odpovíme do 30 dní."
 
-#: app/templates/www/privacy.html:118
+#: app/templates/www/privacy.html:114
 msgid ""
 "You also have the right to file a complaint with the Office for Personal "
 "Data Protection"
 msgstr "Máte také právo podat stížnost Úřadu pro ochranu osobních údajů"
 
-#: app/templates/www/privacy.html:124
+#: app/templates/www/privacy.html:120
 msgid "7. Cookies"
 msgstr "7. Cookies"
 
-#: app/templates/www/privacy.html:126
+#: app/templates/www/privacy.html:122
 msgid ""
 "The portal uses only technical (session) cookies necessary for login and "
 "CSRF protection. We do not deploy analytics or marketing cookies without "
@@ -4340,7 +4339,9 @@ msgstr "Repozitář obsahuje"
 
 #: app/templates/www/self_hosted.html:80
 msgid "ready for nginx + TLS. Fill in the env (SMTP, S3, domain) and run:"
-msgstr "připravený pro nginx + TLS. Doplňte proměnné prostředí (SMTP, S3, doména) a spusťte:"
+msgstr ""
+"připravený pro nginx + TLS. Doplňte proměnné prostředí (SMTP, S3, doména)"
+" a spusťte:"
 
 #: app/templates/www/self_hosted.html:84
 msgid "Step-by-step guides:"
@@ -4417,22 +4418,14 @@ msgstr ""
 "licenci."
 
 #: app/templates/www/terms.html:14
-msgid ""
-"This text is a template and should be reviewed by a lawyer familiar with "
-"Czech law (GDPR, Civil Code) before going live."
-msgstr ""
-"Tento text je šablona. Před nasazením by ho měl zkontrolovat právník "
-"znalý českého práva (GDPR, občanský zákoník)."
-
-#: app/templates/www/terms.html:18
 msgid "1. Introduction"
 msgstr "1. Úvod"
 
-#: app/templates/www/terms.html:20
+#: app/templates/www/terms.html:16
 msgid "The operator of Assoluto service (hereinafter the \"Service\") is"
 msgstr "Provozovatelem služby Assoluto (dále jen \\\"Služba\\\") je"
 
-#: app/templates/www/terms.html:22
+#: app/templates/www/terms.html:18
 msgid ""
 "(hereinafter the \"Operator\"). These terms govern the relationship "
 "between the Operator and the person using the Service (hereinafter the "
@@ -4441,11 +4434,11 @@ msgstr ""
 "(dále jen \"Provozovatel\"). Tyto podmínky upravují vztah mezi "
 "Provozovatelem a osobou užívající Službu (dále jen \"Uživatel\")."
 
-#: app/templates/www/terms.html:27
+#: app/templates/www/terms.html:23
 msgid "2. Description of the Service"
 msgstr "2. Popis služby"
 
-#: app/templates/www/terms.html:29
+#: app/templates/www/terms.html:25
 msgid ""
 "The Service provides a multi-tenant customer portal for manufacturing "
 "SMEs — management of orders, product catalog, client assets, and "
@@ -4455,11 +4448,11 @@ msgstr ""
 "správu zakázek, katalog produktů, materiál zákazníka a komunikaci mezi "
 "dodavatelem a klienty."
 
-#: app/templates/www/terms.html:34
+#: app/templates/www/terms.html:30
 msgid "3. Registration and account"
 msgstr "3. Registrace a účet"
 
-#: app/templates/www/terms.html:36
+#: app/templates/www/terms.html:32
 msgid ""
 "Registration is required to use the Service. The User is obliged to "
 "provide truthful information and protect their login credentials. The "
@@ -4469,11 +4462,11 @@ msgstr ""
 "pravdivé údaje a chránit své přihlašovací údaje. Provozovatel může účet "
 "zablokovat v případě závažného porušení podmínek."
 
-#: app/templates/www/terms.html:41
+#: app/templates/www/terms.html:37
 msgid "4. Trial period and payments"
 msgstr "4. Trial a platby"
 
-#: app/templates/www/terms.html:43
+#: app/templates/www/terms.html:39
 msgid ""
 "A new account receives a 30-day free trial. After its expiration, the "
 "User can continue only with an active subscription. Payments are "
@@ -4483,11 +4476,11 @@ msgstr ""
 "pokračuje Uživatel pouze s aktivním předplatným. Platby jsou zpracovávány"
 " přes Stripe."
 
-#: app/templates/www/terms.html:48
+#: app/templates/www/terms.html:44
 msgid "5. User obligations"
 msgstr "5. Povinnosti uživatele"
 
-#: app/templates/www/terms.html:50
+#: app/templates/www/terms.html:46
 msgid ""
 "The User must not misuse the Service, circumvent security measures, "
 "interfere with operations, or use it for content that violates the laws "
@@ -4497,19 +4490,19 @@ msgstr ""
 "zasahovat do provozu, ani ji užívat k obsahu, který je v rozporu s právem"
 " České republiky nebo EU."
 
-#: app/templates/www/terms.html:55
+#: app/templates/www/terms.html:51
 msgid "6. Personal data protection"
 msgstr "6. Ochrana osobních údajů"
 
-#: app/templates/www/terms.html:57
+#: app/templates/www/terms.html:53
 msgid "The processing of personal data is governed by a separate document"
 msgstr "Zpracování osobních údajů se řídí samostatným dokumentem"
 
-#: app/templates/www/terms.html:63
+#: app/templates/www/terms.html:59
 msgid "7. Liability"
 msgstr "7. Odpovědnost"
 
-#: app/templates/www/terms.html:65
+#: app/templates/www/terms.html:61
 msgid ""
 "The Service is provided \"as-is\". The Operator is not liable for damages"
 " caused by outages or data loss beyond the amount of the subscription "
@@ -4521,11 +4514,11 @@ msgstr ""
 "zaplaceného za daný měsíc. Uživatel je povinen udržovat vlastní zálohy "
 "exportem dat."
 
-#: app/templates/www/terms.html:70
+#: app/templates/www/terms.html:66
 msgid "8. Termination"
 msgstr "8. Ukončení"
 
-#: app/templates/www/terms.html:72
+#: app/templates/www/terms.html:68
 msgid ""
 "The User may cancel their account at any time. After termination, data "
 "will be retained for 30 days, then permanently deleted."
@@ -4533,11 +4526,11 @@ msgstr ""
 "Uživatel může svůj účet kdykoliv zrušit. Po zrušení budou data uchována "
 "30 dní, poté budou trvale smazána."
 
-#: app/templates/www/terms.html:77
+#: app/templates/www/terms.html:73
 msgid "9. Final provisions"
 msgstr "9. Závěrečná ustanovení"
 
-#: app/templates/www/terms.html:79
+#: app/templates/www/terms.html:75
 msgid ""
 "These terms are governed by the laws of the Czech Republic. The Operator "
 "may modify the terms with 30 days' notice."
@@ -4895,4 +4888,39 @@ msgstr "Soukromí"
 
 #~ msgid "100 orders / month"
 #~ msgstr "100 zakázek měsíčně"
+
+#~ msgid "SSO (coming soon)"
+#~ msgstr "SSO (brzy)"
+
+#~ msgid "Pay annually, save two months"
+#~ msgstr "Roční platba, dva měsíce zdarma"
+
+#~ msgid ""
+#~ "Starter 4 900 CZK / year · "
+#~ "Pro 14 900 CZK / year. Paid "
+#~ "by bank transfer with an invoice "
+#~ "net-14. No card required."
+#~ msgstr ""
+#~ "Starter 4 900 Kč/rok · Pro 14 "
+#~ "900 Kč/rok. Platba převodem, faktura se"
+#~ " splatností 14 dní. Bez karty."
+
+#~ msgid ""
+#~ "This text is a template. It should"
+#~ " be reviewed by a lawyer familiar "
+#~ "with GDPR before going live."
+#~ msgstr ""
+#~ "Tento text je šablona. Před nasazením"
+#~ " by ho měl zkontrolovat právník znalý"
+#~ " GDPR."
+
+#~ msgid ""
+#~ "This text is a template and should"
+#~ " be reviewed by a lawyer familiar "
+#~ "with Czech law (GDPR, Civil Code) "
+#~ "before going live."
+#~ msgstr ""
+#~ "Tento text je šablona. Před nasazením"
+#~ " by ho měl zkontrolovat právník znalý"
+#~ " českého práva (GDPR, občanský zákoník)."
 

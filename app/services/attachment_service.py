@@ -93,6 +93,18 @@ async def create_attachment_row(
     if size_bytes > max_size_bytes:
         raise AttachmentTooLarge(f"file exceeds max size of {max_size_bytes} bytes")
 
+    # Reject anything that isn't an allowed MIME — this both enforces the
+    # whitelist defined above and prevents arbitrary uploads (executables,
+    # archives, scripts) from landing in S3 and counting against plan
+    # storage. Browsers can lie about the type, so this is defense-in-depth
+    # alongside the forced ``Content-Disposition: attachment`` on download.
+    normalized_ct = (content_type or "application/octet-stream").lower().strip()
+    if normalized_ct not in ALLOWED_CONTENT_TYPES:
+        raise AttachmentError(
+            f"content type {normalized_ct!r} is not allowed; "
+            f"accepted: PDF, PNG/JPEG/WebP images, DWG/DXF drawings"
+        )
+
     # Plan storage quota — 2 GB on Starter, 20 GB on Pro, unlimited on
     # community / Enterprise. Ceil to the next full MB so a 512-byte
     # file still counts as 1 MB of pressure (cheap safety margin).

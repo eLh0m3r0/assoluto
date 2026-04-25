@@ -30,9 +30,14 @@ def _build_csp(subdomain_apex: str | None) -> bytes:
     because subdomains serve the same app image from the same static prefix.
     """
     apex = (subdomain_apex or "").strip().lstrip(".")
-    form_action_sources = "'self'"
+    # Stripe Checkout: a 303 redirect from our checkout endpoint sends the
+    # browser to https://checkout.stripe.com/... — Safari/Firefox enforce
+    # form-action across the redirect chain and will block it without an
+    # explicit allowance. Stripe's billing portal lives on the same hosts.
+    stripe_sources = "https://checkout.stripe.com https://billing.stripe.com"
+    form_action_sources = f"'self' {stripe_sources}"
     if apex and "." in apex:
-        form_action_sources = f"'self' https://*.{apex} https://{apex}"
+        form_action_sources = f"'self' https://*.{apex} https://{apex} {stripe_sources}"
 
     # ``'unsafe-inline'`` on style-src is needed because ``base.html`` ships
     # a tiny inline fallback stylesheet and product badges rely on Tailwind
