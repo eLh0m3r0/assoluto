@@ -236,6 +236,38 @@ async def test_checkout_demo_switches_plan_locally(billing_client, owner_engine)
         assert subscription.status == "demo"
 
 
+async def test_checkout_refuses_community_with_400(billing_client, owner_engine) -> None:
+    """Per Option A — community is the AGPL self-host pitch on /pricing,
+    not a hosted plan. ``start_checkout`` must refuse it explicitly with
+    a 400 + helpful detail (instead of falling through to the
+    BillingError 500 path).
+    """
+    client, _ = billing_client
+    resp = await client.post(
+        "/platform/signup",
+        data={
+            "company_name": "CommCo",
+            "slug": "commco",
+            "owner_email": "o@commco.cz",
+            "owner_full_name": "O",
+            "password": "correct-horse-battery-staple",
+            "terms_accepted": "1",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    await _mark_verified(owner_engine, "o@commco.cz")
+
+    resp = await client.post(
+        "/platform/billing/checkout/community",
+        follow_redirects=False,
+    )
+    assert resp.status_code == 400
+    body = resp.text
+    assert "community" in body
+    assert "/self-hosted" in body
+
+
 async def test_webhook_returns_503_in_demo_mode(billing_client) -> None:
     client, _ = billing_client
     resp = await client.post("/platform/webhooks/stripe", content=b"{}")

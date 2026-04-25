@@ -16,12 +16,14 @@ https://docs.stripe.com/api/events/types):
 * ``customer.subscription.updated`` — plan swap (via Customer Portal)
   or ``cancel_at_period_end`` toggle; syncs plan_id + status +
   period boundaries.
-* ``customer.subscription.deleted`` — subscription actually ended;
-  downgrades the tenant to the community plan.
+* ``customer.subscription.deleted`` — Stripe sub actually ended;
+  flips local row to ``status='canceled'``, plan_id stays as a
+  historical record. The periodic ``enforce_canceled_subscriptions``
+  job hard-cuts the tenant ``CANCEL_GRACE_DAYS`` past period_end.
 * ``invoice.paid`` — cache the paid invoice for in-app history.
 * ``invoice.payment_failed`` — mark subscription past_due; the
   tenant keeps access during Stripe's built-in retry window and is
-  eventually downgraded via ``.deleted`` if retries fail.
+  eventually canceled via ``.deleted`` if retries fail.
 * ``customer.subscription.trial_will_end`` — Stripe fires this 3
   days before the trial ends; we can hook an email (not yet wired).
 """

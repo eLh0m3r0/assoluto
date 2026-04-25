@@ -250,6 +250,45 @@ async def test_enforce_canceled_subscriptions_idempotent(owner_engine, wipe_db) 
     assert second == 0
 
 
+async def test_cancel_subscription_writes_audit_row(owner_engine, wipe_db) -> None:
+    """``cancel_subscription`` records an audit_events row in the tenant's
+    audit log so the tenant admin can see who cancelled and when.
+    """
+    from app.models.audit_event import AuditEvent
+
+    _tenant, sub = await _seed_tenant_with_subscription(
+        owner_engine, slug="cancel-audited", period_end=None
+    )
+    settings = get_settings()
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        sub_attached = (
+            await session.execute(select(Subscription).where(Subscription.id == sub.id))
+        ).scalar_one()
+        await cancel_subscription(
+            session,
+            settings,
+            subscription=sub_attached,
+            actor_label="ops@assoluto.eu",
+        )
+        await session.commit()
+
+    async with sm() as session:
+        events = (
+            await session.execute(
+                select(AuditEvent).where(AuditEvent.action == "billing.subscription_canceled")
+            )
+        ).scalars().all()
+
+    assert len(events) == 1
+    event = events[0]
+    assert event.entity_type == "subscription"
+    assert event.entity_id == sub.id
+    assert event.actor_label == "ops@assoluto.eu"
+    assert event.diff is not None
+    assert event.diff.get("after", {}).get("mode") == "demo"
+
+
 async def test_list_plans_excludes_community(owner_engine, wipe_db) -> None:
     """Community is hidden from the hosted plan list — it's the AGPL
     self-host pitch on /pricing, not a hosted choice. HIDDEN_PLAN_CODES

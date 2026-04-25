@@ -306,6 +306,7 @@ async def cancel_subscription_route(
             db,
             settings,
             subscription=subscription,
+            actor_label=identity.email,
         )
     except BillingError as exc:
         raise HTTPException(status_code=502, detail=f"Cancel failed: {exc}") from exc

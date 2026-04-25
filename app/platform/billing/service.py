@@ -88,8 +88,10 @@ async def start_trial_subscription(
 
     Called from the self-signup flow right after the Tenant is created.
     Uses ``plan_code`` as the "intended" post-trial plan. When the
-    trial ends without an active Stripe subscription, the tenant is
-    bumped down to the community plan (handled by a periodic job).
+    trial ends without an active Stripe subscription,
+    ``expire_demo_trials`` flips status to ``canceled`` (plan_id stays
+    as a historical record); the tenant then has CANCEL_GRACE_DAYS to
+    convert before ``enforce_canceled_subscriptions`` deactivates them.
     """
     plan = await require_plan(db, plan_code)
     existing = await get_subscription_for_tenant(db, tenant.id)
@@ -138,6 +140,7 @@ async def cancel_subscription(
     settings: Settings,
     *,
     subscription: Subscription,
+    actor_label: str | None = None,
 ) -> tuple[str, datetime | None]:
     """End the tenant's paid subscription. After a short grace period
     the periodic ``enforce_canceled_subscriptions`` job hard-cuts the
@@ -163,7 +166,17 @@ async def cancel_subscription(
     or ``("scheduled", stripe_period_end)`` for the Stripe-cancel path.
     The caller uses the returned datetime to tell the user when their
     access actually ends.
+
+    ``actor_label`` is recorded on the tenant's ``audit_events`` row
+    (action ``billing.subscription_canceled``) so a tenant admin can
+    see who cancelled their plan. The audit row is written with an
+    explicit ``tenant_id`` because this service runs on the platform
+    DB session which bypasses RLS — there's no ``app.tenant_id``
+    setting to read from.
     """
+    from app.services import audit_service
+    from app.services.audit_service import ActorInfo
+
     stripe = _get_stripe(settings)
     stripe_sub_id = getattr(subscription, "stripe_subscription_id", None)
 
@@ -171,6 +184,7 @@ async def cancel_subscription(
         # Demo mode OR live without a Stripe sub (trial that never
         # converted). Flip locally and start the grace clock now.
         now = datetime.now(UTC)
+        status_before = subscription.status
         subscription.status = "canceled"
         subscription.cancel_at_period_end = False
         # Pin period_end to the natural end of the trial when one exists
@@ -182,6 +196,24 @@ async def cancel_subscription(
             subscription.current_period_end = now
         access_ends_at = subscription.current_period_end + timedelta(days=CANCEL_GRACE_DAYS)
         await db.flush()
+        await audit_service.record(
+            db,
+            action="billing.subscription_canceled",
+            entity_type="subscription",
+            entity_id=subscription.id,
+            entity_label=f"plan={subscription.plan_id} status={status_before}→canceled",
+            actor=ActorInfo(
+                type="user",
+                id=None,
+                label=actor_label or "platform-identity",
+            ),
+            after={
+                "mode": "demo",
+                "access_ends_at": access_ends_at.isoformat(),
+                "current_period_end": subscription.current_period_end.isoformat(),
+            },
+            tenant_id=subscription.tenant_id,
+        )
         return ("flipped", access_ends_at)
 
     # Live mode with a Stripe subscription — schedule the cancel.
@@ -204,6 +236,24 @@ async def cancel_subscription(
         else (getattr(stripe_sub, "current_period_end", None))
     )
     period_end_dt = datetime.fromtimestamp(int(period_end_ts), tz=UTC) if period_end_ts else None
+    await audit_service.record(
+        db,
+        action="billing.subscription_canceled",
+        entity_type="subscription",
+        entity_id=subscription.id,
+        entity_label=f"plan={subscription.plan_id} stripe_sub={stripe_sub_id}",
+        actor=ActorInfo(
+            type="user",
+            id=None,
+            label=actor_label or "platform-identity",
+        ),
+        after={
+            "mode": "live_scheduled",
+            "stripe_subscription_id": stripe_sub_id,
+            "period_end": period_end_dt.isoformat() if period_end_dt else None,
+        },
+        tenant_id=subscription.tenant_id,
+    )
     return ("scheduled", period_end_dt)
 
 
