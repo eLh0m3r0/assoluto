@@ -137,6 +137,29 @@ code of your modified version available to users of that network service.
 For commercial licensing inquiries (proprietary forks, OEM integration,
 etc.) contact: `team@assoluto.eu`
 
+## Trademarks & branding
+
+The AGPL-3.0 license covers the **source code** in this repository.
+It does **not** grant any rights to the **"Assoluto" name, logo, or
+the `assoluto.eu` domain** — those are reserved trademarks of Václav
+Mudra (operator: see [/imprint](https://assoluto.eu/imprint)).
+
+**If you fork or self-host this code, you must rebrand**:
+
+- Replace the "Assoluto" wordmark and logo (`app/templates/_logo.html`,
+  `app/static/og/`, all `*.html` template references).
+- Use a different domain than `assoluto.eu` and its subdomains.
+- Do not publish or sell your deployment under names that could be
+  confused with "Assoluto" (`Assoluta`, `Assolut`, `Asoluto`, etc.).
+
+Cumulative rebranding-effort markers are intentionally seeded in the
+`_logo.html` `<title>`, OG image, JSON-LD schema, and email templates
+so that an un-rebranded fork is immediately recognisable.
+
+A formal CZ trademark filing (ÚPV) is in progress; until then the
+"Assoluto" mark is asserted as common-law / unregistered. See
+[NOTICE.md](NOTICE.md) for the full notice text.
+
 ## Community
 
 - **Bug reports & feature requests:** [GitHub Issues](https://github.com/elh0m3r0/sme-client-portal/issues)
