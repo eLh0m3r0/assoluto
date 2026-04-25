@@ -124,6 +124,21 @@
                     <span class="mt-auto pt-4 text-center text-xs font-semibold text-brand-600">{{ _("Current plan") }}</span>
                 {% elif plan.code == 'enterprise' %}
                     <a href="/contact" class="mt-auto pt-4 text-center text-xs font-semibold text-brand-600 hover:text-brand-700">{{ _("Contact us") }}</a>
+                {% elif plan.code == 'community' and current_plan and current_plan.code != 'community' %}
+                    {# Community is the free tier — there's no Stripe checkout
+                       for it. Downgrading means cancelling the current paid
+                       Stripe subscription (live mode: at period end; demo mode:
+                       immediately). Confirm before posting. #}
+                    <form method="post" action="/platform/billing/downgrade-to-community"
+                          class="mt-auto pt-4"
+                          data-confirm="{{ _('Cancel the paid plan and move to free Community? You keep paid features until the end of the current billing period.') }}">
+                        {{ csrf_input() }}
+                        <button type="submit"
+                                aria-label="{{ _('Cancel paid plan, move to Community') }}"
+                                class="w-full rounded-md bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                            {{ _("Cancel paid plan") }}
+                        </button>
+                    </form>
                 {% else %}
                     {# Distinguish upgrade (primary brand color) from downgrade
                        (muted secondary) so the paid-plan click is visually

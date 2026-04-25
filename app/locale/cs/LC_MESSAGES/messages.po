@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-25 11:38+0200\n"
+"POT-Creation-Date: 2026-04-25 16:25+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -118,19 +118,19 @@ msgstr "Kontakt klienta"
 # "Ready", "Delivered", "Cancel" reuse the existing msgids from
 # orders/_status_badge.html and products/form.html (they share the
 # same Czech translation, so we don't duplicate entries).
-#: app/main.py:450
+#: app/main.py:452
 msgid "staff users"
 msgstr "uživatelů týmu"
 
-#: app/main.py:451
+#: app/main.py:453
 msgid "client contacts"
 msgstr "klientských kontaktů"
 
-#: app/main.py:452
+#: app/main.py:454
 msgid "orders this month"
 msgstr "objednávek tento měsíc"
 
-#: app/main.py:453
+#: app/main.py:455
 msgid "MB of storage"
 msgstr "MB úložiště"
 
@@ -490,12 +490,12 @@ msgstr "Majetek s tímto kódem už u klienta existuje."
 msgid "A contact with the same email already exists."
 msgstr "Kontakt se stejným e-mailem už existuje."
 
-#: app/routers/customers.py:377 app/routers/tenant_admin.py:286
-#: app/routers/tenant_admin.py:440
+#: app/routers/customers.py:377 app/routers/me.py:108
+#: app/routers/tenant_admin.py:335 app/routers/tenant_admin.py:524
 msgid "Name cannot be empty."
 msgstr "Jméno nesmí být prázdné."
 
-#: app/routers/customers.py:388 app/routers/tenant_admin.py:308
+#: app/routers/customers.py:388 app/routers/tenant_admin.py:392
 msgid "Changes saved."
 msgstr "Změny uloženy."
 
@@ -511,13 +511,25 @@ msgstr "Kontakt reaktivován."
 msgid "This contact already has a password; use a password reset instead."
 msgstr "Kontakt už má heslo; použijte reset hesla."
 
-#: app/routers/customers.py:468 app/routers/tenant_admin.py:363
+#: app/routers/customers.py:468 app/routers/tenant_admin.py:447
 msgid "Too many invitations sent recently. Try again later."
 msgstr "V poslední době bylo odesláno příliš mnoho pozvánek. Zkuste to později."
 
-#: app/routers/customers.py:501 app/routers/tenant_admin.py:393
+#: app/routers/customers.py:501 app/routers/tenant_admin.py:477
 msgid "Invitation resent."
 msgstr "Pozvánka odeslána znovu."
+
+#: app/routers/me.py:78 app/routers/tenant_admin.py:501
+msgid "Profile saved."
+msgstr "Profil uložen."
+
+#: app/routers/me.py:80
+msgid "Password changed. Sign in again with your new password."
+msgstr "Heslo bylo změněno. Přihlaste se znovu novým heslem."
+
+#: app/routers/me.py:133 app/routers/tenant_admin.py:554
+msgid "New passwords do not match."
+msgstr "Nová hesla se neshodují."
 
 #: app/routers/orders.py:293
 msgid "Order number"
@@ -527,7 +539,7 @@ msgstr "Číslo objednávky"
 #: app/templates/platform/admin/dashboard.html:49
 #: app/templates/platform/admin/tenant_edit.html:59
 #: app/templates/platform/admin/tenants.html:23
-#: app/templates/platform/billing/dashboard.html:165
+#: app/templates/platform/billing/dashboard.html:180
 #: app/templates/www/_hero_mock.html:62
 msgid "Status"
 msgstr "Stav"
@@ -631,39 +643,39 @@ msgstr "Hesla se neshodují."
 msgid "The link is invalid or has expired."
 msgstr "Odkaz je neplatný nebo vypršel."
 
-#: app/routers/tenant_admin.py:152
+#: app/routers/tenant_admin.py:167
 msgid "A user with this email already exists."
 msgstr "Uživatel s tímto e-mailem už existuje."
 
-#: app/routers/tenant_admin.py:214
+#: app/routers/tenant_admin.py:236
+msgid "Cannot disable the last administrator — promote someone else first."
+msgstr "Nelze deaktivovat posledního administrátora — nejdřív povýšte někoho jiného."
+
+#: app/routers/tenant_admin.py:255
 msgid "User disabled."
 msgstr "Uživatel deaktivován."
 
-#: app/routers/tenant_admin.py:233
+#: app/routers/tenant_admin.py:282
 msgid "User reactivated."
 msgstr "Uživatel reaktivován."
 
-#: app/routers/tenant_admin.py:349
+#: app/routers/tenant_admin.py:367
+msgid "Cannot demote the last administrator — promote someone else first."
+msgstr "Nelze degradovat posledního administrátora — nejdřív povýšte někoho jiného."
+
+#: app/routers/tenant_admin.py:433
 msgid "This user already has a password; use a password reset instead."
 msgstr "Uživatel už má heslo; použijte reset hesla."
 
-#: app/routers/tenant_admin.py:417
-msgid "Profile saved."
-msgstr "Profil uložen."
-
-#: app/routers/tenant_admin.py:470
-msgid "New passwords do not match."
-msgstr "Nová hesla se neshodují."
-
-#: app/routers/tenant_admin.py:558
+#: app/routers/tenant_admin.py:642
 msgid "Password does not match — deletion cancelled."
 msgstr "Heslo neodpovídá — mazání zrušeno."
 
-#: app/routers/tenant_admin.py:586
+#: app/routers/tenant_admin.py:670
 msgid "You're the last administrator — promote someone else first."
 msgstr "Jste poslední administrátor — nejdřív povýšte někoho jiného."
 
-#: app/routers/tenant_admin.py:640
+#: app/routers/tenant_admin.py:724
 msgid "Saved."
 msgstr "Uloženo."
 
@@ -748,7 +760,8 @@ msgstr "Katalog"
 #: app/templates/assets/form.html:6 app/templates/customers/detail.html:8
 #: app/templates/customers/form.html:9 app/templates/customers/form.html:13
 #: app/templates/dashboard/index.html:3 app/templates/dashboard/index.html:7
-#: app/templates/orders/detail.html:29 app/templates/orders/form.html:6
+#: app/templates/me/profile.html:7 app/templates/orders/detail.html:29
+#: app/templates/orders/form.html:6
 #: app/templates/platform/admin/_header.html:21
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:7
@@ -800,11 +813,12 @@ msgid "Switch"
 msgstr "Přepnout"
 
 #: app/templates/admin/profile.html:3 app/templates/admin/profile.html:8
-#: app/templates/app_base.html:74
+#: app/templates/app_base.html:74 app/templates/app_base.html:78
+#: app/templates/me/profile.html:3 app/templates/me/profile.html:8
 msgid "Profile"
 msgstr "Profil"
 
-#: app/templates/app_base.html:80 app/templates/platform/admin/_header.html:14
+#: app/templates/app_base.html:84 app/templates/platform/admin/_header.html:14
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:10
 #: app/templates/platform/admin/tenant_edit.html:3
@@ -812,7 +826,7 @@ msgstr "Profil"
 msgid "Platform admin"
 msgstr "Platform admin"
 
-#: app/templates/app_base.html:90 app/templates/platform/admin/_header.html:40
+#: app/templates/app_base.html:94 app/templates/platform/admin/_header.html:40
 #: app/templates/platform/select_tenant.html:17
 msgid "Sign out"
 msgstr "Odhlásit"
@@ -933,69 +947,72 @@ msgstr "Další"
 msgid "No audit events match the current filters."
 msgstr "Žádné události neodpovídají aktivním filtrům."
 
-#: app/templates/admin/profile.html:15
+#: app/templates/admin/profile.html:15 app/templates/me/profile.html:15
 msgid "Account"
 msgstr "Účet"
 
 #: app/templates/admin/profile.html:19 app/templates/admin/user_edit.html:32
 #: app/templates/admin/users.html:21 app/templates/customers/detail.html:93
+#: app/templates/me/profile.html:19
 msgid "Full name"
 msgstr "Jméno"
 
 #: app/templates/admin/profile.html:25 app/templates/admin/user_edit.html:24
 #: app/templates/admin/users.html:22 app/templates/auth/login.html:25
 #: app/templates/auth/password_reset_request.html:18
-#: app/templates/platform/login.html:18
+#: app/templates/me/profile.html:25 app/templates/platform/login.html:18
 #: app/templates/platform/password_reset_request.html:18
 #: app/templates/www/contact.html:30 app/templates/www/contact.html:96
 msgid "Email"
 msgstr "E-mail"
 
 #: app/templates/admin/profile.html:27 app/templates/admin/user_edit.html:27
+#: app/templates/me/profile.html:27
 msgid "Email changes need an administrator."
 msgstr "Změnu e-mailu musí provést administrátor."
 
 #: app/templates/admin/profile.html:31 app/templates/admin/user_edit.html:49
-#: app/templates/customers/detail.html:98
+#: app/templates/customers/detail.html:98 app/templates/me/profile.html:31
 msgid "Email language"
 msgstr "Jazyk e-mailů"
 
 #: app/templates/admin/profile.html:36 app/templates/admin/user_edit.html:54
-#: app/templates/customers/form.html:55
+#: app/templates/customers/form.html:55 app/templates/me/profile.html:36
 msgid "Automatic (tenant default)"
 msgstr "Automaticky (výchozí tenanta)"
 
-#: app/templates/admin/profile.html:42
+#: app/templates/admin/profile.html:42 app/templates/me/profile.html:42
 msgid "Language used for notification emails sent to you."
 msgstr "Jazyk, ve kterém vám budou chodit notifikační e-maily."
 
-#: app/templates/admin/profile.html:47
+#: app/templates/admin/profile.html:47 app/templates/me/profile.html:47
 msgid "Save profile"
 msgstr "Uložit profil"
 
-#: app/templates/admin/profile.html:53
+#: app/templates/admin/profile.html:53 app/templates/me/profile.html:53
 msgid "Change password"
 msgstr "Změna hesla"
 
-#: app/templates/admin/profile.html:58
+#: app/templates/admin/profile.html:58 app/templates/me/profile.html:58
 msgid "Current password"
 msgstr "Současné heslo"
 
 #: app/templates/admin/profile.html:65 app/templates/auth/invite_accept.html:23
 #: app/templates/auth/password_reset_confirm.html:20
+#: app/templates/me/profile.html:65
 #: app/templates/platform/password_reset_confirm.html:20
 msgid "New password (min. 8 characters)"
 msgstr "Nové heslo (min. 8 znaků)"
 
-#: app/templates/admin/profile.html:72
+#: app/templates/admin/profile.html:72 app/templates/me/profile.html:72
 msgid "Confirm new password"
 msgstr "Potvrzení nového hesla"
 
-#: app/templates/admin/profile.html:80
+#: app/templates/admin/profile.html:80 app/templates/me/profile.html:80
 msgid "Save new password"
 msgstr "Uložit nové heslo"
 
-#: app/templates/admin/profile.html:83
+#: app/templates/admin/profile.html:83 app/templates/me/profile.html:83
 msgid "After changing your password you will be signed out and must log in again."
 msgstr "Po změně hesla budete odhlášeni a musíte se znovu přihlásit."
 
@@ -1977,7 +1994,7 @@ msgid "Select all on page"
 msgstr "Vybrat vše na stránce"
 
 #: app/templates/orders/list.html:82
-#: app/templates/platform/billing/dashboard.html:163
+#: app/templates/platform/billing/dashboard.html:178
 msgid "Number"
 msgstr "Číslo"
 
@@ -2479,42 +2496,58 @@ msgid "Contact us"
 msgstr "Kontaktujte nás"
 
 #: app/templates/platform/billing/dashboard.html:134
+msgid ""
+"Cancel the paid plan and move to free Community? You keep paid features "
+"until the end of the current billing period."
+msgstr ""
+"Zrušit placený plán a přejít na bezplatný Community? Placené funkce vám "
+"zůstanou až do konce aktuálního zúčtovacího období."
+
+#: app/templates/platform/billing/dashboard.html:137
+msgid "Cancel paid plan, move to Community"
+msgstr "Zrušit placený plán, přejít na Community"
+
+#: app/templates/platform/billing/dashboard.html:139
+msgid "Cancel paid plan"
+msgstr "Zrušit placený plán"
+
+#: app/templates/platform/billing/dashboard.html:149
 msgid "Upgrade to "
 msgstr "Přejít na "
 
-#: app/templates/platform/billing/dashboard.html:138
+#: app/templates/platform/billing/dashboard.html:153
 msgid "Downgrade to "
 msgstr "Přejít na "
 
-#: app/templates/platform/billing/dashboard.html:142
+#: app/templates/platform/billing/dashboard.html:157
 msgid "Try "
 msgstr "Vyzkoušet "
 
-#: app/templates/platform/billing/dashboard.html:158
+#: app/templates/platform/billing/dashboard.html:173
 msgid "Invoices"
 msgstr "Faktury"
 
-#: app/templates/platform/billing/dashboard.html:164
+#: app/templates/platform/billing/dashboard.html:179
 msgid "Amount"
 msgstr "Částka"
 
-#: app/templates/platform/billing/dashboard.html:166
+#: app/templates/platform/billing/dashboard.html:181
 msgid "Paid"
 msgstr "Uhrazeno"
 
-#: app/templates/platform/billing/dashboard.html:185
+#: app/templates/platform/billing/dashboard.html:200
 msgid "Czech tax-compliant invoice (daňový doklad)"
 msgstr "Daňový doklad (CZ-compliant)"
 
-#: app/templates/platform/billing/dashboard.html:186
+#: app/templates/platform/billing/dashboard.html:201
 msgid "Doklad"
 msgstr "Doklad"
 
-#: app/templates/platform/billing/dashboard.html:192
+#: app/templates/platform/billing/dashboard.html:207
 msgid "Stripe-hosted receipt"
 msgstr "Stripe stvrzenka"
 
-#: app/templates/platform/billing/dashboard.html:204
+#: app/templates/platform/billing/dashboard.html:219
 msgid "No invoices yet."
 msgstr "Zatím žádné faktury."
 
@@ -3762,8 +3795,8 @@ msgid ""
 " uptime 24/7. Target uptime: 99.9 percent. The Enterprise plan includes a"
 " written SLA."
 msgstr ""
-"Bezpečnost: každý zákazník vidí jen svá data — vynuceno přímo v "
-"databázi, ne jen v aplikaci. Hesla nikdy neuchováváme v čitelné podobě. "
+"Bezpečnost: každý zákazník vidí jen svá data — vynuceno přímo v databázi,"
+" ne jen v aplikaci. Hesla nikdy neuchováváme v čitelné podobě. "
 "Přihlašování je chráněno proti útokům hrubou silou. Výpadky: Hetzner "
 "provozuje redundantní infrastrukturu. Zálohujeme denně (14 dní), "
 "monitorujeme dostupnost 24/7. Cílová dostupnost 99,9 procent. Enterprise "
@@ -3799,9 +3832,9 @@ msgid ""
 "we action requests within 48 hours."
 msgstr ""
 "Zrušení je v nastavení účtu — žádný hovor s obchodem, žádné čekání na "
-"schválení. Po zrušení zůstanou vaše data 30 dní k dispozici (objednávky "
-"a zákazníci jako CSV, přílohy jako ZIP). Po 30 dnech je nevratně smažeme."
-" Chcete-li okamžité smazání (GDPR čl. 17), napište na team@assoluto.eu — "
+"schválení. Po zrušení zůstanou vaše data 30 dní k dispozici (objednávky a"
+" zákazníci jako CSV, přílohy jako ZIP). Po 30 dnech je nevratně smažeme. "
+"Chcete-li okamžité smazání (GDPR čl. 17), napište na team@assoluto.eu — "
 "vyřídíme do 48 hodin."
 
 #: app/templates/www/index.html:439

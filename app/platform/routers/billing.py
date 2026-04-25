@@ -19,6 +19,7 @@ from app.platform.billing.service import (
     BillingError,
     create_billing_portal_session,
     create_checkout_session,
+    downgrade_to_community,
     get_subscription_for_tenant,
     list_invoices_for_tenant,
     list_plans,
@@ -123,6 +124,7 @@ async def invoice_pdf(
 async def billing_dashboard(
     request: Request,
     checkout: str | None = None,
+    notice: str | None = None,
     identity: Identity = Depends(require_verified_identity),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
@@ -148,9 +150,10 @@ async def billing_dashboard(
 
     usage = await snapshot_tenant_usage(db, tenant.id)  # type: ignore[attr-defined]
 
-    notice = None
     if checkout == "success":
         notice = "Předplatné bylo úspěšně aktualizováno."
+    # ``notice`` may also arrive as a query-string flash from the
+    # downgrade-to-community route; in that case keep what was sent.
 
     html = _templates(request).render(
         request,
@@ -245,6 +248,70 @@ async def start_checkout(
     await db.commit()
 
     return RedirectResponse(url=checkout_url, status_code=status.HTTP_303_SEE_OTHER)
+
+
+# ----------------------------------------- downgrade to free Community plan
+
+
+@csrf_router.post("/platform/billing/downgrade-to-community")
+async def downgrade_to_community_route(
+    request: Request,
+    identity: Identity = Depends(require_verified_identity),
+    db: AsyncSession = Depends(get_platform_db),
+    settings: Settings = Depends(get_settings),
+) -> Response:
+    """Cancel the paid plan, end up on free Community.
+
+    The Community plan has no Stripe price, so a checkout flow makes no
+    sense — that path now raises ``BillingError``. Instead the user
+    explicitly drops to the free tier:
+
+    * Demo mode (no Stripe): immediate flip — plan=community, status=canceled.
+    * Live mode with active Stripe sub: schedule cancel-at-period-end via
+      Stripe API. User keeps paid features until period_end; the
+      ``customer.subscription.deleted`` webhook flips the plan locally
+      when Stripe actually expires the sub.
+    """
+    from urllib.parse import quote
+
+    tenant, _ = await _resolve_current_tenant(db, identity)
+    if tenant is None:
+        raise HTTPException(status_code=404, detail="No tenant to manage")
+
+    subscription = await get_subscription_for_tenant(db, tenant.id)  # type: ignore[attr-defined]
+    if subscription is None:
+        # Already no subscription — nothing to downgrade. Bounce back
+        # with a friendly notice rather than 404.
+        return RedirectResponse(
+            url="/platform/billing?notice=" + quote("Already on Community plan."),
+            status_code=303,
+        )
+
+    try:
+        outcome, period_end = await downgrade_to_community(
+            db,
+            settings,
+            subscription=subscription,
+        )
+    except BillingError as exc:
+        raise HTTPException(status_code=502, detail=f"Downgrade failed: {exc}") from exc
+
+    await db.commit()
+
+    if outcome == "scheduled" and period_end is not None:
+        msg = (
+            f"Paid plan canceled — you keep paid features until "
+            f"{period_end.date().isoformat()}, then you move to Community."
+        )
+    elif outcome == "scheduled":
+        msg = "Paid plan canceled — you keep paid features until the end of the current period."
+    else:
+        msg = "Switched to Community plan."
+
+    return RedirectResponse(
+        url="/platform/billing?notice=" + quote(msg),
+        status_code=303,
+    )
 
 
 # ------------------------------------------------- post-verify checkout

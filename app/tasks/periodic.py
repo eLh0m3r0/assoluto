@@ -33,7 +33,10 @@ STRIPE_EVENT_CLEANUP_LOCK_ID = 42_003
 # unbounded at ~100 events / tenant / month. Round-2 audit S-N8.
 STRIPE_EVENT_RETENTION_DAYS = 30
 
-EXPIRE_TRIALS_LOCK_ID = 42_005
+# 42_005 is reserved by `_sync_stripe_prices_from_env` in app.main —
+# reusing it caused one of the two jobs to silently no-op when both
+# tried to grab the lock in the same boot window.
+EXPIRE_TRIALS_LOCK_ID = 42_006
 
 
 def _owner_engine():

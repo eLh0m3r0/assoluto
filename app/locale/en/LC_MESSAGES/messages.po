@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-25 11:38+0200\n"
+"POT-Creation-Date: 2026-04-25 16:25+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -126,21 +126,21 @@ msgstr ""
 msgid "Customer contact"
 msgstr "As a customer contact"
 
-#: app/main.py:450
+#: app/main.py:452
 msgid "staff users"
 msgstr ""
 
-#: app/main.py:451
+#: app/main.py:453
 #, fuzzy
 msgid "client contacts"
 msgstr "Clients"
 
-#: app/main.py:452
+#: app/main.py:454
 #, fuzzy
 msgid "orders this month"
 msgstr "Orders"
 
-#: app/main.py:453
+#: app/main.py:455
 msgid "MB of storage"
 msgstr ""
 
@@ -486,12 +486,12 @@ msgstr ""
 msgid "A contact with the same email already exists."
 msgstr ""
 
-#: app/routers/customers.py:377 app/routers/tenant_admin.py:286
-#: app/routers/tenant_admin.py:440
+#: app/routers/customers.py:377 app/routers/me.py:108
+#: app/routers/tenant_admin.py:335 app/routers/tenant_admin.py:524
 msgid "Name cannot be empty."
 msgstr ""
 
-#: app/routers/customers.py:388 app/routers/tenant_admin.py:308
+#: app/routers/customers.py:388 app/routers/tenant_admin.py:392
 #, fuzzy
 msgid "Changes saved."
 msgstr "Password"
@@ -508,14 +508,26 @@ msgstr ""
 msgid "This contact already has a password; use a password reset instead."
 msgstr ""
 
-#: app/routers/customers.py:468 app/routers/tenant_admin.py:363
+#: app/routers/customers.py:468 app/routers/tenant_admin.py:447
 msgid "Too many invitations sent recently. Try again later."
 msgstr ""
 
-#: app/routers/customers.py:501 app/routers/tenant_admin.py:393
+#: app/routers/customers.py:501 app/routers/tenant_admin.py:477
 #, fuzzy
 msgid "Invitation resent."
 msgstr "Send a new verification link"
+
+#: app/routers/me.py:78 app/routers/tenant_admin.py:501
+msgid "Profile saved."
+msgstr ""
+
+#: app/routers/me.py:80
+msgid "Password changed. Sign in again with your new password."
+msgstr ""
+
+#: app/routers/me.py:133 app/routers/tenant_admin.py:554
+msgid "New passwords do not match."
+msgstr ""
 
 #: app/routers/orders.py:293
 msgid "Order number"
@@ -525,7 +537,7 @@ msgstr ""
 #: app/templates/platform/admin/dashboard.html:49
 #: app/templates/platform/admin/tenant_edit.html:59
 #: app/templates/platform/admin/tenants.html:23
-#: app/templates/platform/billing/dashboard.html:165
+#: app/templates/platform/billing/dashboard.html:180
 #: app/templates/www/_hero_mock.html:62
 msgid "Status"
 msgstr ""
@@ -632,39 +644,39 @@ msgstr ""
 msgid "The link is invalid or has expired."
 msgstr ""
 
-#: app/routers/tenant_admin.py:152
+#: app/routers/tenant_admin.py:167
 msgid "A user with this email already exists."
 msgstr ""
 
-#: app/routers/tenant_admin.py:214
+#: app/routers/tenant_admin.py:236
+msgid "Cannot disable the last administrator — promote someone else first."
+msgstr ""
+
+#: app/routers/tenant_admin.py:255
 msgid "User disabled."
 msgstr ""
 
-#: app/routers/tenant_admin.py:233
+#: app/routers/tenant_admin.py:282
 msgid "User reactivated."
 msgstr ""
 
-#: app/routers/tenant_admin.py:349
+#: app/routers/tenant_admin.py:367
+msgid "Cannot demote the last administrator — promote someone else first."
+msgstr ""
+
+#: app/routers/tenant_admin.py:433
 msgid "This user already has a password; use a password reset instead."
 msgstr ""
 
-#: app/routers/tenant_admin.py:417
-msgid "Profile saved."
-msgstr ""
-
-#: app/routers/tenant_admin.py:470
-msgid "New passwords do not match."
-msgstr ""
-
-#: app/routers/tenant_admin.py:558
+#: app/routers/tenant_admin.py:642
 msgid "Password does not match — deletion cancelled."
 msgstr ""
 
-#: app/routers/tenant_admin.py:586
+#: app/routers/tenant_admin.py:670
 msgid "You're the last administrator — promote someone else first."
 msgstr ""
 
-#: app/routers/tenant_admin.py:640
+#: app/routers/tenant_admin.py:724
 #, fuzzy
 msgid "Saved."
 msgstr "Dashboard"
@@ -750,7 +762,8 @@ msgstr "Catalog"
 #: app/templates/assets/form.html:6 app/templates/customers/detail.html:8
 #: app/templates/customers/form.html:9 app/templates/customers/form.html:13
 #: app/templates/dashboard/index.html:3 app/templates/dashboard/index.html:7
-#: app/templates/orders/detail.html:29 app/templates/orders/form.html:6
+#: app/templates/me/profile.html:7 app/templates/orders/detail.html:29
+#: app/templates/orders/form.html:6
 #: app/templates/platform/admin/_header.html:21
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:7
@@ -804,11 +817,12 @@ msgid "Switch"
 msgstr "Switch to"
 
 #: app/templates/admin/profile.html:3 app/templates/admin/profile.html:8
-#: app/templates/app_base.html:74
+#: app/templates/app_base.html:74 app/templates/app_base.html:78
+#: app/templates/me/profile.html:3 app/templates/me/profile.html:8
 msgid "Profile"
 msgstr ""
 
-#: app/templates/app_base.html:80 app/templates/platform/admin/_header.html:14
+#: app/templates/app_base.html:84 app/templates/platform/admin/_header.html:14
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:10
 #: app/templates/platform/admin/tenant_edit.html:3
@@ -817,7 +831,7 @@ msgstr ""
 msgid "Platform admin"
 msgstr "Platform"
 
-#: app/templates/app_base.html:90 app/templates/platform/admin/_header.html:40
+#: app/templates/app_base.html:94 app/templates/platform/admin/_header.html:40
 #: app/templates/platform/select_tenant.html:17
 msgid "Sign out"
 msgstr "Sign out"
@@ -938,12 +952,13 @@ msgstr ""
 msgid "No audit events match the current filters."
 msgstr ""
 
-#: app/templates/admin/profile.html:15
+#: app/templates/admin/profile.html:15 app/templates/me/profile.html:15
 msgid "Account"
 msgstr ""
 
 #: app/templates/admin/profile.html:19 app/templates/admin/user_edit.html:32
 #: app/templates/admin/users.html:21 app/templates/customers/detail.html:93
+#: app/templates/me/profile.html:19
 #, fuzzy
 msgid "Full name"
 msgstr "Your name"
@@ -951,61 +966,63 @@ msgstr "Your name"
 #: app/templates/admin/profile.html:25 app/templates/admin/user_edit.html:24
 #: app/templates/admin/users.html:22 app/templates/auth/login.html:25
 #: app/templates/auth/password_reset_request.html:18
-#: app/templates/platform/login.html:18
+#: app/templates/me/profile.html:25 app/templates/platform/login.html:18
 #: app/templates/platform/password_reset_request.html:18
 #: app/templates/www/contact.html:30 app/templates/www/contact.html:96
 msgid "Email"
 msgstr "Email"
 
 #: app/templates/admin/profile.html:27 app/templates/admin/user_edit.html:27
+#: app/templates/me/profile.html:27
 msgid "Email changes need an administrator."
 msgstr ""
 
 #: app/templates/admin/profile.html:31 app/templates/admin/user_edit.html:49
-#: app/templates/customers/detail.html:98
+#: app/templates/customers/detail.html:98 app/templates/me/profile.html:31
 msgid "Email language"
 msgstr ""
 
 #: app/templates/admin/profile.html:36 app/templates/admin/user_edit.html:54
-#: app/templates/customers/form.html:55
+#: app/templates/customers/form.html:55 app/templates/me/profile.html:36
 msgid "Automatic (tenant default)"
 msgstr ""
 
-#: app/templates/admin/profile.html:42
+#: app/templates/admin/profile.html:42 app/templates/me/profile.html:42
 msgid "Language used for notification emails sent to you."
 msgstr ""
 
-#: app/templates/admin/profile.html:47
+#: app/templates/admin/profile.html:47 app/templates/me/profile.html:47
 msgid "Save profile"
 msgstr ""
 
-#: app/templates/admin/profile.html:53
+#: app/templates/admin/profile.html:53 app/templates/me/profile.html:53
 #, fuzzy
 msgid "Change password"
 msgstr "Password"
 
-#: app/templates/admin/profile.html:58
+#: app/templates/admin/profile.html:58 app/templates/me/profile.html:58
 #, fuzzy
 msgid "Current password"
 msgstr "Password"
 
 #: app/templates/admin/profile.html:65 app/templates/auth/invite_accept.html:23
 #: app/templates/auth/password_reset_confirm.html:20
+#: app/templates/me/profile.html:65
 #: app/templates/platform/password_reset_confirm.html:20
 msgid "New password (min. 8 characters)"
 msgstr ""
 
-#: app/templates/admin/profile.html:72
+#: app/templates/admin/profile.html:72 app/templates/me/profile.html:72
 #, fuzzy
 msgid "Confirm new password"
 msgstr "Confirmed"
 
-#: app/templates/admin/profile.html:80
+#: app/templates/admin/profile.html:80 app/templates/me/profile.html:80
 #, fuzzy
 msgid "Save new password"
 msgstr "Password"
 
-#: app/templates/admin/profile.html:83
+#: app/templates/admin/profile.html:83 app/templates/me/profile.html:83
 msgid "After changing your password you will be signed out and must log in again."
 msgstr ""
 
@@ -1997,7 +2014,7 @@ msgid "Select all on page"
 msgstr ""
 
 #: app/templates/orders/list.html:82
-#: app/templates/platform/billing/dashboard.html:163
+#: app/templates/platform/billing/dashboard.html:178
 msgid "Number"
 msgstr ""
 
@@ -2504,42 +2521,56 @@ msgid "Contact us"
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:134
+msgid ""
+"Cancel the paid plan and move to free Community? You keep paid features "
+"until the end of the current billing period."
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:137
+msgid "Cancel paid plan, move to Community"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:139
+msgid "Cancel paid plan"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:149
 msgid "Upgrade to "
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:138
+#: app/templates/platform/billing/dashboard.html:153
 msgid "Downgrade to "
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:142
+#: app/templates/platform/billing/dashboard.html:157
 msgid "Try "
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:158
+#: app/templates/platform/billing/dashboard.html:173
 msgid "Invoices"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:164
+#: app/templates/platform/billing/dashboard.html:179
 msgid "Amount"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:166
+#: app/templates/platform/billing/dashboard.html:181
 msgid "Paid"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:185
+#: app/templates/platform/billing/dashboard.html:200
 msgid "Czech tax-compliant invoice (daňový doklad)"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:186
+#: app/templates/platform/billing/dashboard.html:201
 msgid "Doklad"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:192
+#: app/templates/platform/billing/dashboard.html:207
 msgid "Stripe-hosted receipt"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:204
+#: app/templates/platform/billing/dashboard.html:219
 msgid "No invoices yet."
 msgstr ""
 

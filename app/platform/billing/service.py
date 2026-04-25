@@ -110,6 +110,71 @@ async def set_subscription_plan(
     return subscription
 
 
+async def downgrade_to_community(
+    db: AsyncSession,
+    settings: Settings,
+    *,
+    subscription: Subscription,
+) -> tuple[str, datetime | None]:
+    """Move the tenant from a paid plan to the free Community plan.
+
+    * Demo mode (no Stripe): flip locally — plan=community, status=canceled.
+    * Live mode with a Stripe subscription: schedule cancel at period end
+      via Stripe API. Local row is left on the paid plan; the
+      ``customer.subscription.deleted`` webhook flips it to community
+      when the period actually ends. Returns the period-end timestamp
+      so the UI can tell the user when paid access ends.
+    * Live mode without an active Stripe subscription (e.g. trial that
+      never converted): same as demo — flip locally.
+
+    Returns ``("flipped", None)`` for the immediate-flip path or
+    ``("scheduled", period_end_dt)`` for the Stripe-cancel-at-period-end
+    path.
+    """
+    community = (
+        await db.execute(select(Plan).where(Plan.code == "community"))
+    ).scalar_one_or_none()
+    if community is None:
+        raise BillingError("community plan row not found — seed migration missing")
+
+    stripe = _get_stripe(settings)
+    stripe_sub_id = getattr(subscription, "stripe_subscription_id", None)
+    if stripe is None or not stripe_sub_id:
+        # Demo mode OR live without a Stripe sub. Same outcome either
+        # way: flip plan immediately, mark canceled to match the
+        # webhook-deleted convention.
+        subscription.plan_id = community.id
+        subscription.status = "canceled"
+        subscription.cancel_at_period_end = False
+        await db.flush()
+        return ("flipped", None)
+
+    # Live mode with a Stripe subscription — schedule the cancel.
+    # The user keeps paid plan until period_end; webhook does the flip
+    # at that point. We surface the period_end so the caller can show
+    # "paid features end on YYYY-MM-DD" in the flash.
+    # Stripe SDK may raise many error shapes (StripeError, network, JSON
+    # decode); trap broadly and re-emit as our domain error so the caller
+    # gets a uniform 502.
+    try:
+        stripe_sub = stripe.Subscription.modify(
+            stripe_sub_id,
+            cancel_at_period_end=True,
+        )
+    except Exception as exc:
+        raise BillingError(f"Stripe cancel failed: {exc}") from exc
+
+    subscription.cancel_at_period_end = True
+    await db.flush()
+    period_end_ts = stripe_sub.get("current_period_end") if isinstance(stripe_sub, dict) else (
+        getattr(stripe_sub, "current_period_end", None)
+    )
+    period_end_dt = (
+        datetime.fromtimestamp(int(period_end_ts), tz=UTC) if period_end_ts else None
+    )
+    return ("scheduled", period_end_dt)
+
+
 # --------------------------------------------------------- Stripe helpers
 
 

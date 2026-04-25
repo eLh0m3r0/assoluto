@@ -397,6 +397,43 @@ async def change_user_password(
     return user
 
 
+async def change_contact_password(
+    db: AsyncSession,
+    *,
+    contact: CustomerContact,
+    current_password: str,
+    new_password: str,
+    audit_actor: ActorInfo | None = None,
+) -> CustomerContact:
+    """Self-service password change for a customer contact.
+
+    Mirrors :func:`change_user_password` but for the
+    ``customer_contacts`` row. Bumps ``session_version`` so any other
+    sessions for the same contact (e.g. an old browser tab) fail on
+    the next request.
+    """
+    if not contact.password_hash:
+        # Defensive — should never happen for a contact who can log in.
+        raise InvalidCredentials("contact has no password set")
+    if not verify_password(current_password, contact.password_hash):
+        raise InvalidCredentials("current password is incorrect")
+    if len(new_password) < 8:
+        raise InvalidCredentials("new password must be at least 8 characters")
+    contact.password_hash = hash_password(new_password)
+    contact.session_version += 1
+    await db.flush()
+    await audit_service.record(
+        db,
+        action="contact.password_changed",
+        entity_type="contact",
+        entity_id=contact.id,
+        entity_label=contact.email,
+        actor=audit_actor or SYSTEM_ACTOR,
+        tenant_id=contact.tenant_id,
+    )
+    return contact
+
+
 # ---------------------------------------------------- password reset flow
 
 

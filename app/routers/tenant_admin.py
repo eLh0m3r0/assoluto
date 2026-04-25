@@ -16,7 +16,7 @@ from app.i18n import t as _t
 from app.models.enums import UserRole
 from app.models.user import User
 from app.security.csrf import verify_csrf
-from app.services import sla_service
+from app.services import audit_service, sla_service
 from app.services.audit_service import actor_from_principal
 from app.services.auth_service import (
     InvalidCredentials,
@@ -48,6 +48,21 @@ def _require_tenant_admin(principal: Principal) -> None:
             status_code=403,
             detail="Tenant admin required",
         )
+
+
+async def _other_active_admins_exist(db: AsyncSession, *, exclude_user_id: UUID) -> bool:
+    """Return True iff at least one OTHER active TENANT_ADMIN exists in the
+    current tenant (RLS-scoped session). Used to block the last-admin
+    self-lockout in disable / role-change paths.
+    """
+    result = await db.execute(
+        select(User.id).where(
+            User.role == UserRole.TENANT_ADMIN,
+            User.is_active.is_(True),
+            User.id != exclude_user_id,
+        )
+    )
+    return result.first() is not None
 
 
 # --------------------------------------------------------------- users
@@ -207,9 +222,35 @@ async def users_disable(
         raise HTTPException(status_code=404, detail="User not found")
     if target.id == principal.id:
         raise HTTPException(status_code=400, detail="Cannot disable yourself")
+    # Last-admin guard: disabling the only remaining active admin would
+    # brick the admin UI for the whole tenant. Make the operator promote
+    # someone else first.
+    if target.role == UserRole.TENANT_ADMIN and not await _other_active_admins_exist(
+        db, exclude_user_id=target.id
+    ):
+        return RedirectResponse(
+            url=(
+                "/app/admin/users?error="
+                + quote(
+                    _t(
+                        request,
+                        "Cannot disable the last administrator — promote someone else first.",
+                    )
+                )
+            ),
+            status_code=303,
+        )
     target.is_active = False
     target.session_version += 1  # kick out existing sessions
     await db.flush()
+    await audit_service.record(
+        db,
+        action="user.disabled",
+        entity_type="user",
+        entity_id=target.id,
+        entity_label=target.email,
+        actor=actor_from_principal(principal),
+    )
     return RedirectResponse(
         url=f"/app/admin/users?notice={quote(_t(request, 'User disabled.'))}",
         status_code=303,
@@ -229,6 +270,14 @@ async def users_reactivate(
         raise HTTPException(status_code=404, detail="User not found")
     target.is_active = True
     await db.flush()
+    await audit_service.record(
+        db,
+        action="user.reactivated",
+        entity_type="user",
+        entity_id=target.id,
+        entity_label=target.email,
+        actor=actor_from_principal(principal),
+    )
     return RedirectResponse(
         url=f"/app/admin/users?notice={quote(_t(request, 'User reactivated.'))}",
         status_code=303,
@@ -299,11 +348,46 @@ async def users_edit(
     # others is fine. Role swaps on other admins are also fine.
     if target.id == principal.id and role_enum != UserRole.TENANT_ADMIN:
         raise HTTPException(status_code=400, detail="Cannot demote yourself")
+    # Last-admin guard: demoting the only remaining active admin would
+    # brick the admin UI. Catches the case where the principal is editing
+    # someone else (their own self-demote already guarded above).
+    if (
+        target.role == UserRole.TENANT_ADMIN
+        and role_enum != UserRole.TENANT_ADMIN
+        and not await _other_active_admins_exist(db, exclude_user_id=target.id)
+    ):
+        html = _templates(request).render(
+            request,
+            "admin/user_edit.html",
+            {
+                "principal": principal,
+                "tenant": _tenant(request),
+                "user": target,
+                "error": _t(
+                    request,
+                    "Cannot demote the last administrator — promote someone else first.",
+                ),
+            },
+        )
+        return HTMLResponse(html, status_code=400)
 
+    role_changed = target.role != role_enum
+    name_before = target.full_name
+    role_before = target.role.value
     target.full_name = cleaned_name
     target.role = role_enum
     target.preferred_locale = _normalise_locale(preferred_locale)
     await db.flush()
+    await audit_service.record(
+        db,
+        action="user.role_changed" if role_changed else "user.profile_updated",
+        entity_type="user",
+        entity_id=target.id,
+        entity_label=target.email,
+        actor=actor_from_principal(principal),
+        before={"full_name": name_before, "role": role_before},
+        after={"full_name": cleaned_name, "role": role_enum.value},
+    )
     return RedirectResponse(
         url=f"/app/admin/users?notice={quote(_t(request, 'Changes saved.'))}",
         status_code=303,
@@ -667,9 +751,21 @@ async def tenant_settings_update(
     # the UPDATE. ``request.state.tenant`` is read-only for this purpose.
     row = (await db.execute(select(Tenant).where(Tenant.id == tenant.id))).scalar_one()
     current = dict(row.settings or {})
+    locale_before = current.get("default_locale")
     current["default_locale"] = code
     row.settings = current
     await db.flush()
+    if locale_before != code:
+        await audit_service.record(
+            db,
+            action="tenant.settings_updated",
+            entity_type="tenant",
+            entity_id=tenant.id,
+            entity_label=tenant.slug,
+            actor=actor_from_principal(principal),
+            before={"default_locale": locale_before},
+            after={"default_locale": code},
+        )
     await db.commit()
     return RedirectResponse(url="/app/admin/tenant-settings?saved=1", status_code=303)
 

@@ -180,14 +180,21 @@ async def test_billing_dashboard_upgrade_vs_downgrade_labels(billing_client, own
     resp = await client.get("/platform/billing")
     assert resp.status_code == 200
     # Starter is the current plan (from the trial attached at signup).
-    # Pro is more expensive → "Upgrade"; Community is free → "Downgrade".
+    # Pro is more expensive → "Upgrade"; Community is free → "Cancel
+    # paid plan" (the community card now uses a dedicated cancel CTA
+    # instead of a no-op checkout, see app/platform/billing/service.py
+    # downgrade_to_community for the proper flow).
     # Accept either locale since the signup UI defaults to Czech.
     assert (
         ("Upgrade to Pro" in resp.text)
         or ("Přejít na Pro" in resp.text)
         or ("Upgrade na Pro" in resp.text)
     )
-    assert ("Downgrade to Community" in resp.text) or ("Přejít na Community" in resp.text)
+    assert (
+        "Cancel paid plan" in resp.text
+        or "Zrušit placený plán" in resp.text
+        or "/platform/billing/downgrade-to-community" in resp.text
+    )
 
 
 async def test_checkout_demo_switches_plan_locally(billing_client, owner_engine) -> None:
