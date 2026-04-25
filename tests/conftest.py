@@ -135,6 +135,16 @@ async def wipe_db(owner_engine):  # type: ignore[misc]
             await conn.execute(text("DELETE FROM products"))
             await conn.execute(text("DELETE FROM customer_contacts"))
             await conn.execute(text("DELETE FROM customers"))
+            # Platform tables. They reference tenants/users via FK, so
+            # they MUST be cleared before the user/tenant deletes below
+            # — otherwise FK violations cause every second test run to
+            # explode after a billing/signup/stripe-webhook test seeds
+            # a row.
+            await conn.execute(text("DELETE FROM platform_invoices"))
+            await conn.execute(text("DELETE FROM platform_subscriptions"))
+            await conn.execute(text("DELETE FROM platform_stripe_events"))
+            await conn.execute(text("DELETE FROM platform_tenant_memberships"))
+            await conn.execute(text("DELETE FROM platform_identities"))
             await conn.execute(text("DELETE FROM users"))
             await conn.execute(text("DELETE FROM tenants"))
 

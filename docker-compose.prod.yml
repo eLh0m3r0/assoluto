@@ -87,12 +87,21 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:?}
       SMTP_FROM: ${SMTP_FROM:?}
 
+      # TRUSTED_PROXIES MUST be set explicitly. Empty defaults to
+      # rate-limiting on the Caddy container's internal IP — i.e. one
+      # global bucket for every external client. The typical Caddy +
+      # Docker Compose deploy should trust the RFC1918 ranges:
+      #   TRUSTED_PROXIES=172.16.0.0/12,10.0.0.0/8
+      # The :? assertion makes compose refuse to start the stack if
+      # the operator forgot to set it.
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:?TRUSTED_PROXIES must list reverse-proxy CIDRs}
+
       # Everything else flows through ``env_file`` above:
       # FEATURE_PLATFORM, FEATURE_PLATFORM_ALLOW_DEMO,
       # PLATFORM_COOKIE_DOMAIN, PLATFORM_OPERATOR_*, STRIPE_*,
       # LOG_LEVEL, MAX_UPLOAD_SIZE_MB, S3_PUBLIC_ENDPOINT_URL,
-      # DEFAULT_TENANT_SLUG, TRUSTED_PROXIES — all automatic. No
-      # docker-compose edit needed to add new app-level settings.
+      # DEFAULT_TENANT_SLUG — all automatic. No docker-compose edit
+      # needed to add new app-level settings.
 
     ports: !reset []
     expose:

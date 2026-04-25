@@ -264,11 +264,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     configure_logging(settings)
 
+    # Hide /docs, /redoc, /openapi.json on production. They expose the full
+    # route map (incl. platform-admin and Stripe-webhook paths) plus the app
+    # version to anonymous visitors. Useful in dev, dangerous in prod.
+    docs_kwargs: dict[str, str | None] = {}
+    if settings.is_production:
+        docs_kwargs = {"docs_url": None, "redoc_url": None, "openapi_url": None}
+
     app = FastAPI(
         title="Assoluto",
         version=__version__,
         debug=settings.app_debug,
         lifespan=lifespan,
+        **docs_kwargs,
     )
     app.state.settings = settings
     app.state.templates = Templates(build_jinja_env(), settings)

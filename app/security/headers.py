@@ -49,6 +49,7 @@ def _build_csp(subdomain_apex: str | None) -> bytes:
         "img-src 'self' data:; "
         "font-src 'self' data:; "
         "connect-src 'self'; "
+        "object-src 'none'; "
         "frame-ancestors 'none'; "
         f"form-action {form_action_sources}; "
         "base-uri 'self'"
