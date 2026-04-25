@@ -41,9 +41,23 @@ async def get_plan_by_code(db: AsyncSession, code: str) -> Plan | None:
     return (await db.execute(select(Plan).where(Plan.code == code))).scalar_one_or_none()
 
 
+# Plans that exist in the DB but are NOT shown as a hosted-tenant choice.
+# ``community`` is the AGPL self-host pitch on the marketing site (see
+# /pricing → "Installation guide" CTA). On the hosted SaaS it has no
+# meaning — there is no free hosted tier — so it stays out of the
+# billing-dashboard plan grid and out of any checkout/upgrade flow.
+HIDDEN_PLAN_CODES: frozenset[str] = frozenset({"community"})
+
+
 async def list_plans(db: AsyncSession) -> list[Plan]:
+    """Active plans visible to hosted tenants — community deliberately
+    excluded (see HIDDEN_PLAN_CODES).
+    """
     result = await db.execute(
-        select(Plan).where(Plan.is_active.is_(True)).order_by(Plan.monthly_price_cents)
+        select(Plan)
+        .where(Plan.is_active.is_(True))
+        .where(Plan.code.notin_(HIDDEN_PLAN_CODES))
+        .order_by(Plan.monthly_price_cents)
     )
     return list(result.scalars().all())
 
@@ -110,49 +124,67 @@ async def set_subscription_plan(
     return subscription
 
 
-async def downgrade_to_community(
+# How long a canceled tenant keeps full access after the paid period
+# ends, before the periodic job (enforce_canceled_subscriptions) hard-cuts
+# the tenant. Marketed as "3 days to export your data" — beyond that, we
+# offer manual recovery via team@assoluto.eu for up to 30 days, then
+# delete. Keep this small to avoid free-rider risk, and line it up with
+# the marketing copy in pricing.html / index.html FAQ.
+CANCEL_GRACE_DAYS = 3
+
+
+async def cancel_subscription(
     db: AsyncSession,
     settings: Settings,
     *,
     subscription: Subscription,
 ) -> tuple[str, datetime | None]:
-    """Move the tenant from a paid plan to the free Community plan.
+    """End the tenant's paid subscription. After a short grace period
+    the periodic ``enforce_canceled_subscriptions`` job hard-cuts the
+    tenant.
 
-    * Demo mode (no Stripe): flip locally — plan=community, status=canceled.
-    * Live mode with a Stripe subscription: schedule cancel at period end
-      via Stripe API. Local row is left on the paid plan; the
-      ``customer.subscription.deleted`` webhook flips it to community
-      when the period actually ends. Returns the period-end timestamp
-      so the UI can tell the user when paid access ends.
-    * Live mode without an active Stripe subscription (e.g. trial that
-      never converted): same as demo — flip locally.
+    There is NO "free Community fallback" on hosted — Community is the
+    self-host AGPL pitch only (see HIDDEN_PLAN_CODES). Cancel means the
+    paid SaaS service ends; the tenant has ``CANCEL_GRACE_DAYS`` days
+    to export data, then access is denied at the tenant subdomain.
 
-    Returns ``("flipped", None)`` for the immediate-flip path or
-    ``("scheduled", period_end_dt)`` for the Stripe-cancel-at-period-end
-    path.
+    * Demo mode OR no Stripe subscription: status flips immediately to
+      ``canceled``, ``current_period_end`` is set to ``now()`` so grace
+      starts now (3 days from this call). plan_id is left as-is — the
+      row records what they had; nothing automatic flips it.
+    * Live mode with a Stripe sub: ``stripe.Subscription.modify(
+      cancel_at_period_end=True)`` is called. The user keeps full access
+      until Stripe's natural period end. The
+      ``customer.subscription.deleted`` webhook then sets
+      ``status='canceled'`` locally and the periodic job takes over from
+      there.
+
+    Returns ``("flipped", access_ends_at)`` for the immediate-flip path
+    or ``("scheduled", stripe_period_end)`` for the Stripe-cancel path.
+    The caller uses the returned datetime to tell the user when their
+    access actually ends.
     """
-    community = (
-        await db.execute(select(Plan).where(Plan.code == "community"))
-    ).scalar_one_or_none()
-    if community is None:
-        raise BillingError("community plan row not found — seed migration missing")
-
     stripe = _get_stripe(settings)
     stripe_sub_id = getattr(subscription, "stripe_subscription_id", None)
+
     if stripe is None or not stripe_sub_id:
-        # Demo mode OR live without a Stripe sub. Same outcome either
-        # way: flip plan immediately, mark canceled to match the
-        # webhook-deleted convention.
-        subscription.plan_id = community.id
+        # Demo mode OR live without a Stripe sub (trial that never
+        # converted). Flip locally and start the grace clock now.
+        now = datetime.now(UTC)
         subscription.status = "canceled"
         subscription.cancel_at_period_end = False
+        # Pin period_end to the natural end of the trial when one exists
+        # and is still in the future; otherwise start the grace from now.
+        if (
+            subscription.current_period_end is None
+            or subscription.current_period_end < now
+        ):
+            subscription.current_period_end = now
+        access_ends_at = subscription.current_period_end + timedelta(days=CANCEL_GRACE_DAYS)
         await db.flush()
-        return ("flipped", None)
+        return ("flipped", access_ends_at)
 
     # Live mode with a Stripe subscription — schedule the cancel.
-    # The user keeps paid plan until period_end; webhook does the flip
-    # at that point. We surface the period_end so the caller can show
-    # "paid features end on YYYY-MM-DD" in the flash.
     # Stripe SDK may raise many error shapes (StripeError, network, JSON
     # decode); trap broadly and re-emit as our domain error so the caller
     # gets a uniform 502.

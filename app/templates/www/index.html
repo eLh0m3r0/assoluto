@@ -423,11 +423,11 @@
 
             {{ faq(_("Where is my data stored?"), _("Your data lives exclusively on Hetzner servers in Germany (EU). The PostgreSQL database is encrypted at rest; drawings and attachments are stored in EU-based cloud storage. Backups run daily and are kept for 14 days. The full subprocessor list is in our Privacy Policy.")) }}
             {{ faq(_("Can I pay by bank transfer, not just by card?"), _("Monthly plans are paid by card via Stripe. Annual plans can be arranged by bank transfer with a Czech invoice (net-14). Enterprise customers always receive an invoice. Questions about VAT or Czech tax documents? Email team@assoluto.eu.")) }}
-            {{ faq(_("Do I need to sign anything?"), _("No paper contract. At signup you accept our Terms of Service by clicking a button. Subscriptions are monthly with no commitment; cancel any time from your account settings. Your data is exportable to CSV and stays accessible for 30 days after cancellation.")) }}
+            {{ faq(_("Do I need to sign anything?"), _("No paper contract. At signup you accept our Terms of Service by clicking a button. Subscriptions are monthly with no commitment; cancel any time from your account settings. After cancellation you have 3 days to export your data, then access ends. For later recovery, email team@assoluto.eu within 30 days.")) }}
             {{ faq(_("Can I integrate with Pohoda or Money S3?"), _("Direct integration with Pohoda or Money S3 is not available yet — we offer CSV export for manual import. A Pohoda XML connector is on our roadmap. If this is a deciding factor, write to us via the Contact page — customer demand directly shapes what we build next.")) }}
             {{ faq(_("Is it secure? What if the server fails?"), _("Security: each client sees only their own data — enforced at the database level, not just in the application. Passwords are never stored in readable form. Login is brute-force protected. Outages: Hetzner runs redundant infrastructure. We back up daily (14-day retention) and monitor uptime 24/7. Target uptime: 99.9 percent. The Enterprise plan includes a written SLA.")) }}
             {{ faq(_("Will you teach my people how to use it?"), _("Every paid plan includes a 30-minute online walkthrough — we show the system with your actual setup, not demo data. Most shops do not need it: the portal is designed so a client who can use email can place their first order in 3 minutes without training. Need more? Contact us.")) }}
-            {{ faq(_("What if I want to leave?"), _("Cancel in your account settings — no sales call, no approval queue. After cancellation your data stays accessible for 30 days (orders and customers as CSV, attachments as ZIP). After 30 days it is permanently deleted. For immediate deletion (GDPR Art. 17) email team@assoluto.eu — we action requests within 48 hours.")) }}
+            {{ faq(_("What if I want to leave?"), _("Cancel in your account settings — no sales call, no approval queue. You keep full access until the current billing period ends, then have 3 days to export your data (orders and customers as CSV, attachments as ZIP). After that, access ends. Need to recover something later? Email team@assoluto.eu within 30 days. For immediate erasure (GDPR Art. 17) email us — we action requests within 48 hours.")) }}
         </dl>
     </div>
 </section>
@@ -510,7 +510,7 @@
         {
             "@type": "Question",
             "name": "{{ _('Do I need to sign anything?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('No paper contract. At signup you accept our Terms of Service by clicking a button. Subscriptions are monthly with no commitment; cancel any time from your account settings. Your data is exportable to CSV and stays accessible for 30 days after cancellation.') }}"}
+            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('No paper contract. At signup you accept our Terms of Service by clicking a button. Subscriptions are monthly with no commitment; cancel any time from your account settings. After cancellation you have 3 days to export your data, then access ends. For later recovery, email team@assoluto.eu within 30 days.') }}"}
         },
         {
             "@type": "Question",
@@ -530,7 +530,7 @@
         {
             "@type": "Question",
             "name": "{{ _('What if I want to leave?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Cancel in your account settings — no sales call, no approval queue. After cancellation your data stays accessible for 30 days (orders and customers as CSV, attachments as ZIP). After 30 days it is permanently deleted. For immediate deletion (GDPR Art. 17) email team@assoluto.eu — we action requests within 48 hours.') }}"}
+            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Cancel in your account settings — no sales call, no approval queue. You keep full access until the current billing period ends, then have 3 days to export your data (orders and customers as CSV, attachments as ZIP). After that, access ends. Need to recover something later? Email team@assoluto.eu within 30 days. For immediate erasure (GDPR Art. 17) email us — we action requests within 48 hours.') }}"}
         }
     ]
 }

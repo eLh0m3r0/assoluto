@@ -17,6 +17,7 @@ from app.tasks.periodic import (
     auto_close_delivered_orders,
     cleanup_old_stripe_events,
     cleanup_stale_invited_contacts,
+    enforce_canceled_subscriptions,
     expire_demo_trials,
 )
 
@@ -56,6 +57,18 @@ def build_scheduler() -> AsyncIOScheduler:
         expire_demo_trials,
         trigger=CronTrigger(hour=3, minute=45),  # 03:45 UTC daily
         id="expire_demo_trials",
+        replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=600,
+    )
+
+    # Daily after expire_demo_trials so the canceled rows it creates
+    # are visible to this job's grace check on the same run if their
+    # period_end was already > 3 days ago.
+    scheduler.add_job(
+        enforce_canceled_subscriptions,
+        trigger=CronTrigger(hour=4, minute=0),  # 04:00 UTC daily
+        id="enforce_canceled_subscriptions",
         replace_existing=True,
         max_instances=1,
         misfire_grace_time=600,

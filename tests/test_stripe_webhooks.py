@@ -320,9 +320,16 @@ async def test_invoice_payment_failed_marks_past_due(stripe_live_client) -> None
         assert sub_reloaded.status == "past_due"
 
 
-async def test_subscription_deleted_downgrades_to_community(stripe_live_client) -> None:
+async def test_subscription_deleted_marks_canceled_keeps_plan(stripe_live_client) -> None:
+    """Per Option A — deleting a Stripe subscription marks our local row
+    as ``canceled`` but does NOT flip ``plan_id`` to community. The
+    plan_id stays as a record of what the tenant had; the periodic
+    ``enforce_canceled_subscriptions`` job hard-cuts the tenant after
+    the grace period (CANCEL_GRACE_DAYS) past current_period_end.
+    """
     client, engine = stripe_live_client
     tenant, sub = await _seed_tenant_with_trial(engine)
+    original_plan_id = sub.plan_id
 
     event = _make_event(
         "evt_sub_del_1",
@@ -344,10 +351,13 @@ async def test_subscription_deleted_downgrades_to_community(stripe_live_client) 
             await session.execute(select(Subscription).where(Subscription.id == sub.id))
         ).scalar_one()
         assert sub_reloaded.status == "canceled"
+        # plan_id unchanged — historical record of what they had.
+        assert sub_reloaded.plan_id == original_plan_id
         plan = (
             await session.execute(select(Plan).where(Plan.id == sub_reloaded.plan_id))
         ).scalar_one()
-        assert plan.code == "community"
+        # This is a Starter trial in the seed helper; not flipped to community.
+        assert plan.code != "community"
 
 
 async def test_webhook_rejects_tenant_spoof_via_metadata(stripe_live_client, owner_engine) -> None:

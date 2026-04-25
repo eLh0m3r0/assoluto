@@ -268,7 +268,15 @@ async def handle_subscription_upserted(db: AsyncSession, event: dict) -> None:
 
 
 async def handle_subscription_deleted(db: AsyncSession, event: dict) -> None:
-    """Subscription actually ended — downgrade to community plan."""
+    """Stripe subscription actually ended — mark canceled locally.
+
+    Does NOT flip ``plan_id`` to a free tier. The row is just stamped
+    ``status='canceled'``; the ``plan_id`` stays as a record of what the
+    tenant had. ``current_period_end`` is preserved (Stripe set it when
+    the original sub started). The periodic
+    ``enforce_canceled_subscriptions`` job then hard-cuts the tenant
+    ``CANCEL_GRACE_DAYS`` after that period_end.
+    """
     data = event.get("data", {}).get("object", {})
     tenant_id = await _resolve_tenant_id(db, data)
     if tenant_id is None:
@@ -280,13 +288,13 @@ async def handle_subscription_deleted(db: AsyncSession, event: dict) -> None:
         log.warning("stripe.webhook.subscription_missing", tenant_id=str(tenant_id))
         raise WebhookNotYetReady("subscription row missing for deletion")
 
-    community = (
-        await db.execute(select(Plan).where(Plan.code == "community"))
-    ).scalar_one_or_none()
-    if community is not None:
-        subscription.plan_id = community.id
     subscription.status = "canceled"
     subscription.cancel_at_period_end = False
+    # If Stripe sent a fresher current_period_end, prefer that; otherwise
+    # leave whatever was last set.
+    period_end_ts = data.get("current_period_end")
+    if period_end_ts:
+        subscription.current_period_end = datetime.fromtimestamp(int(period_end_ts), tz=UTC)
     await db.flush()
 
 

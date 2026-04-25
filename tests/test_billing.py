@@ -147,9 +147,12 @@ async def test_billing_dashboard_renders(billing_client, owner_engine) -> None:
     assert resp.status_code == 200
     assert "Subscription &amp; billing" in resp.text or "Subscription & billing" in resp.text
     assert "Demo mode" in resp.text or "Demo režim" in resp.text  # Stripe not configured
-    # All plan cards should be present.
-    for plan_name in ("Community", "Starter", "Pro", "Enterprise"):
+    # Hosted plan cards: Community is filtered out server-side
+    # (HIDDEN_PLAN_CODES — it's the AGPL self-host pitch on /pricing,
+    # not a hosted choice). The remaining three are visible.
+    for plan_name in ("Starter", "Pro", "Enterprise"):
         assert plan_name in resp.text
+    assert "Community" not in resp.text
     # New in PR #6: usage section with the four metric labels.
     assert "Your usage" in resp.text
     assert "Staff users" in resp.text
@@ -158,9 +161,12 @@ async def test_billing_dashboard_renders(billing_client, owner_engine) -> None:
 
 
 async def test_billing_dashboard_upgrade_vs_downgrade_labels(billing_client, owner_engine) -> None:
-    """The plan-chooser must visually distinguish upgrades from downgrades
-    (UX-P1-#6). On the trial/Starter plan, Pro is 'Přejít nahoru',
-    Community is 'Přejít dolů'."""
+    """The plan-chooser must visually distinguish upgrades from downgrades.
+    On the trial/Starter plan, Pro is an upgrade. There is no
+    "downgrade to Community" CTA (Community is not a hosted choice);
+    the dedicated "Cancel subscription" section handles ending paid
+    plans — see Option A.
+    """
     client, _ = billing_client
     resp = await client.post(
         "/platform/signup",
@@ -179,22 +185,16 @@ async def test_billing_dashboard_upgrade_vs_downgrade_labels(billing_client, own
 
     resp = await client.get("/platform/billing")
     assert resp.status_code == 200
-    # Starter is the current plan (from the trial attached at signup).
-    # Pro is more expensive → "Upgrade"; Community is free → "Cancel
-    # paid plan" (the community card now uses a dedicated cancel CTA
-    # instead of a no-op checkout, see app/platform/billing/service.py
-    # downgrade_to_community for the proper flow).
-    # Accept either locale since the signup UI defaults to Czech.
+    # Starter is the current plan (from the trial attached at signup);
+    # Pro is more expensive → "Upgrade" copy in either locale.
     assert (
         ("Upgrade to Pro" in resp.text)
         or ("Přejít na Pro" in resp.text)
         or ("Upgrade na Pro" in resp.text)
     )
-    assert (
-        "Cancel paid plan" in resp.text
-        or "Zrušit placený plán" in resp.text
-        or "/platform/billing/downgrade-to-community" in resp.text
-    )
+    # Cancel subscription section is present for an active subscription.
+    assert "/platform/billing/cancel-subscription" in resp.text
+    assert "Cancel subscription" in resp.text or "Zrušit předplatné" in resp.text
 
 
 async def test_checkout_demo_switches_plan_locally(billing_client, owner_engine) -> None:

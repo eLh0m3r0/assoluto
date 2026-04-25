@@ -16,10 +16,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
 from app.platform.billing.service import (
+    HIDDEN_PLAN_CODES,
     BillingError,
+    cancel_subscription,
     create_billing_portal_session,
     create_checkout_session,
-    downgrade_to_community,
     get_subscription_for_tenant,
     list_invoices_for_tenant,
     list_plans,
@@ -153,7 +154,7 @@ async def billing_dashboard(
     if checkout == "success":
         notice = "Předplatné bylo úspěšně aktualizováno."
     # ``notice`` may also arrive as a query-string flash from the
-    # downgrade-to-community route; in that case keep what was sent.
+    # cancel-subscription route; in that case keep what was sent.
 
     html = _templates(request).render(
         request,
@@ -189,6 +190,18 @@ async def start_checkout(
     if tenant is None:
         raise HTTPException(status_code=404, detail="No tenant to manage")
 
+    # Hosted billing has no checkout flow for the self-host pitch
+    # ("community"). If a stale URL or curl points us at one of those
+    # codes, refuse explicitly with a friendly message instead of
+    # raising a 500 from the BillingError later in create_checkout_session.
+    if plan_code in HIDDEN_PLAN_CODES:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Plan '{plan_code}' is not a hosted choice. "
+                "To self-host, see the installation guide at /self-hosted."
+            ),
+        )
     plan = await require_plan(db, plan_code)
     base = settings.app_base_url.rstrip("/")
     success_url = f"{base}/platform/billing?checkout=success"
@@ -250,27 +263,30 @@ async def start_checkout(
     return RedirectResponse(url=checkout_url, status_code=status.HTTP_303_SEE_OTHER)
 
 
-# ----------------------------------------- downgrade to free Community plan
+# --------------------------------------------- cancel paid subscription
 
 
-@csrf_router.post("/platform/billing/downgrade-to-community")
-async def downgrade_to_community_route(
+@csrf_router.post("/platform/billing/cancel-subscription")
+async def cancel_subscription_route(
     request: Request,
     identity: Identity = Depends(require_verified_identity),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
-    """Cancel the paid plan, end up on free Community.
+    """End the paid subscription. There is no free hosted fallback.
 
-    The Community plan has no Stripe price, so a checkout flow makes no
-    sense — that path now raises ``BillingError``. Instead the user
-    explicitly drops to the free tier:
+    After the paid period ends the tenant has a short grace period (see
+    ``CANCEL_GRACE_DAYS`` in the service module — currently 3 days) to
+    export their data. After grace, the periodic
+    ``enforce_canceled_subscriptions`` job hard-cuts access by
+    deactivating the tenant.
 
-    * Demo mode (no Stripe): immediate flip — plan=community, status=canceled.
-    * Live mode with active Stripe sub: schedule cancel-at-period-end via
-      Stripe API. User keeps paid features until period_end; the
-      ``customer.subscription.deleted`` webhook flips the plan locally
-      when Stripe actually expires the sub.
+    * Demo mode / no Stripe sub: status flips locally to canceled,
+      grace clock starts now.
+    * Live mode with Stripe sub: schedules cancel-at-period-end with
+      Stripe. User keeps full access until Stripe's natural period end;
+      the ``customer.subscription.deleted`` webhook then transitions
+      to canceled and the periodic job takes over from there.
     """
     from urllib.parse import quote
 
@@ -280,33 +296,41 @@ async def downgrade_to_community_route(
 
     subscription = await get_subscription_for_tenant(db, tenant.id)  # type: ignore[attr-defined]
     if subscription is None:
-        # Already no subscription — nothing to downgrade. Bounce back
-        # with a friendly notice rather than 404.
         return RedirectResponse(
-            url="/platform/billing?notice=" + quote("Already on Community plan."),
+            url="/platform/billing?notice=" + quote("No active subscription to cancel."),
             status_code=303,
         )
 
     try:
-        outcome, period_end = await downgrade_to_community(
+        outcome, access_ends_at = await cancel_subscription(
             db,
             settings,
             subscription=subscription,
         )
     except BillingError as exc:
-        raise HTTPException(status_code=502, detail=f"Downgrade failed: {exc}") from exc
+        raise HTTPException(status_code=502, detail=f"Cancel failed: {exc}") from exc
 
     await db.commit()
 
-    if outcome == "scheduled" and period_end is not None:
+    if outcome == "scheduled" and access_ends_at is not None:
         msg = (
-            f"Paid plan canceled — you keep paid features until "
-            f"{period_end.date().isoformat()}, then you move to Community."
+            f"Subscription canceled — you keep full access until "
+            f"{access_ends_at.date().isoformat()}, then you have 3 days "
+            f"to export your data before access ends."
         )
     elif outcome == "scheduled":
-        msg = "Paid plan canceled — you keep paid features until the end of the current period."
+        msg = (
+            "Subscription canceled — you keep full access until the end of the "
+            "current billing period, then you have 3 days to export your data."
+        )
+    elif access_ends_at is not None:
+        msg = (
+            f"Subscription canceled — please export your data by "
+            f"{access_ends_at.date().isoformat()}. After that, contact "
+            f"team@assoluto.eu within 30 days for manual recovery."
+        )
     else:
-        msg = "Switched to Community plan."
+        msg = "Subscription canceled."
 
     return RedirectResponse(
         url="/platform/billing?notice=" + quote(msg),

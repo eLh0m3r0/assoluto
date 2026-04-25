@@ -227,11 +227,10 @@ async def test_disable_last_other_admin_is_blocked(
         # admin_email would be staff at that point, blocked by _require_tenant_admin.
         # The guard is reachable mainly under race conditions; here we
         # directly invoke the guard helper to pin its semantics.
-        from app.routers.tenant_admin import _other_active_admins_exist
-
         # Simulate a hypothetical "would removing bob leave zero admins?"
         # query on the demo session (RLS off — owner engine).
         from app.deps import set_tenant_context
+        from app.routers.tenant_admin import _other_active_admins_exist
 
         await set_tenant_context(session, str(demo_tenant.id))
         result = await _other_active_admins_exist(session, exclude_user_id=bob_fresh.id)

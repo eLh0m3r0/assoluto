@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-25 16:25+0200\n"
+"POT-Creation-Date: 2026-04-25 21:49+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -490,7 +490,7 @@ msgstr "Majetek s tímto kódem už u klienta existuje."
 msgid "A contact with the same email already exists."
 msgstr "Kontakt se stejným e-mailem už existuje."
 
-#: app/routers/customers.py:377 app/routers/me.py:108
+#: app/routers/customers.py:377 app/routers/me.py:117
 #: app/routers/tenant_admin.py:335 app/routers/tenant_admin.py:524
 msgid "Name cannot be empty."
 msgstr "Jméno nesmí být prázdné."
@@ -519,15 +519,15 @@ msgstr "V poslední době bylo odesláno příliš mnoho pozvánek. Zkuste to po
 msgid "Invitation resent."
 msgstr "Pozvánka odeslána znovu."
 
-#: app/routers/me.py:78 app/routers/tenant_admin.py:501
+#: app/routers/me.py:85 app/routers/tenant_admin.py:501
 msgid "Profile saved."
 msgstr "Profil uložen."
 
-#: app/routers/me.py:80
+#: app/routers/me.py:87
 msgid "Password changed. Sign in again with your new password."
 msgstr "Heslo bylo změněno. Přihlaste se znovu novým heslem."
 
-#: app/routers/me.py:133 app/routers/tenant_admin.py:554
+#: app/routers/me.py:144 app/routers/tenant_admin.py:554
 msgid "New passwords do not match."
 msgstr "Nová hesla se neshodují."
 
@@ -539,7 +539,7 @@ msgstr "Číslo objednávky"
 #: app/templates/platform/admin/dashboard.html:49
 #: app/templates/platform/admin/tenant_edit.html:59
 #: app/templates/platform/admin/tenants.html:23
-#: app/templates/platform/billing/dashboard.html:180
+#: app/templates/platform/billing/dashboard.html:192
 #: app/templates/www/_hero_mock.html:62
 msgid "Status"
 msgstr "Stav"
@@ -649,7 +649,9 @@ msgstr "Uživatel s tímto e-mailem už existuje."
 
 #: app/routers/tenant_admin.py:236
 msgid "Cannot disable the last administrator — promote someone else first."
-msgstr "Nelze deaktivovat posledního administrátora — nejdřív povýšte někoho jiného."
+msgstr ""
+"Nelze deaktivovat posledního administrátora — nejdřív povýšte někoho "
+"jiného."
 
 #: app/routers/tenant_admin.py:255
 msgid "User disabled."
@@ -661,7 +663,9 @@ msgstr "Uživatel reaktivován."
 
 #: app/routers/tenant_admin.py:367
 msgid "Cannot demote the last administrator — promote someone else first."
-msgstr "Nelze degradovat posledního administrátora — nejdřív povýšte někoho jiného."
+msgstr ""
+"Nelze degradovat posledního administrátora — nejdřív povýšte někoho "
+"jiného."
 
 #: app/routers/tenant_admin.py:433
 msgid "This user already has a password; use a password reset instead."
@@ -1994,7 +1998,7 @@ msgid "Select all on page"
 msgstr "Vybrat vše na stránce"
 
 #: app/templates/orders/list.html:82
-#: app/templates/platform/billing/dashboard.html:178
+#: app/templates/platform/billing/dashboard.html:190
 msgid "Number"
 msgstr "Číslo"
 
@@ -2495,59 +2499,66 @@ msgstr "Úložiště:"
 msgid "Contact us"
 msgstr "Kontaktujte nás"
 
-#: app/templates/platform/billing/dashboard.html:134
-msgid ""
-"Cancel the paid plan and move to free Community? You keep paid features "
-"until the end of the current billing period."
-msgstr ""
-"Zrušit placený plán a přejít na bezplatný Community? Placené funkce vám "
-"zůstanou až do konce aktuálního zúčtovacího období."
-
-#: app/templates/platform/billing/dashboard.html:137
-msgid "Cancel paid plan, move to Community"
-msgstr "Zrušit placený plán, přejít na Community"
-
 #: app/templates/platform/billing/dashboard.html:139
-msgid "Cancel paid plan"
-msgstr "Zrušit placený plán"
-
-#: app/templates/platform/billing/dashboard.html:149
 msgid "Upgrade to "
 msgstr "Přejít na "
 
-#: app/templates/platform/billing/dashboard.html:153
+#: app/templates/platform/billing/dashboard.html:143
 msgid "Downgrade to "
 msgstr "Přejít na "
 
-#: app/templates/platform/billing/dashboard.html:157
+#: app/templates/platform/billing/dashboard.html:147
 msgid "Try "
 msgstr "Vyzkoušet "
 
+#: app/templates/platform/billing/dashboard.html:167
+#: app/templates/platform/billing/dashboard.html:177
+msgid "Cancel subscription"
+msgstr "Zrušit předplatné"
+
+#: app/templates/platform/billing/dashboard.html:169
+msgid ""
+"End your paid subscription. You keep full access until the end of the "
+"current billing period, then have 3 days to export your data before "
+"access ends. For later recovery, contact team@assoluto.eu within 30 days."
+msgstr ""
+"Ukončit placené předplatné. Plný přístup vám zůstane do konce aktuálního "
+"zúčtovacího období, pak máte 3 dny na export dat — poté přístup končí. "
+"Pozdější obnovu vyřídíme do 30 dní e-mailem na team@assoluto.eu."
+
 #: app/templates/platform/billing/dashboard.html:173
+msgid ""
+"Cancel your subscription? You keep full access until the current billing "
+"period ends, then have 3 days to export data before access ends."
+msgstr ""
+"Zrušit předplatné? Plný přístup vám zůstane do konce aktuálního "
+"zúčtovacího období, pak máte 3 dny na export dat — poté přístup končí."
+
+#: app/templates/platform/billing/dashboard.html:185
 msgid "Invoices"
 msgstr "Faktury"
 
-#: app/templates/platform/billing/dashboard.html:179
+#: app/templates/platform/billing/dashboard.html:191
 msgid "Amount"
 msgstr "Částka"
 
-#: app/templates/platform/billing/dashboard.html:181
+#: app/templates/platform/billing/dashboard.html:193
 msgid "Paid"
 msgstr "Uhrazeno"
 
-#: app/templates/platform/billing/dashboard.html:200
+#: app/templates/platform/billing/dashboard.html:212
 msgid "Czech tax-compliant invoice (daňový doklad)"
 msgstr "Daňový doklad (CZ-compliant)"
 
-#: app/templates/platform/billing/dashboard.html:201
+#: app/templates/platform/billing/dashboard.html:213
 msgid "Doklad"
 msgstr "Doklad"
 
-#: app/templates/platform/billing/dashboard.html:207
+#: app/templates/platform/billing/dashboard.html:219
 msgid "Stripe-hosted receipt"
 msgstr "Stripe stvrzenka"
 
-#: app/templates/platform/billing/dashboard.html:219
+#: app/templates/platform/billing/dashboard.html:231
 msgid "No invoices yet."
 msgstr "Zatím žádné faktury."
 
@@ -3758,13 +3769,15 @@ msgstr "Musím něco podepisovat?"
 msgid ""
 "No paper contract. At signup you accept our Terms of Service by clicking "
 "a button. Subscriptions are monthly with no commitment; cancel any time "
-"from your account settings. Your data is exportable to CSV and stays "
-"accessible for 30 days after cancellation."
+"from your account settings. After cancellation you have 3 days to export "
+"your data, then access ends. For later recovery, email team@assoluto.eu "
+"within 30 days."
 msgstr ""
 "Žádnou papírovou smlouvu. Při registraci souhlasíte s Podmínkami služby "
 "kliknutím na tlačítko. Předplatné je měsíční bez závazku — zrušit lze "
-"kdykoli v nastavení účtu. Data si můžete exportovat do CSV; jsou "
-"přístupná ještě 30 dní po zrušení."
+"kdykoli v nastavení účtu. Po zrušení máte 3 dny na export dat, pak "
+"přístup končí. Pozdější obnovu vyřídíme do 30 dní e-mailem na "
+"team@assoluto.eu."
 
 #: app/templates/www/index.html:427 app/templates/www/index.html:517
 msgid "Can I integrate with Pohoda or Money S3?"
@@ -3825,17 +3838,19 @@ msgstr "Co když budu chtít odejít?"
 
 #: app/templates/www/index.html:430 app/templates/www/index.html:533
 msgid ""
-"Cancel in your account settings — no sales call, no approval queue. After"
-" cancellation your data stays accessible for 30 days (orders and "
-"customers as CSV, attachments as ZIP). After 30 days it is permanently "
-"deleted. For immediate deletion (GDPR Art. 17) email team@assoluto.eu — "
-"we action requests within 48 hours."
+"Cancel in your account settings — no sales call, no approval queue. You "
+"keep full access until the current billing period ends, then have 3 days "
+"to export your data (orders and customers as CSV, attachments as ZIP). "
+"After that, access ends. Need to recover something later? Email "
+"team@assoluto.eu within 30 days. For immediate erasure (GDPR Art. 17) "
+"email us — we action requests within 48 hours."
 msgstr ""
 "Zrušení je v nastavení účtu — žádný hovor s obchodem, žádné čekání na "
-"schválení. Po zrušení zůstanou vaše data 30 dní k dispozici (objednávky a"
-" zákazníci jako CSV, přílohy jako ZIP). Po 30 dnech je nevratně smažeme. "
-"Chcete-li okamžité smazání (GDPR čl. 17), napište na team@assoluto.eu — "
-"vyřídíme do 48 hodin."
+"schválení. Plný přístup vám zůstane do konce aktuálního zúčtovacího "
+"období, pak máte 3 dny na export dat (objednávky a zákazníci jako CSV, "
+"přílohy jako ZIP). Poté přístup končí. Pozdější obnovu vyřídíme do 30 dní"
+" e-mailem na team@assoluto.eu. Pro okamžité smazání (GDPR čl. 17) napište"
+" také na team@assoluto.eu — vyřídíme do 48 hodin."
 
 #: app/templates/www/index.html:439
 msgid "Ready to stop picking up the phone?"
@@ -4049,13 +4064,16 @@ msgstr "Co se stane při ukončení?"
 
 #: app/templates/www/pricing.html:167
 msgid ""
-"Your account stays read-only for 30 days so you can export to CSV. Then "
-"data is irreversibly deleted. If you need immediate deletion, one email "
-"to team@assoluto.eu does it."
+"You keep full access until the end of the current billing period, then "
+"have 3 days to export your data (CSV + attachments as ZIP). After that, "
+"access ends. Need to recover data later? Email team@assoluto.eu within 30"
+" days. For immediate erasure email us — we action GDPR Art. 17 requests "
+"within 48 hours."
 msgstr ""
-"Účet zůstane 30 dní v režimu pouze pro čtení, abyste stihli export do "
-"CSV. Pak data nevratně smažeme. Okamžité smazání stačí napsat na "
-"team@assoluto.eu."
+"Plný přístup vám zůstane do konce aktuálního zúčtovacího období, pak máte"
+" 3 dny na export dat (CSV + přílohy jako ZIP). Poté přístup končí. "
+"Pozdější obnovu dat vyřídíme do 30 dní e-mailem na team@assoluto.eu. Pro "
+"okamžité smazání nám napište — GDPR čl. 17 vyřídíme do 48 hodin."
 
 #: app/templates/www/pricing.html:168
 msgid "Does the self-hosted Community version cost anything?"
@@ -5512,4 +5530,34 @@ msgstr "Soukromí"
 #~ "Data in the EU (Hetzner DE) · "
 #~ "Czech support"
 #~ msgstr "Spustíte do 30 minut · Data v EU (Hetzner DE) · Česká podpora"
+
+#~ msgid ""
+#~ "Cancel the paid plan and move to"
+#~ " free Community? You keep paid "
+#~ "features until the end of the "
+#~ "current billing period."
+#~ msgstr ""
+#~ "Zrušit placený plán a přejít na "
+#~ "bezplatný Community? Placené funkce vám "
+#~ "zůstanou až do konce aktuálního "
+#~ "zúčtovacího období."
+
+#~ msgid "Cancel paid plan, move to Community"
+#~ msgstr "Zrušit placený plán, přejít na Community"
+
+#~ msgid "Cancel paid plan"
+#~ msgstr "Zrušit placený plán"
+
+#~ msgid ""
+#~ "Your account stays read-only for "
+#~ "30 days so you can export to "
+#~ "CSV. Then data is irreversibly deleted."
+#~ " If you need immediate deletion, one"
+#~ " email to team@assoluto.eu does it."
+#~ msgstr ""
+#~ "Účet zůstane 30 dní v režimu pouze"
+#~ " pro čtení, abyste stihli export do"
+#~ " CSV. Pak data nevratně smažeme. "
+#~ "Okamžité smazání stačí napsat na "
+#~ "team@assoluto.eu."
 
