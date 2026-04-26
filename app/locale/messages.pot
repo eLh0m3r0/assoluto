@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-26 08:50+0200\n"
+"POT-Creation-Date: 2026-04-26 08:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -766,7 +766,7 @@ msgstr ""
 #: app/templates/admin/tenant_settings.html:3
 #: app/templates/admin/tenant_settings.html:7
 #: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:31
-msgid "Tenant settings"
+msgid "Portal settings"
 msgstr ""
 
 #: app/templates/app_base.html:33
@@ -849,7 +849,7 @@ msgid "Audit log"
 msgstr ""
 
 #: app/templates/admin/audit.html:10
-msgid "Append-only record of every tracked action in this tenant."
+msgid "Complete and immutable record of every tracked action in this portal."
 msgstr ""
 
 #: app/templates/admin/audit.html:22

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-26 08:50+0200\n"
+"POT-Creation-Date: 2026-04-26 08:58+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -799,7 +799,7 @@ msgstr ""
 #: app/templates/admin/tenant_settings.html:7
 #: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:31
 #, fuzzy
-msgid "Tenant settings"
+msgid "Portal settings"
 msgstr "Manage tenants"
 
 #: app/templates/app_base.html:33
@@ -887,7 +887,7 @@ msgid "Audit log"
 msgstr "Catalog"
 
 #: app/templates/admin/audit.html:10
-msgid "Append-only record of every tracked action in this tenant."
+msgid "Complete and immutable record of every tracked action in this portal."
 msgstr ""
 
 #: app/templates/admin/audit.html:22
@@ -6207,5 +6207,8 @@ msgstr "Privacy Policy"
 #~ " locally competent court is determined "
 #~ "by the Provider's registered office "
 #~ "(currently the District Court in Děčín)."
+#~ msgstr ""
+
+#~ msgid "Append-only record of every tracked action in this tenant."
 #~ msgstr ""
 

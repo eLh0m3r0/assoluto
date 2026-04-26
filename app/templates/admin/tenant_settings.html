@@ -1,14 +1,14 @@
 {% extends "app_base.html" %}
 
-{% block title %}Assoluto — {{ _('Tenant settings') }} · {{ tenant.name }}{% endblock %}
+{% block title %}Assoluto — {{ _('Portal settings') }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
 <section class="mx-auto max-w-xl">
-    {% with items=[(_('Dashboard'), '/app'), (_('Administration'), '/app/admin/users'), (_('Tenant settings'), None)] %}
+    {% with items=[(_('Dashboard'), '/app'), (_('Administration'), '/app/admin/users'), (_('Portal settings'), None)] %}
         {% include "_breadcrumbs.html" %}
     {% endwith %}
 
-    <h1 class="mb-6 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('Tenant settings') }}</h1>
+    <h1 class="mb-6 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('Portal settings') }}</h1>
 
     {% include "_flash.html" %}
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-26 08:50+0200\n"
+"POT-Creation-Date: 2026-04-26 08:58+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -800,8 +800,8 @@ msgstr "Audit"
 #: app/templates/admin/tenant_settings.html:3
 #: app/templates/admin/tenant_settings.html:7
 #: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:31
-msgid "Tenant settings"
-msgstr "Nastavení tenanta"
+msgid "Portal settings"
+msgstr "Nastavení portálu"
 
 #: app/templates/app_base.html:33
 msgid "Billing"
@@ -887,8 +887,8 @@ msgid "Audit log"
 msgstr "Auditní log"
 
 #: app/templates/admin/audit.html:10
-msgid "Append-only record of every tracked action in this tenant."
-msgstr "Append-only záznam všech sledovaných akcí v tomto tenantovi."
+msgid "Complete and immutable record of every tracked action in this portal."
+msgstr "Úplný a neměnný záznam všech akcí v tomto portálu."
 
 #: app/templates/admin/audit.html:22
 msgid "Filtered by"
