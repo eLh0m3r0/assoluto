@@ -102,51 +102,76 @@ def _money_major_filter(value: Any, currency: str = "CZK") -> str:
     return f"{value_str} {symbol}"
 
 
-def _timeago_filter(value: Any) -> str:
-    """Render a datetime as a short relative-time string.
+# Locale-aware timeago strings. The filter chooses the right map based on
+# the Environment locale (set when the per-locale Environment is built).
+# Czech form is short to keep the dashboard activity widget compact; the
+# leading "před " is dropped because the unit suffixes are unambiguous.
+_TIMEAGO_STRINGS: dict[str, dict[str, str]] = {
+    "en": {
+        "just_now": "just now",
+        "min": "{n}m ago",
+        "hour": "{n}h ago",
+        "day": "{n}d ago",
+        "week": "{n}w ago",
+        "month": "{n}mo ago",
+        "year": "{n}y ago",
+    },
+    "cs": {
+        "just_now": "právě teď",
+        "min": "před {n} min",
+        "hour": "před {n} h",
+        "day": "před {n} dny",
+        "week": "před {n} týd.",
+        "month": "před {n} měs.",
+        "year": "před {n} r.",
+    },
+}
 
-    Examples:
-        just now     (< 60 s)
-        5m ago       (< 1 h)
-        2h ago       (< 24 h)
-        3d ago       (< 14 d)
-        2w ago       (< 60 d)
-        4mo ago      (< 365 d)
-        2y ago       (else)
 
-    The unit suffixes are intentionally short + locale-neutral so we
-    don't have to thread translations through a filter; the dashboard
-    i18n handles headings and action labels instead. ``None`` / non-
-    datetime inputs render as an em-dash so mis-wired callers don't
-    crash the page.
+def _timeago_filter_for_locale(locale: str) -> Any:
+    """Return a Jinja filter that renders a datetime as a short relative-
+    time string in ``locale``. Unknown locales fall back to English.
+
+    Examples (CS):
+        právě teď    (< 60 s)
+        před 5 min   (< 1 h)
+        před 2 h     (< 24 h)
+        před 3 dny   (< 14 d)
+        před 2 týd.  (< 60 d)
+        před 4 měs.  (< 365 d)
+        před 2 r.    (else)
     """
-    if value is None:
-        return "—"
-    if not isinstance(value, datetime):
-        return str(value)
-    # Treat naive datetimes as UTC (everything we persist is TIMESTAMPTZ).
-    moment = value if value.tzinfo is not None else value.replace(tzinfo=UTC)
-    delta = datetime.now(UTC) - moment
-    seconds = int(delta.total_seconds())
-    if seconds < 0:
-        # Future timestamps shouldn't happen, but don't blow up.
-        seconds = 0
-    if seconds < 60:
-        return "just now"
-    minutes = seconds // 60
-    if minutes < 60:
-        return f"{minutes}m ago"
-    hours = minutes // 60
-    if hours < 24:
-        return f"{hours}h ago"
-    days = hours // 24
-    if days < 14:
-        return f"{days}d ago"
-    if days < 60:
-        return f"{days // 7}w ago"
-    if days < 365:
-        return f"{days // 30}mo ago"
-    return f"{days // 365}y ago"
+    strings = _TIMEAGO_STRINGS.get(locale, _TIMEAGO_STRINGS["en"])
+
+    def _filter(value: Any) -> str:
+        if value is None:
+            return "—"
+        if not isinstance(value, datetime):
+            return str(value)
+        # Naive datetimes are treated as UTC (everything we persist is TIMESTAMPTZ).
+        moment = value if value.tzinfo is not None else value.replace(tzinfo=UTC)
+        delta = datetime.now(UTC) - moment
+        seconds = int(delta.total_seconds())
+        if seconds < 0:
+            seconds = 0
+        if seconds < 60:
+            return strings["just_now"]
+        minutes = seconds // 60
+        if minutes < 60:
+            return strings["min"].format(n=minutes)
+        hours = minutes // 60
+        if hours < 24:
+            return strings["hour"].format(n=hours)
+        days = hours // 24
+        if days < 14:
+            return strings["day"].format(n=days)
+        if days < 60:
+            return strings["week"].format(n=days // 7)
+        if days < 365:
+            return strings["month"].format(n=days // 30)
+        return strings["year"].format(n=days // 365)
+
+    return _filter
 
 
 def _qty_filter(value: Any) -> str:
@@ -199,7 +224,9 @@ def _new_environment(locale: str | None = None) -> Environment:
     env.filters["qty"] = _qty_filter
     env.filters["money"] = _money_filter
     env.filters["money_major"] = _money_major_filter
-    env.filters["timeago"] = _timeago_filter
+    # Filter is locale-bound — pass the requested locale through (default
+    # to "en" identity catalog when locale is None at module-build time).
+    env.filters["timeago"] = _timeago_filter_for_locale(locale or "en")
     return env
 
 
