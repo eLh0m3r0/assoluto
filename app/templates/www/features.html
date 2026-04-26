@@ -44,14 +44,14 @@
                             <span class="font-medium text-slate-900 dark:text-slate-100">{{ label }}</span>
                         </div>
                         {% endmacro %}
-                        {{ state_row("DRAFT", "slate") }}
-                        {{ state_row("SUBMITTED", "blue") }}
-                        {{ state_row("QUOTED", "amber", active=true) }}
-                        {{ state_row("CONFIRMED", "violet") }}
-                        {{ state_row("IN PRODUCTION", "indigo") }}
-                        {{ state_row("READY", "emerald") }}
-                        {{ state_row("DELIVERED", "teal") }}
-                        {{ state_row("CLOSED", "slate") }}
+                        {{ state_row(_("DRAFT"), "slate") }}
+                        {{ state_row(_("SUBMITTED"), "blue") }}
+                        {{ state_row(_("QUOTED"), "amber", active=true) }}
+                        {{ state_row(_("CONFIRMED"), "violet") }}
+                        {{ state_row(_("IN PRODUCTION"), "indigo") }}
+                        {{ state_row(_("READY"), "emerald") }}
+                        {{ state_row(_("DELIVERED"), "teal") }}
+                        {{ state_row(_("CLOSED"), "slate") }}
                     </div>
                 </div>
             </div>

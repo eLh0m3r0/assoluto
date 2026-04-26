@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-26 08:35+0200\n"
+"POT-Creation-Date: 2026-04-26 08:50+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -2633,7 +2633,7 @@ msgstr "Termín"
 msgid "bracket"
 msgstr "konzola"
 
-#: app/templates/www/_hero_mock.html:71
+#: app/templates/www/_hero_mock.html:71 app/templates/www/features.html:51
 msgid "IN PRODUCTION"
 msgstr "VE VÝROBĚ"
 
@@ -2641,7 +2641,7 @@ msgstr "VE VÝROBĚ"
 msgid "assembly"
 msgstr "sestava"
 
-#: app/templates/www/_hero_mock.html:78
+#: app/templates/www/_hero_mock.html:78 app/templates/www/features.html:49
 msgid "QUOTED"
 msgstr "OCENĚNO"
 
@@ -2649,7 +2649,7 @@ msgstr "OCENĚNO"
 msgid "railing"
 msgstr "zábradlí"
 
-#: app/templates/www/_hero_mock.html:85
+#: app/templates/www/_hero_mock.html:85 app/templates/www/features.html:52
 msgid "READY"
 msgstr "HOTOVO"
 
@@ -2657,7 +2657,7 @@ msgstr "HOTOVO"
 msgid "shaft"
 msgstr "hřídel"
 
-#: app/templates/www/_hero_mock.html:92
+#: app/templates/www/_hero_mock.html:92 app/templates/www/features.html:50
 msgid "CONFIRMED"
 msgstr "POTVRZENO"
 
@@ -2964,6 +2964,22 @@ msgstr "Komentáře přímo u zakázky, interní poznámky jen pro tým"
 msgid "Automatic email on every status change"
 msgstr "Automatický e-mail u každé změny stavu"
 
+#: app/templates/www/features.html:47
+msgid "DRAFT"
+msgstr "ROZPRACOVÁNO"
+
+#: app/templates/www/features.html:48
+msgid "SUBMITTED"
+msgstr "ODESLÁNO"
+
+#: app/templates/www/features.html:53
+msgid "DELIVERED"
+msgstr "DODÁNO"
+
+#: app/templates/www/features.html:54
+msgid "CLOSED"
+msgstr "UZAVŘENO"
+
 #: app/templates/www/features.html:86
 msgid "Drawings and CAD in the right place"
 msgstr "Výkresy a CAD na správném místě"
@@ -3259,7 +3275,9 @@ msgid ""
 "A customer portal for Czech manufacturing SMEs. Orders, drawings, "
 "production status — in one place, 24/7. Without Excel, without a massive "
 "ERP."
-msgstr "Zákaznický portál pro české výrobní firmy. Zakázky, výkresy, stav výroby — na jednom místě, 24/7. Bez Excelu, bez obrovského ERP."
+msgstr ""
+"Zákaznický portál pro české výrobní firmy. Zakázky, výkresy, stav výroby "
+"— na jednom místě, 24/7. Bez Excelu, bez obrovského ERP."
 
 #: app/templates/www/index.html:39 app/templates/www/index.html:446
 msgid "Try free for 30 days"
@@ -3345,7 +3363,9 @@ msgstr ""
 msgid ""
 "8-step process from request to delivery. Every transition is audited — "
 "who, when, why. No more guessing."
-msgstr "Osmikrokový proces od poptávky k dodání. Každý přechod je auditovaný — kdo, kdy, proč. Konec s dohadováním."
+msgstr ""
+"Osmikrokový proces od poptávky k dodání. Každý přechod je auditovaný — "
+"kdo, kdy, proč. Konec s dohadováním."
 
 #: app/templates/www/index.html:144
 msgid "Drawings and CAD attached to orders"
@@ -3380,7 +3400,9 @@ msgstr "Materiál zákazníka na skladě"
 msgid ""
 "Does the client have material, tooling, or semi-finished product at your "
 "place? Receipts, issues, balance — transparent for both sides."
-msgstr "Má u vás zákazník materiál, nástroje nebo polotovary? Příjem, výdej, aktuální stav — průhledné pro obě strany."
+msgstr ""
+"Má u vás zákazník materiál, nástroje nebo polotovary? Příjem, výdej, "
+"aktuální stav — průhledné pro obě strany."
 
 #: app/templates/www/index.html:165
 msgid "Email notifications that make sense"
@@ -4321,7 +4343,9 @@ msgstr "Účtování předplatného, zpracování karet, vymáhání plateb"
 msgid ""
 "Billing email, company name, tax IDs, card data (held by Stripe, never by"
 " us)"
-msgstr "Fakturační e-mail, název firmy, daňová ID, data karty (drží Stripe, my nikdy)"
+msgstr ""
+"Fakturační e-mail, název firmy, daňová ID, data karty (drží Stripe, my "
+"nikdy)"
 
 #: app/templates/www/privacy.html:93
 msgid "IE (EU); some processing in US under SCCs"
@@ -4351,7 +4375,11 @@ msgid ""
 "updating this page and emailing active tenant administrators. The "
 "Customer may object to a new subprocessor by terminating the subscription"
 " before the change takes effect."
-msgstr "Změny dílčích zpracovatelů zveřejňujeme minimálně 30 dní předem aktualizací této stránky a e-mailem aktivním administrátorům tenantu. Zákazník může proti novému dílčímu zpracovateli vznést námitku zrušením předplatného před účinností změny."
+msgstr ""
+"Změny dílčích zpracovatelů zveřejňujeme minimálně 30 dní předem "
+"aktualizací této stránky a e-mailem aktivním administrátorům tenantu. "
+"Zákazník může proti novému dílčímu zpracovateli vznést námitku zrušením "
+"předplatného před účinností změny."
 
 #: app/templates/www/privacy.html:113
 msgid "5. How long we retain data"
@@ -4386,7 +4414,9 @@ msgstr "Zálohy databáze — 14 dní rotace, pak automaticky mazány."
 msgid ""
 "Authentication and security logs (last_login timestamps, failed login "
 "attempts, IP) — 90 days."
-msgstr "Autentizační a bezpečnostní logy (čas posledního přihlášení, neúspěšné pokusy o přihlášení, IP) — 90 dní."
+msgstr ""
+"Autentizační a bezpečnostní logy (čas posledního přihlášení, neúspěšné "
+"pokusy o přihlášení, IP) — 90 dní."
 
 #: app/templates/www/privacy.html:120
 msgid ""
@@ -4402,7 +4432,9 @@ msgstr ""
 msgid ""
 "Billing records and tax documents — 10 years from the end of the "
 "accounting period, as required by Czech Act 563/1991 Coll. on Accounting."
-msgstr "Fakturační záznamy a daňové doklady — 10 let od konce účetního období, jak vyžaduje zákon č. 563/1991 Sb. o účetnictví."
+msgstr ""
+"Fakturační záznamy a daňové doklady — 10 let od konce účetního období, "
+"jak vyžaduje zákon č. 563/1991 Sb. o účetnictví."
 
 #: app/templates/www/privacy.html:122
 msgid "Application request and error logs — 14 days."
@@ -4484,7 +4516,9 @@ msgstr ""
 msgid ""
 "If you believe your rights have been infringed you may lodge a complaint "
 "with the Czech Office for Personal Data Protection"
-msgstr "Pokud se domníváte, že vaše práva byla porušena, můžete podat stížnost u Úřadu pro ochranu osobních údajů"
+msgstr ""
+"Pokud se domníváte, že vaše práva byla porušena, můžete podat stížnost u "
+"Úřadu pro ochranu osobních údajů"
 
 #: app/templates/www/privacy.html:154
 msgid "Pplk. Sochora 27, 170 00 Prague 7, Czech Republic."
@@ -4499,7 +4533,10 @@ msgid ""
 "The portal uses only strictly-necessary cookies (login session, CSRF "
 "protection, locale and theme preference). We do not deploy analytics or "
 "marketing cookies, and we do not track you across sites. Full inventory:"
-msgstr "Portál používá pouze striktně nezbytné cookies (přihlašovací session, CSRF ochrana, jazyk a téma). Neukládáme analytické ani marketingové cookies a nesledujeme vás napříč weby. Úplný seznam:"
+msgstr ""
+"Portál používá pouze striktně nezbytné cookies (přihlašovací session, "
+"CSRF ochrana, jazyk a téma). Neukládáme analytické ani marketingové "
+"cookies a nesledujeme vás napříč weby. Úplný seznam:"
 
 #: app/templates/www/privacy.html:167
 msgid "9. Data security"
@@ -5017,7 +5054,14 @@ msgid ""
 "subprocessors (Hetzner, Stripe, Brevo) do not give rise to any "
 "compensation claim. The Enterprise plan may include a separately-"
 "negotiated written SLA — contact team@assoluto.eu."
-msgstr "Provozovatel hostovanou službu provozuje s přiměřenou péčí a cíluje na 99,9 %% měsíční dostupnost měřenou na aplikační HTTP vrstvě, s denními zálohami databáze uchovávanými 14 dní. Plány Starter a Pro neobsahují smluvní SLA; plánované i neplánované výpadky, vyšší moc a výpadky způsobené dílčími zpracovateli (Hetzner, Stripe, Brevo) nezakládají nárok na kompenzaci. Plán Enterprise může obsahovat samostatně sjednané písemné SLA — napište na team@assoluto.eu."
+msgstr ""
+"Provozovatel hostovanou službu provozuje s přiměřenou péčí a cíluje na "
+"99,9 %% měsíční dostupnost měřenou na aplikační HTTP vrstvě, s denními "
+"zálohami databáze uchovávanými 14 dní. Plány Starter a Pro neobsahují "
+"smluvní SLA; plánované i neplánované výpadky, vyšší moc a výpadky "
+"způsobené dílčími zpracovateli (Hetzner, Stripe, Brevo) nezakládají nárok"
+" na kompenzaci. Plán Enterprise může obsahovat samostatně sjednané "
+"písemné SLA — napište na team@assoluto.eu."
 
 #: app/templates/www/terms.html:114
 msgid ""

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-26 08:35+0200\n"
+"POT-Creation-Date: 2026-04-26 08:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2529,7 +2529,7 @@ msgstr ""
 msgid "bracket"
 msgstr ""
 
-#: app/templates/www/_hero_mock.html:71
+#: app/templates/www/_hero_mock.html:71 app/templates/www/features.html:51
 msgid "IN PRODUCTION"
 msgstr ""
 
@@ -2537,7 +2537,7 @@ msgstr ""
 msgid "assembly"
 msgstr ""
 
-#: app/templates/www/_hero_mock.html:78
+#: app/templates/www/_hero_mock.html:78 app/templates/www/features.html:49
 msgid "QUOTED"
 msgstr ""
 
@@ -2545,7 +2545,7 @@ msgstr ""
 msgid "railing"
 msgstr ""
 
-#: app/templates/www/_hero_mock.html:85
+#: app/templates/www/_hero_mock.html:85 app/templates/www/features.html:52
 msgid "READY"
 msgstr ""
 
@@ -2553,7 +2553,7 @@ msgstr ""
 msgid "shaft"
 msgstr ""
 
-#: app/templates/www/_hero_mock.html:92
+#: app/templates/www/_hero_mock.html:92 app/templates/www/features.html:50
 msgid "CONFIRMED"
 msgstr ""
 
@@ -2821,6 +2821,22 @@ msgstr ""
 
 #: app/templates/www/features.html:34
 msgid "Automatic email on every status change"
+msgstr ""
+
+#: app/templates/www/features.html:47
+msgid "DRAFT"
+msgstr ""
+
+#: app/templates/www/features.html:48
+msgid "SUBMITTED"
+msgstr ""
+
+#: app/templates/www/features.html:53
+msgid "DELIVERED"
+msgstr ""
+
+#: app/templates/www/features.html:54
+msgid "CLOSED"
 msgstr ""
 
 #: app/templates/www/features.html:86

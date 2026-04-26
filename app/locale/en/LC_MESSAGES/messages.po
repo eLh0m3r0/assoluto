@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-26 08:35+0200\n"
+"POT-Creation-Date: 2026-04-26 08:50+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -2650,7 +2650,7 @@ msgstr ""
 msgid "bracket"
 msgstr ""
 
-#: app/templates/www/_hero_mock.html:71
+#: app/templates/www/_hero_mock.html:71 app/templates/www/features.html:51
 #, fuzzy
 msgid "IN PRODUCTION"
 msgstr "In production"
@@ -2659,7 +2659,7 @@ msgstr "In production"
 msgid "assembly"
 msgstr ""
 
-#: app/templates/www/_hero_mock.html:78
+#: app/templates/www/_hero_mock.html:78 app/templates/www/features.html:49
 #, fuzzy
 msgid "QUOTED"
 msgstr "Quoted"
@@ -2668,7 +2668,7 @@ msgstr "Quoted"
 msgid "railing"
 msgstr ""
 
-#: app/templates/www/_hero_mock.html:85
+#: app/templates/www/_hero_mock.html:85 app/templates/www/features.html:52
 #, fuzzy
 msgid "READY"
 msgstr "Ready"
@@ -2678,7 +2678,7 @@ msgstr "Ready"
 msgid "shaft"
 msgstr "Draft"
 
-#: app/templates/www/_hero_mock.html:92
+#: app/templates/www/_hero_mock.html:92 app/templates/www/features.html:50
 #, fuzzy
 msgid "CONFIRMED"
 msgstr "Confirmed"
@@ -2956,6 +2956,26 @@ msgstr ""
 #: app/templates/www/features.html:34
 msgid "Automatic email on every status change"
 msgstr ""
+
+#: app/templates/www/features.html:47
+#, fuzzy
+msgid "DRAFT"
+msgstr "Draft"
+
+#: app/templates/www/features.html:48
+#, fuzzy
+msgid "SUBMITTED"
+msgstr "Submitted"
+
+#: app/templates/www/features.html:53
+#, fuzzy
+msgid "DELIVERED"
+msgstr "Delivered"
+
+#: app/templates/www/features.html:54
+#, fuzzy
+msgid "CLOSED"
+msgstr "Closed"
 
 #: app/templates/www/features.html:86
 msgid "Drawings and CAD in the right place"
