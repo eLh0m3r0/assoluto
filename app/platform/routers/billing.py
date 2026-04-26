@@ -113,7 +113,17 @@ async def invoice_pdf(
     # Re-fetch tenant as the ORM row so its ``settings`` JSONB is accessible.
     tenant_row = (await db.execute(select(Tenant).where(Tenant.id == tenant.id))).scalar_one()
 
-    pdf_bytes = render_invoice_pdf(invoice=invoice, tenant=tenant_row, settings=settings)
+    # Locale priority: caller's current UI choice (so a German contact
+    # logged in to /platform sees DE on download) > tenant business
+    # default > CS. Falls through to CS for any locale we don't ship a
+    # label set for.
+    request_locale = getattr(request.state, "locale", None)
+    pdf_bytes = render_invoice_pdf(
+        invoice=invoice,
+        tenant=tenant_row,
+        settings=settings,
+        locale=request_locale,
+    )
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

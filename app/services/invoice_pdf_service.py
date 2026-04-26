@@ -63,11 +63,101 @@ def _dot_amount(amount: Decimal) -> str:
     return f"{whole_grouped},{frac}"
 
 
+# Per-locale label set for the invoice PDF. CS is the source of truth
+# (matches the live document under §29 Zákon 235/2004 Sb.); EN/DE are
+# courtesy translations for foreign Customer Contacts of the operator.
+# IČO/DIČ stay in their CS form everywhere — they are Czech regulatory
+# identifiers, not generic phrases.
+_INVOICE_LABELS: dict[str, dict[str, str]] = {
+    "cs": {
+        "doc_label_vat": "Daňový doklad – faktura",  # noqa: RUF001
+        "doc_label_nonvat": "Faktura",
+        "doc_number": "Číslo dokladu",
+        "issue_date": "Datum vystavení",
+        "duzp": "Datum zdanitelného plnění (DUZP)",
+        "supplier": "Dodavatel",
+        "customer": "Odběratel",
+        "address_not_configured": "&lt;adresa nenakonfigurována&gt;",
+        "not_configured": "&lt;nenakonfigurováno&gt;",
+        "non_vat_payer": "Neplátce DPH (§6 ZDPH)",
+        "col_description": "Popis",
+        "col_base": "Cena bez DPH",
+        "col_rate": "Sazba",
+        "col_vat": "DPH",
+        "col_total": "Celkem",
+        "subscription_line": "Předplatné Assoluto – měsíc",  # noqa: RUF001
+        "vat_base": "Základ DPH",
+        "vat_label": "DPH",
+        "total_due": "Celkem k úhradě",
+        "paid_via_stripe": "Uhrazeno {date} – přes Stripe.",  # noqa: RUF001
+        "not_yet_paid": "Úhrada nebyla dosud zaznamenána.",
+        "electronic_notice": "Doklad byl vystaven elektronicky a je platný bez razítka a podpisu.",
+    },
+    "en": {
+        "doc_label_vat": "Tax invoice (daňový doklad)",
+        "doc_label_nonvat": "Invoice (faktura)",
+        "doc_number": "Document number",
+        "issue_date": "Issue date",
+        "duzp": "Date of taxable supply (DUZP)",
+        "supplier": "Supplier",
+        "customer": "Customer",
+        "address_not_configured": "&lt;address not configured&gt;",
+        "not_configured": "&lt;not configured&gt;",
+        "non_vat_payer": "Not a VAT payer (§6 VAT Act)",
+        "col_description": "Description",
+        "col_base": "Price excl. VAT",
+        "col_rate": "Rate",
+        "col_vat": "VAT",
+        "col_total": "Total",
+        "subscription_line": "Assoluto subscription – month",  # noqa: RUF001
+        "vat_base": "VAT base",
+        "vat_label": "VAT",
+        "total_due": "Total due",
+        "paid_via_stripe": "Paid on {date} via Stripe.",
+        "not_yet_paid": "Payment not yet recorded.",
+        "electronic_notice": "This document was issued electronically and is valid without a signature or stamp.",
+    },
+    "de": {
+        "doc_label_vat": "Steuerbeleg (daňový doklad)",
+        "doc_label_nonvat": "Rechnung (faktura)",
+        "doc_number": "Belegnummer",
+        "issue_date": "Ausstellungsdatum",
+        "duzp": "Datum der steuerbaren Leistung (DUZP)",
+        "supplier": "Lieferant",
+        "customer": "Empfänger",
+        "address_not_configured": "&lt;Adresse nicht konfiguriert&gt;",
+        "not_configured": "&lt;nicht konfiguriert&gt;",
+        "non_vat_payer": "Kein USt-Zahler (§6 ZDPH)",
+        "col_description": "Beschreibung",
+        "col_base": "Preis ohne USt",
+        "col_rate": "Satz",
+        "col_vat": "USt",
+        "col_total": "Gesamt",
+        "subscription_line": "Assoluto-Abonnement – Monat",  # noqa: RUF001
+        "vat_base": "USt-Bemessungsgrundlage",
+        "vat_label": "USt",
+        "total_due": "Zu zahlen",
+        "paid_via_stripe": "Bezahlt am {date} – via Stripe.",  # noqa: RUF001
+        "not_yet_paid": "Zahlung wurde noch nicht erfasst.",
+        "electronic_notice": "Der Beleg wurde elektronisch ausgestellt und ist ohne Stempel und Unterschrift gültig.",
+    },
+}
+
+
+def _labels_for(locale: str | None) -> dict[str, str]:
+    """Return the label set for ``locale``, falling back to CS when the
+    locale is unknown — the legally-binding document is the CS one."""
+    if locale and locale in _INVOICE_LABELS:
+        return _INVOICE_LABELS[locale]
+    return _INVOICE_LABELS["cs"]
+
+
 def render_invoice_pdf(
     *,
     invoice: Invoice,
     tenant: Tenant,
     settings: Settings,
+    locale: str | None = None,
 ) -> bytes:
     """Render a single invoice into PDF bytes.
 
@@ -76,7 +166,16 @@ def render_invoice_pdf(
     falls back to the Stripe-held metadata if the webhook populated it.
     The document is always A4 portrait, single page for typical
     monthly-subscription size.
+
+    ``locale`` controls the language of all labels (Faktura/Rechnung,
+    Dodavatel/Lieferant, etc.). Defaults to the tenant's
+    ``settings["default_locale"]`` and finally to ``"cs"``. IČO, DIČ,
+    DUZP and the document framing remain Czech regardless of locale —
+    they are Czech regulatory artifacts, not generic words.
     """
+    if locale is None:
+        locale = (tenant.settings or {}).get("default_locale") or "cs"
+    L = _labels_for(locale)
     regular, bold = _register_fonts()
     buf = BytesIO()
     doc = SimpleDocTemplate(
@@ -104,24 +203,24 @@ def render_invoice_pdf(
     story: list = []
 
     # ---------- Header ----------
-    doc_label = "Daňový doklad – faktura" if supplier_is_vat else "Faktura"  # noqa: RUF001
+    doc_label = L["doc_label_vat"] if supplier_is_vat else L["doc_label_nonvat"]
     invoice_number = invoice.number or invoice.stripe_invoice_id or str(invoice.id)[:8]
     story.append(Paragraph(f"<b>{doc_label}</b>", h1))
-    story.append(Paragraph(f"Číslo dokladu: <b>{invoice_number}</b>", base))
+    story.append(Paragraph(f"{L['doc_number']}: <b>{invoice_number}</b>", base))
 
     # Dates. DUZP for SaaS = paid_at (or issue_at if not paid yet).
     issue_date = (invoice.paid_at or invoice.created_at or datetime.now(UTC)).date()
     duzp = invoice.paid_at.date() if invoice.paid_at else issue_date
-    story.append(Paragraph(f"Datum vystavení: {issue_date.isoformat()}", base))
-    story.append(Paragraph(f"Datum zdanitelného plnění (DUZP): {duzp.isoformat()}", base))
+    story.append(Paragraph(f"{L['issue_date']}: {issue_date.isoformat()}", base))
+    story.append(Paragraph(f"{L['duzp']}: {duzp.isoformat()}", base))
     story.append(Spacer(1, 6))
 
     # ---------- Parties ----------
     supplier_block = [
-        Paragraph("<b>Dodavatel</b>", h2),
-        Paragraph(settings.platform_operator_name or "&lt;not configured&gt;", base),
+        Paragraph(f"<b>{L['supplier']}</b>", h2),
+        Paragraph(settings.platform_operator_name or L["not_configured"], base),
         Paragraph(
-            (settings.platform_operator_address or "&lt;address not configured&gt;").replace(
+            (settings.platform_operator_address or L["address_not_configured"]).replace(
                 "\n", "<br/>"
             ),
             base,
@@ -131,7 +230,7 @@ def render_invoice_pdf(
     if supplier_is_vat:
         supplier_block.append(Paragraph(f"DIČ: {settings.platform_operator_dic}", base))
     else:
-        supplier_block.append(Paragraph("<i>Neplátce DPH (§6 ZDPH)</i>", small))
+        supplier_block.append(Paragraph(f"<i>{L['non_vat_payer']}</i>", small))
 
     # Customer side — tenant row is our direct record; we also accept
     # billing overrides in tenant.settings JSON blob.
@@ -142,7 +241,7 @@ def render_invoice_pdf(
     cust_dic = t_settings.get("billing_dic") or ""
 
     customer_block = [
-        Paragraph("<b>Odběratel</b>", h2),
+        Paragraph(f"<b>{L['customer']}</b>", h2),
         Paragraph(cust_name, base),
     ]
     if cust_address:
@@ -187,9 +286,9 @@ def render_invoice_pdf(
         period_label = f" ({invoice.paid_at.date().isoformat()})"
 
     item_rows: list[list[str]] = [
-        ["Popis", "Cena bez DPH", "Sazba", "DPH", "Celkem"],
+        [L["col_description"], L["col_base"], L["col_rate"], L["col_vat"], L["col_total"]],
         [
-            f"Předplatné Assoluto – měsíc{period_label}",  # noqa: RUF001
+            f"{L['subscription_line']}{period_label}",
             f"{_dot_amount(base_amount)} {currency}",
             f"{int(CZ_VAT_STANDARD * 100)}%" if supplier_is_vat else "—",
             f"{_dot_amount(vat_amount)} {currency}" if supplier_is_vat else "—",
@@ -220,11 +319,14 @@ def render_invoice_pdf(
     # ---------- Summary ----------
     summary_rows = []
     if supplier_is_vat:
-        summary_rows.append(["Základ DPH", f"{_dot_amount(base_amount)} {currency}"])
+        summary_rows.append([L["vat_base"], f"{_dot_amount(base_amount)} {currency}"])
         summary_rows.append(
-            [f"DPH {int(CZ_VAT_STANDARD * 100)}%", f"{_dot_amount(vat_amount)} {currency}"]
+            [
+                f"{L['vat_label']} {int(CZ_VAT_STANDARD * 100)}%",
+                f"{_dot_amount(vat_amount)} {currency}",
+            ]
         )
-    summary_rows.append(["<b>Celkem k úhradě</b>", f"<b>{_dot_amount(gross)} {currency}</b>"])
+    summary_rows.append([f"<b>{L['total_due']}</b>", f"<b>{_dot_amount(gross)} {currency}</b>"])
     summary_data = [
         [Paragraph(label, base), Paragraph(value, base)] for label, value in summary_rows
     ]
@@ -248,18 +350,13 @@ def render_invoice_pdf(
 
     # ---------- Payment / legal note ----------
     paid_line = (
-        f"Uhrazeno {invoice.paid_at.date().isoformat()} – přes Stripe."  # noqa: RUF001
+        L["paid_via_stripe"].format(date=invoice.paid_at.date().isoformat())
         if invoice.paid_at
-        else "Úhrada nebyla dosud zaznamenána."
+        else L["not_yet_paid"]
     )
     story.append(Paragraph(paid_line, small))
     story.append(Spacer(1, 4))
-    story.append(
-        Paragraph(
-            "Doklad byl vystaven elektronicky a je platný bez razítka a podpisu.",
-            small,
-        )
-    )
+    story.append(Paragraph(L["electronic_notice"], small))
 
     doc.build(story)
     return buf.getvalue()

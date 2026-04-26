@@ -19,7 +19,9 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.deps import Principal, get_db, require_login
+from app.i18n import supported_locale_list
 from app.i18n import t as _t
 from app.models.customer import CustomerContact
 from app.security.csrf import verify_csrf
@@ -57,12 +59,14 @@ def _ensure_contact_or_redirect(principal: Principal) -> RedirectResponse | None
     return None
 
 
-_ALLOWED_LOCALES = {"cs", "en"}
-
-
 def _normalise_locale(raw: str) -> str | None:
+    """Normalise a locale code from form input, gating against the
+    currently-configured ``SUPPORTED_LOCALES``. Reading the env on each
+    call (rather than freezing at import) means a deploy that toggles
+    the locale list takes effect without a full reload."""
     code = (raw or "").strip().lower().split("-", 1)[0]
-    return code if code in _ALLOWED_LOCALES else None
+    supported = set(supported_locale_list(get_settings().supported_locales))
+    return code if code in supported else None
 
 
 @router.get("/profile", response_class=HTMLResponse)

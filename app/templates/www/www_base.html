@@ -15,7 +15,7 @@
     {# --- OpenGraph + Twitter (social preview). --- #}
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Assoluto">
-    <meta property="og:locale" content="{% if locale == 'en' %}en_US{% else %}cs_CZ{% endif %}">
+    <meta property="og:locale" content="{% if locale == 'en' %}en_US{% elif locale == 'de' %}de_DE{% else %}cs_CZ{% endif %}">
     <meta property="og:title" content="{% block og_title %}{{ self.title() | replace(' · Assoluto', '') }}{% endblock %}">
     <meta property="og:description" content="{{ self.meta_description() }}">
     <meta property="og:image" content="{% block og_image %}{{ url_for('static', path='og/assoluto-og.svg') }}{% endblock %}">

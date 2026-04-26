@@ -1,21 +1,20 @@
-"""CS message catalog health checks.
+"""Translated-catalog health checks (CS + DE).
 
 Catches the failure modes that ate the homepage twice in two days:
 
 1. Active msgids with EMPTY msgstr → ``compile`` keeps them but
-   gettext falls back to the EN msgid → user sees English on a CS-
-   default page.
+   gettext falls back to the EN msgid → a CS-default visitor sees
+   English (and a DE-default visitor sees English instead of German).
 2. Active msgids marked ``#, fuzzy`` → ``compile`` DROPS them by
    default → same EN fallback (or, if the fuzzy assignment happens to
-   sneak through, a wrong CS sentence).
+   sneak through, a wrong CS / DE sentence).
 
 Both surface naturally in walking the live site, but by then the user
 has shipped the regression. Run on every CI pass instead.
 
-Run only against ``app/locale/cs/LC_MESSAGES/messages.po`` — the EN
-catalog is intentionally an empty-msgstr identity catalog (gettext
-falls back to msgid which IS the English text) so this check would
-generate noise there.
+The EN catalog is intentionally an empty-msgstr *identity* catalog —
+gettext falls back to the msgid which IS the English text — so we
+exclude it from these checks.
 """
 
 from __future__ import annotations
@@ -27,6 +26,15 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CS_PO = REPO_ROOT / "app" / "locale" / "cs" / "LC_MESSAGES" / "messages.po"
+DE_PO = REPO_ROOT / "app" / "locale" / "de" / "LC_MESSAGES" / "messages.po"
+
+# Locales we ship a real (non-identity) translation for. Keep this in
+# sync with ``SUPPORTED_LOCALES`` minus the identity-catalog locales.
+TRANSLATED_LOCALES = ("cs", "de")
+
+
+def _po_path(locale: str) -> Path:
+    return REPO_ROOT / "app" / "locale" / locale / "LC_MESSAGES" / "messages.po"
 
 
 def _parse_active_entries(po_text: str) -> list[dict]:
@@ -110,47 +118,46 @@ def _parse_active_entries(po_text: str) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 
-def test_no_empty_msgstr_in_cs_catalog() -> None:
-    """Every active CS msgid must have a non-empty translation. Empty
-    msgstr → gettext falls back to the EN msgid on the CS-default site.
-    """
-    text = CS_PO.read_text(encoding="utf-8")
+@pytest.mark.parametrize("locale", TRANSLATED_LOCALES)
+def test_no_empty_msgstr(locale: str) -> None:
+    """Every active msgid in a *translated* catalog must have a
+    non-empty msgstr. Empty msgstr → gettext falls back to the EN
+    msgid, which silently degrades the page to English."""
+    text = _po_path(locale).read_text(encoding="utf-8")
     entries = _parse_active_entries(text)
     empty = [e for e in entries if e["msgstr"] == ""]
     assert not empty, (
-        f"{len(empty)} active CS entries have empty msgstr. Examples:\n  "
+        f"{len(empty)} active {locale.upper()} entries have empty msgstr."
+        " Examples:\n  "
         + "\n  ".join(repr(e["msgid"][:80]) for e in empty[:10])
         + (f"\n  … (+{len(empty) - 10} more)" if len(empty) > 10 else "")
-        + "\n\nFix: add CS translations in app/locale/cs/LC_MESSAGES/messages.po"
-        " then ``uv run pybabel compile -d app/locale``. If the missing"
-        " translation has a CS twin in the obsolete (#~) section of the"
-        " same file, the rescue scripts at /tmp/resurrect_obsolete.py and"
-        " /tmp/resurrect_v2.py recover those automatically (see commit"
-        " e3eaade for context)."
+        + f"\n\nFix: add {locale.upper()} translations in"
+        f" app/locale/{locale}/LC_MESSAGES/messages.po then"
+        " ``.venv/bin/pybabel compile -d app/locale``."
     )
 
 
-def test_no_fuzzy_entries_in_cs_catalog() -> None:
-    """No active CS msgid should carry the ``#, fuzzy`` flag. Babel
-    compile drops fuzzy entries by default → user sees EN fallback,
-    same effective outcome as test_no_empty_msgstr_in_cs_catalog.
+@pytest.mark.parametrize("locale", TRANSLATED_LOCALES)
+def test_no_fuzzy_entries(locale: str) -> None:
+    """No active msgid in a translated catalog should carry the
+    ``#, fuzzy`` flag. Babel ``compile`` drops fuzzy entries by
+    default → the EN msgid shows instead of the intended translation.
 
     Removing the flag is the right fix when the existing translation
     is correct; rewriting the msgstr is right when the fuzzy match
     attached an unrelated translation. Either way, the flag must go.
     """
-    text = CS_PO.read_text(encoding="utf-8")
+    text = _po_path(locale).read_text(encoding="utf-8")
     entries = _parse_active_entries(text)
     fuzzy = [e for e in entries if e["fuzzy"]]
     assert not fuzzy, (
-        f"{len(fuzzy)} active CS entries are fuzzy-flagged. Compile drops"
-        f" them → the EN msgid shows on the CS-default site. Examples:\n  "
+        f"{len(fuzzy)} active {locale.upper()} entries are fuzzy-flagged."
+        " Compile drops them → the EN msgid shows. Examples:\n  "
         + "\n  ".join(f"{e['msgid'][:60]!r} → {e['msgstr'][:60]!r}" for e in fuzzy[:10])
         + (f"\n  … (+{len(fuzzy) - 10} more)" if len(fuzzy) > 10 else "")
-        + "\n\nFix: edit app/locale/cs/LC_MESSAGES/messages.po, drop the"
-        " ``#, fuzzy`` line from each affected entry (after confirming"
-        " the msgstr is the right translation), then ``uv run pybabel"
-        " compile -d app/locale``."
+        + f"\n\nFix: edit app/locale/{locale}/LC_MESSAGES/messages.po, drop"
+        " the ``#, fuzzy`` line from each affected entry, then"
+        " ``.venv/bin/pybabel compile -d app/locale``."
     )
 
 

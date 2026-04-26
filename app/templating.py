@@ -125,6 +125,15 @@ _TIMEAGO_STRINGS: dict[str, dict[str, str]] = {
         "month": "před {n} měs.",
         "year": "před {n} r.",
     },
+    "de": {
+        "just_now": "gerade eben",
+        "min": "vor {n} Min.",
+        "hour": "vor {n} Std.",
+        "day": "vor {n} Tg.",
+        "week": "vor {n} Wo.",
+        "month": "vor {n} Mon.",
+        "year": "vor {n} J.",
+    },
 }
 
 

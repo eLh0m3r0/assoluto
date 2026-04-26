@@ -58,11 +58,11 @@ class Settings(BaseSettings):
 
     # --- Localization (i18n) -----------------------------------------------
     # Default UI language served when no cookie / header preference matches
-    # one of the supported locales. The portal ships Czech (``cs``) and
-    # English (``en``) out of the box.
+    # one of the supported locales. The portal ships Czech (``cs``),
+    # English (``en``) and German (``de``) out of the box.
     default_locale: str = Field(default="cs", alias="DEFAULT_LOCALE")
     # Comma-separated list of supported locale codes.
-    supported_locales: str = Field(default="cs,en", alias="SUPPORTED_LOCALES")
+    supported_locales: str = Field(default="cs,en,de", alias="SUPPORTED_LOCALES")
 
     # --- Platform (hosted SaaS layer) ---------------------------------------
     # When enabled, the `app.platform` package registers extra routes for

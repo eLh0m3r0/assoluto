@@ -56,6 +56,7 @@
                 </option>
                 <option value="cs" {% if form.preferred_locale == 'cs' %}selected{% endif %}>Čeština</option>
                 <option value="en" {% if form.preferred_locale == 'en' %}selected{% endif %}>English</option>
+                <option value="de" {% if form.preferred_locale == 'de' %}selected{% endif %}>Deutsch</option>
             </select>
             <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">
                 {{ _('Applied to every contact of this client unless the contact has their own override.') }}

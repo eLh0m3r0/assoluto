@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-26 10:51+0200\n"
+"POT-Creation-Date: 2026-04-26 11:35+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -91,8 +91,8 @@ msgstr "Spustit výrobu"
 msgid "Close"
 msgstr "Uzavřít"
 
-#: app/i18n_messages.py:52 app/templates/admin/user_edit.html:67
-#: app/templates/assets/form.html:57 app/templates/customers/form.html:98
+#: app/i18n_messages.py:52 app/templates/admin/user_edit.html:68
+#: app/templates/assets/form.html:57 app/templates/customers/form.html:99
 #: app/templates/orders/form.html:58
 #: app/templates/platform/admin/tenant_edit.html:73
 #: app/templates/products/form.html:70
@@ -499,7 +499,7 @@ msgstr "Majetek s tímto kódem už u klienta existuje."
 msgid "A contact with the same email already exists."
 msgstr "Kontakt se stejným e-mailem už existuje."
 
-#: app/routers/customers.py:377 app/routers/me.py:117
+#: app/routers/customers.py:377 app/routers/me.py:120
 #: app/routers/tenant_admin.py:335 app/routers/tenant_admin.py:524
 msgid "Name cannot be empty."
 msgstr "Jméno nesmí být prázdné."
@@ -528,15 +528,15 @@ msgstr "V poslední době bylo odesláno příliš mnoho pozvánek. Zkuste to po
 msgid "Invitation resent."
 msgstr "Pozvánka odeslána znovu."
 
-#: app/routers/me.py:85 app/routers/tenant_admin.py:501
+#: app/routers/me.py:88 app/routers/tenant_admin.py:501
 msgid "Profile saved."
 msgstr "Profil uložen."
 
-#: app/routers/me.py:87
+#: app/routers/me.py:90
 msgid "Password changed. Sign in again with your new password."
 msgstr "Heslo bylo změněno. Přihlaste se znovu novým heslem."
 
-#: app/routers/me.py:144 app/routers/tenant_admin.py:554
+#: app/routers/me.py:147 app/routers/tenant_admin.py:554
 msgid "New passwords do not match."
 msgstr "Nová hesla se neshodují."
 
@@ -994,46 +994,46 @@ msgstr "Jazyk e-mailů"
 msgid "Automatic (tenant default)"
 msgstr "Automaticky (výchozí pro portál)"
 
-#: app/templates/admin/profile.html:42 app/templates/me/profile.html:42
+#: app/templates/admin/profile.html:43 app/templates/me/profile.html:43
 msgid "Language used for notification emails sent to you."
 msgstr "Jazyk, ve kterém vám budou chodit notifikační e-maily."
 
-#: app/templates/admin/profile.html:47 app/templates/me/profile.html:47
+#: app/templates/admin/profile.html:48 app/templates/me/profile.html:48
 msgid "Save profile"
 msgstr "Uložit profil"
 
-#: app/templates/admin/profile.html:53 app/templates/me/profile.html:53
+#: app/templates/admin/profile.html:54 app/templates/me/profile.html:54
 msgid "Change password"
 msgstr "Změna hesla"
 
-#: app/templates/admin/profile.html:58 app/templates/me/profile.html:58
+#: app/templates/admin/profile.html:59 app/templates/me/profile.html:59
 msgid "Current password"
 msgstr "Současné heslo"
 
-#: app/templates/admin/profile.html:65 app/templates/auth/invite_accept.html:23
+#: app/templates/admin/profile.html:66 app/templates/auth/invite_accept.html:23
 #: app/templates/auth/password_reset_confirm.html:20
-#: app/templates/me/profile.html:65
+#: app/templates/me/profile.html:66
 #: app/templates/platform/password_reset_confirm.html:20
 msgid "New password (min. 8 characters)"
 msgstr "Nové heslo (min. 8 znaků)"
 
-#: app/templates/admin/profile.html:72 app/templates/me/profile.html:72
+#: app/templates/admin/profile.html:73 app/templates/me/profile.html:73
 msgid "Confirm new password"
 msgstr "Potvrzení nového hesla"
 
-#: app/templates/admin/profile.html:80 app/templates/me/profile.html:80
+#: app/templates/admin/profile.html:81 app/templates/me/profile.html:81
 msgid "Save new password"
 msgstr "Uložit nové heslo"
 
-#: app/templates/admin/profile.html:83 app/templates/me/profile.html:83
+#: app/templates/admin/profile.html:84 app/templates/me/profile.html:84
 msgid "After changing your password you will be signed out and must log in again."
 msgstr "Po změně hesla budete odhlášeni a musíte se znovu přihlásit."
 
-#: app/templates/admin/profile.html:89
+#: app/templates/admin/profile.html:90
 msgid "Your data (GDPR)"
 msgstr "Vaše data (GDPR)"
 
-#: app/templates/admin/profile.html:91
+#: app/templates/admin/profile.html:92
 msgid ""
 "Under EU law you can download everything we hold about you, and request "
 "erasure at any time."
@@ -1041,15 +1041,15 @@ msgstr ""
 "Podle unijní legislativy si můžete kdykoliv stáhnout všechno, co o vás "
 "vedeme, a požádat o výmaz."
 
-#: app/templates/admin/profile.html:96
+#: app/templates/admin/profile.html:97
 msgid "Download my data (JSON)"
 msgstr "Stáhnout moje data (JSON)"
 
-#: app/templates/admin/profile.html:103
+#: app/templates/admin/profile.html:104
 msgid "Delete my account (irreversible)"
 msgstr "Smazat můj účet (nevratné)"
 
-#: app/templates/admin/profile.html:106
+#: app/templates/admin/profile.html:107
 msgid ""
 "This removes your personal data (name, email, phone, password) from this "
 "tenant. Orders and comments you created stay in the company record but "
@@ -1060,15 +1060,15 @@ msgstr ""
 "firemní evidenci, ale ve sloupci autora se zobrazují jako „smazáno“. Tuto"
 " akci nelze vrátit."
 
-#: app/templates/admin/profile.html:109
+#: app/templates/admin/profile.html:110
 msgid "Are you sure? This is irreversible."
 msgstr "Opravdu? Tato akce je nevratná."
 
-#: app/templates/admin/profile.html:113
+#: app/templates/admin/profile.html:114
 msgid "Confirm with your current password"
 msgstr "Potvrďte aktuálním heslem"
 
-#: app/templates/admin/profile.html:121
+#: app/templates/admin/profile.html:122
 msgid "Delete my account"
 msgstr "Smazat můj účet"
 
@@ -1184,7 +1184,7 @@ msgstr "Administrace"
 msgid "Default email language"
 msgstr "Výchozí jazyk e-mailů"
 
-#: app/templates/admin/tenant_settings.html:29
+#: app/templates/admin/tenant_settings.html:30
 msgid ""
 "Used for all notification emails unless a client or individual user has "
 "their own preference."
@@ -1192,8 +1192,8 @@ msgstr ""
 "Používá se pro všechny e-maily s upozorněními, pokud klient nebo "
 "konkrétní uživatel nemá vlastní nastavení."
 
-#: app/templates/admin/tenant_settings.html:36
-#: app/templates/admin/user_edit.html:71
+#: app/templates/admin/tenant_settings.html:37
+#: app/templates/admin/user_edit.html:72
 #: app/templates/platform/admin/tenant_edit.html:77
 msgid "Save changes"
 msgstr "Uložit změny"
@@ -1218,7 +1218,7 @@ msgstr "Provozovatel"
 msgid "Administrator"
 msgstr "Administrátor"
 
-#: app/templates/admin/user_edit.html:60
+#: app/templates/admin/user_edit.html:61
 msgid "Language used for notification emails sent to this user."
 msgstr "Jazyk, ve kterém tento uživatel dostává notifikační e-maily."
 
@@ -1237,7 +1237,7 @@ msgstr "Spravujte staff uživatele — přístup do všech dat tenantu."
 msgid "State"
 msgstr "Stav"
 
-#: app/templates/admin/users.html:38 app/templates/customers/detail.html:115
+#: app/templates/admin/users.html:38 app/templates/customers/detail.html:116
 #: app/templates/platform/admin/dashboard.html:62
 #: app/templates/platform/admin/tenant_edit.html:64
 #: app/templates/platform/admin/tenants.html:38
@@ -1262,7 +1262,7 @@ msgstr "Přístup podpory"
 msgid "pending invite"
 msgstr "čeká na přijetí"
 
-#: app/templates/admin/users.html:47 app/templates/customers/detail.html:117
+#: app/templates/admin/users.html:47 app/templates/customers/detail.html:118
 #: app/templates/platform/admin/dashboard.html:60
 #: app/templates/platform/admin/tenant_edit.html:62
 #: app/templates/platform/admin/tenants.html:36
@@ -1278,11 +1278,11 @@ msgstr "aktivní"
 msgid "Edit"
 msgstr "Upravit"
 
-#: app/templates/admin/users.html:62 app/templates/customers/detail.html:124
+#: app/templates/admin/users.html:62 app/templates/customers/detail.html:125
 msgid "Resend the invitation email?"
 msgstr "Poslat pozvánkový e-mail znovu?"
 
-#: app/templates/admin/users.html:65 app/templates/customers/detail.html:127
+#: app/templates/admin/users.html:65 app/templates/customers/detail.html:128
 msgid "Resend invite"
 msgstr "Poslat pozvánku znovu"
 
@@ -1290,12 +1290,12 @@ msgstr "Poslat pozvánku znovu"
 msgid "Deactivate this user?"
 msgstr "Opravdu deaktivovat tohoto uživatele?"
 
-#: app/templates/admin/users.html:74 app/templates/customers/detail.html:136
+#: app/templates/admin/users.html:74 app/templates/customers/detail.html:137
 #: app/templates/platform/admin/tenants.html:91
 msgid "Deactivate"
 msgstr "Deaktivovat"
 
-#: app/templates/admin/users.html:81 app/templates/customers/detail.html:143
+#: app/templates/admin/users.html:81 app/templates/customers/detail.html:144
 #: app/templates/platform/admin/tenants.html:98
 msgid "Reactivate"
 msgstr "Reaktivovat"
@@ -1313,11 +1313,11 @@ msgid "Invite user"
 msgstr "Pozvat uživatele"
 
 #: app/templates/admin/users.html:103 app/templates/auth/login.html:29
-#: app/templates/customers/detail.html:160
+#: app/templates/customers/detail.html:161
 msgid "name@company.com"
 msgstr "jmeno@firma.cz"
 
-#: app/templates/admin/users.html:105 app/templates/customers/detail.html:162
+#: app/templates/admin/users.html:105 app/templates/customers/detail.html:163
 msgid "Name Surname"
 msgstr "Jméno Příjmení"
 
@@ -1418,8 +1418,8 @@ msgstr "Jednotka"
 msgid "Name"
 msgstr "Název"
 
-#: app/templates/assets/form.html:60 app/templates/customers/detail.html:108
-#: app/templates/customers/form.html:100 app/templates/products/form.html:73
+#: app/templates/assets/form.html:60 app/templates/customers/detail.html:109
+#: app/templates/customers/form.html:101 app/templates/products/form.html:73
 msgid "Save"
 msgstr "Uložit"
 
@@ -1544,23 +1544,23 @@ msgstr "Heslo (min. 8 znaků)"
 msgid "Notes"
 msgstr "Poznámky"
 
-#: app/templates/customers/detail.html:34 app/templates/customers/form.html:66
+#: app/templates/customers/detail.html:34 app/templates/customers/form.html:67
 msgid "Client order permissions"
 msgstr "Oprávnění klienta u objednávek"
 
-#: app/templates/customers/detail.html:42 app/templates/customers/form.html:73
+#: app/templates/customers/detail.html:42 app/templates/customers/form.html:74
 msgid "Can add items to an order"
 msgstr "Může přidávat položky na objednávku"
 
-#: app/templates/customers/detail.html:50 app/templates/customers/form.html:79
+#: app/templates/customers/detail.html:50 app/templates/customers/form.html:80
 msgid "Can pick from the product catalog"
 msgstr "Může vybírat z katalogu produktů"
 
-#: app/templates/customers/detail.html:58 app/templates/customers/form.html:85
+#: app/templates/customers/detail.html:58 app/templates/customers/form.html:86
 msgid "Can set item prices"
 msgstr "Může zadávat ceny u položek"
 
-#: app/templates/customers/detail.html:66 app/templates/customers/form.html:91
+#: app/templates/customers/detail.html:66 app/templates/customers/form.html:92
 msgid "Can upload attachments"
 msgstr "Může nahrávat přílohy"
 
@@ -1572,19 +1572,19 @@ msgstr "Kontakty"
 msgid "auto"
 msgstr "auto"
 
-#: app/templates/customers/detail.html:119
+#: app/templates/customers/detail.html:120
 msgid "invited"
 msgstr "pozván"
 
-#: app/templates/customers/detail.html:133
+#: app/templates/customers/detail.html:134
 msgid "Deactivate this contact?"
 msgstr "Deaktivovat tento kontakt?"
 
-#: app/templates/customers/detail.html:152
+#: app/templates/customers/detail.html:153
 msgid "This client has no contacts yet."
 msgstr "Klient zatím nemá žádné kontakty."
 
-#: app/templates/customers/detail.html:166
+#: app/templates/customers/detail.html:167
 msgid "Invite contact"
 msgstr "Pozvat kontakt"
 
@@ -1608,7 +1608,7 @@ msgstr "Název firmy"
 msgid "Default email language for this client"
 msgstr "Výchozí jazyk e-mailů pro tohoto klienta"
 
-#: app/templates/customers/form.html:61
+#: app/templates/customers/form.html:62
 msgid ""
 "Applied to every contact of this client unless the contact has their own "
 "override."
@@ -1616,7 +1616,7 @@ msgstr ""
 "Platí pro všechny kontakty tohoto zákazníka, pokud si konkrétní kontakt "
 "neurčí vlastní."
 
-#: app/templates/customers/form.html:67
+#: app/templates/customers/form.html:68
 msgid ""
 "Controls what contacts of this client can do when placing orders. Staff "
 "always has full access."
@@ -2892,10 +2892,10 @@ msgstr "Nadřazená doména"
 
 #: app/templates/www/cookies.html:56
 msgid ""
-"Your chosen UI language (cs / en). Set when you click the language "
+"Your chosen UI language (cs / en / de). Set when you click the language "
 "switcher."
 msgstr ""
-"Vámi zvolený jazyk rozhraní (cs / en). Nastavuje se při kliknutí na "
+"Vámi zvolený jazyk rozhraní (cs / en / de). Nastavuje se při kliknutí na "
 "přepínač jazyka."
 
 #: app/templates/www/cookies.html:57 app/templates/www/cookies.html:63
