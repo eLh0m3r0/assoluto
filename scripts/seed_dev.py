@@ -33,11 +33,16 @@ async def _run() -> None:
     sm = async_sessionmaker(engine, expire_on_commit=False)
 
     async with sm() as session, session.begin():
+        # Slug stays "4mex" because the test suite hard-codes it across
+        # ~30 places (conftest fixtures, test_*.py). Display name and
+        # all email addresses use ``example.com`` (RFC 2606 reserved for
+        # documentation) so nothing collides with a real Czech domain
+        # if a screenshot of this demo escapes.
         tenant = Tenant(
             id=uuid4(),
             slug="4mex",
-            name="4MEX s.r.o.",
-            billing_email="billing@4mex.cz",
+            name="Dílna Demo s.r.o.",
+            billing_email="billing@dilna.example.com",
             storage_prefix="tenants/4mex/",
         )
         session.add(tenant)
@@ -46,15 +51,15 @@ async def _run() -> None:
         owner = User(
             id=uuid4(),
             tenant_id=tenant.id,
-            email="owner@4mex.cz",
-            full_name="4MEX Owner",
+            email="vlastnik@dilna.example.com",
+            full_name="Demo Vlastník",
             role=UserRole.TENANT_ADMIN,
             password_hash=hash_password("demo1234"),
         )
         acme = Customer(
             id=uuid4(),
             tenant_id=tenant.id,
-            name="ACME s.r.o.",
+            name="Klient Demo s.r.o.",
             ico="12345678",
             dic="CZ12345678",
         )
@@ -65,7 +70,7 @@ async def _run() -> None:
             id=uuid4(),
             tenant_id=tenant.id,
             customer_id=acme.id,
-            email="jan@acme.cz",
+            email="jan@klient.example.com",
             full_name="Jan Novák",
             role=CustomerContactRole.CUSTOMER_ADMIN,
             password_hash=hash_password("demo1234"),
@@ -201,8 +206,8 @@ async def _run() -> None:
     await engine.dispose()
     print("Demo tenant seeded.")
     print("  URL:      http://4mex.localhost:8000/  (or set X-Tenant-Slug: 4mex)")
-    print("  Staff:    owner@4mex.cz / demo1234")
-    print("  Contact:  jan@acme.cz  / demo1234")
+    print("  Staff:    vlastnik@dilna.example.com / demo1234")
+    print("  Contact:  jan@klient.example.com  / demo1234")
 
 
 def main() -> None:

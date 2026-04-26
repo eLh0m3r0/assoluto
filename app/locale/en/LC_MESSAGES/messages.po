@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-26 07:34+0200\n"
+"POT-Creation-Date: 2026-04-26 08:35+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -3857,7 +3857,7 @@ msgid "Your own domain (portal.yourfirm.cz)"
 msgstr ""
 
 #: app/templates/www/pricing.html:96
-msgid "Priority support (4 h)"
+msgid "Priority support (24 h)"
 msgstr ""
 
 #: app/templates/www/pricing.html:97
@@ -4844,7 +4844,7 @@ msgid ""
 "of-laws rules. The parties agree that the courts of the Czech Republic "
 "have exclusive jurisdiction; the locally competent court is determined by"
 " the Provider's registered office (currently the District Court in "
-"Děčín)."
+"Decin)."
 msgstr ""
 
 #: app/templates/www/terms.html:167
@@ -6171,5 +6171,21 @@ msgstr "Privacy Policy"
 #~ "laws of the Czech Republic. The "
 #~ "Operator may modify the terms with "
 #~ "30 days' notice."
+#~ msgstr ""
+
+#~ msgid "Priority support (4 h)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "These Terms and any dispute arising "
+#~ "out of or in connection with them"
+#~ " are governed by the law of the"
+#~ " Czech Republic, without regard to "
+#~ "conflict-of-laws rules. The parties "
+#~ "agree that the courts of the Czech"
+#~ " Republic have exclusive jurisdiction; the"
+#~ " locally competent court is determined "
+#~ "by the Provider's registered office "
+#~ "(currently the District Court in Děčín)."
 #~ msgstr ""
 

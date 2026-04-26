@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-26 07:34+0200\n"
+"POT-Creation-Date: 2026-04-26 08:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3697,7 +3697,7 @@ msgid "Your own domain (portal.yourfirm.cz)"
 msgstr ""
 
 #: app/templates/www/pricing.html:96
-msgid "Priority support (4 h)"
+msgid "Priority support (24 h)"
 msgstr ""
 
 #: app/templates/www/pricing.html:97
@@ -4677,7 +4677,7 @@ msgid ""
 "of-laws rules. The parties agree that the courts of the Czech Republic "
 "have exclusive jurisdiction; the locally competent court is determined by"
 " the Provider's registered office (currently the District Court in "
-"Děčín)."
+"Decin)."
 msgstr ""
 
 #: app/templates/www/terms.html:167
