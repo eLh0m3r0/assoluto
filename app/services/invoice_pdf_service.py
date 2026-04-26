@@ -92,6 +92,7 @@ _INVOICE_LABELS: dict[str, dict[str, str]] = {
         "paid_via_stripe": "Uhrazeno {date} – přes Stripe.",  # noqa: RUF001
         "not_yet_paid": "Úhrada nebyla dosud zaznamenána.",
         "electronic_notice": "Doklad byl vystaven elektronicky a je platný bez razítka a podpisu.",
+        "country": "Česká republika",
     },
     "en": {
         "doc_label_vat": "Tax invoice (daňový doklad)",
@@ -116,6 +117,7 @@ _INVOICE_LABELS: dict[str, dict[str, str]] = {
         "paid_via_stripe": "Paid on {date} via Stripe.",
         "not_yet_paid": "Payment not yet recorded.",
         "electronic_notice": "This document was issued electronically and is valid without a signature or stamp.",
+        "country": "Czech Republic",
     },
     "de": {
         "doc_label_vat": "Steuerbeleg (daňový doklad)",
@@ -140,8 +142,36 @@ _INVOICE_LABELS: dict[str, dict[str, str]] = {
         "paid_via_stripe": "Bezahlt am {date} – via Stripe.",  # noqa: RUF001
         "not_yet_paid": "Zahlung wurde noch nicht erfasst.",
         "electronic_notice": "Der Beleg wurde elektronisch ausgestellt und ist ohne Stempel und Unterschrift gültig.",
+        "country": "Tschechische Republik",
     },
 }
+
+
+# Phrases that indicate the operator already added the country to
+# ``platform_operator_address`` so we don't append it twice. Lower-cased
+# substring match.
+_COUNTRY_PRESENT_HINTS = (
+    "česká republika",
+    "ceska republika",
+    "czech republic",
+    "tschechische republik",
+    "czechia",
+)
+
+
+def _address_with_country(address: str, country_label: str) -> str:
+    """Append the country to ``address`` (separated by `<br/>`) unless
+    the address already mentions any of the localised country names.
+
+    The supplier is always Czech-based, so the country is fixed in the
+    catalog; we only translate the *label*. Operator-edited addresses
+    that already contain the country (in any of the supported
+    spellings) pass through unchanged."""
+    rendered = address.replace("\n", "<br/>")
+    haystack = address.lower()
+    if any(hint in haystack for hint in _COUNTRY_PRESENT_HINTS):
+        return rendered
+    return f"{rendered}<br/>{country_label}"
 
 
 def _labels_for(locale: str | None) -> dict[str, str]:
@@ -220,8 +250,9 @@ def render_invoice_pdf(
         Paragraph(f"<b>{L['supplier']}</b>", h2),
         Paragraph(settings.platform_operator_name or L["not_configured"], base),
         Paragraph(
-            (settings.platform_operator_address or L["address_not_configured"]).replace(
-                "\n", "<br/>"
+            _address_with_country(
+                settings.platform_operator_address or L["address_not_configured"],
+                L["country"],
             ),
             base,
         ),
