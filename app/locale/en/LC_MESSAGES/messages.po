@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-26 08:58+0200\n"
+"POT-Creation-Date: 2026-04-26 10:47+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -2716,7 +2716,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/contact.html:32
-msgid "Typical reply in 4 working hours"
+msgid "Typical reply within 24 hours"
 msgstr ""
 
 #: app/templates/www/contact.html:43
@@ -6210,5 +6210,8 @@ msgstr "Privacy Policy"
 #~ msgstr ""
 
 #~ msgid "Append-only record of every tracked action in this tenant."
+#~ msgstr ""
+
+#~ msgid "Typical reply in 4 working hours"
 #~ msgstr ""
 

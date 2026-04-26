@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-26 08:58+0200\n"
+"POT-Creation-Date: 2026-04-26 10:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2589,7 +2589,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/contact.html:32
-msgid "Typical reply in 4 working hours"
+msgid "Typical reply within 24 hours"
 msgstr ""
 
 #: app/templates/www/contact.html:43

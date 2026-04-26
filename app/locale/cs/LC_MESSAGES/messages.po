@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-26 08:58+0200\n"
+"POT-Creation-Date: 2026-04-26 10:47+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -372,8 +372,8 @@ msgstr "Nová objednávka %(order_number)s od %(customer_name)s"
 
 #: app/email/templates/order_submitted.txt:3
 #, python-format
-msgid "Client %(customer_name)s submitted a new order "%(order_title)s"."
-msgstr "Klient %(customer_name)s odeslal novou objednávku „%(order_title)s"."
+msgid "Client %(customer_name)s submitted a new order \"%(order_title)s\"."
+msgstr "Klient %(customer_name)s odeslal novou objednávku „%(order_title)s\"."
 
 #: app/email/templates/password_reset.html:6
 #: app/email/templates/password_reset.html:14
@@ -983,7 +983,7 @@ msgstr "Jazyk e-mailů"
 #: app/templates/admin/profile.html:36 app/templates/admin/user_edit.html:54
 #: app/templates/customers/form.html:55 app/templates/me/profile.html:36
 msgid "Automatic (tenant default)"
-msgstr "Automaticky (výchozí tenanta)"
+msgstr "Automaticky (výchozí pro portál)"
 
 #: app/templates/admin/profile.html:42 app/templates/me/profile.html:42
 msgid "Language used for notification emails sent to you."
@@ -1044,7 +1044,7 @@ msgstr "Smazat můj účet (nevratné)"
 msgid ""
 "This removes your personal data (name, email, phone, password) from this "
 "tenant. Orders and comments you created stay in the company record but "
-"are shown as "erased" in the author column. This cannot be undone."
+"are shown as \"erased\" in the author column. This cannot be undone."
 msgstr ""
 "Odstraní vaše osobní údaje (jméno, e-mail, telefon, heslo) z tohoto "
 "tenantu. Objednávky a komentáře, které jste vytvořili, zůstávají ve "
@@ -1247,7 +1247,7 @@ msgstr ""
 #: app/templates/platform/admin/tenants.html:83
 #: app/templates/platform/select_tenant.html:42
 msgid "Support access"
-msgstr "Support přístup"
+msgstr "Přístup podpory"
 
 #: app/templates/admin/users.html:45
 msgid "pending invite"
@@ -2150,15 +2150,15 @@ msgstr "Minimálně 8 znaků; vyhněte se běžným heslům."
 
 #: app/templates/platform/signup.html:101
 msgid ""
-"I agree to the <a href="/terms" target="_blank" class="text-"
-"brand-600 hover:text-brand-700">Terms of Service</a> and the <a "
-"href="/privacy" target="_blank" class="text-brand-600 hover:text-"
-"brand-700">Privacy Policy</a>."
+"I agree to the <a href=\"/terms\" target=\"_blank\" class=\"text-"
+"brand-600 hover:text-brand-700\">Terms of Service</a> and the <a "
+"href=\"/privacy\" target=\"_blank\" class=\"text-brand-600 hover:text-"
+"brand-700\">Privacy Policy</a>."
 msgstr ""
-"Souhlasím s <a href="/terms" target="_blank" class="text-brand-600 "
-"hover:text-brand-700">Obchodními podmínkami</a> a se <a "
-"href="/privacy" target="_blank" class="text-brand-600 hover:text-"
-"brand-700">Zásadami ochrany osobních údajů</a>."
+"Souhlasím s <a href=\"/terms\" target=\"_blank\" class=\"text-brand-600 "
+"hover:text-brand-700\">Obchodními podmínkami</a> a se <a "
+"href=\"/privacy\" target=\"_blank\" class=\"text-brand-600 hover:text-"
+"brand-700\">Zásadami ochrany osobních údajů</a>."
 
 #: app/templates/platform/signup.html:116
 msgid "Already have an account?"
@@ -2246,7 +2246,7 @@ msgstr "ve zkušební verzi"
 
 #: app/templates/platform/admin/dashboard.html:34
 msgid "active plans (excluding trial)"
-msgstr "aktivní plány (bez trial)"
+msgstr "aktivní plány (bez zkušebních)"
 
 #: app/templates/platform/admin/dashboard.html:35
 msgid "30-day revenue"
@@ -2320,7 +2320,7 @@ msgstr "člen"
 
 #: app/templates/platform/admin/tenants.html:49
 msgid "Support access — you can revoke it at any time."
-msgstr "Support přístup — můžete ho kdykoli zrušit."
+msgstr "Přístup podpory — můžete ho kdykoli odvolat."
 
 #: app/templates/platform/admin/tenants.html:51
 msgid "support"
@@ -2667,9 +2667,9 @@ msgstr "Kovárna Vlček napsala k ORD-0142"
 
 #: app/templates/www/_hero_mock.html:104
 msgid ""
-""Can we move the deadline to April 29? We were just told by the paint "
-"shop…""
-msgstr "„Nemůžeme posunout termín na 29. 4.? Právě nám volali z lakovny…""
+"\"Can we move the deadline to April 29? We were just told by the paint "
+"shop…\""
+msgstr "„Nemůžeme posunout termín na 29. 4.? Právě nám volali z lakovny…\""
 
 #: app/templates/www/contact.html:3 app/templates/www/contact.html:12
 #: app/templates/www/www_base.html:64
@@ -2697,8 +2697,8 @@ msgstr ""
 "Ozveme se do 1 pracovního dne."
 
 #: app/templates/www/contact.html:32
-msgid "Typical reply in 4 working hours"
-msgstr "Obvykle odpovídáme do 4 pracovních hodin"
+msgid "Typical reply within 24 hours"
+msgstr "Obvykle odpovídáme do 24 hodin"
 
 #: app/templates/www/contact.html:43
 msgid "15-minute demo"
@@ -2711,8 +2711,8 @@ msgid ""
 msgstr "Online ukázka přes Google Meet — reálný systém, vaše dotazy, žádné slajdy."
 
 #: app/templates/www/contact.html:45
-msgid "Write "demo" in the message"
-msgstr "Do zprávy napište „ukázka""
+msgid "Write \"demo\" in the message"
+msgstr "Do zprávy napište „ukázka\""
 
 #: app/templates/www/contact.html:56
 msgid "Security disclosures"
@@ -2793,7 +2793,7 @@ msgstr "1. Potřebujeme váš souhlas?"
 
 #: app/templates/www/cookies.html:16
 msgid ""
-"Assoluto uses only cookies that are "strictly necessary" to deliver the"
+"Assoluto uses only cookies that are \"strictly necessary\" to deliver the"
 " service you explicitly requested (log you in, protect against CSRF, "
 "remember the language you chose). Under Article 5(3) of the ePrivacy "
 "Directive (2002/58/EC) and §89 of Czech Act 127/2005 Coll., strictly-"
@@ -3096,9 +3096,9 @@ msgstr ""
 
 #: app/templates/www/features.html:174
 msgid ""
-"End-of-year inventory in one click. No more "did we use 12 or 14?" "
+"End-of-year inventory in one click. No more \"did we use 12 or 14?\" "
 "debates."
-msgstr "Roční inventura na jedno kliknutí. Žádné „spotřebovali jsme 12 nebo 14?"."
+msgstr "Roční inventura na jedno kliknutí. Žádné „spotřebovali jsme 12 nebo 14?\"."
 
 #: app/templates/www/features.html:184
 msgid "Security at the database level"
@@ -3106,11 +3106,11 @@ msgstr "Bezpečnost na úrovni databáze"
 
 #: app/templates/www/features.html:185
 msgid ""
-"Not "the app filters it out". PostgreSQL Row-Level Security physically "
+"Not \"the app filters it out\". PostgreSQL Row-Level Security physically "
 "isolates data per client. The app cannot return a foreign order — even if"
 " a bug slipped through."
 msgstr ""
-"Ne „aplikace to vyfiltruje". PostgreSQL Row-Level Security fyzicky "
+"Ne „aplikace to vyfiltruje\". PostgreSQL Row-Level Security fyzicky "
 "odděluje data jednotlivých zákazníků. Aplikace cizí zakázku nevrátí — ani"
 " kdyby se do ní vloudila chyba."
 
@@ -3301,11 +3301,11 @@ msgstr "Máte dílnu, ne e-mailovou centrálu."
 
 #: app/templates/www/index.html:72
 msgid ""
-"Five calls before lunch asking "where's my order?" — and three "
+"Five calls before lunch asking \"where's my order?\" — and three "
 "different drawing versions in Outlook. It adds up fast."
 msgstr ""
-"Pět telefonů do oběda s dotazem „kde je má zakázka?\" — a tři různé "
-"verze výkresu v Outlooku. Nasčítá se to rychle."
+"Pět telefonů do oběda s dotazem „kde je má zakázka?\" — a tři různé verze"
+" výkresu v Outlooku. Nasčítá se to rychle."
 
 #: app/templates/www/index.html:82
 msgid "Phones that won't stop"
@@ -3313,8 +3313,8 @@ msgstr "Telefony, které nekončí"
 
 #: app/templates/www/index.html:84
 msgid ""
-""Every day twenty people call me asking where their order is. Then I "
-"have to walk to the shop floor and ask the foreman.""
+"\"Every day twenty people call me asking where their order is. Then I "
+"have to walk to the shop floor and ask the foreman.\""
 msgstr ""
 "„Každý den mi dvacet lidí volá, kde je jejich zakázka. A já se pak musím "
 "jít zeptat mistra do dílny.\""
@@ -3325,8 +3325,8 @@ msgstr "Outlook jako archiv výkresů"
 
 #: app/templates/www/index.html:94
 msgid ""
-""I keep searching Outlook for which version of the drawing the client "
-"sent last week. And sometimes we make parts from the wrong revision.""
+"\"I keep searching Outlook for which version of the drawing the client "
+"sent last week. And sometimes we make parts from the wrong revision.\""
 msgstr ""
 "„Furt hledám v Outlooku, kterou verzi výkresu klient poslal minulý týden."
 " A občas uděláme díl podle špatné revize.\""
@@ -3337,8 +3337,8 @@ msgstr "Excel, který aktualizuje jenom Jana"
 
 #: app/templates/www/index.html:104
 msgid ""
-""We have a spreadsheet, but only Jana keeps it current. When she's sick,"
-" nobody knows anything.""
+"\"We have a spreadsheet, but only Jana keeps it current. When she's sick,"
+" nobody knows anything.\""
 msgstr ""
 "„Máme tabulku, ale aktualizuje ji jenom Jana. Když je nemocná, nevíme "
 "nic.\""
@@ -3438,7 +3438,7 @@ msgid "How it works"
 msgstr "Jak to funguje"
 
 #: app/templates/www/index.html:193
-msgid "Three steps, thirty minutes. No "implementation project"."
+msgid "Three steps, thirty minutes. No \"implementation project\"."
 msgstr "Tři kroky, třicet minut. Žádný „implementační projekt\"."
 
 #: app/templates/www/index.html:201
@@ -3882,11 +3882,11 @@ msgstr "Připraveni přestat zvedat telefon?"
 
 #: app/templates/www/index.html:442
 msgid ""
-"30 days free. No card. No "quick call with sales". Just sign up and try"
+"30 days free. No card. No \"quick call with sales\". Just sign up and try"
 " it."
 msgstr ""
-"30 dní zdarma. Bez platební karty. Žádný „rychlý hovor s obchodem\". "
-"Jen se zaregistrujte a vyzkoušejte."
+"30 dní zdarma. Bez platební karty. Žádný „rychlý hovor s obchodem\". Jen "
+"se zaregistrujte a vyzkoušejte."
 
 #: app/templates/www/index.html:450
 msgid "Or write / call us"
@@ -4749,18 +4749,18 @@ msgid "1. Who provides the Service"
 msgstr "1. Kdo službu poskytuje"
 
 #: app/templates/www/terms.html:17
-msgid "The Assoluto service (the "Service") is provided by"
+msgid "The Assoluto service (the \"Service\") is provided by"
 msgstr "Provozovatelem služby Assoluto (dále jen \"Služba\") je"
 
 #: app/templates/www/terms.html:21
-msgid "hereinafter the "Provider""
+msgid "hereinafter the \"Provider\""
 msgstr "dále jen provozovatel"
 
 #: app/templates/www/terms.html:26
 msgid ""
 "These Terms govern the relationship between the Provider and the legal or"
 " natural person using the Service in the course of their business (the "
-""Customer"). The Service is offered exclusively to entrepreneurs in the"
+"\"Customer\"). The Service is offered exclusively to entrepreneurs in the"
 " meaning of §420 of the Czech Civil Code; consumer-protection rules of "
 "the Czech Civil Code do not apply."
 msgstr ""
@@ -4779,8 +4779,8 @@ msgid ""
 "The Service is a multi-tenant cloud application — a customer portal — "
 "that lets a manufacturing or trading SME run its order workflow online: "
 "create and edit orders, upload technical drawings and other attachments, "
-"manage a product catalog, invite their own end clients ("Customer "
-"Contacts") to view those orders, and track order status from receipt to "
+"manage a product catalog, invite their own end clients (\"Customer "
+"Contacts\") to view those orders, and track order status from receipt to "
 "delivery."
 msgstr ""
 "Služba je multi-tenantní cloudová aplikace — zákaznický portál — která "
@@ -4793,9 +4793,9 @@ msgstr ""
 #: app/templates/www/terms.html:36
 msgid ""
 "The Service is offered as a hosted SaaS at assoluto.eu (hereinafter "
-""Hosted Service") and, separately, as open-source software released "
+"\"Hosted Service\") and, separately, as open-source software released "
 "under AGPL-3.0-or-later that the Customer may install on their own "
-"infrastructure ("Self-Hosted"). These Terms govern the Hosted Service. "
+"infrastructure (\"Self-Hosted\"). These Terms govern the Hosted Service. "
 "Self-Hosted use is governed by the AGPL-3.0 license file in the source "
 "repository; nothing in these Terms restricts the Customer's rights under "
 "that license."
@@ -4917,8 +4917,8 @@ msgstr "5. Obsah zákazníka a duševní vlastnictví"
 #: app/templates/www/terms.html:72
 msgid ""
 "The Customer retains ownership of all content they upload to the Service "
-"(orders, comments, attachments, drawings, customer data — "Customer "
-"Content"). The Customer grants the Provider a worldwide, royalty-free, "
+"(orders, comments, attachments, drawings, customer data — \"Customer "
+"Content\"). The Customer grants the Provider a worldwide, royalty-free, "
 "non-exclusive license to host, store, transmit, and display the Customer "
 "Content solely to the extent necessary to operate the Service for the "
 "Customer. The Provider does not claim any other rights to the Customer "
@@ -4948,7 +4948,7 @@ msgid ""
 "The Service software (with the exception of code released under AGPL-3.0 "
 "in the public source repository), the Assoluto trademark and brand assets"
 " remain the exclusive property of the Provider. The AGPL-3.0 license does"
-" not grant any rights to the "Assoluto" name, logo, or assoluto.eu "
+" not grant any rights to the \"Assoluto\" name, logo, or assoluto.eu "
 "domain (see the NOTICE file in the source repository)."
 msgstr ""
 "Software služby (s výjimkou kódu vydaného pod AGPL-3.0 v public zdrojovém"
@@ -5124,7 +5124,7 @@ msgstr "10. Záruky a omezení odpovědnosti"
 
 #: app/templates/www/terms.html:134
 msgid ""
-"The Service is provided "as available". Beyond what is required by "
+"The Service is provided \"as available\". Beyond what is required by "
 "mandatory provisions of Czech law, the Provider gives no warranties of "
 "any kind, express or implied, including implied warranties of "
 "merchantability or fitness for a particular purpose."
@@ -5746,13 +5746,13 @@ msgstr "Soukromí"
 #~ msgstr "Máte dílnu, ne e-mailovou centrálu."
 
 #~ msgid ""
-#~ "Five calls before lunch asking "where's"
-#~ " my order?" — and three different"
+#~ "Five calls before lunch asking \"where's"
+#~ " my order?\" — and three different"
 #~ " drawing versions in Outlook. It adds"
 #~ " up fast."
 #~ msgstr ""
 #~ "Pět telefonů do oběda s dotazem "
-#~ "„kde je má zakázka?" — a tři "
+#~ "„kde je má zakázka?\" — a tři "
 #~ "různé verze výkresu v Outlooku. Nasčítá"
 #~ " se to rychle."
 
@@ -5760,40 +5760,40 @@ msgstr "Soukromí"
 #~ msgstr "Telefony, které nekončí"
 
 #~ msgid ""
-#~ ""Every day twenty people call me "
+#~ "\"Every day twenty people call me "
 #~ "asking where their order is. Then "
 #~ "I have to walk to the shop "
-#~ "floor and ask the foreman.""
+#~ "floor and ask the foreman.\""
 #~ msgstr ""
 #~ "„Každý den mi dvacet lidí volá, "
 #~ "kde je jejich zakázka. A já se "
 #~ "pak musím jít zeptat mistra do "
-#~ "dílny.""
+#~ "dílny.\""
 
 #~ msgid "Outlook as a drawing vault"
 #~ msgstr "Outlook jako archiv výkresů"
 
 #~ msgid ""
-#~ ""I keep searching Outlook for which "
+#~ "\"I keep searching Outlook for which "
 #~ "version of the drawing the client "
 #~ "sent last week. And sometimes we "
-#~ "make parts from the wrong revision.""
+#~ "make parts from the wrong revision.\""
 #~ msgstr ""
 #~ "„Furt hledám v Outlooku, kterou verzi"
 #~ " výkresu klient poslal minulý týden. "
 #~ "A občas uděláme díl podle špatné "
-#~ "revize.""
+#~ "revize.\""
 
 #~ msgid "Excel only Jana updates"
 #~ msgstr "Excel, který aktualizuje jenom Jana"
 
 #~ msgid ""
-#~ ""We have a spreadsheet, but only "
+#~ "\"We have a spreadsheet, but only "
 #~ "Jana keeps it current. When she's "
-#~ "sick, nobody knows anything.""
+#~ "sick, nobody knows anything.\""
 #~ msgstr ""
 #~ "„Máme tabulku, ale aktualizuje ji jenom"
-#~ " Jana. Když je nemocná, nevíme nic.""
+#~ " Jana. Když je nemocná, nevíme nic.\""
 
 #~ msgid "Everything that matters"
 #~ msgstr "Všechno, na čem záleží"
@@ -5896,8 +5896,8 @@ msgstr "Soukromí"
 #~ msgid "How it works"
 #~ msgstr "Jak to funguje"
 
-#~ msgid "Three steps, thirty minutes. No "implementation project"."
-#~ msgstr "Tři kroky, třicet minut. Žádný „implementační projekt"."
+#~ msgid "Three steps, thirty minutes. No \"implementation project\"."
+#~ msgstr "Tři kroky, třicet minut. Žádný „implementační projekt\"."
 
 #~ msgid "Sign up, choose a subdomain"
 #~ msgstr "Zaregistrujete se, vyberete subdoménu"
@@ -6212,12 +6212,12 @@ msgstr "Soukromí"
 #~ msgstr "Připraveni přestat zvedat telefon?"
 
 #~ msgid ""
-#~ "30 days free. No card. No "quick"
-#~ " call with sales". Just sign up "
+#~ "30 days free. No card. No \"quick"
+#~ " call with sales\". Just sign up "
 #~ "and try it."
 #~ msgstr ""
 #~ "30 dní zdarma. Bez platební karty. "
-#~ "Žádný „rychlý hovor s obchodem". Jen"
+#~ "Žádný „rychlý hovor s obchodem\". Jen"
 #~ " se zaregistrujte a vyzkoušejte."
 
 #~ msgid "Or write / call us"
@@ -6345,15 +6345,15 @@ msgstr "Soukromí"
 #~ msgstr "1. Úvod"
 
 #~ msgid ""
-#~ "(hereinafter the "Operator"). These terms"
+#~ "(hereinafter the \"Operator\"). These terms"
 #~ " govern the relationship between the "
 #~ "Operator and the person using the "
-#~ "Service (hereinafter the "User")."
+#~ "Service (hereinafter the \"User\")."
 #~ msgstr ""
-#~ "(dále jen "Provozovatel"). Tyto podmínky "
+#~ "(dále jen \"Provozovatel\"). Tyto podmínky "
 #~ "upravují vztah mezi Provozovatelem a "
 #~ "osobou užívající Službu (dále jen "
-#~ ""Uživatel")."
+#~ "\"Uživatel\")."
 
 #~ msgid ""
 #~ "The Service provides a multi-tenant "
@@ -6421,7 +6421,7 @@ msgstr "Soukromí"
 #~ msgstr "7. Odpovědnost"
 
 #~ msgid ""
-#~ "The Service is provided "as-is". "
+#~ "The Service is provided \"as-is\". "
 #~ "The Operator is not liable for "
 #~ "damages caused by outages or data "
 #~ "loss beyond the amount of the "
@@ -6429,7 +6429,7 @@ msgstr "Soukromí"
 #~ " The User is obliged to maintain "
 #~ "their own backups by exporting data."
 #~ msgstr ""
-#~ "Služba je poskytována "tak jak je"."
+#~ "Služba je poskytována \"tak jak je\"."
 #~ " Provozovatel neodpovídá za škody způsobené"
 #~ " výpadky nebo ztrátou dat nad rámec"
 #~ " výše předplatného zaplaceného za daný "

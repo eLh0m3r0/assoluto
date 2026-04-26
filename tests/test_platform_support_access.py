@@ -327,7 +327,7 @@ async def test_admin_tenants_shows_access_state(platform_client, owner_engine) -
     resp = await platform_client.get("/platform/admin/tenants")
     assert resp.status_code == 200
     assert "Zrušit support" not in resp.text
-    assert "Support přístup" in resp.text  # grant CTA back
+    assert "Přístup podpory" in resp.text  # grant CTA back
 
 
 async def test_select_tenant_renders_support_badge(platform_client, owner_engine) -> None:
