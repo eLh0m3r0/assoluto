@@ -25,7 +25,6 @@ from pathlib import Path
 
 import pytest
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CS_PO = REPO_ROOT / "app" / "locale" / "cs" / "LC_MESSAGES" / "messages.po"
 
@@ -121,11 +120,7 @@ def test_no_empty_msgstr_in_cs_catalog() -> None:
     assert not empty, (
         f"{len(empty)} active CS entries have empty msgstr. Examples:\n  "
         + "\n  ".join(repr(e["msgid"][:80]) for e in empty[:10])
-        + (
-            f"\n  … (+{len(empty) - 10} more)"
-            if len(empty) > 10
-            else ""
-        )
+        + (f"\n  … (+{len(empty) - 10} more)" if len(empty) > 10 else "")
         + "\n\nFix: add CS translations in app/locale/cs/LC_MESSAGES/messages.po"
         " then ``uv run pybabel compile -d app/locale``. If the missing"
         " translation has a CS twin in the obsolete (#~) section of the"
@@ -150,14 +145,8 @@ def test_no_fuzzy_entries_in_cs_catalog() -> None:
     assert not fuzzy, (
         f"{len(fuzzy)} active CS entries are fuzzy-flagged. Compile drops"
         f" them → the EN msgid shows on the CS-default site. Examples:\n  "
-        + "\n  ".join(
-            f"{e['msgid'][:60]!r} → {e['msgstr'][:60]!r}" for e in fuzzy[:10]
-        )
-        + (
-            f"\n  … (+{len(fuzzy) - 10} more)"
-            if len(fuzzy) > 10
-            else ""
-        )
+        + "\n  ".join(f"{e['msgid'][:60]!r} → {e['msgstr'][:60]!r}" for e in fuzzy[:10])
+        + (f"\n  … (+{len(fuzzy) - 10} more)" if len(fuzzy) > 10 else "")
         + "\n\nFix: edit app/locale/cs/LC_MESSAGES/messages.po, drop the"
         " ``#, fuzzy`` line from each affected entry (after confirming"
         " the msgstr is the right translation), then ``uv run pybabel"
