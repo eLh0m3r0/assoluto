@@ -28,6 +28,7 @@ import hmac
 import secrets
 
 from fastapi import HTTPException, Request
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 CSRF_COOKIE_NAME = "csrftoken"
 CSRF_FIELD_NAME = "csrf_token"
@@ -62,10 +63,10 @@ class CsrfCookieMiddleware:
     form body via `await request.form()` safely.
     """
 
-    def __init__(self, app) -> None:  # type: ignore[no-untyped-def]
+    def __init__(self, app: ASGIApp) -> None:
         self.app = app
 
-    async def __call__(self, scope, receive, send):  # type: ignore[no-untyped-def]
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
@@ -81,7 +82,7 @@ class CsrfCookieMiddleware:
         needs_set_cookie = existing is None
         scheme_is_https = scope.get("scheme") == "https"
 
-        async def send_wrapper(message):  # type: ignore[no-untyped-def]
+        async def send_wrapper(message: Message) -> None:
             if needs_set_cookie and message["type"] == "http.response.start":
                 headers = list(message.get("headers", []))
                 secure_flag = "; Secure" if scheme_is_https else ""
@@ -96,7 +97,7 @@ class CsrfCookieMiddleware:
         await self.app(scope, receive, send_wrapper)
 
     @staticmethod
-    def _cookie_header(scope) -> str:  # type: ignore[no-untyped-def]
+    def _cookie_header(scope: Scope) -> str:
         for name, value in scope.get("headers", []):
             if name == b"cookie":
                 return value.decode("latin-1")

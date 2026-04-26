@@ -520,6 +520,7 @@ async def reset_password_with_token(
     """
     if len(new_password) < 8:
         raise InvalidInvitation("password must be at least 8 characters")
+    row: User | CustomerContact | None
     if principal_type == "user":
         row = (await db.execute(select(User).where(User.id == principal_id))).scalar_one_or_none()
     elif principal_type == "contact":
@@ -552,12 +553,23 @@ async def reset_password_with_token(
     # session (the function is also called from unit tests with a fresh
     # session, no app.tenant_id GUC).
     label = getattr(row, "email", None) or str(principal_id)
+    # principal_type is "user" or "contact" by construction (callers
+    # pass the literal); cast tightens it to ActorType for the typing
+    # check while keeping runtime behaviour identical.
+    from typing import cast as _cast
+
+    from app.services.audit_service import ActorType
+
     await audit_service.record(
         db,
         action="auth.password_reset",
         entity_type=principal_type,
         entity_id=principal_id,
         entity_label=label,
-        actor=ActorInfo(type=principal_type, id=principal_id, label=label),
+        actor=ActorInfo(
+            type=_cast(ActorType, principal_type),
+            id=principal_id,
+            label=label,
+        ),
         tenant_id=tenant_id,
     )

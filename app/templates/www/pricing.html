@@ -142,7 +142,7 @@
             </div>
             <div class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
                 <span class="mt-0.5 text-brand-500">✦</span>
-                <span><strong class="text-slate-900 dark:text-slate-100">{{ _("Uptime monitoring") }}</strong> — {{ _("UptimeRobot 24/7, status page on request.") }}</span>
+                <span><strong class="text-slate-900 dark:text-slate-100">{{ _("Uptime monitoring") }}</strong> — {% if status_page_url %}{{ _("UptimeRobot 24/7,") }} <a href="{{ status_page_url }}" target="_blank" rel="noopener" class="underline hover:text-brand-600">{{ _("public status page") }}</a>.{% else %}{{ _("UptimeRobot 24/7, status page on request.") }}{% endif %}</span>
             </div>
         </div>
     </div>

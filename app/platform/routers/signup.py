@@ -59,7 +59,7 @@ def _cookie_domain(settings: Settings) -> str | None:
 async def signup_form(
     request: Request,
     identity: Identity | None = Depends(get_current_identity),
-) -> HTMLResponse:
+) -> Response:
     """Show the registration form (or bounce to tenant picker if logged in)."""
     if identity is not None:
         return RedirectResponse(

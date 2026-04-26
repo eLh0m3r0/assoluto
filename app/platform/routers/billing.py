@@ -15,6 +15,8 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
+from app.models.tenant import Tenant
+from app.models.user import User
 from app.platform.billing.service import (
     HIDDEN_PLAN_CODES,
     BillingError,
@@ -45,7 +47,7 @@ def _templates(request: Request):
 
 async def _resolve_current_tenant(
     db: AsyncSession, identity: Identity
-) -> tuple[object, object] | tuple[None, None]:
+) -> tuple[Tenant, User] | tuple[None, None]:
     """Pick the first tenant this identity owns **as tenant_admin**.
 
     Billing is a per-tenant concern AND a privileged one: cancelling
@@ -58,7 +60,6 @@ async def _resolve_current_tenant(
     never see their supplier's billing dashboard).
     """
     from app.models.enums import UserRole
-    from app.models.user import User
     from app.platform.service import resolve_membership_targets
 
     memberships = await list_memberships_for_identity(db, identity_id=identity.id)
@@ -94,7 +95,6 @@ async def invoice_pdf(
     """
     from sqlalchemy import select
 
-    from app.models.tenant import Tenant
     from app.platform.billing.models import Invoice
     from app.services.invoice_pdf_service import _safe_filename_for, render_invoice_pdf
 
@@ -159,7 +159,7 @@ async def billing_dashboard(
     # against the current plan caps.
     from app.platform.usage import snapshot_tenant_usage
 
-    usage = await snapshot_tenant_usage(db, tenant.id)  # type: ignore[attr-defined]
+    usage = await snapshot_tenant_usage(db, tenant.id)
 
     if checkout == "success":
         notice = "Předplatné bylo úspěšně aktualizováno."
@@ -223,14 +223,14 @@ async def start_checkout(
     # left. ``subscription_id`` anchors the Stripe idempotency key
     # for post-trial retries so repeat upgrade attempts don't
     # collide with a stale cached session (round-3 P1-#2).
-    current_sub = await get_subscription_for_tenant(db, tenant.id)  # type: ignore[attr-defined]
+    current_sub = await get_subscription_for_tenant(db, tenant.id)
     trial_ends_at = current_sub.trial_ends_at if current_sub else None
     subscription_id = current_sub.id if current_sub else None
 
     try:
         checkout_url = create_checkout_session(
             settings,
-            tenant=tenant,  # type: ignore[arg-type]
+            tenant=tenant,
             plan=plan,
             success_url=success_url,
             cancel_url=cancel_url,
@@ -255,7 +255,7 @@ async def start_checkout(
 
     # In demo mode, flip the local subscription to the chosen plan immediately.
     if not settings.stripe_enabled:
-        subscription = await get_subscription_for_tenant(db, tenant.id)  # type: ignore[attr-defined]
+        subscription = await get_subscription_for_tenant(db, tenant.id)
         if subscription is not None:
             await set_subscription_plan(db, subscription=subscription, plan=plan, status="demo")
 
@@ -266,7 +266,7 @@ async def start_checkout(
     if t_settings and "selected_plan" in t_settings:
         new_settings = dict(t_settings)
         new_settings.pop("selected_plan", None)
-        tenant.settings = new_settings  # type: ignore[attr-defined]
+        tenant.settings = new_settings
 
     await db.commit()
 
@@ -304,7 +304,7 @@ async def cancel_subscription_route(
     if tenant is None:
         raise HTTPException(status_code=404, detail="No tenant to manage")
 
-    subscription = await get_subscription_for_tenant(db, tenant.id)  # type: ignore[attr-defined]
+    subscription = await get_subscription_for_tenant(db, tenant.id)
     if subscription is None:
         return RedirectResponse(
             url="/platform/billing?notice=" + quote("No active subscription to cancel."),

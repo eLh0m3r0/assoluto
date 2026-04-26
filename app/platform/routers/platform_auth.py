@@ -47,7 +47,7 @@ async def platform_login_form(
     request: Request,
     notice: str | None = None,
     identity: Identity | None = Depends(get_current_identity),
-) -> HTMLResponse:
+) -> Response:
     if identity is not None:
         return RedirectResponse(
             url="/platform/select-tenant", status_code=status.HTTP_303_SEE_OTHER

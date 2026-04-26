@@ -34,10 +34,13 @@ def _render_thumbnail(data: bytes, content_type: str) -> bytes | None:
         try:
             with Image.open(BytesIO(data)) as img:
                 img.thumbnail(THUMBNAIL_MAX_SIZE)
-                if img.mode not in ("RGB", "L"):
-                    img = img.convert("RGB")
+                # ``Image.open`` returns ``ImageFile`` (a subclass of
+                # ``Image``); ``.convert`` returns a fresh ``Image``.
+                # Re-binding loses the ImageFile-only attributes but we
+                # don't use any of them past this point.
+                rgb_img: Image.Image = img if img.mode in ("RGB", "L") else img.convert("RGB")
                 out = BytesIO()
-                img.save(out, format="JPEG", quality=80)
+                rgb_img.save(out, format="JPEG", quality=80)
                 return out.getvalue()
         except Exception as exc:
             log.warning("thumbnail.image_failed", error=str(exc))

@@ -6,6 +6,8 @@ auth pages are full page loads.
 
 from __future__ import annotations
 
+from typing import cast
+
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,7 +27,7 @@ from app.security.session import (
     write_session,
 )
 from app.services import audit_service
-from app.services.audit_service import ActorInfo
+from app.services.audit_service import ActorInfo, ActorType
 from app.services.auth_service import (
     AccountDisabled,
     InvalidCredentials,
@@ -271,7 +273,7 @@ async def login_submit(
         entity_id=login.principal_id,
         entity_label=login.email,
         actor=ActorInfo(
-            type=login.principal_type,
+            type=cast(ActorType, login.principal_type),
             id=login.principal_id,
             label=login.email,
         ),
@@ -717,6 +719,9 @@ async def password_reset_request_submit(
         # having to flip each contact's row).
         customer = None
         if principal_type == "contact":
+            from app.models.customer import CustomerContact
+
+            assert isinstance(row, CustomerContact)  # narrow for mypy
             customer = await get_customer(db, row.customer_id)
         locale = resolve_email_locale(
             recipient=row, customer=customer, tenant=tenant, settings=settings

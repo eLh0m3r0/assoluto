@@ -333,6 +333,7 @@ class Templates:
             "has_platform_session": has_platform_session,
             "is_platform_admin": is_platform_admin,
             "platform_admin_url": platform_admin_url,
+            "status_page_url": self.settings.status_page_url or None,
         }
         if extra:
             context.update(extra)

@@ -32,6 +32,7 @@ from app.scheduler import build_scheduler
 from app.security.csrf import CsrfCookieMiddleware
 from app.security.headers import SecurityHeadersMiddleware
 from app.security.locale import LocaleMiddleware
+from app.security.log_context import LogContextMiddleware
 from app.storage.s3 import ensure_bucket_exists
 from app.templating import Templates, build_jinja_env
 
@@ -268,17 +269,23 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Hide /docs, /redoc, /openapi.json on production. They expose the full
     # route map (incl. platform-admin and Stripe-webhook paths) plus the app
     # version to anonymous visitors. Useful in dev, dangerous in prod.
-    docs_kwargs: dict[str, str | None] = {}
     if settings.is_production:
-        docs_kwargs = {"docs_url": None, "redoc_url": None, "openapi_url": None}
-
-    app = FastAPI(
-        title="Assoluto",
-        version=__version__,
-        debug=settings.app_debug,
-        lifespan=lifespan,
-        **docs_kwargs,
-    )
+        app = FastAPI(
+            title="Assoluto",
+            version=__version__,
+            debug=settings.app_debug,
+            lifespan=lifespan,
+            docs_url=None,
+            redoc_url=None,
+            openapi_url=None,
+        )
+    else:
+        app = FastAPI(
+            title="Assoluto",
+            version=__version__,
+            debug=settings.app_debug,
+            lifespan=lifespan,
+        )
     app.state.settings = settings
     app.state.templates = Templates(build_jinja_env(), settings)
     app.state.email_sender = build_sender(settings)
@@ -314,6 +321,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # default). Result is available on ``request.state.locale`` and used
     # by the Jinja2 environment to pick the right gettext catalog.
     app.add_middleware(LocaleMiddleware, settings=settings)
+
+    # Stamp request_id + method + path onto structlog contextvars so
+    # every log line emitted during the request inherits them. Tenant-
+    # and principal-id are bound later in ``get_db`` and
+    # ``get_current_principal`` respectively. Outermost middleware so
+    # context is set before anything else can log.
+    app.add_middleware(LogContextMiddleware)
 
     _mount_static(app)
     app.include_router(health_router.router)

@@ -35,8 +35,12 @@ class LocaleMiddleware:
             return
 
         # Build a minimal Request-like facade just to reuse negotiate_locale.
+        # The facade duck-types only the `cookies` and `headers` accessors
+        # negotiate_locale needs; mypy can't see through that, hence the
+        # ignore. See ``_ScopeRequest`` docstring below for the reason
+        # we don't construct a real ``Request`` here.
         request = _ScopeRequest(scope)
-        locale = negotiate_locale(request, self._supported, self._default)
+        locale = negotiate_locale(request, self._supported, self._default)  # type: ignore[arg-type]
 
         # Starlette sets up ``scope["state"]`` lazily; create the dict if needed.
         state: dict[str, Any] = scope.setdefault("state", {})

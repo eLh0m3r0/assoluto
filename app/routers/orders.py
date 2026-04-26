@@ -1024,6 +1024,16 @@ async def orders_bulk_transition(
         order = orders_by_id.get(order_id)
         if order is None:
             continue
+        # build_order_submitted and build_order_status_changed return
+        # different notification dataclasses; the union is fine because
+        # the email-task functions branch on the (target, payload) tuple
+        # downstream and call the matching sender for each.
+        from app.services.notification_service import (
+            OrderStatusChangedNotification,
+            OrderSubmittedNotification,
+        )
+
+        payload: OrderSubmittedNotification | OrderStatusChangedNotification | None
         if target == OrderStatus.SUBMITTED:
             payload = await build_order_submitted(
                 db,
@@ -1050,6 +1060,7 @@ async def orders_bulk_transition(
 
     for status, payload in notifications:
         if status == OrderStatus.SUBMITTED:
+            assert isinstance(payload, OrderSubmittedNotification)
             background_tasks.add_task(
                 send_order_submitted,
                 sender,
@@ -1061,6 +1072,7 @@ async def orders_bulk_transition(
                 order_url=payload.order_url,
             )
         else:
+            assert isinstance(payload, OrderStatusChangedNotification)
             background_tasks.add_task(
                 send_order_status_changed,
                 sender,

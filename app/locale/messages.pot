@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-26 12:42+0200\n"
+"POT-Creation-Date: 2026-04-26 12:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -123,19 +123,19 @@ msgstr ""
 msgid "Customer contact"
 msgstr ""
 
-#: app/main.py:452
+#: app/main.py:460
 msgid "staff users"
 msgstr ""
 
-#: app/main.py:453
+#: app/main.py:461
 msgid "client contacts"
 msgstr ""
 
-#: app/main.py:454
+#: app/main.py:462
 msgid "orders this month"
 msgstr ""
 
-#: app/main.py:455
+#: app/main.py:463
 msgid "MB of storage"
 msgstr ""
 
@@ -3875,6 +3875,14 @@ msgstr ""
 
 #: app/templates/www/pricing.html:145
 msgid "Uptime monitoring"
+msgstr ""
+
+#: app/templates/www/pricing.html:145
+msgid "UptimeRobot 24/7,"
+msgstr ""
+
+#: app/templates/www/pricing.html:145
+msgid "public status page"
 msgstr ""
 
 #: app/templates/www/pricing.html:145

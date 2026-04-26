@@ -24,7 +24,6 @@ Design notes:
 
 from __future__ import annotations
 
-import gettext as _gettext
 from pathlib import Path
 
 from babel import Locale, UnknownLocaleError
@@ -144,8 +143,10 @@ def ngettext(locale: str, singular: str, plural: str, n: int) -> str:
 # A process-wide "identity" translator used as a fallback by Jinja when the
 # environment is built before the locale is known. The real per-request
 # catalog is installed via ``env.install_gettext_translations()`` on every
-# render (see ``app/templating.py``).
-_IDENTITY = _gettext.NullTranslations()
+# render (see ``app/templating.py``). Use babel's ``NullTranslations``
+# (subclass of stdlib gettext) so the static type matches the
+# ``NullTranslations`` returned everywhere else in this module.
+_IDENTITY = NullTranslations()
 
 
 def identity_translations() -> NullTranslations:

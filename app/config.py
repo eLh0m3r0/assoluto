@@ -101,6 +101,10 @@ class Settings(BaseSettings):
     platform_operator_email: str = Field(
         default="team@assoluto.eu", alias="PLATFORM_OPERATOR_EMAIL"
     )
+    # Public uptime status page (e.g. an UptimeRobot Public Status Page).
+    # When set, marketing pages render a hyperlink instead of "on request".
+    # Empty string keeps the legacy ``status page on request`` copy.
+    status_page_url: str = Field(default="", alias="STATUS_PAGE_URL")
 
     # --- Billing (Stripe) --------------------------------------------------
     # Leave all empty to run in "demo mode" — billing flows still work but

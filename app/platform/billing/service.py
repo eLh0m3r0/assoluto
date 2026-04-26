@@ -402,7 +402,7 @@ def create_checkout_session(
         stable = "no-trial"
     idem_key = f"checkout:{tenant.id}:{plan.code}:{stable}"
     session = stripe.checkout.Session.create(**session_kwargs, idempotency_key=idem_key)
-    return session.url  # type: ignore[attr-defined,no-any-return]
+    return session.url
 
 
 def create_billing_portal_session(
@@ -421,7 +421,7 @@ def create_billing_portal_session(
         return_url=return_url,
         idempotency_key=idem_key,
     )
-    return session.url  # type: ignore[attr-defined,no-any-return]
+    return session.url
 
 
 # --------------------------------------------------------- webhook handling

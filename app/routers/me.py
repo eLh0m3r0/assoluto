@@ -77,7 +77,7 @@ async def profile_form(
     pwsaved: int = 0,
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
-) -> HTMLResponse:
+) -> Response:
     redirect = _ensure_contact_or_redirect(principal)
     if redirect is not None:
         return redirect

@@ -149,7 +149,14 @@ async def get_db(
     A single transaction wraps the whole request so that `set_config(...,
     is_local=true)` remains in effect for every query issued during the
     request, and all writes are committed or rolled back atomically.
+
+    Side-effect: binds ``tenant_id`` onto the structlog contextvars so
+    every log line emitted during the request inherits it.
+    LogContextMiddleware clears the context at request end.
     """
+    import structlog
+
+    structlog.contextvars.bind_contextvars(tenant_id=str(tenant.id))
     sm = get_sessionmaker()
     async with sm() as session, session.begin():
         await set_tenant_context(session, str(tenant.id))
@@ -266,6 +273,8 @@ async def get_current_principal(
     except ValueError:
         return None
 
+    import structlog
+
     if session_data.principal_type == "user":
         result = await db.execute(select(User).where(User.id == principal_uuid))
         user = result.scalar_one_or_none()
@@ -273,18 +282,26 @@ async def get_current_principal(
             return None
         if user.session_version != session_data.session_version:
             return None
+        structlog.contextvars.bind_contextvars(
+            principal_id=str(user.id),
+            principal_type="user",
+        )
         await _stash_subscription_status(request, db, tenant.id, settings)
         return Principal.from_user(user)
 
     if session_data.principal_type == "contact":
-        result = await db.execute(
+        contact_result = await db.execute(
             select(CustomerContact).where(CustomerContact.id == principal_uuid)
         )
-        contact = result.scalar_one_or_none()
+        contact = contact_result.scalar_one_or_none()
         if contact is None or not contact.is_active:
             return None
         if contact.session_version != session_data.session_version:
             return None
+        structlog.contextvars.bind_contextvars(
+            principal_id=str(contact.id),
+            principal_type="contact",
+        )
         await _stash_subscription_status(request, db, tenant.id, settings)
         return Principal.from_contact(contact)
 

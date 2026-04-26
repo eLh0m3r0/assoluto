@@ -166,16 +166,17 @@ async def assets_detail(
     if not principal.is_staff and asset.customer_id != principal.customer_id:
         raise HTTPException(status_code=404, detail="Asset not found")
 
+    from app.models.order import Order
+
     movements = await list_movements(db, asset_id=asset.id)
     customer = None
-    orders = []
+    orders: list[Order] = []
     if principal.is_staff:
         customer = (
             await db.execute(select(Customer).where(Customer.id == asset.customer_id))
         ).scalar_one_or_none()
-        from app.models.order import Order
 
-        orders = (
+        orders = list(
             (
                 await db.execute(
                     select(Order)

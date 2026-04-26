@@ -409,7 +409,7 @@ def _example_invoice_for_preview(*, tenant, settings):  # pragma: no cover - dev
         paid_at=now,
         created_at=now,
     )
-    return render_invoice_pdf(invoice=fake, tenant=tenant, settings=settings)
+    return render_invoice_pdf(invoice=fake, tenant=tenant, settings=settings)  # type: ignore[arg-type]
 
 
 def _safe_filename_for(invoice: Invoice) -> str:
