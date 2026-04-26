@@ -10,42 +10,58 @@
     </p>
 
     <div class="mt-8 space-y-6 text-sm leading-relaxed">
+
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("1. Data controller") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("1. Who is the data controller") }}</h2>
             <p class="mt-2">
-                {{ _("The data controller is") }} <strong>{{ operator_name }}</strong>,
-                {{ _("Company ID") }} <strong>{{ operator_ico }}</strong>,
+                {{ _("The data controller for personal data processed when you visit assoluto.eu and when you operate a Hosted Service account is") }}
+                <strong>{{ operator_name }}</strong>, {{ _("Company ID (IČO)") }}
+                <strong>{{ operator_ico }}</strong>,
                 {{ _("with registered office at") }} {{ operator_address }}.
                 {{ _("Contact:") }}
                 <a href="mailto:{{ operator_email }}" class="text-brand-600 hover:text-brand-700">{{ operator_email }}</a>.
             </p>
-        </section>
-
-        <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("2. What data we process") }}</h2>
-            <ul class="mt-2 list-disc space-y-1 pl-6">
-                <li>{{ _("Account identification data (name, email, company, Company ID, VAT ID)") }}</li>
-                <li>{{ _("Login credentials (password in Argon2-hashed form)") }}</li>
-                <li>{{ _("Content created in the portal (orders, comments, attachments)") }}</li>
-                <li>{{ _("Billing data, if you subscribe to a plan") }}</li>
-                <li>{{ _("Technical logs (IP address, User-Agent) for operational security") }}</li>
-            </ul>
-        </section>
-
-        <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("3. Why we process data") }}</h2>
-            <ul class="mt-2 list-disc space-y-1 pl-6">
-                <li>{{ _("Contract performance (operating the portal you ordered)") }}</li>
-                <li>{{ _("Invoicing and tax records (legitimate interest + legal obligation)") }}</li>
-                <li>{{ _("Security and abuse prevention (legitimate interest)") }}</li>
-                <li>{{ _("Sending operational emails (consent / contract performance)") }}</li>
-            </ul>
-        </section>
-
-        <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("4. Where data is stored + our subprocessors") }}</h2>
             <p class="mt-2">
-                {{ _("We use the following third parties (subprocessors) to run the service. Data sharing is limited to what each subprocessor needs to do its job; no subprocessor receives marketing permissions on your data.") }}
+                {{ _("For personal data that you (the Customer) upload about your own end clients into the portal — order data, contact records, drawings — the Provider acts as a data processor under Article 28 GDPR; the Customer remains the controller of that data. A standard DPA is available on request at the same address.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Provider has not designated a Data Protection Officer because the size and nature of processing falls below the GDPR Article 37 threshold. For all GDPR-related matters please contact the Provider directly at the email above.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("2. What personal data we process and on what legal basis") }}</h2>
+            <p class="mt-2">
+                {{ _("We process the following categories of personal data, on the legal bases set out next to each category:") }}
+            </p>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("Account identification (full name, work email, role, company name, IČO, DIČ if provided) — Article 6(1)(b) GDPR, performance of the contract.") }}</li>
+                <li>{{ _("Login credentials (password stored only as an Argon2id hash; we never see your plaintext password) — Article 6(1)(b) GDPR.") }}</li>
+                <li>{{ _("Content you create in the portal (orders, attachments, comments, customer records, products) — Article 6(1)(b) GDPR. For end-client personal data inside this content we act as a processor on your instructions.") }}</li>
+                <li>{{ _("Billing data (Czech tax-document fields, payment status, invoice history) — Article 6(1)(b) GDPR for the contract; Article 6(1)(c) GDPR for the legal obligation to retain accounting records.") }}</li>
+                <li>{{ _("Technical/security logs (IP address, User-Agent, request path, login success/failure, CSRF token activity) — Article 6(1)(f) GDPR, legitimate interest in operating a secure service.") }}</li>
+                <li>{{ _("Audit-trail records of administrative actions inside your tenant — Article 6(1)(b) and (f) GDPR.") }}</li>
+            </ul>
+            <p class="mt-2">
+                {{ _("We do not process any special-category (sensitive) personal data and we ask that you do not upload such data into the portal.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("3. Why we process the data (purposes)") }}</h2>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("Operating the Service you ordered — letting you log in, see your orders, send notifications, generate invoices.") }}</li>
+                <li>{{ _("Issuing tax-compliant invoices and meeting Czech accounting and tax-reporting obligations.") }}</li>
+                <li>{{ _("Detecting and responding to abuse — brute-force login attempts, spam, attempts to access other tenants' data.") }}</li>
+                <li>{{ _("Sending operational emails (welcome, password reset, invoice delivery, subscription notifications).") }}</li>
+                <li>{{ _("Improving the Service based on aggregated usage patterns; we do not perform automated decision-making with legal effects (no profiling, no algorithmic eligibility decisions).") }}</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("4. Where data is stored and our subprocessors") }}</h2>
+            <p class="mt-2">
+                {{ _("We rely on the following subprocessors. Each receives only the data they need to deliver their part of the Service; none have permission to use your data for marketing or to share it onward.") }}
             </p>
             <div class="mt-3 overflow-x-auto">
             <table class="min-w-full border-collapse text-left text-sm">
@@ -60,68 +76,107 @@
                 <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
                     <tr>
                         <td class="px-3 py-2 font-medium">Hetzner Online GmbH</td>
-                        <td class="px-3 py-2">{{ _("Hosting (VPS)") }}</td>
-                        <td class="px-3 py-2">{{ _("All (at-rest, encrypted)") }}</td>
+                        <td class="px-3 py-2">{{ _("Application hosting + database (VPS) + S3-compatible storage") }}</td>
+                        <td class="px-3 py-2">{{ _("All Customer data (encrypted at rest)") }}</td>
                         <td class="px-3 py-2">DE (EU)</td>
                     </tr>
                     <tr>
-                        <td class="px-3 py-2 font-medium">Brevo (Sendinblue)</td>
-                        <td class="px-3 py-2">{{ _("Transactional email") }}</td>
-                        <td class="px-3 py-2">{{ _("Recipient email, name, body") }}</td>
+                        <td class="px-3 py-2 font-medium">Brevo (Sendinblue SAS)</td>
+                        <td class="px-3 py-2">{{ _("Transactional email delivery") }}</td>
+                        <td class="px-3 py-2">{{ _("Recipient email, name, message body") }}</td>
                         <td class="px-3 py-2">FR (EU)</td>
                     </tr>
                     <tr>
-                        <td class="px-3 py-2 font-medium">Stripe Payments Europe, Ltd.</td>
-                        <td class="px-3 py-2">{{ _("Subscription billing") }}</td>
-                        <td class="px-3 py-2">{{ _("Billing email, company, tax ID, card (processor-held)") }}</td>
-                        <td class="px-3 py-2">IE / US (SCC)</td>
+                        <td class="px-3 py-2 font-medium">Stripe Payments Europe Ltd.</td>
+                        <td class="px-3 py-2">{{ _("Subscription billing, card processing, dunning") }}</td>
+                        <td class="px-3 py-2">{{ _("Billing email, company name, tax IDs, card data (held by Stripe, never by us)") }}</td>
+                        <td class="px-3 py-2">{{ _("IE (EU); some processing in US under SCCs") }}</td>
                     </tr>
                     <tr>
                         <td class="px-3 py-2 font-medium">Porkbun LLC</td>
-                        <td class="px-3 py-2">{{ _("DNS + domain registrar") }}</td>
-                        <td class="px-3 py-2">{{ _("Public DNS records only") }}</td>
+                        <td class="px-3 py-2">{{ _("DNS hosting and domain registrar") }}</td>
+                        <td class="px-3 py-2">{{ _("Public DNS records only — no personal data") }}</td>
                         <td class="px-3 py-2">US</td>
                     </tr>
                 </tbody>
             </table>
             </div>
             <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                {{ _("Subprocessor changes are disclosed at least 30 days in advance by updating this page and emailing active tenant admins.") }}
+                {{ _("Stripe transfers some processing to its US affiliates under Standard Contractual Clauses (SCCs) approved by the European Commission. We rely on Stripe's published transfer impact assessment.") }}
+            </p>
+            <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                {{ _("Subprocessor changes are disclosed at least 30 days in advance by updating this page and emailing active tenant administrators. The Customer may object to a new subprocessor by terminating the subscription before the change takes effect.") }}
             </p>
         </section>
 
         <section>
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("5. How long we retain data") }}</h2>
             <ul class="mt-2 list-disc space-y-1 pl-6">
-                <li>{{ _("Active account data — for the lifetime of the subscription.") }}</li>
-                <li>{{ _("After account cancellation — 30 days grace (for reactivation), then anonymisation.") }}</li>
-                <li>{{ _("Authentication logs (last_login timestamps, failed login attempts) — 90 days.") }}</li>
-                <li>{{ _("Audit trail of operator / admin actions — retained for the lifetime of the tenant, plus 3 years after closure for contractual dispute evidence.") }}</li>
-                <li>{{ _("Billing records (invoices, subscription history) — 10 years from the end of the accounting period, as required by Czech Act 563/1991 Coll. on accounting.") }}</li>
-                <li>{{ _("Request / error logs — 14 days.") }}</li>
-                <li>{{ _("Database backups — 14 days rolling.") }}</li>
+                <li>{{ _("Active account data — for the duration of the active subscription.") }}</li>
+                <li>{{ _("After subscription cancellation — full access continues until the end of the paid period plus a 3-day data-export grace period; afterwards the account is deactivated.") }}</li>
+                <li>{{ _("Manual recovery on request — data remains recoverable on written request for 30 days after deactivation. After that, it is permanently deleted.") }}</li>
+                <li>{{ _("Database backups — 14 days rolling, then automatically purged.") }}</li>
+                <li>{{ _("Authentication and security logs (last_login timestamps, failed login attempts, IP) — 90 days.") }}</li>
+                <li>{{ _("Audit trail of admin actions inside the tenant — for the lifetime of the tenant; after deletion, retained for up to 3 years for evidentiary purposes in case of dispute.") }}</li>
+                <li>{{ _("Billing records and tax documents — 10 years from the end of the accounting period, as required by Czech Act 563/1991 Coll. on Accounting.") }}</li>
+                <li>{{ _("Application request and error logs — 14 days.") }}</li>
+            </ul>
+            <p class="mt-2">
+                {{ _("Where the law mandates a longer retention (such as billing records), we retain only what the law requires and isolate it from the operational dataset where possible.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("6. Recipients and data sharing") }}</h2>
+            <p class="mt-2">
+                {{ _("We do not sell or rent your personal data. We share data only:") }}
+            </p>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("with the subprocessors listed in Section 4, strictly for the purposes set out there;") }}</li>
+                <li>{{ _("with public authorities when required by law or by an enforceable order;") }}</li>
+                <li>{{ _("with our professional advisors (accountant, tax advisor) under confidentiality, for billing and accounting purposes only.") }}</li>
             </ul>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("6. Your rights") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("7. Your rights") }}</h2>
             <p class="mt-2">
-                {{ _("You have the right to access, rectification, erasure, restriction of processing, portability, and objection. Contact") }}
-                <a href="mailto:team@assoluto.eu" class="text-brand-600 hover:text-brand-700">team@assoluto.eu</a>;
-                {{ _("we will respond within 30 days.") }}
+                {{ _("Under GDPR Articles 15–22 you have the right to: access your personal data, rectify inaccurate data, request erasure, restrict processing, receive your data in a portable format (CSV / ZIP via the in-app export), and object to processing based on legitimate interest. The data-export and account-delete actions are available self-service in the application's admin profile section.") }}
             </p>
             <p class="mt-2">
-                {{ _("You also have the right to file a complaint with the Office for Personal Data Protection") }}
-                (<a href="https://www.uoou.cz" class="text-brand-600 hover:text-brand-700">uoou.cz</a>).
+                {{ _("To exercise any other right, write to") }}
+                <a href="mailto:{{ operator_email }}" class="text-brand-600 hover:text-brand-700">{{ operator_email }}</a>.
+                {{ _("We respond within 30 days of verifying your identity. The response is free of charge unless the request is manifestly unfounded or excessive (Article 12(5) GDPR).") }}
+            </p>
+            <p class="mt-2">
+                {{ _("If you believe your rights have been infringed you may lodge a complaint with the Czech Office for Personal Data Protection") }}
+                (<a href="https://www.uoou.gov.cz" class="text-brand-600 hover:text-brand-700">uoou.gov.cz</a>),
+                {{ _("Pplk. Sochora 27, 170 00 Prague 7, Czech Republic.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("7. Cookies") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("8. Cookies and similar technologies") }}</h2>
             <p class="mt-2">
-                {{ _("The portal uses only technical (session) cookies necessary for login and CSRF protection. We do not deploy analytics or marketing cookies without your consent.") }}
+                {{ _("The portal uses only strictly-necessary cookies (login session, CSRF protection, locale and theme preference). We do not deploy analytics or marketing cookies, and we do not track you across sites. Full inventory:") }}
+                <a href="/cookies" class="text-brand-600 hover:text-brand-700">{{ _("Cookies policy") }}</a>.
             </p>
         </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("9. Data security") }}</h2>
+            <p class="mt-2">
+                {{ _("We apply the technical and organisational measures appropriate to the risk: TLS 1.2+ for all traffic, Argon2id password hashing, per-tenant database isolation enforced at the row level (Postgres RLS), encrypted backups, principle-of-least-privilege access by the Provider, no plaintext storage of credentials or payment cards. Security incidents affecting your data will be reported to you and (where required) to the supervisory authority within 72 hours under Article 33 GDPR.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("10. Changes to this Privacy Policy") }}</h2>
+            <p class="mt-2">
+                {{ _("Material changes — new subprocessors, expanded data categories, longer retention — are announced at least 30 days in advance by updating this page and emailing active tenant administrators. The version number and effective date at the top of the page identify the current version.") }}
+            </p>
+        </section>
+
     </div>
 </section>
 {% endblock %}

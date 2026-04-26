@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-25 21:49+0200\n"
+"POT-Creation-Date: 2026-04-26 07:34+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -1321,7 +1321,7 @@ msgid "Current stock"
 msgstr ""
 
 #: app/templates/assets/detail.html:28 app/templates/assets/form.html:46
-#: app/templates/assets/list.html:29 app/templates/www/privacy.html:57
+#: app/templates/assets/list.html:29 app/templates/www/privacy.html:73
 msgid "Location"
 msgstr ""
 
@@ -2793,7 +2793,7 @@ msgstr ""
 msgid "Cookies"
 msgstr ""
 
-#: app/templates/www/cookies.html:7
+#: app/templates/www/cookies.html:7 app/templates/www/privacy.html:162
 msgid "Cookies policy"
 msgstr ""
 
@@ -2826,7 +2826,7 @@ msgstr ""
 msgid "2. Cookies we set"
 msgstr ""
 
-#: app/templates/www/cookies.html:30 app/templates/www/privacy.html:55
+#: app/templates/www/cookies.html:30 app/templates/www/privacy.html:71
 msgid "Purpose"
 msgstr ""
 
@@ -3193,7 +3193,7 @@ msgid "Terms of Service"
 msgstr "Terms of Service"
 
 #: app/templates/www/imprint.html:55 app/templates/www/privacy.html:3
-#: app/templates/www/privacy.html:7 app/templates/www/terms.html:54
+#: app/templates/www/privacy.html:7 app/templates/www/terms.html:103
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
 
@@ -3990,198 +3990,358 @@ msgid ""
 " price is typical, free access for small organisations."
 msgstr ""
 
-#: app/templates/www/privacy.html:14
-msgid "1. Data controller"
+#: app/templates/www/privacy.html:15
+msgid "1. Who is the data controller"
 msgstr ""
 
-#: app/templates/www/privacy.html:16
-msgid "The data controller is"
+#: app/templates/www/privacy.html:17
+msgid ""
+"The data controller for personal data processed when you visit "
+"assoluto.eu and when you operate a Hosted Service account is"
 msgstr ""
-
-#: app/templates/www/privacy.html:17 app/templates/www/terms.html:17
-#, fuzzy
-msgid "Company ID"
-msgstr "Company name"
 
 #: app/templates/www/privacy.html:18 app/templates/www/terms.html:18
+#, fuzzy
+msgid "Company ID (IČO)"
+msgstr "Company name"
+
+#: app/templates/www/privacy.html:20 app/templates/www/terms.html:20
 msgid "with registered office at"
 msgstr ""
 
-#: app/templates/www/privacy.html:19
+#: app/templates/www/privacy.html:21 app/templates/www/terms.html:22
 msgid "Contact:"
 msgstr ""
 
 #: app/templates/www/privacy.html:25
-msgid "2. What data we process"
-msgstr ""
-
-#: app/templates/www/privacy.html:27
-msgid "Account identification data (name, email, company, Company ID, VAT ID)"
+msgid ""
+"For personal data that you (the Customer) upload about your own end "
+"clients into the portal — order data, contact records, drawings — the "
+"Provider acts as a data processor under Article 28 GDPR; the Customer "
+"remains the controller of that data. A standard DPA is available on "
+"request at the same address."
 msgstr ""
 
 #: app/templates/www/privacy.html:28
-msgid "Login credentials (password in Argon2-hashed form)"
+msgid ""
+"The Provider has not designated a Data Protection Officer because the "
+"size and nature of processing falls below the GDPR Article 37 threshold. "
+"For all GDPR-related matters please contact the Provider directly at the "
+"email above."
 msgstr ""
 
-#: app/templates/www/privacy.html:29
-msgid "Content created in the portal (orders, comments, attachments)"
+#: app/templates/www/privacy.html:33
+msgid "2. What personal data we process and on what legal basis"
 msgstr ""
 
-#: app/templates/www/privacy.html:30
-msgid "Billing data, if you subscribe to a plan"
-msgstr ""
-
-#: app/templates/www/privacy.html:31
-msgid "Technical logs (IP address, User-Agent) for operational security"
-msgstr ""
-
-#: app/templates/www/privacy.html:36
-msgid "3. Why we process data"
+#: app/templates/www/privacy.html:35
+msgid ""
+"We process the following categories of personal data, on the legal bases "
+"set out next to each category:"
 msgstr ""
 
 #: app/templates/www/privacy.html:38
-msgid "Contract performance (operating the portal you ordered)"
+msgid ""
+"Account identification (full name, work email, role, company name, IČO, "
+"DIČ if provided) — Article 6(1)(b) GDPR, performance of the contract."
 msgstr ""
 
 #: app/templates/www/privacy.html:39
-msgid "Invoicing and tax records (legitimate interest + legal obligation)"
+msgid ""
+"Login credentials (password stored only as an Argon2id hash; we never see"
+" your plaintext password) — Article 6(1)(b) GDPR."
 msgstr ""
 
 #: app/templates/www/privacy.html:40
-msgid "Security and abuse prevention (legitimate interest)"
+msgid ""
+"Content you create in the portal (orders, attachments, comments, customer"
+" records, products) — Article 6(1)(b) GDPR. For end-client personal data "
+"inside this content we act as a processor on your instructions."
 msgstr ""
 
 #: app/templates/www/privacy.html:41
-msgid "Sending operational emails (consent / contract performance)"
+msgid ""
+"Billing data (Czech tax-document fields, payment status, invoice history)"
+" — Article 6(1)(b) GDPR for the contract; Article 6(1)(c) GDPR for the "
+"legal obligation to retain accounting records."
+msgstr ""
+
+#: app/templates/www/privacy.html:42
+msgid ""
+"Technical/security logs (IP address, User-Agent, request path, login "
+"success/failure, CSRF token activity) — Article 6(1)(f) GDPR, legitimate "
+"interest in operating a secure service."
+msgstr ""
+
+#: app/templates/www/privacy.html:43
+msgid ""
+"Audit-trail records of administrative actions inside your tenant — "
+"Article 6(1)(b) and (f) GDPR."
 msgstr ""
 
 #: app/templates/www/privacy.html:46
-msgid "4. Where data is stored + our subprocessors"
+msgid ""
+"We do not process any special-category (sensitive) personal data and we "
+"ask that you do not upload such data into the portal."
 msgstr ""
 
-#: app/templates/www/privacy.html:48
+#: app/templates/www/privacy.html:51
+msgid "3. Why we process the data (purposes)"
+msgstr ""
+
+#: app/templates/www/privacy.html:53
 msgid ""
-"We use the following third parties (subprocessors) to run the service. "
-"Data sharing is limited to what each subprocessor needs to do its job; no"
-" subprocessor receives marketing permissions on your data."
+"Operating the Service you ordered — letting you log in, see your orders, "
+"send notifications, generate invoices."
 msgstr ""
 
 #: app/templates/www/privacy.html:54
-msgid "Subprocessor"
+msgid ""
+"Issuing tax-compliant invoices and meeting Czech accounting and tax-"
+"reporting obligations."
+msgstr ""
+
+#: app/templates/www/privacy.html:55
+msgid ""
+"Detecting and responding to abuse — brute-force login attempts, spam, "
+"attempts to access other tenants' data."
 msgstr ""
 
 #: app/templates/www/privacy.html:56
-msgid "Data categories"
+msgid ""
+"Sending operational emails (welcome, password reset, invoice delivery, "
+"subscription notifications)."
 msgstr ""
 
-#: app/templates/www/privacy.html:63
-msgid "Hosting (VPS)"
+#: app/templates/www/privacy.html:57
+msgid ""
+"Improving the Service based on aggregated usage patterns; we do not "
+"perform automated decision-making with legal effects (no profiling, no "
+"algorithmic eligibility decisions)."
+msgstr ""
+
+#: app/templates/www/privacy.html:62
+msgid "4. Where data is stored and our subprocessors"
 msgstr ""
 
 #: app/templates/www/privacy.html:64
-msgid "All (at-rest, encrypted)"
-msgstr ""
-
-#: app/templates/www/privacy.html:69
-msgid "Transactional email"
+msgid ""
+"We rely on the following subprocessors. Each receives only the data they "
+"need to deliver their part of the Service; none have permission to use "
+"your data for marketing or to share it onward."
 msgstr ""
 
 #: app/templates/www/privacy.html:70
-msgid "Recipient email, name, body"
+msgid "Subprocessor"
 msgstr ""
 
-#: app/templates/www/privacy.html:75
-msgid "Subscription billing"
+#: app/templates/www/privacy.html:72
+msgid "Data categories"
 msgstr ""
 
-#: app/templates/www/privacy.html:76
-msgid "Billing email, company, tax ID, card (processor-held)"
+#: app/templates/www/privacy.html:79
+msgid "Application hosting + database (VPS) + S3-compatible storage"
 msgstr ""
 
-#: app/templates/www/privacy.html:81
-msgid "DNS + domain registrar"
+#: app/templates/www/privacy.html:80
+msgid "All Customer data (encrypted at rest)"
 msgstr ""
 
-#: app/templates/www/privacy.html:82
-msgid "Public DNS records only"
+#: app/templates/www/privacy.html:85
+msgid "Transactional email delivery"
 msgstr ""
 
-#: app/templates/www/privacy.html:89
+#: app/templates/www/privacy.html:86
+msgid "Recipient email, name, message body"
+msgstr ""
+
+#: app/templates/www/privacy.html:91
+msgid "Subscription billing, card processing, dunning"
+msgstr ""
+
+#: app/templates/www/privacy.html:92
 msgid ""
-"Subprocessor changes are disclosed at least 30 days in advance by "
-"updating this page and emailing active tenant admins."
+"Billing email, company name, tax IDs, card data (held by Stripe, never by"
+" us)"
 msgstr ""
 
-#: app/templates/www/privacy.html:94
-msgid "5. How long we retain data"
-msgstr ""
-
-#: app/templates/www/privacy.html:96
-msgid "Active account data — for the lifetime of the subscription."
+#: app/templates/www/privacy.html:93
+msgid "IE (EU); some processing in US under SCCs"
 msgstr ""
 
 #: app/templates/www/privacy.html:97
-msgid ""
-"After account cancellation — 30 days grace (for reactivation), then "
-"anonymisation."
+msgid "DNS hosting and domain registrar"
 msgstr ""
 
 #: app/templates/www/privacy.html:98
+msgid "Public DNS records only — no personal data"
+msgstr ""
+
+#: app/templates/www/privacy.html:105
 msgid ""
-"Authentication logs (last_login timestamps, failed login attempts) — 90 "
-"days."
+"Stripe transfers some processing to its US affiliates under Standard "
+"Contractual Clauses (SCCs) approved by the European Commission. We rely "
+"on Stripe's published transfer impact assessment."
 msgstr ""
 
-#: app/templates/www/privacy.html:99
+#: app/templates/www/privacy.html:108
 msgid ""
-"Audit trail of operator / admin actions — retained for the lifetime of "
-"the tenant, plus 3 years after closure for contractual dispute evidence."
+"Subprocessor changes are disclosed at least 30 days in advance by "
+"updating this page and emailing active tenant administrators. The "
+"Customer may object to a new subprocessor by terminating the subscription"
+" before the change takes effect."
 msgstr ""
 
-#: app/templates/www/privacy.html:100
+#: app/templates/www/privacy.html:113
+msgid "5. How long we retain data"
+msgstr ""
+
+#: app/templates/www/privacy.html:115
+msgid "Active account data — for the duration of the active subscription."
+msgstr ""
+
+#: app/templates/www/privacy.html:116
 msgid ""
-"Billing records (invoices, subscription history) — 10 years from the end "
-"of the accounting period, as required by Czech Act 563/1991 Coll. on "
-"accounting."
+"After subscription cancellation — full access continues until the end of "
+"the paid period plus a 3-day data-export grace period; afterwards the "
+"account is deactivated."
 msgstr ""
 
-#: app/templates/www/privacy.html:101
-msgid "Request / error logs — 14 days."
-msgstr ""
-
-#: app/templates/www/privacy.html:102
-msgid "Database backups — 14 days rolling."
-msgstr ""
-
-#: app/templates/www/privacy.html:107
-msgid "6. Your rights"
-msgstr ""
-
-#: app/templates/www/privacy.html:109
+#: app/templates/www/privacy.html:117
 msgid ""
-"You have the right to access, rectification, erasure, restriction of "
-"processing, portability, and objection. Contact"
+"Manual recovery on request — data remains recoverable on written request "
+"for 30 days after deactivation. After that, it is permanently deleted."
 msgstr ""
 
-#: app/templates/www/privacy.html:111
-msgid "we will respond within 30 days."
+#: app/templates/www/privacy.html:118
+msgid "Database backups — 14 days rolling, then automatically purged."
 msgstr ""
 
-#: app/templates/www/privacy.html:114
+#: app/templates/www/privacy.html:119
 msgid ""
-"You also have the right to file a complaint with the Office for Personal "
-"Data Protection"
+"Authentication and security logs (last_login timestamps, failed login "
+"attempts, IP) — 90 days."
 msgstr ""
 
 #: app/templates/www/privacy.html:120
-msgid "7. Cookies"
+msgid ""
+"Audit trail of admin actions inside the tenant — for the lifetime of the "
+"tenant; after deletion, retained for up to 3 years for evidentiary "
+"purposes in case of dispute."
+msgstr ""
+
+#: app/templates/www/privacy.html:121
+msgid ""
+"Billing records and tax documents — 10 years from the end of the "
+"accounting period, as required by Czech Act 563/1991 Coll. on Accounting."
 msgstr ""
 
 #: app/templates/www/privacy.html:122
+msgid "Application request and error logs — 14 days."
+msgstr ""
+
+#: app/templates/www/privacy.html:125
 msgid ""
-"The portal uses only technical (session) cookies necessary for login and "
-"CSRF protection. We do not deploy analytics or marketing cookies without "
-"your consent."
+"Where the law mandates a longer retention (such as billing records), we "
+"retain only what the law requires and isolate it from the operational "
+"dataset where possible."
+msgstr ""
+
+#: app/templates/www/privacy.html:130
+msgid "6. Recipients and data sharing"
+msgstr ""
+
+#: app/templates/www/privacy.html:132
+msgid "We do not sell or rent your personal data. We share data only:"
+msgstr ""
+
+#: app/templates/www/privacy.html:135
+msgid ""
+"with the subprocessors listed in Section 4, strictly for the purposes set"
+" out there;"
+msgstr ""
+
+#: app/templates/www/privacy.html:136
+msgid "with public authorities when required by law or by an enforceable order;"
+msgstr ""
+
+#: app/templates/www/privacy.html:137
+msgid ""
+"with our professional advisors (accountant, tax advisor) under "
+"confidentiality, for billing and accounting purposes only."
+msgstr ""
+
+#: app/templates/www/privacy.html:142
+msgid "7. Your rights"
+msgstr ""
+
+#: app/templates/www/privacy.html:144
+msgid ""
+"Under GDPR Articles 15–22 you have the right to: access your personal "
+"data, rectify inaccurate data, request erasure, restrict processing, "
+"receive your data in a portable format (CSV / ZIP via the in-app export),"
+" and object to processing based on legitimate interest. The data-export "
+"and account-delete actions are available self-service in the "
+"application's admin profile section."
+msgstr ""
+
+#: app/templates/www/privacy.html:147
+msgid "To exercise any other right, write to"
+msgstr ""
+
+#: app/templates/www/privacy.html:149
+msgid ""
+"We respond within 30 days of verifying your identity. The response is "
+"free of charge unless the request is manifestly unfounded or excessive "
+"(Article 12(5) GDPR)."
+msgstr ""
+
+#: app/templates/www/privacy.html:152
+msgid ""
+"If you believe your rights have been infringed you may lodge a complaint "
+"with the Czech Office for Personal Data Protection"
+msgstr ""
+
+#: app/templates/www/privacy.html:154
+msgid "Pplk. Sochora 27, 170 00 Prague 7, Czech Republic."
+msgstr ""
+
+#: app/templates/www/privacy.html:159
+msgid "8. Cookies and similar technologies"
+msgstr ""
+
+#: app/templates/www/privacy.html:161
+msgid ""
+"The portal uses only strictly-necessary cookies (login session, CSRF "
+"protection, locale and theme preference). We do not deploy analytics or "
+"marketing cookies, and we do not track you across sites. Full inventory:"
+msgstr ""
+
+#: app/templates/www/privacy.html:167
+msgid "9. Data security"
+msgstr ""
+
+#: app/templates/www/privacy.html:169
+msgid ""
+"We apply the technical and organisational measures appropriate to the "
+"risk: TLS 1.2+ for all traffic, Argon2id password hashing, per-tenant "
+"database isolation enforced at the row level (Postgres RLS), encrypted "
+"backups, principle-of-least-privilege access by the Provider, no "
+"plaintext storage of credentials or payment cards. Security incidents "
+"affecting your data will be reported to you and (where required) to the "
+"supervisory authority within 72 hours under Article 33 GDPR."
+msgstr ""
+
+#: app/templates/www/privacy.html:174
+msgid "10. Changes to this Privacy Policy"
+msgstr ""
+
+#: app/templates/www/privacy.html:176
+msgid ""
+"Material changes — new subprocessors, expanded data categories, longer "
+"retention — are announced at least 30 days in advance by updating this "
+"page and emailing active tenant administrators. The version number and "
+"effective date at the top of the page identify the current version."
 msgstr ""
 
 #: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
@@ -4339,104 +4499,396 @@ msgid ""
 "contact us for a commercial licence."
 msgstr ""
 
-#: app/templates/www/terms.html:14
-#, fuzzy
-msgid "1. Introduction"
-msgstr "In production"
-
-#: app/templates/www/terms.html:16
-msgid "The operator of Assoluto service (hereinafter the \"Service\") is"
+#: app/templates/www/terms.html:15
+msgid "1. Who provides the Service"
 msgstr ""
 
-#: app/templates/www/terms.html:18
+#: app/templates/www/terms.html:17
+msgid "The Assoluto service (the \"Service\") is provided by"
+msgstr ""
+
+#: app/templates/www/terms.html:21
+msgid "hereinafter the \"Provider\""
+msgstr ""
+
+#: app/templates/www/terms.html:26
 msgid ""
-"(hereinafter the \"Operator\"). These terms govern the relationship "
-"between the Operator and the person using the Service (hereinafter the "
-"\"User\")."
+"These Terms govern the relationship between the Provider and the legal or"
+" natural person using the Service in the course of their business (the "
+"\"Customer\"). The Service is offered exclusively to entrepreneurs in the"
+" meaning of §420 of the Czech Civil Code; consumer-protection rules of "
+"the Czech Civil Code do not apply."
 msgstr ""
 
-#: app/templates/www/terms.html:23
-msgid "2. Description of the Service"
+#: app/templates/www/terms.html:31
+msgid "2. What the Service does"
 msgstr ""
 
-#: app/templates/www/terms.html:25
+#: app/templates/www/terms.html:33
 msgid ""
-"The Service provides a multi-tenant customer portal for manufacturing "
-"SMEs — management of orders, product catalog, client assets, and "
-"communication between the supplier and their clients."
+"The Service is a multi-tenant cloud application — a customer portal — "
+"that lets a manufacturing or trading SME run its order workflow online: "
+"create and edit orders, upload technical drawings and other attachments, "
+"manage a product catalog, invite their own end clients (\"Customer "
+"Contacts\") to view those orders, and track order status from receipt to "
+"delivery."
 msgstr ""
 
-#: app/templates/www/terms.html:30
-msgid "3. Registration and account"
-msgstr ""
-
-#: app/templates/www/terms.html:32
+#: app/templates/www/terms.html:36
 msgid ""
-"Registration is required to use the Service. The User is obliged to "
-"provide truthful information and protect their login credentials. The "
-"Operator may block the account in case of serious violation of the terms."
+"The Service is offered as a hosted SaaS at assoluto.eu (hereinafter "
+"\"Hosted Service\") and, separately, as open-source software released "
+"under AGPL-3.0-or-later that the Customer may install on their own "
+"infrastructure (\"Self-Hosted\"). These Terms govern the Hosted Service. "
+"Self-Hosted use is governed by the AGPL-3.0 license file in the source "
+"repository; nothing in these Terms restricts the Customer's rights under "
+"that license."
 msgstr ""
 
-#: app/templates/www/terms.html:37
-msgid "4. Trial period and payments"
+#: app/templates/www/terms.html:41
+msgid "3. Account, registration, access"
 msgstr ""
 
-#: app/templates/www/terms.html:39
+#: app/templates/www/terms.html:43
 msgid ""
-"A new account receives a 30-day free trial. After its expiration, the "
-"User can continue only with an active subscription. Payments are "
-"processed through Stripe."
-msgstr ""
-
-#: app/templates/www/terms.html:44
-msgid "5. User obligations"
+"The Hosted Service is accessed via an account created by the Customer at "
+"assoluto.eu/platform/signup. The Customer warrants that the registration "
+"data is correct and complete and undertakes to keep it up to date."
 msgstr ""
 
 #: app/templates/www/terms.html:46
 msgid ""
-"The User must not misuse the Service, circumvent security measures, "
-"interfere with operations, or use it for content that violates the laws "
-"of the Czech Republic or the EU."
+"The Customer is responsible for protecting login credentials. Any action "
+"performed under the Customer's account is deemed to have been performed "
+"by the Customer. The Customer must notify the Provider without undue "
+"delay if they suspect their credentials have been compromised."
 msgstr ""
 
-#: app/templates/www/terms.html:51
-msgid "6. Personal data protection"
+#: app/templates/www/terms.html:49
+msgid ""
+"The Customer may invite further users (employees) and Customer Contacts "
+"(their own clients). The Customer is responsible for these invitees' use "
+"of the Service and for obtaining any consents the Customer is required to"
+" obtain from them."
 msgstr ""
 
-#: app/templates/www/terms.html:53
-msgid "The processing of personal data is governed by a separate document"
+#: app/templates/www/terms.html:54
+msgid "4. Free trial, plans, payment, cancellation"
+msgstr ""
+
+#: app/templates/www/terms.html:56
+msgid ""
+"A new account starts a 30-day free trial of the Starter plan. No payment "
+"card is required to start the trial. After the trial expires the Customer"
+" must select a paid plan to continue using the Hosted Service; otherwise "
+"their account moves to a 3-day grace period for data export and is then "
+"deactivated."
 msgstr ""
 
 #: app/templates/www/terms.html:59
-msgid "7. Liability"
-msgstr ""
-
-#: app/templates/www/terms.html:61
 msgid ""
-"The Service is provided \"as-is\". The Operator is not liable for damages"
-" caused by outages or data loss beyond the amount of the subscription "
-"paid for the given month. The User is obliged to maintain their own "
-"backups by exporting data."
+"Plan prices, monthly limits, and the list of paid plans are published at "
+"assoluto.eu/pricing and form part of these Terms. Monthly subscriptions "
+"are paid by card via Stripe Payments Europe Limited (Ireland); annual "
+"subscriptions can be arranged on request and are paid by bank transfer "
+"with a Czech tax document (faktura), payment terms net-14."
 msgstr ""
 
-#: app/templates/www/terms.html:66
-msgid "8. Termination"
-msgstr ""
-
-#: app/templates/www/terms.html:68
+#: app/templates/www/terms.html:62
 msgid ""
-"The User may cancel their account at any time. After termination, data "
-"will be retained for 30 days, then permanently deleted."
+"The Customer may cancel the subscription at any time from the billing "
+"dashboard. The cancellation takes effect at the end of the current "
+"billing period; the Customer keeps full access until that date and an "
+"additional 3 days for data export. After that, the Customer's account is "
+"deactivated and access ends. The Customer may, within 30 days of "
+"deactivation, request manual data recovery by emailing team@assoluto.eu; "
+"after 30 days the data is permanently deleted (subject to legally-"
+"required retention of accounting records as set out in the Privacy "
+"Policy)."
 msgstr ""
 
-#: app/templates/www/terms.html:73
-msgid "9. Final provisions"
+#: app/templates/www/terms.html:65
+msgid ""
+"The Provider may unilaterally adjust prices and plan limits with at least"
+" 30 days' prior notice sent to the Customer's billing email. If the "
+"Customer disagrees with the new price, they may cancel the subscription "
+"before it takes effect; otherwise continued use after the effective date "
+"constitutes acceptance."
+msgstr ""
+
+#: app/templates/www/terms.html:70
+msgid "5. Customer content and intellectual property"
+msgstr ""
+
+#: app/templates/www/terms.html:72
+msgid ""
+"The Customer retains ownership of all content they upload to the Service "
+"(orders, comments, attachments, drawings, customer data — \"Customer "
+"Content\"). The Customer grants the Provider a worldwide, royalty-free, "
+"non-exclusive license to host, store, transmit, and display the Customer "
+"Content solely to the extent necessary to operate the Service for the "
+"Customer. The Provider does not claim any other rights to the Customer "
+"Content."
 msgstr ""
 
 #: app/templates/www/terms.html:75
 msgid ""
-"These terms are governed by the laws of the Czech Republic. The Operator "
-"may modify the terms with 30 days' notice."
+"The Customer warrants that they have the right to upload and use the "
+"Customer Content (including the right to upload personal data of their "
+"own end clients in the role of a data controller — see the Privacy Policy"
+" on the Provider's role as a processor for that data)."
+msgstr ""
+
+#: app/templates/www/terms.html:78
+msgid ""
+"The Service software (with the exception of code released under AGPL-3.0 "
+"in the public source repository), the Assoluto trademark and brand assets"
+" remain the exclusive property of the Provider. The AGPL-3.0 license does"
+" not grant any rights to the \"Assoluto\" name, logo, or assoluto.eu "
+"domain (see the NOTICE file in the source repository)."
+msgstr ""
+
+#: app/templates/www/terms.html:83
+msgid "6. Acceptable use"
+msgstr ""
+
+#: app/templates/www/terms.html:85
+msgid "The Customer agrees not to:"
+msgstr ""
+
+#: app/templates/www/terms.html:88
+msgid ""
+"upload content that violates Czech or EU law (in particular: illegal, "
+"defamatory, infringing, or fraudulent content);"
+msgstr ""
+
+#: app/templates/www/terms.html:89
+msgid ""
+"use the Service to send unsolicited bulk communications (spam) or to "
+"phish their own clients;"
+msgstr ""
+
+#: app/templates/www/terms.html:90
+msgid ""
+"attempt to interfere with the Service's operation, bypass security or "
+"rate-limit measures, or access data belonging to other tenants;"
+msgstr ""
+
+#: app/templates/www/terms.html:91
+msgid ""
+"reverse-engineer the Hosted Service infrastructure (this clause does not "
+"restrict any right granted by the AGPL-3.0 license to the open-source "
+"code);"
+msgstr ""
+
+#: app/templates/www/terms.html:92
+msgid ""
+"use the Service for cryptocurrency mining or any computation unrelated to"
+" the order portal use case."
+msgstr ""
+
+#: app/templates/www/terms.html:95
+msgid ""
+"Material breach of acceptable use is grounds for the Provider to suspend "
+"the account; see Section 9."
+msgstr ""
+
+#: app/templates/www/terms.html:100
+msgid "7. Personal data"
+msgstr ""
+
+#: app/templates/www/terms.html:102
+msgid ""
+"The Provider processes the Customer's personal data and acts as a data "
+"processor for end-client personal data uploaded by the Customer. The full"
+" processing notice and the list of subprocessors is set out in the"
+msgstr ""
+
+#: app/templates/www/terms.html:104
+msgid ""
+"which forms an integral part of these Terms. Customers requiring a "
+"separate written Data Processing Agreement (DPA) under Article 28 GDPR "
+"may request one at team@assoluto.eu — the Provider's standard DPA is "
+"available at no cost."
+msgstr ""
+
+#: app/templates/www/terms.html:109
+msgid "8. Service availability, no formal SLA on Starter/Pro"
+msgstr ""
+
+#: app/templates/www/terms.html:111
+msgid ""
+"The Provider operates the Hosted Service with reasonable care and targets"
+" 99.9% monthly uptime measured at the application HTTP layer, with daily "
+"database backups retained for 14 days. The Starter and Pro plans do not "
+"include a contractual service-level agreement (SLA); planned and "
+"unplanned downtime, force-majeure events, and outages caused by upstream "
+"subprocessors (Hetzner, Stripe, Brevo) do not give rise to any "
+"compensation claim. The Enterprise plan may include a separately-"
+"negotiated written SLA — contact team@assoluto.eu."
+msgstr ""
+
+#: app/templates/www/terms.html:114
+msgid ""
+"The Provider performs upgrades during low-traffic windows where possible."
+" Brief service interruptions during deployment (typically under 60 "
+"seconds) are an ordinary part of operating the Service and are not "
+"considered an outage."
+msgstr ""
+
+#: app/templates/www/terms.html:117
+msgid ""
+"The Customer is responsible for maintaining their own data exports as a "
+"safeguard against any data loss. The CSV / ZIP export endpoints are "
+"available at any time during the active subscription."
+msgstr ""
+
+#: app/templates/www/terms.html:122
+msgid "9. Suspension and termination by the Provider"
+msgstr ""
+
+#: app/templates/www/terms.html:124
+msgid ""
+"The Provider may, with prior notice sent to the Customer's billing email "
+"and a remedy period of at least 7 days where reasonably possible, suspend"
+" or terminate the Customer's account for: (a) material breach of these "
+"Terms (in particular Section 6); (b) failure to pay an invoice more than "
+"14 days past due; (c) court order or written request from a competent "
+"authority; or (d) the Provider permanently discontinuing the Hosted "
+"Service (in which case at least 90 days' notice will be given and the "
+"data export endpoints will remain available throughout)."
+msgstr ""
+
+#: app/templates/www/terms.html:127
+msgid ""
+"Suspension for non-payment may take effect without prior notice if Stripe"
+" reports a payment failure and the situation has not been remedied within"
+" Stripe's standard dunning window (typically 21 days)."
+msgstr ""
+
+#: app/templates/www/terms.html:132
+msgid "10. Warranties and limitation of liability"
+msgstr ""
+
+#: app/templates/www/terms.html:134
+msgid ""
+"The Service is provided \"as available\". Beyond what is required by "
+"mandatory provisions of Czech law, the Provider gives no warranties of "
+"any kind, express or implied, including implied warranties of "
+"merchantability or fitness for a particular purpose."
+msgstr ""
+
+#: app/templates/www/terms.html:137
+msgid ""
+"To the maximum extent permitted by law, the Provider's aggregate "
+"liability to the Customer for any cause arising out of or relating to the"
+" Service is limited to the amount the Customer paid for the Service in "
+"the twelve (12) months immediately preceding the event giving rise to "
+"liability. The Provider is in no event liable for indirect, "
+"consequential, incidental, special, or punitive damages, lost profits, "
+"lost business, lost data (beyond restoration from the most recent "
+"backup), or for any third-party claim, even if the Provider has been "
+"advised of the possibility of such damages."
+msgstr ""
+
+#: app/templates/www/terms.html:140
+msgid ""
+"Nothing in these Terms limits liability for damage caused intentionally "
+"or by gross negligence, or for any other liability that cannot be limited"
+" under Czech law."
+msgstr ""
+
+#: app/templates/www/terms.html:145
+msgid "11. Force majeure"
+msgstr ""
+
+#: app/templates/www/terms.html:147
+msgid ""
+"Neither party is liable for non-performance caused by force majeure — "
+"events outside its reasonable control, including without limitation "
+"natural disasters, war, terrorist acts, labour strikes, large-scale "
+"failures of telecommunications or electricity infrastructure, or "
+"governmental decrees affecting the operation of cloud services in the "
+"Czech Republic or Germany."
+msgstr ""
+
+#: app/templates/www/terms.html:152
+msgid "12. Modifications to these Terms"
+msgstr ""
+
+#: app/templates/www/terms.html:154
+msgid ""
+"The Provider may amend these Terms with at least 30 days' prior notice "
+"sent to the Customer's billing email and posted on this page. The version"
+" number and effective date at the top of this page identify the current "
+"version. If the Customer disagrees with the changes, they may cancel the "
+"subscription before the effective date; otherwise continued use after the"
+" effective date constitutes acceptance of the new Terms."
+msgstr ""
+
+#: app/templates/www/terms.html:157
+msgid ""
+"Material changes — pricing, scope of the Service, or the limitation of "
+"liability in Section 10 — will be highlighted in the notice email rather "
+"than buried in a long changelog."
+msgstr ""
+
+#: app/templates/www/terms.html:162
+msgid "13. Governing law and jurisdiction"
+msgstr ""
+
+#: app/templates/www/terms.html:164
+msgid ""
+"These Terms and any dispute arising out of or in connection with them are"
+" governed by the law of the Czech Republic, without regard to conflict-"
+"of-laws rules. The parties agree that the courts of the Czech Republic "
+"have exclusive jurisdiction; the locally competent court is determined by"
+" the Provider's registered office (currently the District Court in "
+"Děčín)."
+msgstr ""
+
+#: app/templates/www/terms.html:167
+msgid ""
+"The parties will attempt to resolve any dispute amicably first by direct "
+"negotiation; failing that, the parties may agree to non-binding mediation"
+" before initiating court proceedings."
+msgstr ""
+
+#: app/templates/www/terms.html:172
+msgid "14. Severability and entire agreement"
+msgstr ""
+
+#: app/templates/www/terms.html:174
+msgid ""
+"If any provision of these Terms is held to be invalid or unenforceable by"
+" a competent court, the remaining provisions remain in full force and "
+"effect, and the invalid provision is replaced with one whose effect is "
+"closest to the original intention while being valid."
+msgstr ""
+
+#: app/templates/www/terms.html:177
+msgid ""
+"These Terms, together with the Privacy Policy, the Cookies policy, and "
+"the published pricing page, form the entire agreement between the "
+"Customer and the Provider regarding the Hosted Service and supersede any "
+"earlier proposals, negotiations, or marketing material."
+msgstr ""
+
+#: app/templates/www/terms.html:182
+msgid "15. Contact and notices"
+msgstr ""
+
+#: app/templates/www/terms.html:184
+msgid ""
+"All notices under these Terms (including cancellation, modification "
+"notices, breach notices, DPA requests) are sent in writing by email — to "
+"the Customer's billing email of record, and to the Provider at"
+msgstr ""
+
+#: app/templates/www/terms.html:186
+msgid ""
+"A notice is deemed delivered the day after it is sent, unless the sender "
+"receives an automatic non-delivery report."
 msgstr ""
 
 #: app/templates/www/www_base.html:10
@@ -5476,5 +5928,248 @@ msgstr "Privacy Policy"
 #~ "CSV. Then data is irreversibly deleted."
 #~ " If you need immediate deletion, one"
 #~ " email to team@assoluto.eu does it."
+#~ msgstr ""
+
+#~ msgid "1. Data controller"
+#~ msgstr ""
+
+#~ msgid "The data controller is"
+#~ msgstr ""
+
+#~ msgid "2. What data we process"
+#~ msgstr ""
+
+#~ msgid "Account identification data (name, email, company, Company ID, VAT ID)"
+#~ msgstr ""
+
+#~ msgid "Login credentials (password in Argon2-hashed form)"
+#~ msgstr ""
+
+#~ msgid "Content created in the portal (orders, comments, attachments)"
+#~ msgstr ""
+
+#~ msgid "Billing data, if you subscribe to a plan"
+#~ msgstr ""
+
+#~ msgid "Technical logs (IP address, User-Agent) for operational security"
+#~ msgstr ""
+
+#~ msgid "3. Why we process data"
+#~ msgstr ""
+
+#~ msgid "Contract performance (operating the portal you ordered)"
+#~ msgstr ""
+
+#~ msgid "Invoicing and tax records (legitimate interest + legal obligation)"
+#~ msgstr ""
+
+#~ msgid "Security and abuse prevention (legitimate interest)"
+#~ msgstr ""
+
+#~ msgid "Sending operational emails (consent / contract performance)"
+#~ msgstr ""
+
+#~ msgid "4. Where data is stored + our subprocessors"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "We use the following third parties "
+#~ "(subprocessors) to run the service. Data"
+#~ " sharing is limited to what each "
+#~ "subprocessor needs to do its job; "
+#~ "no subprocessor receives marketing permissions"
+#~ " on your data."
+#~ msgstr ""
+
+#~ msgid "Hosting (VPS)"
+#~ msgstr ""
+
+#~ msgid "All (at-rest, encrypted)"
+#~ msgstr ""
+
+#~ msgid "Transactional email"
+#~ msgstr ""
+
+#~ msgid "Recipient email, name, body"
+#~ msgstr ""
+
+#~ msgid "Subscription billing"
+#~ msgstr ""
+
+#~ msgid "Billing email, company, tax ID, card (processor-held)"
+#~ msgstr ""
+
+#~ msgid "DNS + domain registrar"
+#~ msgstr ""
+
+#~ msgid "Public DNS records only"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Subprocessor changes are disclosed at "
+#~ "least 30 days in advance by "
+#~ "updating this page and emailing active"
+#~ " tenant admins."
+#~ msgstr ""
+
+#~ msgid "Active account data — for the lifetime of the subscription."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "After account cancellation — 30 days "
+#~ "grace (for reactivation), then anonymisation."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Authentication logs (last_login timestamps, "
+#~ "failed login attempts) — 90 days."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Audit trail of operator / admin "
+#~ "actions — retained for the lifetime "
+#~ "of the tenant, plus 3 years after"
+#~ " closure for contractual dispute evidence."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Billing records (invoices, subscription "
+#~ "history) — 10 years from the end"
+#~ " of the accounting period, as "
+#~ "required by Czech Act 563/1991 Coll. "
+#~ "on accounting."
+#~ msgstr ""
+
+#~ msgid "Request / error logs — 14 days."
+#~ msgstr ""
+
+#~ msgid "Database backups — 14 days rolling."
+#~ msgstr ""
+
+#~ msgid "6. Your rights"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You have the right to access, "
+#~ "rectification, erasure, restriction of "
+#~ "processing, portability, and objection. "
+#~ "Contact"
+#~ msgstr ""
+
+#~ msgid "we will respond within 30 days."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You also have the right to file"
+#~ " a complaint with the Office for "
+#~ "Personal Data Protection"
+#~ msgstr ""
+
+#~ msgid "7. Cookies"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The portal uses only technical (session)"
+#~ " cookies necessary for login and CSRF"
+#~ " protection. We do not deploy "
+#~ "analytics or marketing cookies without "
+#~ "your consent."
+#~ msgstr ""
+
+#~ msgid "1. Introduction"
+#~ msgstr "In production"
+
+#~ msgid "The operator of Assoluto service (hereinafter the \"Service\") is"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "(hereinafter the \"Operator\"). These terms"
+#~ " govern the relationship between the "
+#~ "Operator and the person using the "
+#~ "Service (hereinafter the \"User\")."
+#~ msgstr ""
+
+#~ msgid "2. Description of the Service"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The Service provides a multi-tenant "
+#~ "customer portal for manufacturing SMEs —"
+#~ " management of orders, product catalog, "
+#~ "client assets, and communication between "
+#~ "the supplier and their clients."
+#~ msgstr ""
+
+#~ msgid "3. Registration and account"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Registration is required to use the "
+#~ "Service. The User is obliged to "
+#~ "provide truthful information and protect "
+#~ "their login credentials. The Operator "
+#~ "may block the account in case of"
+#~ " serious violation of the terms."
+#~ msgstr ""
+
+#~ msgid "4. Trial period and payments"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "A new account receives a 30-day "
+#~ "free trial. After its expiration, the"
+#~ " User can continue only with an "
+#~ "active subscription. Payments are processed"
+#~ " through Stripe."
+#~ msgstr ""
+
+#~ msgid "5. User obligations"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The User must not misuse the "
+#~ "Service, circumvent security measures, "
+#~ "interfere with operations, or use it "
+#~ "for content that violates the laws "
+#~ "of the Czech Republic or the EU."
+#~ msgstr ""
+
+#~ msgid "6. Personal data protection"
+#~ msgstr ""
+
+#~ msgid "The processing of personal data is governed by a separate document"
+#~ msgstr ""
+
+#~ msgid "7. Liability"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The Service is provided \"as-is\". "
+#~ "The Operator is not liable for "
+#~ "damages caused by outages or data "
+#~ "loss beyond the amount of the "
+#~ "subscription paid for the given month."
+#~ " The User is obliged to maintain "
+#~ "their own backups by exporting data."
+#~ msgstr ""
+
+#~ msgid "8. Termination"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The User may cancel their account "
+#~ "at any time. After termination, data "
+#~ "will be retained for 30 days, then"
+#~ " permanently deleted."
+#~ msgstr ""
+
+#~ msgid "9. Final provisions"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "These terms are governed by the "
+#~ "laws of the Czech Republic. The "
+#~ "Operator may modify the terms with "
+#~ "30 days' notice."
 #~ msgstr ""
 

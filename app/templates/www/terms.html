@@ -10,71 +10,183 @@
     </p>
 
     <div class="mt-8 space-y-6 text-sm leading-relaxed">
+
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("1. Introduction") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("1. Who provides the Service") }}</h2>
             <p class="mt-2">
-                {{ _("The operator of Assoluto service (hereinafter the \"Service\") is") }}
-                <strong>{{ operator_name }}</strong>, {{ _("Company ID") }} <strong>{{ operator_ico }}</strong>,
-                {{ _("with registered office at") }} {{ operator_address }} {{ _("(hereinafter the \"Operator\"). These terms govern the relationship between the Operator and the person using the Service (hereinafter the \"User\").") }}
+                {{ _("The Assoluto service (the \"Service\") is provided by") }}
+                <strong>{{ operator_name }}</strong>, {{ _("Company ID (IČO)") }}
+                <strong>{{ operator_ico }}</strong>,
+                {{ _("with registered office at") }} {{ operator_address }}
+                ({{ _("hereinafter the \"Provider\"") }}).
+                {{ _("Contact:") }}
+                <a href="mailto:{{ operator_email }}" class="text-brand-600 hover:text-brand-700">{{ operator_email }}</a>.
+            </p>
+            <p class="mt-2">
+                {{ _("These Terms govern the relationship between the Provider and the legal or natural person using the Service in the course of their business (the \"Customer\"). The Service is offered exclusively to entrepreneurs in the meaning of §420 of the Czech Civil Code; consumer-protection rules of the Czech Civil Code do not apply.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("2. Description of the Service") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("2. What the Service does") }}</h2>
             <p class="mt-2">
-                {{ _("The Service provides a multi-tenant customer portal for manufacturing SMEs — management of orders, product catalog, client assets, and communication between the supplier and their clients.") }}
+                {{ _("The Service is a multi-tenant cloud application — a customer portal — that lets a manufacturing or trading SME run its order workflow online: create and edit orders, upload technical drawings and other attachments, manage a product catalog, invite their own end clients (\"Customer Contacts\") to view those orders, and track order status from receipt to delivery.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Service is offered as a hosted SaaS at assoluto.eu (hereinafter \"Hosted Service\") and, separately, as open-source software released under AGPL-3.0-or-later that the Customer may install on their own infrastructure (\"Self-Hosted\"). These Terms govern the Hosted Service. Self-Hosted use is governed by the AGPL-3.0 license file in the source repository; nothing in these Terms restricts the Customer's rights under that license.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("3. Registration and account") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("3. Account, registration, access") }}</h2>
             <p class="mt-2">
-                {{ _("Registration is required to use the Service. The User is obliged to provide truthful information and protect their login credentials. The Operator may block the account in case of serious violation of the terms.") }}
+                {{ _("The Hosted Service is accessed via an account created by the Customer at assoluto.eu/platform/signup. The Customer warrants that the registration data is correct and complete and undertakes to keep it up to date.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Customer is responsible for protecting login credentials. Any action performed under the Customer's account is deemed to have been performed by the Customer. The Customer must notify the Provider without undue delay if they suspect their credentials have been compromised.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Customer may invite further users (employees) and Customer Contacts (their own clients). The Customer is responsible for these invitees' use of the Service and for obtaining any consents the Customer is required to obtain from them.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("4. Trial period and payments") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("4. Free trial, plans, payment, cancellation") }}</h2>
             <p class="mt-2">
-                {{ _("A new account receives a 30-day free trial. After its expiration, the User can continue only with an active subscription. Payments are processed through Stripe.") }}
+                {{ _("A new account starts a 30-day free trial of the Starter plan. No payment card is required to start the trial. After the trial expires the Customer must select a paid plan to continue using the Hosted Service; otherwise their account moves to a 3-day grace period for data export and is then deactivated.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("Plan prices, monthly limits, and the list of paid plans are published at assoluto.eu/pricing and form part of these Terms. Monthly subscriptions are paid by card via Stripe Payments Europe Limited (Ireland); annual subscriptions can be arranged on request and are paid by bank transfer with a Czech tax document (faktura), payment terms net-14.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Customer may cancel the subscription at any time from the billing dashboard. The cancellation takes effect at the end of the current billing period; the Customer keeps full access until that date and an additional 3 days for data export. After that, the Customer's account is deactivated and access ends. The Customer may, within 30 days of deactivation, request manual data recovery by emailing team@assoluto.eu; after 30 days the data is permanently deleted (subject to legally-required retention of accounting records as set out in the Privacy Policy).") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Provider may unilaterally adjust prices and plan limits with at least 30 days' prior notice sent to the Customer's billing email. If the Customer disagrees with the new price, they may cancel the subscription before it takes effect; otherwise continued use after the effective date constitutes acceptance.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("5. User obligations") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("5. Customer content and intellectual property") }}</h2>
             <p class="mt-2">
-                {{ _("The User must not misuse the Service, circumvent security measures, interfere with operations, or use it for content that violates the laws of the Czech Republic or the EU.") }}
+                {{ _("The Customer retains ownership of all content they upload to the Service (orders, comments, attachments, drawings, customer data — \"Customer Content\"). The Customer grants the Provider a worldwide, royalty-free, non-exclusive license to host, store, transmit, and display the Customer Content solely to the extent necessary to operate the Service for the Customer. The Provider does not claim any other rights to the Customer Content.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Customer warrants that they have the right to upload and use the Customer Content (including the right to upload personal data of their own end clients in the role of a data controller — see the Privacy Policy on the Provider's role as a processor for that data).") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Service software (with the exception of code released under AGPL-3.0 in the public source repository), the Assoluto trademark and brand assets remain the exclusive property of the Provider. The AGPL-3.0 license does not grant any rights to the \"Assoluto\" name, logo, or assoluto.eu domain (see the NOTICE file in the source repository).") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("6. Personal data protection") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("6. Acceptable use") }}</h2>
             <p class="mt-2">
-                {{ _("The processing of personal data is governed by a separate document") }}
-                <a href="/privacy" class="text-brand-600 hover:text-brand-700">{{ _("Privacy Policy") }}</a>.
+                {{ _("The Customer agrees not to:") }}
+            </p>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("upload content that violates Czech or EU law (in particular: illegal, defamatory, infringing, or fraudulent content);") }}</li>
+                <li>{{ _("use the Service to send unsolicited bulk communications (spam) or to phish their own clients;") }}</li>
+                <li>{{ _("attempt to interfere with the Service's operation, bypass security or rate-limit measures, or access data belonging to other tenants;") }}</li>
+                <li>{{ _("reverse-engineer the Hosted Service infrastructure (this clause does not restrict any right granted by the AGPL-3.0 license to the open-source code);") }}</li>
+                <li>{{ _("use the Service for cryptocurrency mining or any computation unrelated to the order portal use case.") }}</li>
+            </ul>
+            <p class="mt-2">
+                {{ _("Material breach of acceptable use is grounds for the Provider to suspend the account; see Section 9.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("7. Liability") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("7. Personal data") }}</h2>
             <p class="mt-2">
-                {{ _("The Service is provided \"as-is\". The Operator is not liable for damages caused by outages or data loss beyond the amount of the subscription paid for the given month. The User is obliged to maintain their own backups by exporting data.") }}
+                {{ _("The Provider processes the Customer's personal data and acts as a data processor for end-client personal data uploaded by the Customer. The full processing notice and the list of subprocessors is set out in the") }}
+                <a href="/privacy" class="text-brand-600 hover:text-brand-700">{{ _("Privacy Policy") }}</a>,
+                {{ _("which forms an integral part of these Terms. Customers requiring a separate written Data Processing Agreement (DPA) under Article 28 GDPR may request one at team@assoluto.eu — the Provider's standard DPA is available at no cost.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("8. Termination") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("8. Service availability, no formal SLA on Starter/Pro") }}</h2>
             <p class="mt-2">
-                {{ _("The User may cancel their account at any time. After termination, data will be retained for 30 days, then permanently deleted.") }}
+                {{ _("The Provider operates the Hosted Service with reasonable care and targets 99.9% monthly uptime measured at the application HTTP layer, with daily database backups retained for 14 days. The Starter and Pro plans do not include a contractual service-level agreement (SLA); planned and unplanned downtime, force-majeure events, and outages caused by upstream subprocessors (Hetzner, Stripe, Brevo) do not give rise to any compensation claim. The Enterprise plan may include a separately-negotiated written SLA — contact team@assoluto.eu.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Provider performs upgrades during low-traffic windows where possible. Brief service interruptions during deployment (typically under 60 seconds) are an ordinary part of operating the Service and are not considered an outage.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Customer is responsible for maintaining their own data exports as a safeguard against any data loss. The CSV / ZIP export endpoints are available at any time during the active subscription.") }}
             </p>
         </section>
 
         <section>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("9. Final provisions") }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("9. Suspension and termination by the Provider") }}</h2>
             <p class="mt-2">
-                {{ _("These terms are governed by the laws of the Czech Republic. The Operator may modify the terms with 30 days' notice.") }}
+                {{ _("The Provider may, with prior notice sent to the Customer's billing email and a remedy period of at least 7 days where reasonably possible, suspend or terminate the Customer's account for: (a) material breach of these Terms (in particular Section 6); (b) failure to pay an invoice more than 14 days past due; (c) court order or written request from a competent authority; or (d) the Provider permanently discontinuing the Hosted Service (in which case at least 90 days' notice will be given and the data export endpoints will remain available throughout).") }}
+            </p>
+            <p class="mt-2">
+                {{ _("Suspension for non-payment may take effect without prior notice if Stripe reports a payment failure and the situation has not been remedied within Stripe's standard dunning window (typically 21 days).") }}
             </p>
         </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("10. Warranties and limitation of liability") }}</h2>
+            <p class="mt-2">
+                {{ _("The Service is provided \"as available\". Beyond what is required by mandatory provisions of Czech law, the Provider gives no warranties of any kind, express or implied, including implied warranties of merchantability or fitness for a particular purpose.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("To the maximum extent permitted by law, the Provider's aggregate liability to the Customer for any cause arising out of or relating to the Service is limited to the amount the Customer paid for the Service in the twelve (12) months immediately preceding the event giving rise to liability. The Provider is in no event liable for indirect, consequential, incidental, special, or punitive damages, lost profits, lost business, lost data (beyond restoration from the most recent backup), or for any third-party claim, even if the Provider has been advised of the possibility of such damages.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("Nothing in these Terms limits liability for damage caused intentionally or by gross negligence, or for any other liability that cannot be limited under Czech law.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("11. Force majeure") }}</h2>
+            <p class="mt-2">
+                {{ _("Neither party is liable for non-performance caused by force majeure — events outside its reasonable control, including without limitation natural disasters, war, terrorist acts, labour strikes, large-scale failures of telecommunications or electricity infrastructure, or governmental decrees affecting the operation of cloud services in the Czech Republic or Germany.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("12. Modifications to these Terms") }}</h2>
+            <p class="mt-2">
+                {{ _("The Provider may amend these Terms with at least 30 days' prior notice sent to the Customer's billing email and posted on this page. The version number and effective date at the top of this page identify the current version. If the Customer disagrees with the changes, they may cancel the subscription before the effective date; otherwise continued use after the effective date constitutes acceptance of the new Terms.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("Material changes — pricing, scope of the Service, or the limitation of liability in Section 10 — will be highlighted in the notice email rather than buried in a long changelog.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("13. Governing law and jurisdiction") }}</h2>
+            <p class="mt-2">
+                {{ _("These Terms and any dispute arising out of or in connection with them are governed by the law of the Czech Republic, without regard to conflict-of-laws rules. The parties agree that the courts of the Czech Republic have exclusive jurisdiction; the locally competent court is determined by the Provider's registered office (currently the District Court in Decin).") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The parties will attempt to resolve any dispute amicably first by direct negotiation; failing that, the parties may agree to non-binding mediation before initiating court proceedings.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("14. Severability and entire agreement") }}</h2>
+            <p class="mt-2">
+                {{ _("If any provision of these Terms is held to be invalid or unenforceable by a competent court, the remaining provisions remain in full force and effect, and the invalid provision is replaced with one whose effect is closest to the original intention while being valid.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("These Terms, together with the Privacy Policy, the Cookies policy, and the published pricing page, form the entire agreement between the Customer and the Provider regarding the Hosted Service and supersede any earlier proposals, negotiations, or marketing material.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("15. Contact and notices") }}</h2>
+            <p class="mt-2">
+                {{ _("All notices under these Terms (including cancellation, modification notices, breach notices, DPA requests) are sent in writing by email — to the Customer's billing email of record, and to the Provider at") }}
+                <a href="mailto:{{ operator_email }}" class="text-brand-600 hover:text-brand-700">{{ operator_email }}</a>.
+                {{ _("A notice is deemed delivered the day after it is sent, unless the sender receives an automatic non-delivery report.") }}
+            </p>
+        </section>
+
     </div>
 </section>
 {% endblock %}

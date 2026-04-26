@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-25 21:49+0200\n"
+"POT-Creation-Date: 2026-04-26 07:34+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -1321,7 +1321,7 @@ msgid "Current stock"
 msgstr "Aktuální stav"
 
 #: app/templates/assets/detail.html:28 app/templates/assets/form.html:46
-#: app/templates/assets/list.html:29 app/templates/www/privacy.html:57
+#: app/templates/assets/list.html:29 app/templates/www/privacy.html:73
 msgid "Location"
 msgstr "Lokalita"
 
@@ -2778,7 +2778,7 @@ msgstr ""
 msgid "Cookies"
 msgstr "Cookies"
 
-#: app/templates/www/cookies.html:7
+#: app/templates/www/cookies.html:7 app/templates/www/privacy.html:162
 msgid "Cookies policy"
 msgstr "Zásady cookies"
 
@@ -2818,7 +2818,7 @@ msgstr ""
 msgid "2. Cookies we set"
 msgstr "2. Cookies, které nastavujeme"
 
-#: app/templates/www/cookies.html:30 app/templates/www/privacy.html:55
+#: app/templates/www/cookies.html:30 app/templates/www/privacy.html:71
 msgid "Purpose"
 msgstr "Účel"
 
@@ -3221,7 +3221,7 @@ msgid "Terms of Service"
 msgstr "Obchodní podmínky"
 
 #: app/templates/www/imprint.html:55 app/templates/www/privacy.html:3
-#: app/templates/www/privacy.html:7 app/templates/www/terms.html:54
+#: app/templates/www/privacy.html:7 app/templates/www/terms.html:103
 msgid "Privacy Policy"
 msgstr "Zásady ochrany osobních údajů"
 
@@ -3238,7 +3238,9 @@ msgid ""
 "Replace emails and Excel with a clean customer portal. Your clients see "
 "orders, drawings and production status on their own — 24/7. 30 days free,"
 " no card."
-msgstr "Nahraďte e-maily a Excel přehledným portálem. Vaši zákazníci vidí zakázky, výkresy a stav výroby sami — 24/7. 30 dní zdarma, bez karty."
+msgstr ""
+"Nahraďte e-maily a Excel přehledným portálem. Vaši zákazníci vidí "
+"zakázky, výkresy a stav výroby sami — 24/7. 30 dní zdarma, bez karty."
 
 #: app/templates/www/index.html:24
 msgid "Open source · Data in the EU · AGPL-3.0"
@@ -3288,7 +3290,9 @@ msgstr "Máte dílnu, ne e-mailovou centrálu."
 msgid ""
 "Five calls before lunch asking \"where's my order?\" — and three "
 "different drawing versions in Outlook. It adds up fast."
-msgstr "Pět telefonů do oběda s dotazem „kde je má zakázka?\\\" — a tři různé verze výkresu v Outlooku. Nasčítá se to rychle."
+msgstr ""
+"Pět telefonů do oběda s dotazem „kde je má zakázka?\\\" — a tři různé "
+"verze výkresu v Outlooku. Nasčítá se to rychle."
 
 #: app/templates/www/index.html:82
 msgid "Phones that won't stop"
@@ -3298,7 +3302,9 @@ msgstr "Telefony, které nekončí"
 msgid ""
 "\"Every day twenty people call me asking where their order is. Then I "
 "have to walk to the shop floor and ask the foreman.\""
-msgstr "„Každý den mi dvacet lidí volá, kde je jejich zakázka. A já se pak musím jít zeptat mistra do dílny.\\\""
+msgstr ""
+"„Každý den mi dvacet lidí volá, kde je jejich zakázka. A já se pak musím "
+"jít zeptat mistra do dílny.\\\""
 
 #: app/templates/www/index.html:92
 msgid "Outlook as a drawing vault"
@@ -3308,7 +3314,9 @@ msgstr "Outlook jako archiv výkresů"
 msgid ""
 "\"I keep searching Outlook for which version of the drawing the client "
 "sent last week. And sometimes we make parts from the wrong revision.\""
-msgstr "„Furt hledám v Outlooku, kterou verzi výkresu klient poslal minulý týden. A občas uděláme díl podle špatné revize.\\\""
+msgstr ""
+"„Furt hledám v Outlooku, kterou verzi výkresu klient poslal minulý týden."
+" A občas uděláme díl podle špatné revize.\\\""
 
 #: app/templates/www/index.html:102
 msgid "Excel only Jana updates"
@@ -3318,7 +3326,9 @@ msgstr "Excel, který aktualizuje jenom Jana"
 msgid ""
 "\"We have a spreadsheet, but only Jana keeps it current. When she's sick,"
 " nobody knows anything.\""
-msgstr "„Máme tabulku, ale aktualizuje ji jenom Jana. Když je nemocná, nevíme nic.\\\""
+msgstr ""
+"„Máme tabulku, ale aktualizuje ji jenom Jana. Když je nemocná, nevíme "
+"nic.\\\""
 
 #: app/templates/www/index.html:115
 msgid "Everything that matters"
@@ -3332,7 +3342,9 @@ msgstr "Postavené přímo pro výrobní firmy"
 msgid ""
 "Not a generic CRM. Not an oversized ERP. An in-between that knows what a "
 "drawing revision and a production deadline are."
-msgstr "Ne obecné CRM. Ne předimenzované ERP. Něco mezi — co ví, co je revize výkresu a termín výroby."
+msgstr ""
+"Ne obecné CRM. Ne předimenzované ERP. Něco mezi — co ví, co je revize "
+"výkresu a termín výroby."
 
 #: app/templates/www/index.html:138
 #, fuzzy
@@ -3352,7 +3364,9 @@ msgstr "Výkresy a CAD na správném místě"
 msgid ""
 "PDF, PNG, DWG, DXF, STEP. Direct upload, instant preview. The right "
 "revision next to the right order — every time."
-msgstr "PDF, PNG, DWG, DXF, STEP. Nahrajete přímo, náhled máte hned. Správná revize u správné zakázky — vždy."
+msgstr ""
+"PDF, PNG, DWG, DXF, STEP. Nahrajete přímo, náhled máte hned. Správná "
+"revize u správné zakázky — vždy."
 
 #: app/templates/www/index.html:151
 msgid "Status tracking in real time"
@@ -3362,7 +3376,9 @@ msgstr "Sledování stavu v reálném čase"
 msgid ""
 "The client sees on their own: DRAFT · SUBMITTED · QUOTED · CONFIRMED · IN"
 " PRODUCTION · READY · DELIVERED. Five calls a day turn into zero."
-msgstr "Zákazník sám vidí stav: ROZPRACOVÁNO · ODESLÁNO · OCENĚNO · POTVRZENO · VE VÝROBĚ · HOTOVO · DODÁNO. Pět telefonů denně se promění v nulu."
+msgstr ""
+"Zákazník sám vidí stav: ROZPRACOVÁNO · ODESLÁNO · OCENĚNO · POTVRZENO · "
+"VE VÝROBĚ · HOTOVO · DODÁNO. Pět telefonů denně se promění v nulu."
 
 # --- round-2 audit: landing + CRUD templates ---
 #: app/templates/www/index.html:158
@@ -3389,7 +3405,9 @@ msgstr "Nepodařilo se ověřit e-mail"
 msgid ""
 "Client comments, status changes, new drawings. Each user sets what they "
 "want to be notified about. No more inbox overload."
-msgstr "Komentáře od zákazníka, změny stavu, nové výkresy. Každý uživatel si nastaví, o čem chce vědět. Konec přehlcené schránky."
+msgstr ""
+"Komentáře od zákazníka, změny stavu, nové výkresy. Každý uživatel si "
+"nastaví, o čem chce vědět. Konec přehlcené schránky."
 
 #: app/templates/www/index.html:172
 msgid "Every client sees only their own"
@@ -3399,7 +3417,10 @@ msgstr "Každý zákazník vidí jen své"
 msgid ""
 "PostgreSQL Row-Level Security. Data is isolated at the database level — "
 "not by a view we can forget. Zero risk of cross-visibility."
-msgstr "PostgreSQL Row-Level Security. Data jsou oddělená na úrovni databáze — ne jen ve view, které lze zapomenout. Nulové riziko úniku dat mezi zákazníky."
+msgstr ""
+"PostgreSQL Row-Level Security. Data jsou oddělená na úrovni databáze — ne"
+" jen ve view, které lze zapomenout. Nulové riziko úniku dat mezi "
+"zákazníky."
 
 #: app/templates/www/index.html:180
 #, fuzzy
@@ -3423,7 +3444,9 @@ msgstr "Subdoména portálu"
 msgid ""
 "Email, password, Company ID. You'll get your own address — e.g. "
 "yourfirm.assoluto.eu — in 30 seconds."
-msgstr "E-mail, heslo, IČO. Za 30 vteřin máte vlastní adresu — třeba vasefirma.assoluto.eu."
+msgstr ""
+"E-mail, heslo, IČO. Za 30 vteřin máte vlastní adresu — třeba "
+"vasefirma.assoluto.eu."
 
 #: app/templates/www/index.html:210
 #, fuzzy
@@ -3434,7 +3457,9 @@ msgstr "Začněte tím, že přidáte prvního klienta"
 msgid ""
 "Click, enter their email, the invite goes out. They see only their own "
 "orders and drawings. Nothing else."
-msgstr "Kliknete, zadáte e-mail, pozvánka odchází. Zákazník vidí jen své zakázky a výkresy. Nic víc."
+msgstr ""
+"Kliknete, zadáte e-mail, pozvánka odchází. Zákazník vidí jen své zakázky "
+"a výkresy. Nic víc."
 
 #: app/templates/www/index.html:219
 #, fuzzy
@@ -3445,7 +3470,9 @@ msgstr "objednávek tento měsíc"
 msgid ""
 "Client uploads a drawing, you quote, they confirm. Shop floor updates "
 "status, client sees it. Your email inbox shrinks by half."
-msgstr "Zákazník nahraje výkres, vy oceníte, on potvrdí. Dílna aktualizuje stav, zákazník to vidí. Vaše schránka se ztenčí na polovinu."
+msgstr ""
+"Zákazník nahraje výkres, vy oceníte, on potvrdí. Dílna aktualizuje stav, "
+"zákazník to vidí. Vaše schránka se ztenčí na polovinu."
 
 #: app/templates/www/index.html:233
 #, fuzzy
@@ -3460,7 +3487,9 @@ msgstr "Na půl cesty mezi Excelem a 600tisícovým ERP"
 msgid ""
 "You outgrew the spreadsheet. You don't want a year-long ERP "
 "implementation. Here's what's in between."
-msgstr "Z tabulky jste vyrostli. Ale roční implementaci ERP si nepřejete. Tohle je ta cesta mezi."
+msgstr ""
+"Z tabulky jste vyrostli. Ale roční implementaci ERP si nepřejete. Tohle "
+"je ta cesta mezi."
 
 #: app/templates/www/index.html:247
 #, fuzzy
@@ -3689,13 +3718,17 @@ msgstr "Co říkají naši první zákazníci"
 msgid ""
 "Assoluto is in early-access launch. Logos will appear here as soon as "
 "clients agree to be published."
-msgstr "Assoluto je v early-access fázi. Loga zde přibydou, jakmile klienti odsouhlasí zveřejnění."
+msgstr ""
+"Assoluto je v early-access fázi. Loga zde přibydou, jakmile klienti "
+"odsouhlasí zveřejnění."
 
 #: app/templates/www/index.html:375
 msgid ""
 "Five calls a day asking about orders turned into zero. I finally have "
 "time for the shop floor."
-msgstr "Pět telefonů denně kolem zakázek se změnilo v nulu. Konečně mám čas na dílnu."
+msgstr ""
+"Pět telefonů denně kolem zakázek se změnilo v nulu. Konečně mám čas na "
+"dílnu."
 
 #: app/templates/www/index.html:378
 msgid "Owner, metalwork shop — Morava, 12 employees"
@@ -3705,7 +3738,9 @@ msgstr "Majitel zámečnické firmy — Morava, 12 zaměstnanců"
 msgid ""
 "No more parts made from the wrong drawing revision. Every attachment "
 "belongs to exactly one order."
-msgstr "Už neděláme díly podle staré revize výkresu. Každá příloha patří přesně k jedné zakázce."
+msgstr ""
+"Už neděláme díly podle staré revize výkresu. Každá příloha patří přesně k"
+" jedné zakázce."
 
 #: app/templates/www/index.html:387
 msgid "Production manager, CNC machining — Vysočina, 22 employees"
@@ -3715,7 +3750,9 @@ msgstr "Vedoucí výroby, CNC obrábění — Vysočina, 22 zaměstnanců"
 msgid ""
 "Big ERPs wanted hundreds of thousands for implementation. With Assoluto "
 "we were running in an afternoon for 490 CZK a month."
-msgstr "Velká ERP chtěla za implementaci stovky tisíc. S Assoluto jsme běželi za jedno odpoledne — za 490 Kč měsíčně."
+msgstr ""
+"Velká ERP chtěla za implementaci stovky tisíc. S Assoluto jsme běželi za "
+"jedno odpoledne — za 490 Kč měsíčně."
 
 #: app/templates/www/index.html:396
 msgid "Co-owner, sheet-metal fabrication — Prague, 8 employees"
@@ -3860,7 +3897,9 @@ msgstr "Připraveni přestat zvedat telefon?"
 msgid ""
 "30 days free. No card. No \"quick call with sales\". Just sign up and try"
 " it."
-msgstr "30 dní zdarma. Bez platební karty. Žádný „rychlý hovor s obchodem\\\". Jen se zaregistrujte a vyzkoušejte."
+msgstr ""
+"30 dní zdarma. Bez platební karty. Žádný „rychlý hovor s obchodem\\\". "
+"Jen se zaregistrujte a vyzkoušejte."
 
 #: app/templates/www/index.html:450
 #, fuzzy
@@ -4100,212 +4139,384 @@ msgstr ""
 "Ano. Napište na team@assoluto.eu s popisem účelu — polovina ceny, u "
 "malých organizací přístup zdarma."
 
-#: app/templates/www/privacy.html:14
-msgid "1. Data controller"
+#: app/templates/www/privacy.html:15
+#, fuzzy
+msgid "1. Who is the data controller"
 msgstr "1. Správce údajů"
 
-#: app/templates/www/privacy.html:16
-msgid "The data controller is"
-msgstr "Správcem údajů je"
-
-#: app/templates/www/privacy.html:17 app/templates/www/terms.html:17
-msgid "Company ID"
-msgstr "IČO"
+#: app/templates/www/privacy.html:17
+msgid ""
+"The data controller for personal data processed when you visit "
+"assoluto.eu and when you operate a Hosted Service account is"
+msgstr "Správcem osobních údajů zpracovávaných při návštěvě assoluto.eu a při provozu účtu na hostované službě je"
 
 #: app/templates/www/privacy.html:18 app/templates/www/terms.html:18
+#, fuzzy
+msgid "Company ID (IČO)"
+msgstr "IČO"
+
+#: app/templates/www/privacy.html:20 app/templates/www/terms.html:20
 msgid "with registered office at"
 msgstr "se sídlem"
 
-#: app/templates/www/privacy.html:19
+#: app/templates/www/privacy.html:21 app/templates/www/terms.html:22
 msgid "Contact:"
 msgstr "Kontakt:"
 
 #: app/templates/www/privacy.html:25
-msgid "2. What data we process"
-msgstr "2. Jaké údaje zpracováváme"
-
-#: app/templates/www/privacy.html:27
-msgid "Account identification data (name, email, company, Company ID, VAT ID)"
-msgstr "Identifikační údaje účtu (jméno, e-mail, firma, IČO, DIČ)"
+msgid ""
+"For personal data that you (the Customer) upload about your own end "
+"clients into the portal — order data, contact records, drawings — the "
+"Provider acts as a data processor under Article 28 GDPR; the Customer "
+"remains the controller of that data. A standard DPA is available on "
+"request at the same address."
+msgstr "Pro osobní údaje, které vy (zákazník) nahrajete do portálu o svých vlastních koncových klientech — data zakázek, kontakty, výkresy — vystupuje provozovatel jako zpracovatel podle čl. 28 GDPR; správcem zůstáváte vy. Vzorovou smlouvu o zpracování (DPA) na vyžádání zašleme na stejnou adresu."
 
 #: app/templates/www/privacy.html:28
-msgid "Login credentials (password in Argon2-hashed form)"
-msgstr "Přihlašovací údaje (heslo v Argon2-hashované podobě)"
+msgid ""
+"The Provider has not designated a Data Protection Officer because the "
+"size and nature of processing falls below the GDPR Article 37 threshold. "
+"For all GDPR-related matters please contact the Provider directly at the "
+"email above."
+msgstr "Provozovatel nejmenoval pověřence pro ochranu osobních údajů (DPO), protože rozsah a povaha zpracování nedosahuje prahu podle čl. 37 GDPR. Ve všech věcech ochrany osobních údajů nás prosím kontaktujte přímo na výše uvedeném e-mailu."
 
-#: app/templates/www/privacy.html:29
-msgid "Content created in the portal (orders, comments, attachments)"
-msgstr "Obsah vytvořený v portálu (objednávky, komentáře, přílohy)"
+#: app/templates/www/privacy.html:33
+msgid "2. What personal data we process and on what legal basis"
+msgstr "2. Jaké osobní údaje zpracováváme a na jakém právním základě"
 
-#: app/templates/www/privacy.html:30
-msgid "Billing data, if you subscribe to a plan"
-msgstr "Fakturační údaje, pokud si předplatíte plán"
-
-#: app/templates/www/privacy.html:31
-msgid "Technical logs (IP address, User-Agent) for operational security"
-msgstr "Technické logy (IP adresa, User-Agent) pro provozní bezpečnost"
-
-#: app/templates/www/privacy.html:36
-msgid "3. Why we process data"
-msgstr "3. Proč údaje zpracováváme"
+#: app/templates/www/privacy.html:35
+msgid ""
+"We process the following categories of personal data, on the legal bases "
+"set out next to each category:"
+msgstr "Zpracováváme následující kategorie osobních údajů, vždy na právním základě uvedeném u dané kategorie:"
 
 #: app/templates/www/privacy.html:38
-msgid "Contract performance (operating the portal you ordered)"
-msgstr "Plnění smlouvy (provoz objednaného portálu)"
+msgid ""
+"Account identification (full name, work email, role, company name, IČO, "
+"DIČ if provided) — Article 6(1)(b) GDPR, performance of the contract."
+msgstr "Identifikace účtu (jméno a příjmení, pracovní e-mail, role, název firmy, IČO, DIČ pokud jste ho uvedli) — čl. 6 odst. 1 písm. b) GDPR, plnění smlouvy."
 
 #: app/templates/www/privacy.html:39
-msgid "Invoicing and tax records (legitimate interest + legal obligation)"
-msgstr "Fakturace a daňová evidence (oprávněný zájem + právní povinnost)"
+msgid ""
+"Login credentials (password stored only as an Argon2id hash; we never see"
+" your plaintext password) — Article 6(1)(b) GDPR."
+msgstr "Přihlašovací údaje (heslo ukládáme pouze jako Argon2id hash; vaše heslo v čitelné podobě nikdy nevidíme) — čl. 6 odst. 1 písm. b) GDPR."
 
 #: app/templates/www/privacy.html:40
-msgid "Security and abuse prevention (legitimate interest)"
-msgstr "Bezpečnost a prevence zneužití (oprávněný zájem)"
+msgid ""
+"Content you create in the portal (orders, attachments, comments, customer"
+" records, products) — Article 6(1)(b) GDPR. For end-client personal data "
+"inside this content we act as a processor on your instructions."
+msgstr "Obsah, který v portálu vytvoříte (zakázky, přílohy, komentáře, záznamy o klientech, produkty) — čl. 6 odst. 1 písm. b) GDPR. Pro osobní údaje vašich koncových klientů uvnitř tohoto obsahu vystupujeme jako zpracovatel podle vašich pokynů."
 
 #: app/templates/www/privacy.html:41
-msgid "Sending operational emails (consent / contract performance)"
-msgstr "Zasílání provozních e-mailů (souhlas / plnění smlouvy)"
+msgid ""
+"Billing data (Czech tax-document fields, payment status, invoice history)"
+" — Article 6(1)(b) GDPR for the contract; Article 6(1)(c) GDPR for the "
+"legal obligation to retain accounting records."
+msgstr "Fakturační údaje (povinné údaje českého daňového dokladu, stav plateb, historie faktur) — čl. 6 odst. 1 písm. b) GDPR pro plnění smlouvy; čl. 6 odst. 1 písm. c) GDPR pro zákonnou povinnost uchovávat účetní záznamy."
+
+#: app/templates/www/privacy.html:42
+msgid ""
+"Technical/security logs (IP address, User-Agent, request path, login "
+"success/failure, CSRF token activity) — Article 6(1)(f) GDPR, legitimate "
+"interest in operating a secure service."
+msgstr "Technické a bezpečnostní logy (IP adresa, User-Agent, cesta požadavku, úspěšná/neúspěšná přihlášení, aktivita CSRF tokenu) — čl. 6 odst. 1 písm. f) GDPR, oprávněný zájem na bezpečném provozu služby."
+
+#: app/templates/www/privacy.html:43
+msgid ""
+"Audit-trail records of administrative actions inside your tenant — "
+"Article 6(1)(b) and (f) GDPR."
+msgstr "Auditní záznamy administrativních akcí uvnitř vašeho tenantu — čl. 6 odst. 1 písm. b) a f) GDPR."
 
 #: app/templates/www/privacy.html:46
-msgid "4. Where data is stored + our subprocessors"
-msgstr "4. Kde data ukládáme + naši zpracovatelé"
-
-#: app/templates/www/privacy.html:48
 msgid ""
-"We use the following third parties (subprocessors) to run the service. "
-"Data sharing is limited to what each subprocessor needs to do its job; no"
-" subprocessor receives marketing permissions on your data."
-msgstr ""
-"Pro provoz služby využíváme následující třetí strany (zpracovatele). "
-"Sdílení dat je omezeno na to, co každý zpracovatel potřebuje; žádný "
-"nedostává oprávnění marketingového využití."
+"We do not process any special-category (sensitive) personal data and we "
+"ask that you do not upload such data into the portal."
+msgstr "Nezpracováváme žádné zvláštní kategorie (citlivé) osobních údajů a žádáme vás, abyste takové údaje do portálu nenahrávali."
+
+#: app/templates/www/privacy.html:51
+#, fuzzy
+msgid "3. Why we process the data (purposes)"
+msgstr "3. Proč údaje zpracováváme"
+
+#: app/templates/www/privacy.html:53
+msgid ""
+"Operating the Service you ordered — letting you log in, see your orders, "
+"send notifications, generate invoices."
+msgstr "Provoz služby, kterou jste si objednali — abyste se mohli přihlásit, vidět své zakázky, dostávat notifikace, generovat faktury."
 
 #: app/templates/www/privacy.html:54
+msgid ""
+"Issuing tax-compliant invoices and meeting Czech accounting and tax-"
+"reporting obligations."
+msgstr "Vystavování daňových dokladů a plnění českých účetních a daňových povinností."
+
+#: app/templates/www/privacy.html:55
+msgid ""
+"Detecting and responding to abuse — brute-force login attempts, spam, "
+"attempts to access other tenants' data."
+msgstr "Detekce a reakce na zneužívání — pokusy o uhádnutí hesla, spam, pokusy o přístup k datům jiných tenantů."
+
+#: app/templates/www/privacy.html:56
+msgid ""
+"Sending operational emails (welcome, password reset, invoice delivery, "
+"subscription notifications)."
+msgstr "Odesílání provozních e-mailů (uvítání, reset hesla, doručení faktur, notifikace ohledně předplatného)."
+
+#: app/templates/www/privacy.html:57
+msgid ""
+"Improving the Service based on aggregated usage patterns; we do not "
+"perform automated decision-making with legal effects (no profiling, no "
+"algorithmic eligibility decisions)."
+msgstr "Zlepšování služby na základě agregovaných statistik využití; neprovádíme automatizované rozhodování s právními účinky (žádný profiling, žádná algoritmická rozhodování o způsobilosti)."
+
+#: app/templates/www/privacy.html:62
+#, fuzzy
+msgid "4. Where data is stored and our subprocessors"
+msgstr "4. Kde data ukládáme + naši zpracovatelé"
+
+#: app/templates/www/privacy.html:64
+msgid ""
+"We rely on the following subprocessors. Each receives only the data they "
+"need to deliver their part of the Service; none have permission to use "
+"your data for marketing or to share it onward."
+msgstr "Spoléháme se na následující dílčí zpracovatele. Každý dostane jen data, která potřebuje pro svou roli ve službě; žádný nemá oprávnění používat vaše data pro marketing ani je dál sdílet."
+
+#: app/templates/www/privacy.html:70
 msgid "Subprocessor"
 msgstr "Zpracovatel"
 
-#: app/templates/www/privacy.html:56
+#: app/templates/www/privacy.html:72
 msgid "Data categories"
 msgstr "Kategorie dat"
 
-#: app/templates/www/privacy.html:63
-msgid "Hosting (VPS)"
-msgstr "Hosting (VPS)"
+#: app/templates/www/privacy.html:79
+msgid "Application hosting + database (VPS) + S3-compatible storage"
+msgstr "Hosting aplikace + databáze (VPS) + S3-kompatibilní úložiště"
 
-#: app/templates/www/privacy.html:64
-msgid "All (at-rest, encrypted)"
-msgstr "Vše (at-rest, šifrováno)"
+#: app/templates/www/privacy.html:80
+msgid "All Customer data (encrypted at rest)"
+msgstr "Veškerá data zákazníka (šifrovaná v klidu)"
 
-#: app/templates/www/privacy.html:69
-msgid "Transactional email"
+#: app/templates/www/privacy.html:85
+#, fuzzy
+msgid "Transactional email delivery"
 msgstr "Transakční e-maily"
 
-#: app/templates/www/privacy.html:70
-msgid "Recipient email, name, body"
+#: app/templates/www/privacy.html:86
+#, fuzzy
+msgid "Recipient email, name, message body"
 msgstr "Adresa příjemce, jméno, tělo zprávy"
 
-#: app/templates/www/privacy.html:75
-msgid "Subscription billing"
+#: app/templates/www/privacy.html:91
+#, fuzzy
+msgid "Subscription billing, card processing, dunning"
 msgstr "Předplatné (účtování)"
 
-#: app/templates/www/privacy.html:76
-msgid "Billing email, company, tax ID, card (processor-held)"
+#: app/templates/www/privacy.html:92
+#, fuzzy
+msgid ""
+"Billing email, company name, tax IDs, card data (held by Stripe, never by"
+" us)"
 msgstr "Fakturační e-mail, firma, DIČ, karta (drží zpracovatel)"
 
-#: app/templates/www/privacy.html:81
-msgid "DNS + domain registrar"
+#: app/templates/www/privacy.html:93
+msgid "IE (EU); some processing in US under SCCs"
+msgstr "IE (EU); část zpracování v USA pod SCC"
+
+#: app/templates/www/privacy.html:97
+#, fuzzy
+msgid "DNS hosting and domain registrar"
 msgstr "DNS + registrátor domény"
 
-#: app/templates/www/privacy.html:82
-msgid "Public DNS records only"
+#: app/templates/www/privacy.html:98
+#, fuzzy
+msgid "Public DNS records only — no personal data"
 msgstr "Pouze veřejné DNS záznamy"
 
-#: app/templates/www/privacy.html:89
+#: app/templates/www/privacy.html:105
+msgid ""
+"Stripe transfers some processing to its US affiliates under Standard "
+"Contractual Clauses (SCCs) approved by the European Commission. We rely "
+"on Stripe's published transfer impact assessment."
+msgstr "Stripe převádí část zpracování na své americké přidružené společnosti na základě standardních smluvních doložek (SCC) schválených Evropskou komisí. Spoléháme na zveřejněné posouzení dopadu převodu od Stripe."
+
+#: app/templates/www/privacy.html:108
+#, fuzzy
 msgid ""
 "Subprocessor changes are disclosed at least 30 days in advance by "
-"updating this page and emailing active tenant admins."
+"updating this page and emailing active tenant administrators. The "
+"Customer may object to a new subprocessor by terminating the subscription"
+" before the change takes effect."
 msgstr ""
 "O změně zpracovatelů informujeme minimálně 30 dní dopředu aktualizací "
 "této stránky a e-mailem všem aktivním tenant adminům."
 
-#: app/templates/www/privacy.html:94
+#: app/templates/www/privacy.html:113
 msgid "5. How long we retain data"
 msgstr "5. Jak dlouho údaje uchováváme"
 
-#: app/templates/www/privacy.html:96
-msgid "Active account data — for the lifetime of the subscription."
+#: app/templates/www/privacy.html:115
+#, fuzzy
+msgid "Active account data — for the duration of the active subscription."
 msgstr "Data aktivního účtu — po dobu trvání předplatného."
 
-#: app/templates/www/privacy.html:97
+#: app/templates/www/privacy.html:116
 msgid ""
-"After account cancellation — 30 days grace (for reactivation), then "
-"anonymisation."
-msgstr "Po zrušení účtu — 30denní grace period pro reaktivaci, pak anonymizace."
+"After subscription cancellation — full access continues until the end of "
+"the paid period plus a 3-day data-export grace period; afterwards the "
+"account is deactivated."
+msgstr "Po zrušení předplatného — plný přístup pokračuje do konce zaplaceného období plus 3 dny grace na export dat; poté je účet deaktivován."
 
-#: app/templates/www/privacy.html:98
+#: app/templates/www/privacy.html:117
 msgid ""
-"Authentication logs (last_login timestamps, failed login attempts) — 90 "
-"days."
+"Manual recovery on request — data remains recoverable on written request "
+"for 30 days after deactivation. After that, it is permanently deleted."
+msgstr "Ruční obnova na vyžádání — po deaktivaci jsou data ještě 30 dní obnovitelná na základě písemné žádosti. Poté jsou nevratně smazána."
+
+#: app/templates/www/privacy.html:118
+#, fuzzy
+msgid "Database backups — 14 days rolling, then automatically purged."
+msgstr "Zálohy databáze — 14 dní rotace."
+
+#: app/templates/www/privacy.html:119
+#, fuzzy
+msgid ""
+"Authentication and security logs (last_login timestamps, failed login "
+"attempts, IP) — 90 days."
 msgstr "Autentizační logy (čas posledního přihlášení, neúspěšné pokusy) — 90 dní."
 
-#: app/templates/www/privacy.html:99
+#: app/templates/www/privacy.html:120
 msgid ""
-"Audit trail of operator / admin actions — retained for the lifetime of "
-"the tenant, plus 3 years after closure for contractual dispute evidence."
-msgstr ""
-"Audit trail akcí operátora / administrátora — po dobu trvání tenantu plus"
-" 3 roky po uzavření jako důkaz pro případné spory."
+"Audit trail of admin actions inside the tenant — for the lifetime of the "
+"tenant; after deletion, retained for up to 3 years for evidentiary "
+"purposes in case of dispute."
+msgstr "Auditní stopa administrativních akcí uvnitř tenantu — po dobu existence tenantu; po smazání uchováváme až 3 roky pro důkazní účely v případě sporu."
 
-#: app/templates/www/privacy.html:100
+#: app/templates/www/privacy.html:121
+#, fuzzy
 msgid ""
-"Billing records (invoices, subscription history) — 10 years from the end "
-"of the accounting period, as required by Czech Act 563/1991 Coll. on "
-"accounting."
+"Billing records and tax documents — 10 years from the end of the "
+"accounting period, as required by Czech Act 563/1991 Coll. on Accounting."
 msgstr ""
 "Fakturační záznamy (faktury, historie předplatného) — 10 let od konce "
 "účetního období, podle zákona č. 563/1991 Sb. o účetnictví."
 
-#: app/templates/www/privacy.html:101
-msgid "Request / error logs — 14 days."
+#: app/templates/www/privacy.html:122
+#, fuzzy
+msgid "Application request and error logs — 14 days."
 msgstr "Logy požadavků / chyb — 14 dní."
 
-#: app/templates/www/privacy.html:102
-msgid "Database backups — 14 days rolling."
-msgstr "Zálohy databáze — 14 dní rotace."
+#: app/templates/www/privacy.html:125
+msgid ""
+"Where the law mandates a longer retention (such as billing records), we "
+"retain only what the law requires and isolate it from the operational "
+"dataset where possible."
+msgstr "Pokud zákon vyžaduje delší uchovávání (jako u účetních záznamů), uchováváme pouze to, co zákon vyžaduje, a pokud je to možné, oddělíme to od provozních dat."
 
-#: app/templates/www/privacy.html:107
-msgid "6. Your rights"
+#: app/templates/www/privacy.html:130
+msgid "6. Recipients and data sharing"
+msgstr "6. Příjemci osobních údajů a sdílení"
+
+#: app/templates/www/privacy.html:132
+msgid "We do not sell or rent your personal data. We share data only:"
+msgstr "Vaše osobní údaje neprodáváme ani nepronajímáme. Sdílíme je pouze:"
+
+#: app/templates/www/privacy.html:135
+msgid ""
+"with the subprocessors listed in Section 4, strictly for the purposes set"
+" out there;"
+msgstr "s dílčími zpracovateli uvedenými v sekci 4, výhradně pro tam uvedené účely;"
+
+#: app/templates/www/privacy.html:136
+msgid "with public authorities when required by law or by an enforceable order;"
+msgstr "s orgány veřejné moci, pokud to vyžaduje zákon nebo vykonatelné rozhodnutí;"
+
+#: app/templates/www/privacy.html:137
+msgid ""
+"with our professional advisors (accountant, tax advisor) under "
+"confidentiality, for billing and accounting purposes only."
+msgstr "s našimi profesními poradci (účetní, daňový poradce) za podmínky mlčenlivosti, výhradně pro fakturační a účetní účely."
+
+#: app/templates/www/privacy.html:142
+#, fuzzy
+msgid "7. Your rights"
 msgstr "6. Vaše práva"
 
-#: app/templates/www/privacy.html:109
+#: app/templates/www/privacy.html:144
 msgid ""
-"You have the right to access, rectification, erasure, restriction of "
-"processing, portability, and objection. Contact"
-msgstr ""
-"Máte právo na přístup, opravu, výmaz, omezení zpracování, přenositelnost "
-"a námitku. Kontakt"
+"Under GDPR Articles 15–22 you have the right to: access your personal "
+"data, rectify inaccurate data, request erasure, restrict processing, "
+"receive your data in a portable format (CSV / ZIP via the in-app export),"
+" and object to processing based on legitimate interest. The data-export "
+"and account-delete actions are available self-service in the "
+"application's admin profile section."
+msgstr "Podle čl. 15–22 GDPR máte právo: na přístup ke svým osobním údajům, na opravu nepřesných údajů, na výmaz, na omezení zpracování, na přenositelnost (CSV / ZIP přes export v aplikaci) a vznést námitku proti zpracování na základě oprávněného zájmu. Akce export dat a smazání účtu jsou dostupné samoobslužně v sekci admin profilu."
 
-#: app/templates/www/privacy.html:111
-msgid "we will respond within 30 days."
-msgstr "odpovíme do 30 dní."
+#: app/templates/www/privacy.html:147
+msgid "To exercise any other right, write to"
+msgstr "Pro uplatnění jakéhokoli dalšího práva napište na"
 
-#: app/templates/www/privacy.html:114
+#: app/templates/www/privacy.html:149
 msgid ""
-"You also have the right to file a complaint with the Office for Personal "
-"Data Protection"
+"We respond within 30 days of verifying your identity. The response is "
+"free of charge unless the request is manifestly unfounded or excessive "
+"(Article 12(5) GDPR)."
+msgstr "Odpovíme do 30 dní od ověření vaší totožnosti. Odpověď je zdarma, pokud žádost není zjevně nedůvodná nebo nepřiměřená (čl. 12 odst. 5 GDPR)."
+
+#: app/templates/www/privacy.html:152
+#, fuzzy
+msgid ""
+"If you believe your rights have been infringed you may lodge a complaint "
+"with the Czech Office for Personal Data Protection"
 msgstr "Máte také právo podat stížnost Úřadu pro ochranu osobních údajů"
 
-#: app/templates/www/privacy.html:120
-msgid "7. Cookies"
-msgstr "7. Cookies"
+#: app/templates/www/privacy.html:154
+msgid "Pplk. Sochora 27, 170 00 Prague 7, Czech Republic."
+msgstr "Pplk. Sochora 27, 170 00 Praha 7, Česká republika."
 
-#: app/templates/www/privacy.html:122
+#: app/templates/www/privacy.html:159
+msgid "8. Cookies and similar technologies"
+msgstr "8. Cookies a podobné technologie"
+
+#: app/templates/www/privacy.html:161
+#, fuzzy
 msgid ""
-"The portal uses only technical (session) cookies necessary for login and "
-"CSRF protection. We do not deploy analytics or marketing cookies without "
-"your consent."
+"The portal uses only strictly-necessary cookies (login session, CSRF "
+"protection, locale and theme preference). We do not deploy analytics or "
+"marketing cookies, and we do not track you across sites. Full inventory:"
 msgstr ""
 "Portál používá pouze technické (session) cookies nezbytné pro přihlášení "
 "a ochranu CSRF. Analytické ani marketingové cookies bez vašeho souhlasu "
 "nenasazujeme."
+
+#: app/templates/www/privacy.html:167
+msgid "9. Data security"
+msgstr "9. Bezpečnost dat"
+
+#: app/templates/www/privacy.html:169
+msgid ""
+"We apply the technical and organisational measures appropriate to the "
+"risk: TLS 1.2+ for all traffic, Argon2id password hashing, per-tenant "
+"database isolation enforced at the row level (Postgres RLS), encrypted "
+"backups, principle-of-least-privilege access by the Provider, no "
+"plaintext storage of credentials or payment cards. Security incidents "
+"affecting your data will be reported to you and (where required) to the "
+"supervisory authority within 72 hours under Article 33 GDPR."
+msgstr "Aplikujeme technická a organizační opatření odpovídající riziku: TLS 1.2+ pro veškerý provoz, hashování hesel Argon2id, izolace databáze per-tenant na úrovni řádků (Postgres RLS), šifrované zálohy, přístup provozovatele podle principu nejmenších privilegií, žádné ukládání hesel ani platebních karet v čitelné podobě. Bezpečnostní incidenty týkající se vašich dat vám oznámíme a (pokud je to požadováno) do 72 hodin oznámíme dozorovému úřadu podle čl. 33 GDPR."
+
+#: app/templates/www/privacy.html:174
+msgid "10. Changes to this Privacy Policy"
+msgstr "10. Změny těchto zásad ochrany osobních údajů"
+
+#: app/templates/www/privacy.html:176
+msgid ""
+"Material changes — new subprocessors, expanded data categories, longer "
+"retention — are announced at least 30 days in advance by updating this "
+"page and emailing active tenant administrators. The version number and "
+"effective date at the top of the page identify the current version."
+msgstr "Podstatné změny — noví dílčí zpracovatelé, rozšířené kategorie údajů, delší doba uchovávání — oznamujeme minimálně 30 dní předem aktualizací této stránky a e-mailem aktivním administrátorům tenantu. Aktuální verze je identifikována číslem verze a datem účinnosti v záhlaví stránky."
 
 #: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
 #: app/templates/www/www_base.html:61
@@ -4475,126 +4686,402 @@ msgstr ""
 "stejnou licencí. Pro uzavřené nasazení nás kontaktujte pro komerční "
 "licenci."
 
-#: app/templates/www/terms.html:14
-msgid "1. Introduction"
-msgstr "1. Úvod"
-
-#: app/templates/www/terms.html:16
-msgid "The operator of Assoluto service (hereinafter the \"Service\") is"
-msgstr "Provozovatelem služby Assoluto (dále jen \\\"Služba\\\") je"
-
-#: app/templates/www/terms.html:18
-msgid ""
-"(hereinafter the \"Operator\"). These terms govern the relationship "
-"between the Operator and the person using the Service (hereinafter the "
-"\"User\")."
-msgstr ""
-"(dále jen \"Provozovatel\"). Tyto podmínky upravují vztah mezi "
-"Provozovatelem a osobou užívající Službu (dále jen \"Uživatel\")."
-
-#: app/templates/www/terms.html:23
-msgid "2. Description of the Service"
+#: app/templates/www/terms.html:15
+#, fuzzy
+msgid "1. Who provides the Service"
 msgstr "2. Popis služby"
 
-#: app/templates/www/terms.html:25
-msgid ""
-"The Service provides a multi-tenant customer portal for manufacturing "
-"SMEs — management of orders, product catalog, client assets, and "
-"communication between the supplier and their clients."
-msgstr ""
-"Služba poskytuje multi-tenant zákaznický portál pro výrobní firmy — "
-"správu zakázek, katalog produktů, materiál zákazníka a komunikaci mezi "
-"dodavatelem a klienty."
+#: app/templates/www/terms.html:17
+#, fuzzy
+msgid "The Assoluto service (the \"Service\") is provided by"
+msgstr "Provozovatelem služby Assoluto (dále jen \\\"Služba\\\") je"
 
-#: app/templates/www/terms.html:30
-msgid "3. Registration and account"
+#: app/templates/www/terms.html:21
+msgid "hereinafter the \"Provider\""
+msgstr "dále jen provozovatel"
+
+#: app/templates/www/terms.html:26
+msgid ""
+"These Terms govern the relationship between the Provider and the legal or"
+" natural person using the Service in the course of their business (the "
+"\"Customer\"). The Service is offered exclusively to entrepreneurs in the"
+" meaning of §420 of the Czech Civil Code; consumer-protection rules of "
+"the Czech Civil Code do not apply."
+msgstr "Tyto podmínky upravují vztah mezi provozovatelem a právnickou nebo fyzickou osobou, která službu užívá v rámci své podnikatelské činnosti (zákazník). Služba je nabízena výhradně podnikatelům ve smyslu §420 občanského zákoníku; ustanovení občanského zákoníku o ochraně spotřebitele se nepoužijí."
+
+#: app/templates/www/terms.html:31
+#, fuzzy
+msgid "2. What the Service does"
+msgstr "2. Jaké údaje zpracováváme"
+
+#: app/templates/www/terms.html:33
+msgid ""
+"The Service is a multi-tenant cloud application — a customer portal — "
+"that lets a manufacturing or trading SME run its order workflow online: "
+"create and edit orders, upload technical drawings and other attachments, "
+"manage a product catalog, invite their own end clients (\"Customer "
+"Contacts\") to view those orders, and track order status from receipt to "
+"delivery."
+msgstr "Služba je multi-tenantní cloudová aplikace — zákaznický portál — která umožňuje malému nebo střednímu výrobnímu či obchodnímu podniku vést svou agendu zakázek online: vytvářet a upravovat zakázky, nahrávat výkresy a další přílohy, spravovat katalog produktů, zvát své koncové klienty (kontakty zákazníka) k nahlédnutí na tyto zakázky a sledovat stav zakázek od přijetí po doručení."
+
+#: app/templates/www/terms.html:36
+msgid ""
+"The Service is offered as a hosted SaaS at assoluto.eu (hereinafter "
+"\"Hosted Service\") and, separately, as open-source software released "
+"under AGPL-3.0-or-later that the Customer may install on their own "
+"infrastructure (\"Self-Hosted\"). These Terms govern the Hosted Service. "
+"Self-Hosted use is governed by the AGPL-3.0 license file in the source "
+"repository; nothing in these Terms restricts the Customer's rights under "
+"that license."
+msgstr "Služba je nabízena jako hostovaná SaaS na assoluto.eu (dále jen hostovaná služba) a samostatně jako open-source software pod licencí AGPL-3.0-or-later, kterou si zákazník může nainstalovat na vlastní infrastrukturu (self-hosted). Tyto podmínky upravují hostovanou službu. Self-hosted užití se řídí licenčním souborem AGPL-3.0 ve zdrojovém repozitáři; nic v těchto podmínkách neomezuje práva zákazníka plynoucí z této licence."
+
+#: app/templates/www/terms.html:41
+#, fuzzy
+msgid "3. Account, registration, access"
 msgstr "3. Registrace a účet"
 
-#: app/templates/www/terms.html:32
+#: app/templates/www/terms.html:43
 msgid ""
-"Registration is required to use the Service. The User is obliged to "
-"provide truthful information and protect their login credentials. The "
-"Operator may block the account in case of serious violation of the terms."
-msgstr ""
-"K užívání Služby je nutná registrace. Uživatel je povinen poskytovat "
-"pravdivé údaje a chránit své přihlašovací údaje. Provozovatel může účet "
-"zablokovat v případě závažného porušení podmínek."
-
-#: app/templates/www/terms.html:37
-msgid "4. Trial period and payments"
-msgstr "4. Trial a platby"
-
-#: app/templates/www/terms.html:39
-msgid ""
-"A new account receives a 30-day free trial. After its expiration, the "
-"User can continue only with an active subscription. Payments are "
-"processed through Stripe."
-msgstr ""
-"Nový účet dostává 30denní zkušební období zdarma. Po jeho skončení "
-"pokračuje Uživatel pouze s aktivním předplatným. Platby jsou zpracovávány"
-" přes Stripe."
-
-#: app/templates/www/terms.html:44
-msgid "5. User obligations"
-msgstr "5. Povinnosti uživatele"
+"The Hosted Service is accessed via an account created by the Customer at "
+"assoluto.eu/platform/signup. The Customer warrants that the registration "
+"data is correct and complete and undertakes to keep it up to date."
+msgstr "Hostovaná služba je přístupná přes účet, který si zákazník vytvoří na assoluto.eu/platform/signup. Zákazník prohlašuje, že registrační údaje jsou správné a úplné, a zavazuje se je udržovat aktuální."
 
 #: app/templates/www/terms.html:46
 msgid ""
-"The User must not misuse the Service, circumvent security measures, "
-"interfere with operations, or use it for content that violates the laws "
-"of the Czech Republic or the EU."
-msgstr ""
-"Uživatel nesmí Službu zneužívat, obcházet bezpečnostní opatření, "
-"zasahovat do provozu, ani ji užívat k obsahu, který je v rozporu s právem"
-" České republiky nebo EU."
+"The Customer is responsible for protecting login credentials. Any action "
+"performed under the Customer's account is deemed to have been performed "
+"by the Customer. The Customer must notify the Provider without undue "
+"delay if they suspect their credentials have been compromised."
+msgstr "Zákazník je odpovědný za ochranu přihlašovacích údajů. Jakákoli akce provedená pod účtem zákazníka se považuje za provedenou zákazníkem. Zákazník musí bez zbytečného odkladu oznámit provozovateli, pokud má podezření, že byly jeho přihlašovací údaje kompromitovány."
 
-#: app/templates/www/terms.html:51
-msgid "6. Personal data protection"
-msgstr "6. Ochrana osobních údajů"
+#: app/templates/www/terms.html:49
+msgid ""
+"The Customer may invite further users (employees) and Customer Contacts "
+"(their own clients). The Customer is responsible for these invitees' use "
+"of the Service and for obtaining any consents the Customer is required to"
+" obtain from them."
+msgstr "Zákazník může zvát další uživatele (zaměstnance) i kontakty zákazníka (své vlastní klienty). Zákazník odpovídá za to, jak tyto pozvané osoby službu využívají, a za získání všech souhlasů, které je od nich povinen získat."
 
-#: app/templates/www/terms.html:53
-msgid "The processing of personal data is governed by a separate document"
-msgstr "Zpracování osobních údajů se řídí samostatným dokumentem"
+#: app/templates/www/terms.html:54
+msgid "4. Free trial, plans, payment, cancellation"
+msgstr "4. Bezplatná zkušební doba, plány, platba, ukončení"
+
+#: app/templates/www/terms.html:56
+msgid ""
+"A new account starts a 30-day free trial of the Starter plan. No payment "
+"card is required to start the trial. After the trial expires the Customer"
+" must select a paid plan to continue using the Hosted Service; otherwise "
+"their account moves to a 3-day grace period for data export and is then "
+"deactivated."
+msgstr "Nový účet začíná 30denní bezplatnou zkušební dobou plánu Starter. Pro spuštění zkušební doby není potřeba platební karta. Po skončení zkušební doby si zákazník musí pro další užívání hostované služby zvolit placený plán; jinak účet přejde do 3denního grace období na export dat a poté je deaktivován."
 
 #: app/templates/www/terms.html:59
-msgid "7. Liability"
-msgstr "7. Odpovědnost"
-
-#: app/templates/www/terms.html:61
 msgid ""
-"The Service is provided \"as-is\". The Operator is not liable for damages"
-" caused by outages or data loss beyond the amount of the subscription "
-"paid for the given month. The User is obliged to maintain their own "
-"backups by exporting data."
-msgstr ""
-"Služba je poskytována \"tak jak je\". Provozovatel neodpovídá za škody "
-"způsobené výpadky nebo ztrátou dat nad rámec výše předplatného "
-"zaplaceného za daný měsíc. Uživatel je povinen udržovat vlastní zálohy "
-"exportem dat."
+"Plan prices, monthly limits, and the list of paid plans are published at "
+"assoluto.eu/pricing and form part of these Terms. Monthly subscriptions "
+"are paid by card via Stripe Payments Europe Limited (Ireland); annual "
+"subscriptions can be arranged on request and are paid by bank transfer "
+"with a Czech tax document (faktura), payment terms net-14."
+msgstr "Ceny plánů, měsíční limity a seznam placených plánů jsou zveřejněny na assoluto.eu/pricing a tvoří součást těchto podmínek. Měsíční předplatné se platí kartou přes Stripe Payments Europe Limited (Irsko); roční předplatné lze sjednat na vyžádání a platí se bankovním převodem s českou fakturou (daňovým dokladem), splatnost 14 dní."
 
-#: app/templates/www/terms.html:66
-msgid "8. Termination"
-msgstr "8. Ukončení"
-
-#: app/templates/www/terms.html:68
+#: app/templates/www/terms.html:62
 msgid ""
-"The User may cancel their account at any time. After termination, data "
-"will be retained for 30 days, then permanently deleted."
-msgstr ""
-"Uživatel může svůj účet kdykoliv zrušit. Po zrušení budou data uchována "
-"30 dní, poté budou trvale smazána."
+"The Customer may cancel the subscription at any time from the billing "
+"dashboard. The cancellation takes effect at the end of the current "
+"billing period; the Customer keeps full access until that date and an "
+"additional 3 days for data export. After that, the Customer's account is "
+"deactivated and access ends. The Customer may, within 30 days of "
+"deactivation, request manual data recovery by emailing team@assoluto.eu; "
+"after 30 days the data is permanently deleted (subject to legally-"
+"required retention of accounting records as set out in the Privacy "
+"Policy)."
+msgstr "Zákazník může předplatné kdykoli zrušit z fakturačního dashboardu. Zrušení nabývá účinnosti na konci aktuálního zúčtovacího období; zákazník má plný přístup do tohoto data a dalších 3 dní na export dat. Poté je účet zákazníka deaktivován a přístup končí. Zákazník může do 30 dní od deaktivace požádat e-mailem na team@assoluto.eu o ruční obnovu dat; po 30 dnech jsou data nevratně smazána (s výjimkou zákonem požadovaného uchovávání účetních záznamů, viz zásady ochrany osobních údajů)."
 
-#: app/templates/www/terms.html:73
-msgid "9. Final provisions"
-msgstr "9. Závěrečná ustanovení"
+#: app/templates/www/terms.html:65
+msgid ""
+"The Provider may unilaterally adjust prices and plan limits with at least"
+" 30 days' prior notice sent to the Customer's billing email. If the "
+"Customer disagrees with the new price, they may cancel the subscription "
+"before it takes effect; otherwise continued use after the effective date "
+"constitutes acceptance."
+msgstr "Provozovatel může jednostranně upravit ceny a limity plánů s min. 30denním předstihem oznámeným na fakturační e-mail zákazníka. Pokud zákazník s novou cenou nesouhlasí, může předplatné zrušit před účinností změny; jinak pokračující užívání po datu účinnosti znamená souhlas."
+
+#: app/templates/www/terms.html:70
+msgid "5. Customer content and intellectual property"
+msgstr "5. Obsah zákazníka a duševní vlastnictví"
+
+#: app/templates/www/terms.html:72
+msgid ""
+"The Customer retains ownership of all content they upload to the Service "
+"(orders, comments, attachments, drawings, customer data — \"Customer "
+"Content\"). The Customer grants the Provider a worldwide, royalty-free, "
+"non-exclusive license to host, store, transmit, and display the Customer "
+"Content solely to the extent necessary to operate the Service for the "
+"Customer. The Provider does not claim any other rights to the Customer "
+"Content."
+msgstr "Zákazník si zachovává vlastnictví veškerého obsahu, který do služby nahraje (zakázky, komentáře, přílohy, výkresy, data o klientech — obsah zákazníka). Zákazník uděluje provozovateli celosvětovou, bezplatnou, nevýhradní licenci hostovat, ukládat, přenášet a zobrazovat obsah zákazníka výhradně v rozsahu nezbytném pro provoz služby pro zákazníka. Provozovatel si k obsahu zákazníka nenárokuje žádná další práva."
 
 #: app/templates/www/terms.html:75
 msgid ""
-"These terms are governed by the laws of the Czech Republic. The Operator "
-"may modify the terms with 30 days' notice."
-msgstr ""
-"Tyto podmínky se řídí právem České republiky. Provozovatel může podmínky "
-"změnit s 30denní oznamovací lhůtou."
+"The Customer warrants that they have the right to upload and use the "
+"Customer Content (including the right to upload personal data of their "
+"own end clients in the role of a data controller — see the Privacy Policy"
+" on the Provider's role as a processor for that data)."
+msgstr "Zákazník prohlašuje, že má právo obsah nahrávat a používat (včetně práva nahrávat osobní údaje svých koncových klientů v roli správce — viz zásady ochrany osobních údajů ohledně role provozovatele jako zpracovatele takových dat)."
+
+#: app/templates/www/terms.html:78
+msgid ""
+"The Service software (with the exception of code released under AGPL-3.0 "
+"in the public source repository), the Assoluto trademark and brand assets"
+" remain the exclusive property of the Provider. The AGPL-3.0 license does"
+" not grant any rights to the \"Assoluto\" name, logo, or assoluto.eu "
+"domain (see the NOTICE file in the source repository)."
+msgstr "Software služby (s výjimkou kódu vydaného pod AGPL-3.0 v public zdrojovém repozitáři), ochranná známka Assoluto a brand assets zůstávají výhradním vlastnictvím provozovatele. Licence AGPL-3.0 neuděluje žádná práva ke jménu Assoluto, logu ani doméně assoluto.eu (viz soubor NOTICE ve zdrojovém repozitáři)."
+
+#: app/templates/www/terms.html:83
+msgid "6. Acceptable use"
+msgstr "6. Pravidla užívání"
+
+#: app/templates/www/terms.html:85
+msgid "The Customer agrees not to:"
+msgstr "Zákazník se zavazuje, že nebude:"
+
+#: app/templates/www/terms.html:88
+msgid ""
+"upload content that violates Czech or EU law (in particular: illegal, "
+"defamatory, infringing, or fraudulent content);"
+msgstr "nahrávat obsah porušující české nebo unijní právo (zejména: nezákonný, hanlivý, obsah porušující práva třetích osob nebo podvodný obsah);"
+
+#: app/templates/www/terms.html:89
+msgid ""
+"use the Service to send unsolicited bulk communications (spam) or to "
+"phish their own clients;"
+msgstr "používat službu k odesílání nevyžádaných hromadných sdělení (spam) ani k phishingu vlastních klientů;"
+
+#: app/templates/www/terms.html:90
+msgid ""
+"attempt to interfere with the Service's operation, bypass security or "
+"rate-limit measures, or access data belonging to other tenants;"
+msgstr "pokoušet se narušit provoz služby, obcházet bezpečnostní nebo rate-limit opatření ani přistupovat k datům jiných tenantů;"
+
+#: app/templates/www/terms.html:91
+msgid ""
+"reverse-engineer the Hosted Service infrastructure (this clause does not "
+"restrict any right granted by the AGPL-3.0 license to the open-source "
+"code);"
+msgstr "reverzně inženýrovat infrastrukturu hostované služby (toto ustanovení neomezuje žádné právo udělené licencí AGPL-3.0 ke open-source kódu);"
+
+#: app/templates/www/terms.html:92
+msgid ""
+"use the Service for cryptocurrency mining or any computation unrelated to"
+" the order portal use case."
+msgstr "používat službu k těžbě kryptoměn nebo jakémukoli výpočtu nesouvisejícímu s účelem zákaznického portálu pro zakázky."
+
+#: app/templates/www/terms.html:95
+msgid ""
+"Material breach of acceptable use is grounds for the Provider to suspend "
+"the account; see Section 9."
+msgstr "Podstatné porušení pravidel užívání je důvodem pro pozastavení účtu provozovatelem; viz čl. 9."
+
+#: app/templates/www/terms.html:100
+#, fuzzy
+msgid "7. Personal data"
+msgstr "6. Ochrana osobních údajů"
+
+#: app/templates/www/terms.html:102
+msgid ""
+"The Provider processes the Customer's personal data and acts as a data "
+"processor for end-client personal data uploaded by the Customer. The full"
+" processing notice and the list of subprocessors is set out in the"
+msgstr "Provozovatel zpracovává osobní údaje zákazníka a vystupuje jako zpracovatel pro osobní údaje koncových klientů nahrané zákazníkem. Úplné informace o zpracování a seznam dílčích zpracovatelů jsou uvedeny v"
+
+#: app/templates/www/terms.html:104
+msgid ""
+"which forms an integral part of these Terms. Customers requiring a "
+"separate written Data Processing Agreement (DPA) under Article 28 GDPR "
+"may request one at team@assoluto.eu — the Provider's standard DPA is "
+"available at no cost."
+msgstr "které tvoří nedílnou součást těchto podmínek. Zákazníci, kteří potřebují samostatnou písemnou smlouvu o zpracování (DPA) podle čl. 28 GDPR, si o ni mohou napsat na team@assoluto.eu — vzorovou DPA poskytuje provozovatel zdarma."
+
+#: app/templates/www/terms.html:109
+msgid "8. Service availability, no formal SLA on Starter/Pro"
+msgstr "8. Dostupnost služby, žádné formální SLA u Starter/Pro"
+
+#: app/templates/www/terms.html:111
+msgid ""
+"The Provider operates the Hosted Service with reasonable care and targets"
+" 99.9% monthly uptime measured at the application HTTP layer, with daily "
+"database backups retained for 14 days. The Starter and Pro plans do not "
+"include a contractual service-level agreement (SLA); planned and "
+"unplanned downtime, force-majeure events, and outages caused by upstream "
+"subprocessors (Hetzner, Stripe, Brevo) do not give rise to any "
+"compensation claim. The Enterprise plan may include a separately-"
+"negotiated written SLA — contact team@assoluto.eu."
+msgstr "Provozovatel hostovanou službu provozuje s přiměřenou péčí a cíluje na 99,9 %% měsíční dostupnost měřenou na aplikační HTTP vrstvě, s denními zálohami databáze uchovávanými 14 dní. Plány Starter a Pro neobsahují smluvní SLA; plánované i neplánované výpadky, vyšší moc a výpadky způsobené dílčími zpracovateli (Hetzner, Stripe, Brevo) nezakládají nárok na kompenzaci. Plán Enterprise může obsahovat samostatně sjednané písemné SLA — napište na team@assoluto.eu."
+
+#: app/templates/www/terms.html:114
+msgid ""
+"The Provider performs upgrades during low-traffic windows where possible."
+" Brief service interruptions during deployment (typically under 60 "
+"seconds) are an ordinary part of operating the Service and are not "
+"considered an outage."
+msgstr "Provozovatel provádí upgrady v období nízkého provozu, kde je to možné. Krátká přerušení služby během nasazování (typicky pod 60 sekund) jsou běžnou součástí provozu a nepovažují se za výpadek."
+
+#: app/templates/www/terms.html:117
+msgid ""
+"The Customer is responsible for maintaining their own data exports as a "
+"safeguard against any data loss. The CSV / ZIP export endpoints are "
+"available at any time during the active subscription."
+msgstr "Zákazník odpovídá za vlastní zálohy formou exportu dat jako pojistku proti ztrátě dat. CSV / ZIP export endpointy jsou dostupné kdykoli během aktivního předplatného."
+
+#: app/templates/www/terms.html:122
+msgid "9. Suspension and termination by the Provider"
+msgstr "9. Pozastavení a ukončení ze strany provozovatele"
+
+#: app/templates/www/terms.html:124
+msgid ""
+"The Provider may, with prior notice sent to the Customer's billing email "
+"and a remedy period of at least 7 days where reasonably possible, suspend"
+" or terminate the Customer's account for: (a) material breach of these "
+"Terms (in particular Section 6); (b) failure to pay an invoice more than "
+"14 days past due; (c) court order or written request from a competent "
+"authority; or (d) the Provider permanently discontinuing the Hosted "
+"Service (in which case at least 90 days' notice will be given and the "
+"data export endpoints will remain available throughout)."
+msgstr "Provozovatel může s předchozím oznámením na fakturační e-mail zákazníka a nápravnou lhůtou min. 7 dní, kde je to rozumně možné, pozastavit nebo ukončit účet zákazníka v případě: (a) podstatného porušení těchto podmínek (zejména čl. 6); (b) neuhrazení faktury více než 14 dní po splatnosti; (c) soudního příkazu nebo písemné žádosti příslušného orgánu; nebo (d) trvalého ukončení hostované služby provozovatelem (v takovém případě bude oznámeno min. 90 dní předem a export endpointy zůstanou po celou dobu dostupné)."
+
+#: app/templates/www/terms.html:127
+msgid ""
+"Suspension for non-payment may take effect without prior notice if Stripe"
+" reports a payment failure and the situation has not been remedied within"
+" Stripe's standard dunning window (typically 21 days)."
+msgstr "Pozastavení za nezaplacení může nastat bez předchozího oznámení, pokud Stripe ohlásí selhání platby a situace není napravena v rámci standardního dunning období Stripe (typicky 21 dní)."
+
+#: app/templates/www/terms.html:132
+msgid "10. Warranties and limitation of liability"
+msgstr "10. Záruky a omezení odpovědnosti"
+
+#: app/templates/www/terms.html:134
+msgid ""
+"The Service is provided \"as available\". Beyond what is required by "
+"mandatory provisions of Czech law, the Provider gives no warranties of "
+"any kind, express or implied, including implied warranties of "
+"merchantability or fitness for a particular purpose."
+msgstr "Služba je poskytována tak, jak je dostupná. Nad rámec toho, co vyžadují kogentní ustanovení českého práva, provozovatel neposkytuje žádné záruky, výslovné ani implicitní, včetně implicitních záruk obchodovatelnosti nebo vhodnosti pro určitý účel."
+
+#: app/templates/www/terms.html:137
+msgid ""
+"To the maximum extent permitted by law, the Provider's aggregate "
+"liability to the Customer for any cause arising out of or relating to the"
+" Service is limited to the amount the Customer paid for the Service in "
+"the twelve (12) months immediately preceding the event giving rise to "
+"liability. The Provider is in no event liable for indirect, "
+"consequential, incidental, special, or punitive damages, lost profits, "
+"lost business, lost data (beyond restoration from the most recent "
+"backup), or for any third-party claim, even if the Provider has been "
+"advised of the possibility of such damages."
+msgstr "V maximálním rozsahu povoleném zákonem je celková odpovědnost provozovatele vůči zákazníkovi z jakéhokoli důvodu plynoucího ze služby nebo s ní souvisejícího omezena na částku, kterou zákazník za službu zaplatil v posledních dvanácti (12) měsících před událostí zakládající odpovědnost. Provozovatel v žádném případě neodpovídá za nepřímé, následné, vedlejší, zvláštní nebo sankční škody, ušlý zisk, ztrátu obchodních příležitostí, ztrátu dat (nad rámec obnovy z nejnovější zálohy) ani za nárok třetí strany, a to i v případě, že byl provozovatel na možnost takových škod upozorněn."
+
+#: app/templates/www/terms.html:140
+msgid ""
+"Nothing in these Terms limits liability for damage caused intentionally "
+"or by gross negligence, or for any other liability that cannot be limited"
+" under Czech law."
+msgstr "Žádné ustanovení těchto podmínek neomezuje odpovědnost za škodu způsobenou úmyslně nebo z hrubé nedbalosti ani jinou odpovědnost, kterou podle českého práva nelze omezit."
+
+#: app/templates/www/terms.html:145
+msgid "11. Force majeure"
+msgstr "11. Vyšší moc"
+
+#: app/templates/www/terms.html:147
+msgid ""
+"Neither party is liable for non-performance caused by force majeure — "
+"events outside its reasonable control, including without limitation "
+"natural disasters, war, terrorist acts, labour strikes, large-scale "
+"failures of telecommunications or electricity infrastructure, or "
+"governmental decrees affecting the operation of cloud services in the "
+"Czech Republic or Germany."
+msgstr "Žádná smluvní strana není odpovědná za neplnění způsobené vyšší mocí — událostmi mimo její rozumnou kontrolu, zejména přírodními katastrofami, válkou, teroristickými útoky, stávkami, rozsáhlými výpadky telekomunikační nebo elektrické infrastruktury nebo vládními nařízeními ovlivňujícími provoz cloudových služeb v České republice nebo Německu."
+
+#: app/templates/www/terms.html:152
+msgid "12. Modifications to these Terms"
+msgstr "12. Změny těchto podmínek"
+
+#: app/templates/www/terms.html:154
+msgid ""
+"The Provider may amend these Terms with at least 30 days' prior notice "
+"sent to the Customer's billing email and posted on this page. The version"
+" number and effective date at the top of this page identify the current "
+"version. If the Customer disagrees with the changes, they may cancel the "
+"subscription before the effective date; otherwise continued use after the"
+" effective date constitutes acceptance of the new Terms."
+msgstr "Provozovatel může tyto podmínky změnit s min. 30denním předstihem oznámeným na fakturační e-mail zákazníka a zveřejněným na této stránce. Aktuální verze je identifikována číslem verze a datem účinnosti v záhlaví této stránky. Pokud zákazník se změnami nesouhlasí, může předplatné zrušit před datem účinnosti; jinak pokračující užívání po datu účinnosti znamená souhlas s novými podmínkami."
+
+#: app/templates/www/terms.html:157
+msgid ""
+"Material changes — pricing, scope of the Service, or the limitation of "
+"liability in Section 10 — will be highlighted in the notice email rather "
+"than buried in a long changelog."
+msgstr "Podstatné změny — ceny, rozsah služby nebo omezení odpovědnosti v čl. 10 — budou v oznamovacím e-mailu zvýrazněny, nikoli ukryty v dlouhém changelogu."
+
+#: app/templates/www/terms.html:162
+msgid "13. Governing law and jurisdiction"
+msgstr "13. Rozhodné právo a příslušnost soudů"
+
+#: app/templates/www/terms.html:164
+msgid ""
+"These Terms and any dispute arising out of or in connection with them are"
+" governed by the law of the Czech Republic, without regard to conflict-"
+"of-laws rules. The parties agree that the courts of the Czech Republic "
+"have exclusive jurisdiction; the locally competent court is determined by"
+" the Provider's registered office (currently the District Court in "
+"Děčín)."
+msgstr "Tyto podmínky a jakýkoli spor z nich vyplývající nebo s nimi související se řídí právem České republiky, bez ohledu na kolizní pravidla. Smluvní strany sjednávají výlučnou příslušnost soudů České republiky; místně příslušný soud se určí podle sídla provozovatele (v současnosti Okresní soud v Děčíně)."
+
+#: app/templates/www/terms.html:167
+msgid ""
+"The parties will attempt to resolve any dispute amicably first by direct "
+"negotiation; failing that, the parties may agree to non-binding mediation"
+" before initiating court proceedings."
+msgstr "Smluvní strany se nejprve pokusí jakýkoli spor vyřešit smírně přímým jednáním; pokud se to nepodaří, mohou se smluvní strany dohodnout na nezávazné mediaci před zahájením soudního řízení."
+
+#: app/templates/www/terms.html:172
+msgid "14. Severability and entire agreement"
+msgstr "14. Oddělitelnost a úplnost ujednání"
+
+#: app/templates/www/terms.html:174
+msgid ""
+"If any provision of these Terms is held to be invalid or unenforceable by"
+" a competent court, the remaining provisions remain in full force and "
+"effect, and the invalid provision is replaced with one whose effect is "
+"closest to the original intention while being valid."
+msgstr "Pokud příslušný soud rozhodne, že některé ustanovení těchto podmínek je neplatné nebo nevymahatelné, zbývající ustanovení zůstávají v plné platnosti a účinnosti a neplatné ustanovení se nahradí takovým, jehož účinek je nejblíže původnímu záměru a které je zároveň platné."
+
+#: app/templates/www/terms.html:177
+msgid ""
+"These Terms, together with the Privacy Policy, the Cookies policy, and "
+"the published pricing page, form the entire agreement between the "
+"Customer and the Provider regarding the Hosted Service and supersede any "
+"earlier proposals, negotiations, or marketing material."
+msgstr "Tyto podmínky spolu se zásadami ochrany osobních údajů, cookies politikou a zveřejněnou cenovou stránkou tvoří úplnou dohodu mezi zákazníkem a provozovatelem ohledně hostované služby a nahrazují všechny dřívější návrhy, jednání nebo marketingové materiály."
+
+#: app/templates/www/terms.html:182
+msgid "15. Contact and notices"
+msgstr "15. Kontakt a doručování"
+
+#: app/templates/www/terms.html:184
+msgid ""
+"All notices under these Terms (including cancellation, modification "
+"notices, breach notices, DPA requests) are sent in writing by email — to "
+"the Customer's billing email of record, and to the Provider at"
+msgstr "Veškerá oznámení podle těchto podmínek (včetně zrušení, oznámení o změnách, oznámení o porušení, žádostí o DPA) se zasílají písemně e-mailem — na evidovaný fakturační e-mail zákazníka a provozovateli na"
+
+#: app/templates/www/terms.html:186
+msgid ""
+"A notice is deemed delivered the day after it is sent, unless the sender "
+"receives an automatic non-delivery report."
+msgstr "Oznámení se považuje za doručené den po odeslání, pokud odesílatel neobdrží automatickou zprávu o nedoručení."
 
 #: app/templates/www/www_base.html:10
 msgid ""
@@ -5560,4 +6047,207 @@ msgstr "Soukromí"
 #~ " CSV. Pak data nevratně smažeme. "
 #~ "Okamžité smazání stačí napsat na "
 #~ "team@assoluto.eu."
+
+#~ msgid "The data controller is"
+#~ msgstr "Správcem údajů je"
+
+#~ msgid "Account identification data (name, email, company, Company ID, VAT ID)"
+#~ msgstr "Identifikační údaje účtu (jméno, e-mail, firma, IČO, DIČ)"
+
+#~ msgid "Login credentials (password in Argon2-hashed form)"
+#~ msgstr "Přihlašovací údaje (heslo v Argon2-hashované podobě)"
+
+#~ msgid "Content created in the portal (orders, comments, attachments)"
+#~ msgstr "Obsah vytvořený v portálu (objednávky, komentáře, přílohy)"
+
+#~ msgid "Billing data, if you subscribe to a plan"
+#~ msgstr "Fakturační údaje, pokud si předplatíte plán"
+
+#~ msgid "Technical logs (IP address, User-Agent) for operational security"
+#~ msgstr "Technické logy (IP adresa, User-Agent) pro provozní bezpečnost"
+
+#~ msgid "Contract performance (operating the portal you ordered)"
+#~ msgstr "Plnění smlouvy (provoz objednaného portálu)"
+
+#~ msgid "Invoicing and tax records (legitimate interest + legal obligation)"
+#~ msgstr "Fakturace a daňová evidence (oprávněný zájem + právní povinnost)"
+
+#~ msgid "Security and abuse prevention (legitimate interest)"
+#~ msgstr "Bezpečnost a prevence zneužití (oprávněný zájem)"
+
+#~ msgid "Sending operational emails (consent / contract performance)"
+#~ msgstr "Zasílání provozních e-mailů (souhlas / plnění smlouvy)"
+
+#~ msgid ""
+#~ "We use the following third parties "
+#~ "(subprocessors) to run the service. Data"
+#~ " sharing is limited to what each "
+#~ "subprocessor needs to do its job; "
+#~ "no subprocessor receives marketing permissions"
+#~ " on your data."
+#~ msgstr ""
+#~ "Pro provoz služby využíváme následující "
+#~ "třetí strany (zpracovatele). Sdílení dat "
+#~ "je omezeno na to, co každý "
+#~ "zpracovatel potřebuje; žádný nedostává "
+#~ "oprávnění marketingového využití."
+
+#~ msgid "Hosting (VPS)"
+#~ msgstr "Hosting (VPS)"
+
+#~ msgid "All (at-rest, encrypted)"
+#~ msgstr "Vše (at-rest, šifrováno)"
+
+#~ msgid ""
+#~ "After account cancellation — 30 days "
+#~ "grace (for reactivation), then anonymisation."
+#~ msgstr "Po zrušení účtu — 30denní grace period pro reaktivaci, pak anonymizace."
+
+#~ msgid ""
+#~ "Audit trail of operator / admin "
+#~ "actions — retained for the lifetime "
+#~ "of the tenant, plus 3 years after"
+#~ " closure for contractual dispute evidence."
+#~ msgstr ""
+#~ "Audit trail akcí operátora / "
+#~ "administrátora — po dobu trvání tenantu"
+#~ " plus 3 roky po uzavření jako "
+#~ "důkaz pro případné spory."
+
+#~ msgid ""
+#~ "You have the right to access, "
+#~ "rectification, erasure, restriction of "
+#~ "processing, portability, and objection. "
+#~ "Contact"
+#~ msgstr ""
+#~ "Máte právo na přístup, opravu, výmaz,"
+#~ " omezení zpracování, přenositelnost a "
+#~ "námitku. Kontakt"
+
+#~ msgid "we will respond within 30 days."
+#~ msgstr "odpovíme do 30 dní."
+
+#~ msgid "7. Cookies"
+#~ msgstr "7. Cookies"
+
+#~ msgid "1. Introduction"
+#~ msgstr "1. Úvod"
+
+#~ msgid ""
+#~ "(hereinafter the \"Operator\"). These terms"
+#~ " govern the relationship between the "
+#~ "Operator and the person using the "
+#~ "Service (hereinafter the \"User\")."
+#~ msgstr ""
+#~ "(dále jen \"Provozovatel\"). Tyto podmínky "
+#~ "upravují vztah mezi Provozovatelem a "
+#~ "osobou užívající Službu (dále jen "
+#~ "\"Uživatel\")."
+
+#~ msgid ""
+#~ "The Service provides a multi-tenant "
+#~ "customer portal for manufacturing SMEs —"
+#~ " management of orders, product catalog, "
+#~ "client assets, and communication between "
+#~ "the supplier and their clients."
+#~ msgstr ""
+#~ "Služba poskytuje multi-tenant zákaznický "
+#~ "portál pro výrobní firmy — správu "
+#~ "zakázek, katalog produktů, materiál zákazníka"
+#~ " a komunikaci mezi dodavatelem a "
+#~ "klienty."
+
+#~ msgid ""
+#~ "Registration is required to use the "
+#~ "Service. The User is obliged to "
+#~ "provide truthful information and protect "
+#~ "their login credentials. The Operator "
+#~ "may block the account in case of"
+#~ " serious violation of the terms."
+#~ msgstr ""
+#~ "K užívání Služby je nutná registrace."
+#~ " Uživatel je povinen poskytovat pravdivé"
+#~ " údaje a chránit své přihlašovací "
+#~ "údaje. Provozovatel může účet zablokovat "
+#~ "v případě závažného porušení podmínek."
+
+#~ msgid "4. Trial period and payments"
+#~ msgstr "4. Trial a platby"
+
+#~ msgid ""
+#~ "A new account receives a 30-day "
+#~ "free trial. After its expiration, the"
+#~ " User can continue only with an "
+#~ "active subscription. Payments are processed"
+#~ " through Stripe."
+#~ msgstr ""
+#~ "Nový účet dostává 30denní zkušební "
+#~ "období zdarma. Po jeho skončení "
+#~ "pokračuje Uživatel pouze s aktivním "
+#~ "předplatným. Platby jsou zpracovávány přes "
+#~ "Stripe."
+
+#~ msgid "5. User obligations"
+#~ msgstr "5. Povinnosti uživatele"
+
+#~ msgid ""
+#~ "The User must not misuse the "
+#~ "Service, circumvent security measures, "
+#~ "interfere with operations, or use it "
+#~ "for content that violates the laws "
+#~ "of the Czech Republic or the EU."
+#~ msgstr ""
+#~ "Uživatel nesmí Službu zneužívat, obcházet "
+#~ "bezpečnostní opatření, zasahovat do provozu,"
+#~ " ani ji užívat k obsahu, který "
+#~ "je v rozporu s právem České "
+#~ "republiky nebo EU."
+
+#~ msgid "The processing of personal data is governed by a separate document"
+#~ msgstr "Zpracování osobních údajů se řídí samostatným dokumentem"
+
+#~ msgid "7. Liability"
+#~ msgstr "7. Odpovědnost"
+
+#~ msgid ""
+#~ "The Service is provided \"as-is\". "
+#~ "The Operator is not liable for "
+#~ "damages caused by outages or data "
+#~ "loss beyond the amount of the "
+#~ "subscription paid for the given month."
+#~ " The User is obliged to maintain "
+#~ "their own backups by exporting data."
+#~ msgstr ""
+#~ "Služba je poskytována \"tak jak je\"."
+#~ " Provozovatel neodpovídá za škody způsobené"
+#~ " výpadky nebo ztrátou dat nad rámec"
+#~ " výše předplatného zaplaceného za daný "
+#~ "měsíc. Uživatel je povinen udržovat "
+#~ "vlastní zálohy exportem dat."
+
+#~ msgid "8. Termination"
+#~ msgstr "8. Ukončení"
+
+#~ msgid ""
+#~ "The User may cancel their account "
+#~ "at any time. After termination, data "
+#~ "will be retained for 30 days, then"
+#~ " permanently deleted."
+#~ msgstr ""
+#~ "Uživatel může svůj účet kdykoliv zrušit."
+#~ " Po zrušení budou data uchována 30"
+#~ " dní, poté budou trvale smazána."
+
+#~ msgid "9. Final provisions"
+#~ msgstr "9. Závěrečná ustanovení"
+
+#~ msgid ""
+#~ "These terms are governed by the "
+#~ "laws of the Czech Republic. The "
+#~ "Operator may modify the terms with "
+#~ "30 days' notice."
+#~ msgstr ""
+#~ "Tyto podmínky se řídí právem České "
+#~ "republiky. Provozovatel může podmínky změnit"
+#~ " s 30denní oznamovací lhůtou."
 
