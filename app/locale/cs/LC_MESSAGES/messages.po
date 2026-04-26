@@ -4116,7 +4116,6 @@ msgstr ""
 "provozu účtu na hostované službě je"
 
 #: app/templates/www/privacy.html:18 app/templates/www/terms.html:18
-#, fuzzy
 msgid "Company ID (IČO)"
 msgstr "IČO"
 
