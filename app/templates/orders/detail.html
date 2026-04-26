@@ -173,8 +173,17 @@
                                 <img src="/app/attachments/{{ att.id }}/thumbnail"
                                      alt="" class="h-12 w-12 rounded border border-slate-200 object-cover dark:border-slate-700">
                             {% else %}
+                                {# 3-letter typography badge for non-image attachments.
+                                   The CS / EN labels live in the catalog so the
+                                   badge reads naturally per locale. #}
+                                {% set _kind_short = {
+                                    'photo': _('IMG'),
+                                    'drawing': _('DWG'),
+                                    'document': _('DOC'),
+                                    'other': _('OST'),
+                                } %}
                                 <span class="flex h-12 w-12 items-center justify-center rounded border border-slate-200 bg-slate-50 text-xs text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500">
-                                    {{ att.kind.value[:3] }}
+                                    {{ _kind_short.get(att.kind.value, att.kind.value[:3]|upper) }}
                                 </span>
                             {% endif %}
                             <div>
@@ -314,8 +323,22 @@
                     <div class="flex flex-wrap items-center gap-2 text-sm">
                         {% with status=_to %}{% include "orders/_status_badge.html" %}{% endwith %}
                         {% if entry.from_status %}
+                            {# Same label map as in _status_badge.html so the
+                               'from' side translates too — was raw enum
+                               (e.g. 'In_production') in CS render. #}
+                            {% set _from_labels = {
+                                'draft': _('Draft'),
+                                'submitted': _('Submitted'),
+                                'quoted': _('Quoted'),
+                                'confirmed': _('Confirmed'),
+                                'in_production': _('In production'),
+                                'ready': _('Ready'),
+                                'delivered': _('Delivered'),
+                                'closed': _('Closed'),
+                                'cancelled': _('Cancelled'),
+                            } %}
                             <span class="text-xs text-slate-400 dark:text-slate-500">
-                                ← {{ entry.from_status.value|capitalize }}
+                                ← {{ _from_labels.get(entry.from_status.value, entry.from_status.value) }}
                             </span>
                         {% endif %}
                     </div>

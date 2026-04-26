@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-26 10:47+0200\n"
+"POT-Creation-Date: 2026-04-26 10:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,38 +22,47 @@ msgid "All statuses"
 msgstr ""
 
 #: app/i18n_messages.py:35 app/templates/orders/_status_badge.html:14
+#: app/templates/orders/detail.html:330
 msgid "Draft"
 msgstr ""
 
 #: app/i18n_messages.py:36 app/templates/orders/_status_badge.html:15
+#: app/templates/orders/detail.html:331
 msgid "Submitted"
 msgstr ""
 
 #: app/i18n_messages.py:37 app/templates/orders/_status_badge.html:16
+#: app/templates/orders/detail.html:332
 msgid "Quoted"
 msgstr ""
 
 #: app/i18n_messages.py:38 app/templates/orders/_status_badge.html:17
+#: app/templates/orders/detail.html:333
 msgid "Confirmed"
 msgstr ""
 
 #: app/i18n_messages.py:39 app/templates/orders/_status_badge.html:18
+#: app/templates/orders/detail.html:334
 msgid "In production"
 msgstr ""
 
 #: app/i18n_messages.py:40 app/templates/orders/_status_badge.html:19
+#: app/templates/orders/detail.html:335
 msgid "Ready"
 msgstr ""
 
 #: app/i18n_messages.py:41 app/templates/orders/_status_badge.html:20
+#: app/templates/orders/detail.html:336
 msgid "Delivered"
 msgstr ""
 
 #: app/i18n_messages.py:42 app/templates/orders/_status_badge.html:21
+#: app/templates/orders/detail.html:337
 msgid "Closed"
 msgstr ""
 
 #: app/i18n_messages.py:43 app/templates/orders/_status_badge.html:22
+#: app/templates/orders/detail.html:338
 msgid "Cancelled"
 msgstr ""
 
@@ -1800,7 +1809,7 @@ msgstr ""
 msgid "Saved"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:201
+#: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:210
 #: app/templates/products/detail.html:33
 msgid "Delete"
 msgstr ""
@@ -1853,51 +1862,67 @@ msgstr ""
 msgid "Attachments"
 msgstr ""
 
-#: app/templates/orders/detail.html:190
+#: app/templates/orders/detail.html:180
+msgid "IMG"
+msgstr ""
+
+#: app/templates/orders/detail.html:181
+msgid "DWG"
+msgstr ""
+
+#: app/templates/orders/detail.html:182
+msgid "DOC"
+msgstr ""
+
+#: app/templates/orders/detail.html:183
+msgid "OST"
+msgstr ""
+
+#: app/templates/orders/detail.html:199
 msgid "item"
 msgstr ""
 
-#: app/templates/orders/detail.html:209
+#: app/templates/orders/detail.html:218
 msgid "No attachments."
 msgstr ""
 
-#: app/templates/orders/detail.html:221
+#: app/templates/orders/detail.html:230
 msgid "to the whole order"
 msgstr ""
 
-#: app/templates/orders/detail.html:230
+#: app/templates/orders/detail.html:239
 msgid "Upload"
 msgstr ""
 
-#: app/templates/orders/detail.html:239
+#: app/templates/orders/detail.html:248
 msgid "Actions"
 msgstr ""
 
-#: app/templates/orders/detail.html:251
+#: app/templates/orders/detail.html:260
 msgid "Comments"
 msgstr ""
 
-#: app/templates/orders/detail.html:258
+#: app/templates/orders/detail.html:267
 msgid "internal"
 msgstr ""
 
-#: app/templates/orders/detail.html:263
+#: app/templates/orders/detail.html:272
 msgid "No comments."
 msgstr ""
 
-#: app/templates/orders/detail.html:269
+#: app/templates/orders/detail.html:278
 msgid "Write a comment…"
 msgstr ""
 
-#: app/templates/orders/detail.html:275
+#: app/templates/orders/detail.html:284
 msgid "Internal (staff only)"
 msgstr ""
 
-#: app/templates/orders/detail.html:282
+#: app/templates/orders/detail.html:291
 msgid "Add a comment"
 msgstr ""
 
-#: app/templates/orders/detail.html:291
+#: app/templates/orders/detail.html:300
 msgid "Status history"
 msgstr ""
 

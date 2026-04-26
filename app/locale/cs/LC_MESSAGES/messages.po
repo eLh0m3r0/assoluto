@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-26 10:47+0200\n"
+"POT-Creation-Date: 2026-04-26 10:51+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -23,38 +23,47 @@ msgid "All statuses"
 msgstr "Všechny stavy"
 
 #: app/i18n_messages.py:35 app/templates/orders/_status_badge.html:14
+#: app/templates/orders/detail.html:330
 msgid "Draft"
 msgstr "Koncept"
 
 #: app/i18n_messages.py:36 app/templates/orders/_status_badge.html:15
+#: app/templates/orders/detail.html:331
 msgid "Submitted"
 msgstr "Odesláno"
 
 #: app/i18n_messages.py:37 app/templates/orders/_status_badge.html:16
+#: app/templates/orders/detail.html:332
 msgid "Quoted"
 msgstr "Naceněno"
 
 #: app/i18n_messages.py:38 app/templates/orders/_status_badge.html:17
+#: app/templates/orders/detail.html:333
 msgid "Confirmed"
 msgstr "Potvrzeno"
 
 #: app/i18n_messages.py:39 app/templates/orders/_status_badge.html:18
+#: app/templates/orders/detail.html:334
 msgid "In production"
 msgstr "Ve výrobě"
 
 #: app/i18n_messages.py:40 app/templates/orders/_status_badge.html:19
+#: app/templates/orders/detail.html:335
 msgid "Ready"
 msgstr "Připraveno"
 
 #: app/i18n_messages.py:41 app/templates/orders/_status_badge.html:20
+#: app/templates/orders/detail.html:336
 msgid "Delivered"
 msgstr "Dodáno"
 
 #: app/i18n_messages.py:42 app/templates/orders/_status_badge.html:21
+#: app/templates/orders/detail.html:337
 msgid "Closed"
 msgstr "Uzavřeno"
 
 #: app/i18n_messages.py:43 app/templates/orders/_status_badge.html:22
+#: app/templates/orders/detail.html:338
 msgid "Cancelled"
 msgstr "Zrušeno"
 
@@ -1875,7 +1884,7 @@ msgstr "Ukládám…"
 msgid "Saved"
 msgstr "Uloženo"
 
-#: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:201
+#: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:210
 #: app/templates/products/detail.html:33
 msgid "Delete"
 msgstr "Smazat"
@@ -1929,51 +1938,67 @@ msgstr "Přidat položku"
 msgid "Attachments"
 msgstr "Přílohy"
 
-#: app/templates/orders/detail.html:190
+#: app/templates/orders/detail.html:180
+msgid "IMG"
+msgstr "FOTO"
+
+#: app/templates/orders/detail.html:181
+msgid "DWG"
+msgstr "VYK"
+
+#: app/templates/orders/detail.html:182
+msgid "DOC"
+msgstr "DOK"
+
+#: app/templates/orders/detail.html:183
+msgid "OST"
+msgstr "OST"
+
+#: app/templates/orders/detail.html:199
 msgid "item"
 msgstr "položka"
 
-#: app/templates/orders/detail.html:209
+#: app/templates/orders/detail.html:218
 msgid "No attachments."
 msgstr "Žádné přílohy."
 
-#: app/templates/orders/detail.html:221
+#: app/templates/orders/detail.html:230
 msgid "to the whole order"
 msgstr "k celé objednávce"
 
-#: app/templates/orders/detail.html:230
+#: app/templates/orders/detail.html:239
 msgid "Upload"
 msgstr "Nahrát"
 
-#: app/templates/orders/detail.html:239
+#: app/templates/orders/detail.html:248
 msgid "Actions"
 msgstr "Akce"
 
-#: app/templates/orders/detail.html:251
+#: app/templates/orders/detail.html:260
 msgid "Comments"
 msgstr "Komentáře"
 
-#: app/templates/orders/detail.html:258
+#: app/templates/orders/detail.html:267
 msgid "internal"
 msgstr "interní"
 
-#: app/templates/orders/detail.html:263
+#: app/templates/orders/detail.html:272
 msgid "No comments."
 msgstr "Žádné komentáře."
 
-#: app/templates/orders/detail.html:269
+#: app/templates/orders/detail.html:278
 msgid "Write a comment…"
 msgstr "Napište komentář…"
 
-#: app/templates/orders/detail.html:275
+#: app/templates/orders/detail.html:284
 msgid "Internal (staff only)"
 msgstr "Interní (jen pro tým)"
 
-#: app/templates/orders/detail.html:282
+#: app/templates/orders/detail.html:291
 msgid "Add a comment"
 msgstr "Přidat komentář"
 
-#: app/templates/orders/detail.html:291
+#: app/templates/orders/detail.html:300
 msgid "Status history"
 msgstr "Historie stavů"
 
