@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: assoluto VERSION\n"
 "Report-Msgid-Bugs-To: team@assoluto.eu\n"
-"POT-Creation-Date: 2026-04-26 12:20+0200\n"
+"POT-Creation-Date: 2026-04-26 12:42+0200\n"
 "PO-Revision-Date: 2026-04-26 11:15+0200\n"
 "Last-Translator: Assoluto Team <team@assoluto.eu>\n"
 "Language: de\n"
@@ -518,11 +518,11 @@ msgstr ""
 msgid "An asset with this code already exists for this client."
 msgstr "Ein Asset mit diesem Code existiert bereits bei diesem Kunden."
 
-#: app/routers/attachments.py:142
+#: app/routers/attachments.py:144
 msgid "Attachment uploaded."
 msgstr "Anhang hochgeladen."
 
-#: app/routers/attachments.py:223
+#: app/routers/attachments.py:225
 msgid "Attachment deleted."
 msgstr "Anhang gelöscht."
 
@@ -530,45 +530,45 @@ msgstr "Anhang gelöscht."
 msgid "Customer created."
 msgstr "Kunde angelegt."
 
-#: app/routers/customers.py:273 app/routers/customers.py:397
-#: app/routers/products.py:342 app/routers/tenant_admin.py:392
+#: app/routers/customers.py:271 app/routers/customers.py:391
+#: app/routers/products.py:338 app/routers/tenant_admin.py:392
 msgid "Changes saved."
 msgstr "Änderungen gespeichert."
 
-#: app/routers/customers.py:313
+#: app/routers/customers.py:309
 msgid "A contact with the same email already exists."
 msgstr "Ein Kontakt mit dieser E-Mail-Adresse existiert bereits."
 
-#: app/routers/customers.py:351
+#: app/routers/customers.py:347
 msgid "Invitation sent."
 msgstr "Einladung gesendet."
 
-#: app/routers/customers.py:386 app/routers/me.py:121
+#: app/routers/customers.py:380 app/routers/me.py:121
 #: app/routers/tenant_admin.py:335 app/routers/tenant_admin.py:524
 msgid "Name cannot be empty."
 msgstr "Der Name darf nicht leer sein."
 
-#: app/routers/customers.py:415
+#: app/routers/customers.py:409
 msgid "Contact disabled."
 msgstr "Kontakt deaktiviert."
 
-#: app/routers/customers.py:434
+#: app/routers/customers.py:428
 msgid "Contact reactivated."
 msgstr "Kontakt reaktiviert."
 
-#: app/routers/customers.py:461
+#: app/routers/customers.py:455
 msgid "This contact already has a password; use a password reset instead."
 msgstr ""
 "Dieser Kontakt hat bereits ein Passwort; verwenden Sie stattdessen das "
 "Zurücksetzen des Passworts."
 
-#: app/routers/customers.py:477 app/routers/tenant_admin.py:447
+#: app/routers/customers.py:471 app/routers/tenant_admin.py:447
 msgid "Too many invitations sent recently. Try again later."
 msgstr ""
 "Zu viele Einladungen in letzter Zeit gesendet. Versuchen Sie es später "
 "erneut."
 
-#: app/routers/customers.py:510 app/routers/tenant_admin.py:477
+#: app/routers/customers.py:504 app/routers/tenant_admin.py:477
 msgid "Invitation resent."
 msgstr "Einladung erneut gesendet."
 
@@ -673,19 +673,19 @@ msgstr "{ok} übergeben, {failed} fehlgeschlagen."
 msgid "Status changed to {status}."
 msgstr "Status geändert zu {status}."
 
-#: app/routers/orders.py:1265
+#: app/routers/orders.py:1267
 msgid "Comment added."
 msgstr "Kommentar hinzugefügt."
 
-#: app/routers/products.py:135 app/routers/products.py:316
+#: app/routers/products.py:133 app/routers/products.py:312
 msgid "A product with this SKU already exists."
 msgstr "Ein Produkt mit dieser SKU existiert bereits."
 
-#: app/routers/products.py:159
+#: app/routers/products.py:157
 msgid "Product created."
 msgstr "Produkt angelegt."
 
-#: app/routers/products.py:359
+#: app/routers/products.py:353
 msgid "Product deleted."
 msgstr "Produkt gelöscht."
 
@@ -803,7 +803,7 @@ msgid "Nothing found for"
 msgstr "Nichts gefunden für"
 
 #: app/templates/_palette_results.html:22
-#: app/templates/_palette_results.html:23 app/templates/app_base.html:12
+#: app/templates/_palette_results.html:23 app/templates/app_base.html:45
 #: app/templates/dashboard/index.html:196 app/templates/orders/detail.html:29
 #: app/templates/orders/form.html:6 app/templates/orders/list.html:3
 #: app/templates/orders/list.html:7 app/templates/www/_hero_mock.html:25
@@ -812,7 +812,7 @@ msgid "Orders"
 msgstr "Aufträge"
 
 #: app/templates/_palette_results.html:43
-#: app/templates/_palette_results.html:44 app/templates/app_base.html:15
+#: app/templates/_palette_results.html:44 app/templates/app_base.html:48
 #: app/templates/customers/detail.html:8 app/templates/customers/form.html:9
 #: app/templates/customers/form.html:13 app/templates/customers/list.html:3
 #: app/templates/customers/list.html:7 app/templates/dashboard/index.html:23
@@ -829,17 +829,46 @@ msgid "Client"
 msgstr "Kunde"
 
 #: app/templates/_palette_results.html:64
-#: app/templates/_palette_results.html:65 app/templates/app_base.html:16
+#: app/templates/_palette_results.html:65 app/templates/app_base.html:49
 #: app/templates/products/detail.html:8 app/templates/products/form.html:9
 #: app/templates/products/form.html:13 app/templates/products/list.html:3
 #: app/templates/www/_hero_mock.html:33
 msgid "Catalog"
 msgstr "Katalog"
 
+#: app/templates/app_base.html:17
+msgid "Payment overdue"
+msgstr "Zahlung überfällig"
+
+#: app/templates/app_base.html:18
+msgid ""
+"Your most recent invoice failed. Stripe is retrying — please check your "
+"payment method to avoid losing access."
+msgstr ""
+"Die letzte Abrechnung ist fehlgeschlagen. Stripe versucht es erneut — "
+"prüfen Sie bitte Ihre Zahlungsmethode, damit der Zugang erhalten bleibt."
+
+#: app/templates/app_base.html:21 app/templates/app_base.html:33
+msgid "Open billing"
+msgstr "Abrechnung öffnen"
+
+#: app/templates/app_base.html:29
+msgid "Subscription ended"
+msgstr "Abonnement beendet"
+
+#: app/templates/app_base.html:30
+msgid ""
+"Your access ends after the data-export grace period. Export now or "
+"contact us within 30 days to recover."
+msgstr ""
+"Nach Ablauf der Frist zum Datenexport endet Ihr Zugang. Exportieren Sie "
+"jetzt oder kontaktieren Sie uns binnen 30 Tagen für eine "
+"Wiederherstellung."
+
 #: app/templates/admin/audit.html:7 app/templates/admin/profile.html:7
 #: app/templates/admin/sla.html:7 app/templates/admin/tenant_settings.html:7
 #: app/templates/admin/user_edit.html:7 app/templates/admin/users.html:7
-#: app/templates/app_base.html:11 app/templates/assets/detail.html:6
+#: app/templates/app_base.html:44 app/templates/assets/detail.html:6
 #: app/templates/assets/form.html:6 app/templates/customers/detail.html:8
 #: app/templates/customers/form.html:9 app/templates/customers/form.html:13
 #: app/templates/dashboard/index.html:3 app/templates/dashboard/index.html:7
@@ -854,53 +883,53 @@ msgstr "Katalog"
 msgid "Dashboard"
 msgstr "Übersicht"
 
-#: app/templates/app_base.html:13 app/templates/assets/detail.html:6
+#: app/templates/app_base.html:46 app/templates/assets/detail.html:6
 #: app/templates/assets/form.html:6 app/templates/assets/list.html:3
 msgid "Assets"
 msgstr "Assets"
 
-#: app/templates/app_base.html:17
+#: app/templates/app_base.html:50
 msgid "SLA"
 msgstr "SLA"
 
-#: app/templates/app_base.html:23
+#: app/templates/app_base.html:56
 msgid "Admin"
 msgstr "Admin"
 
 #: app/templates/admin/user_edit.html:7 app/templates/admin/users.html:3
-#: app/templates/app_base.html:29
+#: app/templates/app_base.html:62
 msgid "Team"
 msgstr "Team"
 
-#: app/templates/app_base.html:30
+#: app/templates/app_base.html:63
 msgid "Audit"
 msgstr "Audit"
 
 #: app/templates/admin/tenant_settings.html:3
 #: app/templates/admin/tenant_settings.html:7
-#: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:31
+#: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:64
 msgid "Portal settings"
 msgstr "Portal-Einstellungen"
 
-#: app/templates/app_base.html:33
+#: app/templates/app_base.html:66
 msgid "Billing"
 msgstr "Abrechnung"
 
-#: app/templates/app_base.html:50
+#: app/templates/app_base.html:83
 msgid "Switch portal"
 msgstr "Portal wechseln"
 
-#: app/templates/app_base.html:51
+#: app/templates/app_base.html:84
 msgid "Switch"
 msgstr "Wechseln"
 
 #: app/templates/admin/profile.html:3 app/templates/admin/profile.html:8
-#: app/templates/app_base.html:74 app/templates/app_base.html:78
+#: app/templates/app_base.html:107 app/templates/app_base.html:111
 #: app/templates/me/profile.html:3 app/templates/me/profile.html:8
 msgid "Profile"
 msgstr "Profil"
 
-#: app/templates/app_base.html:84 app/templates/platform/admin/_header.html:14
+#: app/templates/app_base.html:117 app/templates/platform/admin/_header.html:14
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:10
 #: app/templates/platform/admin/tenant_edit.html:3
@@ -908,7 +937,7 @@ msgstr "Profil"
 msgid "Platform admin"
 msgstr "Platform Admin"
 
-#: app/templates/app_base.html:94 app/templates/platform/admin/_header.html:40
+#: app/templates/app_base.html:127 app/templates/platform/admin/_header.html:40
 #: app/templates/platform/select_tenant.html:17
 msgid "Sign out"
 msgstr "Abmelden"
@@ -1867,7 +1896,7 @@ msgid "You do not have permission for this action."
 msgstr "Für diese Aktion fehlt Ihnen die Berechtigung."
 
 #: app/templates/errors/403.html:12 app/templates/errors/500.html:13
-#: app/templates/errors/plan_limit.html:27
+#: app/templates/errors/plan_limit.html:35
 msgid "Back to dashboard"
 msgstr "Zurück zur Übersicht"
 
@@ -1905,23 +1934,45 @@ msgstr ""
 
 #: app/templates/errors/plan_limit.html:2
 #: app/templates/errors/plan_limit.html:8
+msgid "Over plan limit"
+msgstr "Über dem Planlimit"
+
+#: app/templates/errors/plan_limit.html:2
+#: app/templates/errors/plan_limit.html:8
 msgid "Plan limit reached"
 msgstr "Planlimit erreicht"
 
-#: app/templates/errors/plan_limit.html:11
+#: app/templates/errors/plan_limit.html:12
 #, python-format
 msgid ""
 "\n"
-"                    Your current plan allows %(limit)s %(metric)s. You're"
-" already at %(current)s.\n"
-"                "
+"                        You currently have %(current)s %(metric)s, but "
+"your plan allows only %(limit)s. Existing items keep working — you just "
+"cannot add new ones until usage drops back under the limit or you "
+"upgrade.\n"
+"                    "
 msgstr ""
 "\n"
-"                    Ihr Plan erlaubt %(limit)s %(metric)s. Aktuell sind "
-"Sie bei %(current)s.\n"
-"                "
+"                        Sie haben aktuell %(current)s %(metric)s, Ihr "
+"Plan erlaubt jedoch nur %(limit)s. Bestehende Einträge bleiben aktiv — "
+"Sie können nur keine neuen hinzufügen, bis die Nutzung wieder unter das "
+"Limit fällt oder Sie den Plan erweitern.\n"
+"                    "
 
-#: app/templates/errors/plan_limit.html:16
+#: app/templates/errors/plan_limit.html:18
+#, python-format
+msgid ""
+"\n"
+"                        Your current plan allows %(limit)s %(metric)s. "
+"You're already at %(current)s.\n"
+"                    "
+msgstr ""
+"\n"
+"                        Ihr Plan erlaubt %(limit)s %(metric)s. Aktuell "
+"sind Sie bei %(current)s.\n"
+"                    "
+
+#: app/templates/errors/plan_limit.html:24
 msgid ""
 "Upgrade your plan to increase the cap, or contact support if you believe "
 "this is a mistake."
@@ -1929,7 +1980,7 @@ msgstr ""
 "Erweitern Sie Ihren Plan, um das Limit zu erhöhen, oder kontaktieren Sie "
 "uns, wenn dies ein Fehler ist."
 
-#: app/templates/errors/plan_limit.html:22
+#: app/templates/errors/plan_limit.html:30
 msgid "Upgrade plan"
 msgstr "Plan ändern"
 
@@ -5474,4 +5525,17 @@ msgstr "Bedingungen"
 #: app/templates/www/www_base.html:83
 msgid "Privacy"
 msgstr "Datenschutz"
+
+#~ msgid ""
+#~ "\n"
+#~ "                    Your current plan allows"
+#~ " %(limit)s %(metric)s. You're already at"
+#~ " %(current)s.\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Ihr Plan erlaubt %(limit)s"
+#~ " %(metric)s. Aktuell sind Sie bei "
+#~ "%(current)s.\n"
+#~ "                "
 

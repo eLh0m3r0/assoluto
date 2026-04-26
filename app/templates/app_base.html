@@ -5,6 +5,39 @@
    switcher cluster on the right. Uses native <details> for the
    dropdowns — zero-JS, keyboard-accessible, degrades gracefully. #}
 
+{% block subscription_banner %}
+    {# Past-due / canceled banner — server-set on request.state by
+       deps._stash_subscription_status. Visible to ANY tenant user (so
+       a contact can prod the admin to fix billing) but admin-only links
+       through to /platform/billing. #}
+    {% set sub_status = request.state.subscription_status if request.state else None %}
+    {% if principal and sub_status == 'past_due' %}
+        <div role="alert" class="border-b border-amber-300 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-900/20">
+            <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-sm text-amber-900 dark:text-amber-100 sm:px-6">
+                <span class="font-semibold">⚠ {{ _("Payment overdue") }}</span>
+                <span>{{ _("Your most recent invoice failed. Stripe is retrying — please check your payment method to avoid losing access.") }}</span>
+                {% if principal.role == "tenant_admin" and feature_platform %}
+                    <a href="/platform/billing" class="ml-auto rounded-md bg-amber-600 px-3 py-1 text-xs font-medium text-white hover:bg-amber-700">
+                        {{ _("Open billing") }}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% elif principal and sub_status == 'canceled' %}
+        <div role="alert" class="border-b border-rose-300 bg-rose-50 dark:border-rose-500/30 dark:bg-rose-900/20">
+            <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-sm text-rose-900 dark:text-rose-100 sm:px-6">
+                <span class="font-semibold">⚠ {{ _("Subscription ended") }}</span>
+                <span>{{ _("Your access ends after the data-export grace period. Export now or contact us within 30 days to recover.") }}</span>
+                {% if principal.role == "tenant_admin" and feature_platform %}
+                    <a href="/platform/billing" class="ml-auto rounded-md bg-rose-600 px-3 py-1 text-xs font-medium text-white hover:bg-rose-700">
+                        {{ _("Open billing") }}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block nav %}
     {% if principal %}
         {# --- Primary nav -------------------------------------------- #}

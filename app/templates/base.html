@@ -123,6 +123,11 @@
         </div>
     </header>
 
+    {# Subscription-status banner — populated by app_base when the request
+       carries a tenant + an authenticated principal. Empty by default so
+       marketing / auth pages don't show it. #}
+    {% block subscription_banner %}{% endblock %}
+
     <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
         {% block content %}{% endblock %}
     </main>

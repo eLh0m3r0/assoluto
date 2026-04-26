@@ -209,6 +209,37 @@ class Principal:
         )
 
 
+async def _stash_subscription_status(
+    request: Request,
+    db: AsyncSession,
+    tenant_id: UUID,
+    settings: Settings,
+) -> None:
+    """One-shot lookup of the tenant's billing subscription status.
+
+    Stash the value on ``request.state`` so the base template can render
+    the past_due banner without doing the query itself. No-ops in
+    self-hosted mode (``feature_platform=False``) and on any error —
+    the banner is a UX hint, not a security control.
+    """
+    if not settings.feature_platform:
+        return
+    if hasattr(request.state, "subscription_status"):
+        return  # already loaded for this request
+    try:
+        from sqlalchemy import text
+
+        row = (
+            await db.execute(
+                text("SELECT status FROM platform_subscriptions WHERE tenant_id = :tid LIMIT 1"),
+                {"tid": tenant_id},
+            )
+        ).scalar_one_or_none()
+        request.state.subscription_status = row
+    except Exception:  # pragma: no cover - belt-and-braces
+        request.state.subscription_status = None
+
+
 async def get_current_principal(
     request: Request,
     tenant: Tenant = Depends(get_current_tenant),
@@ -242,6 +273,7 @@ async def get_current_principal(
             return None
         if user.session_version != session_data.session_version:
             return None
+        await _stash_subscription_status(request, db, tenant.id, settings)
         return Principal.from_user(user)
 
     if session_data.principal_type == "contact":
@@ -253,6 +285,7 @@ async def get_current_principal(
             return None
         if contact.session_version != session_data.session_version:
             return None
+        await _stash_subscription_status(request, db, tenant.id, settings)
         return Principal.from_contact(contact)
 
     return None

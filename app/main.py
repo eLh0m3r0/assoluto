@@ -454,6 +454,11 @@ def _register_error_handlers(app: FastAPI) -> None:
                 "orders": _t(request, "orders this month"),
                 "storage_mb": _t(request, "MB of storage"),
             }
+            # Distinguish "you're at the cap, upgrade to add more" from
+            # "you're over the cap (probably after a downgrade), existing
+            # rows are grandfathered but you cannot add new ones until
+            # usage falls back under the cap or you upgrade."
+            over_limit = exc.current > exc.limit
             html = templates.render(
                 request,
                 "errors/plan_limit.html",
@@ -462,6 +467,7 @@ def _register_error_handlers(app: FastAPI) -> None:
                     "metric_label": metric_labels.get(exc.metric, exc.metric),
                     "current": exc.current,
                     "limit": exc.limit,
+                    "over_limit": over_limit,
                 },
             )
             return HTMLResponse(html, status_code=status.HTTP_402_PAYMENT_REQUIRED)

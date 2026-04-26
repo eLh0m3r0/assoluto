@@ -270,6 +270,40 @@ async def tenants_deactivate(
     identity: Identity = Depends(require_platform_admin),
     db: AsyncSession = Depends(get_platform_db),
 ) -> Response:
+    # Cancel the active Stripe subscription before pulling the rug.
+    # An operator-driven deactivation is functionally a hard cancel —
+    # without this, Stripe keeps billing the customer for a service
+    # they no longer have access to. Idempotent: cancel_subscription
+    # is a no-op when the sub is already canceled or absent.
+    from app.config import get_settings as _get_settings
+    from app.platform.billing.service import (
+        BillingError,
+        cancel_subscription,
+        get_subscription_for_tenant,
+    )
+
+    settings = _get_settings()
+    sub = await get_subscription_for_tenant(db, tenant_id)
+    if sub is not None and sub.status in {"active", "trialing", "past_due"}:
+        try:
+            await cancel_subscription(
+                db,
+                settings,
+                subscription=sub,
+                actor_label=f"platform-admin/{identity.email}",
+            )
+        except BillingError:
+            # Stripe failure shouldn't block the deactivation — the
+            # operator already decided this tenant is going away. Log
+            # and proceed; an orphan Stripe sub can be cleaned up
+            # manually from the Stripe dashboard.
+            from app.logging import get_logger
+
+            get_logger("app.platform").warning(
+                "tenant_deactivate.stripe_cancel_failed",
+                tenant_id=str(tenant_id),
+            )
+
     try:
         await deactivate_tenant(db, tenant_id=tenant_id)
     except PlatformError as exc:
