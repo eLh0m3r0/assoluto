@@ -3255,24 +3255,19 @@ msgid "Your clients see it themselves."
 msgstr "Zákazníci to vidí sami."
 
 #: app/templates/www/index.html:33
-#, fuzzy
 msgid ""
 "A customer portal for Czech manufacturing SMEs. Orders, drawings, "
 "production status — in one place, 24/7. Without Excel, without a massive "
 "ERP."
-msgstr ""
-"Zákaznický portál pro české výrobní firmy. Zakázky, výkresy, stav výroby "
-"— všechno na jednom místě. Nahraďte e-maily a Excel. 30 dní zdarma, bez "
-"karty."
+msgstr "Zákaznický portál pro české výrobní firmy. Zakázky, výkresy, stav výroby — na jednom místě, 24/7. Bez Excelu, bez obrovského ERP."
 
 #: app/templates/www/index.html:39 app/templates/www/index.html:446
 msgid "Try free for 30 days"
 msgstr "Vyzkoušet 30 dní zdarma"
 
 #: app/templates/www/index.html:45
-#, fuzzy
 msgid "Book a 15-min demo"
-msgstr "15minutová ukázka"
+msgstr "Domluvit 15min ukázku"
 
 #: app/templates/www/index.html:50
 msgid "No credit card · Cancel anytime · Up and running in 30 minutes"
@@ -3347,18 +3342,14 @@ msgstr ""
 "výkresu a termín výroby."
 
 #: app/templates/www/index.html:138
-#, fuzzy
 msgid ""
 "8-step process from request to delivery. Every transition is audited — "
 "who, when, why. No more guessing."
-msgstr ""
-"Osmikrokový proces od poptávky k dodání. Každý přechod je auditovaný — "
-"kdo, kdy, proč. Už nikdy nebudete hádat, kde zakázka stojí."
+msgstr "Osmikrokový proces od poptávky k dodání. Každý přechod je auditovaný — kdo, kdy, proč. Konec s dohadováním."
 
 #: app/templates/www/index.html:144
-#, fuzzy
 msgid "Drawings and CAD attached to orders"
-msgstr "Výkresy a CAD na správném místě"
+msgstr "Výkresy a CAD u zakázky"
 
 #: app/templates/www/index.html:145
 msgid ""
@@ -3382,24 +3373,18 @@ msgstr ""
 
 # --- round-2 audit: landing + CRUD templates ---
 #: app/templates/www/index.html:158
-#, fuzzy
 msgid "Customer material on stock"
-msgstr "Materiál zákazníka u vás na skladě"
+msgstr "Materiál zákazníka na skladě"
 
 #: app/templates/www/index.html:159
-#, fuzzy
 msgid ""
 "Does the client have material, tooling, or semi-finished product at your "
 "place? Receipts, issues, balance — transparent for both sides."
-msgstr ""
-"Má zákazník u vás materiál, nástroje nebo polotovary? Příjem, výdej, "
-"spotřeba — všechno průhledné. Stav se přepočítává sám, zákazník vidí to "
-"své."
+msgstr "Má u vás zákazník materiál, nástroje nebo polotovary? Příjem, výdej, aktuální stav — průhledné pro obě strany."
 
 #: app/templates/www/index.html:165
-#, fuzzy
 msgid "Email notifications that make sense"
-msgstr "Nepodařilo se ověřit e-mail"
+msgstr "E-mailová upozornění, která dávají smysl"
 
 #: app/templates/www/index.html:166
 msgid ""
@@ -3423,9 +3408,8 @@ msgstr ""
 "zákazníky."
 
 #: app/templates/www/index.html:180
-#, fuzzy
 msgid "See all features"
-msgstr "Funkce"
+msgstr "Všechny funkce"
 
 #: app/templates/www/index.html:191
 msgid "How it works"
@@ -3436,9 +3420,8 @@ msgid "Three steps, thirty minutes. No \"implementation project\"."
 msgstr "Tři kroky, třicet minut. Žádný „implementační projekt\\\"."
 
 #: app/templates/www/index.html:201
-#, fuzzy
 msgid "Sign up, choose a subdomain"
-msgstr "Subdoména portálu"
+msgstr "Zaregistrujete se, vyberete subdoménu"
 
 #: app/templates/www/index.html:204
 msgid ""
@@ -3449,9 +3432,8 @@ msgstr ""
 "vasefirma.assoluto.eu."
 
 #: app/templates/www/index.html:210
-#, fuzzy
 msgid "Invite your first clients"
-msgstr "Začněte tím, že přidáte prvního klienta"
+msgstr "Pozvete své první zákazníky"
 
 #: app/templates/www/index.html:213
 msgid ""
@@ -3462,9 +3444,8 @@ msgstr ""
 "a výkresy. Nic víc."
 
 #: app/templates/www/index.html:219
-#, fuzzy
 msgid "Orders run on their own"
-msgstr "objednávek tento měsíc"
+msgstr "Zakázky běží samy"
 
 #: app/templates/www/index.html:222
 msgid ""
@@ -3475,9 +3456,8 @@ msgstr ""
 "zákazník to vidí. Vaše schránka se ztenčí na polovinu."
 
 #: app/templates/www/index.html:233
-#, fuzzy
 msgid "Why Assoluto"
-msgstr "Vítejte v Assolutu"
+msgstr "Proč Assoluto"
 
 #: app/templates/www/index.html:235
 msgid "Halfway between Excel and a 600K CZK ERP"
@@ -3492,9 +3472,8 @@ msgstr ""
 "je ta cesta mezi."
 
 #: app/templates/www/index.html:247
-#, fuzzy
 msgid "Excel / email"
-msgstr "Zkontrolujte svůj e-mail"
+msgstr "Excel / e-mail"
 
 #: app/templates/www/index.html:249
 msgid "Big ERP"
@@ -3533,9 +3512,8 @@ msgid "5 – 25K CZK / user"
 msgstr "5 – 25 tis. Kč / uživatel"
 
 #: app/templates/www/index.html:263
-#, fuzzy
 msgid "Client sees order status"
-msgstr "Oprávnění klienta u objednávek"
+msgstr "Zákazník vidí stav zakázky"
 
 #: app/templates/www/index.html:263
 msgid "often only via a separate B2B module"
@@ -3550,18 +3528,16 @@ msgid "billable by the hour"
 msgstr "hodinová sazba"
 
 #: app/templates/www/index.html:265
-#, fuzzy
 msgid "Audit trail"
-msgstr "Auditní log"
+msgstr "Audit trail"
 
 #: app/templates/www/index.html:266 app/templates/www/pricing.html:125
 msgid "Data in the EU"
 msgstr "Data v EU"
 
 #: app/templates/www/index.html:266
-#, fuzzy
 msgid "your laptop"
-msgstr "Vaše jméno"
+msgstr "váš notebook"
 
 #: app/templates/www/index.html:266
 msgid "Hetzner DE"
@@ -3572,19 +3548,16 @@ msgid "depends on the vendor"
 msgstr "záleží na dodavateli"
 
 #: app/templates/www/index.html:267
-#, fuzzy
 msgid "Can be cancelled"
-msgstr "Zrušeno"
+msgstr "Lze ukončit"
 
 #: app/templates/www/index.html:267
-#, fuzzy
 msgid "at any time"
-msgstr "Včas"
+msgstr "kdykoliv"
 
 #: app/templates/www/index.html:267
-#, fuzzy
 msgid "12–36 month contracts"
-msgstr "20 kontaktů zákazníků"
+msgstr "smlouvy na 12–36 měsíců"
 
 #: app/templates/www/index.html:278 app/templates/www/pricing.html:3
 #: app/templates/www/pricing.html:11 app/templates/www/www_base.html:58
@@ -3592,9 +3565,8 @@ msgid "Pricing"
 msgstr "Ceník"
 
 #: app/templates/www/index.html:280
-#, fuzzy
 msgid "A honest price list. No sales call required."
-msgstr "Férový ceník"
+msgstr "Férový ceník. Nemusíte nám volat."
 
 #: app/templates/www/index.html:283 app/templates/www/pricing.html:16
 msgid "30 days free. No card. Cancel any time."
@@ -3604,9 +3576,8 @@ msgstr "30 dní zdarma. Bez platební karty. Lze kdykoliv ukončit."
 # orders/_status_badge.html and products/form.html (they share the
 # same Czech translation, so we don't duplicate entries).
 #: app/templates/www/index.html:291
-#, fuzzy
 msgid "For a small shop, 3 staff users"
-msgstr "Malá dílna, 3 uživatelé v týmu"
+msgstr "Pro malou dílnu, 3 uživatelé v týmu"
 
 #: app/templates/www/index.html:294 app/templates/www/index.html:317
 #: app/templates/www/pricing.html:46 app/templates/www/pricing.html:70
@@ -3642,9 +3613,8 @@ msgid "Most chosen"
 msgstr "Nejoblíbenější"
 
 #: app/templates/www/index.html:314
-#, fuzzy
 msgid "For growing manufacturers, 15 users"
-msgstr "Rostoucí výrobce, 15 uživatelů"
+msgstr "Pro rostoucí výrobce, 15 uživatelů"
 
 # "Ready", "Delivered", "Cancel" reuse the existing msgids from
 # orders/_status_badge.html and products/form.html (they share the
@@ -3670,45 +3640,40 @@ msgid "Self-hosted, AGPL-3.0"
 msgstr "Vlastní hosting, AGPL-3.0"
 
 #: app/templates/www/index.html:337
-#, fuzzy
 msgid "forever"
-msgstr "Zdarma"
+msgstr "navždy"
 
 #: app/templates/www/index.html:340 app/templates/www/pricing.html:30
 msgid "No user limits"
 msgstr "Bez limitu uživatelů"
 
 #: app/templates/www/index.html:341
-#, fuzzy
 msgid "Your server, your data"
-msgstr "Váš server. Vaše data. Vaše pravidla."
+msgstr "Váš server, vaše data"
 
 #: app/templates/www/index.html:342 app/templates/www/pricing.html:32
 msgid "Auditable open source"
 msgstr "Auditovatelný open source"
 
 #: app/templates/www/index.html:343
-#, fuzzy
 msgid "Community on GitHub"
-msgstr "Repozitář na GitHubu"
+msgstr "Komunita na GitHubu"
 
 #: app/templates/www/index.html:346 app/templates/www/pricing.html:36
 msgid "Installation guide"
 msgstr "Návod k instalaci"
 
 #: app/templates/www/index.html:352
-#, fuzzy
 msgid "Need more?"
-msgstr "Nová zakázka"
+msgstr "Potřebujete víc?"
 
 #: app/templates/www/index.html:353
 msgid "Enterprise plan with SLA →"
 msgstr "Enterprise plán se SLA →"
 
 #: app/templates/www/index.html:362
-#, fuzzy
 msgid "Early access"
-msgstr "Váš přístup"
+msgstr "Early access"
 
 #: app/templates/www/index.html:364
 msgid "What our first customers say"
@@ -3902,9 +3867,8 @@ msgstr ""
 "Jen se zaregistrujte a vyzkoušejte."
 
 #: app/templates/www/index.html:450
-#, fuzzy
 msgid "Or write / call us"
-msgstr "Napište nám"
+msgstr "Nebo napište / zavolejte"
 
 #: app/templates/www/index.html:454
 msgid "Up and running in 30 minutes · Data in the EU (Hetzner DE) · Czech support"
@@ -4140,9 +4104,8 @@ msgstr ""
 "malých organizací přístup zdarma."
 
 #: app/templates/www/privacy.html:15
-#, fuzzy
 msgid "1. Who is the data controller"
-msgstr "1. Správce údajů"
+msgstr "1. Kdo je správce osobních údajů"
 
 #: app/templates/www/privacy.html:17
 msgid ""
@@ -4268,9 +4231,8 @@ msgstr ""
 " vás, abyste takové údaje do portálu nenahrávali."
 
 #: app/templates/www/privacy.html:51
-#, fuzzy
 msgid "3. Why we process the data (purposes)"
-msgstr "3. Proč údaje zpracováváme"
+msgstr "3. Proč osobní údaje zpracováváme (účely)"
 
 #: app/templates/www/privacy.html:53
 msgid ""
@@ -4315,9 +4277,8 @@ msgstr ""
 "algoritmická rozhodování o způsobilosti)."
 
 #: app/templates/www/privacy.html:62
-#, fuzzy
 msgid "4. Where data is stored and our subprocessors"
-msgstr "4. Kde data ukládáme + naši zpracovatelé"
+msgstr "4. Kde se data uchovávají a naši dílčí zpracovatelé"
 
 #: app/templates/www/privacy.html:64
 msgid ""
@@ -4346,40 +4307,34 @@ msgid "All Customer data (encrypted at rest)"
 msgstr "Veškerá data zákazníka (šifrovaná v klidu)"
 
 #: app/templates/www/privacy.html:85
-#, fuzzy
 msgid "Transactional email delivery"
-msgstr "Transakční e-maily"
+msgstr "Doručování transakčních e-mailů"
 
 #: app/templates/www/privacy.html:86
-#, fuzzy
 msgid "Recipient email, name, message body"
-msgstr "Adresa příjemce, jméno, tělo zprávy"
+msgstr "E-mail příjemce, jméno, tělo zprávy"
 
 #: app/templates/www/privacy.html:91
-#, fuzzy
 msgid "Subscription billing, card processing, dunning"
-msgstr "Předplatné (účtování)"
+msgstr "Účtování předplatného, zpracování karet, vymáhání plateb"
 
 #: app/templates/www/privacy.html:92
-#, fuzzy
 msgid ""
 "Billing email, company name, tax IDs, card data (held by Stripe, never by"
 " us)"
-msgstr "Fakturační e-mail, firma, DIČ, karta (drží zpracovatel)"
+msgstr "Fakturační e-mail, název firmy, daňová ID, data karty (drží Stripe, my nikdy)"
 
 #: app/templates/www/privacy.html:93
 msgid "IE (EU); some processing in US under SCCs"
 msgstr "IE (EU); část zpracování v USA pod SCC"
 
 #: app/templates/www/privacy.html:97
-#, fuzzy
 msgid "DNS hosting and domain registrar"
-msgstr "DNS + registrátor domény"
+msgstr "DNS hosting a registrátor domény"
 
 #: app/templates/www/privacy.html:98
-#, fuzzy
 msgid "Public DNS records only — no personal data"
-msgstr "Pouze veřejné DNS záznamy"
+msgstr "Pouze veřejné DNS záznamy — žádné osobní údaje"
 
 #: app/templates/www/privacy.html:105
 msgid ""
@@ -4392,24 +4347,20 @@ msgstr ""
 "komisí. Spoléháme na zveřejněné posouzení dopadu převodu od Stripe."
 
 #: app/templates/www/privacy.html:108
-#, fuzzy
 msgid ""
 "Subprocessor changes are disclosed at least 30 days in advance by "
 "updating this page and emailing active tenant administrators. The "
 "Customer may object to a new subprocessor by terminating the subscription"
 " before the change takes effect."
-msgstr ""
-"O změně zpracovatelů informujeme minimálně 30 dní dopředu aktualizací "
-"této stránky a e-mailem všem aktivním tenant adminům."
+msgstr "Změny dílčích zpracovatelů zveřejňujeme minimálně 30 dní předem aktualizací této stránky a e-mailem aktivním administrátorům tenantu. Zákazník může proti novému dílčímu zpracovateli vznést námitku zrušením předplatného před účinností změny."
 
 #: app/templates/www/privacy.html:113
 msgid "5. How long we retain data"
 msgstr "5. Jak dlouho údaje uchováváme"
 
 #: app/templates/www/privacy.html:115
-#, fuzzy
 msgid "Active account data — for the duration of the active subscription."
-msgstr "Data aktivního účtu — po dobu trvání předplatného."
+msgstr "Data aktivního účtu — po dobu trvání aktivního předplatného."
 
 #: app/templates/www/privacy.html:116
 msgid ""
@@ -4429,16 +4380,14 @@ msgstr ""
 "obnovitelná na základě písemné žádosti. Poté jsou nevratně smazána."
 
 #: app/templates/www/privacy.html:118
-#, fuzzy
 msgid "Database backups — 14 days rolling, then automatically purged."
-msgstr "Zálohy databáze — 14 dní rotace."
+msgstr "Zálohy databáze — 14 dní rotace, pak automaticky mazány."
 
 #: app/templates/www/privacy.html:119
-#, fuzzy
 msgid ""
 "Authentication and security logs (last_login timestamps, failed login "
 "attempts, IP) — 90 days."
-msgstr "Autentizační logy (čas posledního přihlášení, neúspěšné pokusy) — 90 dní."
+msgstr "Autentizační a bezpečnostní logy (čas posledního přihlášení, neúspěšné pokusy o přihlášení, IP) — 90 dní."
 
 #: app/templates/www/privacy.html:120
 msgid ""
@@ -4451,18 +4400,14 @@ msgstr ""
 "sporu."
 
 #: app/templates/www/privacy.html:121
-#, fuzzy
 msgid ""
 "Billing records and tax documents — 10 years from the end of the "
 "accounting period, as required by Czech Act 563/1991 Coll. on Accounting."
-msgstr ""
-"Fakturační záznamy (faktury, historie předplatného) — 10 let od konce "
-"účetního období, podle zákona č. 563/1991 Sb. o účetnictví."
+msgstr "Fakturační záznamy a daňové doklady — 10 let od konce účetního období, jak vyžaduje zákon č. 563/1991 Sb. o účetnictví."
 
 #: app/templates/www/privacy.html:122
-#, fuzzy
 msgid "Application request and error logs — 14 days."
-msgstr "Logy požadavků / chyb — 14 dní."
+msgstr "Logy aplikačních požadavků a chyb — 14 dní."
 
 #: app/templates/www/privacy.html:125
 msgid ""
@@ -4505,9 +4450,8 @@ msgstr ""
 "mlčenlivosti, výhradně pro fakturační a účetní účely."
 
 #: app/templates/www/privacy.html:142
-#, fuzzy
 msgid "7. Your rights"
-msgstr "6. Vaše práva"
+msgstr "7. Vaše práva"
 
 #: app/templates/www/privacy.html:144
 msgid ""
@@ -4538,11 +4482,10 @@ msgstr ""
 "žádost není zjevně nedůvodná nebo nepřiměřená (čl. 12 odst. 5 GDPR)."
 
 #: app/templates/www/privacy.html:152
-#, fuzzy
 msgid ""
 "If you believe your rights have been infringed you may lodge a complaint "
 "with the Czech Office for Personal Data Protection"
-msgstr "Máte také právo podat stížnost Úřadu pro ochranu osobních údajů"
+msgstr "Pokud se domníváte, že vaše práva byla porušena, můžete podat stížnost u Úřadu pro ochranu osobních údajů"
 
 #: app/templates/www/privacy.html:154
 msgid "Pplk. Sochora 27, 170 00 Prague 7, Czech Republic."
@@ -4553,15 +4496,11 @@ msgid "8. Cookies and similar technologies"
 msgstr "8. Cookies a podobné technologie"
 
 #: app/templates/www/privacy.html:161
-#, fuzzy
 msgid ""
 "The portal uses only strictly-necessary cookies (login session, CSRF "
 "protection, locale and theme preference). We do not deploy analytics or "
 "marketing cookies, and we do not track you across sites. Full inventory:"
-msgstr ""
-"Portál používá pouze technické (session) cookies nezbytné pro přihlášení "
-"a ochranu CSRF. Analytické ani marketingové cookies bez vašeho souhlasu "
-"nenasazujeme."
+msgstr "Portál používá pouze striktně nezbytné cookies (přihlašovací session, CSRF ochrana, jazyk a téma). Neukládáme analytické ani marketingové cookies a nesledujeme vás napříč weby. Úplný seznam:"
 
 #: app/templates/www/privacy.html:167
 msgid "9. Data security"
@@ -4770,12 +4709,10 @@ msgstr ""
 "licenci."
 
 #: app/templates/www/terms.html:15
-#, fuzzy
 msgid "1. Who provides the Service"
-msgstr "2. Popis služby"
+msgstr "1. Kdo službu poskytuje"
 
 #: app/templates/www/terms.html:17
-#, fuzzy
 msgid "The Assoluto service (the \"Service\") is provided by"
 msgstr "Provozovatelem služby Assoluto (dále jen \\\"Služba\\\") je"
 
@@ -4798,9 +4735,8 @@ msgstr ""
 "spotřebitele se nepoužijí."
 
 #: app/templates/www/terms.html:31
-#, fuzzy
 msgid "2. What the Service does"
-msgstr "2. Jaké údaje zpracováváme"
+msgstr "2. Co služba dělá"
 
 #: app/templates/www/terms.html:33
 msgid ""
@@ -4836,9 +4772,8 @@ msgstr ""
 "těchto podmínkách neomezuje práva zákazníka plynoucí z této licence."
 
 #: app/templates/www/terms.html:41
-#, fuzzy
 msgid "3. Account, registration, access"
-msgstr "3. Registrace a účet"
+msgstr "3. Účet, registrace, přístup"
 
 #: app/templates/www/terms.html:43
 msgid ""
@@ -5044,9 +4979,8 @@ msgstr ""
 "provozovatelem; viz čl. 9."
 
 #: app/templates/www/terms.html:100
-#, fuzzy
 msgid "7. Personal data"
-msgstr "6. Ochrana osobních údajů"
+msgstr "7. Osobní údaje"
 
 #: app/templates/www/terms.html:102
 msgid ""
@@ -5084,14 +5018,7 @@ msgid ""
 "subprocessors (Hetzner, Stripe, Brevo) do not give rise to any "
 "compensation claim. The Enterprise plan may include a separately-"
 "negotiated written SLA — contact team@assoluto.eu."
-msgstr ""
-"Provozovatel hostovanou službu provozuje s přiměřenou péčí a cíluje na "
-"99,9 %% měsíční dostupnost měřenou na aplikační HTTP vrstvě, s denními "
-"zálohami databáze uchovávanými 14 dní. Plány Starter a Pro neobsahují "
-"smluvní SLA; plánované i neplánované výpadky, vyšší moc a výpadky "
-"způsobené dílčími zpracovateli (Hetzner, Stripe, Brevo) nezakládají nárok"
-" na kompenzaci. Plán Enterprise může obsahovat samostatně sjednané "
-"písemné SLA — napište na team@assoluto.eu."
+msgstr "Provozovatel hostovanou službu provozuje s přiměřenou péčí a cíluje na 99,9 %% měsíční dostupnost měřenou na aplikační HTTP vrstvě, s denními zálohami databáze uchovávanými 14 dní. Plány Starter a Pro neobsahují smluvní SLA; plánované i neplánované výpadky, vyšší moc a výpadky způsobené dílčími zpracovateli (Hetzner, Stripe, Brevo) nezakládají nárok na kompenzaci. Plán Enterprise může obsahovat samostatně sjednané písemné SLA — napište na team@assoluto.eu."
 
 #: app/templates/www/terms.html:114
 msgid ""
@@ -5250,7 +5177,6 @@ msgid "13. Governing law and jurisdiction"
 msgstr "13. Rozhodné právo a příslušnost soudů"
 
 #: app/templates/www/terms.html:164
-#, fuzzy
 msgid ""
 "These Terms and any dispute arising out of or in connection with them are"
 " governed by the law of the Czech Republic, without regard to conflict-"
