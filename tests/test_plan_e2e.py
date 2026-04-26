@@ -146,7 +146,7 @@ async def test_plan_e2e_happy_path(
         follow_redirects=False,
     )
     assert acme_resp.status_code == 303
-    acme_id = UUID(acme_resp.headers["location"].rsplit("/", 1)[-1])
+    acme_id = UUID(acme_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     # -------- Step 5: invite customer contact jan@acme.cz ------------------
     before_invites = len(capture.outbox)
@@ -218,7 +218,7 @@ async def test_plan_e2e_happy_path(
         follow_redirects=False,
     )
     assert create_order.status_code == 303
-    order_id = UUID(create_order.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_order.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     # Pull the ACME product UUID out via owner engine.
     async with sm() as session:
@@ -362,7 +362,7 @@ async def test_plan_e2e_happy_path(
         follow_redirects=False,
     )
     assert asset_resp.status_code == 303
-    asset_id = UUID(asset_resp.headers["location"].rsplit("/", 1)[-1])
+    asset_id = UUID(asset_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     await tenant_client.post(
         f"/app/assets/{asset_id}/movements",
@@ -428,7 +428,7 @@ async def test_plan_e2e_happy_path(
     new_draft = await tenant_client.post(
         "/app/orders", data={"title": "Big file test"}, follow_redirects=False
     )
-    new_draft_id = UUID(new_draft.headers["location"].rsplit("/", 1)[-1])
+    new_draft_id = UUID(new_draft.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
     big_bytes = b"x" * (2 * 1024 * 1024)
     big_upload = await tenant_client.post(
         f"/app/orders/{new_draft_id}/attachments",
@@ -515,13 +515,13 @@ async def test_plan_e2e_cross_tenant_access_is_blocked(
         data={"name": "Only4mex", "ico": "11111111", "dic": "", "notes": ""},
         follow_redirects=False,
     )
-    cust_id = UUID(cust_resp.headers["location"].rsplit("/", 1)[-1])
+    cust_id = UUID(cust_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
     order_resp = await tenant_client.post(
         "/app/orders",
         data={"title": "Tajná zakázka", "customer_id": str(cust_id)},
         follow_redirects=False,
     )
-    target_id = UUID(order_resp.headers["location"].rsplit("/", 1)[-1])
+    target_id = UUID(order_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     # Switch the tenant header to "other" (the same client instance).
     tenant_client.headers["X-Tenant-Slug"] = "other"

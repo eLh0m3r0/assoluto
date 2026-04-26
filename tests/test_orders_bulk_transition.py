@@ -86,7 +86,7 @@ async def _create_draft_order(client: AsyncClient, title: str) -> UUID:
         follow_redirects=False,
     )
     assert resp.status_code == 303, resp.text
-    return UUID(resp.headers["location"].rsplit("/", 1)[-1])
+    return UUID(resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
 
 async def _orders_by_ids(owner_engine, ids: list[UUID]) -> list[Order]:

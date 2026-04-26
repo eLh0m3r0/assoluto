@@ -7,6 +7,7 @@ import io
 from collections.abc import AsyncIterator
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
+from urllib.parse import quote
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
@@ -447,7 +448,8 @@ async def orders_create(
             error=str(exc),
         )
 
-    return RedirectResponse(url=f"/app/orders/{order.id}", status_code=303)
+    notice = quote(_t(request, "Order created."))
+    return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)
 
 
 async def _rerender_form(
@@ -754,7 +756,8 @@ async def orders_add_item(
     except OrderError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
 
-    return RedirectResponse(url=f"/app/orders/{order.id}", status_code=303)
+    notice = quote(_t(request, "Item added."))
+    return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)
 
 
 @router.api_route(
@@ -939,7 +942,8 @@ async def orders_delete_item(
     except ForbiddenTransition as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from None
 
-    return RedirectResponse(url=f"/app/orders/{order.id}", status_code=303)
+    notice = quote(_t(request, "Item deleted."))
+    return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)
 
 
 # ----------------------------------------------------------- bulk transition
@@ -1179,11 +1183,11 @@ async def orders_transition(
     # them wondering if the click did anything. Localised via _t()
     # and the TRANSITION_META label so "in_production" → "Ve výrobě"
     # (cs) / "In production" (en).
-    from urllib.parse import quote as _qp
-
     status_label = _t(request, TRANSITION_META.get(target, {}).get("label", target.value))
     notice_msg = _t(request, "Status changed to {status}.").format(status=status_label)
-    return RedirectResponse(url=f"/app/orders/{order.id}?notice={_qp(notice_msg)}", status_code=303)
+    return RedirectResponse(
+        url=f"/app/orders/{order.id}?notice={quote(notice_msg)}", status_code=303
+    )
 
 
 # ------------------------------------------------------------------ comments
@@ -1260,4 +1264,5 @@ async def orders_add_comment(
             body_excerpt=notif.body_excerpt,
         )
 
-    return RedirectResponse(url=f"/app/orders/{order.id}", status_code=303)
+    notice = quote(_t(request, "Comment added."))
+    return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-26 11:35+0200\n"
+"POT-Creation-Date: 2026-04-26 12:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -106,7 +106,7 @@ msgstr ""
 msgid "Order"
 msgstr ""
 
-#: app/i18n_messages.py:58 app/routers/orders.py:295
+#: app/i18n_messages.py:58 app/routers/orders.py:296
 #: app/templates/admin/sla.html:119
 msgid "Customer"
 msgstr ""
@@ -467,56 +467,73 @@ msgstr ""
 msgid "An asset with this code already exists for this client."
 msgstr ""
 
-#: app/routers/customers.py:307
+#: app/routers/attachments.py:142
+msgid "Attachment uploaded."
+msgstr ""
+
+#: app/routers/attachments.py:223
+msgid "Attachment deleted."
+msgstr ""
+
+#: app/routers/customers.py:134
+msgid "Customer created."
+msgstr ""
+
+#: app/routers/customers.py:273 app/routers/customers.py:397
+#: app/routers/products.py:342 app/routers/tenant_admin.py:392
+msgid "Changes saved."
+msgstr ""
+
+#: app/routers/customers.py:313
 msgid "A contact with the same email already exists."
 msgstr ""
 
-#: app/routers/customers.py:377 app/routers/me.py:120
+#: app/routers/customers.py:351
+msgid "Invitation sent."
+msgstr ""
+
+#: app/routers/customers.py:386 app/routers/me.py:121
 #: app/routers/tenant_admin.py:335 app/routers/tenant_admin.py:524
 msgid "Name cannot be empty."
 msgstr ""
 
-#: app/routers/customers.py:388 app/routers/tenant_admin.py:392
-msgid "Changes saved."
-msgstr ""
-
-#: app/routers/customers.py:406
+#: app/routers/customers.py:415
 msgid "Contact disabled."
 msgstr ""
 
-#: app/routers/customers.py:425
+#: app/routers/customers.py:434
 msgid "Contact reactivated."
 msgstr ""
 
-#: app/routers/customers.py:452
+#: app/routers/customers.py:461
 msgid "This contact already has a password; use a password reset instead."
 msgstr ""
 
-#: app/routers/customers.py:468 app/routers/tenant_admin.py:447
+#: app/routers/customers.py:477 app/routers/tenant_admin.py:447
 msgid "Too many invitations sent recently. Try again later."
 msgstr ""
 
-#: app/routers/customers.py:501 app/routers/tenant_admin.py:477
+#: app/routers/customers.py:510 app/routers/tenant_admin.py:477
 msgid "Invitation resent."
 msgstr ""
 
-#: app/routers/me.py:88 app/routers/tenant_admin.py:501
+#: app/routers/me.py:89 app/routers/tenant_admin.py:501
 msgid "Profile saved."
 msgstr ""
 
-#: app/routers/me.py:90
+#: app/routers/me.py:91
 msgid "Password changed. Sign in again with your new password."
 msgstr ""
 
-#: app/routers/me.py:147 app/routers/tenant_admin.py:554
+#: app/routers/me.py:148 app/routers/tenant_admin.py:554
 msgid "New passwords do not match."
 msgstr ""
 
-#: app/routers/orders.py:293
+#: app/routers/orders.py:294
 msgid "Order number"
 msgstr ""
 
-#: app/routers/orders.py:294 app/templates/orders/list.html:87
+#: app/routers/orders.py:295 app/templates/orders/list.html:87
 #: app/templates/platform/admin/dashboard.html:49
 #: app/templates/platform/admin/tenant_edit.html:59
 #: app/templates/platform/admin/tenants.html:23
@@ -525,72 +542,96 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: app/routers/orders.py:296
+#: app/routers/orders.py:297
 msgid "Created at"
 msgstr ""
 
-#: app/routers/orders.py:297
+#: app/routers/orders.py:298
 msgid "Submitted at"
 msgstr ""
 
-#: app/routers/orders.py:298
+#: app/routers/orders.py:299
 msgid "Promised delivery at"
 msgstr ""
 
-#: app/routers/orders.py:299
+#: app/routers/orders.py:300
 msgid "Quoted total"
 msgstr ""
 
-#: app/routers/orders.py:300
+#: app/routers/orders.py:301
 msgid "Currency"
 msgstr ""
 
-#: app/routers/orders.py:301 app/templates/orders/detail.html:79
+#: app/routers/orders.py:302 app/templates/orders/detail.html:79
 #: app/templates/www/_hero_mock.html:61
 msgid "Items"
 msgstr ""
 
-#: app/routers/orders.py:414
+#: app/routers/orders.py:415
 msgid "Choose a client."
 msgstr ""
 
-#: app/routers/orders.py:828
+#: app/routers/orders.py:451
+msgid "Order created."
+msgstr ""
+
+#: app/routers/orders.py:759
+msgid "Item added."
+msgstr ""
+
+#: app/routers/orders.py:831
 msgid "Invalid quantity"
 msgstr ""
 
-#: app/routers/orders.py:838
+#: app/routers/orders.py:841
 msgid "Invalid unit_price"
 msgstr ""
 
-#: app/routers/orders.py:869
+#: app/routers/orders.py:872
 msgid "This order is no longer a draft."
 msgstr ""
 
-#: app/routers/orders.py:971
+#: app/routers/orders.py:945
+msgid "Item deleted."
+msgstr ""
+
+#: app/routers/orders.py:975
 msgid "Unknown status"
 msgstr ""
 
-#: app/routers/orders.py:992
+#: app/routers/orders.py:996
 msgid "Select at least one order."
 msgstr ""
 
-#: app/routers/orders.py:1075
+#: app/routers/orders.py:1079
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr ""
 
-#: app/routers/orders.py:1077
+#: app/routers/orders.py:1081
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr ""
 
-#: app/routers/orders.py:1185
+#: app/routers/orders.py:1187
 #, python-brace-format
 msgid "Status changed to {status}."
 msgstr ""
 
-#: app/routers/products.py:129 app/routers/products.py:305
+#: app/routers/orders.py:1265
+msgid "Comment added."
+msgstr ""
+
+#: app/routers/products.py:135 app/routers/products.py:316
 msgid "A product with this SKU already exists."
+msgstr ""
+
+#: app/routers/products.py:159
+msgid "Product created."
+msgstr ""
+
+#: app/routers/products.py:359
+msgid "Product deleted."
 msgstr ""
 
 #: app/routers/public.py:192
@@ -720,13 +761,13 @@ msgstr ""
 #: app/templates/assets/form.html:17 app/templates/assets/list.html:26
 #: app/templates/orders/detail.html:48 app/templates/orders/form.html:25
 #: app/templates/orders/list.html:85 app/templates/products/form.html:55
-#: app/templates/products/list.html:21 app/templates/www/_hero_mock.html:60
+#: app/templates/products/list.html:22 app/templates/www/_hero_mock.html:60
 msgid "Client"
 msgstr ""
 
 #: app/templates/_palette_results.html:64
 #: app/templates/_palette_results.html:65 app/templates/app_base.html:16
-#: app/templates/products/detail.html:7 app/templates/products/form.html:9
+#: app/templates/products/detail.html:8 app/templates/products/form.html:9
 #: app/templates/products/form.html:13 app/templates/products/list.html:3
 #: app/templates/www/_hero_mock.html:33
 msgid "Catalog"
@@ -745,7 +786,7 @@ msgstr ""
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:7
 #: app/templates/platform/admin/dashboard.html:10
-#: app/templates/products/detail.html:7 app/templates/products/form.html:9
+#: app/templates/products/detail.html:8 app/templates/products/form.html:9
 #: app/templates/products/form.html:13
 msgid "Dashboard"
 msgstr ""
@@ -838,7 +879,7 @@ msgstr ""
 #: app/templates/auth/login.html:39 app/templates/index.html:8
 #: app/templates/index.html:21 app/templates/platform/login.html:3
 #: app/templates/platform/login.html:29 app/templates/platform/signup.html:117
-#: app/templates/www/www_base.html:67
+#: app/templates/www/www_base.html:72
 msgid "Sign in"
 msgstr ""
 
@@ -1219,8 +1260,8 @@ msgstr ""
 #: app/templates/customers/form.html:9
 #: app/templates/platform/admin/tenant_edit.html:10
 #: app/templates/platform/admin/tenants.html:61
-#: app/templates/products/detail.html:26 app/templates/products/form.html:9
-#: app/templates/products/list.html:47
+#: app/templates/products/detail.html:27 app/templates/products/form.html:9
+#: app/templates/products/list.html:48
 msgid "Edit"
 msgstr ""
 
@@ -1281,7 +1322,7 @@ msgid "Location"
 msgstr ""
 
 #: app/templates/assets/detail.html:32 app/templates/assets/form.html:51
-#: app/templates/orders/detail.html:89 app/templates/products/detail.html:48
+#: app/templates/orders/detail.html:89 app/templates/products/detail.html:49
 #: app/templates/products/form.html:43
 msgid "Description"
 msgstr ""
@@ -1351,7 +1392,7 @@ msgid "Code"
 msgstr ""
 
 #: app/templates/assets/form.html:35 app/templates/products/form.html:32
-#: app/templates/products/list.html:23
+#: app/templates/products/list.html:24
 msgid "Unit"
 msgstr ""
 
@@ -1359,7 +1400,7 @@ msgstr ""
 #: app/templates/orders/form.html:17 app/templates/orders/list.html:83
 #: app/templates/platform/admin/dashboard.html:47
 #: app/templates/platform/admin/tenants.html:21
-#: app/templates/products/form.html:38 app/templates/products/list.html:20
+#: app/templates/products/form.html:38 app/templates/products/list.html:21
 #: app/templates/www/cookies.html:29
 msgid "Name"
 msgstr ""
@@ -1810,7 +1851,7 @@ msgid "Saved"
 msgstr ""
 
 #: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:210
-#: app/templates/products/detail.html:33
+#: app/templates/products/detail.html:34
 msgid "Delete"
 msgstr ""
 
@@ -2488,18 +2529,18 @@ msgstr ""
 msgid "No invoices yet."
 msgstr ""
 
-#: app/templates/products/detail.html:19 app/templates/products/form.html:58
-#: app/templates/products/list.html:37
+#: app/templates/products/detail.html:20 app/templates/products/form.html:58
+#: app/templates/products/list.html:38
 msgid "shared"
 msgstr ""
 
-#: app/templates/products/detail.html:29
+#: app/templates/products/detail.html:30
 msgid ""
 "Delete this product? It will be removed from the catalog but historical "
 "orders keep their link."
 msgstr ""
 
-#: app/templates/products/detail.html:42 app/templates/products/form.html:49
+#: app/templates/products/detail.html:43 app/templates/products/form.html:49
 msgid "Default price"
 msgstr ""
 
@@ -2508,29 +2549,29 @@ msgid "Edit product"
 msgstr ""
 
 #: app/templates/products/form.html:5 app/templates/products/form.html:13
-#: app/templates/products/form.html:17 app/templates/products/list.html:10
+#: app/templates/products/form.html:17 app/templates/products/list.html:11
 msgid "New product"
 msgstr ""
 
-#: app/templates/products/list.html:7
+#: app/templates/products/list.html:8
 msgid "Product catalog"
 msgstr ""
 
-#: app/templates/products/list.html:22
+#: app/templates/products/list.html:23
 msgid "Price"
 msgstr ""
 
-#: app/templates/products/list.html:64
+#: app/templates/products/list.html:65
 msgid "Catalog is empty"
 msgstr ""
 
-#: app/templates/products/list.html:67
+#: app/templates/products/list.html:68
 msgid ""
 "The catalog holds items your clients can pick when placing an order (SKU,"
 " name, unit, price). You can also narrow a product to a specific client."
 msgstr ""
 
-#: app/templates/products/list.html:71
+#: app/templates/products/list.html:72
 msgid "Add the first product"
 msgstr ""
 
@@ -2593,7 +2634,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/contact.html:3 app/templates/www/contact.html:12
-#: app/templates/www/www_base.html:64
+#: app/templates/www/www_base.html:69
 msgid "Contact"
 msgstr ""
 
@@ -2683,7 +2724,7 @@ msgid ""
 "replying (one-off, no newsletter)."
 msgstr ""
 
-#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:80
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:85
 msgid "Cookies"
 msgstr ""
 
@@ -2797,7 +2838,7 @@ msgid "Questions about this cookies policy? Write to"
 msgstr ""
 
 #: app/templates/www/features.html:3 app/templates/www/features.html:11
-#: app/templates/www/www_base.html:55
+#: app/templates/www/www_base.html:60
 msgid "Features"
 msgstr ""
 
@@ -3048,7 +3089,7 @@ msgid "Start 30-day trial"
 msgstr ""
 
 #: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
-#: app/templates/www/www_base.html:82
+#: app/templates/www/www_base.html:87
 msgid "Imprint"
 msgstr ""
 
@@ -3403,7 +3444,7 @@ msgid "12–36 month contracts"
 msgstr ""
 
 #: app/templates/www/index.html:278 app/templates/www/pricing.html:3
-#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:58
+#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:63
 msgid "Pricing"
 msgstr ""
 
@@ -3664,14 +3705,14 @@ msgstr ""
 msgid "Up and running in 30 minutes · Data in the EU (Hetzner DE) · Czech support"
 msgstr ""
 
-#: app/templates/www/index.html:469 app/templates/www/www_base.html:40
+#: app/templates/www/index.html:469 app/templates/www/www_base.html:45
 msgid ""
 "Client portal for Czech manufacturing SMEs — orders, drawings, production"
 " status."
 msgstr ""
 
 #: app/templates/www/index.html:477 app/templates/www/index.html:484
-#: app/templates/www/www_base.html:46
+#: app/templates/www/www_base.html:51
 msgid "30-day free trial, no credit card required"
 msgstr ""
 
@@ -4224,7 +4265,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
-#: app/templates/www/www_base.html:61
+#: app/templates/www/www_base.html:66
 msgid "Self-hosted"
 msgstr ""
 
@@ -4772,15 +4813,15 @@ msgid ""
 "card."
 msgstr ""
 
-#: app/templates/www/www_base.html:70
+#: app/templates/www/www_base.html:75
 msgid "Try free"
 msgstr ""
 
-#: app/templates/www/www_base.html:76
+#: app/templates/www/www_base.html:81
 msgid "Terms"
 msgstr ""
 
-#: app/templates/www/www_base.html:78
+#: app/templates/www/www_base.html:83
 msgid "Privacy"
 msgstr ""
 

@@ -3,6 +3,7 @@
 {% block title %}Assoluto — {{ _('Catalog') }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
+    {% include "_flash.html" %}
     <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('Product catalog') }}</h1>
         <a href="/app/products/new"

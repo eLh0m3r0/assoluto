@@ -135,7 +135,7 @@ async def test_contact_uploads_image_and_thumbnail_is_generated(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "S přílohou"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     # Upload a PNG.
     png = _png_bytes()
@@ -198,7 +198,7 @@ async def test_oversize_upload_is_rejected(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "Oversize"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     big = b"x" * (2 * 1024 * 1024)
     upload_resp = await tenant_client.post(
@@ -219,7 +219,7 @@ async def test_cross_customer_attachment_is_hidden(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "ACME only"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
     upload_resp = await tenant_client.post(
         f"/app/orders/{order_id}/attachments",
         files={"file": ("a.png", _png_bytes(), "image/png")},
@@ -280,7 +280,7 @@ async def test_generate_thumbnail_directly(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "Direct thumb"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     upload_resp = await tenant_client.post(
         f"/app/orders/{order_id}/attachments",
@@ -323,7 +323,7 @@ async def test_contact_cannot_delete_after_submit(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "Locked"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     await tenant_client.post(
         f"/app/orders/{order_id}/attachments",

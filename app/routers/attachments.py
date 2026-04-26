@@ -9,6 +9,7 @@ migration.
 
 from __future__ import annotations
 
+from urllib.parse import quote
 from uuid import UUID
 
 from fastapi import (
@@ -24,6 +25,7 @@ from fastapi import (
 from fastapi.responses import RedirectResponse, Response
 
 from app.deps import Principal, get_db, require_login
+from app.i18n import t as _t
 from app.security.csrf import verify_csrf
 from app.services.attachment_service import (
     AttachmentError,
@@ -32,6 +34,7 @@ from app.services.attachment_service import (
     delete_attachment,
     get_attachment,
 )
+from app.services.audit_service import actor_from_principal
 from app.services.order_service import (
     ActorRef,
     OrderAccessDenied,
@@ -115,6 +118,7 @@ async def upload_attachment(
             order_item_id=item_uuid,
             uploaded_by_user_id=principal.id if principal.is_staff else None,
             uploaded_by_contact_id=principal.id if not principal.is_staff else None,
+            audit_actor=actor_from_principal(principal),
         )
     except AttachmentTooLarge as exc:
         raise HTTPException(status_code=413, detail=str(exc)) from None
@@ -137,7 +141,8 @@ async def upload_attachment(
 
     background_tasks.add_task(generate_thumbnail, att_id, tenant_id)
 
-    return RedirectResponse(url=f"/app/orders/{order.id}", status_code=303)
+    notice = quote(_t(request, "Attachment uploaded."))
+    return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)
 
 
 @router.get("/attachments/{attachment_id}/download")
@@ -217,4 +222,5 @@ async def delete_attachment_route(
         pass
 
     await delete_attachment(db, attachment)
-    return RedirectResponse(url=f"/app/orders/{order.id}", status_code=303)
+    notice = quote(_t(request, "Attachment deleted."))
+    return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)

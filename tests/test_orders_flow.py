@@ -95,7 +95,7 @@ async def test_full_order_lifecycle(tenant_client: AsyncClient, owner_engine, de
     )
     assert create_resp.status_code == 303
     order_url = create_resp.headers["location"]
-    order_id = UUID(order_url.rsplit("/", 1)[-1])
+    order_id = UUID(order_url.rsplit("/", 1)[-1].split("?", 1)[0])
 
     # Order number should be "<year>-000001"
     order = await _order_row(owner_engine, order_id)
@@ -231,7 +231,7 @@ async def test_contact_cannot_see_other_customers_orders(
         data={"title": "Jen pro ACME"},
         follow_redirects=False,
     )
-    acme_order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    acme_order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     # Eva logs in and should not see Jan's order, and should 404 on direct access.
     await _logout(tenant_client)
@@ -254,7 +254,7 @@ async def test_staff_internal_comment_hidden_from_contact(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "S interním komentem"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     await _logout(tenant_client)
     await _login(tenant_client, "staff@4mex.cz", "staffpass")
@@ -316,7 +316,7 @@ async def test_staff_can_cancel_order_with_reason(
         follow_redirects=False,
     )
     assert create_resp.status_code == 303
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     cancel = await tenant_client.post(
         f"/app/orders/{order_id}/transitions/cancelled", follow_redirects=False

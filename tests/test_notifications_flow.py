@@ -82,7 +82,7 @@ async def test_submitting_order_emails_tenant_admin(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "Nová zakázka"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
     await tenant_client.post(
         f"/app/orders/{order_id}/items",
         data={"description": "Řezání", "quantity": "5", "unit": "ks"},
@@ -112,7 +112,7 @@ async def test_staff_public_comment_emails_contact(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "Notif test"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     # Swap to staff, install capture, add a public comment.
     await tenant_client.post("/auth/logout", follow_redirects=False)
@@ -142,7 +142,7 @@ async def test_internal_comment_does_not_trigger_notification(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "Silent comment"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     await tenant_client.post("/auth/logout", follow_redirects=False)
     tenant_client.cookies.clear()
@@ -169,7 +169,7 @@ async def test_contact_comment_emails_tenant_admins(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "Contact commented"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     resp = await tenant_client.post(
         f"/app/orders/{order_id}/comments",
@@ -193,7 +193,7 @@ async def test_staff_quoting_emails_customer_contacts(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "Se cenou"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
     await tenant_client.post(
         f"/app/orders/{order_id}/items",
         data={"description": "A", "quantity": "1", "unit": "ks"},

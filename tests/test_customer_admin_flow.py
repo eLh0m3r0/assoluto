@@ -80,7 +80,7 @@ async def test_full_customer_and_invite_flow(
         follow_redirects=False,
     )
     assert create_resp.status_code == 303
-    customer_url = create_resp.headers["location"]
+    customer_url = create_resp.headers["location"].split("?", 1)[0]
     assert customer_url.startswith("/app/customers/")
 
     # 4) Customer list now has 1 entry.

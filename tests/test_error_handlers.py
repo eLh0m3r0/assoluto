@@ -133,7 +133,7 @@ async def test_asset_movement_accepts_reference_order_id(
         data={"title": "Linked order"},
         follow_redirects=False,
     )
-    order_id = order_resp.headers["location"].rsplit("/", 1)[-1]
+    order_id = order_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0]
 
     # Switch back to staff, create asset, add movement referencing the order.
     await tenant_client.post("/auth/logout", follow_redirects=False)
@@ -161,7 +161,7 @@ async def test_asset_movement_accepts_reference_order_id(
         },
         follow_redirects=False,
     )
-    asset_id = create.headers["location"].rsplit("/", 1)[-1]
+    asset_id = create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0]
 
     mv = await tenant_client.post(
         f"/app/assets/{asset_id}/movements",

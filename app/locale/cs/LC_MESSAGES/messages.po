@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-26 11:35+0200\n"
+"POT-Creation-Date: 2026-04-26 12:20+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -107,7 +107,7 @@ msgstr "Všechny entity"
 msgid "Order"
 msgstr "Objednávka"
 
-#: app/i18n_messages.py:58 app/routers/orders.py:295
+#: app/i18n_messages.py:58 app/routers/orders.py:296
 #: app/templates/admin/sla.html:119
 msgid "Customer"
 msgstr "Klient"
@@ -495,56 +495,73 @@ msgstr ""
 msgid "An asset with this code already exists for this client."
 msgstr "Majetek s tímto kódem už u klienta existuje."
 
-#: app/routers/customers.py:307
+#: app/routers/attachments.py:142
+msgid "Attachment uploaded."
+msgstr "Příloha nahrána."
+
+#: app/routers/attachments.py:223
+msgid "Attachment deleted."
+msgstr "Příloha smazána."
+
+#: app/routers/customers.py:134
+msgid "Customer created."
+msgstr "Klient vytvořen."
+
+#: app/routers/customers.py:273 app/routers/customers.py:397
+#: app/routers/products.py:342 app/routers/tenant_admin.py:392
+msgid "Changes saved."
+msgstr "Změny uloženy."
+
+#: app/routers/customers.py:313
 msgid "A contact with the same email already exists."
 msgstr "Kontakt se stejným e-mailem už existuje."
 
-#: app/routers/customers.py:377 app/routers/me.py:120
+#: app/routers/customers.py:351
+msgid "Invitation sent."
+msgstr "Pozvánka odeslána."
+
+#: app/routers/customers.py:386 app/routers/me.py:121
 #: app/routers/tenant_admin.py:335 app/routers/tenant_admin.py:524
 msgid "Name cannot be empty."
 msgstr "Jméno nesmí být prázdné."
 
-#: app/routers/customers.py:388 app/routers/tenant_admin.py:392
-msgid "Changes saved."
-msgstr "Změny uloženy."
-
-#: app/routers/customers.py:406
+#: app/routers/customers.py:415
 msgid "Contact disabled."
 msgstr "Kontakt deaktivován."
 
-#: app/routers/customers.py:425
+#: app/routers/customers.py:434
 msgid "Contact reactivated."
 msgstr "Kontakt reaktivován."
 
-#: app/routers/customers.py:452
+#: app/routers/customers.py:461
 msgid "This contact already has a password; use a password reset instead."
 msgstr "Kontakt už má heslo; použijte reset hesla."
 
-#: app/routers/customers.py:468 app/routers/tenant_admin.py:447
+#: app/routers/customers.py:477 app/routers/tenant_admin.py:447
 msgid "Too many invitations sent recently. Try again later."
 msgstr "V poslední době bylo odesláno příliš mnoho pozvánek. Zkuste to později."
 
-#: app/routers/customers.py:501 app/routers/tenant_admin.py:477
+#: app/routers/customers.py:510 app/routers/tenant_admin.py:477
 msgid "Invitation resent."
 msgstr "Pozvánka odeslána znovu."
 
-#: app/routers/me.py:88 app/routers/tenant_admin.py:501
+#: app/routers/me.py:89 app/routers/tenant_admin.py:501
 msgid "Profile saved."
 msgstr "Profil uložen."
 
-#: app/routers/me.py:90
+#: app/routers/me.py:91
 msgid "Password changed. Sign in again with your new password."
 msgstr "Heslo bylo změněno. Přihlaste se znovu novým heslem."
 
-#: app/routers/me.py:147 app/routers/tenant_admin.py:554
+#: app/routers/me.py:148 app/routers/tenant_admin.py:554
 msgid "New passwords do not match."
 msgstr "Nová hesla se neshodují."
 
-#: app/routers/orders.py:293
+#: app/routers/orders.py:294
 msgid "Order number"
 msgstr "Číslo objednávky"
 
-#: app/routers/orders.py:294 app/templates/orders/list.html:87
+#: app/routers/orders.py:295 app/templates/orders/list.html:87
 #: app/templates/platform/admin/dashboard.html:49
 #: app/templates/platform/admin/tenant_edit.html:59
 #: app/templates/platform/admin/tenants.html:23
@@ -553,74 +570,98 @@ msgstr "Číslo objednávky"
 msgid "Status"
 msgstr "Stav"
 
-#: app/routers/orders.py:296
+#: app/routers/orders.py:297
 msgid "Created at"
 msgstr "Vytvořeno"
 
-#: app/routers/orders.py:297
+#: app/routers/orders.py:298
 msgid "Submitted at"
 msgstr "Odesláno"
 
-#: app/routers/orders.py:298
+#: app/routers/orders.py:299
 msgid "Promised delivery at"
 msgstr "Slíbené dodání"
 
-#: app/routers/orders.py:299
+#: app/routers/orders.py:300
 msgid "Quoted total"
 msgstr "Cena dle nabídky"
 
-#: app/routers/orders.py:300
+#: app/routers/orders.py:301
 msgid "Currency"
 msgstr "Měna"
 
-#: app/routers/orders.py:301 app/templates/orders/detail.html:79
+#: app/routers/orders.py:302 app/templates/orders/detail.html:79
 #: app/templates/www/_hero_mock.html:61
 msgid "Items"
 msgstr "Položky"
 
-#: app/routers/orders.py:414
+#: app/routers/orders.py:415
 msgid "Choose a client."
 msgstr "Vyberte klienta."
 
-#: app/routers/orders.py:828
+#: app/routers/orders.py:451
+msgid "Order created."
+msgstr "Objednávka vytvořena."
+
+#: app/routers/orders.py:759
+msgid "Item added."
+msgstr "Položka přidána."
+
+#: app/routers/orders.py:831
 msgid "Invalid quantity"
 msgstr "Neplatné množství"
 
-#: app/routers/orders.py:838
+#: app/routers/orders.py:841
 msgid "Invalid unit_price"
 msgstr "Neplatná jednotková cena"
 
-#: app/routers/orders.py:869
+#: app/routers/orders.py:872
 msgid "This order is no longer a draft."
 msgstr "Tato objednávka už není koncept."
 
-#: app/routers/orders.py:971
+#: app/routers/orders.py:945
+msgid "Item deleted."
+msgstr "Položka smazána."
+
+#: app/routers/orders.py:975
 msgid "Unknown status"
 msgstr "Neznámý stav"
 
-#: app/routers/orders.py:992
+#: app/routers/orders.py:996
 msgid "Select at least one order."
 msgstr "Vyberte alespoň jednu objednávku."
 
-#: app/routers/orders.py:1075
+#: app/routers/orders.py:1079
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr "{count} objednávek převedeno."
 
-#: app/routers/orders.py:1077
+#: app/routers/orders.py:1081
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr "{ok} převedeno, {failed} selhalo."
 
-#: app/routers/orders.py:1185
+#: app/routers/orders.py:1187
 #, python-brace-format
 msgid "Status changed to {status}."
 msgstr "Stav změněn na {status}."
 
+#: app/routers/orders.py:1265
+msgid "Comment added."
+msgstr "Komentář přidán."
+
 # --- round-5: server errors, logo polish, breadcrumbs ---
-#: app/routers/products.py:129 app/routers/products.py:305
+#: app/routers/products.py:135 app/routers/products.py:316
 msgid "A product with this SKU already exists."
 msgstr "Produkt s tímto SKU už existuje."
+
+#: app/routers/products.py:159
+msgid "Product created."
+msgstr "Produkt vytvořen."
+
+#: app/routers/products.py:359
+msgid "Product deleted."
+msgstr "Produkt smazán."
 
 #: app/routers/public.py:192
 msgid "Password changed. Sign in with your new password."
@@ -754,13 +795,13 @@ msgstr "Klienti"
 #: app/templates/assets/form.html:17 app/templates/assets/list.html:26
 #: app/templates/orders/detail.html:48 app/templates/orders/form.html:25
 #: app/templates/orders/list.html:85 app/templates/products/form.html:55
-#: app/templates/products/list.html:21 app/templates/www/_hero_mock.html:60
+#: app/templates/products/list.html:22 app/templates/www/_hero_mock.html:60
 msgid "Client"
 msgstr "Klient"
 
 #: app/templates/_palette_results.html:64
 #: app/templates/_palette_results.html:65 app/templates/app_base.html:16
-#: app/templates/products/detail.html:7 app/templates/products/form.html:9
+#: app/templates/products/detail.html:8 app/templates/products/form.html:9
 #: app/templates/products/form.html:13 app/templates/products/list.html:3
 #: app/templates/www/_hero_mock.html:33
 msgid "Catalog"
@@ -779,7 +820,7 @@ msgstr "Katalog"
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:7
 #: app/templates/platform/admin/dashboard.html:10
-#: app/templates/products/detail.html:7 app/templates/products/form.html:9
+#: app/templates/products/detail.html:8 app/templates/products/form.html:9
 #: app/templates/products/form.html:13
 msgid "Dashboard"
 msgstr "Přehled"
@@ -873,7 +914,7 @@ msgstr "Motiv: tmavý"
 #: app/templates/auth/login.html:39 app/templates/index.html:8
 #: app/templates/index.html:21 app/templates/platform/login.html:3
 #: app/templates/platform/login.html:29 app/templates/platform/signup.html:117
-#: app/templates/www/www_base.html:67
+#: app/templates/www/www_base.html:72
 msgid "Sign in"
 msgstr "Přihlásit se"
 
@@ -1273,8 +1314,8 @@ msgstr "aktivní"
 #: app/templates/customers/form.html:9
 #: app/templates/platform/admin/tenant_edit.html:10
 #: app/templates/platform/admin/tenants.html:61
-#: app/templates/products/detail.html:26 app/templates/products/form.html:9
-#: app/templates/products/list.html:47
+#: app/templates/products/detail.html:27 app/templates/products/form.html:9
+#: app/templates/products/list.html:48
 msgid "Edit"
 msgstr "Upravit"
 
@@ -1335,7 +1376,7 @@ msgid "Location"
 msgstr "Lokalita"
 
 #: app/templates/assets/detail.html:32 app/templates/assets/form.html:51
-#: app/templates/orders/detail.html:89 app/templates/products/detail.html:48
+#: app/templates/orders/detail.html:89 app/templates/products/detail.html:49
 #: app/templates/products/form.html:43
 msgid "Description"
 msgstr "Popis"
@@ -1405,7 +1446,7 @@ msgid "Code"
 msgstr "Kód"
 
 #: app/templates/assets/form.html:35 app/templates/products/form.html:32
-#: app/templates/products/list.html:23
+#: app/templates/products/list.html:24
 msgid "Unit"
 msgstr "Jednotka"
 
@@ -1413,7 +1454,7 @@ msgstr "Jednotka"
 #: app/templates/orders/form.html:17 app/templates/orders/list.html:83
 #: app/templates/platform/admin/dashboard.html:47
 #: app/templates/platform/admin/tenants.html:21
-#: app/templates/products/form.html:38 app/templates/products/list.html:20
+#: app/templates/products/form.html:38 app/templates/products/list.html:21
 #: app/templates/www/cookies.html:29
 msgid "Name"
 msgstr "Název"
@@ -1885,7 +1926,7 @@ msgid "Saved"
 msgstr "Uloženo"
 
 #: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:210
-#: app/templates/products/detail.html:33
+#: app/templates/products/detail.html:34
 msgid "Delete"
 msgstr "Smazat"
 
@@ -2587,12 +2628,12 @@ msgstr "Stripe stvrzenka"
 msgid "No invoices yet."
 msgstr "Zatím žádné faktury."
 
-#: app/templates/products/detail.html:19 app/templates/products/form.html:58
-#: app/templates/products/list.html:37
+#: app/templates/products/detail.html:20 app/templates/products/form.html:58
+#: app/templates/products/list.html:38
 msgid "shared"
 msgstr "sdílené"
 
-#: app/templates/products/detail.html:29
+#: app/templates/products/detail.html:30
 msgid ""
 "Delete this product? It will be removed from the catalog but historical "
 "orders keep their link."
@@ -2600,7 +2641,7 @@ msgstr ""
 "Smazat tento produkt? Z katalogu zmizí, ale v historických zakázkách "
 "zůstane odkaz zachován."
 
-#: app/templates/products/detail.html:42 app/templates/products/form.html:49
+#: app/templates/products/detail.html:43 app/templates/products/form.html:49
 msgid "Default price"
 msgstr "Výchozí cena"
 
@@ -2609,23 +2650,23 @@ msgid "Edit product"
 msgstr "Upravit produkt"
 
 #: app/templates/products/form.html:5 app/templates/products/form.html:13
-#: app/templates/products/form.html:17 app/templates/products/list.html:10
+#: app/templates/products/form.html:17 app/templates/products/list.html:11
 msgid "New product"
 msgstr "Nový produkt"
 
-#: app/templates/products/list.html:7
+#: app/templates/products/list.html:8
 msgid "Product catalog"
 msgstr "Katalog produktů"
 
-#: app/templates/products/list.html:22
+#: app/templates/products/list.html:23
 msgid "Price"
 msgstr "Cena"
 
-#: app/templates/products/list.html:64
+#: app/templates/products/list.html:65
 msgid "Catalog is empty"
 msgstr "Katalog je prázdný."
 
-#: app/templates/products/list.html:67
+#: app/templates/products/list.html:68
 msgid ""
 "The catalog holds items your clients can pick when placing an order (SKU,"
 " name, unit, price). You can also narrow a product to a specific client."
@@ -2634,7 +2675,7 @@ msgstr ""
 "zakázky (SKU, název, jednotka, cena). Produkt lze omezit i pro "
 "konkrétního zákazníka."
 
-#: app/templates/products/list.html:71
+#: app/templates/products/list.html:72
 msgid "Add the first product"
 msgstr "Přidat první produkt"
 
@@ -2697,7 +2738,7 @@ msgid ""
 msgstr "„Nemůžeme posunout termín na 29. 4.? Právě nám volali z lakovny…\""
 
 #: app/templates/www/contact.html:3 app/templates/www/contact.html:12
-#: app/templates/www/www_base.html:64
+#: app/templates/www/www_base.html:69
 msgid "Contact"
 msgstr "Kontakt"
 
@@ -2799,7 +2840,7 @@ msgstr ""
 "Odesláním souhlasíte se zpracováním údajů za účelem odpovědi "
 "(jednorázově, bez newsletteru)."
 
-#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:80
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:85
 msgid "Cookies"
 msgstr "Cookies"
 
@@ -2931,7 +2972,7 @@ msgid "Questions about this cookies policy? Write to"
 msgstr "Dotazy k zásadám cookies? Napište nám na"
 
 #: app/templates/www/features.html:3 app/templates/www/features.html:11
-#: app/templates/www/www_base.html:55
+#: app/templates/www/www_base.html:60
 msgid "Features"
 msgstr "Funkce"
 
@@ -3212,7 +3253,7 @@ msgid "Start 30-day trial"
 msgstr "Spustit 30denní zkušební období"
 
 #: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
-#: app/templates/www/www_base.html:82
+#: app/templates/www/www_base.html:87
 msgid "Imprint"
 msgstr "Impressum"
 
@@ -3607,7 +3648,7 @@ msgid "12–36 month contracts"
 msgstr "smlouvy na 12–36 měsíců"
 
 #: app/templates/www/index.html:278 app/templates/www/pricing.html:3
-#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:58
+#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:63
 msgid "Pricing"
 msgstr "Ceník"
 
@@ -3921,14 +3962,14 @@ msgstr "Nebo napište / zavolejte"
 msgid "Up and running in 30 minutes · Data in the EU (Hetzner DE) · Czech support"
 msgstr "Spustíte do 30 minut · Data v EU (Hetzner DE) · Česká podpora"
 
-#: app/templates/www/index.html:469 app/templates/www/www_base.html:40
+#: app/templates/www/index.html:469 app/templates/www/www_base.html:45
 msgid ""
 "Client portal for Czech manufacturing SMEs — orders, drawings, production"
 " status."
 msgstr "Zákaznický portál pro výrobní firmy v ČR"
 
 #: app/templates/www/index.html:477 app/templates/www/index.html:484
-#: app/templates/www/www_base.html:46
+#: app/templates/www/www_base.html:51
 msgid "30-day free trial, no credit card required"
 msgstr "30denní zkušební verze, bez karty"
 
@@ -4602,7 +4643,7 @@ msgstr ""
 "je identifikována číslem verze a datem účinnosti v záhlaví stránky."
 
 #: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
-#: app/templates/www/www_base.html:61
+#: app/templates/www/www_base.html:66
 msgid "Self-hosted"
 msgstr "Vlastní hosting"
 
@@ -5329,15 +5370,15 @@ msgstr ""
 "— všechno na jednom místě. Nahraďte e-maily a Excel. 30 dní zdarma, bez "
 "karty."
 
-#: app/templates/www/www_base.html:70
+#: app/templates/www/www_base.html:75
 msgid "Try free"
 msgstr "Vyzkoušet"
 
-#: app/templates/www/www_base.html:76
+#: app/templates/www/www_base.html:81
 msgid "Terms"
 msgstr "Podmínky"
 
-#: app/templates/www/www_base.html:78
+#: app/templates/www/www_base.html:83
 msgid "Privacy"
 msgstr "Soukromí"
 

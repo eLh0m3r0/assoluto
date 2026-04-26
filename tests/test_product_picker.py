@@ -94,7 +94,7 @@ async def test_detail_page_exposes_shared_and_private_products(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "Pick demo"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     detail = await tenant_client.get(f"/app/orders/{order_id}")
     assert detail.status_code == 200
@@ -114,7 +114,7 @@ async def test_add_item_with_product_id_inherits_defaults(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "Price demo"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     add_resp = await tenant_client.post(
         f"/app/orders/{order_id}/items",
@@ -152,7 +152,7 @@ async def test_add_free_text_item_still_works(
     create_resp = await tenant_client.post(
         "/app/orders", data={"title": "Free text"}, follow_redirects=False
     )
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     add_resp = await tenant_client.post(
         f"/app/orders/{order_id}/items",

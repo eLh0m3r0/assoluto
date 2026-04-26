@@ -543,3 +543,21 @@ async def reset_password_with_token(
     if isinstance(row, CustomerContact) and row.accepted_at is None:
         row.accepted_at = datetime.now(UTC)
     await db.flush()
+
+    # Audit row — symmetric with auth.login (commit 3caefe3). Logged
+    # under the *target* principal as actor; the reset is a self-service
+    # flow, even though the token landed via email rather than via a
+    # signed-in session. Pass tenant_id explicitly because the password
+    # reset endpoint can be hit before the tenant context is set on the
+    # session (the function is also called from unit tests with a fresh
+    # session, no app.tenant_id GUC).
+    label = getattr(row, "email", None) or str(principal_id)
+    await audit_service.record(
+        db,
+        action="auth.password_reset",
+        entity_type=principal_type,
+        entity_id=principal_id,
+        entity_label=label,
+        actor=ActorInfo(type=principal_type, id=principal_id, label=label),
+        tenant_id=tenant_id,
+    )

@@ -131,7 +131,8 @@ async def customers_create(
         )
         return HTMLResponse(html, status_code=400)
 
-    return RedirectResponse(url=f"/app/customers/{customer.id}", status_code=303)
+    notice = quote(_t(request, "Customer created."))
+    return RedirectResponse(url=f"/app/customers/{customer.id}?notice={notice}", status_code=303)
 
 
 @router.get("/customers/{customer_id}", response_class=HTMLResponse)
@@ -267,7 +268,8 @@ async def customers_update(
         )
         return HTMLResponse(html, status_code=400)
 
-    return RedirectResponse(url=f"/app/customers/{customer.id}", status_code=303)
+    notice = quote(_t(request, "Changes saved."))
+    return RedirectResponse(url=f"/app/customers/{customer.id}?notice={notice}", status_code=303)
 
 
 @router.post("/customers/{customer_id}/contacts", response_class=HTMLResponse)
@@ -342,7 +344,8 @@ async def customers_invite_contact(
         locale=locale,
     )
 
-    return RedirectResponse(url=f"/app/customers/{customer.id}", status_code=303)
+    notice = quote(_t(request, "Invitation sent."))
+    return RedirectResponse(url=f"/app/customers/{customer.id}?notice={notice}", status_code=303)
 
 
 async def _get_contact(db: AsyncSession, *, customer_id: UUID, contact_id: UUID) -> CustomerContact:

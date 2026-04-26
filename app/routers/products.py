@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
+from urllib.parse import quote
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
@@ -11,6 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.deps import Principal, get_db, require_tenant_staff
+from app.i18n import t as _t
 from app.security.csrf import verify_csrf
 from app.services.audit_service import actor_from_principal
 from app.services.customer_service import list_customers
@@ -42,6 +44,8 @@ def _tenant(request: Request):
 @router.get("/products", response_class=HTMLResponse)
 async def products_index(
     request: Request,
+    notice: str | None = None,
+    error: str | None = None,
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
@@ -56,6 +60,8 @@ async def products_index(
             "tenant": _tenant(request),
             "products": products,
             "customer_by_id": customer_by_id,
+            "notice": notice,
+            "error": error,
         },
     )
     return HTMLResponse(html)
@@ -122,8 +128,6 @@ async def products_create(
             audit_actor=actor_from_principal(principal),
         )
     except (ProductError, IntegrityError) as exc:
-        from app.i18n import t as _t
-
         customers = await list_customers(db)
         if isinstance(exc, (DuplicateProductSku, IntegrityError)):
             error = _t(request, "A product with this SKU already exists.")
@@ -150,7 +154,8 @@ async def products_create(
         )
         return HTMLResponse(html, status_code=400)
 
-    return RedirectResponse(url="/app/products", status_code=303)
+    notice = quote(_t(request, "Product created."))
+    return RedirectResponse(url=f"/app/products?notice={notice}", status_code=303)
 
 
 @router.get("/products/search")
@@ -197,6 +202,8 @@ async def products_search(
 async def products_detail(
     product_id: UUID,
     request: Request,
+    notice: str | None = None,
+    error: str | None = None,
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
@@ -213,6 +220,8 @@ async def products_detail(
             "tenant": _tenant(request),
             "product": product,
             "customer_by_id": customer_by_id,
+            "notice": notice,
+            "error": error,
         },
     )
     return HTMLResponse(html)
@@ -298,8 +307,6 @@ async def products_update(
             audit_actor=actor_from_principal(principal),
         )
     except (ProductError, IntegrityError) as exc:
-        from app.i18n import t as _t
-
         customers = await list_customers(db)
         error = (
             _t(request, "A product with this SKU already exists.")
@@ -328,7 +335,8 @@ async def products_update(
         )
         return HTMLResponse(html, status_code=400)
 
-    return RedirectResponse(url=f"/app/products/{product.id}", status_code=303)
+    notice = quote(_t(request, "Changes saved."))
+    return RedirectResponse(url=f"/app/products/{product.id}?notice={notice}", status_code=303)
 
 
 @router.post("/products/{product_id}/delete", response_class=HTMLResponse)
@@ -342,4 +350,5 @@ async def products_delete(
     if product is None or not product.is_active:
         raise HTTPException(status_code=404, detail="Product not found")
     await deactivate_product(db, product)
-    return RedirectResponse(url="/app/products", status_code=303)
+    notice = quote(_t(request, "Product deleted."))
+    return RedirectResponse(url=f"/app/products?notice={notice}", status_code=303)

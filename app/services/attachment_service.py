@@ -11,6 +11,8 @@ from app.models.attachment import OrderAttachment
 from app.models.enums import AttachmentKind
 from app.models.order import Order
 from app.models.tenant import Tenant
+from app.services import audit_service
+from app.services.audit_service import ActorInfo
 
 
 class AttachmentError(Exception):
@@ -82,6 +84,7 @@ async def create_attachment_row(
     order_item_id: UUID | None = None,
     uploaded_by_user_id: UUID | None = None,
     uploaded_by_contact_id: UUID | None = None,
+    audit_actor: ActorInfo | None = None,
 ) -> OrderAttachment:
     """Insert an OrderAttachment row BEFORE the upload occurs.
 
@@ -134,6 +137,24 @@ async def create_attachment_row(
     )
     db.add(attachment)
     await db.flush()
+
+    # Audit row — see commit 3caefe3 for the auth.login pattern.
+    # Skip silently if no actor (system-driven uploads aren't a thing
+    # today, but the parameter is optional for forward-compat).
+    if audit_actor is not None:
+        await audit_service.record(
+            db,
+            action="attachment.upload",
+            entity_type="attachment",
+            entity_id=attachment.id,
+            entity_label=attachment.filename,
+            actor=audit_actor,
+            after={
+                "order_id": str(order.id),
+                "size_bytes": size_bytes,
+                "content_type": normalized_ct,
+            },
+        )
     return attachment
 
 

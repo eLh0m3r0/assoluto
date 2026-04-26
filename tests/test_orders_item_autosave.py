@@ -97,7 +97,7 @@ async def _create_draft_with_item(
         follow_redirects=False,
     )
     assert create.status_code == 303, create.text
-    order_id = UUID(create.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     add = await client.post(
         f"/app/orders/{order_id}/items",

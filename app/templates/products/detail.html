@@ -3,6 +3,7 @@
 {% block title %}Assoluto — {{ product.name }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
+    {% include "_flash.html" %}
     <div class="mb-6">
         {% with items=[(_('Dashboard'), '/app'), (_('Catalog'), '/app/products'), (product.name, None)] %}
             {% include "_breadcrumbs.html" %}

@@ -149,7 +149,7 @@ async def test_issue_beyond_stock_is_rejected(
         },
         follow_redirects=False,
     )
-    asset_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    asset_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     # receive 5
     await tenant_client.post(
@@ -227,7 +227,7 @@ async def test_contact_cannot_create_or_add_movements(
         },
         follow_redirects=False,
     )
-    asset_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    asset_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     # Jan tries to create + post movements -> 403.
     await _logout(tenant_client)

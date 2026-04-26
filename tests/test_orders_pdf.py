@@ -184,7 +184,7 @@ async def _create_order_as_jan(client: AsyncClient) -> UUID:
         follow_redirects=False,
     )
     assert create_resp.status_code == 303
-    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1])
+    order_id = UUID(create_resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
 
     # Add a couple of items so the PDF exercises the table branch.
     for desc, qty, unit, price in [
