@@ -189,10 +189,7 @@ async def cancel_subscription(
         subscription.cancel_at_period_end = False
         # Pin period_end to the natural end of the trial when one exists
         # and is still in the future; otherwise start the grace from now.
-        if (
-            subscription.current_period_end is None
-            or subscription.current_period_end < now
-        ):
+        if subscription.current_period_end is None or subscription.current_period_end < now:
             subscription.current_period_end = now
         access_ends_at = subscription.current_period_end + timedelta(days=CANCEL_GRACE_DAYS)
         await db.flush()

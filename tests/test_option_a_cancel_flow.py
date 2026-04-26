@@ -56,9 +56,7 @@ async def _seed_tenant_with_subscription(
         )
         session.add(tenant)
         await session.flush()
-        starter = (
-            await session.execute(select(Plan).where(Plan.code == "starter"))
-        ).scalar_one()
+        starter = (await session.execute(select(Plan).where(Plan.code == "starter"))).scalar_one()
         sub = Subscription(
             tenant_id=tenant.id,
             plan_id=starter.id,
@@ -67,9 +65,7 @@ async def _seed_tenant_with_subscription(
         )
         session.add(sub)
     async with sm() as session:
-        tenant = (
-            await session.execute(select(Tenant).where(Tenant.slug == slug))
-        ).scalar_one()
+        tenant = (await session.execute(select(Tenant).where(Tenant.slug == slug))).scalar_one()
         sub = (
             await session.execute(select(Subscription).where(Subscription.tenant_id == tenant.id))
         ).scalar_one()
@@ -99,9 +95,7 @@ async def test_cancel_subscription_demo_flips_locally(owner_engine, wipe_db) -> 
     assert outcome == "flipped"
     assert access_ends_at is not None
     # access_ends_at == period_end + grace; period_end was stamped to now.
-    assert access_ends_at - datetime.now(UTC) <= timedelta(
-        days=CANCEL_GRACE_DAYS, hours=1
-    )
+    assert access_ends_at - datetime.now(UTC) <= timedelta(days=CANCEL_GRACE_DAYS, hours=1)
 
     async with sm() as session:
         sub_fresh = (
@@ -114,9 +108,7 @@ async def test_cancel_subscription_demo_flips_locally(owner_engine, wipe_db) -> 
         assert sub_fresh.plan_id == original_plan_id
 
 
-async def test_cancel_subscription_preserves_existing_period_end(
-    owner_engine, wipe_db
-) -> None:
+async def test_cancel_subscription_preserves_existing_period_end(owner_engine, wipe_db) -> None:
     """If current_period_end is already set in the future (paid period
     not yet over), don't overwrite it — the user paid for it, they get
     to keep it. Grace runs from that natural period_end.
@@ -198,9 +190,7 @@ async def test_enforce_canceled_subscriptions_deactivates_after_grace(
     assert deactivated == 1
 
     async with sm() as session:
-        t = (
-            await session.execute(select(Tenant).where(Tenant.id == tenant.id))
-        ).scalar_one()
+        t = (await session.execute(select(Tenant).where(Tenant.id == tenant.id))).scalar_one()
         assert t.is_active is False
         u = (
             await session.execute(select(User).where(User.email == "user@enforce-cut.cz"))
@@ -214,9 +204,7 @@ async def test_enforce_canceled_subscriptions_deactivates_after_grace(
         assert c.session_version >= 1
 
 
-async def test_enforce_canceled_subscriptions_respects_grace(
-    owner_engine, wipe_db
-) -> None:
+async def test_enforce_canceled_subscriptions_respects_grace(owner_engine, wipe_db) -> None:
     """A canceled subscription whose grace has NOT expired (period_end
     in the recent past, less than CANCEL_GRACE_DAYS ago) is left alone.
     """
@@ -230,9 +218,7 @@ async def test_enforce_canceled_subscriptions_respects_grace(
 
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session:
-        t = (
-            await session.execute(select(Tenant).where(Tenant.id == tenant.id))
-        ).scalar_one()
+        t = (await session.execute(select(Tenant).where(Tenant.id == tenant.id))).scalar_one()
         assert t.is_active is True
 
 
@@ -275,10 +261,14 @@ async def test_cancel_subscription_writes_audit_row(owner_engine, wipe_db) -> No
 
     async with sm() as session:
         events = (
-            await session.execute(
-                select(AuditEvent).where(AuditEvent.action == "billing.subscription_canceled")
+            (
+                await session.execute(
+                    select(AuditEvent).where(AuditEvent.action == "billing.subscription_canceled")
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
 
     assert len(events) == 1
     event = events[0]
