@@ -223,7 +223,7 @@ Unique findings: 29.
 - **Description**: `Server: uvicorn` tells an attacker the app is FastAPI/Starlette. `Via: 1.1 Caddy` tells them the reverse-proxy software. Neither exploitable on its own — but standard hardening hides them so vuln scanners can't trivially auto-target known CVEs in the stack.
 - **Suggested fix**: In Caddyfile fronting the app, add `header -Server` and `header -Via`. uvicorn can also launch with `--no-server-header` for defence-in-depth.
 - **Evidence**: `curl -sI https://assoluto.eu/` returns both headers (verified live).
-- **status**: fixed (commit cb53240)
+- **status**: fixed (commit cb53240) — required manual Caddy image rebuild on prod (`docker compose build caddy && up -d caddy`); the deploy workflow only rebuilds the `web` image. Followup: add Caddy rebuild step to `.github/workflows/deploy-production.yml` so future Caddyfile edits propagate without SSH.
 ### [SEC] F-SEC-003 — `_has_unverified_identity` opens a fresh engine per failed login
 - **Where**: `app/services/auth_service.py:85`
 - **Severity**: P2
