@@ -66,11 +66,11 @@ logs/
 # Note: uv.lock IS checked in for reproducible builds. Only the venv is ignored.
 .venv/
 # .claude is ignored EXCEPT the project-scoped audit pipeline
-# (slash commands + agent definitions) — those ARE checked in so
-# the same audit can be re-run by anyone with the repo.
-# Worktrees, settings, history remain user-local.
+# (skills + agent definitions) — those ARE checked in so the same
+# audit can be re-run by anyone with the repo. Worktrees, settings,
+# history remain user-local.
 .claude/*
-!.claude/commands/
+!.claude/skills/
 !.claude/agents/
 ultraplan.md
 bin/

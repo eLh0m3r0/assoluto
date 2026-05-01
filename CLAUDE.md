@@ -234,8 +234,8 @@ app walkthrough`. Two benefits:
 
 One-line bug reports (`X broken, please fix`) can skip the plan.
 
-**Reusable audit pipeline.** Three slash commands in
-`.claude/commands/` give the founder repeatable multi-perspective
+**Reusable audit pipeline.** Three Claude Code skills in
+`.claude/skills/` give the founder repeatable multi-perspective
 audits:
 
 * `/audit` — fans out four parallel sub-agents (UX with Chrome, Backend,
@@ -247,11 +247,20 @@ audits:
 * `/audit-verify` — re-runs the audit and diffs against the previous
   run, marking `resolved` / `persisted` / `regressed` / `new`.
 
+Skill files live at `.claude/skills/<name>/SKILL.md` (directory-
+based — Claude Code's modern format; the deprecated
+`.claude/commands/<name>.md` flat-file path doesn't reliably load).
 Sub-agent definitions live in `.claude/agents/{ux,backend,security,
-business}-auditor.md`. Each one carries the per-perspective rules so
-agents stay focused (e.g. UX auditor is forbidden from submitting any
-mutating POST against prod). Audit-trail docs live in
-`docs/audit-runs/` (committed — see the `README.md` there).
+business}-auditor.md` (flat files). Each agent carries the per-
+perspective rules so agents stay focused (e.g. UX auditor is
+forbidden from submitting any mutating POST against prod). Audit-
+trail docs live in `docs/audit-runs/` (committed — see the
+`README.md` there).
+
+Full portable recipe — including the migration story from `.claude/
+commands/` to `.claude/skills/<name>/SKILL.md` — is in
+`docs/AUDIT_PIPELINE.md`. Hand that file to any other Claude session
+to recreate the same pipeline in another repo.
 
 ### 13. Session cookie is tenant-scoped — verify on every read
 

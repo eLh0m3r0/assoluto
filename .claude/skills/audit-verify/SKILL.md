@@ -1,4 +1,5 @@
 ---
+name: audit-verify
 description: Re-run the audit and diff against the previous run. Marks findings resolved / regressed / new.
 argument-hint: "[no args]"
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent

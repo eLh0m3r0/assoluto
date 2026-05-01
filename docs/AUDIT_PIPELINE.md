@@ -93,7 +93,7 @@ should do these steps in order:
      agent degrades to static HTML inspection.
 
 2. **Decide what stays committed**:
-   - Recommended: commit `.claude/commands/` and `.claude/agents/`
+   - Recommended: commit `.claude/skills/` and `.claude/agents/`
      so any teammate or future-you can run the same audit.
    - `.claude/settings*.json`, `.claude/worktrees/`, `.claude/cache/`
      stay user-local.
@@ -102,18 +102,36 @@ should do these steps in order:
 
    ```gitignore
    # .claude is ignored EXCEPT the project-scoped audit pipeline
-   # (slash commands + agent definitions) — those ARE checked in so
-   # the same audit can be re-run by anyone with the repo.
+   # (skills + agent definitions) — those ARE checked in so the
+   # same audit can be re-run by anyone with the repo.
    .claude/*
-   !.claude/commands/
+   !.claude/skills/
    !.claude/agents/
    ```
 
 3. **Create the directory layout**:
 
    ```bash
-   mkdir -p .claude/commands .claude/agents docs/audit-runs
+   mkdir -p .claude/skills/audit .claude/skills/audit-fix \
+            .claude/skills/audit-verify .claude/agents docs/audit-runs
    ```
+
+   **Important — slash commands MUST be skills, not flat
+   commands files.** The historical layout
+   ``.claude/commands/<name>.md`` is deprecated and (per testing on
+   2026-05-01) does not reliably register the slash command in a
+   running session. The current correct layout is:
+
+   ```
+   .claude/skills/audit/SKILL.md          ← /audit
+   .claude/skills/audit-fix/SKILL.md      ← /audit-fix
+   .claude/skills/audit-verify/SKILL.md   ← /audit-verify
+   .claude/agents/<name>.md               ← Task subagent_type=<name>
+   ```
+
+   Restart Claude Code after first creating `.claude/skills/`
+   so the directory watcher picks up the new path. After that,
+   adding/editing a SKILL.md is hot-reloaded.
 
 4. **Drop in the seven files** from [the contents below](#file-contents).
    Adapt the placeholders marked `<YOUR-…>` to the project being
@@ -597,11 +615,12 @@ cross-checking 3 code paths.
 
 ---
 
-### `.claude/commands/audit.md`
+### `.claude/skills/audit/SKILL.md`
 
 ````markdown
 ---
-description: Run a 4-perspective audit (UX / Backend / Security / Business) in parallel and consolidate findings.
+name: audit
+description: Run a 4-perspective audit (UX / Backend / Security / Business) in parallel and consolidate findings into docs/audit-runs/.
 argument-hint: "[no args]"
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
 ---
@@ -717,10 +736,11 @@ Do NOT auto-trigger ``/audit-fix``. The user reviews findings first.
 
 ---
 
-### `.claude/commands/audit-fix.md`
+### `.claude/skills/audit-fix/SKILL.md`
 
 ```markdown
 ---
+name: audit-fix
 description: Triage the latest audit run and auto-fix every finding marked Auto-fixable=yes. Commits + pushes per logical batch.
 argument-hint: "[run-id]   (optional, defaults to latest)"
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
@@ -805,10 +825,11 @@ Final summary to the user:
 
 ---
 
-### `.claude/commands/audit-verify.md`
+### `.claude/skills/audit-verify/SKILL.md`
 
 ```markdown
 ---
+name: audit-verify
 description: Re-run the audit and diff against the previous run. Marks findings resolved / regressed / new.
 argument-hint: "[no args]"
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
@@ -828,7 +849,7 @@ previous run to prove whether the fixes held.
    ``/audit`` first."
 
 2. Run a fresh audit by following the instructions in
-   ``.claude/commands/audit.md`` end-to-end. New ``RUN_ID`` is
+   ``.claude/skills/audit/SKILL.md`` end-to-end. New ``RUN_ID`` is
    now-timestamp.
 
 ## Diff

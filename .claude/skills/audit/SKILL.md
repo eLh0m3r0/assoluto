@@ -1,5 +1,6 @@
 ---
-description: Run a 4-perspective audit (UX / Backend / Security / Business) in parallel and consolidate findings.
+name: audit
+description: Run a 4-perspective audit (UX / Backend / Security / Business) in parallel and consolidate findings into docs/audit-runs/.
 argument-hint: "[no args]"
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
 ---

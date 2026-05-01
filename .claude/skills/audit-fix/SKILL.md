@@ -1,4 +1,5 @@
 ---
+name: audit-fix
 description: Triage the latest audit run and auto-fix every finding marked Auto-fixable=yes. Commits + pushes per logical batch.
 argument-hint: "[run-id]   (optional, defaults to latest)"
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
