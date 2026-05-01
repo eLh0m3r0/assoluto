@@ -8,7 +8,10 @@
 #
 # Environment:
 #   PORTAL_BACKUP_DIR      — where to drop pg_dump files (default /backups)
-#   PORTAL_KEEP_DAYS       — rotate dumps older than this (default 30)
+#   PORTAL_KEEP_DAYS       — rotate dumps older than this (default 14
+#                            to match the marketing + Terms commitment
+#                            of "daily backups, 14 days retention" and
+#                            the GDPR Art. 5(1)(e) storage limitation).
 #   PORTAL_PG_CONTAINER    — docker-compose service name (default postgres)
 #   PORTAL_DB_NAME         — database name (default portal)
 #   PORTAL_DB_USER         — superuser (default portal)
@@ -23,7 +26,7 @@
 set -euo pipefail
 
 BACKUP_DIR="${PORTAL_BACKUP_DIR:-/backups}"
-KEEP_DAYS="${PORTAL_KEEP_DAYS:-30}"
+KEEP_DAYS="${PORTAL_KEEP_DAYS:-14}"
 PG_CONTAINER="${PORTAL_PG_CONTAINER:-postgres}"
 DB_NAME="${PORTAL_DB_NAME:-portal}"
 DB_USER="${PORTAL_DB_USER:-portal}"
