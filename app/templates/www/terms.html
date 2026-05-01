@@ -108,7 +108,10 @@
         <section>
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("8. Service availability, no formal SLA on Starter/Pro") }}</h2>
             <p class="mt-2">
-                {{ _("The Provider operates the Hosted Service with reasonable care and targets 99.9% monthly uptime measured at the application HTTP layer, with daily database backups retained for 14 days. The Starter and Pro plans do not include a contractual service-level agreement (SLA); planned and unplanned downtime, force-majeure events, and outages caused by upstream subprocessors (Hetzner, Stripe, Brevo) do not give rise to any compensation claim. The Enterprise plan may include a separately-negotiated written SLA — contact team@assoluto.eu.") }}
+                {# `99.9%%` (escaped) — Jinja's i18n extension runs gettext output through `% variables`.
+                   Bare `99.9%` would crash the EN fallback path with `unsupported format character 'm'`.
+                   See CLAUDE.md §7. CS / DE msgstrs already use `99,9 %%` correctly. #}
+                {{ _("The Provider operates the Hosted Service with reasonable care and targets 99.9%% monthly uptime measured at the application HTTP layer, with daily database backups retained for 14 days. The Starter and Pro plans do not include a contractual service-level agreement (SLA); planned and unplanned downtime, force-majeure events, and outages caused by upstream subprocessors (Hetzner, Stripe, Brevo) do not give rise to any compensation claim. The Enterprise plan may include a separately-negotiated written SLA — contact team@assoluto.eu.") }}
             </p>
             <p class="mt-2">
                 {{ _("The Provider performs upgrades during low-traffic windows where possible. Brief service interruptions during deployment (typically under 60 seconds) are an ordinary part of operating the Service and are not considered an outage.") }}

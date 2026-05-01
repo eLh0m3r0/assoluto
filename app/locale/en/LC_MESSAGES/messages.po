@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-05-01 12:35+0200\n"
+"POT-Creation-Date: 2026-05-01 13:56+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -4991,11 +4991,12 @@ msgstr ""
 msgid "8. Service availability, no formal SLA on Starter/Pro"
 msgstr ""
 
-#: app/templates/www/terms.html:111
+#: app/templates/www/terms.html:114
+#, python-format
 msgid ""
 "The Provider operates the Hosted Service with reasonable care and targets"
-" 99.9% monthly uptime measured at the application HTTP layer, with daily "
-"database backups retained for 14 days. The Starter and Pro plans do not "
+" 99.9%% monthly uptime measured at the application HTTP layer, with daily"
+" database backups retained for 14 days. The Starter and Pro plans do not "
 "include a contractual service-level agreement (SLA); planned and "
 "unplanned downtime, force-majeure events, and outages caused by upstream "
 "subprocessors (Hetzner, Stripe, Brevo) do not give rise to any "
@@ -5003,7 +5004,7 @@ msgid ""
 "negotiated written SLA — contact team@assoluto.eu."
 msgstr ""
 
-#: app/templates/www/terms.html:114
+#: app/templates/www/terms.html:117
 msgid ""
 "The Provider performs upgrades during low-traffic windows where possible."
 " Brief service interruptions during deployment (typically under 60 "
@@ -5011,18 +5012,18 @@ msgid ""
 "considered an outage."
 msgstr ""
 
-#: app/templates/www/terms.html:117
+#: app/templates/www/terms.html:120
 msgid ""
 "The Customer is responsible for maintaining their own data exports as a "
 "safeguard against any data loss. The CSV / ZIP export endpoints are "
 "available at any time during the active subscription."
 msgstr ""
 
-#: app/templates/www/terms.html:122
+#: app/templates/www/terms.html:125
 msgid "9. Suspension and termination by the Provider"
 msgstr ""
 
-#: app/templates/www/terms.html:124
+#: app/templates/www/terms.html:127
 msgid ""
 "The Provider may, with prior notice sent to the Customer's billing email "
 "and a remedy period of at least 7 days where reasonably possible, suspend"
@@ -5034,18 +5035,18 @@ msgid ""
 "data export endpoints will remain available throughout)."
 msgstr ""
 
-#: app/templates/www/terms.html:127
+#: app/templates/www/terms.html:130
 msgid ""
 "Suspension for non-payment may take effect without prior notice if Stripe"
 " reports a payment failure and the situation has not been remedied within"
 " Stripe's standard dunning window (typically 21 days)."
 msgstr ""
 
-#: app/templates/www/terms.html:132
+#: app/templates/www/terms.html:135
 msgid "10. Warranties and limitation of liability"
 msgstr ""
 
-#: app/templates/www/terms.html:134
+#: app/templates/www/terms.html:137
 msgid ""
 "The Service is provided \"as available\". Beyond what is required by "
 "mandatory provisions of Czech law, the Provider gives no warranties of "
@@ -5053,7 +5054,7 @@ msgid ""
 "merchantability or fitness for a particular purpose."
 msgstr ""
 
-#: app/templates/www/terms.html:137
+#: app/templates/www/terms.html:140
 msgid ""
 "To the maximum extent permitted by law, the Provider's aggregate "
 "liability to the Customer for any cause arising out of or relating to the"
@@ -5066,18 +5067,18 @@ msgid ""
 "advised of the possibility of such damages."
 msgstr ""
 
-#: app/templates/www/terms.html:140
+#: app/templates/www/terms.html:143
 msgid ""
 "Nothing in these Terms limits liability for damage caused intentionally "
 "or by gross negligence, or for any other liability that cannot be limited"
 " under Czech law."
 msgstr ""
 
-#: app/templates/www/terms.html:145
+#: app/templates/www/terms.html:148
 msgid "11. Force majeure"
 msgstr ""
 
-#: app/templates/www/terms.html:147
+#: app/templates/www/terms.html:150
 msgid ""
 "Neither party is liable for non-performance caused by force majeure — "
 "events outside its reasonable control, including without limitation "
@@ -5087,11 +5088,11 @@ msgid ""
 "Czech Republic or Germany."
 msgstr ""
 
-#: app/templates/www/terms.html:152
+#: app/templates/www/terms.html:155
 msgid "12. Modifications to these Terms"
 msgstr ""
 
-#: app/templates/www/terms.html:154
+#: app/templates/www/terms.html:157
 msgid ""
 "The Provider may amend these Terms with at least 30 days' prior notice "
 "sent to the Customer's billing email and posted on this page. The version"
@@ -5101,18 +5102,18 @@ msgid ""
 " effective date constitutes acceptance of the new Terms."
 msgstr ""
 
-#: app/templates/www/terms.html:157
+#: app/templates/www/terms.html:160
 msgid ""
 "Material changes — pricing, scope of the Service, or the limitation of "
 "liability in Section 10 — will be highlighted in the notice email rather "
 "than buried in a long changelog."
 msgstr ""
 
-#: app/templates/www/terms.html:162
+#: app/templates/www/terms.html:165
 msgid "13. Governing law and jurisdiction"
 msgstr ""
 
-#: app/templates/www/terms.html:164
+#: app/templates/www/terms.html:167
 msgid ""
 "These Terms and any dispute arising out of or in connection with them are"
 " governed by the law of the Czech Republic, without regard to conflict-"
@@ -5122,18 +5123,18 @@ msgid ""
 "Decin)."
 msgstr ""
 
-#: app/templates/www/terms.html:167
+#: app/templates/www/terms.html:170
 msgid ""
 "The parties will attempt to resolve any dispute amicably first by direct "
 "negotiation; failing that, the parties may agree to non-binding mediation"
 " before initiating court proceedings."
 msgstr ""
 
-#: app/templates/www/terms.html:172
+#: app/templates/www/terms.html:175
 msgid "14. Severability and entire agreement"
 msgstr ""
 
-#: app/templates/www/terms.html:174
+#: app/templates/www/terms.html:177
 msgid ""
 "If any provision of these Terms is held to be invalid or unenforceable by"
 " a competent court, the remaining provisions remain in full force and "
@@ -5141,7 +5142,7 @@ msgid ""
 "closest to the original intention while being valid."
 msgstr ""
 
-#: app/templates/www/terms.html:177
+#: app/templates/www/terms.html:180
 msgid ""
 "These Terms, together with the Privacy Policy, the Cookies policy, and "
 "the published pricing page, form the entire agreement between the "
@@ -5149,18 +5150,18 @@ msgid ""
 "earlier proposals, negotiations, or marketing material."
 msgstr ""
 
-#: app/templates/www/terms.html:182
+#: app/templates/www/terms.html:185
 msgid "15. Contact and notices"
 msgstr ""
 
-#: app/templates/www/terms.html:184
+#: app/templates/www/terms.html:187
 msgid ""
 "All notices under these Terms (including cancellation, modification "
 "notices, breach notices, DPA requests) are sent in writing by email — to "
 "the Customer's billing email of record, and to the Provider at"
 msgstr ""
 
-#: app/templates/www/terms.html:186
+#: app/templates/www/terms.html:189
 msgid ""
 "A notice is deemed delivered the day after it is sent, unless the sender "
 "receives an automatic non-delivery report."
@@ -6482,5 +6483,23 @@ msgstr "Privacy Policy"
 #~ " %(limit)s %(metric)s. You're already at"
 #~ " %(current)s.\n"
 #~ "                "
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The Provider operates the Hosted Service"
+#~ " with reasonable care and targets "
+#~ "99.9% monthly uptime measured at the "
+#~ "application HTTP layer, with daily "
+#~ "database backups retained for 14 days."
+#~ " The Starter and Pro plans do "
+#~ "not include a contractual service-level"
+#~ " agreement (SLA); planned and unplanned "
+#~ "downtime, force-majeure events, and "
+#~ "outages caused by upstream subprocessors "
+#~ "(Hetzner, Stripe, Brevo) do not give "
+#~ "rise to any compensation claim. The "
+#~ "Enterprise plan may include a "
+#~ "separately-negotiated written SLA — contact"
+#~ " team@assoluto.eu."
 #~ msgstr ""
 

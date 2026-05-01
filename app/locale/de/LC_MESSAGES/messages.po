@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: assoluto VERSION\n"
 "Report-Msgid-Bugs-To: team@assoluto.eu\n"
-"POT-Creation-Date: 2026-05-01 12:35+0200\n"
+"POT-Creation-Date: 2026-05-01 13:56+0200\n"
 "PO-Revision-Date: 2026-04-26 11:15+0200\n"
 "Last-Translator: Assoluto Team <team@assoluto.eu>\n"
 "Language: de\n"
@@ -5398,11 +5398,12 @@ msgstr ""
 msgid "8. Service availability, no formal SLA on Starter/Pro"
 msgstr "8. Dienstverfügbarkeit, kein formales SLA bei Starter/Pro"
 
-#: app/templates/www/terms.html:111
+#: app/templates/www/terms.html:114
+#, python-format
 msgid ""
 "The Provider operates the Hosted Service with reasonable care and targets"
-" 99.9% monthly uptime measured at the application HTTP layer, with daily "
-"database backups retained for 14 days. The Starter and Pro plans do not "
+" 99.9%% monthly uptime measured at the application HTTP layer, with daily"
+" database backups retained for 14 days. The Starter and Pro plans do not "
 "include a contractual service-level agreement (SLA); planned and "
 "unplanned downtime, force-majeure events, and outages caused by upstream "
 "subprocessors (Hetzner, Stripe, Brevo) do not give rise to any "
@@ -5419,7 +5420,7 @@ msgstr ""
 "Plan kann ein separat verhandeltes schriftliches SLA enthalten — "
 "schreiben Sie an team@assoluto.eu."
 
-#: app/templates/www/terms.html:114
+#: app/templates/www/terms.html:117
 msgid ""
 "The Provider performs upgrades during low-traffic windows where possible."
 " Brief service interruptions during deployment (typically under 60 "
@@ -5431,7 +5432,7 @@ msgstr ""
 "(typischerweise unter 60 Sekunden) sind ein normaler Teil des Betriebs "
 "und gelten nicht als Ausfall."
 
-#: app/templates/www/terms.html:117
+#: app/templates/www/terms.html:120
 msgid ""
 "The Customer is responsible for maintaining their own data exports as a "
 "safeguard against any data loss. The CSV / ZIP export endpoints are "
@@ -5441,11 +5442,11 @@ msgstr ""
 "gegen Datenverlust verantwortlich. Die CSV / ZIP Export-Endpoints sind "
 "während des aktiven Abonnements jederzeit verfügbar."
 
-#: app/templates/www/terms.html:122
+#: app/templates/www/terms.html:125
 msgid "9. Suspension and termination by the Provider"
 msgstr "9. Sperre und Kündigung durch den Anbieter"
 
-#: app/templates/www/terms.html:124
+#: app/templates/www/terms.html:127
 msgid ""
 "The Provider may, with prior notice sent to the Customer's billing email "
 "and a remedy period of at least 7 days where reasonably possible, suspend"
@@ -5466,7 +5467,7 @@ msgstr ""
 "Anbieter (in diesem Fall wird mindestens 90 Tage im Voraus benachrichtigt"
 " und die Datenexport-Endpoints bleiben durchgehend verfügbar)."
 
-#: app/templates/www/terms.html:127
+#: app/templates/www/terms.html:130
 msgid ""
 "Suspension for non-payment may take effect without prior notice if Stripe"
 " reports a payment failure and the situation has not been remedied within"
@@ -5477,11 +5478,11 @@ msgstr ""
 " nicht innerhalb des Standard-Mahnfensters von Stripe (typischerweise 21 "
 "Tage) behoben wurde."
 
-#: app/templates/www/terms.html:132
+#: app/templates/www/terms.html:135
 msgid "10. Warranties and limitation of liability"
 msgstr "10. Gewährleistungen und Haftungsbegrenzung"
 
-#: app/templates/www/terms.html:134
+#: app/templates/www/terms.html:137
 msgid ""
 "The Service is provided \"as available\". Beyond what is required by "
 "mandatory provisions of Czech law, the Provider gives no warranties of "
@@ -5494,7 +5495,7 @@ msgstr ""
 "konkludent, einschließlich konkludenter Gewährleistungen der "
 "Marktgängigkeit oder Eignung für einen bestimmten Zweck."
 
-#: app/templates/www/terms.html:137
+#: app/templates/www/terms.html:140
 msgid ""
 "To the maximum extent permitted by law, the Provider's aggregate "
 "liability to the Customer for any cause arising out of or relating to the"
@@ -5516,7 +5517,7 @@ msgstr ""
 "neuesten Backup hinaus) oder für Ansprüche Dritter, auch wenn der "
 "Anbieter auf die Möglichkeit solcher Schäden hingewiesen wurde."
 
-#: app/templates/www/terms.html:140
+#: app/templates/www/terms.html:143
 msgid ""
 "Nothing in these Terms limits liability for damage caused intentionally "
 "or by gross negligence, or for any other liability that cannot be limited"
@@ -5526,11 +5527,11 @@ msgstr ""
 "oder grob fahrlässig verursachte Schäden oder andere Haftung, die nach "
 "tschechischem Recht nicht begrenzt werden kann."
 
-#: app/templates/www/terms.html:145
+#: app/templates/www/terms.html:148
 msgid "11. Force majeure"
 msgstr "11. Höhere Gewalt"
 
-#: app/templates/www/terms.html:147
+#: app/templates/www/terms.html:150
 msgid ""
 "Neither party is liable for non-performance caused by force majeure — "
 "events outside its reasonable control, including without limitation "
@@ -5546,11 +5547,11 @@ msgstr ""
 "Anordnungen, die den Betrieb von Cloud-Diensten in Tschechien oder "
 "Deutschland betreffen."
 
-#: app/templates/www/terms.html:152
+#: app/templates/www/terms.html:155
 msgid "12. Modifications to these Terms"
 msgstr "12. Änderungen dieser Bedingungen"
 
-#: app/templates/www/terms.html:154
+#: app/templates/www/terms.html:157
 msgid ""
 "The Provider may amend these Terms with at least 30 days' prior notice "
 "sent to the Customer's billing email and posted on this page. The version"
@@ -5568,7 +5569,7 @@ msgstr ""
 "Nutzung nach dem Inkrafttretensdatum die Zustimmung zu den neuen "
 "Bedingungen."
 
-#: app/templates/www/terms.html:157
+#: app/templates/www/terms.html:160
 msgid ""
 "Material changes — pricing, scope of the Service, or the limitation of "
 "liability in Section 10 — will be highlighted in the notice email rather "
@@ -5578,11 +5579,11 @@ msgstr ""
 "Haftungsbegrenzung in Abschnitt 10 — werden im Mitteilungs-E-Mail "
 "hervorgehoben und nicht in einem langen Changelog versteckt."
 
-#: app/templates/www/terms.html:162
+#: app/templates/www/terms.html:165
 msgid "13. Governing law and jurisdiction"
 msgstr "13. Anwendbares Recht und Gerichtsstand"
 
-#: app/templates/www/terms.html:164
+#: app/templates/www/terms.html:167
 msgid ""
 "These Terms and any dispute arising out of or in connection with them are"
 " governed by the law of the Czech Republic, without regard to conflict-"
@@ -5598,7 +5599,7 @@ msgstr ""
 "zuständige Gericht bestimmt sich nach dem Sitz des Anbieters (derzeit das"
 " Bezirksgericht in Děčín)."
 
-#: app/templates/www/terms.html:167
+#: app/templates/www/terms.html:170
 msgid ""
 "The parties will attempt to resolve any dispute amicably first by direct "
 "negotiation; failing that, the parties may agree to non-binding mediation"
@@ -5609,11 +5610,11 @@ msgstr ""
 " Einleitung eines gerichtlichen Verfahrens eine unverbindliche Mediation "
 "vereinbaren."
 
-#: app/templates/www/terms.html:172
+#: app/templates/www/terms.html:175
 msgid "14. Severability and entire agreement"
 msgstr "14. Salvatorische Klausel und Gesamtvereinbarung"
 
-#: app/templates/www/terms.html:174
+#: app/templates/www/terms.html:177
 msgid ""
 "If any provision of these Terms is held to be invalid or unenforceable by"
 " a competent court, the remaining provisions remain in full force and "
@@ -5626,7 +5627,7 @@ msgstr ""
 "ersetzt, deren Wirkung der ursprünglichen Absicht am nächsten kommt und "
 "gleichzeitig wirksam ist."
 
-#: app/templates/www/terms.html:177
+#: app/templates/www/terms.html:180
 msgid ""
 "These Terms, together with the Privacy Policy, the Cookies policy, and "
 "the published pricing page, form the entire agreement between the "
@@ -5639,11 +5640,11 @@ msgstr ""
 "treten an die Stelle aller früheren Angebote, Verhandlungen oder "
 "Marketingmaterialien."
 
-#: app/templates/www/terms.html:182
+#: app/templates/www/terms.html:185
 msgid "15. Contact and notices"
 msgstr "15. Kontakt und Zustellung"
 
-#: app/templates/www/terms.html:184
+#: app/templates/www/terms.html:187
 msgid ""
 "All notices under these Terms (including cancellation, modification "
 "notices, breach notices, DPA requests) are sent in writing by email — to "
@@ -5654,7 +5655,7 @@ msgstr ""
 "per E-Mail versandt — an die hinterlegte Rechnungs-E-Mail des Kunden und "
 "an den Anbieter unter"
 
-#: app/templates/www/terms.html:186
+#: app/templates/www/terms.html:189
 msgid ""
 "A notice is deemed delivered the day after it is sent, unless the sender "
 "receives an automatic non-delivery report."
@@ -5696,4 +5697,37 @@ msgstr "Datenschutz"
 #~ " %(metric)s. Aktuell sind Sie bei "
 #~ "%(current)s.\n"
 #~ "                "
+
+#~ msgid ""
+#~ "The Provider operates the Hosted Service"
+#~ " with reasonable care and targets "
+#~ "99.9% monthly uptime measured at the "
+#~ "application HTTP layer, with daily "
+#~ "database backups retained for 14 days."
+#~ " The Starter and Pro plans do "
+#~ "not include a contractual service-level"
+#~ " agreement (SLA); planned and unplanned "
+#~ "downtime, force-majeure events, and "
+#~ "outages caused by upstream subprocessors "
+#~ "(Hetzner, Stripe, Brevo) do not give "
+#~ "rise to any compensation claim. The "
+#~ "Enterprise plan may include a "
+#~ "separately-negotiated written SLA — contact"
+#~ " team@assoluto.eu."
+#~ msgstr ""
+#~ "Der Anbieter betreibt den Hosted Service"
+#~ " mit angemessener Sorgfalt und strebt "
+#~ "99,9 %% monatliche Verfügbarkeit gemessen "
+#~ "auf der Anwendungs-HTTP-Schicht an, "
+#~ "mit täglichen Datenbank-Backups, die 14"
+#~ " Tage aufbewahrt werden. Die Pläne "
+#~ "Starter und Pro enthalten kein "
+#~ "vertragliches Service-Level-Agreement (SLA);"
+#~ " geplante und ungeplante Ausfallzeiten, "
+#~ "höhere Gewalt und Ausfälle durch "
+#~ "vorgelagerte Auftragsverarbeiter (Hetzner, Stripe,"
+#~ " Brevo) begründen keinen Entschädigungsanspruch."
+#~ " Der Enterprise-Plan kann ein separat"
+#~ " verhandeltes schriftliches SLA enthalten —"
+#~ " schreiben Sie an team@assoluto.eu."
 
