@@ -234,6 +234,25 @@ app walkthrough`. Two benefits:
 
 One-line bug reports (`X broken, please fix`) can skip the plan.
 
+**Reusable audit pipeline.** Three slash commands in
+`.claude/commands/` give the founder repeatable multi-perspective
+audits:
+
+* `/audit` — fans out four parallel sub-agents (UX with Chrome, Backend,
+  Security, Business) and consolidates findings into
+  `docs/audit-runs/<date>/findings.md`.
+* `/audit-fix` — applies every `Auto-fixable: yes` finding from the
+  latest run; one logical batch per commit; pushes to production;
+  updates statuses in place.
+* `/audit-verify` — re-runs the audit and diffs against the previous
+  run, marking `resolved` / `persisted` / `regressed` / `new`.
+
+Sub-agent definitions live in `.claude/agents/{ux,backend,security,
+business}-auditor.md`. Each one carries the per-perspective rules so
+agents stay focused (e.g. UX auditor is forbidden from submitting any
+mutating POST against prod). Audit-trail docs live in
+`docs/audit-runs/` (committed — see the `README.md` there).
+
 ### 13. Session cookie is tenant-scoped — verify on every read
 
 ``read_session(...)`` only checks the signature, not the ``tenant_id``
