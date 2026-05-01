@@ -401,6 +401,232 @@ async def tenants_edit(
     return _redir_tenants(notice="Změny uloženy.")
 
 
+# --------------------------------------------------- subscription editor
+
+
+@router.get("/tenants/{tenant_id}/subscription", response_class=HTMLResponse)
+async def subscription_edit_form(
+    tenant_id: UUID,
+    request: Request,
+    notice: str | None = None,
+    error: str | None = None,
+    identity: Identity = Depends(require_platform_admin),
+    db: AsyncSession = Depends(get_platform_db),
+) -> HTMLResponse:
+    """Show the subscription editor for one tenant.
+
+    Three states the form copes with:
+    * No subscription row at all (self-host / pre-billing signup) →
+      offer a "Start trial" button.
+    * Subscription with no Stripe id (demo mode, manual extension) →
+      full edit: plan + trial_ends_at + current_period_end + quick
+      actions (extend +30/+90/+365, pin to 2099 for internal tenants).
+    * Subscription managed by Stripe → readonly view + warning that
+      changes must be made in the Stripe dashboard, otherwise the next
+      webhook will overwrite local state.
+    """
+    from app.platform.billing.service import get_subscription_for_tenant, list_plans
+
+    tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
+    if tenant is None:
+        raise HTTPException(status_code=404)
+    sub = await get_subscription_for_tenant(db, tenant_id)
+    plans = await list_plans(db)
+    current_plan = None
+    if sub is not None:
+        current_plan = next((p for p in plans if p.id == sub.plan_id), None)
+
+    html = _templates(request).render(
+        request,
+        "platform/admin/subscription_edit.html",
+        {
+            "identity": identity,
+            "tenant": tenant,
+            "subscription": sub,
+            "current_plan": current_plan,
+            "plans": plans,
+            "stripe_managed": bool(sub and sub.stripe_subscription_id),
+            "error": error,
+            "notice": notice,
+            "principal": None,
+        },
+    )
+    return HTMLResponse(html)
+
+
+@router.post("/tenants/{tenant_id}/subscription", response_class=HTMLResponse)
+async def subscription_edit(
+    tenant_id: UUID,
+    request: Request,
+    plan_code: str = Form(""),
+    trial_ends_at: str = Form(""),
+    current_period_end: str = Form(""),
+    quick_action: str = Form(""),
+    identity: Identity = Depends(require_platform_admin),
+    db: AsyncSession = Depends(get_platform_db),
+) -> Response:
+    """Apply edits to a tenant's subscription. Refuses on Stripe-managed
+    subscriptions. Quick actions take precedence over date fields when
+    set. All changes audited under the target tenant."""
+    from datetime import UTC, datetime, timedelta
+    from datetime import date as _date
+
+    from app.platform.billing.service import (
+        get_subscription_for_tenant,
+        require_plan,
+        set_subscription_plan,
+        start_trial_subscription,
+    )
+    from app.services import audit_service
+    from app.services.audit_service import ActorInfo
+
+    redir = f"/platform/admin/tenants/{tenant_id}/subscription"
+
+    tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
+    if tenant is None:
+        raise HTTPException(status_code=404)
+
+    sub = await get_subscription_for_tenant(db, tenant_id)
+
+    # No subscription → quick_action="start_trial" mints one (Starter,
+    # 30 days). Any other action is a no-op on a missing row.
+    if sub is None:
+        if quick_action == "start_trial":
+            try:
+                sub = await start_trial_subscription(db, tenant=tenant, plan_code="starter")
+            except Exception as exc:
+                return RedirectResponse(url=f"{redir}?error={quote(str(exc))}", status_code=303)
+            await db.commit()
+            return RedirectResponse(
+                url=f"{redir}?notice={quote('Trial spuštěn (Starter, 30 dní).')}",
+                status_code=303,
+            )
+        return RedirectResponse(
+            url=f"{redir}?error={quote('Tenant nemá subscription. Klikni Start trial.')}",
+            status_code=303,
+        )
+
+    # Stripe-managed → refuse manual edit; the next webhook would
+    # overwrite anything we set anyway.
+    if sub.stripe_subscription_id:
+        return RedirectResponse(
+            url=(
+                f"{redir}?error="
+                + quote(
+                    "Předplatné spravuje Stripe. Změny dělej ve Stripe dashboardu — "
+                    "uložení tady přepíše příští webhook."
+                )
+            ),
+            status_code=303,
+        )
+
+    before = {
+        "plan_id": str(sub.plan_id),
+        "status": sub.status,
+        "trial_ends_at": sub.trial_ends_at.isoformat() if sub.trial_ends_at else None,
+        "current_period_end": (
+            sub.current_period_end.isoformat() if sub.current_period_end else None
+        ),
+    }
+
+    # Quick actions short-circuit the date fields (deliberate: they're
+    # the safer path for the common case).
+    now = datetime.now(UTC)
+    if quick_action.startswith("extend_trial:"):
+        days = int(quick_action.split(":", 1)[1])
+        anchor = sub.trial_ends_at or now
+        if anchor < now:
+            anchor = now
+        sub.trial_ends_at = anchor + timedelta(days=days)
+        sub.current_period_end = sub.trial_ends_at
+        sub.status = "trialing"
+    elif quick_action == "pin_internal":
+        # Internal-team tenants (e.g. operator's own portal) shouldn't
+        # ever auto-expire. 2099-01-01 is far enough out that we'll
+        # have replaced this code by then.
+        far_future = datetime(2099, 1, 1, tzinfo=UTC)
+        sub.trial_ends_at = far_future
+        sub.current_period_end = far_future
+        sub.status = "trialing"
+    elif quick_action == "set_active":
+        # Operator decided to mark it as active without going through
+        # Stripe (e.g. handshake-billed enterprise tenant). Drops
+        # trial_ends_at, keeps current_period_end as the next renewal.
+        sub.status = "active"
+        sub.trial_ends_at = None
+        if not sub.current_period_end or sub.current_period_end < now:
+            sub.current_period_end = now + timedelta(days=30)
+    else:
+        # Free-form edit. Plan first, then dates.
+        if plan_code:
+            try:
+                plan = await require_plan(db, plan_code)
+                await set_subscription_plan(db, subscription=sub, plan=plan)
+            except Exception as exc:
+                return RedirectResponse(
+                    url=f"{redir}?error={quote(f'Plan: {exc}')}", status_code=303
+                )
+
+        def _parse(s: str) -> datetime | None:
+            s = (s or "").strip()
+            if not s:
+                return None
+            try:
+                d = _date.fromisoformat(s)
+            except ValueError:
+                return None
+            return datetime(d.year, d.month, d.day, 23, 59, 59, tzinfo=UTC)
+
+        new_trial = _parse(trial_ends_at)
+        new_period = _parse(current_period_end)
+        if new_trial is not None or trial_ends_at == "":
+            sub.trial_ends_at = new_trial
+        if new_period is not None or current_period_end == "":
+            sub.current_period_end = new_period
+        # Keep status sane after manual date juggling: if a future
+        # trial_ends_at is set and status was canceled/past_due, flip
+        # back to trialing. Operator can override by also passing
+        # quick_action=set_active.
+        if (
+            sub.trial_ends_at
+            and sub.trial_ends_at > now
+            and sub.status
+            in {
+                "canceled",
+                "past_due",
+            }
+        ):
+            sub.status = "trialing"
+
+    await db.flush()
+
+    after = {
+        "plan_id": str(sub.plan_id),
+        "status": sub.status,
+        "trial_ends_at": sub.trial_ends_at.isoformat() if sub.trial_ends_at else None,
+        "current_period_end": (
+            sub.current_period_end.isoformat() if sub.current_period_end else None
+        ),
+    }
+    if before != after:
+        await audit_service.record(
+            db,
+            action="billing.subscription_edited_by_platform_admin",
+            entity_type="subscription",
+            entity_id=sub.id,
+            entity_label=f"plan={sub.plan_id} status={sub.status}",
+            actor=ActorInfo(type="user", id=None, label=f"platform-admin/{identity.email}"),
+            before=before,
+            after=after,
+            tenant_id=tenant.id,
+        )
+    await db.commit()
+    return RedirectResponse(
+        url=f"{redir}?notice={quote('Změny uloženy.')}",
+        status_code=303,
+    )
+
+
 @router.post("/tenants/{tenant_id}/support-access")
 async def tenants_grant_support_access(
     tenant_id: UUID,

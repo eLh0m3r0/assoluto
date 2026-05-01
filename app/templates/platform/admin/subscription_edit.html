@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Subscription") }} · {{ tenant.slug }} · Assoluto{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-3xl">
+    {% with active="tenants", breadcrumbs=[{"label": _("Tenants"), "url": "/platform/admin/tenants"}, {"label": tenant.slug + " — " + _('Subscription')}] %}
+        {% include "platform/admin/_header.html" %}
+    {% endwith %}
+
+    <h1 class="mb-1 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _("Subscription") }} · {{ tenant.name }}</h1>
+    <p class="mb-6 text-sm text-slate-500 dark:text-slate-400">
+        <span class="font-mono">{{ tenant.slug }}</span> · {{ tenant.billing_email }}
+    </p>
+
+    {% include "_flash.html" %}
+
+    {# ---------------- No subscription state ---------------- #}
+    {% if not subscription %}
+        <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center dark:bg-slate-900 dark:border-slate-700">
+            <p class="mb-4 text-sm text-slate-500 dark:text-slate-400">
+                {{ _("This tenant has no subscription row. (Self-host install or pre-billing signup.)") }}
+            </p>
+            <form method="post" action="/platform/admin/tenants/{{ tenant.id }}/subscription">
+                {{ csrf_input() }}
+                <input type="hidden" name="quick_action" value="start_trial">
+                <button type="submit"
+                        class="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+                    {{ _("Start 30-day Starter trial") }}
+                </button>
+            </form>
+        </div>
+
+    {# ---------------- Stripe-managed (read-only) ---------------- #}
+    {% elif stripe_managed %}
+        <div class="rounded-lg border border-amber-200 bg-amber-50 p-6 dark:border-amber-500/30 dark:bg-amber-900/10">
+            <p class="text-sm text-amber-900 dark:text-amber-100">
+                <strong>⚠ {{ _("Managed by Stripe") }}</strong> —
+                {{ _("Edits here would be overwritten by the next Stripe webhook. Manage this subscription in the Stripe dashboard instead.") }}
+            </p>
+            <dl class="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-slate-700 dark:text-slate-300">
+                <dt class="font-medium">Plan</dt>
+                <dd>{{ current_plan.name if current_plan else "—" }}</dd>
+                <dt class="font-medium">Status</dt>
+                <dd>{{ subscription.status }}</dd>
+                <dt class="font-medium">Trial ends</dt>
+                <dd>{{ subscription.trial_ends_at.strftime("%d.%m.%Y") if subscription.trial_ends_at else "—" }}</dd>
+                <dt class="font-medium">Period end</dt>
+                <dd>{{ subscription.current_period_end.strftime("%d.%m.%Y") if subscription.current_period_end else "—" }}</dd>
+                <dt class="font-medium">Stripe sub id</dt>
+                <dd class="font-mono text-xs">{{ subscription.stripe_subscription_id }}</dd>
+            </dl>
+        </div>
+
+    {# ---------------- Editable (demo / no-Stripe) ---------------- #}
+    {% else %}
+
+        {# Quick actions row — fast paths for the common cases. #}
+        <div class="mb-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {% for action, label, btn_class in [
+                ("extend_trial:30", _("Extend trial +30 days"), "bg-sky-600 hover:bg-sky-700"),
+                ("extend_trial:90", _("Extend trial +90 days"), "bg-sky-600 hover:bg-sky-700"),
+                ("extend_trial:365", _("Extend trial +365 days"), "bg-sky-600 hover:bg-sky-700"),
+                ("pin_internal", _("Internal — never expires"), "bg-violet-600 hover:bg-violet-700"),
+                ("set_active", _("Mark as active (manual billing)"), "bg-emerald-600 hover:bg-emerald-700"),
+            ] %}
+                <form method="post" action="/platform/admin/tenants/{{ tenant.id }}/subscription">
+                    {{ csrf_input() }}
+                    <input type="hidden" name="quick_action" value="{{ action }}">
+                    <button type="submit"
+                            class="w-full rounded-md px-3 py-2 text-xs font-medium text-white {{ btn_class }}">
+                        {{ label }}
+                    </button>
+                </form>
+            {% endfor %}
+        </div>
+
+        {# Free-form edit form — plan + dates. #}
+        <form method="post" action="/platform/admin/tenants/{{ tenant.id }}/subscription"
+              class="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            {{ csrf_input() }}
+
+            <div>
+                <label for="plan_code" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Plan") }}</label>
+                <select id="plan_code" name="plan_code"
+                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                    {% for p in plans %}
+                        <option value="{{ p.code }}" {% if current_plan and p.id == current_plan.id %}selected{% endif %}>
+                            {{ p.name }} ({{ p.code }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    {{ _("Current status:") }} <span class="font-mono">{{ subscription.status }}</span>
+                </p>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="trial_ends_at" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Trial ends at") }}</label>
+                    <input type="date" id="trial_ends_at" name="trial_ends_at"
+                           value="{{ subscription.trial_ends_at.strftime('%Y-%m-%d') if subscription.trial_ends_at else '' }}"
+                           class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _("Empty = no trial.") }}</p>
+                </div>
+                <div>
+                    <label for="current_period_end" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Period ends at") }}</label>
+                    <input type="date" id="current_period_end" name="current_period_end"
+                           value="{{ subscription.current_period_end.strftime('%Y-%m-%d') if subscription.current_period_end else '' }}"
+                           class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _("Empty = no period anchor.") }}</p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+                <a href="/platform/admin/tenants" class="text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
+                    &larr; {{ _("Back to tenants") }}
+                </a>
+                <button type="submit"
+                        class="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+                    {{ _("Save changes") }}
+                </button>
+            </div>
+        </form>
+    {% endif %}
+</section>
+{% endblock %}

@@ -97,6 +97,10 @@
                                        class="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">
                                         {{ _("Edit") }}
                                     </a>
+                                    <a href="/platform/admin/tenants/{{ t.id }}/subscription"
+                                       class="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">
+                                        {{ _("Subscription") }}
+                                    </a>
                                     {% if t.is_active %}
                                         {% if my_access == "support" %}
                                             <form method="post"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: assoluto VERSION\n"
 "Report-Msgid-Bugs-To: team@assoluto.eu\n"
-"POT-Creation-Date: 2026-05-01 12:13+0200\n"
+"POT-Creation-Date: 2026-05-01 12:35+0200\n"
 "PO-Revision-Date: 2026-04-26 11:15+0200\n"
 "Last-Translator: Assoluto Team <team@assoluto.eu>\n"
 "Language: de\n"
@@ -1295,6 +1295,7 @@ msgstr ""
 
 #: app/templates/admin/tenant_settings.html:37
 #: app/templates/admin/user_edit.html:72
+#: app/templates/platform/admin/subscription_edit.html:121
 #: app/templates/platform/admin/tenant_edit.html:77
 msgid "Save changes"
 msgstr "Änderungen speichern"
@@ -1350,7 +1351,7 @@ msgstr ""
 "Session, nicht über das Passwortformular des Mandanten."
 
 #: app/templates/admin/users.html:42
-#: app/templates/platform/admin/tenants.html:120
+#: app/templates/platform/admin/tenants.html:124
 #: app/templates/platform/select_tenant.html:42
 msgid "Support access"
 msgstr "Support-Zugang"
@@ -1389,12 +1390,12 @@ msgid "Deactivate this user?"
 msgstr "Diesen Benutzer wirklich deaktivieren?"
 
 #: app/templates/admin/users.html:74 app/templates/customers/detail.html:137
-#: app/templates/platform/admin/tenants.html:128
+#: app/templates/platform/admin/tenants.html:132
 msgid "Deactivate"
 msgstr "Deaktivieren"
 
 #: app/templates/admin/users.html:81 app/templates/customers/detail.html:144
-#: app/templates/platform/admin/tenants.html:135
+#: app/templates/platform/admin/tenants.html:139
 msgid "Reactivate"
 msgstr "Reaktivieren"
 
@@ -1698,7 +1699,7 @@ msgstr "Neuer Kunde"
 
 #: app/templates/customers/form.html:26
 #: app/templates/platform/admin/tenant_edit.html:33
-#: app/templates/platform/admin/tenants.html:162
+#: app/templates/platform/admin/tenants.html:166
 #: app/templates/platform/signup.html:33
 msgid "Company name"
 msgstr "Firmenname"
@@ -2391,6 +2392,7 @@ msgstr ""
 "neuen Link an."
 
 #: app/templates/platform/admin/_header.html:27
+#: app/templates/platform/admin/subscription_edit.html:7
 #: app/templates/platform/admin/tenant_edit.html:8
 #: app/templates/platform/admin/tenants.html:3
 #: app/templates/platform/admin/tenants.html:7
@@ -2440,13 +2442,94 @@ msgstr "Letzte Registrierungen"
 #: app/templates/platform/admin/dashboard.html:46
 #: app/templates/platform/admin/tenant_edit.html:17
 #: app/templates/platform/admin/tenants.html:20
-#: app/templates/platform/admin/tenants.html:157
+#: app/templates/platform/admin/tenants.html:161
 msgid "Slug"
 msgstr "Slug"
 
 #: app/templates/platform/admin/dashboard.html:72
 msgid "No signups yet."
 msgstr "Bisher keine Registrierungen."
+
+#: app/templates/platform/admin/subscription_edit.html:3
+#: app/templates/platform/admin/subscription_edit.html:7
+#: app/templates/platform/admin/subscription_edit.html:11
+#: app/templates/platform/admin/tenants.html:102
+#: app/templates/platform/billing/dashboard.html:3
+msgid "Subscription"
+msgstr "Abonnement"
+
+#: app/templates/platform/admin/subscription_edit.html:22
+msgid ""
+"This tenant has no subscription row. (Self-host install or pre-billing "
+"signup.)"
+msgstr ""
+"Dieser Mandant hat keinen Abonnement-Eintrag. (Self-Host oder Anmeldung "
+"vor dem Billing-Rollout.)"
+
+#: app/templates/platform/admin/subscription_edit.html:29
+msgid "Start 30-day Starter trial"
+msgstr "30-tägige Starter-Testphase starten"
+
+#: app/templates/platform/admin/subscription_edit.html:38
+msgid "Managed by Stripe"
+msgstr "Über Stripe verwaltet"
+
+#: app/templates/platform/admin/subscription_edit.html:39
+msgid ""
+"Edits here would be overwritten by the next Stripe webhook. Manage this "
+"subscription in the Stripe dashboard instead."
+msgstr ""
+"Änderungen hier würden vom nächsten Stripe-Webhook überschrieben. "
+"Verwalten Sie dieses Abonnement im Stripe-Dashboard."
+
+#: app/templates/platform/admin/subscription_edit.html:61
+msgid "Extend trial +30 days"
+msgstr "Testphase +30 Tage verlängern"
+
+#: app/templates/platform/admin/subscription_edit.html:62
+msgid "Extend trial +90 days"
+msgstr "Testphase +90 Tage verlängern"
+
+#: app/templates/platform/admin/subscription_edit.html:63
+msgid "Extend trial +365 days"
+msgstr "Testphase +365 Tage verlängern"
+
+#: app/templates/platform/admin/subscription_edit.html:64
+msgid "Internal — never expires"
+msgstr "Intern — kein Ablauf"
+
+#: app/templates/platform/admin/subscription_edit.html:65
+msgid "Mark as active (manual billing)"
+msgstr "Als aktiv markieren (manuelle Abrechnung)"
+
+#: app/templates/platform/admin/subscription_edit.html:84
+#: app/templates/platform/admin/tenants.html:22
+msgid "Plan"
+msgstr "Plan"
+
+#: app/templates/platform/admin/subscription_edit.html:94
+msgid "Current status:"
+msgstr "Aktueller Status:"
+
+#: app/templates/platform/admin/subscription_edit.html:100
+msgid "Trial ends at"
+msgstr "Testphase endet am"
+
+#: app/templates/platform/admin/subscription_edit.html:104
+msgid "Empty = no trial."
+msgstr "Leer = keine Testphase."
+
+#: app/templates/platform/admin/subscription_edit.html:107
+msgid "Period ends at"
+msgstr "Periode endet am"
+
+#: app/templates/platform/admin/subscription_edit.html:111
+msgid "Empty = no period anchor."
+msgstr "Leer = kein Periodenanker."
+
+#: app/templates/platform/admin/subscription_edit.html:117
+msgid "Back to tenants"
+msgstr "Zurück zu Mandanten"
 
 #: app/templates/platform/admin/tenant_edit.html:3
 #: app/templates/platform/admin/tenant_edit.html:15
@@ -2488,10 +2571,6 @@ msgid "change the status via the Deactivate / Reactivate buttons in the list."
 msgstr ""
 "Status ändern Sie über die Schaltflächen Deaktivieren / Reaktivieren in "
 "der Liste."
-
-#: app/templates/platform/admin/tenants.html:22
-msgid "Plan"
-msgstr "Plan"
 
 #: app/templates/platform/admin/tenants.html:23
 msgid "Billing status"
@@ -2549,64 +2628,60 @@ msgstr "Support-Zugang — Sie können ihn jederzeit zurückziehen."
 msgid "support"
 msgstr "Support"
 
-#: app/templates/platform/admin/tenants.html:105
+#: app/templates/platform/admin/tenants.html:109
 msgid "Revoke your support access to tenant"
 msgstr "Eigenen Support-Zugang zum Mandanten widerrufen"
 
-#: app/templates/platform/admin/tenants.html:105
-#: app/templates/platform/admin/tenants.html:116
+#: app/templates/platform/admin/tenants.html:109
+#: app/templates/platform/admin/tenants.html:120
 msgid "The action is logged in the tenant audit log."
 msgstr "Die Aktion wird im Audit-Log des Mandanten protokolliert."
 
-#: app/templates/platform/admin/tenants.html:109
+#: app/templates/platform/admin/tenants.html:113
 msgid "Revoke support"
 msgstr "Support widerrufen"
 
-#: app/templates/platform/admin/tenants.html:116
+#: app/templates/platform/admin/tenants.html:120
 msgid "Join tenant"
 msgstr "Mandant beitreten"
 
-#: app/templates/platform/admin/tenants.html:116
+#: app/templates/platform/admin/tenants.html:120
 msgid "as support?"
 msgstr "als Support?"
 
-#: app/templates/platform/admin/tenants.html:125
+#: app/templates/platform/admin/tenants.html:129
 msgid "Deactivate tenant"
 msgstr "Mandant deaktivieren"
 
-#: app/templates/platform/admin/tenants.html:148
+#: app/templates/platform/admin/tenants.html:152
 msgid "No tenants yet."
 msgstr "Bisher keine Mandanten."
 
-#: app/templates/platform/admin/tenants.html:153
+#: app/templates/platform/admin/tenants.html:157
 msgid "New tenant"
 msgstr "Neuer Mandant"
 
-#: app/templates/platform/admin/tenants.html:167
+#: app/templates/platform/admin/tenants.html:171
 msgid "Owner — email"
 msgstr "Inhaber — E-Mail"
 
-#: app/templates/platform/admin/tenants.html:172
+#: app/templates/platform/admin/tenants.html:176
 msgid "Owner — name"
 msgstr "Inhaber — Name"
 
-#: app/templates/platform/admin/tenants.html:177
+#: app/templates/platform/admin/tenants.html:181
 msgid "Owner — password"
 msgstr "Inhaber — Passwort"
 
-#: app/templates/platform/admin/tenants.html:181
+#: app/templates/platform/admin/tenants.html:185
 msgid "Send it to the new owner over a secure channel outside the portal."
 msgstr ""
 "Senden Sie es dem neuen Inhaber über einen sicheren Kanal außerhalb des "
 "Portals."
 
-#: app/templates/platform/admin/tenants.html:187
+#: app/templates/platform/admin/tenants.html:191
 msgid "Create tenant"
 msgstr "Mandant anlegen"
-
-#: app/templates/platform/billing/dashboard.html:3
-msgid "Subscription"
-msgstr "Abonnement"
 
 #: app/templates/platform/billing/dashboard.html:7
 msgid "Subscription & billing"
