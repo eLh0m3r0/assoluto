@@ -23,14 +23,16 @@
                     {{ _('New password (min. 8 characters)') }}
                 </label>
                 <input type="password" name="password" id="password" required minlength="8" autofocus
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700">
+                       autocomplete="new-password"
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
             </div>
             <div>
                 <label for="password_confirm" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     {{ _('Confirm password') }}
                 </label>
                 <input type="password" name="password_confirm" id="password_confirm" required minlength="8"
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700">
+                       autocomplete="new-password"
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
             </div>
             <button type="submit"
                     class="w-full rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">

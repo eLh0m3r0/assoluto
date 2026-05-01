@@ -85,9 +85,9 @@
                     <option value="adjust">{{ _('Correction') }}</option>
                 </select>
                 <input type="number" step="0.001" name="quantity" required placeholder="{{ _('Quantity') }}"
-                       class="rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700">
+                       class="rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 <input type="text" name="note" placeholder="{{ _('Note') }}"
-                       class="rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700">
+                       class="rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 <select name="reference_order_id" class="rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700">
                     <option value="">— {{ _('order') }} —</option>
                     {% for o in orders %}

@@ -19,21 +19,58 @@
                     <tr>
                         <th class="px-4 py-3 text-left">{{ _("Slug") }}</th>
                         <th class="px-4 py-3 text-left">{{ _("Name") }}</th>
-                        <th class="px-4 py-3 text-left">{{ _("Billing email") }}</th>
-                        <th class="px-4 py-3 text-left">{{ _("Status") }}</th>
+                        <th class="px-4 py-3 text-left">{{ _("Plan") }}</th>
+                        <th class="px-4 py-3 text-left">{{ _("Billing status") }}</th>
+                        <th class="px-4 py-3 text-left">{{ _("Period ends") }}</th>
+                        <th class="px-4 py-3 text-left">{{ _("Tenant") }}</th>
                         <th class="px-4 py-3 text-left">{{ _("Your access") }}</th>
                         <th class="px-4 py-3"></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     {% for t in tenants %}
+                        {% set sub_row = sub_by_tenant_id.get(t.id|string) %}
+                        {% set sub = sub_row.sub if sub_row else None %}
+                        {% set plan = sub_row.plan if sub_row else None %}
                         <tr class="{% if not t.is_active %}opacity-50{% endif %}">
                             <td class="px-4 py-3 font-mono text-slate-700 dark:text-slate-300">{{ t.slug }}</td>
-                            <td class="px-4 py-3 text-slate-900 dark:text-slate-100">{{ t.name }}</td>
-                            <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ t.billing_email }}</td>
+                            <td class="px-4 py-3 text-slate-900 dark:text-slate-100">
+                                {{ t.name }}<br>
+                                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t.billing_email }}</span>
+                            </td>
+                            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+                                {% if plan %}{{ plan.name }}{% else %}<span class="text-slate-400 dark:text-slate-500">—</span>{% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-xs">
+                                {% if not sub %}
+                                    <span class="rounded-full bg-slate-100 px-2 py-0.5 text-slate-500 dark:bg-slate-800 dark:text-slate-400">{{ _("no subscription") }}</span>
+                                {% elif sub.status == "trialing" %}
+                                    <span class="rounded-full bg-sky-100 px-2 py-0.5 text-sky-800 dark:bg-sky-500/20 dark:text-sky-300">{{ _("trialing") }}</span>
+                                {% elif sub.status == "active" %}
+                                    <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">{{ _("active") }}</span>
+                                {% elif sub.status == "past_due" %}
+                                    <span class="rounded-full bg-amber-100 px-2 py-0.5 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">⚠ {{ _("past due") }}</span>
+                                {% elif sub.status == "canceled" %}
+                                    <span class="rounded-full bg-rose-100 px-2 py-0.5 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300">{{ _("canceled") }}</span>
+                                {% elif sub.status == "demo" %}
+                                    <span class="rounded-full bg-violet-100 px-2 py-0.5 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300">{{ _("demo") }}</span>
+                                {% else %}
+                                    <span class="rounded-full bg-slate-100 px-2 py-0.5 text-slate-700 dark:bg-slate-700 dark:text-slate-300">{{ sub.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">
+                                {% if sub and sub.status == "trialing" and sub.trial_ends_at %}
+                                    {{ sub.trial_ends_at.strftime("%d.%m.%Y") }}
+                                    <span class="text-slate-400 dark:text-slate-500">({{ _("trial") }})</span>
+                                {% elif sub and sub.current_period_end %}
+                                    {{ sub.current_period_end.strftime("%d.%m.%Y") }}
+                                {% else %}
+                                    <span class="text-slate-400 dark:text-slate-500">—</span>
+                                {% endif %}
+                            </td>
                             <td class="px-4 py-3 text-xs">
                                 {% if t.is_active %}
-                                    <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700">{{ _("active") }}</span>
+                                    <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">{{ _("active") }}</span>
                                 {% else %}
                                     <span class="rounded-full bg-slate-200 px-2 py-0.5 text-slate-700 dark:bg-slate-700 dark:text-slate-300">{{ _("disabled") }}</span>
                                 {% endif %}
@@ -119,27 +156,27 @@
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Slug") }} *</label>
                 <input type="text" name="slug" required pattern="[a-z0-9-]+"
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Company name") }} *</label>
                 <input type="text" name="name" required
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Owner — email") }} *</label>
                 <input type="email" name="owner_email" required
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Owner — name") }} *</label>
                 <input type="text" name="owner_full_name" required
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
             </div>
             <div class="sm:col-span-2">
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Owner — password") }} *</label>
                 <input type="password" name="owner_password" required minlength="8"
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     {{ _("Send it to the new owner over a secure channel outside the portal.") }}
                 </p>

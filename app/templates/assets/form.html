@@ -29,28 +29,28 @@
             <div>
                 <label for="code" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Code') }} *</label>
                 <input type="text" id="code" name="code" required value="{{ form.code or '' }}"
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm dark:border-slate-700">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
             </div>
             <div>
                 <label for="unit" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Unit') }}</label>
                 <input type="text" id="unit" name="unit" value="{{ form.unit or 'ks' }}"
-                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm dark:border-slate-700">
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
             </div>
         </div>
         <div>
             <label for="name" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Name') }} *</label>
             <input type="text" id="name" name="name" required value="{{ form.name or '' }}"
-                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm dark:border-slate-700">
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
         </div>
         <div>
             <label for="location" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Location') }}</label>
             <input type="text" id="location" name="location" value="{{ form.location or '' }}"
-                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm dark:border-slate-700">
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
         </div>
         <div>
             <label for="description" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Description') }}</label>
             <textarea id="description" name="description" rows="3"
-                      class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm dark:border-slate-700">{{ form.description or '' }}</textarea>
+                      class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">{{ form.description or '' }}</textarea>
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-2">

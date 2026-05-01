@@ -33,6 +33,7 @@ from app.services.auth_service import (
     InvalidCredentials,
     InvalidInvitation,
     LoginResult,
+    UnverifiedIdentity,
     accept_invitation,
     accept_staff_invite,
     authenticate,
@@ -262,6 +263,24 @@ async def login_submit(
             },
         )
         return HTMLResponse(html, status_code=status.HTTP_401_UNAUTHORIZED)
+    except UnverifiedIdentity:
+        # Self-signup users with an unverified Identity. Send them to
+        # /platform/check-email which already explains the verify flow
+        # and offers a resend button. Pre-fill the email so the resend
+        # form doesn't ask for it again. Logged at info — this is a
+        # legitimate UX state, not a security event.
+        _auth_logger.info(
+            "auth.login.unverified_identity",
+            email=email[:255],
+            tenant=tenant.slug,
+            ip=client_ip,
+        )
+        from urllib.parse import quote as _qp
+
+        return RedirectResponse(
+            url=f"/platform/check-email?email={_qp(email)}",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
 
     # Successful login: write a real audit_events row and a security log.
     # The audit row makes "who logged in to this tenant when" queryable

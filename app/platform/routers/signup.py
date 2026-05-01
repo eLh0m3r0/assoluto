@@ -15,6 +15,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
+from app.logging import get_logger
 from app.platform.deps import get_current_identity, get_platform_db, require_identity
 from app.platform.models import Identity
 from app.platform.service import (
@@ -91,9 +92,28 @@ async def signup_submit(
     password: str = Form(...),
     terms_accepted: str = Form(""),
     plan: str = Form(""),
+    website: str = Form(""),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
+    # Honeypot — the ``website`` field is hidden from real users via
+    # CSS ``display:none`` and an ``aria-hidden`` label. Bots that
+    # naively fill every field will trip it; pretend the signup
+    # succeeded so the bot doesn't iterate. Real conversions are
+    # never affected because no human sees the field. Logged at info
+    # for ops visibility.
+    if website.strip():
+        get_logger("app.platform.signup").info(
+            "signup.honeypot_tripped",
+            length=len(website),
+        )
+        html = _templates(request).render(
+            request,
+            "platform/verify_sent.html",
+            {"email": owner_email or "(unknown)", "principal": None},
+        )
+        return HTMLResponse(html)
+
     form_raw = {
         "company_name": company_name,
         "slug": slug,
@@ -391,6 +411,74 @@ async def _lookup_signup_selected_plan(
             return chosen, tenant.slug
         return None, tenant.slug
     return None, None
+
+
+# --------- public "check your email" page (for users not yet logged in) ---------
+
+
+@router.get("/platform/check-email", response_class=HTMLResponse)
+async def check_email_form(
+    request: Request,
+    email: str = "",
+) -> HTMLResponse:
+    """Public page shown when a user tries to log in but their Identity
+    is still unverified. Pre-fills the resend form with the email they
+    typed at login (passed via query param) so they don't have to type
+    it again.
+    """
+    html = _templates(request).render(
+        request,
+        "platform/check_email.html",
+        {"email": email, "principal": None, "sent": False},
+    )
+    return HTMLResponse(html)
+
+
+@router.post("/platform/check-email", response_class=HTMLResponse)
+@rate_limit("5/15 minutes")
+async def check_email_resend(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    email: str = Form(...),
+    db: AsyncSession = Depends(get_platform_db),
+    settings: Settings = Depends(get_settings),
+) -> Response:
+    """Public resend endpoint — accepts an email, looks up the Identity,
+    sends a fresh verify link only if unverified. Always returns the
+    "we sent it" page regardless of whether anything actually happened
+    so we don't leak which emails own accounts (email enumeration
+    defence). Rate-limited per IP.
+    """
+    email_norm = (email or "").strip().lower()
+
+    from app.security.email_throttle import VERIFY_RESEND_THROTTLE
+
+    sent = False
+    if email_norm and VERIFY_RESEND_THROTTLE.allow(email_norm):
+        identity = (
+            await db.execute(select(Identity).where(Identity.email == email_norm))
+        ).scalar_one_or_none()
+        if identity is not None and identity.email_verified_at is None:
+            company_name = await _company_name_for_identity(db, identity.id)
+            verify_url = _build_verify_url(settings, identity.id)
+            locale = getattr(request.state, "locale", settings.default_locale)
+            background_tasks.add_task(
+                send_email_verification,
+                request.app.state.email_sender,
+                to=identity.email,
+                full_name=identity.full_name,
+                company_name=company_name,
+                verify_url=verify_url,
+                locale=locale,
+            )
+            sent = True
+
+    html = _templates(request).render(
+        request,
+        "platform/check_email.html",
+        {"email": email_norm, "principal": None, "sent": True, "_actually_sent": sent},
+    )
+    return HTMLResponse(html)
 
 
 # ----------------------------------------------------------- resend link

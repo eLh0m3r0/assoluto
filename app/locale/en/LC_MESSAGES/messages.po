@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-04-26 12:49+0200\n"
+"POT-Creation-Date: 2026-05-01 12:13+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -135,25 +135,26 @@ msgstr ""
 msgid "Customer contact"
 msgstr "As a customer contact"
 
-#: app/main.py:460
+#: app/main.py:466
 msgid "staff users"
 msgstr ""
 
-#: app/main.py:461
+#: app/main.py:467
 #, fuzzy
 msgid "client contacts"
 msgstr "Clients"
 
-#: app/main.py:462
+#: app/main.py:468
 #, fuzzy
 msgid "orders this month"
 msgstr "Orders"
 
-#: app/main.py:463
+#: app/main.py:469
 msgid "MB of storage"
 msgstr ""
 
 #: app/email/templates/email_verification.html:6
+#: app/templates/platform/check_email.html:3
 #: app/templates/platform/verify_sent.html:3
 msgid "Verify your email"
 msgstr "Verify your email"
@@ -416,8 +417,8 @@ msgid ""
 msgstr ""
 
 #: app/email/templates/password_reset.html:21
-#: app/templates/auth/password_reset_confirm.html:34
-#: app/templates/platform/password_reset_confirm.html:34
+#: app/templates/auth/password_reset_confirm.html:36
+#: app/templates/platform/password_reset_confirm.html:36
 #, fuzzy
 msgid "Set new password"
 msgstr "Password"
@@ -562,7 +563,6 @@ msgstr ""
 #: app/routers/orders.py:295 app/templates/orders/list.html:87
 #: app/templates/platform/admin/dashboard.html:49
 #: app/templates/platform/admin/tenant_edit.html:59
-#: app/templates/platform/admin/tenants.html:23
 #: app/templates/platform/billing/dashboard.html:192
 #: app/templates/www/_hero_mock.html:62
 msgid "Status"
@@ -633,22 +633,22 @@ msgstr ""
 msgid "Select at least one order."
 msgstr ""
 
-#: app/routers/orders.py:1079
+#: app/routers/orders.py:1091
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr ""
 
-#: app/routers/orders.py:1081
+#: app/routers/orders.py:1093
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr ""
 
-#: app/routers/orders.py:1187
+#: app/routers/orders.py:1199
 #, python-brace-format
 msgid "Status changed to {status}."
 msgstr ""
 
-#: app/routers/orders.py:1267
+#: app/routers/orders.py:1279
 msgid "Comment added."
 msgstr ""
 
@@ -664,33 +664,33 @@ msgstr ""
 msgid "Product deleted."
 msgstr ""
 
-#: app/routers/public.py:192
+#: app/routers/public.py:195
 msgid "Password changed. Sign in with your new password."
 msgstr ""
 
-#: app/routers/public.py:238
+#: app/routers/public.py:241
 msgid "Your account is disabled."
 msgstr ""
 
-#: app/routers/public.py:257
+#: app/routers/public.py:260
 msgid "Invalid email or password."
 msgstr ""
 
-#: app/routers/public.py:362 app/routers/public.py:458
-#: app/routers/public.py:541
+#: app/routers/public.py:383 app/routers/public.py:479
+#: app/routers/public.py:562
 msgid "The invitation is invalid or has expired."
 msgstr ""
 
-#: app/routers/public.py:376 app/routers/public.py:472
+#: app/routers/public.py:397 app/routers/public.py:493
 msgid "The invitation belongs to a different tenant."
 msgstr ""
 
-#: app/routers/public.py:438 app/routers/public.py:585
-#: app/routers/public.py:802
+#: app/routers/public.py:459 app/routers/public.py:606
+#: app/routers/public.py:826
 msgid "Passwords do not match."
 msgstr ""
 
-#: app/routers/public.py:767
+#: app/routers/public.py:791
 msgid "The link is invalid or has expired."
 msgstr ""
 
@@ -937,9 +937,9 @@ msgid "Theme: dark"
 msgstr "Theme: dark"
 
 #: app/templates/auth/login.html:3 app/templates/auth/login.html:12
-#: app/templates/auth/login.html:39 app/templates/index.html:8
+#: app/templates/auth/login.html:41 app/templates/index.html:8
 #: app/templates/index.html:21 app/templates/platform/login.html:3
-#: app/templates/platform/login.html:29 app/templates/platform/signup.html:117
+#: app/templates/platform/login.html:31 app/templates/platform/signup.html:133
 #: app/templates/www/www_base.html:72
 msgid "Sign in"
 msgstr "Sign in"
@@ -1040,7 +1040,8 @@ msgstr "Your name"
 #: app/templates/admin/profile.html:25 app/templates/admin/user_edit.html:24
 #: app/templates/admin/users.html:22 app/templates/auth/login.html:25
 #: app/templates/auth/password_reset_request.html:18
-#: app/templates/me/profile.html:25 app/templates/platform/login.html:18
+#: app/templates/me/profile.html:25 app/templates/platform/check_email.html:34
+#: app/templates/platform/login.html:18
 #: app/templates/platform/password_reset_request.html:18
 #: app/templates/www/contact.html:30 app/templates/www/contact.html:96
 msgid "Email"
@@ -1306,7 +1307,7 @@ msgstr ""
 #: app/templates/admin/users.html:38 app/templates/customers/detail.html:116
 #: app/templates/platform/admin/dashboard.html:62
 #: app/templates/platform/admin/tenant_edit.html:64
-#: app/templates/platform/admin/tenants.html:38
+#: app/templates/platform/admin/tenants.html:75
 msgid "disabled"
 msgstr ""
 
@@ -1317,7 +1318,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/admin/users.html:42
-#: app/templates/platform/admin/tenants.html:83
+#: app/templates/platform/admin/tenants.html:120
 #: app/templates/platform/select_tenant.html:42
 msgid "Support access"
 msgstr ""
@@ -1329,14 +1330,15 @@ msgstr ""
 #: app/templates/admin/users.html:47 app/templates/customers/detail.html:118
 #: app/templates/platform/admin/dashboard.html:60
 #: app/templates/platform/admin/tenant_edit.html:62
-#: app/templates/platform/admin/tenants.html:36
+#: app/templates/platform/admin/tenants.html:50
+#: app/templates/platform/admin/tenants.html:73
 msgid "active"
 msgstr ""
 
 #: app/templates/admin/users.html:55 app/templates/customers/detail.html:21
 #: app/templates/customers/form.html:9
 #: app/templates/platform/admin/tenant_edit.html:10
-#: app/templates/platform/admin/tenants.html:61
+#: app/templates/platform/admin/tenants.html:98
 #: app/templates/products/detail.html:27 app/templates/products/form.html:9
 #: app/templates/products/list.html:48
 msgid "Edit"
@@ -1355,12 +1357,12 @@ msgid "Deactivate this user?"
 msgstr ""
 
 #: app/templates/admin/users.html:74 app/templates/customers/detail.html:137
-#: app/templates/platform/admin/tenants.html:91
+#: app/templates/platform/admin/tenants.html:128
 msgid "Deactivate"
 msgstr ""
 
 #: app/templates/admin/users.html:81 app/templates/customers/detail.html:144
-#: app/templates/platform/admin/tenants.html:98
+#: app/templates/platform/admin/tenants.html:135
 msgid "Reactivate"
 msgstr ""
 
@@ -1376,7 +1378,7 @@ msgstr ""
 msgid "Invite user"
 msgstr ""
 
-#: app/templates/admin/users.html:103 app/templates/auth/login.html:29
+#: app/templates/admin/users.html:103 app/templates/auth/login.html:30
 #: app/templates/customers/detail.html:161
 msgid "name@company.com"
 msgstr ""
@@ -1540,16 +1542,16 @@ msgstr ""
 msgid "Please set a password to access the portal."
 msgstr ""
 
-#: app/templates/auth/invite_accept.html:30
-#: app/templates/auth/password_reset_confirm.html:27
-#: app/templates/auth/staff_invite_accept.html:30
-#: app/templates/platform/password_reset_confirm.html:27
+#: app/templates/auth/invite_accept.html:31
+#: app/templates/auth/password_reset_confirm.html:28
+#: app/templates/auth/staff_invite_accept.html:31
+#: app/templates/platform/password_reset_confirm.html:28
 #, fuzzy
 msgid "Confirm password"
 msgstr "Password"
 
-#: app/templates/auth/invite_accept.html:37
-#: app/templates/auth/staff_invite_accept.html:37
+#: app/templates/auth/invite_accept.html:39
+#: app/templates/auth/staff_invite_accept.html:39
 msgid "Set password and sign in"
 msgstr ""
 
@@ -1557,12 +1559,12 @@ msgstr ""
 msgid "Sign in to workspace"
 msgstr ""
 
-#: app/templates/auth/login.html:32 app/templates/platform/login.html:23
-#: app/templates/platform/signup.html:83
+#: app/templates/auth/login.html:33 app/templates/platform/login.html:24
+#: app/templates/platform/signup.html:98
 msgid "Password"
 msgstr "Password"
 
-#: app/templates/auth/login.html:45 app/templates/platform/login.html:34
+#: app/templates/auth/login.html:47 app/templates/platform/login.html:36
 #, fuzzy
 msgid "Forgot password?"
 msgstr "Password"
@@ -1585,13 +1587,15 @@ msgid ""
 "set a new password."
 msgstr ""
 
-#: app/templates/auth/password_reset_request.html:24
+#: app/templates/auth/password_reset_request.html:25
 #, fuzzy
 msgid "Send the link"
 msgstr "and the"
 
-#: app/templates/auth/password_reset_request.html:27
-#: app/templates/platform/password_reset_request.html:27
+#: app/templates/auth/password_reset_request.html:28
+#: app/templates/platform/check_email.html:24
+#: app/templates/platform/check_email.html:46
+#: app/templates/platform/password_reset_request.html:28
 #: app/templates/platform/verify_email.html:54
 msgid "Back to sign in"
 msgstr "Back to sign in"
@@ -1672,8 +1676,8 @@ msgstr "Clients"
 
 #: app/templates/customers/form.html:26
 #: app/templates/platform/admin/tenant_edit.html:33
-#: app/templates/platform/admin/tenants.html:125
-#: app/templates/platform/signup.html:22
+#: app/templates/platform/admin/tenants.html:162
+#: app/templates/platform/signup.html:33
 msgid "Company name"
 msgstr "Company name"
 
@@ -2169,6 +2173,41 @@ msgstr "Orders"
 msgid "Create the first order"
 msgstr ""
 
+#: app/templates/platform/check_email.html:12
+#: app/templates/platform/verify_sent.html:11
+msgid "Check your email"
+msgstr "Check your email"
+
+#: app/templates/platform/check_email.html:12
+msgid "Verify your email first"
+msgstr ""
+
+#: app/templates/platform/check_email.html:16
+msgid "If an unverified account exists for"
+msgstr ""
+
+#: app/templates/platform/check_email.html:17
+msgid ""
+"we've sent a fresh verification link to it. Click the link and your "
+"portal will be ready to use."
+msgstr ""
+
+#: app/templates/platform/check_email.html:20
+msgid "Didn't receive it? Check your spam folder."
+msgstr ""
+
+#: app/templates/platform/check_email.html:29
+msgid ""
+"Your account exists but the email isn't confirmed yet. Click the "
+"verification link in your inbox, or request a new one below."
+msgstr ""
+
+#: app/templates/platform/check_email.html:42
+#: app/templates/platform/verify_email.html:49
+#: app/templates/platform/verify_sent.html:23
+msgid "Send a new verification link"
+msgstr "Send a new verification link"
+
 #: app/templates/platform/login.html:3 app/templates/platform/login.html:8
 msgid "Platform"
 msgstr "Platform"
@@ -2177,11 +2216,11 @@ msgstr "Platform"
 msgid "Sign in with a single account to all the portals you have access to."
 msgstr "Sign in with a single account to all the portals you have access to."
 
-#: app/templates/platform/login.html:38
+#: app/templates/platform/login.html:40
 msgid "Don't have an account yet?"
 msgstr "Don't have an account yet?"
 
-#: app/templates/platform/login.html:40
+#: app/templates/platform/login.html:42
 msgid "Create new portal"
 msgstr "Create new portal"
 
@@ -2195,7 +2234,7 @@ msgid ""
 "new password."
 msgstr ""
 
-#: app/templates/platform/password_reset_request.html:24
+#: app/templates/platform/password_reset_request.html:25
 #, fuzzy
 msgid "Send reset link"
 msgstr "Send a new verification link"
@@ -2236,7 +2275,7 @@ msgstr "You have platform-admin permissions."
 msgid "Manage tenants"
 msgstr "Manage tenants"
 
-#: app/templates/platform/signup.html:3 app/templates/platform/signup.html:111
+#: app/templates/platform/signup.html:3 app/templates/platform/signup.html:127
 msgid "Create portal"
 msgstr "Create portal"
 
@@ -2249,31 +2288,31 @@ msgstr "Create your portal"
 msgid "30-day free trial. No credit card required."
 msgstr "14-day free trial. No credit card required."
 
-#: app/templates/platform/signup.html:23
+#: app/templates/platform/signup.html:34
 msgid "required"
 msgstr "required"
 
-#: app/templates/platform/signup.html:36
+#: app/templates/platform/signup.html:48
 msgid "Portal subdomain"
 msgstr "Portal subdomain"
 
-#: app/templates/platform/signup.html:50
+#: app/templates/platform/signup.html:63
 msgid "Optional — if empty we derive it from the company name."
 msgstr "Optional — if empty we derive it from the company name."
 
-#: app/templates/platform/signup.html:60 app/templates/www/contact.html:90
+#: app/templates/platform/signup.html:73 app/templates/www/contact.html:90
 msgid "Your name"
 msgstr "Your name"
 
-#: app/templates/platform/signup.html:69
+#: app/templates/platform/signup.html:83
 msgid "Work email"
 msgstr "Work email"
 
-#: app/templates/platform/signup.html:89
+#: app/templates/platform/signup.html:105
 msgid "At least 8 characters; avoid common passwords."
 msgstr "At least 8 characters; avoid common passwords."
 
-#: app/templates/platform/signup.html:101
+#: app/templates/platform/signup.html:117
 msgid ""
 "I agree to the <a href=\"/terms\" target=\"_blank\" class=\"text-"
 "brand-600 hover:text-brand-700\">Terms of Service</a> and the <a "
@@ -2281,7 +2320,7 @@ msgid ""
 "brand-700\">Privacy Policy</a>."
 msgstr ""
 
-#: app/templates/platform/signup.html:116
+#: app/templates/platform/signup.html:132
 msgid "Already have an account?"
 msgstr "Already have an account?"
 
@@ -2308,15 +2347,6 @@ msgstr "Continue to the portal"
 #: app/templates/platform/verify_email.html:43
 msgid "Email verification failed"
 msgstr "Email verification failed"
-
-#: app/templates/platform/verify_email.html:49
-#: app/templates/platform/verify_sent.html:23
-msgid "Send a new verification link"
-msgstr "Send a new verification link"
-
-#: app/templates/platform/verify_sent.html:11
-msgid "Check your email"
-msgstr "Check your email"
 
 #: app/templates/platform/verify_sent.html:13
 msgid "We've sent a verification link to"
@@ -2383,7 +2413,7 @@ msgstr ""
 #: app/templates/platform/admin/dashboard.html:46
 #: app/templates/platform/admin/tenant_edit.html:17
 #: app/templates/platform/admin/tenants.html:20
-#: app/templates/platform/admin/tenants.html:120
+#: app/templates/platform/admin/tenants.html:157
 msgid "Slug"
 msgstr ""
 
@@ -2410,7 +2440,6 @@ msgid ""
 msgstr ""
 
 #: app/templates/platform/admin/tenant_edit.html:43
-#: app/templates/platform/admin/tenants.html:22
 msgid "Billing email"
 msgstr ""
 
@@ -2426,84 +2455,124 @@ msgstr ""
 msgid "change the status via the Deactivate / Reactivate buttons in the list."
 msgstr ""
 
+#: app/templates/platform/admin/tenants.html:22
+msgid "Plan"
+msgstr ""
+
+#: app/templates/platform/admin/tenants.html:23
+msgid "Billing status"
+msgstr ""
+
 #: app/templates/platform/admin/tenants.html:24
+msgid "Period ends"
+msgstr ""
+
+#: app/templates/platform/admin/tenants.html:25
+msgid "Tenant"
+msgstr ""
+
+#: app/templates/platform/admin/tenants.html:26
 #, fuzzy
 msgid "Your access"
 msgstr "Your name"
 
-#: app/templates/platform/admin/tenants.html:44
+#: app/templates/platform/admin/tenants.html:46
+msgid "no subscription"
+msgstr ""
+
+#: app/templates/platform/admin/tenants.html:48
+msgid "trialing"
+msgstr ""
+
+#: app/templates/platform/admin/tenants.html:52
+msgid "past due"
+msgstr ""
+
+#: app/templates/platform/admin/tenants.html:54
+msgid "canceled"
+msgstr ""
+
+#: app/templates/platform/admin/tenants.html:56
+msgid "demo"
+msgstr ""
+
+#: app/templates/platform/admin/tenants.html:64
+msgid "trial"
+msgstr ""
+
+#: app/templates/platform/admin/tenants.html:81
 msgid "You are a regular team member of this tenant."
 msgstr ""
 
-#: app/templates/platform/admin/tenants.html:46
+#: app/templates/platform/admin/tenants.html:83
 msgid "member"
 msgstr ""
 
-#: app/templates/platform/admin/tenants.html:49
+#: app/templates/platform/admin/tenants.html:86
 msgid "Support access — you can revoke it at any time."
 msgstr ""
 
-#: app/templates/platform/admin/tenants.html:51
+#: app/templates/platform/admin/tenants.html:88
 msgid "support"
 msgstr ""
 
-#: app/templates/platform/admin/tenants.html:68
+#: app/templates/platform/admin/tenants.html:105
 msgid "Revoke your support access to tenant"
 msgstr ""
 
-#: app/templates/platform/admin/tenants.html:68
-#: app/templates/platform/admin/tenants.html:79
+#: app/templates/platform/admin/tenants.html:105
+#: app/templates/platform/admin/tenants.html:116
 msgid "The action is logged in the tenant audit log."
 msgstr ""
 
-#: app/templates/platform/admin/tenants.html:72
+#: app/templates/platform/admin/tenants.html:109
 msgid "Revoke support"
 msgstr ""
 
-#: app/templates/platform/admin/tenants.html:79
+#: app/templates/platform/admin/tenants.html:116
 #, fuzzy
 msgid "Join tenant"
 msgstr "Manage tenants"
 
-#: app/templates/platform/admin/tenants.html:79
+#: app/templates/platform/admin/tenants.html:116
 msgid "as support?"
 msgstr ""
 
-#: app/templates/platform/admin/tenants.html:88
+#: app/templates/platform/admin/tenants.html:125
 #, fuzzy
 msgid "Deactivate tenant"
 msgstr "Manage tenants"
 
-#: app/templates/platform/admin/tenants.html:111
+#: app/templates/platform/admin/tenants.html:148
 #, fuzzy
 msgid "No tenants yet."
 msgstr "Manage tenants"
 
-#: app/templates/platform/admin/tenants.html:116
+#: app/templates/platform/admin/tenants.html:153
 #, fuzzy
 msgid "New tenant"
 msgstr "Manage tenants"
 
-#: app/templates/platform/admin/tenants.html:130
+#: app/templates/platform/admin/tenants.html:167
 #, fuzzy
 msgid "Owner — email"
 msgstr "Work email"
 
-#: app/templates/platform/admin/tenants.html:135
+#: app/templates/platform/admin/tenants.html:172
 #, fuzzy
 msgid "Owner — name"
 msgstr "Your name"
 
-#: app/templates/platform/admin/tenants.html:140
+#: app/templates/platform/admin/tenants.html:177
 #, fuzzy
 msgid "Owner — password"
 msgstr "Password"
 
-#: app/templates/platform/admin/tenants.html:144
+#: app/templates/platform/admin/tenants.html:181
 msgid "Send it to the new owner over a secure channel outside the portal."
 msgstr ""
 
-#: app/templates/platform/admin/tenants.html:150
+#: app/templates/platform/admin/tenants.html:187
 #, fuzzy
 msgid "Create tenant"
 msgstr "Create portal"

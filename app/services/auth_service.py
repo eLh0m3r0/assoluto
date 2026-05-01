@@ -41,6 +41,13 @@ class AccountDisabled(AuthError):
     pass
 
 
+class UnverifiedIdentity(AuthError):
+    """Raised when login succeeds against a User that maps to a self-
+    signup Identity whose email isn't verified yet. The router should
+    show a "verify your email first" page with a resend button rather
+    than a generic auth error."""
+
+
 class InvalidInvitation(AuthError):
     pass
 
@@ -54,6 +61,44 @@ class LoginResult:
     full_name: str
     email: str
     session_version: int
+
+
+async def _has_unverified_identity(email: str) -> bool:
+    """True if a platform Identity for ``email`` exists and is NOT
+    verified. False on every error (DB down, table missing in self-host
+    mode, etc.) — the gate is a UX nudge, not a security control, so
+    failing open is acceptable. The actual security around platform-
+    privileged actions is enforced by ``require_verified_identity``.
+
+    Opens a fresh owner-scoped engine because the platform tables live
+    outside the tenant RLS session that ``authenticate`` runs against.
+    """
+    try:
+        from sqlalchemy import text
+        from sqlalchemy.ext.asyncio import create_async_engine
+
+        from app.config import get_settings
+
+        settings = get_settings()
+        if not settings.feature_platform:
+            return False
+        engine = create_async_engine(settings.database_owner_url, future=True)
+        try:
+            async with engine.connect() as conn:
+                row = (
+                    await conn.execute(
+                        text(
+                            "SELECT email_verified_at IS NULL "
+                            "FROM platform_identities WHERE email = :e LIMIT 1"
+                        ),
+                        {"e": email},
+                    )
+                ).scalar_one_or_none()
+                return bool(row) if row is not None else False
+        finally:
+            await engine.dispose()
+    except Exception:  # pragma: no cover — failing open is the goal
+        return False
 
 
 async def authenticate(
@@ -77,6 +122,19 @@ async def authenticate(
             raise AccountDisabled()
         if not verify_password(password, user.password_hash):
             raise InvalidCredentials()
+
+        # Email-verification gate. The User row exists for two reasons:
+        # (a) self-signup via /platform/signup — also creates an
+        #     Identity that must be verified, OR
+        # (b) staff-invite — operator manually invited a colleague and
+        #     they accepted via signed token, so the email IS already
+        #     proven owned (the invite link landed in their inbox).
+        # Path (b) does NOT mint an Identity. So: only block when an
+        # Identity exists for this email AND it's still unverified.
+        # Lookup goes through the platform-owner DSN because RLS on
+        # the tenant DB session can't see the platform tables.
+        if await _has_unverified_identity(email):
+            raise UnverifiedIdentity()
 
         # Opportunistically refresh stale hashes.
         if user.password_hash and needs_rehash(user.password_hash):

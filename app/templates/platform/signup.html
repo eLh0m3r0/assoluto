@@ -17,15 +17,27 @@
             {% set preselected_plan = form.plan if form.plan else request.query_params.get('plan', '') %}
             <input type="hidden" name="plan" value="{{ preselected_plan }}">
 
+            {# Honeypot — invisible to humans, irresistible to naive bots.
+               Off-screen instead of display:none so dumb form scanners
+               that look for visibility can't trivially detect it.
+               aria-hidden + tabindex=-1 so screen-reader users + keyboard
+               navigation never reach it. autocomplete=off so password
+               managers don't auto-fill the trap. #}
+            <div aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">
+                <label for="website">Website (do not fill)</label>
+                <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" value="">
+            </div>
+
             <div>
                 <label for="company_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     {{ _("Company name") }} <span class="text-red-500" aria-hidden="true">*</span>
                     <span class="sr-only">({{ _("required") }})</span>
                 </label>
                 <input type="text" id="company_name" name="company_name" required autofocus
+                       autocomplete="organization"
                        value="{{ form.company_name or '' }}"
                        placeholder="ACME s.r.o."
-                       class="mt-1 w-full rounded-md border {% if errors.company_name %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                       class="mt-1 w-full rounded-md border {% if errors.company_name %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 {% if errors.company_name %}
                     <p class="mt-1 text-xs text-red-600">{{ errors.company_name }}</p>
                 {% endif %}
@@ -37,11 +49,12 @@
                 </label>
                 <div class="mt-1 flex rounded-md shadow-sm">
                     <input type="text" id="slug" name="slug"
+                           autocomplete="off"
                            value="{{ form.slug or '' }}"
                            pattern="[a-z0-9-]*"
                            placeholder="acme"
                            aria-describedby="slug-help"
-                           class="w-full rounded-l-md border {% if errors.slug %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                           class="w-full rounded-l-md border {% if errors.slug %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                     <span class="inline-flex items-center rounded-r-md border border-l-0 border-slate-300 bg-slate-50 px-3 text-sm text-slate-500 dark:bg-slate-800/60 dark:border-slate-700 dark:text-slate-400">
                         .assoluto.eu
                     </span>
@@ -60,18 +73,20 @@
                         {{ _("Your name") }}
                     </label>
                     <input type="text" id="owner_full_name" name="owner_full_name"
+                           autocomplete="name"
                            value="{{ form.owner_full_name or '' }}"
                            placeholder="Jan Novák"
-                           class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700">
+                           class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 </div>
                 <div>
                     <label for="owner_email" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                         {{ _("Work email") }} <span class="text-red-500" aria-hidden="true">*</span>
                     </label>
                     <input type="email" id="owner_email" name="owner_email" required
+                           autocomplete="username"
                            value="{{ form.owner_email or '' }}"
                            placeholder="jan@acme.cz"
-                           class="mt-1 w-full rounded-md border {% if errors.owner_email or errors.email %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                           class="mt-1 w-full rounded-md border {% if errors.owner_email or errors.email %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                     {% if errors.owner_email or errors.email %}
                         <p class="mt-1 text-xs text-red-600">{{ errors.owner_email or errors.email }}</p>
                     {% endif %}
@@ -83,8 +98,9 @@
                     {{ _("Password") }} <span class="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <input type="password" id="password" name="password" required minlength="8"
+                       autocomplete="new-password"
                        aria-describedby="password-help"
-                       class="mt-1 w-full rounded-md border {% if errors.password %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                       class="mt-1 w-full rounded-md border {% if errors.password %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 <p id="password-help" class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     {{ _("At least 8 characters; avoid common passwords.") }}
                 </p>

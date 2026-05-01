@@ -82,6 +82,22 @@ async def tenants_index(
     access_by_tenant_id: dict = {
         str(m.tenant_id): m.access_type for m in own_memberships if m.is_active
     }
+
+    # Subscription + plan per tenant — single round-trip via JOIN, then
+    # bucket by tenant_id for O(1) template lookup. Self-host /
+    # pre-billing tenants have no row in platform_subscriptions; they
+    # render as "—" in the Plan column.
+    sub_rows = (
+        await db.execute(
+            select(Subscription, Plan)
+            .join(Plan, Plan.id == Subscription.plan_id)
+            .order_by(Subscription.tenant_id)
+        )
+    ).all()
+    sub_by_tenant_id: dict = {
+        str(sub.tenant_id): {"sub": sub, "plan": plan} for sub, plan in sub_rows
+    }
+
     html = _templates(request).render(
         request,
         "platform/admin/tenants.html",
@@ -89,6 +105,7 @@ async def tenants_index(
             "identity": identity,
             "tenants": tenants,
             "access_by_tenant_id": access_by_tenant_id,
+            "sub_by_tenant_id": sub_by_tenant_id,
             "error": error,
             "notice": notice,
             "principal": None,
