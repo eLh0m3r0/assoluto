@@ -33,6 +33,20 @@
     {# --- Canonical --- #}
     <link rel="canonical" href="{{ request.url._url.split('?')[0] }}">
 
+    {# --- hreflang alternates. Same canonical URL serves all three locales
+       via Accept-Language; without these tags Google indexes whichever
+       locale Googlebot's data centre is configured for and dedupes the
+       rest. x-default points at the same URL because the language pick
+       is content-negotiated. UX audit 2026-05-01-1335 F-UX-005. #}
+    {% set _path = request.url._url.split('?')[0] %}
+    <link rel="alternate" hreflang="cs" href="{{ _path }}">
+    <link rel="alternate" hreflang="en" href="{{ _path }}">
+    <link rel="alternate" hreflang="de" href="{{ _path }}">
+    <link rel="alternate" hreflang="x-default" href="{{ _path }}">
+    {% if locale != 'cs' %}<meta property="og:locale:alternate" content="cs_CZ">{% endif %}
+    {% if locale != 'en' %}<meta property="og:locale:alternate" content="en_US">{% endif %}
+    {% if locale != 'de' %}<meta property="og:locale:alternate" content="de_DE">{% endif %}
+
     {# --- Schema.org JSON-LD. Each page can extend. --- #}
     {% block schema_jsonld %}
     <script type="application/ld+json">

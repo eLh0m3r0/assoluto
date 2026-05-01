@@ -1,10 +1,17 @@
 {# Inline Assoluto logo. Scales via ``size`` (Tailwind size class, default h-8 w-8).
    Kept separate from favicon.svg so the header version can inherit rounded-square
-   corners from Tailwind and the gradient is a true CSS-style SVG (sharp on Retina). #}
+   corners from Tailwind and the gradient is a true CSS-style SVG (sharp on Retina).
+
+   Trademark notice intentionally NOT embedded as <title> on this SVG — every
+   page would then emit two <title> elements in the rendered HTML (one in
+   <head>, one in this SVG), which confuses scrapers + OG validators (UX
+   audit 2026-05-01-1335 F-UX-002). aria-label below already gives screen
+   readers the accessible name; trademark assertion lives in NOTICE.md +
+   README.md "Trademarks & branding" section, plus the trademark page in
+   the marketing footer. #}
 {% set _size = size or "h-8 w-8" %}
 <svg class="{{ _size }}" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"
      role="img" aria-label="Assoluto" focusable="false">
-    <title>Assoluto — assoluto.eu trademark; see NOTICE.md before forking.</title>
     <defs>
         <linearGradient id="assoluto-bg-{{ variant or 'hdr' }}" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stop-color="#3b82f6"/>
