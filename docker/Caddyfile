@@ -18,6 +18,11 @@
 		X-Content-Type-Options nosniff
 		Referrer-Policy same-origin
 		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+		# Hide upstream stack details from anonymous callers so vuln
+		# scanners can't auto-target known CVEs in the FastAPI/Caddy
+		# stack. Defence-in-depth, not a blocker on its own.
+		-Server
+		-Via
 	}
 
 	request_body {
