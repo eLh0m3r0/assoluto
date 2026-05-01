@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-01 13:56+0200\n"
+"POT-Creation-Date: 2026-05-01 14:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -903,7 +903,7 @@ msgstr ""
 #: app/templates/auth/login.html:41 app/templates/index.html:8
 #: app/templates/index.html:21 app/templates/platform/login.html:3
 #: app/templates/platform/login.html:31 app/templates/platform/signup.html:133
-#: app/templates/www/www_base.html:72
+#: app/templates/www/www_base.html:86
 msgid "Sign in"
 msgstr ""
 
@@ -1002,7 +1002,7 @@ msgstr ""
 #: app/templates/me/profile.html:25 app/templates/platform/check_email.html:34
 #: app/templates/platform/login.html:18
 #: app/templates/platform/password_reset_request.html:18
-#: app/templates/www/contact.html:30 app/templates/www/contact.html:96
+#: app/templates/www/contact.html:30 app/templates/www/contact.html:97
 msgid "Email"
 msgstr ""
 
@@ -2814,7 +2814,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/contact.html:3 app/templates/www/contact.html:12
-#: app/templates/www/www_base.html:69
+#: app/templates/www/www_base.html:83
 msgid "Contact"
 msgstr ""
 
@@ -2884,27 +2884,27 @@ msgstr ""
 msgid "Write to us"
 msgstr ""
 
-#: app/templates/www/contact.html:102
+#: app/templates/www/contact.html:104
 msgid "Your message"
 msgstr ""
 
-#: app/templates/www/contact.html:104
+#: app/templates/www/contact.html:106
 msgid ""
 "Describe briefly — Enterprise plan? Questions about self-hosting? A demo?"
 " What kind of shop are you running?"
 msgstr ""
 
-#: app/templates/www/contact.html:109
+#: app/templates/www/contact.html:111
 msgid "Send"
 msgstr ""
 
-#: app/templates/www/contact.html:113
+#: app/templates/www/contact.html:115
 msgid ""
 "By sending, you agree to the processing of your data for the purpose of "
 "replying (one-off, no newsletter)."
 msgstr ""
 
-#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:85
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:99
 msgid "Cookies"
 msgstr ""
 
@@ -3018,7 +3018,7 @@ msgid "Questions about this cookies policy? Write to"
 msgstr ""
 
 #: app/templates/www/features.html:3 app/templates/www/features.html:11
-#: app/templates/www/www_base.html:60
+#: app/templates/www/www_base.html:74
 msgid "Features"
 msgstr ""
 
@@ -3269,7 +3269,7 @@ msgid "Start 30-day trial"
 msgstr ""
 
 #: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
-#: app/templates/www/www_base.html:87
+#: app/templates/www/www_base.html:101
 msgid "Imprint"
 msgstr ""
 
@@ -3446,7 +3446,8 @@ msgstr ""
 #: app/templates/www/index.html:152
 msgid ""
 "The client sees on their own: DRAFT · SUBMITTED · QUOTED · CONFIRMED · IN"
-" PRODUCTION · READY · DELIVERED. Five calls a day turn into zero."
+" PRODUCTION · READY · DELIVERED. Most \"where's my order?\" calls go away"
+" on their own."
 msgstr ""
 
 #: app/templates/www/index.html:158
@@ -3624,7 +3625,7 @@ msgid "12–36 month contracts"
 msgstr ""
 
 #: app/templates/www/index.html:278 app/templates/www/pricing.html:3
-#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:63
+#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:77
 msgid "Pricing"
 msgstr ""
 
@@ -3797,9 +3798,9 @@ msgstr ""
 #: app/templates/www/index.html:425 app/templates/www/index.html:508
 msgid ""
 "Monthly plans are paid by card via Stripe. Annual plans can be arranged "
-"by bank transfer with a Czech invoice (net-14). Enterprise customers "
-"always receive an invoice. Questions about VAT or Czech tax documents? "
-"Email team@assoluto.eu."
+"by bank transfer with a Czech invoice (net-14, typically two months free "
+"for the year). Enterprise customers always receive an invoice. Questions "
+"about VAT or Czech tax documents? Email team@assoluto.eu."
 msgstr ""
 
 #: app/templates/www/index.html:426 app/templates/www/index.html:512
@@ -3885,14 +3886,14 @@ msgstr ""
 msgid "Up and running in 30 minutes · Data in the EU (Hetzner DE) · Czech support"
 msgstr ""
 
-#: app/templates/www/index.html:469 app/templates/www/www_base.html:45
+#: app/templates/www/index.html:469 app/templates/www/www_base.html:59
 msgid ""
 "Client portal for Czech manufacturing SMEs — orders, drawings, production"
 " status."
 msgstr ""
 
 #: app/templates/www/index.html:477 app/templates/www/index.html:484
-#: app/templates/www/www_base.html:51
+#: app/templates/www/www_base.html:65
 msgid "30-day free trial, no credit card required"
 msgstr ""
 
@@ -3985,6 +3986,10 @@ msgstr ""
 msgid "What's included in every plan"
 msgstr ""
 
+#: app/templates/www/pricing.html:125
+msgid "Hetzner DE, encrypted at rest."
+msgstr ""
+
 #: app/templates/www/pricing.html:129
 msgid "real people, not a chatbot."
 msgstr ""
@@ -4051,7 +4056,8 @@ msgstr ""
 #: app/templates/www/pricing.html:165
 msgid ""
 "Monthly plan: card via Stripe, invoice emailed the same day. Annual plan:"
-" arranged on request — bank transfer with a Czech invoice, net-14."
+" arranged on request — bank transfer with a Czech invoice, net-14, "
+"typically two months free for the year."
 msgstr ""
 
 #: app/templates/www/pricing.html:166
@@ -4453,7 +4459,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
-#: app/templates/www/www_base.html:66
+#: app/templates/www/www_base.html:80
 msgid "Self-hosted"
 msgstr ""
 
@@ -5002,15 +5008,15 @@ msgid ""
 "card."
 msgstr ""
 
-#: app/templates/www/www_base.html:75
+#: app/templates/www/www_base.html:89
 msgid "Try free"
 msgstr ""
 
-#: app/templates/www/www_base.html:81
+#: app/templates/www/www_base.html:95
 msgid "Terms"
 msgstr ""
 
-#: app/templates/www/www_base.html:83
+#: app/templates/www/www_base.html:97
 msgid "Privacy"
 msgstr ""
 

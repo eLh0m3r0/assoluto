@@ -122,7 +122,7 @@
         <div class="mt-4 grid gap-3 sm:grid-cols-2">
             <div class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
                 <span class="mt-0.5 text-brand-500">✦</span>
-                <span><strong class="text-slate-900 dark:text-slate-100">{{ _("Data in the EU") }}</strong> — Hetzner DE, encrypted at rest.</span>
+                <span><strong class="text-slate-900 dark:text-slate-100">{{ _("Data in the EU") }}</strong> — {{ _("Hetzner DE, encrypted at rest.") }}</span>
             </div>
             <div class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
                 <span class="mt-0.5 text-brand-500">✦</span>
@@ -162,7 +162,7 @@
             {% endmacro %}
 
             {{ pfaq(_("Is a card required for the trial?"), _("No. Sign up with just an email. You only enter a card if you decide to continue paying after 30 days — or you can request annual invoicing by emailing team@assoluto.eu.")) }}
-            {{ pfaq(_("How does billing actually work?"), _("Monthly plan: card via Stripe, invoice emailed the same day. Annual plan: arranged on request — bank transfer with a Czech invoice, net-14.")) }}
+            {{ pfaq(_("How does billing actually work?"), _("Monthly plan: card via Stripe, invoice emailed the same day. Annual plan: arranged on request — bank transfer with a Czech invoice, net-14, typically two months free for the year.")) }}
             {{ pfaq(_("Can I change plans later?"), _("Yes, any time. The difference is prorated down to the day. Downgrade happens at the start of the next billing period (you keep what you paid for).")) }}
             {{ pfaq(_("What happens when I cancel?"), _("You keep full access until the end of the current billing period, then have 3 days to export your data (CSV + attachments as ZIP). After that, access ends. Need to recover data later? Email team@assoluto.eu within 30 days. For immediate erasure email us — we action GDPR Art. 17 requests within 48 hours.")) }}
             {{ pfaq(_("Does the self-hosted Community version cost anything?"), _("No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No restrictions on users or features — only you need to run updates yourself.")) }}

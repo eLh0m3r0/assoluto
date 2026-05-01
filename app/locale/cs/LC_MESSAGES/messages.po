@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-05-01 13:56+0200\n"
+"POT-Creation-Date: 2026-05-01 14:05+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -942,7 +942,7 @@ msgstr "Motiv: tmavý"
 #: app/templates/auth/login.html:41 app/templates/index.html:8
 #: app/templates/index.html:21 app/templates/platform/login.html:3
 #: app/templates/platform/login.html:31 app/templates/platform/signup.html:133
-#: app/templates/www/www_base.html:72
+#: app/templates/www/www_base.html:86
 msgid "Sign in"
 msgstr "Přihlásit se"
 
@@ -1045,7 +1045,7 @@ msgstr "Jméno"
 #: app/templates/me/profile.html:25 app/templates/platform/check_email.html:34
 #: app/templates/platform/login.html:18
 #: app/templates/platform/password_reset_request.html:18
-#: app/templates/www/contact.html:30 app/templates/www/contact.html:96
+#: app/templates/www/contact.html:30 app/templates/www/contact.html:97
 msgid "Email"
 msgstr "E-mail"
 
@@ -2934,7 +2934,7 @@ msgid ""
 msgstr "„Nemůžeme posunout termín na 29. 4.? Právě nám volali z lakovny…\""
 
 #: app/templates/www/contact.html:3 app/templates/www/contact.html:12
-#: app/templates/www/www_base.html:69
+#: app/templates/www/www_base.html:83
 msgid "Contact"
 msgstr "Kontakt"
 
@@ -2960,7 +2960,7 @@ msgstr ""
 
 #: app/templates/www/contact.html:32
 msgid "Typical reply within 24 hours"
-msgstr "Obvykle odpovídáme do 24 hodin"
+msgstr "Odpovídáme do 1 pracovního dne"
 
 #: app/templates/www/contact.html:43
 msgid "15-minute demo"
@@ -2982,7 +2982,7 @@ msgstr "Hlášení bezpečnostních chyb"
 
 #: app/templates/www/contact.html:58
 msgid "GPG on request. We reply within 24 hours."
-msgstr "GPG klíč na vyžádání. Odpovídáme do 24 hodin."
+msgstr "GPG klíč na vyžádání. Odpovídáme do 1 pracovního dne."
 
 #: app/templates/www/contact.html:64
 msgid "Czech team"
@@ -3005,18 +3005,18 @@ msgid ""
 "Thanks — we will reply within 24 hours. For anything urgent, email us "
 "directly at team@assoluto.eu."
 msgstr ""
-"Děkujeme — ozveme se do 24 hodin. Pokud je to urgentní, napište přímo na "
-"team@assoluto.eu."
+"Děkujeme — ozveme se do 1 pracovního dne. Pokud je to urgentní, napište "
+"přímo na team@assoluto.eu."
 
 #: app/templates/www/contact.html:81
 msgid "Write to us"
 msgstr "Napište nám"
 
-#: app/templates/www/contact.html:102
-msgid "Your message"
-msgstr "Vaše zpráva *"
-
 #: app/templates/www/contact.html:104
+msgid "Your message"
+msgstr "Vaše zpráva"
+
+#: app/templates/www/contact.html:106
 msgid ""
 "Describe briefly — Enterprise plan? Questions about self-hosting? A demo?"
 " What kind of shop are you running?"
@@ -3024,11 +3024,11 @@ msgstr ""
 "Popište krátce — Enterprise plán? Dotazy k self-hostingu? Ukázka? Jakou "
 "dílnu provozujete?"
 
-#: app/templates/www/contact.html:109
+#: app/templates/www/contact.html:111
 msgid "Send"
 msgstr "Odeslat"
 
-#: app/templates/www/contact.html:113
+#: app/templates/www/contact.html:115
 msgid ""
 "By sending, you agree to the processing of your data for the purpose of "
 "replying (one-off, no newsletter)."
@@ -3036,7 +3036,7 @@ msgstr ""
 "Odesláním souhlasíte se zpracováním údajů za účelem odpovědi "
 "(jednorázově, bez newsletteru)."
 
-#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:85
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:99
 msgid "Cookies"
 msgstr "Cookies"
 
@@ -3168,7 +3168,7 @@ msgid "Questions about this cookies policy? Write to"
 msgstr "Dotazy k zásadám cookies? Napište nám na"
 
 #: app/templates/www/features.html:3 app/templates/www/features.html:11
-#: app/templates/www/www_base.html:60
+#: app/templates/www/www_base.html:74
 msgid "Features"
 msgstr "Funkce"
 
@@ -3449,7 +3449,7 @@ msgid "Start 30-day trial"
 msgstr "Spustit 30denní zkušební období"
 
 #: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
-#: app/templates/www/www_base.html:87
+#: app/templates/www/www_base.html:101
 msgid "Imprint"
 msgstr "Impressum"
 
@@ -3648,10 +3648,12 @@ msgstr "Sledování stavu v reálném čase"
 #: app/templates/www/index.html:152
 msgid ""
 "The client sees on their own: DRAFT · SUBMITTED · QUOTED · CONFIRMED · IN"
-" PRODUCTION · READY · DELIVERED. Five calls a day turn into zero."
+" PRODUCTION · READY · DELIVERED. Most \"where's my order?\" calls go away"
+" on their own."
 msgstr ""
 "Zákazník sám vidí stav: ROZPRACOVÁNO · ODESLÁNO · OCENĚNO · POTVRZENO · "
-"VE VÝROBĚ · HOTOVO · DODÁNO. Pět telefonů denně se promění v nulu."
+"VE VÝROBĚ · HOTOVO · DODÁNO. Většina dotazů „kde je má zakázka?” se "
+"vyřeší sama."
 
 # --- round-2 audit: landing + CRUD templates ---
 #: app/templates/www/index.html:158
@@ -3844,7 +3846,7 @@ msgid "12–36 month contracts"
 msgstr "smlouvy na 12–36 měsíců"
 
 #: app/templates/www/index.html:278 app/templates/www/pricing.html:3
-#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:63
+#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:77
 msgid "Pricing"
 msgstr "Ceník"
 
@@ -4038,14 +4040,14 @@ msgstr "Lze platit převodem, nejen kartou?"
 #: app/templates/www/index.html:425 app/templates/www/index.html:508
 msgid ""
 "Monthly plans are paid by card via Stripe. Annual plans can be arranged "
-"by bank transfer with a Czech invoice (net-14). Enterprise customers "
-"always receive an invoice. Questions about VAT or Czech tax documents? "
-"Email team@assoluto.eu."
+"by bank transfer with a Czech invoice (net-14, typically two months free "
+"for the year). Enterprise customers always receive an invoice. Questions "
+"about VAT or Czech tax documents? Email team@assoluto.eu."
 msgstr ""
 "Měsíční platby probíhají kartou přes Stripe. Roční platbu lze domluvit "
-"bankovním převodem s českou fakturou (splatnost 14 dní). Enterprise "
-"zákazníci dostávají fakturu vždy. Dotazy k DPH nebo daňovému dokladu? "
-"Napište na team@assoluto.eu."
+"bankovním převodem s českou fakturou (splatnost 14 dní, zpravidla dva "
+"měsíce zdarma za rok). Enterprise zákazníci dostávají fakturu vždy. "
+"Dotazy k DPH nebo daňovému dokladu? Napište na team@assoluto.eu."
 
 #: app/templates/www/index.html:426 app/templates/www/index.html:512
 msgid "Do I need to sign anything?"
@@ -4158,14 +4160,14 @@ msgstr "Nebo napište / zavolejte"
 msgid "Up and running in 30 minutes · Data in the EU (Hetzner DE) · Czech support"
 msgstr "Spustíte do 30 minut · Data v EU (Hetzner DE) · Česká podpora"
 
-#: app/templates/www/index.html:469 app/templates/www/www_base.html:45
+#: app/templates/www/index.html:469 app/templates/www/www_base.html:59
 msgid ""
 "Client portal for Czech manufacturing SMEs — orders, drawings, production"
 " status."
 msgstr "Zákaznický portál pro výrobní firmy v ČR"
 
 #: app/templates/www/index.html:477 app/templates/www/index.html:484
-#: app/templates/www/www_base.html:51
+#: app/templates/www/www_base.html:65
 msgid "30-day free trial, no credit card required"
 msgstr "30denní zkušební verze, bez karty"
 
@@ -4266,6 +4268,10 @@ msgstr ""
 msgid "What's included in every plan"
 msgstr "Co obsahuje každý plán"
 
+#: app/templates/www/pricing.html:125
+msgid "Hetzner DE, encrypted at rest."
+msgstr "Hetzner DE, šifrováno v klidu."
+
 #: app/templates/www/pricing.html:129
 msgid "real people, not a chatbot."
 msgstr "živí lidé, ne chatbot."
@@ -4335,10 +4341,12 @@ msgstr "Jak vlastně funguje fakturace?"
 #: app/templates/www/pricing.html:165
 msgid ""
 "Monthly plan: card via Stripe, invoice emailed the same day. Annual plan:"
-" arranged on request — bank transfer with a Czech invoice, net-14."
+" arranged on request — bank transfer with a Czech invoice, net-14, "
+"typically two months free for the year."
 msgstr ""
 "Měsíční: karta přes Stripe, faktura přijde e-mailem hned. Roční: na "
-"vyžádání — převodem s českou fakturou, splatnost 14 dní."
+"vyžádání — převodem s českou fakturou, splatnost 14 dní, zpravidla dva "
+"měsíce zdarma za rok."
 
 #: app/templates/www/pricing.html:166
 msgid "Can I change plans later?"
@@ -4847,7 +4855,7 @@ msgstr ""
 "je identifikována číslem verze a datem účinnosti v záhlaví stránky."
 
 #: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
-#: app/templates/www/www_base.html:66
+#: app/templates/www/www_base.html:80
 msgid "Self-hosted"
 msgstr "Vlastní hosting"
 
@@ -5575,15 +5583,15 @@ msgstr ""
 "— všechno na jednom místě. Nahraďte e-maily a Excel. 30 dní zdarma, bez "
 "karty."
 
-#: app/templates/www/www_base.html:75
+#: app/templates/www/www_base.html:89
 msgid "Try free"
 msgstr "Vyzkoušet"
 
-#: app/templates/www/www_base.html:81
+#: app/templates/www/www_base.html:95
 msgid "Terms"
 msgstr "Podmínky"
 
-#: app/templates/www/www_base.html:83
+#: app/templates/www/www_base.html:97
 msgid "Privacy"
 msgstr "Soukromí"
 
@@ -6776,4 +6784,32 @@ msgstr "Soukromí"
 #~ "Enterprise může obsahovat samostatně sjednané"
 #~ " písemné SLA — napište na "
 #~ "team@assoluto.eu."
+
+#~ msgid ""
+#~ "Monthly plans are paid by card via"
+#~ " Stripe. Annual plans can be arranged"
+#~ " by bank transfer with a Czech "
+#~ "invoice (net-14). Enterprise customers always"
+#~ " receive an invoice. Questions about "
+#~ "VAT or Czech tax documents? Email "
+#~ "team@assoluto.eu."
+#~ msgstr ""
+#~ "Měsíční platby probíhají kartou přes "
+#~ "Stripe. Roční platbu lze domluvit "
+#~ "bankovním převodem s českou fakturou "
+#~ "(splatnost 14 dní). Enterprise zákazníci "
+#~ "dostávají fakturu vždy. Dotazy k DPH "
+#~ "nebo daňovému dokladu? Napište na "
+#~ "team@assoluto.eu."
+
+#~ msgid ""
+#~ "Monthly plan: card via Stripe, invoice"
+#~ " emailed the same day. Annual plan:"
+#~ " arranged on request — bank transfer"
+#~ " with a Czech invoice, net-14."
+#~ msgstr ""
+#~ "Měsíční: karta přes Stripe, faktura "
+#~ "přijde e-mailem hned. Roční: na vyžádání"
+#~ " — převodem s českou fakturou, "
+#~ "splatnost 14 dní."
 

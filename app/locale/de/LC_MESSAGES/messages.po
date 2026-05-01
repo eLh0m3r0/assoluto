@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: assoluto VERSION\n"
 "Report-Msgid-Bugs-To: team@assoluto.eu\n"
-"POT-Creation-Date: 2026-05-01 13:56+0200\n"
+"POT-Creation-Date: 2026-05-01 14:05+0200\n"
 "PO-Revision-Date: 2026-04-26 11:15+0200\n"
 "Last-Translator: Assoluto Team <team@assoluto.eu>\n"
 "Language: de\n"
@@ -971,7 +971,7 @@ msgstr "Design: Dunkel"
 #: app/templates/auth/login.html:41 app/templates/index.html:8
 #: app/templates/index.html:21 app/templates/platform/login.html:3
 #: app/templates/platform/login.html:31 app/templates/platform/signup.html:133
-#: app/templates/www/www_base.html:72
+#: app/templates/www/www_base.html:86
 msgid "Sign in"
 msgstr "Anmelden"
 
@@ -1074,7 +1074,7 @@ msgstr "Name"
 #: app/templates/me/profile.html:25 app/templates/platform/check_email.html:34
 #: app/templates/platform/login.html:18
 #: app/templates/platform/password_reset_request.html:18
-#: app/templates/www/contact.html:30 app/templates/www/contact.html:96
+#: app/templates/www/contact.html:30 app/templates/www/contact.html:97
 msgid "Email"
 msgstr "E-Mail"
 
@@ -2972,7 +2972,7 @@ msgstr ""
 " gerade angerufen…\""
 
 #: app/templates/www/contact.html:3 app/templates/www/contact.html:12
-#: app/templates/www/www_base.html:69
+#: app/templates/www/www_base.html:83
 msgid "Contact"
 msgstr "Kontakt"
 
@@ -2998,7 +2998,7 @@ msgstr ""
 
 #: app/templates/www/contact.html:32
 msgid "Typical reply within 24 hours"
-msgstr "Antwort üblicherweise binnen 24 Stunden"
+msgstr "Antwort binnen 1 Arbeitstag"
 
 #: app/templates/www/contact.html:43
 msgid "15-minute demo"
@@ -3020,7 +3020,7 @@ msgstr "Meldung von Sicherheitslücken"
 
 #: app/templates/www/contact.html:58
 msgid "GPG on request. We reply within 24 hours."
-msgstr "GPG-Schlüssel auf Anfrage. Antwort binnen 24 Stunden."
+msgstr "GPG-Schlüssel auf Anfrage. Antwort binnen 1 Arbeitstag."
 
 #: app/templates/www/contact.html:64
 msgid "Czech team"
@@ -3043,18 +3043,18 @@ msgid ""
 "Thanks — we will reply within 24 hours. For anything urgent, email us "
 "directly at team@assoluto.eu."
 msgstr ""
-"Vielen Dank — wir melden uns binnen 24 Stunden. Bei dringenden Anliegen "
-"schreiben Sie direkt an team@assoluto.eu."
+"Vielen Dank — wir melden uns binnen 1 Arbeitstag. Bei dringenden Anliegen"
+" schreiben Sie direkt an team@assoluto.eu."
 
 #: app/templates/www/contact.html:81
 msgid "Write to us"
 msgstr "Schreiben Sie uns"
 
-#: app/templates/www/contact.html:102
+#: app/templates/www/contact.html:104
 msgid "Your message"
 msgstr "Ihre Nachricht *"
 
-#: app/templates/www/contact.html:104
+#: app/templates/www/contact.html:106
 msgid ""
 "Describe briefly — Enterprise plan? Questions about self-hosting? A demo?"
 " What kind of shop are you running?"
@@ -3062,11 +3062,11 @@ msgstr ""
 "Kurz beschreiben — Enterprise-Plan? Fragen zum Self-Hosting? Eine Demo? "
 "Welche Werkstatt betreiben Sie?"
 
-#: app/templates/www/contact.html:109
+#: app/templates/www/contact.html:111
 msgid "Send"
 msgstr "Senden"
 
-#: app/templates/www/contact.html:113
+#: app/templates/www/contact.html:115
 msgid ""
 "By sending, you agree to the processing of your data for the purpose of "
 "replying (one-off, no newsletter)."
@@ -3074,7 +3074,7 @@ msgstr ""
 "Mit dem Absenden stimmen Sie der Verarbeitung Ihrer Daten zum Zweck der "
 "Antwort zu (einmalig, kein Newsletter)."
 
-#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:85
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:99
 msgid "Cookies"
 msgstr "Cookies"
 
@@ -3210,7 +3210,7 @@ msgid "Questions about this cookies policy? Write to"
 msgstr "Fragen zu dieser Cookie-Richtlinie? Schreiben Sie an"
 
 #: app/templates/www/features.html:3 app/templates/www/features.html:11
-#: app/templates/www/www_base.html:60
+#: app/templates/www/www_base.html:74
 msgid "Features"
 msgstr "Funktionen"
 
@@ -3491,7 +3491,7 @@ msgid "Start 30-day trial"
 msgstr "30-tägige Testphase starten"
 
 #: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
-#: app/templates/www/www_base.html:87
+#: app/templates/www/www_base.html:101
 msgid "Imprint"
 msgstr "Impressum"
 
@@ -3694,11 +3694,12 @@ msgstr "Statusverfolgung in Echtzeit"
 #: app/templates/www/index.html:152
 msgid ""
 "The client sees on their own: DRAFT · SUBMITTED · QUOTED · CONFIRMED · IN"
-" PRODUCTION · READY · DELIVERED. Five calls a day turn into zero."
+" PRODUCTION · READY · DELIVERED. Most \"where's my order?\" calls go away"
+" on their own."
 msgstr ""
 "Der Kunde sieht den Status selbst: ENTWURF · GESENDET · ANGEBOTEN · "
-"BESTÄTIGT · IN PRODUKTION · FERTIG · GELIEFERT. Aus fünf Anrufen am Tag "
-"werden null."
+"BESTÄTIGT · IN PRODUKTION · FERTIG · GELIEFERT. Die meisten „wo ist mein "
+"Auftrag?”-Anrufe lösen sich von selbst."
 
 #: app/templates/www/index.html:158
 msgid "Customer material on stock"
@@ -3892,7 +3893,7 @@ msgid "12–36 month contracts"
 msgstr "Verträge über 12–36 Monate"
 
 #: app/templates/www/index.html:278 app/templates/www/pricing.html:3
-#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:63
+#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:77
 msgid "Pricing"
 msgstr "Preise"
 
@@ -4078,15 +4079,15 @@ msgstr "Kann ich per Überweisung zahlen, nicht nur per Karte?"
 #: app/templates/www/index.html:425 app/templates/www/index.html:508
 msgid ""
 "Monthly plans are paid by card via Stripe. Annual plans can be arranged "
-"by bank transfer with a Czech invoice (net-14). Enterprise customers "
-"always receive an invoice. Questions about VAT or Czech tax documents? "
-"Email team@assoluto.eu."
+"by bank transfer with a Czech invoice (net-14, typically two months free "
+"for the year). Enterprise customers always receive an invoice. Questions "
+"about VAT or Czech tax documents? Email team@assoluto.eu."
 msgstr ""
 "Monatliche Zahlungen erfolgen per Karte über Stripe. Jahreszahlungen "
-"können per Überweisung mit tschechischer Rechnung (Zahlungsziel 14 Tage) "
-"vereinbart werden. Enterprise-Kunden erhalten immer eine Rechnung. Fragen"
-" zur Umsatzsteuer oder zum Steuerbeleg? Schreiben Sie an "
-"team@assoluto.eu."
+"können per Überweisung mit tschechischer Rechnung (Zahlungsziel 14 Tage, "
+"üblicherweise zwei Monate kostenlos pro Jahr) vereinbart werden. "
+"Enterprise-Kunden erhalten immer eine Rechnung. Fragen zur Umsatzsteuer "
+"oder zum Steuerbeleg? Schreiben Sie an team@assoluto.eu."
 
 #: app/templates/www/index.html:426 app/templates/www/index.html:512
 msgid "Do I need to sign anything?"
@@ -4205,7 +4206,7 @@ msgstr ""
 "In 30 Minuten einsatzbereit · Daten in der EU (Hetzner DE) · "
 "Tschechischer Support"
 
-#: app/templates/www/index.html:469 app/templates/www/www_base.html:45
+#: app/templates/www/index.html:469 app/templates/www/www_base.html:59
 msgid ""
 "Client portal for Czech manufacturing SMEs — orders, drawings, production"
 " status."
@@ -4214,7 +4215,7 @@ msgstr ""
 "Produktionsstatus."
 
 #: app/templates/www/index.html:477 app/templates/www/index.html:484
-#: app/templates/www/www_base.html:51
+#: app/templates/www/www_base.html:65
 msgid "30-day free trial, no credit card required"
 msgstr "30 Tage kostenlos testen, keine Kreditkarte erforderlich"
 
@@ -4313,6 +4314,10 @@ msgstr ""
 msgid "What's included in every plan"
 msgstr "In jedem Plan enthalten"
 
+#: app/templates/www/pricing.html:125
+msgid "Hetzner DE, encrypted at rest."
+msgstr "Hetzner DE, im Ruhezustand verschlüsselt."
+
 #: app/templates/www/pricing.html:129
 msgid "real people, not a chatbot."
 msgstr "echte Menschen, kein Chatbot."
@@ -4382,11 +4387,12 @@ msgstr "Wie funktioniert die Abrechnung?"
 #: app/templates/www/pricing.html:165
 msgid ""
 "Monthly plan: card via Stripe, invoice emailed the same day. Annual plan:"
-" arranged on request — bank transfer with a Czech invoice, net-14."
+" arranged on request — bank transfer with a Czech invoice, net-14, "
+"typically two months free for the year."
 msgstr ""
 "Monatlich: Karte über Stripe, Rechnung kommt am selben Tag per E-Mail. "
 "Jährlich: auf Anfrage — Überweisung mit tschechischer Rechnung, "
-"Zahlungsziel 14 Tage."
+"Zahlungsziel 14 Tage, üblicherweise zwei Monate kostenlos pro Jahr."
 
 #: app/templates/www/pricing.html:166
 msgid "Can I change plans later?"
@@ -4916,7 +4922,7 @@ msgstr ""
 "Geltungsdatum am Seitenanfang kennzeichnen die aktuelle Version."
 
 #: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
-#: app/templates/www/www_base.html:66
+#: app/templates/www/www_base.html:80
 msgid "Self-hosted"
 msgstr "Self-Hosted"
 
@@ -5673,15 +5679,15 @@ msgstr ""
 "Produktionsstatus — alles an einem Ort. Ersetzen Sie E-Mails und Excel. "
 "30 Tage kostenlos, ohne Karte."
 
-#: app/templates/www/www_base.html:75
+#: app/templates/www/www_base.html:89
 msgid "Try free"
 msgstr "Kostenlos testen"
 
-#: app/templates/www/www_base.html:81
+#: app/templates/www/www_base.html:95
 msgid "Terms"
 msgstr "Bedingungen"
 
-#: app/templates/www/www_base.html:83
+#: app/templates/www/www_base.html:97
 msgid "Privacy"
 msgstr "Datenschutz"
 
@@ -5730,4 +5736,47 @@ msgstr "Datenschutz"
 #~ " Der Enterprise-Plan kann ein separat"
 #~ " verhandeltes schriftliches SLA enthalten —"
 #~ " schreiben Sie an team@assoluto.eu."
+
+#~ msgid ""
+#~ "The client sees on their own: "
+#~ "DRAFT · SUBMITTED · QUOTED · "
+#~ "CONFIRMED · IN PRODUCTION · READY "
+#~ "· DELIVERED. Five calls a day turn"
+#~ " into zero."
+#~ msgstr ""
+#~ "Der Kunde sieht den Status selbst: "
+#~ "ENTWURF · GESENDET · ANGEBOTEN · "
+#~ "BESTÄTIGT · IN PRODUKTION · FERTIG "
+#~ "· GELIEFERT. Aus fünf Anrufen am "
+#~ "Tag werden null."
+
+#~ msgid ""
+#~ "Monthly plans are paid by card via"
+#~ " Stripe. Annual plans can be arranged"
+#~ " by bank transfer with a Czech "
+#~ "invoice (net-14). Enterprise customers always"
+#~ " receive an invoice. Questions about "
+#~ "VAT or Czech tax documents? Email "
+#~ "team@assoluto.eu."
+#~ msgstr ""
+#~ "Monatliche Zahlungen erfolgen per Karte "
+#~ "über Stripe. Jahreszahlungen können per "
+#~ "Überweisung mit tschechischer Rechnung "
+#~ "(Zahlungsziel 14 Tage) vereinbart werden. "
+#~ "Enterprise-Kunden erhalten immer eine "
+#~ "Rechnung. Fragen zur Umsatzsteuer oder "
+#~ "zum Steuerbeleg? Schreiben Sie an "
+#~ "team@assoluto.eu."
+
+#~ msgid ""
+#~ "Monthly plan: card via Stripe, invoice"
+#~ " emailed the same day. Annual plan:"
+#~ " arranged on request — bank transfer"
+#~ " with a Czech invoice, net-14."
+#~ msgstr ""
+#~ "Monatlich: Karte über Stripe, Rechnung "
+#~ "kommt am selben Tag per E-Mail. "
+#~ "Jährlich: auf Anfrage — Überweisung mit"
+#~ " tschechischer Rechnung, Zahlungsziel 14 "
+#~ "Tage."
 
