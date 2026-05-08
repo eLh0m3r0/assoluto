@@ -48,18 +48,32 @@ async def get_plan_by_code(db: AsyncSession, code: str) -> Plan | None:
 # billing-dashboard plan grid and out of any checkout/upgrade flow.
 HIDDEN_PLAN_CODES: frozenset[str] = frozenset({"community"})
 
+# Display order for the billing-dashboard plan grid. Sorting purely by
+# ``monthly_price_cents`` puts Enterprise (price-on-request, stored as 0)
+# first — visually it then reads as the cheapest, which is the opposite
+# of what the operator expects. This explicit sequence pins the plans
+# in the marketing order: Starter → Pro → Enterprise (= rightmost = most
+# expensive). Unknown plan codes append at the end so a future plan
+# stays visible even before it gets added here.
+PLAN_DISPLAY_ORDER: tuple[str, ...] = ("starter", "pro", "enterprise")
+
+
+def _plan_sort_key(plan: Plan) -> tuple[int, str]:
+    try:
+        return (PLAN_DISPLAY_ORDER.index(plan.code), plan.code)
+    except ValueError:
+        return (len(PLAN_DISPLAY_ORDER), plan.code)
+
 
 async def list_plans(db: AsyncSession) -> list[Plan]:
     """Active plans visible to hosted tenants — community deliberately
-    excluded (see HIDDEN_PLAN_CODES).
+    excluded (see HIDDEN_PLAN_CODES). Sorted via :data:`PLAN_DISPLAY_ORDER`
+    so Enterprise (price-on-request) renders rightmost rather than first.
     """
     result = await db.execute(
-        select(Plan)
-        .where(Plan.is_active.is_(True))
-        .where(Plan.code.notin_(HIDDEN_PLAN_CODES))
-        .order_by(Plan.monthly_price_cents)
+        select(Plan).where(Plan.is_active.is_(True)).where(Plan.code.notin_(HIDDEN_PLAN_CODES))
     )
-    return list(result.scalars().all())
+    return sorted(result.scalars().all(), key=_plan_sort_key)
 
 
 async def require_plan(db: AsyncSession, code: str) -> Plan:
