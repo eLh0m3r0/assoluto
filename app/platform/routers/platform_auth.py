@@ -9,7 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import Settings, get_settings
 from app.models.customer import CustomerContact
 from app.models.user import User
-from app.platform.deps import get_current_identity, get_platform_db, require_identity
+from app.platform.deps import (
+    get_current_identity,
+    get_platform_db,
+    require_verified_identity,
+)
 from app.platform.models import Identity
 from app.platform.service import (
     AccountDisabled,
@@ -289,7 +293,7 @@ async def platform_password_reset_confirm_submit(
 @router.get("/platform/select-tenant", response_class=HTMLResponse)
 async def select_tenant(
     request: Request,
-    identity: Identity = Depends(require_identity),
+    identity: Identity = Depends(require_verified_identity),
     db: AsyncSession = Depends(get_platform_db),
 ) -> HTMLResponse:
     memberships = await list_memberships_for_identity(db, identity_id=identity.id)
@@ -352,7 +356,7 @@ async def switch_to_tenant(
     tenant_slug: str,
     request: Request,
     next: str = Form(""),
-    identity: Identity = Depends(require_identity),
+    identity: Identity = Depends(require_verified_identity),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
@@ -464,7 +468,7 @@ async def switch_to_tenant(
 async def complete_switch(
     request: Request,
     token: str,
-    identity: Identity = Depends(require_identity),
+    identity: Identity = Depends(require_verified_identity),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
