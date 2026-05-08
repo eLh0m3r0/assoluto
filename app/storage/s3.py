@@ -80,6 +80,51 @@ def ensure_bucket_exists(bucket: str | None = None) -> None:
             raise
 
 
+def warn_if_public_endpoint_unreachable(log) -> None:
+    """Log a warning when the public S3 endpoint won't reach the
+    configured bucket.
+
+    Catches the dev-environment foot-gun where the operator copies a
+    prod-style ``.env`` (custom ``S3_BUCKET`` but empty
+    ``S3_PUBLIC_ENDPOINT_URL``): presigned URLs come out pointing at
+    the *internal* endpoint host (``http://minio:9000``) which the
+    browser can't reach, OR at a public host whose bucket name doesn't
+    exist. A failed upload silently shows a broken link, the operator
+    can't tell whether the file is in S3 or not, and there's no
+    breadcrumb in the log. This call surfaces the misconfiguration at
+    boot instead.
+
+    Best-effort: the check itself must not block startup.
+    """
+    settings = get_settings()
+    public_endpoint = settings.s3_public_endpoint_url or settings.s3_endpoint_url or ""
+    if not public_endpoint:
+        return  # AWS-default endpoints — the SDK will pick the right host.
+    try:
+        client = get_public_s3_client()
+        client.head_bucket(Bucket=settings.s3_bucket)
+    except ClientError as exc:
+        code = exc.response.get("Error", {}).get("Code", "")
+        log.warning(
+            "s3.public_endpoint_check_failed",
+            endpoint=public_endpoint,
+            bucket=settings.s3_bucket,
+            error_code=code,
+            hint=(
+                "Presigned upload URLs use this endpoint. If S3_BUCKET is "
+                "wrong or the host is unreachable from the browser, every "
+                "attachment upload looks like a silent failure."
+            ),
+        )
+    except Exception as exc:
+        log.warning(
+            "s3.public_endpoint_check_failed",
+            endpoint=public_endpoint,
+            bucket=settings.s3_bucket,
+            error_class=type(exc).__name__,
+        )
+
+
 def upload_bytes(key: str, data: bytes, *, content_type: str = "application/octet-stream") -> None:
     """Upload raw bytes under `key`."""
     settings = get_settings()

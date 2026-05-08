@@ -57,6 +57,26 @@ STATUS_LABELS: dict[OrderStatus, str] = {
 }
 
 
+def _safe_error_summary(exc: Exception) -> str:
+    """Sanitise an exception message for inclusion in structured logs.
+
+    SMTP libraries can echo bits of the rendered email body or DSN
+    headers in their error reprs — and our reset / invite mails carry
+    URL-embedded one-shot tokens that must never leak into the log
+    pipeline. This strips anything that looks like a URL, query
+    parameter, or long base64-ish blob, then truncates.
+    """
+    import re
+
+    raw = str(exc)
+    # Drop URLs (http(s)://… up to first whitespace) and any token-like
+    # =value query params. Keep just enough to tell SMTP class apart
+    # from DNS class apart from auth class.
+    cleaned = re.sub(r"https?://\S+", "[url]", raw)
+    cleaned = re.sub(r"=([A-Za-z0-9_\-]{12,})", "=[redacted]", cleaned)
+    return cleaned[:160]
+
+
 def _safe_send(
     sender: EmailSender,
     kind: str,
@@ -74,17 +94,28 @@ def _safe_send(
     single password-reset or invite mail on the floor. Permanent
     errors (auth failure, invalid recipient) fail on every attempt and
     end up in the ``email.failed`` log with ``attempts`` set.
+
+    Each attempt logs both start and outcome with a duration so the
+    operator can tell "Brevo took 9.5 s" apart from "DNS resolution
+    bounced in 30 ms" when chasing the next silent-drop incident.
     """
     last_exc: Exception | None = None
     for attempt in range(1, _MAX_ATTEMPTS + 1):
+        log.info("email.attempt", kind=kind, to=to, attempt=attempt)
+        started = time.monotonic()
         try:
             sender.send(to=to, subject=subject, html=html, text=text)
-            if attempt == 1:
-                log.info("email.sent", kind=kind, to=to)
-            else:
-                log.info("email.sent", kind=kind, to=to, attempts=attempt)
+            duration_ms = int((time.monotonic() - started) * 1000)
+            log.info(
+                "email.sent",
+                kind=kind,
+                to=to,
+                attempts=attempt,
+                duration_ms=duration_ms,
+            )
             return
         except Exception as exc:
+            duration_ms = int((time.monotonic() - started) * 1000)
             last_exc = exc
             if attempt < _MAX_ATTEMPTS:
                 # Backoff: 2s, 4s, 8s …
@@ -94,11 +125,9 @@ def _safe_send(
                     kind=kind,
                     to=to,
                     attempt=attempt,
-                    # Log the exception *class*, not str(exc) — some SMTP
-                    # libraries include the message body in their error
-                    # repr, and structured logs shouldn't be a back-door
-                    # for leaking reset URLs / invite tokens.
+                    duration_ms=duration_ms,
                     error_class=type(exc).__name__,
+                    error=_safe_error_summary(exc),
                 )
     log.error(
         "email.failed",
@@ -106,6 +135,7 @@ def _safe_send(
         to=to,
         attempts=_MAX_ATTEMPTS,
         error_class=type(last_exc).__name__ if last_exc else "unknown",
+        error=_safe_error_summary(last_exc) if last_exc else "",
     )
 
 

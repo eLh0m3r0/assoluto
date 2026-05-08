@@ -33,7 +33,7 @@ from app.security.csrf import CsrfCookieMiddleware
 from app.security.headers import SecurityHeadersMiddleware
 from app.security.locale import LocaleMiddleware
 from app.security.log_context import LogContextMiddleware
-from app.storage.s3 import ensure_bucket_exists
+from app.storage.s3 import ensure_bucket_exists, warn_if_public_endpoint_unreachable
 from app.templating import Templates, build_jinja_env
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -219,6 +219,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             ensure_bucket_exists()
         except Exception as exc:
             log.warning("s3.bucket_init_failed", error=str(exc))
+
+        # Surface mismatched public-endpoint config (dev hands out
+        # localhost:9000 URLs, prod hands out Hetzner URLs — wrong
+        # bucket name silently breaks every upload). Best-effort.
+        try:
+            warn_if_public_endpoint_unreachable(log)
+        except Exception as exc:
+            log.warning("s3.public_endpoint_check_crashed", error=str(exc))
 
         # Normalise any lingering ``status='demo'`` rows to ``trialing``
         # when Stripe is now configured — an operator enabling Stripe
