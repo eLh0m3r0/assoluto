@@ -98,8 +98,7 @@ process is not leaking; recent commits did not undo prior work.
 - **Description**: The previous /audit-fix swept one msgid per locale (specifically `„kde je má zakázka?"` / `„wo ist mein Auftrag?"`). All other testimonial pull-quotes and body quotes still close with straight ASCII `"` — the original F-UX-007 sweep didn't take. Native readers continue to perceive testimonial copy as machine-translated.
 - **Suggested fix**: Catalog-wide pass. Regex `„([^"„]+)"` → `„\1"` on `app/locale/{cs,de}/LC_MESSAGES/messages.po`, sanity-check before recompile, then `pybabel compile -d app/locale`. The previous attempt's regex excluded the right chars but evidently matched only the rebuilt msgid (which had passed through the pybabel update cycle), not the older unchanged ones.
 - **Evidence**: 7 straight-ASCII closes vs. 1 curly close per locale on the homepage.
-- **status**: open
-
+- **status**: fixed (commit d914e3e)
 ### F-UX-013 — Locale cookie host-only; choice on apex doesn't carry to tenant subdomain
 - **Where**: `set_language` route in `app/routers/public.py` (sets `sme_locale` cookie without `Domain=`)
 - **Severity**: P2
@@ -107,8 +106,7 @@ process is not leaking; recent commits did not undo prior work.
 - **Description**: A German prospect picks DE on `assoluto.eu`, signs up, lands on `test-a.assoluto.eu/auth/login` — sees CS again because the cookie doesn't follow them across subdomains. Friction on the highest-value moment (first login).
 - **Suggested fix**: In the `/set-lang` handler, set the cookie with `domain=.assoluto.eu` in production (gated on `settings.platform_cookie_domain` so dev single-host stays unaffected). Mirror the platform session cookie scope rules.
 - **Evidence**: `curl -c jar.txt 'https://assoluto.eu/set-lang?lang=en&next=/'`; `curl -b jar.txt https://test-a.assoluto.eu/auth/login` → CS title even though `sme_locale=en` is in the jar (host-only doesn't match subdomain).
-- **status**: open
-
+- **status**: fixed (commit d914e3e)
 ### F-UX-014 — `/set-lang` returns 405 on HEAD
 - **Where**: `https://assoluto.eu/set-lang?lang=en&next=/`
 - **Severity**: P2
@@ -116,8 +114,7 @@ process is not leaking; recent commits did not undo prior work.
 - **Description**: `HEAD /set-lang?...` returns `HTTP 405 Allow: GET`. RFC 9110 requires that any resource supporting GET also support HEAD. Browsers and link-checkers (uptime monitors, security scanners) probe with HEAD; getting 405 is observability noise. Endpoint is high-traffic now that the switcher ships in every page footer.
 - **Suggested fix**: Expose the route on both GET and HEAD (`methods=["GET", "HEAD"]`). For HEAD, short-circuit and return `Response(status_code=303, headers={"Location": next_url})` without setting the cookie (HEAD must not change state).
 - **Evidence**: `curl -sS -I 'https://assoluto.eu/set-lang?lang=en&next=/'` → `HTTP/2 405 Allow: GET`.
-- **status**: open
-
+- **status**: fixed (commit d914e3e)
 ### F-UX-015 — `sme_locale` cookie attribute case differs from other cookies
 - **Where**: `Set-Cookie: sme_locale=en; ... SameSite=lax; ...` on `/set-lang`
 - **Severity**: P2
@@ -125,8 +122,7 @@ process is not leaking; recent commits did not undo prior work.
 - **Description**: Cosmetic inconsistency — `csrftoken` cookie uses `SameSite=Lax` (capital L), `sme_locale` uses `SameSite=lax` (lowercase). Browsers accept both, no functional break. But the mismatch suggests two different code paths assemble cookies; consolidating makes audits + rotation simpler.
 - **Suggested fix**: One-line change in the `set_lang` handler — pass `samesite="Lax"` matching `app/security/session.py`.
 - **Evidence**: header capture confirms case mismatch.
-- **status**: open
-
+- **status**: fixed (commit d914e3e)
 ### F-BIZ-011 — 175 fuzzy entries in EN catalog (process tripwire)
 - **Where**: `app/locale/en/LC_MESSAGES/messages.po` (175 `#, fuzzy` markers; CS = 0, DE = 0)
 - **Severity**: P2
@@ -141,8 +137,7 @@ process is not leaking; recent commits did not undo prior work.
   Today gettext correctly skips fuzzy entries → users see msgid (English source) → no visible regression. **But** if anyone runs `pybabel update` and either (a) clears fuzzy flags carelessly, or (b) ships tooling change that promotes fuzzies, prospects see "Manage tenants" on contact success card.
 - **Suggested fix**: Walk EN .po, for each fuzzy entry either set `msgstr ""` (forces fallback to English msgid — desired for EN identity catalog) and remove the `#, fuzzy` flag, or write the correct msgstr. ~30 min mechanical work. Add CI guard mirroring `tests/test_cs_catalog_health.py` (commit `71c75a4`) for EN.
 - **Evidence**: `grep -c "^#, fuzzy" app/locale/{en,cs,de}/LC_MESSAGES/messages.po` → `en:175 cs:0 de:0`.
-- **status**: open
-
+- **status**: fixed (commit 10ce9bf) — 175 fuzzies cleared, EN identity restored, 2 new CI guards added
 ---
 
 ## Persisted findings — terse status (full detail in previous run)
