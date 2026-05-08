@@ -396,7 +396,7 @@ msgstr "Neuer Auftrag %(order_number)s von %(customer_name)s"
 #, python-format
 msgid "Client %(customer_name)s submitted a new order \"%(order_title)s\"."
 msgstr ""
-"Kunde %(customer_name)s hat einen neuen Auftrag „%(order_title)s\" "
+"Kunde %(customer_name)s hat einen neuen Auftrag „%(order_title)s” "
 "gesendet."
 
 #: app/email/templates/password_reset.html:6
@@ -1159,7 +1159,7 @@ msgstr ""
 "Dadurch werden Ihre personenbezogenen Daten (Name, E-Mail, Telefon, "
 "Passwort) aus diesem Mandanten entfernt. Aufträge und Kommentare, die Sie"
 " erstellt haben, bleiben im Unternehmensprotokoll, werden in der "
-"Autorenspalte jedoch als „gelöscht\" angezeigt. Diese Aktion kann nicht "
+"Autorenspalte jedoch als „gelöscht” angezeigt. Diese Aktion kann nicht "
 "rückgängig gemacht werden."
 
 #: app/templates/admin/profile.html:110
@@ -2018,8 +2018,8 @@ msgstr "PDF"
 #: app/templates/orders/detail.html:56
 msgid "Confirmed total price filled in by staff on transition to Quoted."
 msgstr ""
-"Bestätigter Gesamtpreis, vom Team beim Übergang in den Status "
-"„Angeboten\" eingetragen."
+"Bestätigter Gesamtpreis, vom Team beim Übergang in den Status „Angeboten”"
+" eingetragen."
 
 #: app/templates/orders/detail.html:57
 msgid "Quoted (confirmed)"
@@ -2969,7 +2969,7 @@ msgid ""
 "shop…\""
 msgstr ""
 "„Können wir den Termin auf den 29.4. verschieben? Die Lackiererei hat uns"
-" gerade angerufen…\""
+" gerade angerufen…”"
 
 #: app/templates/www/contact.html:3 app/templates/www/contact.html:12
 #: app/templates/www/www_base.html:83
@@ -3012,7 +3012,7 @@ msgstr "Online-Demo per Google Meet — echtes System, Ihre Fragen, keine Folien
 
 #: app/templates/www/contact.html:45
 msgid "Write \"demo\" in the message"
-msgstr "Schreiben Sie „Demo\" in die Nachricht"
+msgstr "Schreiben Sie „Demo” in die Nachricht"
 
 #: app/templates/www/contact.html:56
 msgid "Security disclosures"
@@ -3100,7 +3100,7 @@ msgid ""
 "necessary cookies do not require prior consent. We therefore do not show "
 "a cookie banner."
 msgstr ""
-"Assoluto verwendet ausschließlich Cookies, die „unbedingt erforderlich\" "
+"Assoluto verwendet ausschließlich Cookies, die „unbedingt erforderlich” "
 "sind, um den von Ihnen angeforderten Dienst bereitzustellen (Anmeldung, "
 "CSRF-Schutz, Speicherung der gewählten Sprache). Nach Art. 5 Abs. 3 der "
 "ePrivacy-Richtlinie (2002/58/EG) und §89 des tschechischen Gesetzes Nr. "
@@ -3402,7 +3402,7 @@ msgstr ""
 msgid ""
 "End-of-year inventory in one click. No more \"did we use 12 or 14?\" "
 "debates."
-msgstr "Jahresinventur per Klick. Schluss mit „Haben wir 12 oder 14 verbraucht?\"."
+msgstr "Jahresinventur per Klick. Schluss mit „Haben wir 12 oder 14 verbraucht?”."
 
 #: app/templates/www/features.html:184
 msgid "Security at the database level"
@@ -3414,7 +3414,7 @@ msgid ""
 "isolates data per client. The app cannot return a foreign order — even if"
 " a bug slipped through."
 msgstr ""
-"Nicht „die App filtert das raus\". PostgreSQL Row-Level Security trennt "
+"Nicht „die App filtert das raus”. PostgreSQL Row-Level Security trennt "
 "die Daten physisch pro Kunde. Die App kann keinen fremden Auftrag "
 "zurückgeben — auch nicht bei einem Fehler."
 
@@ -3610,7 +3610,7 @@ msgid ""
 "Five calls before lunch asking \"where's my order?\" — and three "
 "different drawing versions in Outlook. It adds up fast."
 msgstr ""
-"Fünf Anrufe vor dem Mittag mit der Frage „wo ist mein Auftrag?\" — und "
+"Fünf Anrufe vor dem Mittag mit der Frage „wo ist mein Auftrag?” — und "
 "drei verschiedene Zeichnungsversionen in Outlook. Das summiert sich "
 "schnell."
 
@@ -3624,7 +3624,7 @@ msgid ""
 "have to walk to the shop floor and ask the foreman.\""
 msgstr ""
 "„Jeden Tag rufen mich zwanzig Leute an und fragen, wo ihr Auftrag ist. "
-"Dann muss ich in die Werkstatt und den Meister fragen.\""
+"Dann muss ich in die Werkstatt und den Meister fragen.”"
 
 #: app/templates/www/index.html:92
 msgid "Outlook as a drawing vault"
@@ -3637,7 +3637,7 @@ msgid ""
 msgstr ""
 "„Ich suche ständig in Outlook nach der Zeichnungsversion, die der Kunde "
 "letzte Woche geschickt hat. Manchmal fertigen wir Teile nach der falschen"
-" Revision.\""
+" Revision.”"
 
 #: app/templates/www/index.html:102
 msgid "Excel only Jana updates"
@@ -3649,7 +3649,7 @@ msgid ""
 " nobody knows anything.\""
 msgstr ""
 "„Wir haben eine Tabelle, aber nur Jana hält sie aktuell. Wenn sie krank "
-"ist, weiß keiner etwas.\""
+"ist, weiß keiner etwas.”"
 
 #: app/templates/www/index.html:115
 msgid "Everything that matters"
@@ -3749,7 +3749,7 @@ msgstr "So funktioniert es"
 
 #: app/templates/www/index.html:193
 msgid "Three steps, thirty minutes. No \"implementation project\"."
-msgstr "Drei Schritte, dreißig Minuten. Kein „Implementierungsprojekt\"."
+msgstr "Drei Schritte, dreißig Minuten. Kein „Implementierungsprojekt”."
 
 #: app/templates/www/index.html:201
 msgid "Sign up, choose a subdomain"
@@ -4193,8 +4193,8 @@ msgid ""
 "30 days free. No card. No \"quick call with sales\". Just sign up and try"
 " it."
 msgstr ""
-"30 Tage kostenlos. Keine Karte. Kein „kurzes Gespräch mit dem Vertrieb\"."
-" Einfach registrieren und ausprobieren."
+"30 Tage kostenlos. Keine Karte. Kein „kurzes Gespräch mit dem Vertrieb”. "
+"Einfach registrieren und ausprobieren."
 
 #: app/templates/www/index.html:450
 msgid "Or write / call us"
@@ -5094,11 +5094,11 @@ msgstr "1. Wer den Dienst bereitstellt"
 
 #: app/templates/www/terms.html:17
 msgid "The Assoluto service (the \"Service\") is provided by"
-msgstr "Der Dienst Assoluto (im Folgenden „Dienst\") wird bereitgestellt von"
+msgstr "Der Dienst Assoluto (im Folgenden „Dienst”) wird bereitgestellt von"
 
 #: app/templates/www/terms.html:21
 msgid "hereinafter the \"Provider\""
-msgstr "im Folgenden „Anbieter\""
+msgstr "im Folgenden „Anbieter”"
 
 #: app/templates/www/terms.html:26
 msgid ""
@@ -5110,7 +5110,7 @@ msgid ""
 msgstr ""
 "Diese Bedingungen regeln das Verhältnis zwischen dem Anbieter und der "
 "juristischen oder natürlichen Person, die den Dienst im Rahmen ihrer "
-"geschäftlichen Tätigkeit nutzt (der „Kunde\"). Der Dienst wird "
+"geschäftlichen Tätigkeit nutzt (der „Kunde”). Der Dienst wird "
 "ausschließlich Unternehmern im Sinne des §420 des tschechischen "
 "Bürgerlichen Gesetzbuchs angeboten; Verbraucherschutzbestimmungen des "
 "tschechischen Bürgerlichen Gesetzbuchs finden keine Anwendung."
@@ -5132,7 +5132,7 @@ msgstr ""
 "es einem produzierenden oder handelnden KMU ermöglicht, seinen "
 "Auftragsworkflow online zu führen: Aufträge anlegen und bearbeiten, "
 "technische Zeichnungen und andere Anhänge hochladen, einen Produktkatalog"
-" verwalten, eigene Endkunden („Kundenkontakte\") zur Einsicht in diese "
+" verwalten, eigene Endkunden („Kundenkontakte”) zur Einsicht in diese "
 "Aufträge einladen und den Auftragsstatus von der Annahme bis zur "
 "Lieferung verfolgen."
 
@@ -5147,9 +5147,9 @@ msgid ""
 "that license."
 msgstr ""
 "Der Dienst wird als gehosteter SaaS unter assoluto.eu angeboten (im "
-"Folgenden „Hosted Service\") und separat als Open-Source-Software unter "
+"Folgenden „Hosted Service”) und separat als Open-Source-Software unter "
 "AGPL-3.0-or-later, die der Kunde auf eigener Infrastruktur installieren "
-"darf („Self-Hosted\"). Diese Bedingungen regeln den Hosted Service. Die "
+"darf („Self-Hosted”). Diese Bedingungen regeln den Hosted Service. Die "
 "Self-Hosted-Nutzung unterliegt der AGPL-3.0-Lizenzdatei im Quellcode-"
 "Repository; nichts in diesen Bedingungen schränkt die Rechte des Kunden "
 "aus dieser Lizenz ein."
@@ -5279,7 +5279,7 @@ msgid ""
 msgstr ""
 "Der Kunde behält das Eigentum an allen Inhalten, die er in den Dienst "
 "hochlädt (Aufträge, Kommentare, Anhänge, Zeichnungen, Kundendaten — "
-"„Kundeninhalt\"). Der Kunde räumt dem Anbieter eine weltweite, "
+"„Kundeninhalt”). Der Kunde räumt dem Anbieter eine weltweite, "
 "kostenfreie, nicht-ausschließliche Lizenz zum Hosten, Speichern, "
 "Übertragen und Anzeigen des Kundeninhalts ein, ausschließlich in dem "
 "Umfang, der für den Betrieb des Dienstes für den Kunden erforderlich ist."

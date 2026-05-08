@@ -86,9 +86,14 @@ class CsrfCookieMiddleware:
             if needs_set_cookie and message["type"] == "http.response.start":
                 headers = list(message.get("headers", []))
                 secure_flag = "; Secure" if scheme_is_https else ""
+                # SameSite=lax (lowercase) matches what Starlette's
+                # response.set_cookie() emits everywhere else in the
+                # codebase (session, platform-session, sme_locale).
+                # Browsers accept both casings — picking one keeps the
+                # audit trail clean.
                 cookie_value = (
                     f"{CSRF_COOKIE_NAME}={issued}; Path=/; Max-Age={COOKIE_MAX_AGE}; "
-                    f"SameSite=Lax{secure_flag}"
+                    f"SameSite=lax{secure_flag}"
                 )
                 headers.append((b"set-cookie", cookie_value.encode("latin-1")))
                 message["headers"] = headers

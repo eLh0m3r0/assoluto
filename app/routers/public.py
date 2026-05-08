@@ -325,17 +325,27 @@ async def logout(request: Request) -> Response:
 # ------------------------------------------------------- language switcher
 
 
-@router.get("/set-lang")
+@router.api_route("/set-lang", methods=["GET", "HEAD"])
 async def set_language(
     request: Request,
     lang: str,
     next: str = "/",
     settings: Settings = Depends(get_settings),
-) -> RedirectResponse:
+) -> Response:
     """Persist the user's preferred UI locale in a cookie and redirect back.
 
     The ``next`` query parameter must be a same-origin path starting with
     ``/`` — we strip anything that looks like an open redirect.
+
+    HEAD requests are accepted (RFC 9110 — any GET-supporting resource
+    must accept HEAD) but they MUST NOT mutate state, so the cookie is
+    skipped. Browsers + uptime monitors + link-checkers stop logging
+    405s without flipping a probing user's locale by accident.
+
+    The cookie is scoped to ``settings.platform_cookie_domain`` (e.g.
+    ``.assoluto.eu``) when set, so a locale picked on the apex carries
+    over to tenant subdomains. Single-host dev (no apex configured)
+    falls back to a host-only cookie, which is safe.
     """
     from app.i18n import COOKIE_MAX_AGE, COOKIE_NAME, supported_locale_list
 
@@ -346,6 +356,14 @@ async def set_language(
 
     safe_next = _safe_next_path(next)
     response = RedirectResponse(url=safe_next, status_code=status.HTTP_303_SEE_OTHER)
+
+    # HEAD must not mutate state — return the redirect headers without
+    # the Set-Cookie. (Caching layers will see the same Location for
+    # both methods, which is what we want.)
+    if request.method == "HEAD":
+        return response
+
+    cookie_domain = (settings.platform_cookie_domain or "").strip()
     response.set_cookie(
         COOKIE_NAME,
         chosen,
@@ -353,6 +371,7 @@ async def set_language(
         httponly=False,  # harmless JS-readable: users benefit from client-side checks
         samesite="lax",
         secure=settings.is_production,
+        domain=cookie_domain or None,
     )
     return response
 
