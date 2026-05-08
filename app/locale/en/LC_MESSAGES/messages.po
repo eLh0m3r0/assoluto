@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-05-01 14:05+0200\n"
+"POT-Creation-Date: 2026-05-08 22:45+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -68,53 +68,44 @@ msgid "Cancelled"
 msgstr "Cancelled"
 
 #: app/i18n_messages.py:46
-#, fuzzy
 msgid "Return to draft"
-msgstr "Create portal"
+msgstr ""
 
 #: app/i18n_messages.py:47
-#, fuzzy
 msgid "Submit"
-msgstr "Submitted"
+msgstr ""
 
 #: app/i18n_messages.py:48
-#, fuzzy
 msgid "Quote"
-msgstr "Quoted"
+msgstr ""
 
 #: app/i18n_messages.py:49
-#, fuzzy
 msgid "Confirm"
-msgstr "Confirmed"
+msgstr ""
 
 #: app/i18n_messages.py:50
-#, fuzzy
 msgid "Start production"
-msgstr "In production"
+msgstr ""
 
 #: app/i18n_messages.py:51
-#, fuzzy
 msgid "Close"
-msgstr "Closed"
+msgstr ""
 
 #: app/i18n_messages.py:52 app/templates/admin/user_edit.html:68
 #: app/templates/assets/form.html:57 app/templates/customers/form.html:99
 #: app/templates/orders/form.html:58
 #: app/templates/platform/admin/tenant_edit.html:73
 #: app/templates/products/form.html:70
-#, fuzzy
 msgid "Cancel"
-msgstr "Cancelled"
+msgstr ""
 
 #: app/i18n_messages.py:56
-#, fuzzy
 msgid "All entities"
-msgstr "Clients"
+msgstr ""
 
 #: app/i18n_messages.py:57 app/templates/_palette_results.html:34
-#, fuzzy
 msgid "Order"
-msgstr "Orders"
+msgstr ""
 
 #: app/i18n_messages.py:58 app/routers/orders.py:296
 #: app/templates/admin/sla.html:119
@@ -122,32 +113,28 @@ msgid "Customer"
 msgstr ""
 
 #: app/i18n_messages.py:59 app/templates/_palette_results.html:76
-#, fuzzy
 msgid "Product"
-msgstr "In production"
+msgstr ""
 
 #: app/i18n_messages.py:60
 msgid "User"
 msgstr ""
 
 #: app/i18n_messages.py:61 app/templates/platform/select_tenant.html:46
-#, fuzzy
 msgid "Customer contact"
-msgstr "As a customer contact"
+msgstr ""
 
 #: app/main.py:466
 msgid "staff users"
 msgstr ""
 
 #: app/main.py:467
-#, fuzzy
 msgid "client contacts"
-msgstr "Clients"
+msgstr ""
 
 #: app/main.py:468
-#, fuzzy
 msgid "orders this month"
-msgstr "Orders"
+msgstr ""
 
 #: app/main.py:469
 msgid "MB of storage"
@@ -189,9 +176,8 @@ msgid ""
 msgstr ""
 
 #: app/email/templates/email_verification.html:24
-#, fuzzy
 msgid "Verify email"
-msgstr "Verify your email"
+msgstr ""
 
 #: app/email/templates/email_verification.html:28
 msgid ""
@@ -205,9 +191,8 @@ msgid "If you didn't request this registration, you can ignore this email."
 msgstr ""
 
 #: app/email/templates/email_verification.subject.txt:1
-#, fuzzy
 msgid "Verify your email — Assoluto"
-msgstr "Verify your email"
+msgstr ""
 
 #: app/email/templates/email_verification.txt:5
 #, python-format
@@ -245,9 +230,8 @@ msgid "To finish registration, click the link below — it is valid for 7 days:"
 msgstr ""
 
 #: app/email/templates/invitation.html:31
-#, fuzzy
 msgid "Accept the invitation"
-msgstr "Send a new verification link"
+msgstr ""
 
 #: app/email/templates/invitation.html:36
 #: app/email/templates/staff_invitation.html:24
@@ -295,9 +279,8 @@ msgid "A new comment was posted on order %(order_number)s."
 msgstr ""
 
 #: app/email/templates/order_comment.html:14
-#, fuzzy
 msgid "New comment"
-msgstr "Clients"
+msgstr ""
 
 #: app/email/templates/order_comment.html:16
 #, python-format
@@ -308,9 +291,8 @@ msgstr ""
 
 #: app/email/templates/order_comment.html:23
 #: app/email/templates/order_submitted.html:20
-#, fuzzy
 msgid "Open order"
-msgstr "Orders"
+msgstr ""
 
 #: app/email/templates/order_comment.txt:1
 #, python-format
@@ -344,9 +326,8 @@ msgid "Status changed to <strong>%(status_label)s</strong>."
 msgstr ""
 
 #: app/email/templates/order_status_changed.html:21
-#, fuzzy
 msgid "View detail"
-msgstr "Email"
+msgstr ""
 
 #: app/email/templates/order_status_changed.subject.txt:1
 #: app/email/templates/order_status_changed.txt:1
@@ -355,9 +336,8 @@ msgid "Order %(order_number)s — %(status_label)s"
 msgstr ""
 
 #: app/email/templates/order_status_changed.txt:5
-#, fuzzy
 msgid "Detail"
-msgstr "Email"
+msgstr ""
 
 #: app/email/templates/order_submitted.html:6
 #: app/email/templates/order_submitted.html:14
@@ -394,9 +374,8 @@ msgstr ""
 #: app/templates/auth/password_reset_request.html:8
 #: app/templates/platform/password_reset_request.html:3
 #: app/templates/platform/password_reset_request.html:8
-#, fuzzy
 msgid "Password reset"
-msgstr "Password"
+msgstr ""
 
 #: app/email/templates/password_reset.html:10
 msgid "Use the enclosed link to set a new password. It expires in 30 minutes."
@@ -419,9 +398,8 @@ msgstr ""
 #: app/email/templates/password_reset.html:21
 #: app/templates/auth/password_reset_confirm.html:36
 #: app/templates/platform/password_reset_confirm.html:36
-#, fuzzy
 msgid "Set new password"
-msgstr "Password"
+msgstr ""
 
 #: app/email/templates/password_reset.html:27
 msgid ""
@@ -430,9 +408,9 @@ msgid ""
 msgstr ""
 
 #: app/email/templates/password_reset.subject.txt:1
-#, fuzzy, python-format
+#, python-format
 msgid "Password reset — %(tenant_name)s"
-msgstr "Password"
+msgstr ""
 
 #: app/email/templates/password_reset.txt:3
 #, python-format
@@ -471,9 +449,8 @@ msgid ""
 msgstr ""
 
 #: app/email/templates/staff_invitation.html:20
-#, fuzzy
 msgid "Set password and log in"
-msgstr "Password"
+msgstr ""
 
 #: app/email/templates/staff_invitation.subject.txt:1
 #, python-format
@@ -506,9 +483,8 @@ msgstr ""
 
 #: app/routers/customers.py:271 app/routers/customers.py:391
 #: app/routers/products.py:338 app/routers/tenant_admin.py:392
-#, fuzzy
 msgid "Changes saved."
-msgstr "Password"
+msgstr ""
 
 #: app/routers/customers.py:309
 msgid "A contact with the same email already exists."
@@ -540,9 +516,8 @@ msgid "Too many invitations sent recently. Try again later."
 msgstr ""
 
 #: app/routers/customers.py:504 app/routers/tenant_admin.py:477
-#, fuzzy
 msgid "Invitation resent."
-msgstr "Send a new verification link"
+msgstr ""
 
 #: app/routers/me.py:89 app/routers/tenant_admin.py:501
 msgid "Profile saved."
@@ -569,23 +544,20 @@ msgid "Status"
 msgstr ""
 
 #: app/routers/orders.py:297
-#, fuzzy
 msgid "Created at"
-msgstr "Create portal"
+msgstr ""
 
 #: app/routers/orders.py:298
-#, fuzzy
 msgid "Submitted at"
-msgstr "Submitted"
+msgstr ""
 
 #: app/routers/orders.py:299
 msgid "Promised delivery at"
 msgstr ""
 
 #: app/routers/orders.py:300
-#, fuzzy
 msgid "Quoted total"
-msgstr "Quoted"
+msgstr ""
 
 #: app/routers/orders.py:301
 msgid "Currency"
@@ -593,9 +565,8 @@ msgstr ""
 
 #: app/routers/orders.py:302 app/templates/orders/detail.html:79
 #: app/templates/www/_hero_mock.html:61
-#, fuzzy
 msgid "Items"
-msgstr "Team"
+msgstr ""
 
 #: app/routers/orders.py:415
 msgid "Choose a client."
@@ -676,21 +647,21 @@ msgstr ""
 msgid "Invalid email or password."
 msgstr ""
 
-#: app/routers/public.py:383 app/routers/public.py:479
-#: app/routers/public.py:562
+#: app/routers/public.py:402 app/routers/public.py:498
+#: app/routers/public.py:581
 msgid "The invitation is invalid or has expired."
 msgstr ""
 
-#: app/routers/public.py:397 app/routers/public.py:493
+#: app/routers/public.py:416 app/routers/public.py:512
 msgid "The invitation belongs to a different tenant."
 msgstr ""
 
-#: app/routers/public.py:459 app/routers/public.py:606
-#: app/routers/public.py:826
+#: app/routers/public.py:478 app/routers/public.py:625
+#: app/routers/public.py:845
 msgid "Passwords do not match."
 msgstr ""
 
-#: app/routers/public.py:791
+#: app/routers/public.py:810
 msgid "The link is invalid or has expired."
 msgstr ""
 
@@ -727,9 +698,8 @@ msgid "You're the last administrator — promote someone else first."
 msgstr ""
 
 #: app/routers/tenant_admin.py:724
-#, fuzzy
 msgid "Saved."
-msgstr "Dashboard"
+msgstr ""
 
 #: app/routers/www.py:125
 msgid "Please fill in all fields."
@@ -793,9 +763,8 @@ msgstr "Clients"
 #: app/templates/orders/detail.html:48 app/templates/orders/form.html:25
 #: app/templates/orders/list.html:85 app/templates/products/form.html:55
 #: app/templates/products/list.html:22 app/templates/www/_hero_mock.html:60
-#, fuzzy
 msgid "Client"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/_palette_results.html:64
 #: app/templates/_palette_results.html:65 app/templates/app_base.html:49
@@ -872,23 +841,20 @@ msgstr ""
 #: app/templates/admin/tenant_settings.html:3
 #: app/templates/admin/tenant_settings.html:7
 #: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:64
-#, fuzzy
 msgid "Portal settings"
-msgstr "Manage tenants"
+msgstr ""
 
 #: app/templates/app_base.html:66
 msgid "Billing"
 msgstr ""
 
 #: app/templates/app_base.html:83
-#, fuzzy
 msgid "Switch portal"
-msgstr "Switch to"
+msgstr ""
 
 #: app/templates/app_base.html:84
-#, fuzzy
 msgid "Switch"
-msgstr "Switch to"
+msgstr ""
 
 #: app/templates/admin/profile.html:3 app/templates/admin/profile.html:8
 #: app/templates/app_base.html:107 app/templates/app_base.html:111
@@ -901,9 +867,8 @@ msgstr ""
 #: app/templates/platform/admin/dashboard.html:10
 #: app/templates/platform/admin/tenant_edit.html:3
 #: app/templates/platform/admin/tenants.html:3
-#, fuzzy
 msgid "Platform admin"
-msgstr "Platform"
+msgstr ""
 
 #: app/templates/app_base.html:127 app/templates/platform/admin/_header.html:40
 #: app/templates/platform/select_tenant.html:17
@@ -915,9 +880,8 @@ msgid "Home"
 msgstr "Home"
 
 #: app/templates/base.html:47
-#, fuzzy
 msgid "Toggle menu"
-msgstr "Toggle theme"
+msgstr ""
 
 #: app/templates/base.html:64 app/templates/base.html:65
 #: app/templates/base.html:82
@@ -956,9 +920,8 @@ msgstr ""
 
 #: app/templates/admin/audit.html:3 app/templates/admin/audit.html:8
 #: app/templates/dashboard/index.html:114
-#, fuzzy
 msgid "Audit log"
-msgstr "Catalog"
+msgstr ""
 
 #: app/templates/admin/audit.html:10
 msgid "Complete and immutable record of every tracked action in this portal."
@@ -989,9 +952,8 @@ msgid "When"
 msgstr ""
 
 #: app/templates/admin/audit.html:74
-#, fuzzy
 msgid "Actor"
-msgstr "Platform"
+msgstr ""
 
 #: app/templates/admin/audit.html:75
 msgid "Action"
@@ -1010,9 +972,8 @@ msgid "Page"
 msgstr ""
 
 #: app/templates/admin/audit.html:131 app/templates/orders/list.html:166
-#, fuzzy
 msgid "records"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/admin/audit.html:137 app/templates/orders/list.html:172
 msgid "Previous"
@@ -1033,9 +994,8 @@ msgstr ""
 #: app/templates/admin/profile.html:19 app/templates/admin/user_edit.html:32
 #: app/templates/admin/users.html:21 app/templates/customers/detail.html:93
 #: app/templates/me/profile.html:19
-#, fuzzy
 msgid "Full name"
-msgstr "Your name"
+msgstr ""
 
 #: app/templates/admin/profile.html:25 app/templates/admin/user_edit.html:24
 #: app/templates/admin/users.html:22 app/templates/auth/login.html:25
@@ -1071,14 +1031,12 @@ msgid "Save profile"
 msgstr ""
 
 #: app/templates/admin/profile.html:54 app/templates/me/profile.html:54
-#, fuzzy
 msgid "Change password"
-msgstr "Password"
+msgstr ""
 
 #: app/templates/admin/profile.html:59 app/templates/me/profile.html:59
-#, fuzzy
 msgid "Current password"
-msgstr "Password"
+msgstr ""
 
 #: app/templates/admin/profile.html:66 app/templates/auth/invite_accept.html:23
 #: app/templates/auth/password_reset_confirm.html:20
@@ -1088,14 +1046,12 @@ msgid "New password (min. 8 characters)"
 msgstr ""
 
 #: app/templates/admin/profile.html:73 app/templates/me/profile.html:73
-#, fuzzy
 msgid "Confirm new password"
-msgstr "Confirmed"
+msgstr ""
 
 #: app/templates/admin/profile.html:81 app/templates/me/profile.html:81
-#, fuzzy
 msgid "Save new password"
-msgstr "Password"
+msgstr ""
 
 #: app/templates/admin/profile.html:84 app/templates/me/profile.html:84
 msgid "After changing your password you will be signed out and must log in again."
@@ -1131,9 +1087,8 @@ msgid "Are you sure? This is irreversible."
 msgstr ""
 
 #: app/templates/admin/profile.html:114
-#, fuzzy
 msgid "Confirm with your current password"
-msgstr "Confirmed"
+msgstr ""
 
 #: app/templates/admin/profile.html:122
 msgid "Delete my account"
@@ -1148,9 +1103,8 @@ msgid "On-time delivery across dates"
 msgstr ""
 
 #: app/templates/admin/sla.html:17
-#, fuzzy
 msgid "Timeframe"
-msgstr "Team"
+msgstr ""
 
 #: app/templates/admin/sla.html:21
 msgid "Last 30 days"
@@ -1177,9 +1131,8 @@ msgid "of delivered orders met the promised date"
 msgstr ""
 
 #: app/templates/admin/sla.html:58
-#, fuzzy
 msgid "Delivered (total)"
-msgstr "Delivered"
+msgstr ""
 
 #: app/templates/admin/sla.html:62
 msgid "orders with recorded delivery"
@@ -1221,23 +1174,20 @@ msgid "&lt;50%%"
 msgstr ""
 
 #: app/templates/admin/sla.html:108
-#, fuzzy
 msgid "no orders"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/admin/sla.html:123
 msgid "Week of"
 msgstr ""
 
 #: app/templates/admin/sla.html:139
-#, fuzzy
 msgid "No orders"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/admin/sla.html:151
-#, fuzzy
 msgid "On time"
-msgstr "Confirmed"
+msgstr ""
 
 #: app/templates/admin/sla.html:151
 msgid "late"
@@ -1248,9 +1198,8 @@ msgid "No orders with a promised delivery date yet."
 msgstr ""
 
 #: app/templates/admin/tenant_settings.html:7
-#, fuzzy
 msgid "Administration"
-msgstr "Send a new verification link"
+msgstr ""
 
 #: app/templates/admin/tenant_settings.html:21
 msgid "Default email language"
@@ -1280,9 +1229,8 @@ msgstr ""
 
 #: app/templates/admin/user_edit.html:42 app/templates/admin/users.html:34
 #: app/templates/admin/users.html:108 app/templates/www/imprint.html:14
-#, fuzzy
 msgid "Operator"
-msgstr "Platform"
+msgstr ""
 
 #: app/templates/admin/user_edit.html:43 app/templates/admin/users.html:34
 #: app/templates/admin/users.html:109
@@ -1389,9 +1337,8 @@ msgid "Name Surname"
 msgstr ""
 
 #: app/templates/admin/users.html:113
-#, fuzzy
 msgid "Send invitation"
-msgstr "Send a new verification link"
+msgstr ""
 
 #: app/templates/assets/detail.html:22
 msgid "Current stock"
@@ -1413,9 +1360,8 @@ msgid "Movements"
 msgstr ""
 
 #: app/templates/assets/detail.html:46
-#, fuzzy
 msgid "Date"
-msgstr "Draft"
+msgstr ""
 
 #: app/templates/assets/detail.html:47
 msgid "Type"
@@ -1429,9 +1375,8 @@ msgstr ""
 
 #: app/templates/assets/detail.html:49 app/templates/assets/detail.html:89
 #: app/templates/orders/form.html:52
-#, fuzzy
 msgid "Note"
-msgstr "Quoted"
+msgstr ""
 
 #: app/templates/assets/detail.html:59 app/templates/assets/detail.html:82
 msgid "Receipt"
@@ -1454,9 +1399,8 @@ msgid "No movements."
 msgstr ""
 
 #: app/templates/assets/detail.html:92
-#, fuzzy
 msgid "order"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/assets/detail.html:99
 msgid "Add movement"
@@ -1472,9 +1416,8 @@ msgid "choose a client"
 msgstr ""
 
 #: app/templates/assets/form.html:30 app/templates/assets/list.html:23
-#, fuzzy
 msgid "Code"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/assets/form.html:35 app/templates/products/form.html:32
 #: app/templates/products/list.html:24
@@ -1487,9 +1430,8 @@ msgstr ""
 #: app/templates/platform/admin/tenants.html:21
 #: app/templates/products/form.html:38 app/templates/products/list.html:21
 #: app/templates/www/cookies.html:29
-#, fuzzy
 msgid "Name"
-msgstr "Your name"
+msgstr ""
 
 #: app/templates/assets/form.html:60 app/templates/customers/detail.html:109
 #: app/templates/customers/form.html:101 app/templates/products/form.html:73
@@ -1497,9 +1439,8 @@ msgid "Save"
 msgstr ""
 
 #: app/templates/assets/list.html:8
-#, fuzzy
 msgid "Client assets"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/assets/list.html:8
 msgid "My assets at the supplier"
@@ -1514,9 +1455,8 @@ msgid "Stock"
 msgstr ""
 
 #: app/templates/assets/list.html:61
-#, fuzzy
 msgid "No assets yet"
-msgstr "Manage tenants"
+msgstr ""
 
 #: app/templates/assets/list.html:64
 msgid ""
@@ -1547,9 +1487,8 @@ msgstr ""
 #: app/templates/auth/password_reset_confirm.html:28
 #: app/templates/auth/staff_invite_accept.html:31
 #: app/templates/platform/password_reset_confirm.html:28
-#, fuzzy
 msgid "Confirm password"
-msgstr "Password"
+msgstr ""
 
 #: app/templates/auth/invite_accept.html:39
 #: app/templates/auth/staff_invite_accept.html:39
@@ -1566,17 +1505,15 @@ msgid "Password"
 msgstr "Password"
 
 #: app/templates/auth/login.html:47 app/templates/platform/login.html:36
-#, fuzzy
 msgid "Forgot password?"
-msgstr "Password"
+msgstr ""
 
 #: app/templates/auth/password_reset_confirm.html:3
 #: app/templates/auth/password_reset_confirm.html:8
 #: app/templates/platform/password_reset_confirm.html:3
 #: app/templates/platform/password_reset_confirm.html:8
-#, fuzzy
 msgid "New password"
-msgstr "Password"
+msgstr ""
 
 #: app/templates/auth/password_reset_confirm.html:10
 msgid "Enter a new password for your account."
@@ -1589,9 +1526,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/auth/password_reset_request.html:25
-#, fuzzy
 msgid "Send the link"
-msgstr "and the"
+msgstr ""
 
 #: app/templates/auth/password_reset_request.html:28
 #: app/templates/platform/check_email.html:24
@@ -1607,9 +1543,9 @@ msgid "Accept team invitation"
 msgstr ""
 
 #: app/templates/auth/staff_invite_accept.html:12
-#, fuzzy, python-format
+#, python-format
 msgid "Set your password to access the %(tenant)s portal."
-msgstr "You don't have access to any portal."
+msgstr ""
 
 #: app/templates/auth/staff_invite_accept.html:23
 msgid "Password (min. 8 characters)"
@@ -1644,9 +1580,8 @@ msgid "Contacts"
 msgstr ""
 
 #: app/templates/customers/detail.html:101
-#, fuzzy
 msgid "auto"
-msgstr "Platform"
+msgstr ""
 
 #: app/templates/customers/detail.html:120
 msgid "invited"
@@ -1665,15 +1600,13 @@ msgid "Invite contact"
 msgstr ""
 
 #: app/templates/customers/form.html:5 app/templates/customers/form.html:17
-#, fuzzy
 msgid "Edit client"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/customers/form.html:5 app/templates/customers/form.html:13
 #: app/templates/customers/form.html:17 app/templates/customers/list.html:10
-#, fuzzy
 msgid "New client"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/customers/form.html:26
 #: app/templates/platform/admin/tenant_edit.html:33
@@ -1699,39 +1632,32 @@ msgid ""
 msgstr ""
 
 #: app/templates/customers/list.html:34
-#, fuzzy
 msgid "contacts"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/customers/list.html:34
-#, fuzzy
 msgid "contact"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/customers/list.html:38
-#, fuzzy
 msgid "no contacts"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/customers/list.html:51
-#, fuzzy
 msgid "open orders"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/customers/list.html:51
-#, fuzzy
 msgid "open order"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/customers/list.html:53
-#, fuzzy
 msgid "no open orders"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/customers/list.html:70
-#, fuzzy
 msgid "No clients yet."
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/customers/list.html:73
 msgid "Add the first client"
@@ -1746,18 +1672,16 @@ msgid "Welcome,"
 msgstr ""
 
 #: app/templates/dashboard/index.html:39
-#, fuzzy
 msgid "Open orders"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/dashboard/index.html:55
 msgid "Active client assets"
 msgstr ""
 
 #: app/templates/dashboard/index.html:55
-#, fuzzy
 msgid "My assets"
-msgstr "Assets"
+msgstr ""
 
 #: app/templates/dashboard/index.html:96
 msgid "changed status of"
@@ -1792,9 +1716,8 @@ msgid "deleted client"
 msgstr ""
 
 #: app/templates/dashboard/index.html:104
-#, fuzzy
 msgid "created product"
-msgstr "Create portal"
+msgstr ""
 
 #: app/templates/dashboard/index.html:105
 msgid "updated product"
@@ -1813,23 +1736,20 @@ msgid "Recent activity"
 msgstr ""
 
 #: app/templates/dashboard/index.html:128
-#, fuzzy
 msgid "System"
-msgstr "Theme: system"
+msgstr ""
 
 #: app/templates/dashboard/index.html:147
 msgid "No activity yet — actions will show up here as they happen."
 msgstr ""
 
 #: app/templates/dashboard/index.html:155
-#, fuzzy
 msgid "Recent orders"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/dashboard/index.html:157
-#, fuzzy
 msgid "All orders"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/dashboard/index.html:194
 msgid "Start a new order in"
@@ -1838,9 +1758,8 @@ msgstr ""
 #: app/templates/dashboard/index.html:196 app/templates/orders/form.html:3
 #: app/templates/orders/form.html:6 app/templates/orders/form.html:9
 #: app/templates/orders/list.html:21 app/templates/www/_hero_mock.html:51
-#, fuzzy
 msgid "New order"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/dashboard/index.html:203
 msgid "Start by adding your first client"
@@ -1854,18 +1773,16 @@ msgid ""
 msgstr ""
 
 #: app/templates/dashboard/index.html:212
-#, fuzzy
 msgid "Add a client"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/dashboard/index.html:213
 msgid "A company you deliver to"
 msgstr ""
 
 #: app/templates/dashboard/index.html:220
-#, fuzzy
 msgid "Create a product"
-msgstr "Create portal"
+msgstr ""
 
 #: app/templates/dashboard/index.html:221
 msgid "An item from your catalog"
@@ -1889,9 +1806,8 @@ msgstr ""
 
 #: app/templates/errors/403.html:12 app/templates/errors/500.html:13
 #: app/templates/errors/plan_limit.html:35
-#, fuzzy
 msgid "Back to dashboard"
-msgstr "Dashboard"
+msgstr ""
 
 #: app/templates/errors/404.html:2
 msgid "Not found"
@@ -1982,9 +1898,8 @@ msgstr ""
 
 #: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:210
 #: app/templates/products/detail.html:34
-#, fuzzy
 msgid "Delete"
-msgstr "Delivered"
+msgstr ""
 
 #: app/templates/orders/detail.html:44
 msgid "PDF"
@@ -1995,9 +1910,8 @@ msgid "Confirmed total price filled in by staff on transition to Quoted."
 msgstr ""
 
 #: app/templates/orders/detail.html:57
-#, fuzzy
 msgid "Quoted (confirmed)"
-msgstr "Confirmed"
+msgstr ""
 
 #: app/templates/orders/detail.html:63
 msgid "Requested delivery"
@@ -2028,9 +1942,8 @@ msgid "Item description"
 msgstr ""
 
 #: app/templates/orders/detail.html:155
-#, fuzzy
 msgid "Add item"
-msgstr "and the"
+msgstr ""
 
 #: app/templates/orders/detail.html:165
 msgid "Attachments"
@@ -2049,14 +1962,12 @@ msgid "DOC"
 msgstr ""
 
 #: app/templates/orders/detail.html:183
-#, fuzzy
 msgid "OST"
-msgstr "In production"
+msgstr ""
 
 #: app/templates/orders/detail.html:199
-#, fuzzy
 msgid "item"
-msgstr "Team"
+msgstr ""
 
 #: app/templates/orders/detail.html:218
 msgid "No attachments."
@@ -2075,9 +1986,8 @@ msgid "Actions"
 msgstr ""
 
 #: app/templates/orders/detail.html:260
-#, fuzzy
 msgid "Comments"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/orders/detail.html:267
 msgid "internal"
@@ -2108,18 +2018,16 @@ msgid "Requested delivery date"
 msgstr ""
 
 #: app/templates/orders/form.html:61
-#, fuzzy
 msgid "Create draft"
-msgstr "Create portal"
+msgstr ""
 
 #: app/templates/orders/list.html:31
 msgid "Number or title…"
 msgstr ""
 
 #: app/templates/orders/list.html:44
-#, fuzzy
 msgid "All clients"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/orders/list.html:78
 msgid "Select all on page"
@@ -2132,14 +2040,12 @@ msgstr ""
 
 #: app/templates/orders/list.html:89
 #: app/templates/platform/admin/dashboard.html:48
-#, fuzzy
 msgid "Created"
-msgstr "Ready"
+msgstr ""
 
 #: app/templates/orders/list.html:100
-#, fuzzy
 msgid "Select order"
-msgstr "Select portal"
+msgstr ""
 
 #: app/templates/orders/list.html:137
 msgid "selected"
@@ -2166,9 +2072,8 @@ msgid "No orders match the filter."
 msgstr ""
 
 #: app/templates/orders/list.html:200
-#, fuzzy
 msgid "No orders yet."
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/orders/list.html:203
 msgid "Create the first order"
@@ -2236,9 +2141,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/platform/password_reset_request.html:25
-#, fuzzy
 msgid "Send reset link"
-msgstr "Send a new verification link"
+msgstr ""
 
 #: app/templates/platform/select_tenant.html:3
 #: app/templates/platform/select_tenant.html:9
@@ -2259,9 +2163,8 @@ msgid "Platform-admin support access — not a regular team membership."
 msgstr ""
 
 #: app/templates/platform/select_tenant.html:46
-#, fuzzy
 msgid "Team member"
-msgstr "As a team member"
+msgstr ""
 
 #: app/templates/platform/select_tenant.html:66
 msgid "You don't have access to any portal."
@@ -2285,9 +2188,8 @@ msgid "Create your portal"
 msgstr "Create your portal"
 
 #: app/templates/platform/signup.html:10
-#, fuzzy
 msgid "30-day free trial. No credit card required."
-msgstr "14-day free trial. No credit card required."
+msgstr ""
 
 #: app/templates/platform/signup.html:34
 msgid "required"
@@ -2366,19 +2268,16 @@ msgstr "Didn't receive it? Check your spam folder or request a new link."
 #: app/templates/platform/admin/tenant_edit.html:8
 #: app/templates/platform/admin/tenants.html:3
 #: app/templates/platform/admin/tenants.html:7
-#, fuzzy
 msgid "Tenants"
-msgstr "Manage tenants"
+msgstr ""
 
 #: app/templates/platform/admin/_header.html:34
-#, fuzzy
 msgid "My portals"
-msgstr "Select portal"
+msgstr ""
 
 #: app/templates/platform/admin/dashboard.html:14
-#, fuzzy
 msgid "Total tenants"
-msgstr "Manage tenants"
+msgstr ""
 
 #: app/templates/platform/admin/dashboard.html:16
 msgid "of which active:"
@@ -2502,9 +2401,8 @@ msgstr ""
 
 #: app/templates/platform/admin/tenant_edit.html:3
 #: app/templates/platform/admin/tenant_edit.html:15
-#, fuzzy
 msgid "Edit tenant"
-msgstr "Manage tenants"
+msgstr ""
 
 #: app/templates/platform/admin/tenant_edit.html:18
 msgid ""
@@ -2547,9 +2445,8 @@ msgid "Tenant"
 msgstr ""
 
 #: app/templates/platform/admin/tenants.html:26
-#, fuzzy
 msgid "Your access"
-msgstr "Your name"
+msgstr ""
 
 #: app/templates/platform/admin/tenants.html:46
 msgid "no subscription"
@@ -2605,52 +2502,44 @@ msgid "Revoke support"
 msgstr ""
 
 #: app/templates/platform/admin/tenants.html:120
-#, fuzzy
 msgid "Join tenant"
-msgstr "Manage tenants"
+msgstr ""
 
 #: app/templates/platform/admin/tenants.html:120
 msgid "as support?"
 msgstr ""
 
 #: app/templates/platform/admin/tenants.html:129
-#, fuzzy
 msgid "Deactivate tenant"
-msgstr "Manage tenants"
+msgstr ""
 
 #: app/templates/platform/admin/tenants.html:152
-#, fuzzy
 msgid "No tenants yet."
-msgstr "Manage tenants"
+msgstr ""
 
 #: app/templates/platform/admin/tenants.html:157
-#, fuzzy
 msgid "New tenant"
-msgstr "Manage tenants"
+msgstr ""
 
 #: app/templates/platform/admin/tenants.html:171
-#, fuzzy
 msgid "Owner — email"
-msgstr "Work email"
+msgstr ""
 
 #: app/templates/platform/admin/tenants.html:176
-#, fuzzy
 msgid "Owner — name"
-msgstr "Your name"
+msgstr ""
 
 #: app/templates/platform/admin/tenants.html:181
-#, fuzzy
 msgid "Owner — password"
-msgstr "Password"
+msgstr ""
 
 #: app/templates/platform/admin/tenants.html:185
 msgid "Send it to the new owner over a secure channel outside the portal."
 msgstr ""
 
 #: app/templates/platform/admin/tenants.html:191
-#, fuzzy
 msgid "Create tenant"
-msgstr "Create portal"
+msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:7
 msgid "Subscription & billing"
@@ -2710,18 +2599,16 @@ msgid "Plan change, payment card, billing details, and cancellation."
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:69
-#, fuzzy
 msgid "Your usage"
-msgstr "Your name"
+msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:95
 msgid "Staff users"
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:96
-#, fuzzy
 msgid "Client contacts"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:97
 msgid "Orders (monthly)"
@@ -2732,9 +2619,8 @@ msgid "Storage (MB)"
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:103
-#, fuzzy
 msgid "Switch plan"
-msgstr "Switch to"
+msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:112
 msgid "/month"
@@ -2754,9 +2640,8 @@ msgid "Contacts:"
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:120
-#, fuzzy
 msgid "Orders/month:"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:121
 msgid "Storage:"
@@ -2827,9 +2712,8 @@ msgstr ""
 
 #: app/templates/products/detail.html:20 app/templates/products/form.html:58
 #: app/templates/products/list.html:38
-#, fuzzy
 msgid "shared"
-msgstr "Dashboard"
+msgstr ""
 
 #: app/templates/products/detail.html:30
 msgid ""
@@ -2842,29 +2726,25 @@ msgid "Default price"
 msgstr ""
 
 #: app/templates/products/form.html:5 app/templates/products/form.html:17
-#, fuzzy
 msgid "Edit product"
-msgstr "In production"
+msgstr ""
 
 #: app/templates/products/form.html:5 app/templates/products/form.html:13
 #: app/templates/products/form.html:17 app/templates/products/list.html:11
-#, fuzzy
 msgid "New product"
-msgstr "In production"
+msgstr ""
 
 #: app/templates/products/list.html:8
-#, fuzzy
 msgid "Product catalog"
-msgstr "Catalog"
+msgstr ""
 
 #: app/templates/products/list.html:23
 msgid "Price"
 msgstr ""
 
 #: app/templates/products/list.html:65
-#, fuzzy
 msgid "Catalog is empty"
-msgstr "Catalog"
+msgstr ""
 
 #: app/templates/products/list.html:68
 msgid ""
@@ -2877,9 +2757,8 @@ msgid "Add the first product"
 msgstr ""
 
 #: app/templates/www/_hero_mock.html:20
-#, fuzzy
 msgid "Your firm"
-msgstr "Your name"
+msgstr ""
 
 #: app/templates/www/_hero_mock.html:37
 msgid "Stock on hand"
@@ -2898,37 +2777,32 @@ msgid "bracket"
 msgstr ""
 
 #: app/templates/www/_hero_mock.html:71 app/templates/www/features.html:51
-#, fuzzy
 msgid "IN PRODUCTION"
-msgstr "In production"
+msgstr ""
 
 #: app/templates/www/_hero_mock.html:77
 msgid "assembly"
 msgstr ""
 
 #: app/templates/www/_hero_mock.html:78 app/templates/www/features.html:49
-#, fuzzy
 msgid "QUOTED"
-msgstr "Quoted"
+msgstr ""
 
 #: app/templates/www/_hero_mock.html:84
 msgid "railing"
 msgstr ""
 
 #: app/templates/www/_hero_mock.html:85 app/templates/www/features.html:52
-#, fuzzy
 msgid "READY"
-msgstr "Ready"
+msgstr ""
 
 #: app/templates/www/_hero_mock.html:91
-#, fuzzy
 msgid "shaft"
-msgstr "Draft"
+msgstr ""
 
 #: app/templates/www/_hero_mock.html:92 app/templates/www/features.html:50
-#, fuzzy
 msgid "CONFIRMED"
-msgstr "Confirmed"
+msgstr ""
 
 #: app/templates/www/_hero_mock.html:103
 msgid "Kovárna Vlček sent a message on ORD-0142"
@@ -2952,9 +2826,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/contact.html:14
-#, fuzzy
 msgid "Write or call us"
-msgstr "Switch to"
+msgstr ""
 
 #: app/templates/www/contact.html:17
 msgid ""
@@ -2963,8 +2836,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/contact.html:32
-msgid "Typical reply within 24 hours"
-msgstr "Reply within 1 working day"
+msgid "Reply within 1 working day"
+msgstr ""
 
 #: app/templates/www/contact.html:43
 msgid "15-minute demo"
@@ -2985,8 +2858,8 @@ msgid "Security disclosures"
 msgstr ""
 
 #: app/templates/www/contact.html:58
-msgid "GPG on request. We reply within 24 hours."
-msgstr "GPG key on request. We reply within 1 working day."
+msgid "GPG key on request. We reply within 1 working day."
+msgstr ""
 
 #: app/templates/www/contact.html:64
 msgid "Czech team"
@@ -2999,27 +2872,22 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/contact.html:76
-#, fuzzy
 msgid "Message sent"
-msgstr "Manage tenants"
+msgstr ""
 
 #: app/templates/www/contact.html:77
 msgid ""
-"Thanks — we will reply within 24 hours. For anything urgent, email us "
-"directly at team@assoluto.eu."
-msgstr ""
 "Thanks — we will reply within 1 working day. For anything urgent, email "
 "us directly at team@assoluto.eu."
+msgstr ""
 
 #: app/templates/www/contact.html:81
-#, fuzzy
 msgid "Write to us"
-msgstr "Switch to"
+msgstr ""
 
 #: app/templates/www/contact.html:104
-#, fuzzy
 msgid "Your message"
-msgstr "Your name"
+msgstr ""
 
 #: app/templates/www/contact.html:106
 msgid ""
@@ -3028,9 +2896,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/contact.html:111
-#, fuzzy
 msgid "Send"
-msgstr "Closed"
+msgstr ""
 
 #: app/templates/www/contact.html:115
 msgid ""
@@ -3084,9 +2951,8 @@ msgid "Lifetime"
 msgstr ""
 
 #: app/templates/www/cookies.html:32
-#, fuzzy
 msgid "Scope"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/www/cookies.html:38
 msgid "Double-submit CSRF token. Prevents forged POSTs from other origins."
@@ -3116,9 +2982,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/cookies.html:52
-#, fuzzy
 msgid "Parent domain"
-msgstr "Portal subdomain"
+msgstr ""
 
 #: app/templates/www/cookies.html:56
 msgid ""
@@ -3146,9 +3011,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/cookies.html:79
-#, fuzzy
 msgid "4. Contact"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/www/cookies.html:81
 msgid "Questions about this cookies policy? Write to"
@@ -3207,24 +3071,20 @@ msgid "Automatic email on every status change"
 msgstr ""
 
 #: app/templates/www/features.html:47
-#, fuzzy
 msgid "DRAFT"
-msgstr "Draft"
+msgstr ""
 
 #: app/templates/www/features.html:48
-#, fuzzy
 msgid "SUBMITTED"
-msgstr "Submitted"
+msgstr ""
 
 #: app/templates/www/features.html:53
-#, fuzzy
 msgid "DELIVERED"
-msgstr "Delivered"
+msgstr ""
 
 #: app/templates/www/features.html:54
-#, fuzzy
 msgid "CLOSED"
-msgstr "Closed"
+msgstr ""
 
 #: app/templates/www/features.html:86
 msgid "Drawings and CAD in the right place"
@@ -3284,23 +3144,20 @@ msgid "per drawing · quoted on request"
 msgstr ""
 
 #: app/templates/www/features.html:140
-#, fuzzy
 msgid "Item"
-msgstr "Team"
+msgstr ""
 
 #: app/templates/www/features.html:141
 msgid "In"
 msgstr ""
 
 #: app/templates/www/features.html:142
-#, fuzzy
 msgid "Out"
-msgstr "In production"
+msgstr ""
 
 #: app/templates/www/features.html:143
-#, fuzzy
 msgid "Balance"
-msgstr "Cancelled"
+msgstr ""
 
 #: app/templates/www/features.html:147
 msgid "Steel sheet 2 mm"
@@ -3432,9 +3289,8 @@ msgid "Not a VAT payer (§6 VAT Act)."
 msgstr ""
 
 #: app/templates/www/imprint.html:33
-#, fuzzy
 msgid "Contact email"
-msgstr "Platform"
+msgstr ""
 
 #: app/templates/www/imprint.html:38
 msgid "Regulatory supervision"
@@ -3447,14 +3303,12 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/imprint.html:45
-#, fuzzy
 msgid "EU ODR platform"
-msgstr "Platform"
+msgstr ""
 
 #: app/templates/www/imprint.html:52
-#, fuzzy
 msgid "Related documents"
-msgstr "Create portal"
+msgstr ""
 
 #: app/templates/www/imprint.html:54 app/templates/www/terms.html:3
 #: app/templates/www/terms.html:7
@@ -3598,9 +3452,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/index.html:158
-#, fuzzy
 msgid "Customer material on stock"
-msgstr "As a customer contact"
+msgstr ""
 
 #: app/templates/www/index.html:159
 msgid ""
@@ -3609,9 +3462,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/index.html:165
-#, fuzzy
 msgid "Email notifications that make sense"
-msgstr "Email verification failed"
+msgstr ""
 
 #: app/templates/www/index.html:166
 msgid ""
@@ -3642,9 +3494,8 @@ msgid "Three steps, thirty minutes. No \"implementation project\"."
 msgstr ""
 
 #: app/templates/www/index.html:201
-#, fuzzy
 msgid "Sign up, choose a subdomain"
-msgstr "Portal subdomain"
+msgstr ""
 
 #: app/templates/www/index.html:204
 msgid ""
@@ -3663,9 +3514,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/index.html:219
-#, fuzzy
 msgid "Orders run on their own"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/www/index.html:222
 msgid ""
@@ -3688,9 +3538,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/index.html:247
-#, fuzzy
 msgid "Excel / email"
-msgstr "Check your email"
+msgstr ""
 
 #: app/templates/www/index.html:249
 msgid "Big ERP"
@@ -3729,9 +3578,8 @@ msgid "5 – 25K CZK / user"
 msgstr ""
 
 #: app/templates/www/index.html:263
-#, fuzzy
 msgid "Client sees order status"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/www/index.html:263
 msgid "often only via a separate B2B module"
@@ -3746,18 +3594,16 @@ msgid "billable by the hour"
 msgstr ""
 
 #: app/templates/www/index.html:265
-#, fuzzy
 msgid "Audit trail"
-msgstr "Catalog"
+msgstr ""
 
 #: app/templates/www/index.html:266 app/templates/www/pricing.html:125
 msgid "Data in the EU"
 msgstr ""
 
 #: app/templates/www/index.html:266
-#, fuzzy
 msgid "your laptop"
-msgstr "Your name"
+msgstr ""
 
 #: app/templates/www/index.html:266
 msgid "Hetzner DE"
@@ -3768,19 +3614,16 @@ msgid "depends on the vendor"
 msgstr ""
 
 #: app/templates/www/index.html:267
-#, fuzzy
 msgid "Can be cancelled"
-msgstr "Cancelled"
+msgstr ""
 
 #: app/templates/www/index.html:267
-#, fuzzy
 msgid "at any time"
-msgstr "Confirmed"
+msgstr ""
 
 #: app/templates/www/index.html:267
-#, fuzzy
 msgid "12–36 month contracts"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/www/index.html:278 app/templates/www/pricing.html:3
 #: app/templates/www/pricing.html:11 app/templates/www/www_base.html:77
@@ -3809,15 +3652,13 @@ msgid "3 staff users"
 msgstr ""
 
 #: app/templates/www/index.html:298 app/templates/www/pricing.html:51
-#, fuzzy
 msgid "20 client contacts"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/www/index.html:299 app/templates/www/index.html:322
 #: app/templates/www/pricing.html:52 app/templates/www/pricing.html:76
-#, fuzzy
 msgid "Unlimited orders"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/www/index.html:300 app/templates/www/pricing.html:53
 msgid "2 GB attachment storage"
@@ -3840,9 +3681,8 @@ msgid "15 staff users"
 msgstr ""
 
 #: app/templates/www/index.html:321 app/templates/www/pricing.html:75
-#, fuzzy
 msgid "100 client contacts"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/www/index.html:323 app/templates/www/pricing.html:77
 msgid "20 GB attachment storage"
@@ -3857,9 +3697,8 @@ msgid "Self-hosted, AGPL-3.0"
 msgstr ""
 
 #: app/templates/www/index.html:337
-#, fuzzy
 msgid "forever"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/www/index.html:340 app/templates/www/pricing.html:30
 msgid "No user limits"
@@ -3882,18 +3721,16 @@ msgid "Installation guide"
 msgstr ""
 
 #: app/templates/www/index.html:352
-#, fuzzy
 msgid "Need more?"
-msgstr "Orders"
+msgstr ""
 
 #: app/templates/www/index.html:353
 msgid "Enterprise plan with SLA →"
 msgstr ""
 
 #: app/templates/www/index.html:362
-#, fuzzy
 msgid "Early access"
-msgstr "Your name"
+msgstr ""
 
 #: app/templates/www/index.html:364
 msgid "What our first customers say"
@@ -4043,9 +3880,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/index.html:450
-#, fuzzy
 msgid "Or write / call us"
-msgstr "Switch to"
+msgstr ""
 
 #: app/templates/www/index.html:454
 msgid "Up and running in 30 minutes · Data in the EU (Hetzner DE) · Czech support"
@@ -4059,9 +3895,8 @@ msgstr ""
 
 #: app/templates/www/index.html:477 app/templates/www/index.html:484
 #: app/templates/www/www_base.html:65
-#, fuzzy
 msgid "30-day free trial, no credit card required"
-msgstr "14-day free trial. No credit card required."
+msgstr ""
 
 #: app/templates/www/pricing.html:4
 msgid ""
@@ -4110,9 +3945,8 @@ msgid "Over 15 people, SLA, custom domain"
 msgstr ""
 
 #: app/templates/www/pricing.html:90
-#, fuzzy
 msgid "Talk to us"
-msgstr "Switch to"
+msgstr ""
 
 #: app/templates/www/pricing.html:92
 msgid "We'll draw up an offer in 1 working day"
@@ -4170,9 +4004,8 @@ msgid "kept 14 days, restorable on request."
 msgstr ""
 
 #: app/templates/www/pricing.html:137
-#, fuzzy
 msgid "GDPR-ready"
-msgstr "Ready"
+msgstr ""
 
 #: app/templates/www/pricing.html:137
 msgid "subprocessor list, DPA on request."
@@ -4284,9 +4117,8 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/privacy.html:18 app/templates/www/terms.html:18
-#, fuzzy
 msgid "Company ID (IČO)"
-msgstr "Company name"
+msgstr ""
 
 #: app/templates/www/privacy.html:20 app/templates/www/terms.html:20
 msgid "with registered office at"
@@ -4649,14 +4481,12 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/self_hosted.html:26
-#, fuzzy
 msgid "Need help? Write to us"
-msgstr "Switch to"
+msgstr ""
 
 #: app/templates/www/self_hosted.html:34
-#, fuzzy
 msgid "Requirements"
-msgstr "required"
+msgstr ""
 
 #: app/templates/www/self_hosted.html:38
 msgid "Linux server with Docker 24+ (2 vCPU, 2 GB RAM to start)"
@@ -4699,9 +4529,8 @@ msgid "staff"
 msgstr ""
 
 #: app/templates/www/self_hosted.html:73
-#, fuzzy
 msgid "client contact"
-msgstr "Clients"
+msgstr ""
 
 #: app/templates/www/self_hosted.html:78
 msgid "Production deployment"
@@ -4732,9 +4561,8 @@ msgid "By default the self-hosted install runs as"
 msgstr ""
 
 #: app/templates/www/self_hosted.html:96
-#, fuzzy
 msgid "single-tenant"
-msgstr "Manage tenants"
+msgstr ""
 
 #: app/templates/www/self_hosted.html:96
 msgid ""
@@ -4765,9 +4593,8 @@ msgid "For commercial support, a security audit, or custom development, use the"
 msgstr ""
 
 #: app/templates/www/self_hosted.html:111
-#, fuzzy
 msgid "contact form"
-msgstr "Platform"
+msgstr ""
 
 #: app/templates/www/self_hosted.html:117
 msgid "A word on AGPL-3.0"
@@ -5187,14 +5014,12 @@ msgid "Try free"
 msgstr ""
 
 #: app/templates/www/www_base.html:95
-#, fuzzy
 msgid "Terms"
-msgstr "Team"
+msgstr ""
 
 #: app/templates/www/www_base.html:97
-#, fuzzy
 msgid "Privacy"
-msgstr "Privacy Policy"
+msgstr ""
 
 #~ msgid "No assets recorded for this client yet."
 #~ msgstr ""
@@ -6527,4 +6352,19 @@ msgstr "Privacy Policy"
 #~ " arranged on request — bank transfer"
 #~ " with a Czech invoice, net-14."
 #~ msgstr ""
+
+#~ msgid "Typical reply within 24 hours"
+#~ msgstr "Reply within 1 working day"
+
+#~ msgid "GPG on request. We reply within 24 hours."
+#~ msgstr "GPG key on request. We reply within 1 working day."
+
+#~ msgid ""
+#~ "Thanks — we will reply within 24"
+#~ " hours. For anything urgent, email us"
+#~ " directly at team@assoluto.eu."
+#~ msgstr ""
+#~ "Thanks — we will reply within 1"
+#~ " working day. For anything urgent, "
+#~ "email us directly at team@assoluto.eu."
 

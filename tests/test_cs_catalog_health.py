@@ -164,6 +164,66 @@ def test_no_fuzzy_entries(locale: str) -> None:
 # A small smoke test: spot-check that a handful of the previously-
 # regressed strings have the right translation now. If a future Babel
 # update silently swaps these out we'll see it before it ships.
+# ---------------------------------------------------------------------------
+# EN identity-catalog hygiene
+# ---------------------------------------------------------------------------
+#
+# The EN catalog is intentionally an *identity catalog* — empty msgstrs
+# everywhere, gettext falls back to the msgid which IS the English text.
+# But ``pybabel update`` can silently mark dozens of msgids as ``#, fuzzy``
+# with completely unrelated msgstrs (e.g. ``msgid "Message sent" msgstr
+# "Manage tenants"``). gettext skips fuzzies, so the visible page stays
+# correct — but the catalog sits on a tripwire: anyone clearing flags
+# casually, or a future tooling change that promotes fuzzies, would ship
+# the nonsense to prospects. F-BIZ-011 found 175 such entries dormant in
+# the EN catalog. These two tests are the regression guard.
+
+EN_PO = REPO_ROOT / "app" / "locale" / "en" / "LC_MESSAGES" / "messages.po"
+
+
+def test_en_catalog_has_no_fuzzy_entries() -> None:
+    """The EN identity catalog must not carry ``#, fuzzy`` flags. Even
+    though Babel ``compile`` drops them at runtime, leaving them in the
+    .po source means the next operator who runs ``pybabel update`` and
+    reviews the diff sees nonsense msgstrs that have to be cleaned up
+    manually before the next translator round-trip. Easier to keep the
+    catalog clean."""
+    text = EN_PO.read_text(encoding="utf-8")
+    entries = _parse_active_entries(text)
+    fuzzy = [e for e in entries if e["fuzzy"]]
+    assert not fuzzy, (
+        f"{len(fuzzy)} fuzzy entries in the EN identity catalog. "
+        "Examples:\n  "
+        + "\n  ".join(f"{e['msgid'][:60]!r} → {e['msgstr'][:60]!r}" for e in fuzzy[:5])
+        + (f"\n  … (+{len(fuzzy) - 5} more)" if len(fuzzy) > 5 else "")
+        + "\n\nFix: drop the ``#, fuzzy`` line from each affected entry, "
+        "and either (a) clear the msgstr (the EN identity fallback then "
+        "kicks in correctly) or (b) supply a real EN translation. Then "
+        "``.venv/bin/pybabel compile -d app/locale``."
+    )
+
+
+def test_en_catalog_msgstrs_are_empty_or_match_msgid() -> None:
+    """In an identity catalog, every active msgstr is either empty
+    (gettext falls back to the msgid) or exactly equal to the msgid
+    (a literal rewrite of the source string for translator tooling).
+    Anything else means a real translation has crept in — usually as a
+    fuzzy-resolution accident — and the page will show that
+    translation instead of the source string the developer typed."""
+    text = EN_PO.read_text(encoding="utf-8")
+    entries = _parse_active_entries(text)
+    drift = [e for e in entries if e["msgstr"] and e["msgstr"] != e["msgid"]]
+    assert not drift, (
+        f"{len(drift)} EN msgstrs differ from their msgid. "
+        "Examples:\n  "
+        + "\n  ".join(f"{e['msgid'][:60]!r} → {e['msgstr'][:60]!r}" for e in drift[:5])
+        + (f"\n  … (+{len(drift) - 5} more)" if len(drift) > 5 else "")
+        + '\n\nFix: clear the msgstr (set it to ``""``) so the identity '
+        "fallback takes over, or update the msgid in the source template "
+        "to match the intended copy."
+    )
+
+
 @pytest.mark.parametrize(
     "msgid,must_contain",
     [

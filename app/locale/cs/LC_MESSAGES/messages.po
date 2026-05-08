@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-05-01 14:05+0200\n"
+"POT-Creation-Date: 2026-05-08 22:45+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -675,21 +675,21 @@ msgstr "Účet je deaktivován."
 msgid "Invalid email or password."
 msgstr "Neplatný e-mail nebo heslo."
 
-#: app/routers/public.py:383 app/routers/public.py:479
-#: app/routers/public.py:562
+#: app/routers/public.py:402 app/routers/public.py:498
+#: app/routers/public.py:581
 msgid "The invitation is invalid or has expired."
 msgstr "Pozvánka je neplatná nebo vypršela."
 
-#: app/routers/public.py:397 app/routers/public.py:493
+#: app/routers/public.py:416 app/routers/public.py:512
 msgid "The invitation belongs to a different tenant."
 msgstr "Pozvánka patří k jinému tenantovi."
 
-#: app/routers/public.py:459 app/routers/public.py:606
-#: app/routers/public.py:826
+#: app/routers/public.py:478 app/routers/public.py:625
+#: app/routers/public.py:845
 msgid "Passwords do not match."
 msgstr "Hesla se neshodují."
 
-#: app/routers/public.py:791
+#: app/routers/public.py:810
 msgid "The link is invalid or has expired."
 msgstr "Odkaz je neplatný nebo vypršel."
 
@@ -2959,7 +2959,7 @@ msgstr ""
 "Ozveme se do 1 pracovního dne."
 
 #: app/templates/www/contact.html:32
-msgid "Typical reply within 24 hours"
+msgid "Reply within 1 working day"
 msgstr "Odpovídáme do 1 pracovního dne"
 
 #: app/templates/www/contact.html:43
@@ -2981,7 +2981,7 @@ msgid "Security disclosures"
 msgstr "Hlášení bezpečnostních chyb"
 
 #: app/templates/www/contact.html:58
-msgid "GPG on request. We reply within 24 hours."
+msgid "GPG key on request. We reply within 1 working day."
 msgstr "GPG klíč na vyžádání. Odpovídáme do 1 pracovního dne."
 
 #: app/templates/www/contact.html:64
@@ -3002,8 +3002,8 @@ msgstr "Zpráva odeslána"
 
 #: app/templates/www/contact.html:77
 msgid ""
-"Thanks — we will reply within 24 hours. For anything urgent, email us "
-"directly at team@assoluto.eu."
+"Thanks — we will reply within 1 working day. For anything urgent, email "
+"us directly at team@assoluto.eu."
 msgstr ""
 "Děkujeme — ozveme se do 1 pracovního dne. Pokud je to urgentní, napište "
 "přímo na team@assoluto.eu."
@@ -6812,4 +6812,19 @@ msgstr "Soukromí"
 #~ "přijde e-mailem hned. Roční: na vyžádání"
 #~ " — převodem s českou fakturou, "
 #~ "splatnost 14 dní."
+
+#~ msgid "Typical reply within 24 hours"
+#~ msgstr "Odpovídáme do 1 pracovního dne"
+
+#~ msgid "GPG on request. We reply within 24 hours."
+#~ msgstr "GPG klíč na vyžádání. Odpovídáme do 1 pracovního dne."
+
+#~ msgid ""
+#~ "Thanks — we will reply within 24"
+#~ " hours. For anything urgent, email us"
+#~ " directly at team@assoluto.eu."
+#~ msgstr ""
+#~ "Děkujeme — ozveme se do 1 "
+#~ "pracovního dne. Pokud je to urgentní,"
+#~ " napište přímo na team@assoluto.eu."
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-01 14:05+0200\n"
+"POT-Creation-Date: 2026-05-08 22:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -646,21 +646,21 @@ msgstr ""
 msgid "Invalid email or password."
 msgstr ""
 
-#: app/routers/public.py:383 app/routers/public.py:479
-#: app/routers/public.py:562
+#: app/routers/public.py:402 app/routers/public.py:498
+#: app/routers/public.py:581
 msgid "The invitation is invalid or has expired."
 msgstr ""
 
-#: app/routers/public.py:397 app/routers/public.py:493
+#: app/routers/public.py:416 app/routers/public.py:512
 msgid "The invitation belongs to a different tenant."
 msgstr ""
 
-#: app/routers/public.py:459 app/routers/public.py:606
-#: app/routers/public.py:826
+#: app/routers/public.py:478 app/routers/public.py:625
+#: app/routers/public.py:845
 msgid "Passwords do not match."
 msgstr ""
 
-#: app/routers/public.py:791
+#: app/routers/public.py:810
 msgid "The link is invalid or has expired."
 msgstr ""
 
@@ -2835,7 +2835,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/contact.html:32
-msgid "Typical reply within 24 hours"
+msgid "Reply within 1 working day"
 msgstr ""
 
 #: app/templates/www/contact.html:43
@@ -2857,7 +2857,7 @@ msgid "Security disclosures"
 msgstr ""
 
 #: app/templates/www/contact.html:58
-msgid "GPG on request. We reply within 24 hours."
+msgid "GPG key on request. We reply within 1 working day."
 msgstr ""
 
 #: app/templates/www/contact.html:64
@@ -2876,8 +2876,8 @@ msgstr ""
 
 #: app/templates/www/contact.html:77
 msgid ""
-"Thanks — we will reply within 24 hours. For anything urgent, email us "
-"directly at team@assoluto.eu."
+"Thanks — we will reply within 1 working day. For anything urgent, email "
+"us directly at team@assoluto.eu."
 msgstr ""
 
 #: app/templates/www/contact.html:81
