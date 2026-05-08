@@ -130,6 +130,17 @@
                                     {{ activity_verbs.get(event.action, event.action) }}
                                 </span>
                                 <span class="font-medium text-slate-900 dark:text-slate-100">{{ event.entity_label }}</span>
+                                {% if event.action == 'order.status_changed' and event.diff %}
+                                    {% set _b = (event.diff.get('before') or {}).get('status') %}
+                                    {% set _a = (event.diff.get('after') or {}).get('status') %}
+                                    {% if _b and _a %}
+                                        <span class="ml-1 text-xs text-slate-500 dark:text-slate-400">
+                                            <span class="font-mono">{{ _b }}</span>
+                                            <span aria-hidden="true">→</span>
+                                            <span class="font-mono font-semibold text-slate-700 dark:text-slate-300">{{ _a }}</span>
+                                        </span>
+                                    {% endif %}
+                                {% endif %}
                             </p>
                             <p class="text-xs text-slate-400 dark:text-slate-500">
                                 <time datetime="{{ event.occurred_at.isoformat() }}"

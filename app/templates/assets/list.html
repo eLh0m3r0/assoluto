@@ -60,8 +60,12 @@
             <h2 class="mt-2 text-base font-semibold text-slate-900 dark:text-slate-100">
                 {{ _('No assets yet') }}
             </h2>
-            <p class="mx-auto mt-1 max-w-md text-sm text-slate-500 dark:text-slate-400">
-                {{ _('Assets are pieces of equipment you track on behalf of a client (machines at their site, rental tools, serialised items). Each asset has a code, location and history.') }}
+            <p class="mx-auto mt-3 max-w-md text-sm text-slate-500 dark:text-slate-400">
+                {% if principal.is_staff %}
+                    {{ _('Assets are pieces of equipment you track on behalf of a client (machines at their site, rental tools, serialised items). Each asset has a code, location and history.') }}
+                {% else %}
+                    {{ _('This page lists machines, tools, or parts that your supplier tracks for you (equipment at your site, items in custody, serialised parts). Once they record any, it appears here.') }}
+                {% endif %}
             </p>
             {% if principal.is_staff %}
                 <a href="/app/assets/new"

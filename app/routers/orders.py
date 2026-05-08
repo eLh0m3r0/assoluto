@@ -548,6 +548,30 @@ async def orders_detail(
     history = await list_status_history(db, order.id)
     attachments = await list_attachments(db, order.id)
 
+    # Resolve comment author labels in one batch so the template can
+    # render "<author> · 2026-05-09" instead of an anonymous timestamp.
+    comment_authors: dict[UUID, str] = {}
+    user_ids = {c.author_user_id for c in comments if c.author_user_id is not None}
+    contact_ids = {c.author_contact_id for c in comments if c.author_contact_id is not None}
+    if user_ids:
+        from app.models.user import User as _User
+
+        rows = (
+            await db.execute(select(_User.id, _User.full_name).where(_User.id.in_(user_ids)))
+        ).all()
+        for row in rows:
+            comment_authors[row[0]] = row[1]
+    if contact_ids:
+        from app.models.customer import CustomerContact as _Contact
+
+        rows = (
+            await db.execute(
+                select(_Contact.id, _Contact.full_name).where(_Contact.id.in_(contact_ids))
+            )
+        ).all()
+        for row in rows:
+            comment_authors[row[0]] = row[1]
+
     customer = (
         await db.execute(select(Customer).where(Customer.id == order.customer_id))
     ).scalar_one_or_none()
@@ -580,6 +604,7 @@ async def orders_detail(
             "order": order,
             "items": items,
             "comments": comments,
+            "comment_authors": comment_authors,
             "history": history,
             "attachments": attachments,
             "customer": customer,
@@ -594,9 +619,13 @@ async def orders_detail(
 
 
 def _can_edit_items(order, principal: Principal) -> bool:
-    """Staff can always edit; contacts only in DRAFT."""
+    """Staff edit in DRAFT/SUBMITTED/QUOTED (mirrors STAFF_ITEM_EDIT_STATES
+    in order_service); contacts only in DRAFT.
+    """
+    from app.services.order_service import STAFF_ITEM_EDIT_STATES
+
     if principal.is_staff:
-        return True
+        return order.status in STAFF_ITEM_EDIT_STATES
     return order.status == OrderStatus.DRAFT
 
 
@@ -869,7 +898,7 @@ async def orders_patch_item(
             await savepoint.commit()
         except ForbiddenTransition:
             await savepoint.rollback()
-            row_error = _t(request, "This order is no longer a draft.")
+            row_error = _t(request, "This order can no longer be edited.")
             status_code = 409
         except OrderAccessDenied:
             await savepoint.rollback()

@@ -261,10 +261,20 @@
         </div>
         <ul class="divide-y divide-slate-100 dark:divide-slate-800">
             {% for comment in comments %}
+                {% set author_id = comment.author_user_id or comment.author_contact_id %}
+                {% set author_name = comment_authors.get(author_id) if author_id else None %}
+                {% if not author_name %}
+                    {% if comment.author_user_id %}{% set author_name = _('Supplier team') %}
+                    {% elif comment.author_contact_id %}{% set author_name = _('Client') %}
+                    {% else %}{% set author_name = _('System') %}
+                    {% endif %}
+                {% endif %}
                 <li class="px-5 py-3 {% if comment.is_internal %}bg-amber-50 dark:bg-amber-900/20{% endif %}">
-                    <div class="text-xs text-slate-500 dark:text-slate-400">
-                        {{ comment.created_at.strftime("%d.%m.%Y %H:%M") }}
-                        {% if comment.is_internal %}· <span class="text-amber-700 dark:text-amber-300">{{ _('internal') }}</span>{% endif %}
+                    <div class="flex flex-wrap items-baseline gap-x-2 text-xs text-slate-500 dark:text-slate-400">
+                        <span class="font-semibold text-slate-800 dark:text-slate-200">{{ author_name }}</span>
+                        <span>·</span>
+                        <span>{{ comment.created_at.strftime("%d.%m.%Y %H:%M") }}</span>
+                        {% if comment.is_internal %}<span>·</span><span class="text-amber-700 dark:text-amber-300">{{ _('internal') }}</span>{% endif %}
                     </div>
                     <div class="mt-1 whitespace-pre-wrap text-sm text-slate-800 dark:text-slate-200">{{ comment.body }}</div>
                 </li>
