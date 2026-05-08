@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -43,6 +43,19 @@ csrf_router = APIRouter(tags=["platform-billing"], dependencies=[Depends(verify_
 
 def _templates(request: Request):
     return request.app.state.templates
+
+
+# Keys we expect the operator to have filled before any Stripe checkout
+# can run. ``billing_ico`` is the Czech company ID — without it the
+# generated tax doklad is invalid. The other two are needed for the
+# fakturační adresa block. ``billing_dic`` is optional (a non-VAT-payer
+# can sell without one).
+REQUIRED_BILLING_KEYS: tuple[str, ...] = ("billing_ico", "billing_name", "billing_address")
+
+
+def _billing_details_present(tenant: Tenant) -> bool:
+    blob = tenant.settings or {}
+    return all(str(blob.get(k) or "").strip() for k in REQUIRED_BILLING_KEYS)
 
 
 async def _resolve_current_tenant(
@@ -178,6 +191,7 @@ async def billing_dashboard(
             "invoices": invoices,
             "usage": usage,
             "stripe_enabled": settings.stripe_enabled,
+            "billing_details_present": _billing_details_present(tenant),
             "principal": None,
             "notice": notice,
         },
@@ -212,6 +226,20 @@ async def start_checkout(
                 "To self-host, see the installation guide at /self-hosted."
             ),
         )
+
+    # Gate Stripe checkout on Czech billing details (IČO, fakturační
+    # název, adresa). Without these the locally-rendered tax doklad
+    # cannot be generated; the demo path is exempt because no PDF is
+    # produced. See ``_billing_details_present``.
+    if settings.stripe_enabled and not _billing_details_present(tenant):
+        from urllib.parse import quote
+
+        return RedirectResponse(
+            url="/platform/billing/details?next="
+            + quote(f"/platform/billing/checkout/{plan_code}"),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
     plan = await require_plan(db, plan_code)
     base = settings.app_base_url.rstrip("/")
     success_url = f"{base}/platform/billing?checkout=success"
@@ -349,6 +377,121 @@ async def cancel_subscription_route(
     )
 
 
+# ----------------------------------------------- billing details (IČO/DIČ)
+
+
+@router.get("/platform/billing/details", response_class=HTMLResponse)
+async def billing_details_form(
+    request: Request,
+    next: str = "/platform/billing",
+    notice: str | None = None,
+    error: str | None = None,
+    identity: Identity = Depends(require_verified_identity),
+    db: AsyncSession = Depends(get_platform_db),
+) -> HTMLResponse:
+    """Form for the Czech-tax billing identity (IČO, DIČ, fakturační
+    adresa). Required before any Stripe checkout — the locally-rendered
+    daňový doklad cannot be issued without these.
+    """
+    tenant, _ = await _resolve_current_tenant(db, identity)
+    if tenant is None:
+        raise HTTPException(status_code=404, detail="No tenant to manage")
+
+    blob = tenant.settings or {}
+    html = _templates(request).render(
+        request,
+        "platform/billing/details.html",
+        {
+            "identity": identity,
+            "tenant": tenant,
+            "form": {
+                "billing_name": blob.get("billing_name") or tenant.name,
+                "billing_ico": blob.get("billing_ico") or "",
+                "billing_dic": blob.get("billing_dic") or "",
+                "billing_address": blob.get("billing_address") or "",
+            },
+            "next": next,
+            "notice": notice,
+            "error": error,
+            "principal": None,
+        },
+    )
+    return HTMLResponse(html)
+
+
+@csrf_router.post("/platform/billing/details")
+async def billing_details_save(
+    request: Request,
+    billing_name: str = Form(""),
+    billing_ico: str = Form(""),
+    billing_dic: str = Form(""),
+    billing_address: str = Form(""),
+    next: str = Form("/platform/billing"),
+    identity: Identity = Depends(require_verified_identity),
+    db: AsyncSession = Depends(get_platform_db),
+) -> Response:
+    from urllib.parse import quote
+
+    from app.routers.public import _safe_next_path
+
+    tenant, _ = await _resolve_current_tenant(db, identity)
+    if tenant is None:
+        raise HTTPException(status_code=404, detail="No tenant to manage")
+
+    cleaned = {
+        "billing_name": billing_name.strip(),
+        "billing_ico": billing_ico.strip(),
+        "billing_dic": billing_dic.strip(),
+        "billing_address": billing_address.strip(),
+    }
+
+    # IČO must be 8 digits; DIČ optional but if present, validate basic shape.
+    if not cleaned["billing_name"]:
+        return RedirectResponse(
+            url=f"/platform/billing/details?error={quote('Fakturační název je povinný.')}",
+            status_code=303,
+        )
+    if not (cleaned["billing_ico"].isdigit() and len(cleaned["billing_ico"]) == 8):
+        return RedirectResponse(
+            url=f"/platform/billing/details?error={quote('IČO musí být přesně 8 číslic.')}",
+            status_code=303,
+        )
+    if not cleaned["billing_address"]:
+        return RedirectResponse(
+            url=f"/platform/billing/details?error={quote('Fakturační adresa je povinná.')}",
+            status_code=303,
+        )
+    if cleaned["billing_dic"] and not (
+        cleaned["billing_dic"].upper().startswith("CZ")
+        and cleaned["billing_dic"][2:].isdigit()
+        and 8 <= len(cleaned["billing_dic"]) - 2 <= 10
+    ):
+        return RedirectResponse(
+            url=f"/platform/billing/details?error={quote('DIČ musí být ve formátu CZ + 8 až 10 číslic.')}",
+            status_code=303,
+        )
+
+    # Re-load the tenant under this session so SQLAlchemy emits the UPDATE.
+    from sqlalchemy import select
+
+    row = (await db.execute(select(Tenant).where(Tenant.id == tenant.id))).scalar_one()
+    new_settings = dict(row.settings or {})
+    new_settings.update(cleaned)
+    if cleaned["billing_dic"]:
+        new_settings["billing_dic"] = cleaned["billing_dic"].upper()
+    row.settings = new_settings
+    await db.commit()
+
+    safe_next = _safe_next_path(next) or "/platform/billing"
+    if safe_next == "/":
+        safe_next = "/platform/billing"
+    sep = "&" if "?" in safe_next else "?"
+    return RedirectResponse(
+        url=f"{safe_next}{sep}notice={quote('Fakturační údaje uloženy.')}",
+        status_code=303,
+    )
+
+
 # ------------------------------------------------- post-verify checkout
 
 
@@ -399,6 +542,17 @@ async def post_verify_checkout(
             break
     if tenant_obj is None or user_target is None:
         raise HTTPException(status_code=404, detail="No tenant to manage")
+
+    # Same Czech-tax billing-details gate as the dashboard checkout
+    # path (see ``_billing_details_present``). Demo mode is exempt.
+    if settings.stripe_enabled and not _billing_details_present(tenant_obj):
+        from urllib.parse import quote
+
+        return RedirectResponse(
+            url="/platform/billing/details?next="
+            + quote(f"/platform/billing/checkout/{plan_code}"),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
 
     plan = await require_plan(db, plan_code)
     base = settings.app_base_url.rstrip("/")
