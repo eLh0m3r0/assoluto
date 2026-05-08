@@ -446,20 +446,27 @@ async def update_item(
     actor: ActorRef | None = None,
     audit_actor: ActorInfo | None = None,
 ) -> OrderItem:
-    """Partially update a line item on a DRAFT order.
+    """Partially update a line item on an editable order.
 
     Only provided (non-``None``) fields are applied — this mirrors the
     field-level autosave UX where a single input change PATCHes just that
-    field. The order must be in ``DRAFT`` for **any** actor (staff or
-    contact); once an order has moved on, edits go through the full
-    transition flow instead.
-    """
-    if order.status != OrderStatus.DRAFT:
-        raise ForbiddenTransition("items can only be edited while the order is a draft")
+    field. Editability follows :func:`_ensure_item_editable`: contacts can
+    only edit in DRAFT, staff in DRAFT / SUBMITTED / QUOTED. Past QUOTED
+    the order is contractually agreed; corrections go through a transition
+    instead.
 
-    # Contact scope check — cannot patch somebody else's customer's order.
-    if actor is not None and actor.type == "contact" and order.customer_id != actor.customer_id:
-        raise OrderAccessDenied()
+    ``actor`` is optional so existing background-task callers without a
+    principal still work; in that case we apply the staff state-rules.
+    """
+    if actor is not None:
+        _ensure_item_editable(order, actor)
+        # Contact scope check — cannot patch somebody else's customer's order.
+        if actor.type == "contact" and order.customer_id != actor.customer_id:
+            raise OrderAccessDenied()
+    elif order.status not in STAFF_ITEM_EDIT_STATES:
+        raise ForbiddenTransition(
+            "items can only be edited while the order is draft, submitted or quoted"
+        )
 
     before = {
         "quantity": str(item.quantity),
@@ -509,17 +516,30 @@ async def update_item(
     return item
 
 
+# States in which staff may still edit items / set prices. Lets the
+# supplier add unit prices on a SUBMITTED order before transitioning it
+# to QUOTED, and keep correcting line totals while the order sits in
+# QUOTED waiting for the customer's confirmation. Past QUOTED the order
+# is contractually agreed — line items become append-only and price-locked.
+STAFF_ITEM_EDIT_STATES: frozenset[OrderStatus] = frozenset(
+    {OrderStatus.DRAFT, OrderStatus.SUBMITTED, OrderStatus.QUOTED}
+)
+
+
 def _ensure_item_editable(order: Order, actor: ActorRef) -> None:
     """Check whether the actor can add/remove/edit items on the order.
 
-    Staff have full edit access at all times. Customer contacts can
-    only modify items while the order is in DRAFT.
+    - Customer contacts: DRAFT only.
+    - Staff: DRAFT, SUBMITTED, or QUOTED — see :data:`STAFF_ITEM_EDIT_STATES`.
     """
     if actor.type == "contact":
         if order.status != OrderStatus.DRAFT:
             raise ForbiddenTransition("customer contacts may only edit items in DRAFT")
         return
-    # Staff: always allowed — full administrative control.
+    if order.status not in STAFF_ITEM_EDIT_STATES:
+        raise ForbiddenTransition(
+            "items can only be edited while the order is draft, submitted or quoted"
+        )
 
 
 async def _recompute_quoted_total(db: AsyncSession, order: Order) -> None:

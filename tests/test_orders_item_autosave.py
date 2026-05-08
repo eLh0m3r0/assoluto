@@ -153,21 +153,68 @@ async def test_staff_autosave_quantity_on_draft(
         assert reloaded.line_total == Decimal("700.00")
 
 
-async def test_autosave_blocked_on_non_draft_returns_409(
+async def test_staff_can_autosave_on_submitted_and_quoted(
     tenant_client: AsyncClient, owner_engine, demo_tenant
 ) -> None:
-    """Patching an item on a SUBMITTED order returns 409 + inline error."""
+    """Staff editing prices on a SUBMITTED / QUOTED order MUST succeed —
+    that's the supplier-side quoting workflow. Items become locked only
+    after CONFIRMED."""
     seed = await _seed(owner_engine, demo_tenant.id)
     await _login(tenant_client, "staff@4mex.cz", "staffpass")
     order_id, item_id = await _create_draft_with_item(
         tenant_client, owner_engine, customer_id=seed["acme"].id
     )
 
-    # Move the order to SUBMITTED.
+    # DRAFT → SUBMITTED. Staff updates the unit price.
     t = await tenant_client.post(
         f"/app/orders/{order_id}/transitions/submitted", follow_redirects=False
     )
     assert t.status_code == 303, t.text
+    resp = await tenant_client.post(
+        f"/app/orders/{order_id}/items/{item_id}/patch",
+        data={"quantity": "3", "unit_price": "250", "note": ""},
+    )
+    assert resp.status_code == 200, resp.text
+    assert "data-row-error" not in resp.text
+
+    # SUBMITTED → QUOTED. Staff still allowed.
+    t = await tenant_client.post(
+        f"/app/orders/{order_id}/transitions/quoted", follow_redirects=False
+    )
+    assert t.status_code == 303, t.text
+    resp = await tenant_client.post(
+        f"/app/orders/{order_id}/items/{item_id}/patch",
+        data={"quantity": "5", "unit_price": "275", "note": ""},
+    )
+    assert resp.status_code == 200, resp.text
+    assert "data-row-error" not in resp.text
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        reloaded = (
+            await session.execute(select(OrderItem).where(OrderItem.id == item_id))
+        ).scalar_one()
+        assert reloaded.quantity == Decimal("5")
+        assert reloaded.unit_price == Decimal("275")
+
+
+async def test_autosave_blocked_on_confirmed_returns_409(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """Past QUOTED the order is contractually agreed — items become
+    append-only and price-locked even for staff. 409 + inline error."""
+    seed = await _seed(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "staff@4mex.cz", "staffpass")
+    order_id, item_id = await _create_draft_with_item(
+        tenant_client, owner_engine, customer_id=seed["acme"].id
+    )
+
+    # Walk DRAFT → SUBMITTED → QUOTED → CONFIRMED.
+    for status_path in ("submitted", "quoted", "confirmed"):
+        t = await tenant_client.post(
+            f"/app/orders/{order_id}/transitions/{status_path}", follow_redirects=False
+        )
+        assert t.status_code == 303, t.text
 
     resp = await tenant_client.post(
         f"/app/orders/{order_id}/items/{item_id}/patch",
