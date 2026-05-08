@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-08 22:45+0200\n"
+"POT-Creation-Date: 2026-05-09 00:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,47 +22,47 @@ msgid "All statuses"
 msgstr ""
 
 #: app/i18n_messages.py:35 app/templates/orders/_status_badge.html:14
-#: app/templates/orders/detail.html:330
+#: app/templates/orders/detail.html:340
 msgid "Draft"
 msgstr ""
 
 #: app/i18n_messages.py:36 app/templates/orders/_status_badge.html:15
-#: app/templates/orders/detail.html:331
+#: app/templates/orders/detail.html:341
 msgid "Submitted"
 msgstr ""
 
 #: app/i18n_messages.py:37 app/templates/orders/_status_badge.html:16
-#: app/templates/orders/detail.html:332
+#: app/templates/orders/detail.html:342
 msgid "Quoted"
 msgstr ""
 
 #: app/i18n_messages.py:38 app/templates/orders/_status_badge.html:17
-#: app/templates/orders/detail.html:333
+#: app/templates/orders/detail.html:343
 msgid "Confirmed"
 msgstr ""
 
 #: app/i18n_messages.py:39 app/templates/orders/_status_badge.html:18
-#: app/templates/orders/detail.html:334
+#: app/templates/orders/detail.html:344
 msgid "In production"
 msgstr ""
 
 #: app/i18n_messages.py:40 app/templates/orders/_status_badge.html:19
-#: app/templates/orders/detail.html:335
+#: app/templates/orders/detail.html:345
 msgid "Ready"
 msgstr ""
 
 #: app/i18n_messages.py:41 app/templates/orders/_status_badge.html:20
-#: app/templates/orders/detail.html:336
+#: app/templates/orders/detail.html:346
 msgid "Delivered"
 msgstr ""
 
 #: app/i18n_messages.py:42 app/templates/orders/_status_badge.html:21
-#: app/templates/orders/detail.html:337
+#: app/templates/orders/detail.html:347
 msgid "Closed"
 msgstr ""
 
 #: app/i18n_messages.py:43 app/templates/orders/_status_badge.html:22
-#: app/templates/orders/detail.html:338
+#: app/templates/orders/detail.html:348
 msgid "Cancelled"
 msgstr ""
 
@@ -123,19 +123,19 @@ msgstr ""
 msgid "Customer contact"
 msgstr ""
 
-#: app/main.py:466
+#: app/main.py:474
 msgid "staff users"
 msgstr ""
 
-#: app/main.py:467
+#: app/main.py:475
 msgid "client contacts"
 msgstr ""
 
-#: app/main.py:468
+#: app/main.py:476
 msgid "orders this month"
 msgstr ""
 
-#: app/main.py:469
+#: app/main.py:477
 msgid "MB of storage"
 msgstr ""
 
@@ -537,7 +537,7 @@ msgstr ""
 #: app/routers/orders.py:295 app/templates/orders/list.html:87
 #: app/templates/platform/admin/dashboard.html:49
 #: app/templates/platform/admin/tenant_edit.html:59
-#: app/templates/platform/billing/dashboard.html:192
+#: app/templates/platform/billing/dashboard.html:214
 #: app/templates/www/_hero_mock.html:62
 msgid "Status"
 msgstr ""
@@ -575,50 +575,50 @@ msgstr ""
 msgid "Order created."
 msgstr ""
 
-#: app/routers/orders.py:759
+#: app/routers/orders.py:786
 msgid "Item added."
 msgstr ""
 
-#: app/routers/orders.py:831
+#: app/routers/orders.py:858
 msgid "Invalid quantity"
 msgstr ""
 
-#: app/routers/orders.py:841
+#: app/routers/orders.py:868
 msgid "Invalid unit_price"
 msgstr ""
 
-#: app/routers/orders.py:872
-msgid "This order is no longer a draft."
+#: app/routers/orders.py:899
+msgid "This order can no longer be edited."
 msgstr ""
 
-#: app/routers/orders.py:945
+#: app/routers/orders.py:972
 msgid "Item deleted."
 msgstr ""
 
-#: app/routers/orders.py:975
+#: app/routers/orders.py:1002
 msgid "Unknown status"
 msgstr ""
 
-#: app/routers/orders.py:996
+#: app/routers/orders.py:1023
 msgid "Select at least one order."
 msgstr ""
 
-#: app/routers/orders.py:1091
+#: app/routers/orders.py:1118
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr ""
 
-#: app/routers/orders.py:1093
+#: app/routers/orders.py:1120
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr ""
 
-#: app/routers/orders.py:1199
+#: app/routers/orders.py:1226
 #, python-brace-format
 msgid "Status changed to {status}."
 msgstr ""
 
-#: app/routers/orders.py:1279
+#: app/routers/orders.py:1306
 msgid "Comment added."
 msgstr ""
 
@@ -741,7 +741,7 @@ msgstr ""
 
 #: app/templates/_palette_results.html:22
 #: app/templates/_palette_results.html:23 app/templates/app_base.html:45
-#: app/templates/dashboard/index.html:196 app/templates/orders/detail.html:29
+#: app/templates/dashboard/index.html:207 app/templates/orders/detail.html:29
 #: app/templates/orders/form.html:6 app/templates/orders/list.html:3
 #: app/templates/orders/list.html:7 app/templates/www/_hero_mock.html:25
 #: app/templates/www/_hero_mock.html:46
@@ -759,9 +759,10 @@ msgstr ""
 
 #: app/templates/_palette_results.html:55 app/templates/assets/detail.html:14
 #: app/templates/assets/form.html:17 app/templates/assets/list.html:26
-#: app/templates/orders/detail.html:48 app/templates/orders/form.html:25
-#: app/templates/orders/list.html:85 app/templates/products/form.html:55
-#: app/templates/products/list.html:22 app/templates/www/_hero_mock.html:60
+#: app/templates/orders/detail.html:48 app/templates/orders/detail.html:268
+#: app/templates/orders/form.html:25 app/templates/orders/list.html:85
+#: app/templates/products/form.html:55 app/templates/products/list.html:22
+#: app/templates/www/_hero_mock.html:60
 msgid "Client"
 msgstr ""
 
@@ -1457,14 +1458,21 @@ msgstr ""
 msgid "No assets yet"
 msgstr ""
 
-#: app/templates/assets/list.html:64
+#: app/templates/assets/list.html:65
 msgid ""
 "Assets are pieces of equipment you track on behalf of a client (machines "
 "at their site, rental tools, serialised items). Each asset has a code, "
 "location and history."
 msgstr ""
 
-#: app/templates/assets/list.html:69
+#: app/templates/assets/list.html:67
+msgid ""
+"This page lists machines, tools, or parts that your supplier tracks for "
+"you (equipment at your site, items in custody, serialised parts). Once "
+"they record any, it appears here."
+msgstr ""
+
+#: app/templates/assets/list.html:73
 msgid "Add the first asset"
 msgstr ""
 
@@ -1734,64 +1742,64 @@ msgstr ""
 msgid "Recent activity"
 msgstr ""
 
-#: app/templates/dashboard/index.html:128
+#: app/templates/dashboard/index.html:128 app/templates/orders/detail.html:269
 msgid "System"
 msgstr ""
 
-#: app/templates/dashboard/index.html:147
+#: app/templates/dashboard/index.html:158
 msgid "No activity yet — actions will show up here as they happen."
 msgstr ""
 
-#: app/templates/dashboard/index.html:155
+#: app/templates/dashboard/index.html:166
 msgid "Recent orders"
 msgstr ""
 
-#: app/templates/dashboard/index.html:157
+#: app/templates/dashboard/index.html:168
 msgid "All orders"
 msgstr ""
 
-#: app/templates/dashboard/index.html:194
+#: app/templates/dashboard/index.html:205
 msgid "Start a new order in"
 msgstr ""
 
-#: app/templates/dashboard/index.html:196 app/templates/orders/form.html:3
+#: app/templates/dashboard/index.html:207 app/templates/orders/form.html:3
 #: app/templates/orders/form.html:6 app/templates/orders/form.html:9
 #: app/templates/orders/list.html:21 app/templates/www/_hero_mock.html:51
 msgid "New order"
 msgstr ""
 
-#: app/templates/dashboard/index.html:203
+#: app/templates/dashboard/index.html:214
 msgid "Start by adding your first client"
 msgstr ""
 
-#: app/templates/dashboard/index.html:205
+#: app/templates/dashboard/index.html:216
 msgid ""
 "A client is a company whose contacts will place orders through the "
 "portal. Then add products to the catalog or track their assets at your "
 "site."
 msgstr ""
 
-#: app/templates/dashboard/index.html:212
+#: app/templates/dashboard/index.html:223
 msgid "Add a client"
 msgstr ""
 
-#: app/templates/dashboard/index.html:213
+#: app/templates/dashboard/index.html:224
 msgid "A company you deliver to"
 msgstr ""
 
-#: app/templates/dashboard/index.html:220
+#: app/templates/dashboard/index.html:231
 msgid "Create a product"
 msgstr ""
 
-#: app/templates/dashboard/index.html:221
+#: app/templates/dashboard/index.html:232
 msgid "An item from your catalog"
 msgstr ""
 
-#: app/templates/dashboard/index.html:228
+#: app/templates/dashboard/index.html:239
 msgid "Invite a colleague"
 msgstr ""
 
-#: app/templates/dashboard/index.html:229
+#: app/templates/dashboard/index.html:240
 msgid "Staff / admin role"
 msgstr ""
 
@@ -1989,26 +1997,30 @@ msgid "Comments"
 msgstr ""
 
 #: app/templates/orders/detail.html:267
+msgid "Supplier team"
+msgstr ""
+
+#: app/templates/orders/detail.html:277
 msgid "internal"
 msgstr ""
 
-#: app/templates/orders/detail.html:272
+#: app/templates/orders/detail.html:282
 msgid "No comments."
 msgstr ""
 
-#: app/templates/orders/detail.html:278
+#: app/templates/orders/detail.html:288
 msgid "Write a comment…"
 msgstr ""
 
-#: app/templates/orders/detail.html:284
+#: app/templates/orders/detail.html:294
 msgid "Internal (staff only)"
 msgstr ""
 
-#: app/templates/orders/detail.html:291
+#: app/templates/orders/detail.html:301
 msgid "Add a comment"
 msgstr ""
 
-#: app/templates/orders/detail.html:300
+#: app/templates/orders/detail.html:310
 msgid "Status history"
 msgstr ""
 
@@ -2033,7 +2045,7 @@ msgid "Select all on page"
 msgstr ""
 
 #: app/templates/orders/list.html:82
-#: app/templates/platform/billing/dashboard.html:190
+#: app/templates/platform/billing/dashboard.html:212
 msgid "Number"
 msgstr ""
 
@@ -2545,168 +2557,238 @@ msgid "Subscription & billing"
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:9
+#: app/templates/platform/billing/details.html:9
 msgid "Tenant:"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:17
-msgid "Subscription will be cancelled."
-msgstr ""
-
 #: app/templates/platform/billing/dashboard.html:18
-msgid "Access remains until"
-msgstr ""
-
-#: app/templates/platform/billing/dashboard.html:18
-msgid "end of period"
+msgid "Add your billing details"
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:19
-msgid "You can revert the cancellation in the Stripe Portal below."
+msgid ""
+"IČO, fakturační název and adresa are required before the first paid "
+"checkout."
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:27
-#: app/templates/platform/billing/dashboard.html:124
-msgid "Current plan"
+#: app/templates/platform/billing/dashboard.html:23
+msgid "Fill in"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:33
-msgid "Status:"
-msgstr ""
-
-#: app/templates/platform/billing/dashboard.html:35
-msgid "Trial until"
+#: app/templates/platform/billing/dashboard.html:29
+msgid "Edit billing details (IČO / DIČ / adresa)"
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:37
+msgid "Subscription will be cancelled."
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:38
+msgid "Access remains until"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:38
+msgid "end of period"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:39
+msgid "You can revert the cancellation in the Stripe Portal below."
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:47
+#: app/templates/platform/billing/dashboard.html:146
+msgid "Current plan"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:53
+msgid "Status:"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:55
+msgid "Trial until"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:57
 msgid "Next billing"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:40
+#: app/templates/platform/billing/dashboard.html:60
 msgid "No active subscription"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:46
+#: app/templates/platform/billing/dashboard.html:66
 msgid "Demo mode (Stripe not configured)"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:58
+#: app/templates/platform/billing/dashboard.html:78
 msgid "Manage subscription (Stripe Portal)"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:61
+#: app/templates/platform/billing/dashboard.html:81
 msgid "Plan change, payment card, billing details, and cancellation."
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:69
+#: app/templates/platform/billing/dashboard.html:89
 msgid "Your usage"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:95
+#: app/templates/platform/billing/dashboard.html:115
 msgid "Staff users"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:96
+#: app/templates/platform/billing/dashboard.html:116
 msgid "Client contacts"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:97
+#: app/templates/platform/billing/dashboard.html:117
 msgid "Orders (monthly)"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:98
+#: app/templates/platform/billing/dashboard.html:118
 msgid "Storage (MB)"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:103
+#: app/templates/platform/billing/dashboard.html:123
 msgid "Switch plan"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:112
+#: app/templates/platform/billing/dashboard.html:131
+msgid "Price on request"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:134
 msgid "/month"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:114
+#: app/templates/platform/billing/dashboard.html:136
 #: app/templates/www/index.html:336 app/templates/www/pricing.html:26
 msgid "Free"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:118
+#: app/templates/platform/billing/dashboard.html:140
 msgid "Users:"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:119
+#: app/templates/platform/billing/dashboard.html:141
 msgid "Contacts:"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:120
+#: app/templates/platform/billing/dashboard.html:142
 msgid "Orders/month:"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:121
+#: app/templates/platform/billing/dashboard.html:143
 msgid "Storage:"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:126
+#: app/templates/platform/billing/dashboard.html:148
 #: app/templates/www/pricing.html:101
 msgid "Contact us"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:139
+#: app/templates/platform/billing/dashboard.html:161
 msgid "Upgrade to "
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:143
+#: app/templates/platform/billing/dashboard.html:165
 msgid "Downgrade to "
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:147
+#: app/templates/platform/billing/dashboard.html:169
 msgid "Try "
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:167
-#: app/templates/platform/billing/dashboard.html:177
+#: app/templates/platform/billing/dashboard.html:189
+#: app/templates/platform/billing/dashboard.html:199
 msgid "Cancel subscription"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:169
+#: app/templates/platform/billing/dashboard.html:191
 msgid ""
 "End your paid subscription. You keep full access until the end of the "
 "current billing period, then have 3 days to export your data before "
 "access ends. For later recovery, contact team@assoluto.eu within 30 days."
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:173
+#: app/templates/platform/billing/dashboard.html:195
 msgid ""
 "Cancel your subscription? You keep full access until the current billing "
 "period ends, then have 3 days to export data before access ends."
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:185
+#: app/templates/platform/billing/dashboard.html:207
 msgid "Invoices"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:191
+#: app/templates/platform/billing/dashboard.html:213
 msgid "Amount"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:193
+#: app/templates/platform/billing/dashboard.html:215
 msgid "Paid"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:212
+#: app/templates/platform/billing/dashboard.html:234
 msgid "Czech tax-compliant invoice (daňový doklad)"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:213
+#: app/templates/platform/billing/dashboard.html:235
 msgid "Doklad"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:219
+#: app/templates/platform/billing/dashboard.html:241
 msgid "Stripe-hosted receipt"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:231
+#: app/templates/platform/billing/dashboard.html:253
 msgid "No invoices yet."
+msgstr ""
+
+#: app/templates/platform/billing/details.html:3
+#: app/templates/platform/billing/details.html:7
+msgid "Billing details"
+msgstr ""
+
+#: app/templates/platform/billing/details.html:12
+msgid ""
+"These details appear on every Czech tax doklad we issue. We need them "
+"before the first paid checkout."
+msgstr ""
+
+#: app/templates/platform/billing/details.html:23
+msgid "Company name (as on the invoice)"
+msgstr ""
+
+#: app/templates/platform/billing/details.html:34
+msgid "IČO"
+msgstr ""
+
+#: app/templates/platform/billing/details.html:40
+msgid "8 digits, no spaces."
+msgstr ""
+
+#: app/templates/platform/billing/details.html:44
+msgid "DIČ (VAT, optional)"
+msgstr ""
+
+#: app/templates/platform/billing/details.html:49
+msgid "Leave empty if you are not a VAT payer."
+msgstr ""
+
+#: app/templates/platform/billing/details.html:55
+msgid "Billing address"
+msgstr ""
+
+#: app/templates/platform/billing/details.html:59
+msgid "Street, City, Postal code, Country"
+msgstr ""
+
+#: app/templates/platform/billing/details.html:65
+msgid "Back to subscription"
+msgstr ""
+
+#: app/templates/platform/billing/details.html:69
+msgid "Save & continue"
 msgstr ""
 
 #: app/templates/products/detail.html:20 app/templates/products/form.html:58
