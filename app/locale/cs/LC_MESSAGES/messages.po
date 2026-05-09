@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-05-09 00:24+0200\n"
+"POT-Creation-Date: 2026-05-09 08:47+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -603,50 +603,50 @@ msgstr "Vyberte klienta."
 msgid "Order created."
 msgstr "Objednávka vytvořena."
 
-#: app/routers/orders.py:786
+#: app/routers/orders.py:788
 msgid "Item added."
 msgstr "Položka přidána."
 
-#: app/routers/orders.py:858
+#: app/routers/orders.py:860
 msgid "Invalid quantity"
 msgstr "Neplatné množství"
 
-#: app/routers/orders.py:868
+#: app/routers/orders.py:870
 msgid "Invalid unit_price"
 msgstr "Neplatná jednotková cena"
 
-#: app/routers/orders.py:899
+#: app/routers/orders.py:901
 msgid "This order can no longer be edited."
 msgstr "Tuto zakázku už nelze upravovat."
 
-#: app/routers/orders.py:972
+#: app/routers/orders.py:974
 msgid "Item deleted."
 msgstr "Položka smazána."
 
-#: app/routers/orders.py:1002
+#: app/routers/orders.py:1004
 msgid "Unknown status"
 msgstr "Neznámý stav"
 
-#: app/routers/orders.py:1023
+#: app/routers/orders.py:1025
 msgid "Select at least one order."
 msgstr "Vyberte alespoň jednu objednávku."
 
-#: app/routers/orders.py:1118
+#: app/routers/orders.py:1120
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr "{count} objednávek převedeno."
 
-#: app/routers/orders.py:1120
+#: app/routers/orders.py:1122
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr "{ok} převedeno, {failed} selhalo."
 
-#: app/routers/orders.py:1226
+#: app/routers/orders.py:1228
 #, python-brace-format
 msgid "Status changed to {status}."
 msgstr "Stav změněn na {status}."
 
-#: app/routers/orders.py:1306
+#: app/routers/orders.py:1308
 msgid "Comment added."
 msgstr "Komentář přidán."
 
@@ -859,7 +859,7 @@ msgstr "Přehled"
 msgid "Assets"
 msgstr "Majetek"
 
-#: app/templates/app_base.html:50
+#: app/templates/app_base.html:50 app/templates/www/pricing.html:97
 msgid "SLA"
 msgstr "SLA"
 
@@ -1531,7 +1531,10 @@ msgid ""
 "This page lists machines, tools, or parts that your supplier tracks for "
 "you (equipment at your site, items in custody, serialised parts). Once "
 "they record any, it appears here."
-msgstr "Tato stránka zobrazuje stroje, nářadí nebo díly, které u vás dodavatel eviduje (vybavení u vás na pracovišti, položky v úschově, sériové díly). Jakmile je zaeviduje, objeví se tady."
+msgstr ""
+"Tato stránka zobrazuje stroje, nářadí nebo díly, které u vás dodavatel "
+"eviduje (vybavení u vás na pracovišti, položky v úschově, sériové díly). "
+"Jakmile je zaeviduje, objeví se tady."
 
 #: app/templates/assets/list.html:73
 msgid "Add the first asset"
@@ -2675,7 +2678,9 @@ msgstr "Doplňte fakturační údaje"
 msgid ""
 "IČO, fakturační název and adresa are required before the first paid "
 "checkout."
-msgstr "IČO, fakturační název a adresa jsou potřeba před první placenou objednávkou."
+msgstr ""
+"IČO, fakturační název a adresa jsou potřeba před první placenou "
+"objednávkou."
 
 #: app/templates/platform/billing/dashboard.html:23
 msgid "Fill in"
@@ -2868,7 +2873,9 @@ msgstr "Fakturační údaje"
 msgid ""
 "These details appear on every Czech tax doklad we issue. We need them "
 "before the first paid checkout."
-msgstr "Tyto údaje se objeví na každém daňovém dokladu, který vystavíme. Potřebujeme je před první placenou objednávkou."
+msgstr ""
+"Tyto údaje se objeví na každém daňovém dokladu, který vystavíme. "
+"Potřebujeme je před první placenou objednávkou."
 
 #: app/templates/platform/billing/details.html:23
 msgid "Company name (as on the invoice)"
@@ -3793,11 +3800,9 @@ msgstr "Zaregistrujete se, vyberete subdoménu"
 
 #: app/templates/www/index.html:204
 msgid ""
-"Email, password, Company ID. You'll get your own address — e.g. "
+"Email, password, company name. You'll get your own address — e.g. "
 "yourfirm.assoluto.eu — in 30 seconds."
-msgstr ""
-"E-mail, heslo, IČO. Za 30 vteřin máte vlastní adresu — třeba "
-"vasefirma.assoluto.eu."
+msgstr "E-mail, heslo, název firmy. Za 30 vteřin máte vlastní adresu — třeba vasefirma.assoluto.eu."
 
 #: app/templates/www/index.html:210
 msgid "Invite your first clients"
@@ -4321,12 +4326,8 @@ msgid "Your own domain (portal.yourfirm.cz)"
 msgstr "Vlastní doména (portal.vasefirma.cz)"
 
 #: app/templates/www/pricing.html:96
-msgid "Priority support (24 h)"
-msgstr "Prioritní podpora (24 h)"
-
-#: app/templates/www/pricing.html:97
-msgid "SLA 99.9 percent"
-msgstr "SLA 99,9 procent"
+msgid "Priority support (4 h business hours, written SLA)"
+msgstr "Prioritní podpora (4 h v pracovní době, písemné SLA)"
 
 #: app/templates/www/pricing.html:98
 msgid "On-premises deployment possible"
@@ -4417,10 +4418,21 @@ msgstr ""
 "team@assoluto.eu."
 
 #: app/templates/www/pricing.html:165
+msgid "What do I need to enter at first paid checkout?"
+msgstr "Co potřebuju zadat při prvním placeném checkoutu?"
+
+#: app/templates/www/pricing.html:165
+msgid ""
+"Billing name, IČO (8 digits) and billing address. DIČ if you are a VAT "
+"payer. We need these to issue a valid Czech tax doklad. You enter them "
+"once — we keep them on file."
+msgstr "Fakturační název, IČO (8 číslic) a fakturační adresu. DIČ pokud jste plátce DPH. Bez nich nemůžeme vystavit platný daňový doklad. Vyplníte jednou — uložíme."
+
+#: app/templates/www/pricing.html:166
 msgid "How does billing actually work?"
 msgstr "Jak vlastně funguje fakturace?"
 
-#: app/templates/www/pricing.html:165
+#: app/templates/www/pricing.html:166
 msgid ""
 "Monthly plan: card via Stripe, invoice emailed the same day. Annual plan:"
 " arranged on request — bank transfer with a Czech invoice, net-14, "
@@ -4430,11 +4442,11 @@ msgstr ""
 "vyžádání — převodem s českou fakturou, splatnost 14 dní, zpravidla dva "
 "měsíce zdarma za rok."
 
-#: app/templates/www/pricing.html:166
+#: app/templates/www/pricing.html:167
 msgid "Can I change plans later?"
 msgstr "Lze plán později změnit?"
 
-#: app/templates/www/pricing.html:166
+#: app/templates/www/pricing.html:167
 msgid ""
 "Yes, any time. The difference is prorated down to the day. Downgrade "
 "happens at the start of the next billing period (you keep what you paid "
@@ -4443,11 +4455,11 @@ msgstr ""
 "Ano, kdykoliv. Rozdíl se dopočítá na den. Downgrade proběhne na začátku "
 "dalšího období (zaplacenou dobu vám neukrojíme)."
 
-#: app/templates/www/pricing.html:167
+#: app/templates/www/pricing.html:168
 msgid "What happens when I cancel?"
 msgstr "Co se stane při ukončení?"
 
-#: app/templates/www/pricing.html:167
+#: app/templates/www/pricing.html:168
 msgid ""
 "You keep full access until the end of the current billing period, then "
 "have 3 days to export your data (CSV + attachments as ZIP). After that, "
@@ -4460,11 +4472,11 @@ msgstr ""
 "Pozdější obnovu dat vyřídíme do 30 dní e-mailem na team@assoluto.eu. Pro "
 "okamžité smazání nám napište — GDPR čl. 17 vyřídíme do 48 hodin."
 
-#: app/templates/www/pricing.html:168
+#: app/templates/www/pricing.html:169
 msgid "Does the self-hosted Community version cost anything?"
 msgstr "Stojí Community (self-hosted) verze něco?"
 
-#: app/templates/www/pricing.html:168
+#: app/templates/www/pricing.html:169
 msgid ""
 "No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No "
 "restrictions on users or features — only you need to run updates "
@@ -4473,11 +4485,11 @@ msgstr ""
 "Ne. AGPL-3.0 open source. Platíte jen vlastní VPS a S3. Bez omezení "
 "uživatelů a funkcí — jen aktualizace si musíte pouštět sami."
 
-#: app/templates/www/pricing.html:169
+#: app/templates/www/pricing.html:170
 msgid "Do you have a discount for schools / associations / non-profits?"
 msgstr "Máte slevu pro školy / spolky / neziskovky?"
 
-#: app/templates/www/pricing.html:169
+#: app/templates/www/pricing.html:170
 msgid ""
 "Yes. Write to us at team@assoluto.eu with a description of the use — half"
 " price is typical, free access for small organisations."
@@ -6912,4 +6924,10 @@ msgstr "Soukromí"
 
 #~ msgid "This order is no longer a draft."
 #~ msgstr "Tato objednávka už není koncept."
+
+#~ msgid "Priority support (24 h)"
+#~ msgstr "Prioritní podpora (24 h)"
+
+#~ msgid "SLA 99.9 percent"
+#~ msgstr "SLA 99,9 procent"
 

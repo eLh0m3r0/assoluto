@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: assoluto VERSION\n"
 "Report-Msgid-Bugs-To: team@assoluto.eu\n"
-"POT-Creation-Date: 2026-05-09 00:24+0200\n"
+"POT-Creation-Date: 2026-05-09 08:47+0200\n"
 "PO-Revision-Date: 2026-04-26 11:15+0200\n"
 "Last-Translator: Assoluto Team <team@assoluto.eu>\n"
 "Language: de\n"
@@ -630,50 +630,50 @@ msgstr "Wählen Sie einen Kunden."
 msgid "Order created."
 msgstr "Auftrag angelegt."
 
-#: app/routers/orders.py:786
+#: app/routers/orders.py:788
 msgid "Item added."
 msgstr "Position hinzugefügt."
 
-#: app/routers/orders.py:858
+#: app/routers/orders.py:860
 msgid "Invalid quantity"
 msgstr "Ungültige Menge"
 
-#: app/routers/orders.py:868
+#: app/routers/orders.py:870
 msgid "Invalid unit_price"
 msgstr "Ungültiger Stückpreis"
 
-#: app/routers/orders.py:899
+#: app/routers/orders.py:901
 msgid "This order can no longer be edited."
 msgstr "Dieser Auftrag kann nicht mehr bearbeitet werden."
 
-#: app/routers/orders.py:972
+#: app/routers/orders.py:974
 msgid "Item deleted."
 msgstr "Position gelöscht."
 
-#: app/routers/orders.py:1002
+#: app/routers/orders.py:1004
 msgid "Unknown status"
 msgstr "Unbekannter Status"
 
-#: app/routers/orders.py:1023
+#: app/routers/orders.py:1025
 msgid "Select at least one order."
 msgstr "Wählen Sie mindestens einen Auftrag aus."
 
-#: app/routers/orders.py:1118
+#: app/routers/orders.py:1120
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr "{count} Aufträge übergeben."
 
-#: app/routers/orders.py:1120
+#: app/routers/orders.py:1122
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr "{ok} übergeben, {failed} fehlgeschlagen."
 
-#: app/routers/orders.py:1226
+#: app/routers/orders.py:1228
 #, python-brace-format
 msgid "Status changed to {status}."
 msgstr "Status geändert zu {status}."
 
-#: app/routers/orders.py:1306
+#: app/routers/orders.py:1308
 msgid "Comment added."
 msgstr "Kommentar hinzugefügt."
 
@@ -889,7 +889,7 @@ msgstr "Übersicht"
 msgid "Assets"
 msgstr "Assets"
 
-#: app/templates/app_base.html:50
+#: app/templates/app_base.html:50 app/templates/www/pricing.html:97
 msgid "SLA"
 msgstr "SLA"
 
@@ -1558,7 +1558,10 @@ msgid ""
 "This page lists machines, tools, or parts that your supplier tracks for "
 "you (equipment at your site, items in custody, serialised parts). Once "
 "they record any, it appears here."
-msgstr "Diese Seite zeigt Maschinen, Werkzeuge oder Teile, die Ihr Lieferant für Sie führt (Ausrüstung an Ihrem Standort, verwahrte Gegenstände, seriennummerierte Teile). Sobald er etwas erfasst, erscheint es hier."
+msgstr ""
+"Diese Seite zeigt Maschinen, Werkzeuge oder Teile, die Ihr Lieferant für "
+"Sie führt (Ausrüstung an Ihrem Standort, verwahrte Gegenstände, "
+"seriennummerierte Teile). Sobald er etwas erfasst, erscheint es hier."
 
 #: app/templates/assets/list.html:73
 msgid "Add the first asset"
@@ -2712,7 +2715,9 @@ msgstr "Rechnungsdaten ergänzen"
 msgid ""
 "IČO, fakturační název and adresa are required before the first paid "
 "checkout."
-msgstr "IČO, Rechnungsname und Adresse sind vor dem ersten kostenpflichtigen Checkout erforderlich."
+msgstr ""
+"IČO, Rechnungsname und Adresse sind vor dem ersten kostenpflichtigen "
+"Checkout erforderlich."
 
 #: app/templates/platform/billing/dashboard.html:23
 msgid "Fill in"
@@ -2904,7 +2909,9 @@ msgstr "Rechnungsdaten"
 msgid ""
 "These details appear on every Czech tax doklad we issue. We need them "
 "before the first paid checkout."
-msgstr "Diese Daten erscheinen auf jedem von uns ausgestellten tschechischen Steuerbeleg. Wir benötigen sie vor dem ersten kostenpflichtigen Checkout."
+msgstr ""
+"Diese Daten erscheinen auf jedem von uns ausgestellten tschechischen "
+"Steuerbeleg. Wir benötigen sie vor dem ersten kostenpflichtigen Checkout."
 
 #: app/templates/platform/billing/details.html:23
 msgid "Company name (as on the invoice)"
@@ -3839,11 +3846,9 @@ msgstr "Registrieren, Subdomain wählen"
 
 #: app/templates/www/index.html:204
 msgid ""
-"Email, password, Company ID. You'll get your own address — e.g. "
+"Email, password, company name. You'll get your own address — e.g. "
 "yourfirm.assoluto.eu — in 30 seconds."
-msgstr ""
-"E-Mail, Passwort, USt-ID. In 30 Sekunden haben Sie Ihre eigene Adresse — "
-"z.B. ihrefirma.assoluto.eu."
+msgstr "E-Mail, Passwort, Firmenname. In 30 Sekunden haben Sie Ihre eigene Adresse — z. B. ihrefirma.assoluto.eu."
 
 #: app/templates/www/index.html:210
 msgid "Invite your first clients"
@@ -4367,12 +4372,8 @@ msgid "Your own domain (portal.yourfirm.cz)"
 msgstr "Eigene Domain (portal.ihrefirma.de)"
 
 #: app/templates/www/pricing.html:96
-msgid "Priority support (24 h)"
-msgstr "Prioritäts-Support (24 Std.)"
-
-#: app/templates/www/pricing.html:97
-msgid "SLA 99.9 percent"
-msgstr "SLA 99,9 Prozent"
+msgid "Priority support (4 h business hours, written SLA)"
+msgstr "Prioritäts-Support (4 h zur Geschäftszeit, schriftliches SLA)"
 
 #: app/templates/www/pricing.html:98
 msgid "On-premises deployment possible"
@@ -4463,10 +4464,21 @@ msgstr ""
 "Jahresabrechnung per Überweisung unter team@assoluto.eu."
 
 #: app/templates/www/pricing.html:165
+msgid "What do I need to enter at first paid checkout?"
+msgstr "Was muss ich beim ersten kostenpflichtigen Checkout angeben?"
+
+#: app/templates/www/pricing.html:165
+msgid ""
+"Billing name, IČO (8 digits) and billing address. DIČ if you are a VAT "
+"payer. We need these to issue a valid Czech tax doklad. You enter them "
+"once — we keep them on file."
+msgstr "Rechnungsname, IČO (8 Ziffern) und Rechnungsadresse. DIČ, falls Sie USt-pflichtig sind. Ohne diese Angaben können wir keinen gültigen tschechischen Steuerbeleg ausstellen. Sie geben es einmal ein — wir speichern es."
+
+#: app/templates/www/pricing.html:166
 msgid "How does billing actually work?"
 msgstr "Wie funktioniert die Abrechnung?"
 
-#: app/templates/www/pricing.html:165
+#: app/templates/www/pricing.html:166
 msgid ""
 "Monthly plan: card via Stripe, invoice emailed the same day. Annual plan:"
 " arranged on request — bank transfer with a Czech invoice, net-14, "
@@ -4476,11 +4488,11 @@ msgstr ""
 "Jährlich: auf Anfrage — Überweisung mit tschechischer Rechnung, "
 "Zahlungsziel 14 Tage, üblicherweise zwei Monate kostenlos pro Jahr."
 
-#: app/templates/www/pricing.html:166
+#: app/templates/www/pricing.html:167
 msgid "Can I change plans later?"
 msgstr "Kann ich später den Plan ändern?"
 
-#: app/templates/www/pricing.html:166
+#: app/templates/www/pricing.html:167
 msgid ""
 "Yes, any time. The difference is prorated down to the day. Downgrade "
 "happens at the start of the next billing period (you keep what you paid "
@@ -4490,11 +4502,11 @@ msgstr ""
 "erfolgt zum Beginn der nächsten Abrechnungsperiode (bezahlte Zeit "
 "verfällt nicht)."
 
-#: app/templates/www/pricing.html:167
+#: app/templates/www/pricing.html:168
 msgid "What happens when I cancel?"
 msgstr "Was passiert bei Kündigung?"
 
-#: app/templates/www/pricing.html:167
+#: app/templates/www/pricing.html:168
 msgid ""
 "You keep full access until the end of the current billing period, then "
 "have 3 days to export your data (CSV + attachments as ZIP). After that, "
@@ -4508,11 +4520,11 @@ msgstr ""
 "unter team@assoluto.eu. Für sofortige Löschung schreiben Sie uns — DSGVO "
 "Art. 17 bearbeiten wir binnen 48 Stunden."
 
-#: app/templates/www/pricing.html:168
+#: app/templates/www/pricing.html:169
 msgid "Does the self-hosted Community version cost anything?"
 msgstr "Kostet die Self-Hosted-Community-Version etwas?"
 
-#: app/templates/www/pricing.html:168
+#: app/templates/www/pricing.html:169
 msgid ""
 "No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No "
 "restrictions on users or features — only you need to run updates "
@@ -4522,11 +4534,11 @@ msgstr ""
 "Keine Beschränkungen bei Benutzern oder Funktionen — nur Updates müssen "
 "Sie selbst einspielen."
 
-#: app/templates/www/pricing.html:169
+#: app/templates/www/pricing.html:170
 msgid "Do you have a discount for schools / associations / non-profits?"
 msgstr "Gibt es einen Rabatt für Schulen / Vereine / Non-Profits?"
 
-#: app/templates/www/pricing.html:169
+#: app/templates/www/pricing.html:170
 msgid ""
 "Yes. Write to us at team@assoluto.eu with a description of the use — half"
 " price is typical, free access for small organisations."
@@ -5880,4 +5892,19 @@ msgstr "Datenschutz"
 
 #~ msgid "This order is no longer a draft."
 #~ msgstr "Dieser Auftrag ist kein Entwurf mehr."
+
+#~ msgid ""
+#~ "Email, password, Company ID. You'll get"
+#~ " your own address — e.g. "
+#~ "yourfirm.assoluto.eu — in 30 seconds."
+#~ msgstr ""
+#~ "E-Mail, Passwort, USt-ID. In 30 "
+#~ "Sekunden haben Sie Ihre eigene Adresse"
+#~ " — z.B. ihrefirma.assoluto.eu."
+
+#~ msgid "Priority support (24 h)"
+#~ msgstr "Prioritäts-Support (24 Std.)"
+
+#~ msgid "SLA 99.9 percent"
+#~ msgstr "SLA 99,9 Prozent"
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-09 00:24+0200\n"
+"POT-Creation-Date: 2026-05-09 08:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -575,50 +575,50 @@ msgstr ""
 msgid "Order created."
 msgstr ""
 
-#: app/routers/orders.py:786
+#: app/routers/orders.py:788
 msgid "Item added."
 msgstr ""
 
-#: app/routers/orders.py:858
+#: app/routers/orders.py:860
 msgid "Invalid quantity"
 msgstr ""
 
-#: app/routers/orders.py:868
+#: app/routers/orders.py:870
 msgid "Invalid unit_price"
 msgstr ""
 
-#: app/routers/orders.py:899
+#: app/routers/orders.py:901
 msgid "This order can no longer be edited."
 msgstr ""
 
-#: app/routers/orders.py:972
+#: app/routers/orders.py:974
 msgid "Item deleted."
 msgstr ""
 
-#: app/routers/orders.py:1002
+#: app/routers/orders.py:1004
 msgid "Unknown status"
 msgstr ""
 
-#: app/routers/orders.py:1023
+#: app/routers/orders.py:1025
 msgid "Select at least one order."
-msgstr ""
-
-#: app/routers/orders.py:1118
-#, python-brace-format
-msgid "{count} orders transitioned."
 msgstr ""
 
 #: app/routers/orders.py:1120
 #, python-brace-format
+msgid "{count} orders transitioned."
+msgstr ""
+
+#: app/routers/orders.py:1122
+#, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr ""
 
-#: app/routers/orders.py:1226
+#: app/routers/orders.py:1228
 #, python-brace-format
 msgid "Status changed to {status}."
 msgstr ""
 
-#: app/routers/orders.py:1306
+#: app/routers/orders.py:1308
 msgid "Comment added."
 msgstr ""
 
@@ -821,7 +821,7 @@ msgstr ""
 msgid "Assets"
 msgstr ""
 
-#: app/templates/app_base.html:50
+#: app/templates/app_base.html:50 app/templates/www/pricing.html:97
 msgid "SLA"
 msgstr ""
 
@@ -3580,7 +3580,7 @@ msgstr ""
 
 #: app/templates/www/index.html:204
 msgid ""
-"Email, password, Company ID. You'll get your own address — e.g. "
+"Email, password, company name. You'll get your own address — e.g. "
 "yourfirm.assoluto.eu — in 30 seconds."
 msgstr ""
 
@@ -4042,11 +4042,7 @@ msgid "Your own domain (portal.yourfirm.cz)"
 msgstr ""
 
 #: app/templates/www/pricing.html:96
-msgid "Priority support (24 h)"
-msgstr ""
-
-#: app/templates/www/pricing.html:97
-msgid "SLA 99.9 percent"
+msgid "Priority support (4 h business hours, written SLA)"
 msgstr ""
 
 #: app/templates/www/pricing.html:98
@@ -4132,32 +4128,43 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/pricing.html:165
-msgid "How does billing actually work?"
+msgid "What do I need to enter at first paid checkout?"
 msgstr ""
 
 #: app/templates/www/pricing.html:165
+msgid ""
+"Billing name, IČO (8 digits) and billing address. DIČ if you are a VAT "
+"payer. We need these to issue a valid Czech tax doklad. You enter them "
+"once — we keep them on file."
+msgstr ""
+
+#: app/templates/www/pricing.html:166
+msgid "How does billing actually work?"
+msgstr ""
+
+#: app/templates/www/pricing.html:166
 msgid ""
 "Monthly plan: card via Stripe, invoice emailed the same day. Annual plan:"
 " arranged on request — bank transfer with a Czech invoice, net-14, "
 "typically two months free for the year."
 msgstr ""
 
-#: app/templates/www/pricing.html:166
+#: app/templates/www/pricing.html:167
 msgid "Can I change plans later?"
 msgstr ""
 
-#: app/templates/www/pricing.html:166
+#: app/templates/www/pricing.html:167
 msgid ""
 "Yes, any time. The difference is prorated down to the day. Downgrade "
 "happens at the start of the next billing period (you keep what you paid "
 "for)."
 msgstr ""
 
-#: app/templates/www/pricing.html:167
+#: app/templates/www/pricing.html:168
 msgid "What happens when I cancel?"
 msgstr ""
 
-#: app/templates/www/pricing.html:167
+#: app/templates/www/pricing.html:168
 msgid ""
 "You keep full access until the end of the current billing period, then "
 "have 3 days to export your data (CSV + attachments as ZIP). After that, "
@@ -4166,22 +4173,22 @@ msgid ""
 "within 48 hours."
 msgstr ""
 
-#: app/templates/www/pricing.html:168
+#: app/templates/www/pricing.html:169
 msgid "Does the self-hosted Community version cost anything?"
 msgstr ""
 
-#: app/templates/www/pricing.html:168
+#: app/templates/www/pricing.html:169
 msgid ""
 "No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No "
 "restrictions on users or features — only you need to run updates "
 "yourself."
 msgstr ""
 
-#: app/templates/www/pricing.html:169
+#: app/templates/www/pricing.html:170
 msgid "Do you have a discount for schools / associations / non-profits?"
 msgstr ""
 
-#: app/templates/www/pricing.html:169
+#: app/templates/www/pricing.html:170
 msgid ""
 "Yes. Write to us at team@assoluto.eu with a description of the use — half"
 " price is typical, free access for small organisations."

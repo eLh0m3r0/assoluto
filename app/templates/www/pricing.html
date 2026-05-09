@@ -93,8 +93,8 @@
             <ul class="mt-6 grow space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("No limits on users / orders / storage") }}</li>
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Your own domain (portal.yourfirm.cz)") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Priority support (24 h)") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("SLA 99.9 percent") }}</li>
+                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Priority support (4 h business hours, written SLA)") }}</li>
+                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("SLA") }} 99,9 %</li>
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("On-premises deployment possible") }}</li>
             </ul>
             <a href="/contact" class="mt-8">
@@ -162,6 +162,7 @@
             {% endmacro %}
 
             {{ pfaq(_("Is a card required for the trial?"), _("No. Sign up with just an email. You only enter a card if you decide to continue paying after 30 days — or you can request annual invoicing by emailing team@assoluto.eu.")) }}
+            {{ pfaq(_("What do I need to enter at first paid checkout?"), _("Billing name, IČO (8 digits) and billing address. DIČ if you are a VAT payer. We need these to issue a valid Czech tax doklad. You enter them once — we keep them on file.")) }}
             {{ pfaq(_("How does billing actually work?"), _("Monthly plan: card via Stripe, invoice emailed the same day. Annual plan: arranged on request — bank transfer with a Czech invoice, net-14, typically two months free for the year.")) }}
             {{ pfaq(_("Can I change plans later?"), _("Yes, any time. The difference is prorated down to the day. Downgrade happens at the start of the next billing period (you keep what you paid for).")) }}
             {{ pfaq(_("What happens when I cancel?"), _("You keep full access until the end of the current billing period, then have 3 days to export your data (CSV + attachments as ZIP). After that, access ends. Need to recover data later? Email team@assoluto.eu within 30 days. For immediate erasure email us — we action GDPR Art. 17 requests within 48 hours.")) }}
