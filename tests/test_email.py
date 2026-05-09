@@ -157,3 +157,80 @@ def test_render_order_submitted_with_status_label_translates_label() -> None:
     cs = render_email("order_status_changed", ctx, locale="cs")
     assert "Quoted" in en.subject
     assert "Naceněno" in cs.subject
+
+
+# ---------------------------------------------------------------------------
+# _safe_error_summary redaction
+# ---------------------------------------------------------------------------
+
+
+def test_safe_error_summary_redacts_url_and_query_token() -> None:
+    """The pre-existing two patterns (URL + ``=value``) still fire — keeps
+    the most common SMTP-relay error shape from leaking embedded reset
+    URLs and ``email=…&token=…`` query strings."""
+    from app.tasks.email_tasks import _safe_error_summary
+
+    s = _safe_error_summary(
+        Exception("Couldn't deliver to https://example.com/reset?token=abcdefghijkl1234")
+    )
+    assert "https://" not in s
+    assert "abcdefghijkl1234" not in s
+    assert "[url]" in s
+
+
+def test_safe_error_summary_redacts_jwt_shape() -> None:
+    """JWT-shape three-segment tokens (header.payload.signature, each
+    ≥20 base64-url-safe chars) get collapsed to ``[jwt]``."""
+    from app.tasks.email_tasks import _safe_error_summary
+
+    jwt_like = (
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+        ".eyJzdWIiOiJ4eXoiLCJpYXQiOjE3MTYwMDAwMDB9"
+        ".abcDEFghiJKLmnoPQRstuVWXyz1234567890ABCDEF"
+    )
+    s = _safe_error_summary(Exception(f"smtp rejected: token {jwt_like} please check"))
+    assert "[jwt]" in s
+    assert "eyJhbGc" not in s
+
+
+def test_safe_error_summary_redacts_bearer_header_form() -> None:
+    """``Authorization: Bearer <token>`` and ``X-Token: <token>`` style
+    header echoes get the token redacted even though there's no leading ``=``."""
+    from app.tasks.email_tasks import _safe_error_summary
+
+    s1 = _safe_error_summary(
+        Exception("auth failed: Authorization: Bearer abcdef1234567890zzzzzzzzzz")
+    )
+    assert "abcdef1234567890zzzzzzzzzz" not in s1
+    assert "[redacted]" in s1.lower()
+
+    s2 = _safe_error_summary(Exception("X-Token: abcdefghijklmnopqrst123456"))
+    assert "abcdefghijklmnopqrst123456" not in s2
+
+
+def test_safe_error_summary_redacts_long_hex_blob() -> None:
+    """Standalone 32+-char hex blobs (signed-token hex variant, raw
+    secrets) get collapsed to ``[hex]``."""
+    from app.tasks.email_tasks import _safe_error_summary
+
+    s = _safe_error_summary(
+        Exception("server returned: 0123456789abcdef0123456789abcdef0123456789abcdef")
+    )
+    assert "0123456789abcdef" not in s
+    assert "[hex]" in s
+
+
+def test_safe_error_summary_truncates_to_160_chars() -> None:
+    """Long messages get truncated to keep structured-log lines bounded."""
+    from app.tasks.email_tasks import _safe_error_summary
+
+    s = _safe_error_summary(Exception("x" * 500))
+    assert len(s) == 160
+
+
+def test_safe_error_summary_keeps_human_readable_errors_intact() -> None:
+    """Non-secret error text passes through untouched (modulo truncation)."""
+    from app.tasks.email_tasks import _safe_error_summary
+
+    s = _safe_error_summary(Exception("554 5.7.1 Recipient address rejected"))
+    assert s == "554 5.7.1 Recipient address rejected"

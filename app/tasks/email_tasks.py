@@ -63,17 +63,35 @@ def _safe_error_summary(exc: Exception) -> str:
     SMTP libraries can echo bits of the rendered email body or DSN
     headers in their error reprs — and our reset / invite mails carry
     URL-embedded one-shot tokens that must never leak into the log
-    pipeline. This strips anything that looks like a URL, query
-    parameter, or long base64-ish blob, then truncates.
+    pipeline. Strips anything that looks like a URL, query parameter,
+    JWT-shape token, raw hex secret, or generic long base64-ish blob,
+    then truncates.
     """
     import re
 
-    raw = str(exc)
-    # Drop URLs (http(s)://… up to first whitespace) and any token-like
-    # =value query params. Keep just enough to tell SMTP class apart
-    # from DNS class apart from auth class.
-    cleaned = re.sub(r"https?://\S+", "[url]", raw)
+    cleaned = str(exc)
+    # 1. Full URLs (http(s)://… up to next whitespace).
+    cleaned = re.sub(r"https?://\S+", "[url]", cleaned)
+    # 2. JWT-shape three-segment tokens.
+    cleaned = re.sub(
+        r"[A-Za-z0-9_\-]{20,}\.[A-Za-z0-9_\-]{20,}\.[A-Za-z0-9_\-]{20,}",
+        "[jwt]",
+        cleaned,
+    )
+    # 3. ``key=value`` blobs with ≥12-char value (handles existing
+    #    query-string vector and Bearer-with-equals).
     cleaned = re.sub(r"=([A-Za-z0-9_\-]{12,})", "=[redacted]", cleaned)
+    # 4. Bearer / token / authorization header form: ``Bearer <token>``,
+    #    ``Authorization: <token>``, ``X-Token: <token>``. Match the
+    #    keyword (any case) plus optional colon/space, then redact the
+    #    token-like run that follows.
+    cleaned = re.sub(
+        r"(?i)\b(bearer|authorization|x[-_]?token|token)\b\s*[:= ]\s*([A-Za-z0-9_\-]{16,})",
+        r"\1 [redacted]",
+        cleaned,
+    )
+    # 5. Standalone long hex blobs (32+ hex chars).
+    cleaned = re.sub(r"\b[A-Fa-f0-9]{32,}\b", "[hex]", cleaned)
     return cleaned[:160]
 
 
