@@ -434,8 +434,8 @@ async def billing_details_save(
 
     from app.routers.public import _safe_next_path
 
-    tenant, _ = await _resolve_current_tenant(db, identity)
-    if tenant is None:
+    tenant, user_target = await _resolve_current_tenant(db, identity)
+    if tenant is None or user_target is None:
         raise HTTPException(status_code=404, detail="No tenant to manage")
 
     cleaned = {
@@ -474,12 +474,37 @@ async def billing_details_save(
     # Re-load the tenant under this session so SQLAlchemy emits the UPDATE.
     from sqlalchemy import select
 
+    from app.services import audit_service
+    from app.services.audit_service import ActorInfo
+
     row = (await db.execute(select(Tenant).where(Tenant.id == tenant.id))).scalar_one()
-    new_settings = dict(row.settings or {})
+    old_settings = dict(row.settings or {})
+    new_settings = dict(old_settings)
     new_settings.update(cleaned)
     if cleaned["billing_dic"]:
         new_settings["billing_dic"] = cleaned["billing_dic"].upper()
     row.settings = new_settings
+    await db.flush()
+
+    # Append a tenant-scoped audit row so 'who changed our IČO?' has an
+    # answer. Only emit when at least one of the four billing keys
+    # actually changed value — pure form-resubmits don't need a row.
+    keys = ("billing_name", "billing_ico", "billing_dic", "billing_address")
+    before_subset = {k: old_settings.get(k) for k in keys}
+    after_subset = {k: new_settings.get(k) for k in keys}
+    if before_subset != after_subset:
+        await audit_service.record(
+            db,
+            action="tenant.settings_updated",
+            entity_type="tenant",
+            entity_id=tenant.id,
+            entity_label=tenant.slug,
+            actor=ActorInfo(type="user", id=user_target.id, label=identity.email),
+            before=before_subset,
+            after=after_subset,
+            tenant_id=tenant.id,
+        )
+
     await db.commit()
 
     safe_next = _safe_next_path(next) or "/platform/billing"
