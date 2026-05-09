@@ -30,6 +30,7 @@ from app.routers import tenant_admin as tenant_admin_router
 from app.routers import www as www_router
 from app.scheduler import build_scheduler
 from app.security.csrf import CsrfCookieMiddleware
+from app.security.head_method import HeadMethodMiddleware
 from app.security.headers import SecurityHeadersMiddleware
 from app.security.locale import LocaleMiddleware
 from app.security.log_context import LogContextMiddleware
@@ -308,6 +309,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         enabled=not settings.is_test,
         trusted_proxies=settings.trusted_proxies,
     )
+
+    # Auto-derive HEAD from GET so uptime monitors and link-checkers
+    # stop seeing 405s on every page (RFC 9110 §9.3). Added FIRST →
+    # innermost, runs after every other middleware on the request side
+    # and strips the body before any outer middleware re-reads it on
+    # the response side. The structured-log line therefore still shows
+    # method=HEAD instead of the mutated GET.
+    app.add_middleware(HeadMethodMiddleware)
 
     # Plain ASGI middleware that stamps the csrftoken cookie; validation
     # happens in `verify_csrf` as a router-level FastAPI dependency so it
