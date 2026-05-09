@@ -86,6 +86,17 @@
                         {% endif %}
                         <form method="post" action="/contact" class="mt-5 space-y-4">
                             {{ csrf_input() }}
+                            {# Honeypot — same shape as /platform/signup. Off-screen
+                               via inline style (CSS class detection bypassed),
+                               aria-hidden + tabindex=-1 so a11y tools and keyboard
+                               nav never reach it, autocomplete=off so password
+                               managers don't auto-fill. Server silently treats
+                               any non-empty value as bot traffic and pretends
+                               success. #}
+                            <div aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">
+                                <label for="website">Website (do not fill)</label>
+                                <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" value="">
+                            </div>
                             <div>
                                 <label for="name" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _("Your name") }} <span class="text-rose-500">*</span></label>
                                 <input type="text" id="name" name="name" required

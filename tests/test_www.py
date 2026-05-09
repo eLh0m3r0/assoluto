@@ -209,6 +209,25 @@ async def test_contact_form_rejects_empty_message(www_client) -> None:
     assert len(sender.outbox) == 0
 
 
+async def test_contact_form_honeypot_silently_drops_bot_submission(www_client) -> None:
+    """Filling the hidden ``website`` field marks the request as bot
+    traffic — we render the success page so the bot doesn't iterate
+    but never queue an email to ourselves. F-UX-019."""
+    client, sender = www_client
+    resp = await client.post(
+        "/contact",
+        data={
+            "name": "Jan",
+            "email": "jan@example.com",
+            "message": "msg",
+            "website": "http://spam.example.com",
+        },
+    )
+    assert resp.status_code == 200
+    assert "Message sent" in resp.text or "Zpráva odeslána" in resp.text
+    assert len(sender.outbox) == 0
+
+
 @pytest.mark.postgres
 async def test_landing_shows_marketing_when_platform_on_and_no_tenant(settings, wipe_db) -> None:
     settings.feature_platform = True

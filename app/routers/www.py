@@ -97,13 +97,33 @@ async def contact_submit(
     name: str = Form(...),
     email: str = Form(...),
     message: str = Form(...),
+    website: str = Form(""),
     settings: Settings = Depends(get_settings),
 ) -> HTMLResponse:
     """Capture a contact-form submission and forward it to the support inbox.
 
-    Deliberately minimal — no CAPTCHA, no rate limiting beyond what nginx
-    provides. If volume becomes a problem, add Turnstile or hCaptcha.
+    Layered defence: ``website`` is the same off-screen honeypot used by
+    /platform/signup. Bots that naively fill every field trip it; we
+    pretend the submit succeeded so the bot doesn't iterate. Real
+    visitors never see the field. The 5/15-min per-IP rate-limit
+    decorator above stays as second layer.
     """
+    if website.strip():
+        from app.logging import get_logger
+
+        get_logger("app.contact").info(
+            "contact.honeypot_tripped",
+            length=len(website),
+        )
+        # Pretend success — render the same submitted-state template a
+        # legitimate submission would land on.
+        html = _templates(request).render(
+            request,
+            "www/contact.html",
+            {"principal": None, "submitted": True, "error": None},
+        )
+        return HTMLResponse(html)
+
     name = (name or "").strip()
     email = (email or "").strip()
     message = (message or "").strip()
