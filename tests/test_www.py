@@ -209,6 +209,20 @@ async def test_contact_form_rejects_empty_message(www_client) -> None:
     assert len(sender.outbox) == 0
 
 
+async def test_robots_txt_does_not_disallow_signup(www_client) -> None:
+    """``/platform/signup`` is the conversion endpoint — must stay
+    crawlable so it can rank on 'assoluto signup' / 'assoluto try free'.
+    F-UX-022."""
+    client, _ = www_client
+    resp = await client.get("/robots.txt")
+    assert resp.status_code == 200
+    body = resp.text
+    assert "Disallow: /platform/signup" not in body
+    # Sanity: other admin/auth surfaces stay disallowed.
+    assert "Disallow: /platform/admin" in body
+    assert "Disallow: /platform/login" in body
+
+
 async def test_contact_form_honeypot_silently_drops_bot_submission(www_client) -> None:
     """Filling the hidden ``website`` field marks the request as bot
     traffic — we render the success page so the bot doesn't iterate

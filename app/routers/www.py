@@ -244,6 +244,11 @@ async def robots_txt(request: Request) -> PlainTextResponse:
     works both on assoluto.eu and local dev without extra config.
     """
     base = f"{request.url.scheme}://{request.url.netloc}"
+    # ``/platform/signup`` is the conversion endpoint — every "Try free"
+    # CTA on the marketing site routes there. Blocking it from crawlers
+    # means a Google search like "assoluto signup" can't surface the
+    # page directly and signals to Google that a conversion-relevant
+    # page is hidden. Stays out of the disallow list.
     body = (
         "User-agent: *\n"
         "Allow: /\n"
@@ -253,7 +258,6 @@ async def robots_txt(request: Request) -> PlainTextResponse:
         "Disallow: /platform/admin\n"
         "Disallow: /platform/admin/\n"
         "Disallow: /platform/login\n"
-        "Disallow: /platform/signup\n"
         "Disallow: /platform/password-reset\n"
         "\n"
         f"Sitemap: {base}/sitemap.xml\n"
