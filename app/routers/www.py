@@ -17,6 +17,7 @@ from markupsafe import escape
 
 from app.config import Settings, get_settings
 from app.i18n import t as _t
+from app.security.contact_filter import is_disposable_email, looks_like_bot_local_part
 from app.security.csrf import verify_csrf
 from app.security.rate_limit import limit as rate_limit
 
@@ -108,15 +109,18 @@ async def contact_submit(
     visitors never see the field. The 5/15-min per-IP rate-limit
     decorator above stays as second layer.
     """
-    if website.strip():
-        from app.logging import get_logger
+    from app.logging import get_logger
 
-        get_logger("app.contact").info(
-            "contact.honeypot_tripped",
-            length=len(website),
-        )
-        # Pretend success — render the same submitted-state template a
-        # legitimate submission would land on.
+    log = get_logger("app.contact")
+
+    def _silent_success(reason: str, **extra: object) -> HTMLResponse:
+        """Render the success template without sending a mail.
+
+        Used for every bot-trip path (honeypot, disposable-email,
+        random-local). The bot sees a 200 + submitted-state UI, so it
+        can't iterate to find the threshold that flips the behaviour.
+        """
+        log.info(f"contact.{reason}", **extra)
         html = _templates(request).render(
             request,
             "www/contact.html",
@@ -124,9 +128,20 @@ async def contact_submit(
         )
         return HTMLResponse(html)
 
+    if website.strip():
+        return _silent_success("honeypot_tripped", length=len(website))
+
     name = (name or "").strip()
     email = (email or "").strip()
     message = (message or "").strip()
+
+    # Pre-validation spam filters — silent-success on hit so the bot
+    # gets the same UI a real submission would, and the email is never
+    # queued (saves a Brevo credit and avoids any bounce/complaint).
+    if email and is_disposable_email(email):
+        return _silent_success("disposable_email_dropped", domain=email.rsplit("@", 1)[-1])
+    if email and looks_like_bot_local_part(email):
+        return _silent_success("bot_local_part_dropped", domain=email.rsplit("@", 1)[-1])
 
     def _reject(err: str) -> HTMLResponse:
         html = _templates(request).render(

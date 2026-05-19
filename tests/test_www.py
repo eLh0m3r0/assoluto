@@ -126,7 +126,7 @@ async def test_contact_form_submission_sends_email(www_client) -> None:
         "/contact",
         data={
             "name": "Jan Novák",
-            "email": "jan@example.com",
+            "email": "jan@firma.cz",
             "message": "Dobrý den, zajímá mě Pro plán.",
         },
     )
@@ -135,7 +135,7 @@ async def test_contact_form_submission_sends_email(www_client) -> None:
     # Background task ran by the TestClient in-process.
     assert len(sender.outbox) == 1
     assert "Jan Novák" in sender.outbox[0].text
-    assert "jan@example.com" in sender.outbox[0].text
+    assert "jan@firma.cz" in sender.outbox[0].text
 
 
 async def test_contact_form_escapes_html_injection(www_client) -> None:
@@ -232,7 +232,7 @@ async def test_contact_form_honeypot_silently_drops_bot_submission(www_client) -
         "/contact",
         data={
             "name": "Jan",
-            "email": "jan@example.com",
+            "email": "jan@firma.cz",
             "message": "msg",
             "website": "http://spam.example.com",
         },
@@ -240,6 +240,86 @@ async def test_contact_form_honeypot_silently_drops_bot_submission(www_client) -
     assert resp.status_code == 200
     assert "Message sent" in resp.text or "Zpráva odeslána" in resp.text
     assert len(sender.outbox) == 0
+
+
+async def test_contact_form_drops_disposable_email_silently(www_client) -> None:
+    """Submissions with a throwaway-mail domain (mailinator, yopmail,
+    example.com, …) match the May-2026 spam-vector profile — silent
+    success, no email queued. Filters live in
+    ``app.security.contact_filter``."""
+    client, sender = www_client
+    resp = await client.post(
+        "/contact",
+        data={
+            "name": "Joanna Riggs",
+            "email": "joanna@mailinator.com",
+            "message": "Looks great, please call me back",
+        },
+    )
+    assert resp.status_code == 200
+    assert "Message sent" in resp.text or "Zpráva odeslána" in resp.text
+    assert len(sender.outbox) == 0
+
+
+async def test_contact_form_drops_random_local_part_silently(www_client) -> None:
+    """A pure-alphanumeric ≥12-char local part with no separators is
+    the bot account-generator pattern (``ftgrgxbafx@…``). Silent drop."""
+    client, sender = www_client
+    resp = await client.post(
+        "/contact",
+        data={
+            "name": "Ashwani Sharma",
+            "email": "ftgrgxbafxqp@gmail.com",
+            "message": "Interested in your product",
+        },
+    )
+    assert resp.status_code == 200
+    assert "Message sent" in resp.text or "Zpráva odeslána" in resp.text
+    assert len(sender.outbox) == 0
+
+
+async def test_contact_form_legit_submit_still_delivers(www_client) -> None:
+    """Regression guard: a human-shaped email (dot-separated local
+    part, real-looking domain) must still reach the operator."""
+    client, sender = www_client
+    resp = await client.post(
+        "/contact",
+        data={
+            "name": "Václav Mudra",
+            "email": "vaclav.mudra@firma.cz",
+            "message": "Mám zájem o pilotní instalaci.",
+        },
+    )
+    assert resp.status_code == 200
+    assert "Message sent" in resp.text or "Zpráva odeslána" in resp.text
+    assert len(sender.outbox) == 1
+    assert "Kontakt od Václav Mudra" in sender.outbox[0].subject
+
+
+async def test_outbound_kill_switch_blocks_every_send(www_client, settings) -> None:
+    """``ENABLE_OUTBOUND_EMAILS=false`` halts every outbound mail with
+    no exception raised. The handler still returns success — the gate
+    sits inside the background task, so request-time behaviour is
+    unchanged. Operator uses this when a sending platform blocks the
+    account and we want to stop adding to the bounce counter."""
+    client, sender = www_client
+    settings.enable_outbound_emails = False
+    try:
+        resp = await client.post(
+            "/contact",
+            data={
+                "name": "Václav Mudra",
+                "email": "vaclav.mudra@firma.cz",
+                "message": "kill-switch test",
+            },
+        )
+        assert resp.status_code == 200
+        assert "Message sent" in resp.text or "Zpráva odeslána" in resp.text
+        # Background task ran but the kill-switch returned early —
+        # the CaptureSender outbox stays empty.
+        assert len(sender.outbox) == 0
+    finally:
+        settings.enable_outbound_emails = True
 
 
 @pytest.mark.postgres

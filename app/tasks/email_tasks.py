@@ -117,6 +117,22 @@ def _safe_send(
     operator can tell "Brevo took 9.5 s" apart from "DNS resolution
     bounced in 30 ms" when chasing the next silent-drop incident.
     """
+    # Kill-switch — operator can stop all outbound mail by flipping
+    # ENABLE_OUTBOUND_EMAILS=false in /etc/assoluto/env (or compose env)
+    # the moment a sending-platform block lands. We import inline so the
+    # check picks up the value at task-execution time, not module import
+    # time, which means a settings reload (or restart) is the only ceremony.
+    from app.config import get_settings
+
+    if not get_settings().enable_outbound_emails:
+        log.warning(
+            "email.disabled_via_killswitch",
+            kind=kind,
+            to=to,
+            subject=subject[:80],
+        )
+        return
+
     last_exc: Exception | None = None
     for attempt in range(1, _MAX_ATTEMPTS + 1):
         log.info("email.attempt", kind=kind, to=to, attempt=attempt)

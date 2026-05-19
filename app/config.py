@@ -144,6 +144,11 @@ class Settings(BaseSettings):
     smtp_password: str = Field(default="", alias="SMTP_PASSWORD")
     smtp_from: str = Field(default="Assoluto <team@localhost>", alias="SMTP_FROM")
     smtp_starttls: bool = Field(default=False, alias="SMTP_STARTTLS")
+    # Operator kill-switch: set to false in /etc/assoluto/env to halt every
+    # outbound mail without a redeploy. Use it the moment a sending-platform
+    # block notification arrives (Brevo, Postmark, etc.) so we stop adding
+    # to the bounce/complaint counter while the spam vector is investigated.
+    enable_outbound_emails: bool = Field(default=True, alias="ENABLE_OUTBOUND_EMAILS")
 
     # --- Uploads -----------------------------------------------------------
     max_upload_size_mb: int = Field(default=50, alias="MAX_UPLOAD_SIZE_MB")
