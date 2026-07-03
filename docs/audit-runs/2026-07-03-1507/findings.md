@@ -70,26 +70,26 @@ F-SEC-001 this run — it is the same issue.
 ### [UX] F-UX-001 — hreflang alternates for all three locales point to the same URL
 - **Where**: apex marketing pages `<head>`
 - **Auto-fixable**: no
-- **status**: manual
+- **status**: fixed (df60eaa) — hreflang removed; re-add only with per-locale URLs
 - **Description**: Persists — needs per-locale URLs or dropping hreflang.
 
 ### [UX] F-UX-003 — Tenant auth shell and platform auth shell use divergent input styling
 - **Where**: `4mex.assoluto.eu/auth/login` vs `assoluto.eu/platform/login`
 - **Auto-fixable**: no
-- **status**: manual
+- **status**: fixed (df60eaa)
 - **Description**: Persists — extract one shared input macro/component.
 
 ### [SEC] F-SEC-001 — Dead `request.method == "HEAD"` guard on set-lang route (was F-SEC-002)
 - **Where**: `app/routers/public.py:363` vs `app/security/head_method.py:33`
 - **Auto-fixable**: no
-- **status**: manual
+- **status**: fixed (ede5f96)
 - **Description**: Persists — middleware rewrites HEAD→GET before routing,
   making the guard dead code. Low impact; remove or make effective.
 
 ### [BE] F-BE-003 — Contact/identity GDPR export+erase have no router surface
 - **Where**: `app/services/gdpr_service.py`; gap in `app/routers/me.py`
 - **Auto-fixable**: no (product decision)
-- **status**: manual
+- **status**: fixed (8b3ad5c)
 - **Description**: Persists — expose self-service routes for contacts or
   document org-admin-mediated erasure.
 
