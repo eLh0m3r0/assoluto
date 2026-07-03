@@ -170,3 +170,92 @@ async def profile_change_password(
 
     clear_session(response)
     return response
+
+
+# ------------------------------------------------------------- GDPR
+#
+# Mirror of the staff routes in ``tenant_admin.py`` (see CLAUDE.md §14
+# and audit F-BE-003): customer contacts get the same self-service
+# export + erasure, with the same password re-confirmation gate. There
+# is no last-admin lockout here — contacts don't administer the tenant,
+# so any contact may erase themselves at any time.
+
+
+@router.get("/profile/export")
+async def profile_export(
+    request: Request,
+    principal: Principal = Depends(require_login),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """GDPR Art. 20 portability — every piece of personal data we hold
+    about this customer contact, as a single JSON download."""
+    from datetime import date
+
+    from fastapi.responses import JSONResponse
+
+    from app.services.gdpr_service import export_for_contact
+
+    redirect = _ensure_contact_or_redirect(principal)
+    if redirect is not None:
+        return redirect
+    contact = (
+        await db.execute(select(CustomerContact).where(CustomerContact.id == principal.id))
+    ).scalar_one()
+    payload = await export_for_contact(db, contact=contact)
+    filename = f"assoluto-export-{contact.email}-{date.today().isoformat()}.json"
+    return JSONResponse(
+        payload,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("/profile/delete")
+async def profile_delete(
+    request: Request,
+    password: str = Form(...),
+    principal: Principal = Depends(require_login),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """GDPR Art. 17 erasure — anonymise this contact's PII.
+
+    Password-confirmed so a hijacked session can't trigger deletion.
+    The row is kept with nulled-out PII so the customer's orders and
+    comments survive with an "erased" author label.
+    """
+    from app.security.passwords import verify_password
+    from app.security.session import clear_session
+    from app.services.audit_service import record as audit_record
+    from app.services.gdpr_service import erase_contact
+
+    redirect = _ensure_contact_or_redirect(principal)
+    if redirect is not None:
+        return redirect
+    contact = (
+        await db.execute(select(CustomerContact).where(CustomerContact.id == principal.id))
+    ).scalar_one()
+    if not contact.password_hash or not verify_password(password, contact.password_hash):
+        return RedirectResponse(
+            url=(
+                "/app/me/profile?error="
+                + quote(_t(request, "Password does not match — deletion cancelled."))
+            ),
+            status_code=303,
+        )
+
+    original_label = f"{contact.full_name} <{contact.email}>"
+    await erase_contact(db, contact=contact)
+    await audit_record(
+        db,
+        action="contact.gdpr_erased",
+        entity_type="contact",
+        entity_id=contact.id,
+        entity_label=original_label,
+        actor=actor_from_principal(principal),
+        tenant_id=contact.tenant_id,
+    )
+    await db.commit()
+
+    # Session cookie carries a stale session_version now — clear it.
+    response = RedirectResponse(url="/auth/login?notice=account_deleted", status_code=303)
+    clear_session(response)
+    return response

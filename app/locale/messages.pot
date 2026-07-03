@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-03 17:41+0200\n"
+"POT-Creation-Date: 2026-07-03 21:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -687,6 +687,10 @@ msgstr ""
 msgid "New passwords do not match."
 msgstr ""
 
+#: app/routers/me.py:240 app/routers/tenant_admin.py:642
+msgid "Password does not match — deletion cancelled."
+msgstr ""
+
 #: app/routers/orders.py:294
 msgid "Order number"
 msgstr ""
@@ -803,21 +807,21 @@ msgstr ""
 msgid "Invalid email or password."
 msgstr ""
 
-#: app/routers/public.py:402 app/routers/public.py:498
-#: app/routers/public.py:581
+#: app/routers/public.py:405 app/routers/public.py:501
+#: app/routers/public.py:584
 msgid "The invitation is invalid or has expired."
 msgstr ""
 
-#: app/routers/public.py:416 app/routers/public.py:512
+#: app/routers/public.py:419 app/routers/public.py:515
 msgid "The invitation belongs to a different tenant."
 msgstr ""
 
-#: app/routers/public.py:478 app/routers/public.py:625
-#: app/routers/public.py:845
+#: app/routers/public.py:481 app/routers/public.py:628
+#: app/routers/public.py:848
 msgid "Passwords do not match."
 msgstr ""
 
-#: app/routers/public.py:810
+#: app/routers/public.py:813
 msgid "The link is invalid or has expired."
 msgstr ""
 
@@ -843,10 +847,6 @@ msgstr ""
 
 #: app/routers/tenant_admin.py:433
 msgid "This user already has a password; use a password reset instead."
-msgstr ""
-
-#: app/routers/tenant_admin.py:642
-msgid "Password does not match — deletion cancelled."
 msgstr ""
 
 #: app/routers/tenant_admin.py:670
@@ -1061,7 +1061,7 @@ msgstr ""
 #: app/templates/auth/login.html:41 app/templates/index.html:8
 #: app/templates/index.html:21 app/templates/platform/login.html:3
 #: app/templates/platform/login.html:31 app/templates/platform/signup.html:133
-#: app/templates/www/www_base.html:86
+#: app/templates/www/www_base.html:83
 msgid "Sign in"
 msgstr ""
 
@@ -1214,40 +1214,40 @@ msgstr ""
 msgid "After changing your password you will be signed out and must log in again."
 msgstr ""
 
-#: app/templates/admin/profile.html:90
+#: app/templates/admin/profile.html:90 app/templates/me/profile.html:90
 msgid "Your data (GDPR)"
 msgstr ""
 
-#: app/templates/admin/profile.html:92
+#: app/templates/admin/profile.html:92 app/templates/me/profile.html:92
 msgid ""
 "Under EU law you can download everything we hold about you, and request "
 "erasure at any time."
 msgstr ""
 
-#: app/templates/admin/profile.html:97
+#: app/templates/admin/profile.html:97 app/templates/me/profile.html:97
 msgid "Download my data (JSON)"
 msgstr ""
 
-#: app/templates/admin/profile.html:104
+#: app/templates/admin/profile.html:104 app/templates/me/profile.html:104
 msgid "Delete my account (irreversible)"
 msgstr ""
 
-#: app/templates/admin/profile.html:107
+#: app/templates/admin/profile.html:107 app/templates/me/profile.html:107
 msgid ""
 "This removes your personal data (name, email, phone, password) from this "
 "tenant. Orders and comments you created stay in the company record but "
 "are shown as \"erased\" in the author column. This cannot be undone."
 msgstr ""
 
-#: app/templates/admin/profile.html:110
+#: app/templates/admin/profile.html:110 app/templates/me/profile.html:110
 msgid "Are you sure? This is irreversible."
 msgstr ""
 
-#: app/templates/admin/profile.html:114
+#: app/templates/admin/profile.html:114 app/templates/me/profile.html:114
 msgid "Confirm with your current password"
 msgstr ""
 
-#: app/templates/admin/profile.html:122
+#: app/templates/admin/profile.html:122 app/templates/me/profile.html:122
 msgid "Delete my account"
 msgstr ""
 
@@ -3053,7 +3053,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/contact.html:3 app/templates/www/contact.html:12
-#: app/templates/www/www_base.html:83
+#: app/templates/www/www_base.html:80
 msgid "Contact"
 msgstr ""
 
@@ -3143,7 +3143,7 @@ msgid ""
 "replying (one-off, no newsletter)."
 msgstr ""
 
-#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:99
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:96
 msgid "Cookies"
 msgstr ""
 
@@ -3257,7 +3257,7 @@ msgid "Questions about this cookies policy? Write to"
 msgstr ""
 
 #: app/templates/www/features.html:3 app/templates/www/features.html:11
-#: app/templates/www/www_base.html:74
+#: app/templates/www/www_base.html:71
 msgid "Features"
 msgstr ""
 
@@ -3508,7 +3508,7 @@ msgid "Start 30-day trial"
 msgstr ""
 
 #: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
-#: app/templates/www/www_base.html:101
+#: app/templates/www/www_base.html:98
 msgid "Imprint"
 msgstr ""
 
@@ -3864,7 +3864,7 @@ msgid "12–36 month contracts"
 msgstr ""
 
 #: app/templates/www/index.html:278 app/templates/www/pricing.html:3
-#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:77
+#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:74
 msgid "Pricing"
 msgstr ""
 
@@ -4126,14 +4126,14 @@ msgstr ""
 msgid "Up and running in 30 minutes · Data in the EU (Hetzner DE) · Czech support"
 msgstr ""
 
-#: app/templates/www/index.html:469 app/templates/www/www_base.html:59
+#: app/templates/www/index.html:469 app/templates/www/www_base.html:56
 msgid ""
 "Client portal for Czech manufacturing SMEs — orders, drawings, production"
 " status."
 msgstr ""
 
 #: app/templates/www/index.html:477 app/templates/www/index.html:484
-#: app/templates/www/www_base.html:65
+#: app/templates/www/www_base.html:62
 msgid "30-day free trial, no credit card required"
 msgstr ""
 
@@ -4726,7 +4726,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
-#: app/templates/www/www_base.html:80
+#: app/templates/www/www_base.html:77
 msgid "Self-hosted"
 msgstr ""
 
@@ -5283,15 +5283,15 @@ msgid ""
 "card."
 msgstr ""
 
-#: app/templates/www/www_base.html:89
+#: app/templates/www/www_base.html:86
 msgid "Try free"
 msgstr ""
 
-#: app/templates/www/www_base.html:95
+#: app/templates/www/www_base.html:92
 msgid "Terms"
 msgstr ""
 
-#: app/templates/www/www_base.html:97
+#: app/templates/www/www_base.html:94
 msgid "Privacy"
 msgstr ""
 

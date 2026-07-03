@@ -233,3 +233,139 @@ async def test_profile_delete_allows_non_last_admin_staff(
     row = await _user_row(owner_engine, staff_id)
     assert row.full_name == ANONYMIZED_LABEL
     assert row.is_active is False
+
+
+# ---------------------------------------------------- contact self-service
+
+
+async def _seed_contact(owner_engine, tenant_id):
+    from datetime import datetime
+
+    from app.models.customer import Customer, CustomerContact
+    from app.models.enums import CustomerContactRole
+    from app.security.passwords import hash_password
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        customer = Customer(id=uuid4(), tenant_id=tenant_id, name="ACME", ico="12345678")
+        session.add(customer)
+        await session.flush()
+        contact = CustomerContact(
+            id=uuid4(),
+            tenant_id=tenant_id,
+            customer_id=customer.id,
+            email="jan@acme.cz",
+            full_name="Jan Novák",
+            role=CustomerContactRole.CUSTOMER_ADMIN,
+            password_hash=hash_password("contactpass"),
+            invited_at=datetime.now(),
+            accepted_at=datetime.now(),
+        )
+        session.add(contact)
+        await session.flush()
+        return contact.id
+
+
+async def _contact_row(owner_engine, contact_id):
+    from app.models.customer import CustomerContact
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        return (
+            await session.execute(select(CustomerContact).where(CustomerContact.id == contact_id))
+        ).scalar_one()
+
+
+async def test_contact_profile_export(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    await _seed_contact(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "jan@acme.cz", "contactpass")
+
+    resp = await tenant_client.get("/app/me/profile/export")
+    assert resp.status_code == 200
+    assert resp.headers["content-disposition"].startswith("attachment;")
+    payload = resp.json()
+    assert payload["kind"] == "contact"
+    assert payload["profile"]["email"] == "jan@acme.cz"
+    assert payload["customer"]["name"] == "ACME"
+    assert payload["comments_authored"] == []
+
+
+async def test_contact_profile_delete_wrong_password_cancels(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    contact_id = await _seed_contact(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "jan@acme.cz", "contactpass")
+
+    resp = await tenant_client.post(
+        "/app/me/profile/delete",
+        data={"password": "wrong"},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    assert resp.headers["location"].startswith("/app/me/profile?error=")
+    row = await _contact_row(owner_engine, contact_id)
+    assert row.email == "jan@acme.cz"
+    assert row.is_active is True
+
+
+async def test_contact_profile_delete_happy_path(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    contact_id = await _seed_contact(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "jan@acme.cz", "contactpass")
+
+    resp = await tenant_client.post(
+        "/app/me/profile/delete",
+        data={"password": "contactpass"},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    assert resp.headers["location"] == "/auth/login?notice=account_deleted"
+
+    row = await _contact_row(owner_engine, contact_id)
+    assert row.email == f"erased-contact-{contact_id}@erased.invalid"
+    assert row.full_name == ANONYMIZED_LABEL
+    assert row.password_hash is None
+    assert row.is_active is False
+    assert "_gdpr_erased_at" in (row.notification_prefs or {})
+
+    # Audit row with the original label.
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        events = (
+            (
+                await session.execute(
+                    select(AuditEvent).where(
+                        AuditEvent.action == "contact.gdpr_erased",
+                        AuditEvent.entity_id == contact_id,
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+    assert len(events) == 1
+    assert events[0].entity_label == "Jan Novák <jan@acme.cz>"
+
+    # Erased credentials can no longer log in.
+    relogin = await tenant_client.post(
+        "/auth/login",
+        data={"email": "jan@acme.cz", "password": "contactpass"},
+        follow_redirects=False,
+    )
+    assert relogin.status_code != 303
+
+
+async def test_staff_bounced_from_contact_gdpr_routes(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    await _seed_admin(
+        owner_engine, demo_tenant.id, email="owner@4mex.cz", password_hash="ownerpass"
+    )
+    await _login(tenant_client, "owner@4mex.cz", "ownerpass")
+
+    resp = await tenant_client.get("/app/me/profile/export", follow_redirects=False)
+    assert resp.status_code == 303
+    assert resp.headers["location"] == "/app/admin/profile"

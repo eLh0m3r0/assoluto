@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-07-03 17:41+0200\n"
+"POT-Creation-Date: 2026-07-03 21:27+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -523,8 +523,8 @@ msgid ""
 "Create the client and invite their contact person (Customers → New "
 "customer → Invite contact)."
 msgstr ""
-"Založte klienta a pozvěte jeho kontaktní osobu (Zákazníci → Nový zákazník → "
-"Pozvat kontakt)."
+"Založte klienta a pozvěte jeho kontaktní osobu (Zákazníci → Nový zákazník"
+" → Pozvat kontakt)."
 
 #: app/email/templates/trial_day1.html:20 app/email/templates/trial_day1.txt:8
 msgid ""
@@ -556,8 +556,9 @@ msgid ""
 "the order portal for %(tenant_name)s is up and running. The fastest way "
 "to see its value: get one real client on it today."
 msgstr ""
-"portál objednávek pro %(tenant_name)s je v provozu. Nejrychlejší cesta, jak "
-"ověřit jeho přínos: dostaňte na něj ještě dnes jednoho skutečného klienta."
+"portál objednávek pro %(tenant_name)s je v provozu. Nejrychlejší cesta, "
+"jak ověřit jeho přínos: dostaňte na něj ještě dnes jednoho skutečného "
+"klienta."
 
 #: app/email/templates/trial_day7.html:6
 msgid "A week with Assoluto"
@@ -637,8 +638,8 @@ msgid ""
 "clients' access) running without interruption, pick a plan before then:"
 msgstr ""
 "30denní zkušební období pro <strong>%(tenant_name)s</strong> končí "
-"<strong>%(trial_end_date)s</strong>. Aby portál (a přístup vašich klientů) "
-"běžel bez přerušení, vyberte si do té doby plán:"
+"<strong>%(trial_end_date)s</strong>. Aby portál (a přístup vašich "
+"klientů) běžel bez přerušení, vyberte si do té doby plán:"
 
 #: app/email/templates/trial_ending.html:21
 #: app/email/templates/trial_ending.txt:7
@@ -660,8 +661,8 @@ msgid ""
 "If you decide not to continue, your data stays exportable for 3 days "
 "after the trial ends, and we can erase everything on request (GDPR)."
 msgstr ""
-"Pokud se rozhodnete nepokračovat, data lze exportovat ještě 3 dny po konci "
-"zkušebního období a na požádání vše smažeme (GDPR)."
+"Pokud se rozhodnete nepokračovat, data lze exportovat ještě 3 dny po "
+"konci zkušebního období a na požádání vše smažeme (GDPR)."
 
 #: app/email/templates/trial_ending.subject.txt:1
 #, python-format
@@ -675,9 +676,9 @@ msgid ""
 "the portal (and your clients' access) running without interruption, pick "
 "a plan before then:"
 msgstr ""
-"30denní zkušební období pro %(tenant_name)s končí %(trial_end_date)s. Aby "
-"portál (a přístup vašich klientů) běžel bez přerušení, vyberte si do té doby "
-"plán:"
+"30denní zkušební období pro %(tenant_name)s končí %(trial_end_date)s. Aby"
+" portál (a přístup vašich klientů) běžel bez přerušení, vyberte si do té "
+"doby plán:"
 
 #: app/routers/assets.py:126
 msgid "An asset with this code already exists for this client."
@@ -744,6 +745,10 @@ msgstr "Heslo bylo změněno. Přihlaste se znovu novým heslem."
 #: app/routers/me.py:148 app/routers/tenant_admin.py:554
 msgid "New passwords do not match."
 msgstr "Nová hesla se neshodují."
+
+#: app/routers/me.py:240 app/routers/tenant_admin.py:642
+msgid "Password does not match — deletion cancelled."
+msgstr "Heslo neodpovídá — mazání zrušeno."
 
 #: app/routers/orders.py:294
 msgid "Order number"
@@ -862,21 +867,21 @@ msgstr "Účet je deaktivován."
 msgid "Invalid email or password."
 msgstr "Neplatný e-mail nebo heslo."
 
-#: app/routers/public.py:402 app/routers/public.py:498
-#: app/routers/public.py:581
+#: app/routers/public.py:405 app/routers/public.py:501
+#: app/routers/public.py:584
 msgid "The invitation is invalid or has expired."
 msgstr "Pozvánka je neplatná nebo vypršela."
 
-#: app/routers/public.py:416 app/routers/public.py:512
+#: app/routers/public.py:419 app/routers/public.py:515
 msgid "The invitation belongs to a different tenant."
 msgstr "Pozvánka patří k jinému tenantovi."
 
-#: app/routers/public.py:478 app/routers/public.py:625
-#: app/routers/public.py:845
+#: app/routers/public.py:481 app/routers/public.py:628
+#: app/routers/public.py:848
 msgid "Passwords do not match."
 msgstr "Hesla se neshodují."
 
-#: app/routers/public.py:810
+#: app/routers/public.py:813
 msgid "The link is invalid or has expired."
 msgstr "Odkaz je neplatný nebo vypršel."
 
@@ -907,10 +912,6 @@ msgstr ""
 #: app/routers/tenant_admin.py:433
 msgid "This user already has a password; use a password reset instead."
 msgstr "Uživatel už má heslo; použijte reset hesla."
-
-#: app/routers/tenant_admin.py:642
-msgid "Password does not match — deletion cancelled."
-msgstr "Heslo neodpovídá — mazání zrušeno."
 
 #: app/routers/tenant_admin.py:670
 msgid "You're the last administrator — promote someone else first."
@@ -1130,7 +1131,7 @@ msgstr "Motiv: tmavý"
 #: app/templates/auth/login.html:41 app/templates/index.html:8
 #: app/templates/index.html:21 app/templates/platform/login.html:3
 #: app/templates/platform/login.html:31 app/templates/platform/signup.html:133
-#: app/templates/www/www_base.html:86
+#: app/templates/www/www_base.html:83
 msgid "Sign in"
 msgstr "Přihlásit se"
 
@@ -1287,11 +1288,11 @@ msgstr "Uložit nové heslo"
 msgid "After changing your password you will be signed out and must log in again."
 msgstr "Po změně hesla budete odhlášeni a musíte se znovu přihlásit."
 
-#: app/templates/admin/profile.html:90
+#: app/templates/admin/profile.html:90 app/templates/me/profile.html:90
 msgid "Your data (GDPR)"
 msgstr "Vaše data (GDPR)"
 
-#: app/templates/admin/profile.html:92
+#: app/templates/admin/profile.html:92 app/templates/me/profile.html:92
 msgid ""
 "Under EU law you can download everything we hold about you, and request "
 "erasure at any time."
@@ -1299,15 +1300,15 @@ msgstr ""
 "Podle unijní legislativy si můžete kdykoliv stáhnout všechno, co o vás "
 "vedeme, a požádat o výmaz."
 
-#: app/templates/admin/profile.html:97
+#: app/templates/admin/profile.html:97 app/templates/me/profile.html:97
 msgid "Download my data (JSON)"
 msgstr "Stáhnout moje data (JSON)"
 
-#: app/templates/admin/profile.html:104
+#: app/templates/admin/profile.html:104 app/templates/me/profile.html:104
 msgid "Delete my account (irreversible)"
 msgstr "Smazat můj účet (nevratné)"
 
-#: app/templates/admin/profile.html:107
+#: app/templates/admin/profile.html:107 app/templates/me/profile.html:107
 msgid ""
 "This removes your personal data (name, email, phone, password) from this "
 "tenant. Orders and comments you created stay in the company record but "
@@ -1318,15 +1319,15 @@ msgstr ""
 "firemní evidenci, ale ve sloupci autora se zobrazují jako „smazáno“. Tuto"
 " akci nelze vrátit."
 
-#: app/templates/admin/profile.html:110
+#: app/templates/admin/profile.html:110 app/templates/me/profile.html:110
 msgid "Are you sure? This is irreversible."
 msgstr "Opravdu? Tato akce je nevratná."
 
-#: app/templates/admin/profile.html:114
+#: app/templates/admin/profile.html:114 app/templates/me/profile.html:114
 msgid "Confirm with your current password"
 msgstr "Potvrďte aktuálním heslem"
 
-#: app/templates/admin/profile.html:122
+#: app/templates/admin/profile.html:122 app/templates/me/profile.html:122
 msgid "Delete my account"
 msgstr "Smazat můj účet"
 
@@ -3210,7 +3211,7 @@ msgid ""
 msgstr "„Nemůžeme posunout termín na 29. 4.? Právě nám volali z lakovny…”"
 
 #: app/templates/www/contact.html:3 app/templates/www/contact.html:12
-#: app/templates/www/www_base.html:83
+#: app/templates/www/www_base.html:80
 msgid "Contact"
 msgstr "Kontakt"
 
@@ -3312,7 +3313,7 @@ msgstr ""
 "Odesláním souhlasíte se zpracováním údajů za účelem odpovědi "
 "(jednorázově, bez newsletteru)."
 
-#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:99
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:96
 msgid "Cookies"
 msgstr "Cookies"
 
@@ -3444,7 +3445,7 @@ msgid "Questions about this cookies policy? Write to"
 msgstr "Dotazy k zásadám cookies? Napište nám na"
 
 #: app/templates/www/features.html:3 app/templates/www/features.html:11
-#: app/templates/www/www_base.html:74
+#: app/templates/www/www_base.html:71
 msgid "Features"
 msgstr "Funkce"
 
@@ -3725,7 +3726,7 @@ msgid "Start 30-day trial"
 msgstr "Spustit 30denní zkušební období"
 
 #: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
-#: app/templates/www/www_base.html:101
+#: app/templates/www/www_base.html:98
 msgid "Imprint"
 msgstr "Impressum"
 
@@ -4122,7 +4123,7 @@ msgid "12–36 month contracts"
 msgstr "smlouvy na 12–36 měsíců"
 
 #: app/templates/www/index.html:278 app/templates/www/pricing.html:3
-#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:77
+#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:74
 msgid "Pricing"
 msgstr "Ceník"
 
@@ -4437,14 +4438,14 @@ msgstr "Nebo napište / zavolejte"
 msgid "Up and running in 30 minutes · Data in the EU (Hetzner DE) · Czech support"
 msgstr "Spustíte do 30 minut · Data v EU (Hetzner DE) · Česká podpora"
 
-#: app/templates/www/index.html:469 app/templates/www/www_base.html:59
+#: app/templates/www/index.html:469 app/templates/www/www_base.html:56
 msgid ""
 "Client portal for Czech manufacturing SMEs — orders, drawings, production"
 " status."
 msgstr "Zákaznický portál pro výrobní firmy v ČR"
 
 #: app/templates/www/index.html:477 app/templates/www/index.html:484
-#: app/templates/www/www_base.html:65
+#: app/templates/www/www_base.html:62
 msgid "30-day free trial, no credit card required"
 msgstr "30denní zkušební verze, bez karty"
 
@@ -4684,9 +4685,10 @@ msgid ""
 "invoices arranged on request are refunded pro-rata for unused full "
 "months, by agreement via team@assoluto.eu."
 msgstr ""
-"U měsíčních plánů peníze v průběhu období nevracíme — po zrušení máte plný "
-"přístup do konce zaplaceného období. Roční faktury sjednané individuálně "
-"vracíme poměrně za nevyužité celé měsíce, po dohodě přes team@assoluto.eu."
+"U měsíčních plánů peníze v průběhu období nevracíme — po zrušení máte "
+"plný přístup do konce zaplaceného období. Roční faktury sjednané "
+"individuálně vracíme poměrně za nevyužité celé měsíce, po dohodě přes "
+"team@assoluto.eu."
 
 #: app/templates/www/pricing.html:170
 msgid "Does the self-hosted Community version cost anything?"
@@ -5165,7 +5167,7 @@ msgstr ""
 "je identifikována číslem verze a datem účinnosti v záhlaví stránky."
 
 #: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
-#: app/templates/www/www_base.html:80
+#: app/templates/www/www_base.html:77
 msgid "Self-hosted"
 msgstr "Vlastní hosting"
 
@@ -5494,8 +5496,8 @@ msgid ""
 msgstr ""
 "Poplatky již uhrazené za probíhající fakturační období se nevracejí; "
 "Zákazník si ponechává přístup po zbytek zaplaceného období. U ročních "
-"předplatných hrazených převodem se nevyužité celé měsíce vracejí poměrně na "
-"základě písemné žádosti a vzájemné dohody."
+"předplatných hrazených převodem se nevyužité celé měsíce vracejí poměrně "
+"na základě písemné žádosti a vzájemné dohody."
 
 #: app/templates/www/terms.html:68
 msgid ""
@@ -5905,15 +5907,15 @@ msgstr ""
 "— všechno na jednom místě. Nahraďte e-maily a Excel. 30 dní zdarma, bez "
 "karty."
 
-#: app/templates/www/www_base.html:89
+#: app/templates/www/www_base.html:86
 msgid "Try free"
 msgstr "Vyzkoušet"
 
-#: app/templates/www/www_base.html:95
+#: app/templates/www/www_base.html:92
 msgid "Terms"
 msgstr "Podmínky"
 
-#: app/templates/www/www_base.html:97
+#: app/templates/www/www_base.html:94
 msgid "Privacy"
 msgstr "Soukromí"
 

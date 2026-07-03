@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: assoluto VERSION\n"
 "Report-Msgid-Bugs-To: team@assoluto.eu\n"
-"POT-Creation-Date: 2026-07-03 17:41+0200\n"
+"POT-Creation-Date: 2026-07-03 21:27+0200\n"
 "PO-Revision-Date: 2026-04-26 11:15+0200\n"
 "Last-Translator: Assoluto Team <team@assoluto.eu>\n"
 "Language: de\n"
@@ -537,9 +537,9 @@ msgid ""
 "the order portal for <strong>%(tenant_name)s</strong> is up and running. "
 "The fastest way to see its value: get one real client on it today."
 msgstr ""
-"das Bestellportal für <strong>%(tenant_name)s</strong> ist in Betrieb. Der "
-"schnellste Weg, seinen Nutzen zu sehen: Bringen Sie noch heute einen echten "
-"Kunden darauf."
+"das Bestellportal für <strong>%(tenant_name)s</strong> ist in Betrieb. "
+"Der schnellste Weg, seinen Nutzen zu sehen: Bringen Sie noch heute einen "
+"echten Kunden darauf."
 
 #: app/email/templates/trial_day1.html:19 app/email/templates/trial_day1.txt:7
 msgid ""
@@ -567,7 +567,8 @@ msgid ""
 "30-minute walkthrough with your real data."
 msgstr ""
 "Lieber ein begleiteter Start? Antworten Sie auf diese E-Mail und wir "
-"vereinbaren eine kostenlose 30-minütige Einführung mit Ihren echten Daten."
+"vereinbaren eine kostenlose 30-minütige Einführung mit Ihren echten "
+"Daten."
 
 #: app/email/templates/trial_day1.subject.txt:1
 msgid "Getting started with Assoluto — your first order in 3 minutes"
@@ -579,8 +580,9 @@ msgid ""
 "the order portal for %(tenant_name)s is up and running. The fastest way "
 "to see its value: get one real client on it today."
 msgstr ""
-"das Bestellportal für %(tenant_name)s ist in Betrieb. Der schnellste Weg, "
-"seinen Nutzen zu sehen: Bringen Sie noch heute einen echten Kunden darauf."
+"das Bestellportal für %(tenant_name)s ist in Betrieb. Der schnellste Weg,"
+" seinen Nutzen zu sehen: Bringen Sie noch heute einen echten Kunden "
+"darauf."
 
 #: app/email/templates/trial_day7.html:6
 msgid "A week with Assoluto"
@@ -589,8 +591,8 @@ msgstr "Eine Woche mit Assoluto"
 #: app/email/templates/trial_day7.html:10
 msgid "A quick check-in — and the one step that makes the trial worth it."
 msgstr ""
-"Ein kurzer Check-in — und der eine Schritt, der den Test wirklich lohnend "
-"macht."
+"Ein kurzer Check-in — und der eine Schritt, der den Test wirklich lohnend"
+" macht."
 
 #: app/email/templates/trial_day7.html:13 app/email/templates/trial_day7.txt:1
 msgid "How is it going?"
@@ -602,8 +604,8 @@ msgid ""
 "a week ago you set up the portal for <strong>%(tenant_name)s</strong>. A "
 "quick honest check-in:"
 msgstr ""
-"vor einer Woche haben Sie das Portal für <strong>%(tenant_name)s</strong> "
-"eingerichtet. Ein kurzer, ehrlicher Check-in:"
+"vor einer Woche haben Sie das Portal für <strong>%(tenant_name)s</strong>"
+" eingerichtet. Ein kurzer, ehrlicher Check-in:"
 
 #: app/email/templates/trial_day7.html:19 app/email/templates/trial_day7.txt:7
 msgid "If a client is already placing orders — great, you can ignore this email."
@@ -617,9 +619,9 @@ msgid ""
 "Our tip: the one who calls most often to ask about order status. That's "
 "the phone traffic the portal removes on day one."
 msgstr ""
-"Falls nicht: Die häufigste Hürde ist die Wahl des ersten Kunden. Unser Tipp: "
-"derjenige, der am häufigsten anruft, um nach dem Auftragsstatus zu fragen. "
-"Genau diese Anrufe nimmt Ihnen das Portal ab dem ersten Tag ab."
+"Falls nicht: Die häufigste Hürde ist die Wahl des ersten Kunden. Unser "
+"Tipp: derjenige, der am häufigsten anruft, um nach dem Auftragsstatus zu "
+"fragen. Genau diese Anrufe nimmt Ihnen das Portal ab dem ersten Tag ab."
 
 #: app/email/templates/trial_day7.html:27 app/email/templates/trial_day7.txt:11
 msgid "Invite your first client"
@@ -630,8 +632,8 @@ msgid ""
 "Stuck on anything — import, settings, a missing feature? Just reply. A "
 "real person reads this mailbox."
 msgstr ""
-"Hängt etwas — Import, Einstellungen, eine fehlende Funktion? Antworten Sie "
-"einfach. Dieses Postfach liest ein echter Mensch."
+"Hängt etwas — Import, Einstellungen, eine fehlende Funktion? Antworten "
+"Sie einfach. Dieses Postfach liest ein echter Mensch."
 
 #: app/email/templates/trial_day7.subject.txt:1
 msgid "A week with Assoluto — how is it going?"
@@ -643,8 +645,8 @@ msgid ""
 "a week ago you set up the portal for %(tenant_name)s. A quick honest "
 "check-in:"
 msgstr ""
-"vor einer Woche haben Sie das Portal für %(tenant_name)s eingerichtet. Ein "
-"kurzer, ehrlicher Check-in:"
+"vor einer Woche haben Sie das Portal für %(tenant_name)s eingerichtet. "
+"Ein kurzer, ehrlicher Check-in:"
 
 #: app/email/templates/trial_ending.html:6
 #: app/email/templates/trial_ending.html:13
@@ -664,8 +666,9 @@ msgid ""
 "clients' access) running without interruption, pick a plan before then:"
 msgstr ""
 "der 30-tägige Test für <strong>%(tenant_name)s</strong> endet am "
-"<strong>%(trial_end_date)s</strong>. Damit das Portal (und der Zugang Ihrer "
-"Kunden) ohne Unterbrechung weiterläuft, wählen Sie bis dahin einen Plan:"
+"<strong>%(trial_end_date)s</strong>. Damit das Portal (und der Zugang "
+"Ihrer Kunden) ohne Unterbrechung weiterläuft, wählen Sie bis dahin einen "
+"Plan:"
 
 #: app/email/templates/trial_ending.html:21
 #: app/email/templates/trial_ending.txt:7
@@ -678,8 +681,8 @@ msgid ""
 "Prefer annual invoicing by bank transfer? Just reply to this email — "
 "typically two months free for the year."
 msgstr ""
-"Bevorzugen Sie jährliche Rechnung per Überweisung? Antworten Sie einfach auf "
-"diese E-Mail — typischerweise zwei Monate im Jahr gratis."
+"Bevorzugen Sie jährliche Rechnung per Überweisung? Antworten Sie einfach "
+"auf diese E-Mail — typischerweise zwei Monate im Jahr gratis."
 
 #: app/email/templates/trial_ending.html:28
 #: app/email/templates/trial_ending.txt:11
@@ -687,8 +690,8 @@ msgid ""
 "If you decide not to continue, your data stays exportable for 3 days "
 "after the trial ends, and we can erase everything on request (GDPR)."
 msgstr ""
-"Falls Sie nicht weitermachen möchten: Ihre Daten bleiben noch 3 Tage nach "
-"Testende exportierbar, und auf Wunsch löschen wir alles (DSGVO)."
+"Falls Sie nicht weitermachen möchten: Ihre Daten bleiben noch 3 Tage nach"
+" Testende exportierbar, und auf Wunsch löschen wir alles (DSGVO)."
 
 #: app/email/templates/trial_ending.subject.txt:1
 #, python-format
@@ -702,9 +705,9 @@ msgid ""
 "the portal (and your clients' access) running without interruption, pick "
 "a plan before then:"
 msgstr ""
-"der 30-tägige Test für %(tenant_name)s endet am %(trial_end_date)s. Damit "
-"das Portal (und der Zugang Ihrer Kunden) ohne Unterbrechung weiterläuft, "
-"wählen Sie bis dahin einen Plan:"
+"der 30-tägige Test für %(tenant_name)s endet am %(trial_end_date)s. Damit"
+" das Portal (und der Zugang Ihrer Kunden) ohne Unterbrechung weiterläuft,"
+" wählen Sie bis dahin einen Plan:"
 
 #: app/routers/assets.py:126
 msgid "An asset with this code already exists for this client."
@@ -775,6 +778,10 @@ msgstr "Passwort geändert. Bitte melden Sie sich mit dem neuen Passwort erneut 
 #: app/routers/me.py:148 app/routers/tenant_admin.py:554
 msgid "New passwords do not match."
 msgstr "Die neuen Passwörter stimmen nicht überein."
+
+#: app/routers/me.py:240 app/routers/tenant_admin.py:642
+msgid "Password does not match — deletion cancelled."
+msgstr "Passwort stimmt nicht überein — Löschung abgebrochen."
 
 #: app/routers/orders.py:294
 msgid "Order number"
@@ -894,21 +901,21 @@ msgstr "Konto ist deaktiviert."
 msgid "Invalid email or password."
 msgstr "Ungültige E-Mail-Adresse oder Passwort."
 
-#: app/routers/public.py:402 app/routers/public.py:498
-#: app/routers/public.py:581
+#: app/routers/public.py:405 app/routers/public.py:501
+#: app/routers/public.py:584
 msgid "The invitation is invalid or has expired."
 msgstr "Die Einladung ist ungültig oder abgelaufen."
 
-#: app/routers/public.py:416 app/routers/public.py:512
+#: app/routers/public.py:419 app/routers/public.py:515
 msgid "The invitation belongs to a different tenant."
 msgstr "Die Einladung gehört zu einem anderen Mandanten."
 
-#: app/routers/public.py:478 app/routers/public.py:625
-#: app/routers/public.py:845
+#: app/routers/public.py:481 app/routers/public.py:628
+#: app/routers/public.py:848
 msgid "Passwords do not match."
 msgstr "Passwörter stimmen nicht überein."
 
-#: app/routers/public.py:810
+#: app/routers/public.py:813
 msgid "The link is invalid or has expired."
 msgstr "Der Link ist ungültig oder abgelaufen."
 
@@ -941,10 +948,6 @@ msgid "This user already has a password; use a password reset instead."
 msgstr ""
 "Dieser Benutzer hat bereits ein Passwort; verwenden Sie stattdessen das "
 "Zurücksetzen des Passworts."
-
-#: app/routers/tenant_admin.py:642
-msgid "Password does not match — deletion cancelled."
-msgstr "Passwort stimmt nicht überein — Löschung abgebrochen."
 
 #: app/routers/tenant_admin.py:670
 msgid "You're the last administrator — promote someone else first."
@@ -1163,7 +1166,7 @@ msgstr "Design: Dunkel"
 #: app/templates/auth/login.html:41 app/templates/index.html:8
 #: app/templates/index.html:21 app/templates/platform/login.html:3
 #: app/templates/platform/login.html:31 app/templates/platform/signup.html:133
-#: app/templates/www/www_base.html:86
+#: app/templates/www/www_base.html:83
 msgid "Sign in"
 msgstr "Anmelden"
 
@@ -1322,11 +1325,11 @@ msgstr ""
 "Nach dem Ändern des Passworts werden Sie abgemeldet und müssen sich "
 "erneut anmelden."
 
-#: app/templates/admin/profile.html:90
+#: app/templates/admin/profile.html:90 app/templates/me/profile.html:90
 msgid "Your data (GDPR)"
 msgstr "Ihre Daten (DSGVO)"
 
-#: app/templates/admin/profile.html:92
+#: app/templates/admin/profile.html:92 app/templates/me/profile.html:92
 msgid ""
 "Under EU law you can download everything we hold about you, and request "
 "erasure at any time."
@@ -1334,15 +1337,15 @@ msgstr ""
 "Nach EU-Recht können Sie jederzeit alles herunterladen, was wir über Sie "
 "führen, und die Löschung beantragen."
 
-#: app/templates/admin/profile.html:97
+#: app/templates/admin/profile.html:97 app/templates/me/profile.html:97
 msgid "Download my data (JSON)"
 msgstr "Meine Daten herunterladen (JSON)"
 
-#: app/templates/admin/profile.html:104
+#: app/templates/admin/profile.html:104 app/templates/me/profile.html:104
 msgid "Delete my account (irreversible)"
 msgstr "Mein Konto löschen (unwiderruflich)"
 
-#: app/templates/admin/profile.html:107
+#: app/templates/admin/profile.html:107 app/templates/me/profile.html:107
 msgid ""
 "This removes your personal data (name, email, phone, password) from this "
 "tenant. Orders and comments you created stay in the company record but "
@@ -1354,15 +1357,15 @@ msgstr ""
 "Autorenspalte jedoch als „gelöscht“ angezeigt. Diese Aktion kann nicht "
 "rückgängig gemacht werden."
 
-#: app/templates/admin/profile.html:110
+#: app/templates/admin/profile.html:110 app/templates/me/profile.html:110
 msgid "Are you sure? This is irreversible."
 msgstr "Sind Sie sicher? Diese Aktion ist unwiderruflich."
 
-#: app/templates/admin/profile.html:114
+#: app/templates/admin/profile.html:114 app/templates/me/profile.html:114
 msgid "Confirm with your current password"
 msgstr "Mit aktuellem Passwort bestätigen"
 
-#: app/templates/admin/profile.html:122
+#: app/templates/admin/profile.html:122 app/templates/me/profile.html:122
 msgid "Delete my account"
 msgstr "Mein Konto löschen"
 
@@ -3252,7 +3255,7 @@ msgstr ""
 " gerade angerufen…”"
 
 #: app/templates/www/contact.html:3 app/templates/www/contact.html:12
-#: app/templates/www/www_base.html:83
+#: app/templates/www/www_base.html:80
 msgid "Contact"
 msgstr "Kontakt"
 
@@ -3354,7 +3357,7 @@ msgstr ""
 "Mit dem Absenden stimmen Sie der Verarbeitung Ihrer Daten zum Zweck der "
 "Antwort zu (einmalig, kein Newsletter)."
 
-#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:99
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:96
 msgid "Cookies"
 msgstr "Cookies"
 
@@ -3490,7 +3493,7 @@ msgid "Questions about this cookies policy? Write to"
 msgstr "Fragen zu dieser Cookie-Richtlinie? Schreiben Sie an"
 
 #: app/templates/www/features.html:3 app/templates/www/features.html:11
-#: app/templates/www/www_base.html:74
+#: app/templates/www/www_base.html:71
 msgid "Features"
 msgstr "Funktionen"
 
@@ -3771,7 +3774,7 @@ msgid "Start 30-day trial"
 msgstr "30-tägige Testphase starten"
 
 #: app/templates/www/imprint.html:3 app/templates/www/imprint.html:7
-#: app/templates/www/www_base.html:101
+#: app/templates/www/www_base.html:98
 msgid "Imprint"
 msgstr "Impressum"
 
@@ -4173,7 +4176,7 @@ msgid "12–36 month contracts"
 msgstr "Verträge über 12–36 Monate"
 
 #: app/templates/www/index.html:278 app/templates/www/pricing.html:3
-#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:77
+#: app/templates/www/pricing.html:11 app/templates/www/www_base.html:74
 msgid "Pricing"
 msgstr "Preise"
 
@@ -4487,7 +4490,7 @@ msgstr ""
 "In 30 Minuten einsatzbereit · Daten in der EU (Hetzner DE) · "
 "Tschechischer Support"
 
-#: app/templates/www/index.html:469 app/templates/www/www_base.html:59
+#: app/templates/www/index.html:469 app/templates/www/www_base.html:56
 msgid ""
 "Client portal for Czech manufacturing SMEs — orders, drawings, production"
 " status."
@@ -4496,7 +4499,7 @@ msgstr ""
 "Produktionsstatus."
 
 #: app/templates/www/index.html:477 app/templates/www/index.html:484
-#: app/templates/www/www_base.html:65
+#: app/templates/www/www_base.html:62
 msgid "30-day free trial, no credit card required"
 msgstr "30 Tage kostenlos testen, keine Kreditkarte erforderlich"
 
@@ -4738,8 +4741,8 @@ msgid ""
 "months, by agreement via team@assoluto.eu."
 msgstr ""
 "Monatliche Pläne werden nicht anteilig erstattet — nach der Kündigung "
-"behalten Sie vollen Zugriff bis zum Ende des bereits bezahlten Zeitraums. "
-"Auf Anfrage vereinbarte Jahresrechnungen erstatten wir anteilig für "
+"behalten Sie vollen Zugriff bis zum Ende des bereits bezahlten Zeitraums."
+" Auf Anfrage vereinbarte Jahresrechnungen erstatten wir anteilig für "
 "ungenutzte volle Monate, nach Absprache über team@assoluto.eu."
 
 #: app/templates/www/pricing.html:170
@@ -5238,7 +5241,7 @@ msgstr ""
 "Geltungsdatum am Seitenanfang kennzeichnen die aktuelle Version."
 
 #: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
-#: app/templates/www/www_base.html:80
+#: app/templates/www/www_base.html:77
 msgid "Self-hosted"
 msgstr "Self-Hosted"
 
@@ -5572,11 +5575,11 @@ msgid ""
 "subscriptions paid by bank transfer, unused full months are refunded pro-"
 "rata upon written request, by mutual agreement."
 msgstr ""
-"Bereits gezahlte Entgelte für den laufenden Abrechnungszeitraum werden nicht "
-"erstattet; der Kunde behält den Zugang für den Rest des bezahlten Zeitraums. "
-"Bei per Überweisung bezahlten Jahresabonnements werden ungenutzte volle "
-"Monate auf schriftlichen Antrag anteilig erstattet, nach beiderseitiger "
-"Vereinbarung."
+"Bereits gezahlte Entgelte für den laufenden Abrechnungszeitraum werden "
+"nicht erstattet; der Kunde behält den Zugang für den Rest des bezahlten "
+"Zeitraums. Bei per Überweisung bezahlten Jahresabonnements werden "
+"ungenutzte volle Monate auf schriftlichen Antrag anteilig erstattet, nach"
+" beiderseitiger Vereinbarung."
 
 #: app/templates/www/terms.html:68
 msgid ""
@@ -6008,15 +6011,15 @@ msgstr ""
 "Produktionsstatus — alles an einem Ort. Ersetzen Sie E-Mails und Excel. "
 "30 Tage kostenlos, ohne Karte."
 
-#: app/templates/www/www_base.html:89
+#: app/templates/www/www_base.html:86
 msgid "Try free"
 msgstr "Kostenlos testen"
 
-#: app/templates/www/www_base.html:95
+#: app/templates/www/www_base.html:92
 msgid "Terms"
 msgstr "Bedingungen"
 
-#: app/templates/www/www_base.html:97
+#: app/templates/www/www_base.html:94
 msgid "Privacy"
 msgstr "Datenschutz"
 
