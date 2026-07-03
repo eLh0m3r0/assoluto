@@ -83,6 +83,13 @@ services:
       # is silently shadowed by the dev default and every outbound mail
       # times out. Caught in prod 2026-04 — please don't remove.
       SMTP_PORT: ${SMTP_PORT:?}
+      # S3_PUBLIC_ENDPOINT_URL has the same problem as SMTP_PORT above:
+      # the base compose hard-codes the dev value (http://localhost:9000)
+      # in ``environment:``, which wins over env_file — so presigned
+      # download/upload URLs handed to browsers point at localhost:9000.
+      # Empty is a valid operator choice (falls back to S3_ENDPOINT_URL,
+      # correct for managed S3 like Backblaze), hence ``:-`` not ``:?``.
+      S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL:-}
       SMTP_USER: ${SMTP_USER:?}
       SMTP_PASSWORD: ${SMTP_PASSWORD:?}
       SMTP_FROM: ${SMTP_FROM:?}
@@ -99,9 +106,11 @@ services:
       # Everything else flows through ``env_file`` above:
       # FEATURE_PLATFORM, FEATURE_PLATFORM_ALLOW_DEMO,
       # PLATFORM_COOKIE_DOMAIN, PLATFORM_OPERATOR_*, STRIPE_*,
-      # LOG_LEVEL, MAX_UPLOAD_SIZE_MB, S3_PUBLIC_ENDPOINT_URL,
-      # DEFAULT_TENANT_SLUG — all automatic. No docker-compose edit
-      # needed to add new app-level settings.
+      # LOG_LEVEL, MAX_UPLOAD_SIZE_MB, DEFAULT_TENANT_SLUG — all
+      # automatic. No docker-compose edit needed to add new app-level
+      # settings. (Exception: any key the base compose hard-codes in its
+      # ``environment:`` block must be re-listed above — see SMTP_PORT
+      # and S3_PUBLIC_ENDPOINT_URL.)
 
     ports: !reset []
     expose:
