@@ -183,6 +183,19 @@ def _timeago_filter_for_locale(locale: str) -> Any:
     return _filter
 
 
+def _pretty_json_filter(value: Any) -> str:
+    """Human-readable JSON for on-page display (audit-log diff detail).
+
+    Jinja's built-in ``tojson`` escapes non-ASCII (``\\u010c`` instead of
+    ``Č``) because it targets <script> embedding. Inside a <pre> block the
+    autoescaper already handles HTML safety, so we can keep Czech text
+    readable (audit F-UX-A-002).
+    """
+    import json
+
+    return json.dumps(value, indent=2, ensure_ascii=False, default=str, sort_keys=True)
+
+
 def _qty_filter(value: Any) -> str:
     """Render a Decimal/number without trailing zeros.
 
@@ -231,6 +244,7 @@ def _new_environment(locale: str | None = None) -> Environment:
     # forever, and nobody outside this module holds a reference.
     env.install_gettext_translations(translations, newstyle=True)  # type: ignore[attr-defined]
     env.filters["qty"] = _qty_filter
+    env.filters["pretty_json"] = _pretty_json_filter
     env.filters["money"] = _money_filter
     env.filters["money_major"] = _money_major_filter
     # Filter is locale-bound — pass the requested locale through (default

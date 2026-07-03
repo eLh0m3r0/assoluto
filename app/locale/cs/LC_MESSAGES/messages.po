@@ -1021,7 +1021,7 @@ msgid ""
 "Your access ends after the data-export grace period. Export now or "
 "contact us within 30 days to recover."
 msgstr ""
-"Po skončení grace období pro export dat skončí váš přístup. Stáhněte si "
+"Po skončení ochranné lhůty pro export dat skončí váš přístup. Stáhněte si "
 "data nebo nás do 30 dní kontaktujte pro obnovu."
 
 #: app/templates/admin/audit.html:7 app/templates/admin/profile.html:7
@@ -1315,7 +1315,7 @@ msgid ""
 "are shown as \"erased\" in the author column. This cannot be undone."
 msgstr ""
 "Odstraní vaše osobní údaje (jméno, e-mail, telefon, heslo) z tohoto "
-"tenantu. Objednávky a komentáře, které jste vytvořili, zůstávají ve "
+"portálu. Objednávky a komentáře, které jste vytvořili, zůstávají ve "
 "firemní evidenci, ale ve sloupci autora se zobrazují jako „smazáno“. Tuto"
 " akci nelze vrátit."
 
@@ -1491,7 +1491,7 @@ msgstr "Uživatelé týmu"
 
 #: app/templates/admin/users.html:10
 msgid "Manage staff users — full access to all tenant data."
-msgstr "Spravujte staff uživatele — přístup do všech dat tenantu."
+msgstr "Spravujte členy týmu — mají přístup ke všem datům vašeho portálu."
 
 #: app/templates/admin/users.html:24
 msgid "State"
@@ -1510,7 +1510,7 @@ msgid ""
 " not the tenant password form."
 msgstr ""
 "Přístup platform-admina v režimu podpory — přihlašuje se přes platform "
-"session, ne přes heslo v tenantu."
+"session, ne přes heslo v portálu."
 
 #: app/templates/admin/users.html:42
 #: app/templates/platform/admin/tenants.html:124
@@ -2190,7 +2190,7 @@ msgstr "PDF"
 
 #: app/templates/orders/detail.html:56
 msgid "Confirmed total price filled in by staff on transition to Quoted."
-msgstr "Potvrzená celková cena vyplněná staffem při přechodu do stavu Nacenění."
+msgstr "Potvrzená celková cena vyplněná vaším týmem při přechodu do stavu Nacenění."
 
 # --- round-4: orders detail, admin users, auth, assets ---
 #: app/templates/orders/detail.html:57
@@ -2780,7 +2780,7 @@ msgstr "zkušebka"
 
 #: app/templates/platform/admin/tenants.html:81
 msgid "You are a regular team member of this tenant."
-msgstr "Jste běžný člen týmu tohoto tenantu."
+msgstr "Jste běžný člen týmu tohoto portálu."
 
 # --- platform member badges + revoke support ---
 #: app/templates/platform/admin/tenants.html:83
@@ -2802,7 +2802,7 @@ msgstr "Zrušit svůj support přístup do tenantu"
 #: app/templates/platform/admin/tenants.html:109
 #: app/templates/platform/admin/tenants.html:120
 msgid "The action is logged in the tenant audit log."
-msgstr "Akce je zalogovaná v audit logu tenantu."
+msgstr "Akce se zaznamená do audit logu portálu."
 
 #: app/templates/platform/admin/tenants.html:113
 msgid "Revoke support"
@@ -3385,7 +3385,7 @@ msgstr "Pouze doména"
 #: app/templates/www/cookies.html:44
 msgid "Signed session cookie identifying the logged-in tenant user. HttpOnly."
 msgstr ""
-"Podepsaný session cookie identifikující přihlášeného uživatele v tenantu."
+"Podepsaný session cookie identifikující přihlášeného uživatele portálu."
 " HttpOnly."
 
 #: app/templates/www/cookies.html:45 app/templates/www/cookies.html:51
@@ -4830,7 +4830,7 @@ msgid ""
 "Audit-trail records of administrative actions inside your tenant — "
 "Article 6(1)(b) and (f) GDPR."
 msgstr ""
-"Auditní záznamy administrativních akcí uvnitř vašeho tenantu — čl. 6 "
+"Auditní záznamy administrativních akcí uvnitř vašeho portálu — čl. 6 "
 "odst. 1 písm. b) a f) GDPR."
 
 #: app/templates/www/privacy.html:46
@@ -4967,7 +4967,7 @@ msgid ""
 " before the change takes effect."
 msgstr ""
 "Změny dílčích zpracovatelů zveřejňujeme minimálně 30 dní předem "
-"aktualizací této stránky a e-mailem aktivním administrátorům tenantu. "
+"aktualizací této stránky a e-mailem aktivním administrátorům účtu Zákazníka. "
 "Zákazník může proti novému dílčímu zpracovateli vznést námitku zrušením "
 "předplatného před účinností změny."
 
@@ -4986,7 +4986,7 @@ msgid ""
 "account is deactivated."
 msgstr ""
 "Po zrušení předplatného — plný přístup pokračuje do konce zaplaceného "
-"období plus 3 dny grace na export dat; poté je účet deaktivován."
+"období plus 3denní ochranná lhůta na export dat; poté je účet deaktivován."
 
 #: app/templates/www/privacy.html:117
 msgid ""
@@ -5014,8 +5014,8 @@ msgid ""
 "tenant; after deletion, retained for up to 3 years for evidentiary "
 "purposes in case of dispute."
 msgstr ""
-"Auditní stopa administrativních akcí uvnitř tenantu — po dobu existence "
-"tenantu; po smazání uchováváme až 3 roky pro důkazní účely v případě "
+"Auditní stopa administrativních akcí uvnitř portálu — po dobu existence "
+"účtu; po smazání uchováváme až 3 roky pro důkazní účely v případě "
 "sporu."
 
 #: app/templates/www/privacy.html:121
@@ -5163,7 +5163,7 @@ msgid ""
 msgstr ""
 "Podstatné změny — noví dílčí zpracovatelé, rozšířené kategorie údajů, "
 "delší doba uchovávání — oznamujeme minimálně 30 dní předem aktualizací "
-"této stránky a e-mailem aktivním administrátorům tenantu. Aktuální verze "
+"této stránky a e-mailem aktivním administrátorům účtu Zákazníka. Aktuální verze "
 "je identifikována číslem verze a datem účinnosti v záhlaví stránky."
 
 #: app/templates/www/self_hosted.html:3 app/templates/www/self_hosted.html:11
@@ -5450,7 +5450,7 @@ msgstr ""
 "Nový účet začíná 30denní bezplatnou zkušební dobou plánu Starter. Pro "
 "spuštění zkušební doby není potřeba platební karta. Po skončení zkušební "
 "doby si zákazník musí pro další užívání hostované služby zvolit placený "
-"plán; jinak účet přejde do 3denního grace období na export dat a poté je "
+"plán; jinak účet přejde do 3denní ochranné lhůty na export dat a poté je "
 "deaktivován."
 
 #: app/templates/www/terms.html:59

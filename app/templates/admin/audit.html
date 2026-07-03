@@ -104,8 +104,13 @@
                                                 {% set keys = (after.keys() | list) + (before.keys() | list) %}
                                                 {% set summary_key = keys[0] if keys else '' %}
                                                 {% if summary_key %}
-                                                    {{ summary_key }}: {{ (before.get(summary_key, '—'))|string|truncate(40) }}
-                                                    → {{ (after.get(summary_key, '—'))|string|truncate(40) }}
+                                                    {# .get(key, '—') only covers a MISSING key — a key
+                                                       present with value None rendered literal "None"
+                                                       (audit F-UX-A-001). Check `is none` explicitly. #}
+                                                    {% set _b = before.get(summary_key) %}
+                                                    {% set _a = after.get(summary_key) %}
+                                                    {{ summary_key }}: {{ ('—' if _b is none else _b)|string|truncate(40) }}
+                                                    → {{ ('—' if _a is none else _a)|string|truncate(40) }}
                                                 {% else %}
                                                     {{ _('Show details') }}
                                                 {% endif %}
@@ -113,7 +118,7 @@
                                                 {{ _('Show details') }}
                                             {% endif %}
                                         </summary>
-                                        <pre class="mt-2 whitespace-pre-wrap break-words rounded bg-slate-50 p-2 text-[11px] leading-snug text-slate-700 dark:bg-slate-800 dark:text-slate-300">{{ ev.diff|tojson(indent=2) }}</pre>
+                                        <pre class="mt-2 whitespace-pre-wrap break-words rounded bg-slate-50 p-2 text-[11px] leading-snug text-slate-700 dark:bg-slate-800 dark:text-slate-300">{{ ev.diff|pretty_json }}</pre>
                                     </details>
                                 {% else %}
                                     <span class="text-slate-400 dark:text-slate-500">—</span>
