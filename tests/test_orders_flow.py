@@ -273,18 +273,21 @@ async def test_staff_internal_comment_hidden_from_contact(
     )
     assert add_public.status_code == 303
 
-    # Staff sees both.
+    # Staff sees both — with the resolved author name, not the generic
+    # fallback label (F-BE-006: guards the batch author lookup).
     staff_detail = await tenant_client.get(f"/app/orders/{order_id}")
     assert "POUZE PRO TYM" in staff_detail.text
     assert "verejny komentar" in staff_detail.text
+    assert "Staff User" in staff_detail.text
 
-    # Contact sees only the public one.
+    # Contact sees only the public one, again with the real author name.
     await _logout(tenant_client)
     await _login(tenant_client, "jan@acme.cz", "contactpass")
 
     contact_detail = await tenant_client.get(f"/app/orders/{order_id}")
     assert "POUZE PRO TYM" not in contact_detail.text
     assert "verejny komentar" in contact_detail.text
+    assert "Staff User" in contact_detail.text
 
     # Contact cannot mark a comment internal.
     bad = await tenant_client.post(

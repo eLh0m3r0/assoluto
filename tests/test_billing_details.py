@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.email.sender import CaptureSender
 from app.main import create_app
+from app.models.audit_event import AuditEvent
 from app.models.tenant import Tenant
 from tests.conftest import CsrfAwareClient
 from tests.test_billing import _mark_verified
@@ -201,18 +202,32 @@ async def test_billing_details_post_happy_path_writes_settings(
         assert tenant.settings["billing_name"] == "BD2 s.r.o."
         assert "Lidická" in tenant.settings["billing_address"]
 
-    # F-BE-001: an audit row should now exist for this tenant.
+    # F-BE-001: an audit row should now exist for this tenant — and it
+    # must attribute the change to the tenant-side User (not the platform
+    # Identity) and carry the before/after billing keys (F-BE-005).
     async with sm() as s:
-        rows = (
-            await s.execute(
-                text(
-                    "SELECT action FROM audit_events "
-                    "WHERE tenant_id = (SELECT id FROM tenants WHERE slug='bd2') "
-                    "AND action = 'tenant.settings_updated'"
+        events = (
+            (
+                await s.execute(
+                    select(AuditEvent).where(
+                        AuditEvent.tenant_id == tenant.id,
+                        AuditEvent.action == "tenant.settings_updated",
+                    )
                 )
             )
-        ).all()
-        assert len(rows) >= 1
+            .scalars()
+            .all()
+        )
+        assert len(events) >= 1
+        event = events[-1]
+        assert event.actor_type == "user"
+        assert event.actor_id is not None
+        assert event.actor_label == "o@bd2.cz"
+        assert event.diff is not None
+        assert event.diff["before"]["billing_ico"] is None
+        assert event.diff["after"]["billing_ico"] == "12345678"
+        assert event.diff["after"]["billing_dic"] == "CZ12345678"
+        assert event.diff["after"]["billing_name"] == "BD2 s.r.o."
 
 
 @pytest.mark.parametrize(
