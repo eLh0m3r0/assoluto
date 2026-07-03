@@ -29,7 +29,8 @@ F-SEC-001 this run — it is the same issue.
 - **Where**: `app/templates/www/index.html:358-401` (Testimonials section)
 - **Severity**: P0
 - **Auto-fixable**: no
-- **status**: manual
+- **status**: wontfix
+  (founder decision 2026-07-03: keep testimonials as-is, risk accepted)
 - **Description**: Confirmed still live on prod this run. Three invented,
   metric-laden quote cards with plausible attributions render under "What
   our first customers say" while the section itself admits no customers
@@ -52,7 +53,7 @@ F-SEC-001 this run — it is the same issue.
 - **Where**: `app/templates/www/pricing.html:54,78,96`; `app/templates/www/contact.html:32,58,77`
 - **Severity**: P1
 - **Auto-fixable**: no
-- **status**: manual
+- **status**: fixed (8242846)
 - **Description**: Persists. Pricing 48 h/12 h/4 h promises vs contact
   page "1 working day"; no autoresponder or SLA tracking behind them.
 
@@ -60,7 +61,7 @@ F-SEC-001 this run — it is the same issue.
 - **Where**: `app/tasks/periodic.py` (`expire_demo_trials`), `app/tasks/email_tasks.py`
 - **Severity**: P1
 - **Auto-fixable**: no
-- **status**: manual
+- **status**: fixed (36acd70) — cadence deployed behind TRIAL_NURTURE_ENABLED=false; operator flips the flag after approving the copy
 - **Description**: Persists. Only the expiry job exists; no day-1/7/25
   onboarding-to-paid cadence for the 30-day trial.
 
@@ -115,13 +116,13 @@ F-SEC-001 this run — it is the same issue.
 ### [BIZ] F-BIZ-005 — "Book a 15-min demo" CTA goes to a contact form
 - **Where**: `app/templates/www/index.html:42-45` → `/contact`
 - **Auto-fixable**: no
-- **status**: manual
+- **status**: fixed (8242846)
 - **Description**: Persists — soften copy or wire a real booking link.
 
 ### [BIZ] F-BIZ-006 — No stated refund / withdrawal policy
 - **Where**: `app/templates/www/pricing.html` FAQ; `terms.html`; `webhooks.py:373`
 - **Auto-fixable**: no
-- **status**: manual
+- **status**: fixed (8242846)
 - **Description**: Persists — state the refund position once in
   pricing/terms.
 
