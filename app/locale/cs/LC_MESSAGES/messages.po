@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-05-09 08:47+0200\n"
+"POT-Creation-Date: 2026-07-03 12:56+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -127,19 +127,19 @@ msgstr "Kontakt klienta"
 # "Ready", "Delivered", "Cancel" reuse the existing msgids from
 # orders/_status_badge.html and products/form.html (they share the
 # same Czech translation, so we don't duplicate entries).
-#: app/main.py:474
+#: app/main.py:483
 msgid "staff users"
 msgstr "uživatelů týmu"
 
-#: app/main.py:475
+#: app/main.py:484
 msgid "client contacts"
 msgstr "klientských kontaktů"
 
-#: app/main.py:476
+#: app/main.py:485
 msgid "orders this month"
 msgstr "objednávek tento měsíc"
 
-#: app/main.py:477
+#: app/main.py:486
 msgid "MB of storage"
 msgstr "MB úložiště"
 
@@ -733,21 +733,21 @@ msgstr "Jste poslední administrátor — nejdřív povýšte někoho jiného."
 msgid "Saved."
 msgstr "Uloženo."
 
-#: app/routers/www.py:125
+#: app/routers/www.py:160
 msgid "Please fill in all fields."
 msgstr "Vyplňte prosím všechna pole."
 
-#: app/routers/www.py:128
+#: app/routers/www.py:163
 #, python-brace-format
 msgid "Name may be at most {n} characters."
 msgstr "Jméno může mít nejvýše {n} znaků."
 
-#: app/routers/www.py:132
+#: app/routers/www.py:167
 #, python-brace-format
 msgid "Message may be at most {n} characters."
 msgstr "Zpráva může mít nejvýše {n} znaků."
 
-#: app/routers/www.py:142
+#: app/routers/www.py:177
 msgid "Email address is not valid."
 msgstr "Zadaný e-mail není platný."
 
@@ -1046,7 +1046,7 @@ msgstr "Jméno"
 #: app/templates/me/profile.html:25 app/templates/platform/check_email.html:34
 #: app/templates/platform/login.html:18
 #: app/templates/platform/password_reset_request.html:18
-#: app/templates/www/contact.html:30 app/templates/www/contact.html:97
+#: app/templates/www/contact.html:30 app/templates/www/contact.html:108
 msgid "Email"
 msgstr "E-mail"
 
@@ -2309,7 +2309,7 @@ msgstr "Subdoména portálu"
 msgid "Optional — if empty we derive it from the company name."
 msgstr "Volitelné — pokud necháte prázdné, odvodíme z názvu firmy."
 
-#: app/templates/platform/signup.html:73 app/templates/www/contact.html:90
+#: app/templates/platform/signup.html:73 app/templates/www/contact.html:101
 msgid "Your name"
 msgstr "Vaše jméno"
 
@@ -2871,11 +2871,11 @@ msgstr "Fakturační údaje"
 
 #: app/templates/platform/billing/details.html:12
 msgid ""
-"These details appear on every Czech tax doklad we issue. We need them "
+"These details appear on every Czech tax invoice we issue. We need them "
 "before the first paid checkout."
 msgstr ""
-"Tyto údaje se objeví na každém daňovém dokladu, který vystavíme. "
-"Potřebujeme je před první placenou objednávkou."
+"Tyto údaje se objeví na každém daňovém dokladu, který vystavíme. Potřebujeme "
+"je před první placenou objednávkou."
 
 #: app/templates/platform/billing/details.html:23
 msgid "Company name (as on the invoice)"
@@ -3101,11 +3101,11 @@ msgstr ""
 msgid "Write to us"
 msgstr "Napište nám"
 
-#: app/templates/www/contact.html:104
+#: app/templates/www/contact.html:115
 msgid "Your message"
 msgstr "Vaše zpráva"
 
-#: app/templates/www/contact.html:106
+#: app/templates/www/contact.html:117
 msgid ""
 "Describe briefly — Enterprise plan? Questions about self-hosting? A demo?"
 " What kind of shop are you running?"
@@ -3113,11 +3113,11 @@ msgstr ""
 "Popište krátce — Enterprise plán? Dotazy k self-hostingu? Ukázka? Jakou "
 "dílnu provozujete?"
 
-#: app/templates/www/contact.html:111
+#: app/templates/www/contact.html:122
 msgid "Send"
 msgstr "Odeslat"
 
-#: app/templates/www/contact.html:115
+#: app/templates/www/contact.html:126
 msgid ""
 "By sending, you agree to the processing of your data for the purpose of "
 "replying (one-off, no newsletter)."
@@ -3802,7 +3802,9 @@ msgstr "Zaregistrujete se, vyberete subdoménu"
 msgid ""
 "Email, password, company name. You'll get your own address — e.g. "
 "yourfirm.assoluto.eu — in 30 seconds."
-msgstr "E-mail, heslo, název firmy. Za 30 vteřin máte vlastní adresu — třeba vasefirma.assoluto.eu."
+msgstr ""
+"E-mail, heslo, název firmy. Za 30 vteřin máte vlastní adresu — třeba "
+"vasefirma.assoluto.eu."
 
 #: app/templates/www/index.html:210
 msgid "Invite your first clients"
@@ -4175,20 +4177,20 @@ msgid "Is it secure? What if the server fails?"
 msgstr "Je to bezpečné? Co když vypadne server?"
 
 #: app/templates/www/index.html:428 app/templates/www/index.html:523
+#, python-format
 msgid ""
 "Security: each client sees only their own data — enforced at the database"
 " level, not just in the application. Passwords are never stored in "
 "readable form. Login is brute-force protected. Outages: Hetzner runs "
 "redundant infrastructure. We back up daily (14-day retention) and monitor"
-" uptime 24/7. Target uptime: 99.9 percent. The Enterprise plan includes a"
-" written SLA."
+" uptime 24/7. Target uptime: 99.9 %%. The Enterprise plan includes a "
+"written SLA."
 msgstr ""
-"Bezpečnost: každý zákazník vidí jen svá data — vynuceno přímo v databázi,"
-" ne jen v aplikaci. Hesla nikdy neuchováváme v čitelné podobě. "
-"Přihlašování je chráněno proti útokům hrubou silou. Výpadky: Hetzner "
-"provozuje redundantní infrastrukturu. Zálohujeme denně (14 dní), "
-"monitorujeme dostupnost 24/7. Cílová dostupnost 99,9 procent. Enterprise "
-"plán má písemné SLA."
+"Bezpečnost: každý zákazník vidí jen svá data — vynuceno přímo v databázi, ne "
+"jen v aplikaci. Hesla nikdy neuchováváme v čitelné podobě. Přihlašování je "
+"chráněno proti útokům hrubou silou. Výpadky: Hetzner provozuje redundantní "
+"infrastrukturu. Zálohujeme denně (14 dní), monitorujeme dostupnost 24/7. "
+"Cílová dostupnost 99,9 %%. Enterprise plán má písemné SLA."
 
 #: app/templates/www/index.html:429 app/templates/www/index.html:527
 msgid "Will you teach my people how to use it?"
@@ -4424,9 +4426,12 @@ msgstr "Co potřebuju zadat při prvním placeném checkoutu?"
 #: app/templates/www/pricing.html:165
 msgid ""
 "Billing name, IČO (8 digits) and billing address. DIČ if you are a VAT "
-"payer. We need these to issue a valid Czech tax doklad. You enter them "
+"payer. We need these to issue a valid Czech tax invoice. You enter them "
 "once — we keep them on file."
-msgstr "Fakturační název, IČO (8 číslic) a fakturační adresu. DIČ pokud jste plátce DPH. Bez nich nemůžeme vystavit platný daňový doklad. Vyplníte jednou — uložíme."
+msgstr ""
+"Fakturační název, IČO (8 číslic) a fakturační adresu. DIČ pokud jste plátce "
+"DPH. Bez nich nemůžeme vystavit platný daňový doklad. Vyplníte jednou — "
+"uložíme."
 
 #: app/templates/www/pricing.html:166
 msgid "How does billing actually work?"
@@ -6930,4 +6935,51 @@ msgstr "Soukromí"
 
 #~ msgid "SLA 99.9 percent"
 #~ msgstr "SLA 99,9 procent"
+
+#~ msgid ""
+#~ "These details appear on every Czech "
+#~ "tax doklad we issue. We need them"
+#~ " before the first paid checkout."
+#~ msgstr ""
+#~ "Tyto údaje se objeví na každém "
+#~ "daňovém dokladu, který vystavíme. Potřebujeme"
+#~ " je před první placenou objednávkou."
+
+#~ msgid ""
+#~ "Security: each client sees only their"
+#~ " own data — enforced at the "
+#~ "database level, not just in the "
+#~ "application. Passwords are never stored "
+#~ "in readable form. Login is brute-"
+#~ "force protected. Outages: Hetzner runs "
+#~ "redundant infrastructure. We back up "
+#~ "daily (14-day retention) and monitor "
+#~ "uptime 24/7. Target uptime: 99.9 "
+#~ "percent. The Enterprise plan includes a"
+#~ " written SLA."
+#~ msgstr ""
+#~ "Bezpečnost: každý zákazník vidí jen svá"
+#~ " data — vynuceno přímo v databázi,"
+#~ " ne jen v aplikaci. Hesla nikdy "
+#~ "neuchováváme v čitelné podobě. Přihlašování"
+#~ " je chráněno proti útokům hrubou "
+#~ "silou. Výpadky: Hetzner provozuje redundantní"
+#~ " infrastrukturu. Zálohujeme denně (14 dní),"
+#~ " monitorujeme dostupnost 24/7. Cílová "
+#~ "dostupnost 99,9 procent. Enterprise plán "
+#~ "má písemné SLA."
+
+#~ msgid ""
+#~ "Billing name, IČO (8 digits) and "
+#~ "billing address. DIČ if you are a"
+#~ " VAT payer. We need these to "
+#~ "issue a valid Czech tax doklad. "
+#~ "You enter them once — we keep "
+#~ "them on file."
+#~ msgstr ""
+#~ "Fakturační název, IČO (8 číslic) a "
+#~ "fakturační adresu. DIČ pokud jste plátce"
+#~ " DPH. Bez nich nemůžeme vystavit "
+#~ "platný daňový doklad. Vyplníte jednou —"
+#~ " uložíme."
 
