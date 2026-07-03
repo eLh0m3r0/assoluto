@@ -37,7 +37,7 @@
                        autocomplete="organization"
                        value="{{ form.company_name or '' }}"
                        placeholder="ACME s.r.o."
-                       class="mt-1 w-full rounded-md border {% if errors.company_name %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                       class="mt-1 w-full rounded-md border {% if errors.company_name %}border-red-400{% else %}border-slate-300 dark:border-slate-700{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 {% if errors.company_name %}
                     <p class="mt-1 text-xs text-red-600">{{ errors.company_name }}</p>
                 {% endif %}
@@ -54,7 +54,7 @@
                            pattern="[a-z0-9-]*"
                            placeholder="acme"
                            aria-describedby="slug-help"
-                           class="w-full rounded-l-md border {% if errors.slug %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                           class="w-full rounded-l-md border {% if errors.slug %}border-red-400{% else %}border-slate-300 dark:border-slate-700{% endif %} px-3 py-2 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                     <span class="inline-flex items-center rounded-r-md border border-l-0 border-slate-300 bg-slate-50 px-3 text-sm text-slate-500 dark:bg-slate-800/60 dark:border-slate-700 dark:text-slate-400">
                         .assoluto.eu
                     </span>
@@ -86,7 +86,7 @@
                            autocomplete="username"
                            value="{{ form.owner_email or '' }}"
                            placeholder="jan@acme.cz"
-                           class="mt-1 w-full rounded-md border {% if errors.owner_email or errors.email %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                           class="mt-1 w-full rounded-md border {% if errors.owner_email or errors.email %}border-red-400{% else %}border-slate-300 dark:border-slate-700{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                     {% if errors.owner_email or errors.email %}
                         <p class="mt-1 text-xs text-red-600">{{ errors.owner_email or errors.email }}</p>
                     {% endif %}
@@ -100,7 +100,7 @@
                 <input type="password" id="password" name="password" required minlength="8"
                        autocomplete="new-password"
                        aria-describedby="password-help"
-                       class="mt-1 w-full rounded-md border {% if errors.password %}border-red-400{% else %}border-slate-300{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                       class="mt-1 w-full rounded-md border {% if errors.password %}border-red-400{% else %}border-slate-300 dark:border-slate-700{% endif %} px-3 py-2 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 <p id="password-help" class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     {{ _("At least 8 characters; avoid common passwords.") }}
                 </p>
