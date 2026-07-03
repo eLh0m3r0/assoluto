@@ -19,6 +19,7 @@ from app.tasks.periodic import (
     cleanup_stale_invited_contacts,
     enforce_canceled_subscriptions,
     expire_demo_trials,
+    send_trial_nurture_emails,
 )
 
 log = get_logger("app.scheduler")
@@ -69,6 +70,17 @@ def build_scheduler() -> AsyncIOScheduler:
         enforce_canceled_subscriptions,
         trigger=CronTrigger(hour=4, minute=0),  # 04:00 UTC daily
         id="enforce_canceled_subscriptions",
+        replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=600,
+    )
+
+    # Mid-morning CET so trial admins read it during their workday.
+    # No-ops unless FEATURE_PLATFORM + TRIAL_NURTURE_ENABLED are set.
+    scheduler.add_job(
+        send_trial_nurture_emails,
+        trigger=CronTrigger(hour=8, minute=0),  # 08:00 UTC daily
+        id="send_trial_nurture_emails",
         replace_existing=True,
         max_instances=1,
         misfire_grace_time=600,

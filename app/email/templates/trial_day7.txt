@@ -1,0 +1,13 @@
+{{ _("How is it going?") }}
+
+{% trans full_name=full_name %}Hello {{ full_name }},{% endtrans %}
+
+{% trans tenant_name=tenant_name %}a week ago you set up the portal for {{ tenant_name }}. A quick honest check-in:{% endtrans %}
+
+{{ _("If a client is already placing orders — great, you can ignore this email.") }}
+
+{{ _("If not, the most common blocker is picking which client to invite first. Our tip: the one who calls most often to ask about order status. That's the phone traffic the portal removes on day one.") }}
+
+{{ _("Invite your first client") }}: {{ portal_url }}
+
+{{ _("Stuck on anything — import, settings, a missing feature? Just reply. A real person reads this mailbox.") }}

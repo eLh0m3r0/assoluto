@@ -1,0 +1,11 @@
+{{ _("Your trial is ending") }}
+
+{% trans full_name=full_name %}Hello {{ full_name }},{% endtrans %}
+
+{% trans tenant_name=tenant_name, trial_end_date=trial_end_date %}the 30-day trial for {{ tenant_name }} ends on {{ trial_end_date }}. To keep the portal (and your clients' access) running without interruption, pick a plan before then:{% endtrans %}
+
+{{ _("Choose a plan") }}: {{ billing_url }}
+
+{{ _("Prefer annual invoicing by bank transfer? Just reply to this email — typically two months free for the year.") }}
+
+{{ _("If you decide not to continue, your data stays exportable for 3 days after the trial ends, and we can erase everything on request (GDPR).") }}

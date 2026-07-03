@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="{{ locale or 'cs' }}">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light only">
+<title>{{ _("Your trial is ending") }}</title>
+</head>
+<body style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #111827; line-height: 1.5; background:#f8fafc;">
+    <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+        {{ _("Pick a plan to keep your portal running — takes two minutes.") }}
+    </div>
+    <div style="max-width: 560px; margin: 0 auto; padding: 24px; background:#ffffff;">
+        <h1 style="font-size: 20px; margin: 0 0 16px;">{{ _("Your trial is ending") }}</h1>
+        <p>{% trans full_name=full_name %}Hello {{ full_name }},{% endtrans %}</p>
+        <p>
+            {% trans tenant_name=tenant_name, trial_end_date=trial_end_date %}the 30-day trial for <strong>{{ tenant_name }}</strong> ends on <strong>{{ trial_end_date }}</strong>. To keep the portal (and your clients' access) running without interruption, pick a plan before then:{% endtrans %}
+        </p>
+        <p style="margin: 24px 0;">
+            <a href="{{ billing_url }}"
+               style="display: inline-block; background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+                {{ _("Choose a plan") }}
+            </a>
+        </p>
+        <p>
+            {{ _("Prefer annual invoicing by bank transfer? Just reply to this email — typically two months free for the year.") }}
+        </p>
+        <p style="font-size: 13px; color: #6b7280;">
+            {{ _("If you decide not to continue, your data stays exportable for 3 days after the trial ends, and we can erase everything on request (GDPR).") }}
+        </p>
+    </div>
+</body>
+</html>

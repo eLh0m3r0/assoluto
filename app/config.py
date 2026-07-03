@@ -79,6 +79,11 @@ class Settings(BaseSettings):
     # True acknowledges the risk and lets checkout stay in ``demo`` mode.
     # Never set this on a real paying-customer deployment.
     feature_platform_allow_demo: bool = Field(default=False, alias="FEATURE_PLATFORM_ALLOW_DEMO")
+    # Trial-nurture email cadence (day-1 onboarding, day-7 check-in,
+    # trial-ending reminder 5 days before trial_ends_at). Off by default
+    # so the copy can be reviewed before any tenant receives it; flip to
+    # true in /etc/assoluto/env once approved. Requires FEATURE_PLATFORM.
+    trial_nurture_enabled: bool = Field(default=False, alias="TRIAL_NURTURE_ENABLED")
 
     # --- Platform operator (legal entity behind the hosted service) -------
     # Filled on every hosted deployment; templated into the Terms of

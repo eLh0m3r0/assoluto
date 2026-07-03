@@ -352,3 +352,181 @@ async def enforce_canceled_subscriptions(now: datetime | None = None) -> int:
                 )
     finally:
         await engine.dispose()
+
+
+# Trial-nurture cadence. Each nudge has a send *window* so enabling the
+# feature on an install with existing trials doesn't blast every tenant
+# with all three emails at once — a nudge whose window already passed is
+# silently skipped.
+TRIAL_NURTURE_LOCK_ID = 42_008
+NURTURE_WINDOW_DAYS = 3
+TRIAL_ENDING_LEAD_DAYS = 5
+# Marker key inside tenants.settings: {"day1": "<iso>", ...}. Underscore
+# prefix = machine-managed, mirrors the "_gdpr_erased_at" convention.
+NURTURE_SENT_KEY = "_trial_nurture_sent"
+
+
+def _tenant_portal_url(base_url: str, slug: str) -> str:
+    """Derive the tenant's subdomain URL from APP_BASE_URL."""
+    from urllib.parse import urlsplit
+
+    parts = urlsplit(base_url)
+    return f"{parts.scheme}://{slug}.{parts.netloc}"
+
+
+def _due_nurture_stage(
+    now: datetime,
+    created_at: datetime,
+    trial_ends_at: datetime | None,
+    already_sent: dict,
+) -> tuple[str, int] | None:
+    """Return the most urgent unsent stage whose window covers ``now``.
+
+    Priority: ending > day7 > day1 (at most one email per tenant per
+    run, so overlapping windows on short trials can't double-send).
+    """
+    window = timedelta(days=NURTURE_WINDOW_DAYS)
+    if (
+        trial_ends_at is not None
+        and "ending" not in already_sent
+        and trial_ends_at - timedelta(days=TRIAL_ENDING_LEAD_DAYS) <= now < trial_ends_at
+    ):
+        return "ending", max(0, (trial_ends_at - now).days)
+    if trial_ends_at is not None and now >= trial_ends_at:
+        return None  # trial over — expiry job owns it from here
+    for stage, offset in (("day7", timedelta(days=7)), ("day1", timedelta(days=1))):
+        start = created_at + offset
+        if stage not in already_sent and start <= now < start + window:
+            return stage, 0
+    return None
+
+
+async def send_trial_nurture_emails(now: datetime | None = None, sender=None) -> int:
+    """Send the day-1 / day-7 / trial-ending nudges to trial tenants.
+
+    Recipients are the tenant's active TENANT_ADMIN users. Sent stages
+    are recorded in ``tenants.settings["_trial_nurture_sent"]`` so the
+    job is idempotent across daily runs. Gated on both FEATURE_PLATFORM
+    and TRIAL_NURTURE_ENABLED (default off — copy must be approved
+    before any tenant receives it).
+
+    ``platform_subscriptions`` is queried via raw SQL on purpose: core
+    tasks must not import ``app.platform`` models (CLAUDE.md §6).
+    """
+    from app.email.sender import build_sender
+
+    settings = get_settings()
+    if not (settings.feature_platform and settings.trial_nurture_enabled):
+        return 0
+
+    current = now or datetime.now(UTC)
+    mail = sender if sender is not None else build_sender(settings)
+
+    engine = _owner_engine()
+    try:
+        # The advisory lock is session-level: it survives transactions on
+        # `lock_conn` and is held until the explicit unlock below, so the
+        # whole send loop is covered — two workers ticking simultaneously
+        # can't double-send.
+        async with engine.connect() as lock_conn:
+            got_lock = (
+                await lock_conn.execute(
+                    text("SELECT pg_try_advisory_lock(:id)"),
+                    {"id": TRIAL_NURTURE_LOCK_ID},
+                )
+            ).scalar()
+            if not got_lock:
+                log.info("periodic.trial_nurture.skipped", reason="lock held")
+                return 0
+            try:
+                sent = await _run_trial_nurture(engine, current, mail, settings)
+            finally:
+                await lock_conn.execute(
+                    text("SELECT pg_advisory_unlock(:id)"),
+                    {"id": TRIAL_NURTURE_LOCK_ID},
+                )
+        log.info("periodic.trial_nurture.done", sent=sent)
+        return sent
+    finally:
+        await engine.dispose()
+
+
+async def _run_trial_nurture(engine, current: datetime, mail, settings) -> int:
+    """Inner body of :func:`send_trial_nurture_emails` (lock already held)."""
+    from app.models.enums import UserRole
+    from app.models.tenant import Tenant
+    from app.models.user import User as UserModel
+    from app.services.locale_service import resolve_email_locale
+    from app.tasks.email_tasks import send_trial_nurture
+
+    async with engine.connect() as conn:
+        rows = (
+            await conn.execute(
+                text(
+                    "SELECT s.tenant_id, s.created_at, s.trial_ends_at "
+                    "FROM platform_subscriptions s "
+                    "JOIN tenants t ON t.id = s.tenant_id "
+                    "WHERE s.status IN ('trialing', 'demo') "
+                    "  AND t.is_active = true"
+                )
+            )
+        ).all()
+
+    sent = 0
+    sm = async_sessionmaker(engine, expire_on_commit=False)
+    for tenant_id, created_at, trial_ends_at in rows:
+        async with sm() as session, session.begin():
+            tenant = (
+                await session.execute(select(Tenant).where(Tenant.id == tenant_id))
+            ).scalar_one()
+            already = dict((tenant.settings or {}).get(NURTURE_SENT_KEY) or {})
+            due = _due_nurture_stage(current, created_at, trial_ends_at, already)
+            if due is None:
+                continue
+            stage, days_left = due
+
+            admins = (
+                (
+                    await session.execute(
+                        select(UserModel).where(
+                            UserModel.tenant_id == tenant_id,
+                            UserModel.role == UserRole.TENANT_ADMIN,
+                            UserModel.is_active.is_(True),
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            if not admins:
+                continue
+
+            portal_url = _tenant_portal_url(settings.app_base_url, tenant.slug)
+            billing_url = settings.app_base_url.rstrip("/") + "/platform/billing"
+            trial_end_date = trial_ends_at.strftime("%d.%m.%Y") if trial_ends_at is not None else ""
+            for admin in admins:
+                locale = resolve_email_locale(recipient=admin, tenant=tenant, settings=settings)
+                send_trial_nurture(
+                    mail,
+                    to=admin.email,
+                    stage=stage,
+                    full_name=admin.full_name,
+                    tenant_name=tenant.name,
+                    portal_url=portal_url,
+                    billing_url=billing_url,
+                    trial_end_date=trial_end_date,
+                    days_left=days_left,
+                    locale=locale,
+                )
+                sent += 1
+
+            already[stage] = current.isoformat()
+            tenant.settings = {**(tenant.settings or {}), NURTURE_SENT_KEY: already}
+            log.info(
+                "periodic.trial_nurture.sent",
+                tenant_id=str(tenant_id),
+                stage=stage,
+                recipients=len(admins),
+            )
+
+    return sent

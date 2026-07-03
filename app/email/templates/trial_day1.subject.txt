@@ -1,0 +1,1 @@
+{{ _("Getting started with Assoluto — your first order in 3 minutes") }}

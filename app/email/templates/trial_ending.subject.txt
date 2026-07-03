@@ -1,0 +1,1 @@
+{% trans days_left=days_left %}Your Assoluto trial ends in {{ days_left }} days{% endtrans %}

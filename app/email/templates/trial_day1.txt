@@ -1,0 +1,12 @@
+{{ _("Your portal is live") }}
+
+{% trans full_name=full_name %}Hello {{ full_name }},{% endtrans %}
+
+{% trans tenant_name=tenant_name %}the order portal for {{ tenant_name }} is up and running. The fastest way to see its value: get one real client on it today.{% endtrans %}
+
+1. {{ _("Create the client and invite their contact person (Customers → New customer → Invite contact).") }}
+2. {{ _("They get an email, set a password, and can place their first order — no training needed.") }}
+
+{{ _("Open your portal") }}: {{ portal_url }}
+
+{{ _("Prefer a guided start? Reply to this email and we'll set up a free 30-minute walkthrough with your real data.") }}

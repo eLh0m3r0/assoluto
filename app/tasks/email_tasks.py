@@ -353,3 +353,40 @@ def send_order_status_changed(
     }
     for to, locale in recipients_with_locale:
         _render_and_send(sender, "order_status_changed", "order_status_changed", to, ctx, locale)
+
+
+def send_trial_nurture(
+    sender: EmailSender,
+    *,
+    to: str,
+    stage: str,
+    full_name: str,
+    tenant_name: str,
+    portal_url: str,
+    billing_url: str = "",
+    trial_end_date: str = "",
+    days_left: int = 0,
+    locale: str | None = None,
+) -> None:
+    """Send one trial-nurture email.
+
+    ``stage`` is one of ``day1`` / ``day7`` / ``ending`` and selects the
+    ``trial_<stage>`` template triple. Scheduled by
+    ``app.tasks.periodic.send_trial_nurture_emails``.
+    """
+    template = f"trial_{stage}"
+    _render_and_send(
+        sender,
+        template,
+        template,
+        to,
+        {
+            "full_name": full_name,
+            "tenant_name": tenant_name,
+            "portal_url": portal_url,
+            "billing_url": billing_url,
+            "trial_end_date": trial_end_date,
+            "days_left": days_left,
+        },
+        locale,
+    )
