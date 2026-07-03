@@ -1,0 +1,41 @@
+# Basic uptime monitoring — free, no external account needed.
+#
+# Pings the production health endpoints every 15 minutes; a failed run
+# makes GitHub email the repo owner (default notification for failed
+# workflows on the default branch). This backs the marketing claim of
+# 24/7 monitoring until a dedicated tool (Better Stack / UptimeRobot)
+# is set up — those add latency graphs, status pages, and SMS.
+#
+# Note: GitHub cron is best-effort; ticks can be delayed several
+# minutes under load. Good enough as a tripwire, not an SLA meter.
+
+name: Uptime check
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+permissions: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Probe production endpoints
+        run: |
+          set -euo pipefail
+          fail=0
+          for url in \
+            "https://assoluto.eu/healthz" \
+            "https://assoluto.eu/readyz" \
+            "https://assoluto.eu/" \
+            "https://4mex.assoluto.eu/auth/login"; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$url" || echo 000)
+            echo "$url -> $code"
+            if [ "$code" != "200" ]; then
+              fail=1
+            fi
+          done
+          exit $fail
