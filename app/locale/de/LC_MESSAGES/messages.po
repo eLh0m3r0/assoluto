@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: assoluto VERSION\n"
 "Report-Msgid-Bugs-To: team@assoluto.eu\n"
-"POT-Creation-Date: 2026-07-03 12:56+0200\n"
+"POT-Creation-Date: 2026-07-03 17:41+0200\n"
 "PO-Revision-Date: 2026-04-26 11:15+0200\n"
 "Last-Translator: Assoluto Team <team@assoluto.eu>\n"
 "Language: de\n"
@@ -159,6 +159,10 @@ msgstr "Willkommen bei Assoluto"
 
 #: app/email/templates/email_verification.html:14
 #: app/email/templates/email_verification.txt:3
+#: app/email/templates/trial_day1.html:14 app/email/templates/trial_day1.txt:3
+#: app/email/templates/trial_day7.html:14 app/email/templates/trial_day7.txt:3
+#: app/email/templates/trial_ending.html:14
+#: app/email/templates/trial_ending.txt:3
 #, python-format
 msgid "Hello %(full_name)s,"
 msgstr "Guten Tag, %(full_name)s,"
@@ -514,6 +518,193 @@ msgstr ""
 "Sie wurden dem Team %(tenant_name)s als Administrator des Kundenportals "
 "hinzugefügt. Öffnen Sie den Link unten, um Ihr Passwort festzulegen und "
 "sich erstmals anzumelden — gültig 7 Tage:"
+
+#: app/email/templates/trial_day1.html:6
+msgid "Getting started with Assoluto"
+msgstr "Erste Schritte mit Assoluto"
+
+#: app/email/templates/trial_day1.html:10
+msgid "Two steps to your first order: invite a client, let them order."
+msgstr "Zwei Schritte zur ersten Bestellung: Kunden einladen, bestellen lassen."
+
+#: app/email/templates/trial_day1.html:13 app/email/templates/trial_day1.txt:1
+msgid "Your portal is live"
+msgstr "Ihr Portal ist online"
+
+#: app/email/templates/trial_day1.html:16
+#, python-format
+msgid ""
+"the order portal for <strong>%(tenant_name)s</strong> is up and running. "
+"The fastest way to see its value: get one real client on it today."
+msgstr ""
+"das Bestellportal für <strong>%(tenant_name)s</strong> ist in Betrieb. Der "
+"schnellste Weg, seinen Nutzen zu sehen: Bringen Sie noch heute einen echten "
+"Kunden darauf."
+
+#: app/email/templates/trial_day1.html:19 app/email/templates/trial_day1.txt:7
+msgid ""
+"Create the client and invite their contact person (Customers → New "
+"customer → Invite contact)."
+msgstr ""
+"Legen Sie den Kunden an und laden Sie seine Kontaktperson ein (Kunden → "
+"Neuer Kunde → Kontakt einladen)."
+
+#: app/email/templates/trial_day1.html:20 app/email/templates/trial_day1.txt:8
+msgid ""
+"They get an email, set a password, and can place their first order — no "
+"training needed."
+msgstr ""
+"Sie erhalten eine E-Mail, legen ein Passwort fest und können die erste "
+"Bestellung aufgeben — ganz ohne Schulung."
+
+#: app/email/templates/trial_day1.html:25 app/email/templates/trial_day1.txt:10
+msgid "Open your portal"
+msgstr "Portal öffnen"
+
+#: app/email/templates/trial_day1.html:29 app/email/templates/trial_day1.txt:12
+msgid ""
+"Prefer a guided start? Reply to this email and we'll set up a free "
+"30-minute walkthrough with your real data."
+msgstr ""
+"Lieber ein begleiteter Start? Antworten Sie auf diese E-Mail und wir "
+"vereinbaren eine kostenlose 30-minütige Einführung mit Ihren echten Daten."
+
+#: app/email/templates/trial_day1.subject.txt:1
+msgid "Getting started with Assoluto — your first order in 3 minutes"
+msgstr "Erste Schritte mit Assoluto — Ihre erste Bestellung in 3 Minuten"
+
+#: app/email/templates/trial_day1.txt:5
+#, python-format
+msgid ""
+"the order portal for %(tenant_name)s is up and running. The fastest way "
+"to see its value: get one real client on it today."
+msgstr ""
+"das Bestellportal für %(tenant_name)s ist in Betrieb. Der schnellste Weg, "
+"seinen Nutzen zu sehen: Bringen Sie noch heute einen echten Kunden darauf."
+
+#: app/email/templates/trial_day7.html:6
+msgid "A week with Assoluto"
+msgstr "Eine Woche mit Assoluto"
+
+#: app/email/templates/trial_day7.html:10
+msgid "A quick check-in — and the one step that makes the trial worth it."
+msgstr ""
+"Ein kurzer Check-in — und der eine Schritt, der den Test wirklich lohnend "
+"macht."
+
+#: app/email/templates/trial_day7.html:13 app/email/templates/trial_day7.txt:1
+msgid "How is it going?"
+msgstr "Wie läuft es?"
+
+#: app/email/templates/trial_day7.html:16
+#, python-format
+msgid ""
+"a week ago you set up the portal for <strong>%(tenant_name)s</strong>. A "
+"quick honest check-in:"
+msgstr ""
+"vor einer Woche haben Sie das Portal für <strong>%(tenant_name)s</strong> "
+"eingerichtet. Ein kurzer, ehrlicher Check-in:"
+
+#: app/email/templates/trial_day7.html:19 app/email/templates/trial_day7.txt:7
+msgid "If a client is already placing orders — great, you can ignore this email."
+msgstr ""
+"Wenn ein Kunde bereits bestellt — großartig, ignorieren Sie diese E-Mail "
+"einfach."
+
+#: app/email/templates/trial_day7.html:22 app/email/templates/trial_day7.txt:9
+msgid ""
+"If not, the most common blocker is picking which client to invite first. "
+"Our tip: the one who calls most often to ask about order status. That's "
+"the phone traffic the portal removes on day one."
+msgstr ""
+"Falls nicht: Die häufigste Hürde ist die Wahl des ersten Kunden. Unser Tipp: "
+"derjenige, der am häufigsten anruft, um nach dem Auftragsstatus zu fragen. "
+"Genau diese Anrufe nimmt Ihnen das Portal ab dem ersten Tag ab."
+
+#: app/email/templates/trial_day7.html:27 app/email/templates/trial_day7.txt:11
+msgid "Invite your first client"
+msgstr "Ersten Kunden einladen"
+
+#: app/email/templates/trial_day7.html:31 app/email/templates/trial_day7.txt:13
+msgid ""
+"Stuck on anything — import, settings, a missing feature? Just reply. A "
+"real person reads this mailbox."
+msgstr ""
+"Hängt etwas — Import, Einstellungen, eine fehlende Funktion? Antworten Sie "
+"einfach. Dieses Postfach liest ein echter Mensch."
+
+#: app/email/templates/trial_day7.subject.txt:1
+msgid "A week with Assoluto — how is it going?"
+msgstr "Eine Woche mit Assoluto — wie läuft es?"
+
+#: app/email/templates/trial_day7.txt:5
+#, python-format
+msgid ""
+"a week ago you set up the portal for %(tenant_name)s. A quick honest "
+"check-in:"
+msgstr ""
+"vor einer Woche haben Sie das Portal für %(tenant_name)s eingerichtet. Ein "
+"kurzer, ehrlicher Check-in:"
+
+#: app/email/templates/trial_ending.html:6
+#: app/email/templates/trial_ending.html:13
+#: app/email/templates/trial_ending.txt:1
+msgid "Your trial is ending"
+msgstr "Ihr Testzeitraum endet"
+
+#: app/email/templates/trial_ending.html:10
+msgid "Pick a plan to keep your portal running — takes two minutes."
+msgstr "Wählen Sie einen Plan, damit Ihr Portal weiterläuft — dauert zwei Minuten."
+
+#: app/email/templates/trial_ending.html:16
+#, python-format
+msgid ""
+"the 30-day trial for <strong>%(tenant_name)s</strong> ends on "
+"<strong>%(trial_end_date)s</strong>. To keep the portal (and your "
+"clients' access) running without interruption, pick a plan before then:"
+msgstr ""
+"der 30-tägige Test für <strong>%(tenant_name)s</strong> endet am "
+"<strong>%(trial_end_date)s</strong>. Damit das Portal (und der Zugang Ihrer "
+"Kunden) ohne Unterbrechung weiterläuft, wählen Sie bis dahin einen Plan:"
+
+#: app/email/templates/trial_ending.html:21
+#: app/email/templates/trial_ending.txt:7
+msgid "Choose a plan"
+msgstr "Plan wählen"
+
+#: app/email/templates/trial_ending.html:25
+#: app/email/templates/trial_ending.txt:9
+msgid ""
+"Prefer annual invoicing by bank transfer? Just reply to this email — "
+"typically two months free for the year."
+msgstr ""
+"Bevorzugen Sie jährliche Rechnung per Überweisung? Antworten Sie einfach auf "
+"diese E-Mail — typischerweise zwei Monate im Jahr gratis."
+
+#: app/email/templates/trial_ending.html:28
+#: app/email/templates/trial_ending.txt:11
+msgid ""
+"If you decide not to continue, your data stays exportable for 3 days "
+"after the trial ends, and we can erase everything on request (GDPR)."
+msgstr ""
+"Falls Sie nicht weitermachen möchten: Ihre Daten bleiben noch 3 Tage nach "
+"Testende exportierbar, und auf Wunsch löschen wir alles (DSGVO)."
+
+#: app/email/templates/trial_ending.subject.txt:1
+#, python-format
+msgid "Your Assoluto trial ends in %(days_left)s days"
+msgstr "Ihr Assoluto-Test endet in %(days_left)s Tagen"
+
+#: app/email/templates/trial_ending.txt:5
+#, python-format
+msgid ""
+"the 30-day trial for %(tenant_name)s ends on %(trial_end_date)s. To keep "
+"the portal (and your clients' access) running without interruption, pick "
+"a plan before then:"
+msgstr ""
+"der 30-tägige Test für %(tenant_name)s endet am %(trial_end_date)s. Damit "
+"das Portal (und der Zugang Ihrer Kunden) ohne Unterbrechung weiterläuft, "
+"wählen Sie bis dahin einen Plan:"
 
 #: app/routers/assets.py:126
 msgid "An asset with this code already exists for this client."
@@ -3630,7 +3821,7 @@ msgid "Terms of Service"
 msgstr "Nutzungsbedingungen"
 
 #: app/templates/www/imprint.html:55 app/templates/www/privacy.html:3
-#: app/templates/www/privacy.html:7 app/templates/www/terms.html:103
+#: app/templates/www/privacy.html:7 app/templates/www/terms.html:106
 msgid "Privacy Policy"
 msgstr "Datenschutzerklärung"
 
@@ -3679,8 +3870,8 @@ msgid "Try free for 30 days"
 msgstr "30 Tage kostenlos testen"
 
 #: app/templates/www/index.html:45
-msgid "Book a 15-min demo"
-msgstr "15-min-Demo buchen"
+msgid "Request a 15-min demo"
+msgstr "15-Minuten-Demo anfragen"
 
 #: app/templates/www/index.html:50
 msgid "No credit card · Cancel anytime · Up and running in 30 minutes"
@@ -4020,7 +4211,7 @@ msgstr "Aufträge ohne Limit"
 msgid "2 GB attachment storage"
 msgstr "2 GB Speicher für Anhänge"
 
-#: app/templates/www/index.html:301 app/templates/www/pricing.html:54
+#: app/templates/www/index.html:301
 msgid "Email support (48 h)"
 msgstr "E-Mail-Support (48 Std.)"
 
@@ -4044,7 +4235,7 @@ msgstr "100 Kundenkontakte"
 msgid "20 GB attachment storage"
 msgstr "20 GB Speicher für Anhänge"
 
-#: app/templates/www/index.html:324 app/templates/www/pricing.html:78
+#: app/templates/www/index.html:324
 msgid "Priority email support (12 h)"
 msgstr "Prioritäts-E-Mail-Support (12 Std.)"
 
@@ -4228,13 +4419,13 @@ msgid ""
 " uptime 24/7. Target uptime: 99.9 %%. The Enterprise plan includes a "
 "written SLA."
 msgstr ""
-"Sicherheit: Jeder Kunde sieht nur seine eigenen Daten — durchgesetzt direkt "
-"in der Datenbank, nicht nur in der Anwendung. Passwörter werden nie im "
-"Klartext gespeichert. Die Anmeldung ist gegen Brute-Force geschützt. "
-"Ausfälle: Hetzner betreibt redundante Infrastruktur. Wir sichern täglich (14 "
-"Tage Aufbewahrung) und überwachen die Verfügbarkeit rund um die Uhr. "
-"Zielverfügbarkeit: 99,9 %%. Der Enterprise-Plan beinhaltet ein schriftliches "
-"SLA."
+"Sicherheit: Jeder Kunde sieht nur seine eigenen Daten — durchgesetzt "
+"direkt in der Datenbank, nicht nur in der Anwendung. Passwörter werden "
+"nie im Klartext gespeichert. Die Anmeldung ist gegen Brute-Force "
+"geschützt. Ausfälle: Hetzner betreibt redundante Infrastruktur. Wir "
+"sichern täglich (14 Tage Aufbewahrung) und überwachen die Verfügbarkeit "
+"rund um die Uhr. Zielverfügbarkeit: 99,9 %%. Der Enterprise-Plan "
+"beinhaltet ein schriftliches SLA."
 
 #: app/templates/www/index.html:429 app/templates/www/index.html:527
 msgid "Will you teach my people how to use it?"
@@ -4342,6 +4533,10 @@ msgstr "Kleine Werkstatt, 3 Team-Benutzer"
 msgid "The price of lunch for the team"
 msgstr "Der Preis eines Teamessens"
 
+#: app/templates/www/pricing.html:54
+msgid "Email support (reply within 1 working day)"
+msgstr "E-Mail-Support (Antwort innerhalb von 1 Werktag)"
+
 #: app/templates/www/pricing.html:64
 msgid "Recommended"
 msgstr "Empfohlen"
@@ -4353,6 +4548,10 @@ msgstr "Wachsender Hersteller, 15 Benutzer"
 #: app/templates/www/pricing.html:72
 msgid "Cheaper than one bad day on the shop floor"
 msgstr "Günstiger als ein schlechter Tag in der Werkstatt"
+
+#: app/templates/www/pricing.html:78
+msgid "Priority email support (same working day)"
+msgstr "Priorisierter E-Mail-Support (noch am selben Werktag)"
 
 #: app/templates/www/pricing.html:88
 msgid "Over 15 people, SLA, custom domain"
@@ -4375,8 +4574,8 @@ msgid "Your own domain (portal.yourfirm.cz)"
 msgstr "Eigene Domain (portal.ihrefirma.de)"
 
 #: app/templates/www/pricing.html:96
-msgid "Priority support (4 h business hours, written SLA)"
-msgstr "Prioritäts-Support (4 h zur Geschäftszeit, schriftliches SLA)"
+msgid "Priority support (individual written SLA available)"
+msgstr "Prioritäts-Support (individuelles schriftliches SLA möglich)"
 
 #: app/templates/www/pricing.html:98
 msgid "On-premises deployment possible"
@@ -4476,8 +4675,8 @@ msgid ""
 "payer. We need these to issue a valid Czech tax invoice. You enter them "
 "once — we keep them on file."
 msgstr ""
-"Rechnungsname, IČO (8 Ziffern) und Rechnungsadresse. DIČ, falls Sie "
-"USt-pflichtig sind. Ohne diese Angaben können wir keinen gültigen "
+"Rechnungsname, IČO (8 Ziffern) und Rechnungsadresse. DIČ, falls Sie USt-"
+"pflichtig sind. Ohne diese Angaben können wir keinen gültigen "
 "tschechischen Steuerbeleg ausstellen. Sie geben es einmal ein — wir "
 "speichern es."
 
@@ -4528,10 +4727,26 @@ msgstr ""
 "Art. 17 bearbeiten wir binnen 48 Stunden."
 
 #: app/templates/www/pricing.html:169
+msgid "Can I get a refund?"
+msgstr "Bekomme ich eine Rückerstattung?"
+
+#: app/templates/www/pricing.html:169
+msgid ""
+"Monthly plans are not refunded mid-period — when you cancel, you keep "
+"full access until the end of the period you already paid for. Annual "
+"invoices arranged on request are refunded pro-rata for unused full "
+"months, by agreement via team@assoluto.eu."
+msgstr ""
+"Monatliche Pläne werden nicht anteilig erstattet — nach der Kündigung "
+"behalten Sie vollen Zugriff bis zum Ende des bereits bezahlten Zeitraums. "
+"Auf Anfrage vereinbarte Jahresrechnungen erstatten wir anteilig für "
+"ungenutzte volle Monate, nach Absprache über team@assoluto.eu."
+
+#: app/templates/www/pricing.html:170
 msgid "Does the self-hosted Community version cost anything?"
 msgstr "Kostet die Self-Hosted-Community-Version etwas?"
 
-#: app/templates/www/pricing.html:169
+#: app/templates/www/pricing.html:170
 msgid ""
 "No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No "
 "restrictions on users or features — only you need to run updates "
@@ -4541,11 +4756,11 @@ msgstr ""
 "Keine Beschränkungen bei Benutzern oder Funktionen — nur Updates müssen "
 "Sie selbst einspielen."
 
-#: app/templates/www/pricing.html:170
+#: app/templates/www/pricing.html:171
 msgid "Do you have a discount for schools / associations / non-profits?"
 msgstr "Gibt es einen Rabatt für Schulen / Vereine / Non-Profits?"
 
-#: app/templates/www/pricing.html:170
+#: app/templates/www/pricing.html:171
 msgid ""
 "Yes. Write to us at team@assoluto.eu with a description of the use — half"
 " price is typical, free access for small organisations."
@@ -5352,6 +5567,19 @@ msgstr ""
 
 #: app/templates/www/terms.html:65
 msgid ""
+"Fees already paid for the current billing period are non-refundable; the "
+"Customer retains access for the remainder of the paid period. For annual "
+"subscriptions paid by bank transfer, unused full months are refunded pro-"
+"rata upon written request, by mutual agreement."
+msgstr ""
+"Bereits gezahlte Entgelte für den laufenden Abrechnungszeitraum werden nicht "
+"erstattet; der Kunde behält den Zugang für den Rest des bezahlten Zeitraums. "
+"Bei per Überweisung bezahlten Jahresabonnements werden ungenutzte volle "
+"Monate auf schriftlichen Antrag anteilig erstattet, nach beiderseitiger "
+"Vereinbarung."
+
+#: app/templates/www/terms.html:68
+msgid ""
 "The Provider may unilaterally adjust prices and plan limits with at least"
 " 30 days' prior notice sent to the Customer's billing email. If the "
 "Customer disagrees with the new price, they may cancel the subscription "
@@ -5364,11 +5592,11 @@ msgstr ""
 "Abonnement vor dem Wirksamwerden kündigen; andernfalls bedeutet die "
 "fortgesetzte Nutzung nach dem Inkrafttretensdatum die Zustimmung."
 
-#: app/templates/www/terms.html:70
+#: app/templates/www/terms.html:73
 msgid "5. Customer content and intellectual property"
 msgstr "5. Kundeninhalt und geistiges Eigentum"
 
-#: app/templates/www/terms.html:72
+#: app/templates/www/terms.html:75
 msgid ""
 "The Customer retains ownership of all content they upload to the Service "
 "(orders, comments, attachments, drawings, customer data — \"Customer "
@@ -5386,7 +5614,7 @@ msgstr ""
 "Umfang, der für den Betrieb des Dienstes für den Kunden erforderlich ist."
 " Der Anbieter beansprucht keine weiteren Rechte am Kundeninhalt."
 
-#: app/templates/www/terms.html:75
+#: app/templates/www/terms.html:78
 msgid ""
 "The Customer warrants that they have the right to upload and use the "
 "Customer Content (including the right to upload personal data of their "
@@ -5399,7 +5627,7 @@ msgstr ""
 "Datenschutzerklärung zur Rolle des Anbieters als Auftragsverarbeiter "
 "dieser Daten)."
 
-#: app/templates/www/terms.html:78
+#: app/templates/www/terms.html:81
 msgid ""
 "The Service software (with the exception of code released under AGPL-3.0 "
 "in the public source repository), the Assoluto trademark and brand assets"
@@ -5414,15 +5642,15 @@ msgstr ""
 "Assoluto, am Logo oder an der Domain assoluto.eu (siehe NOTICE-Datei im "
 "Quellcode-Repository)."
 
-#: app/templates/www/terms.html:83
+#: app/templates/www/terms.html:86
 msgid "6. Acceptable use"
 msgstr "6. Nutzungsregeln"
 
-#: app/templates/www/terms.html:85
+#: app/templates/www/terms.html:88
 msgid "The Customer agrees not to:"
 msgstr "Der Kunde verpflichtet sich, nicht:"
 
-#: app/templates/www/terms.html:88
+#: app/templates/www/terms.html:91
 msgid ""
 "upload content that violates Czech or EU law (in particular: illegal, "
 "defamatory, infringing, or fraudulent content);"
@@ -5431,7 +5659,7 @@ msgstr ""
 "(insbesondere: rechtswidrige, verleumderische, rechteverletzende oder "
 "betrügerische Inhalte);"
 
-#: app/templates/www/terms.html:89
+#: app/templates/www/terms.html:92
 msgid ""
 "use the Service to send unsolicited bulk communications (spam) or to "
 "phish their own clients;"
@@ -5439,7 +5667,7 @@ msgstr ""
 "den Dienst zum Versand unerbetener Massensendungen (Spam) oder zum "
 "Phishing der eigenen Kunden zu nutzen;"
 
-#: app/templates/www/terms.html:90
+#: app/templates/www/terms.html:93
 msgid ""
 "attempt to interfere with the Service's operation, bypass security or "
 "rate-limit measures, or access data belonging to other tenants;"
@@ -5447,7 +5675,7 @@ msgstr ""
 "den Betrieb des Dienstes zu stören, Sicherheits- oder Rate-Limit-"
 "Maßnahmen zu umgehen oder auf Daten anderer Mandanten zuzugreifen;"
 
-#: app/templates/www/terms.html:91
+#: app/templates/www/terms.html:94
 msgid ""
 "reverse-engineer the Hosted Service infrastructure (this clause does not "
 "restrict any right granted by the AGPL-3.0 license to the open-source "
@@ -5457,7 +5685,7 @@ msgstr ""
 " schränkt keine Rechte ein, die die AGPL-3.0-Lizenz am Open-Source-Code "
 "gewährt);"
 
-#: app/templates/www/terms.html:92
+#: app/templates/www/terms.html:95
 msgid ""
 "use the Service for cryptocurrency mining or any computation unrelated to"
 " the order portal use case."
@@ -5465,7 +5693,7 @@ msgstr ""
 "den Dienst zum Krypto-Mining oder für jede Berechnung zu nutzen, die "
 "nichts mit dem Zweck des Kundenportals zu tun hat."
 
-#: app/templates/www/terms.html:95
+#: app/templates/www/terms.html:98
 msgid ""
 "Material breach of acceptable use is grounds for the Provider to suspend "
 "the account; see Section 9."
@@ -5473,11 +5701,11 @@ msgstr ""
 "Eine wesentliche Verletzung der Nutzungsregeln ist ein Grund für den "
 "Anbieter, das Konto zu sperren; siehe Abschnitt 9."
 
-#: app/templates/www/terms.html:100
+#: app/templates/www/terms.html:103
 msgid "7. Personal data"
 msgstr "7. Personenbezogene Daten"
 
-#: app/templates/www/terms.html:102
+#: app/templates/www/terms.html:105
 msgid ""
 "The Provider processes the Customer's personal data and acts as a data "
 "processor for end-client personal data uploaded by the Customer. The full"
@@ -5489,7 +5717,7 @@ msgstr ""
 "Verarbeitungsinformation und die Liste der Auftragsverarbeiter finden Sie"
 " in der"
 
-#: app/templates/www/terms.html:104
+#: app/templates/www/terms.html:107
 msgid ""
 "which forms an integral part of these Terms. Customers requiring a "
 "separate written Data Processing Agreement (DPA) under Article 28 GDPR "
@@ -5501,11 +5729,11 @@ msgstr ""
 "Art. 28 DSGVO benötigen, können einen unter team@assoluto.eu anfordern — "
 "die Standard-AVV des Anbieters ist kostenfrei."
 
-#: app/templates/www/terms.html:109
+#: app/templates/www/terms.html:112
 msgid "8. Service availability, no formal SLA on Starter/Pro"
 msgstr "8. Dienstverfügbarkeit, kein formales SLA bei Starter/Pro"
 
-#: app/templates/www/terms.html:114
+#: app/templates/www/terms.html:117
 #, python-format
 msgid ""
 "The Provider operates the Hosted Service with reasonable care and targets"
@@ -5527,7 +5755,7 @@ msgstr ""
 "Plan kann ein separat verhandeltes schriftliches SLA enthalten — "
 "schreiben Sie an team@assoluto.eu."
 
-#: app/templates/www/terms.html:117
+#: app/templates/www/terms.html:120
 msgid ""
 "The Provider performs upgrades during low-traffic windows where possible."
 " Brief service interruptions during deployment (typically under 60 "
@@ -5539,7 +5767,7 @@ msgstr ""
 "(typischerweise unter 60 Sekunden) sind ein normaler Teil des Betriebs "
 "und gelten nicht als Ausfall."
 
-#: app/templates/www/terms.html:120
+#: app/templates/www/terms.html:123
 msgid ""
 "The Customer is responsible for maintaining their own data exports as a "
 "safeguard against any data loss. The CSV / ZIP export endpoints are "
@@ -5549,11 +5777,11 @@ msgstr ""
 "gegen Datenverlust verantwortlich. Die CSV / ZIP Export-Endpoints sind "
 "während des aktiven Abonnements jederzeit verfügbar."
 
-#: app/templates/www/terms.html:125
+#: app/templates/www/terms.html:128
 msgid "9. Suspension and termination by the Provider"
 msgstr "9. Sperre und Kündigung durch den Anbieter"
 
-#: app/templates/www/terms.html:127
+#: app/templates/www/terms.html:130
 msgid ""
 "The Provider may, with prior notice sent to the Customer's billing email "
 "and a remedy period of at least 7 days where reasonably possible, suspend"
@@ -5574,7 +5802,7 @@ msgstr ""
 "Anbieter (in diesem Fall wird mindestens 90 Tage im Voraus benachrichtigt"
 " und die Datenexport-Endpoints bleiben durchgehend verfügbar)."
 
-#: app/templates/www/terms.html:130
+#: app/templates/www/terms.html:133
 msgid ""
 "Suspension for non-payment may take effect without prior notice if Stripe"
 " reports a payment failure and the situation has not been remedied within"
@@ -5585,11 +5813,11 @@ msgstr ""
 " nicht innerhalb des Standard-Mahnfensters von Stripe (typischerweise 21 "
 "Tage) behoben wurde."
 
-#: app/templates/www/terms.html:135
+#: app/templates/www/terms.html:138
 msgid "10. Warranties and limitation of liability"
 msgstr "10. Gewährleistungen und Haftungsbegrenzung"
 
-#: app/templates/www/terms.html:137
+#: app/templates/www/terms.html:140
 msgid ""
 "The Service is provided \"as available\". Beyond what is required by "
 "mandatory provisions of Czech law, the Provider gives no warranties of "
@@ -5602,7 +5830,7 @@ msgstr ""
 "konkludent, einschließlich konkludenter Gewährleistungen der "
 "Marktgängigkeit oder Eignung für einen bestimmten Zweck."
 
-#: app/templates/www/terms.html:140
+#: app/templates/www/terms.html:143
 msgid ""
 "To the maximum extent permitted by law, the Provider's aggregate "
 "liability to the Customer for any cause arising out of or relating to the"
@@ -5624,7 +5852,7 @@ msgstr ""
 "neuesten Backup hinaus) oder für Ansprüche Dritter, auch wenn der "
 "Anbieter auf die Möglichkeit solcher Schäden hingewiesen wurde."
 
-#: app/templates/www/terms.html:143
+#: app/templates/www/terms.html:146
 msgid ""
 "Nothing in these Terms limits liability for damage caused intentionally "
 "or by gross negligence, or for any other liability that cannot be limited"
@@ -5634,11 +5862,11 @@ msgstr ""
 "oder grob fahrlässig verursachte Schäden oder andere Haftung, die nach "
 "tschechischem Recht nicht begrenzt werden kann."
 
-#: app/templates/www/terms.html:148
+#: app/templates/www/terms.html:151
 msgid "11. Force majeure"
 msgstr "11. Höhere Gewalt"
 
-#: app/templates/www/terms.html:150
+#: app/templates/www/terms.html:153
 msgid ""
 "Neither party is liable for non-performance caused by force majeure — "
 "events outside its reasonable control, including without limitation "
@@ -5654,11 +5882,11 @@ msgstr ""
 "Anordnungen, die den Betrieb von Cloud-Diensten in Tschechien oder "
 "Deutschland betreffen."
 
-#: app/templates/www/terms.html:155
+#: app/templates/www/terms.html:158
 msgid "12. Modifications to these Terms"
 msgstr "12. Änderungen dieser Bedingungen"
 
-#: app/templates/www/terms.html:157
+#: app/templates/www/terms.html:160
 msgid ""
 "The Provider may amend these Terms with at least 30 days' prior notice "
 "sent to the Customer's billing email and posted on this page. The version"
@@ -5676,7 +5904,7 @@ msgstr ""
 "Nutzung nach dem Inkrafttretensdatum die Zustimmung zu den neuen "
 "Bedingungen."
 
-#: app/templates/www/terms.html:160
+#: app/templates/www/terms.html:163
 msgid ""
 "Material changes — pricing, scope of the Service, or the limitation of "
 "liability in Section 10 — will be highlighted in the notice email rather "
@@ -5686,11 +5914,11 @@ msgstr ""
 "Haftungsbegrenzung in Abschnitt 10 — werden im Mitteilungs-E-Mail "
 "hervorgehoben und nicht in einem langen Changelog versteckt."
 
-#: app/templates/www/terms.html:165
+#: app/templates/www/terms.html:168
 msgid "13. Governing law and jurisdiction"
 msgstr "13. Anwendbares Recht und Gerichtsstand"
 
-#: app/templates/www/terms.html:167
+#: app/templates/www/terms.html:170
 msgid ""
 "These Terms and any dispute arising out of or in connection with them are"
 " governed by the law of the Czech Republic, without regard to conflict-"
@@ -5706,7 +5934,7 @@ msgstr ""
 "zuständige Gericht bestimmt sich nach dem Sitz des Anbieters (derzeit das"
 " Bezirksgericht in Děčín)."
 
-#: app/templates/www/terms.html:170
+#: app/templates/www/terms.html:173
 msgid ""
 "The parties will attempt to resolve any dispute amicably first by direct "
 "negotiation; failing that, the parties may agree to non-binding mediation"
@@ -5717,11 +5945,11 @@ msgstr ""
 " Einleitung eines gerichtlichen Verfahrens eine unverbindliche Mediation "
 "vereinbaren."
 
-#: app/templates/www/terms.html:175
+#: app/templates/www/terms.html:178
 msgid "14. Severability and entire agreement"
 msgstr "14. Salvatorische Klausel und Gesamtvereinbarung"
 
-#: app/templates/www/terms.html:177
+#: app/templates/www/terms.html:180
 msgid ""
 "If any provision of these Terms is held to be invalid or unenforceable by"
 " a competent court, the remaining provisions remain in full force and "
@@ -5734,7 +5962,7 @@ msgstr ""
 "ersetzt, deren Wirkung der ursprünglichen Absicht am nächsten kommt und "
 "gleichzeitig wirksam ist."
 
-#: app/templates/www/terms.html:180
+#: app/templates/www/terms.html:183
 msgid ""
 "These Terms, together with the Privacy Policy, the Cookies policy, and "
 "the published pricing page, form the entire agreement between the "
@@ -5747,11 +5975,11 @@ msgstr ""
 "treten an die Stelle aller früheren Angebote, Verhandlungen oder "
 "Marketingmaterialien."
 
-#: app/templates/www/terms.html:185
+#: app/templates/www/terms.html:188
 msgid "15. Contact and notices"
 msgstr "15. Kontakt und Zustellung"
 
-#: app/templates/www/terms.html:187
+#: app/templates/www/terms.html:190
 msgid ""
 "All notices under these Terms (including cancellation, modification "
 "notices, breach notices, DPA requests) are sent in writing by email — to "
@@ -5762,7 +5990,7 @@ msgstr ""
 "per E-Mail versandt — an die hinterlegte Rechnungs-E-Mail des Kunden und "
 "an den Anbieter unter"
 
-#: app/templates/www/terms.html:189
+#: app/templates/www/terms.html:192
 msgid ""
 "A notice is deemed delivered the day after it is sent, unless the sender "
 "receives an automatic non-delivery report."
@@ -5965,4 +6193,10 @@ msgstr "Datenschutz"
 #~ "können wir keinen gültigen tschechischen "
 #~ "Steuerbeleg ausstellen. Sie geben es "
 #~ "einmal ein — wir speichern es."
+
+#~ msgid "Book a 15-min demo"
+#~ msgstr "15-min-Demo buchen"
+
+#~ msgid "Priority support (4 h business hours, written SLA)"
+#~ msgstr "Prioritäts-Support (4 h zur Geschäftszeit, schriftliches SLA)"
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-07-03 12:56+0200\n"
+"POT-Creation-Date: 2026-07-03 17:41+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -160,6 +160,10 @@ msgstr "Vítejte v Assolutu"
 
 #: app/email/templates/email_verification.html:14
 #: app/email/templates/email_verification.txt:3
+#: app/email/templates/trial_day1.html:14 app/email/templates/trial_day1.txt:3
+#: app/email/templates/trial_day7.html:14 app/email/templates/trial_day7.txt:3
+#: app/email/templates/trial_ending.html:14
+#: app/email/templates/trial_ending.txt:3
 #, python-format
 msgid "Hello %(full_name)s,"
 msgstr "Dobrý den, %(full_name)s,"
@@ -491,6 +495,189 @@ msgid ""
 msgstr ""
 "Byl/a jste přidán/a do týmu %(tenant_name)s jako administrátor "
 "zákaznického portálu. Heslo si nastavíte přes odkaz níže — platí 7 dní:"
+
+#: app/email/templates/trial_day1.html:6
+msgid "Getting started with Assoluto"
+msgstr "Začínáme s Assoluto"
+
+#: app/email/templates/trial_day1.html:10
+msgid "Two steps to your first order: invite a client, let them order."
+msgstr "Dva kroky k první objednávce: pozvěte klienta a nechte ho objednat."
+
+#: app/email/templates/trial_day1.html:13 app/email/templates/trial_day1.txt:1
+msgid "Your portal is live"
+msgstr "Váš portál běží"
+
+#: app/email/templates/trial_day1.html:16
+#, python-format
+msgid ""
+"the order portal for <strong>%(tenant_name)s</strong> is up and running. "
+"The fastest way to see its value: get one real client on it today."
+msgstr ""
+"portál objednávek pro <strong>%(tenant_name)s</strong> je v provozu. "
+"Nejrychlejší cesta, jak ověřit jeho přínos: dostaňte na něj ještě dnes "
+"jednoho skutečného klienta."
+
+#: app/email/templates/trial_day1.html:19 app/email/templates/trial_day1.txt:7
+msgid ""
+"Create the client and invite their contact person (Customers → New "
+"customer → Invite contact)."
+msgstr ""
+"Založte klienta a pozvěte jeho kontaktní osobu (Zákazníci → Nový zákazník → "
+"Pozvat kontakt)."
+
+#: app/email/templates/trial_day1.html:20 app/email/templates/trial_day1.txt:8
+msgid ""
+"They get an email, set a password, and can place their first order — no "
+"training needed."
+msgstr ""
+"Přijde jim e-mail, nastaví si heslo a mohou zadat první objednávku — bez "
+"školení."
+
+#: app/email/templates/trial_day1.html:25 app/email/templates/trial_day1.txt:10
+msgid "Open your portal"
+msgstr "Otevřít portál"
+
+#: app/email/templates/trial_day1.html:29 app/email/templates/trial_day1.txt:12
+msgid ""
+"Prefer a guided start? Reply to this email and we'll set up a free "
+"30-minute walkthrough with your real data."
+msgstr ""
+"Chcete raději provést začátkem? Odpovězte na tento e-mail a domluvíme "
+"bezplatnou 30minutovou ukázku nad vašimi skutečnými daty."
+
+#: app/email/templates/trial_day1.subject.txt:1
+msgid "Getting started with Assoluto — your first order in 3 minutes"
+msgstr "Začínáme s Assoluto — první objednávka za 3 minuty"
+
+#: app/email/templates/trial_day1.txt:5
+#, python-format
+msgid ""
+"the order portal for %(tenant_name)s is up and running. The fastest way "
+"to see its value: get one real client on it today."
+msgstr ""
+"portál objednávek pro %(tenant_name)s je v provozu. Nejrychlejší cesta, jak "
+"ověřit jeho přínos: dostaňte na něj ještě dnes jednoho skutečného klienta."
+
+#: app/email/templates/trial_day7.html:6
+msgid "A week with Assoluto"
+msgstr "Týden s Assoluto"
+
+#: app/email/templates/trial_day7.html:10
+msgid "A quick check-in — and the one step that makes the trial worth it."
+msgstr "Krátké ohlédnutí — a jeden krok, který zkušební období skutečně zúročí."
+
+#: app/email/templates/trial_day7.html:13 app/email/templates/trial_day7.txt:1
+msgid "How is it going?"
+msgstr "Jak to jde?"
+
+#: app/email/templates/trial_day7.html:16
+#, python-format
+msgid ""
+"a week ago you set up the portal for <strong>%(tenant_name)s</strong>. A "
+"quick honest check-in:"
+msgstr ""
+"před týdnem jste si zřídili portál pro <strong>%(tenant_name)s</strong>. "
+"Krátké upřímné ohlédnutí:"
+
+#: app/email/templates/trial_day7.html:19 app/email/templates/trial_day7.txt:7
+msgid "If a client is already placing orders — great, you can ignore this email."
+msgstr "Pokud už některý klient objednává — skvělé, tento e-mail můžete ignorovat."
+
+#: app/email/templates/trial_day7.html:22 app/email/templates/trial_day7.txt:9
+msgid ""
+"If not, the most common blocker is picking which client to invite first. "
+"Our tip: the one who calls most often to ask about order status. That's "
+"the phone traffic the portal removes on day one."
+msgstr ""
+"Pokud ne, nejčastější zádrhel je vybrat, kterého klienta pozvat jako "
+"prvního. Náš tip: toho, který nejčastěji volá, jak to vypadá s jeho "
+"zakázkou. Přesně tyhle telefonáty portál odbourá hned první den."
+
+#: app/email/templates/trial_day7.html:27 app/email/templates/trial_day7.txt:11
+msgid "Invite your first client"
+msgstr "Pozvat prvního klienta"
+
+#: app/email/templates/trial_day7.html:31 app/email/templates/trial_day7.txt:13
+msgid ""
+"Stuck on anything — import, settings, a missing feature? Just reply. A "
+"real person reads this mailbox."
+msgstr ""
+"Zaseklo se něco — import, nastavení, chybějící funkce? Stačí odpovědět. "
+"Tuhle schránku čte skutečný člověk."
+
+#: app/email/templates/trial_day7.subject.txt:1
+msgid "A week with Assoluto — how is it going?"
+msgstr "Týden s Assoluto — jak to jde?"
+
+#: app/email/templates/trial_day7.txt:5
+#, python-format
+msgid ""
+"a week ago you set up the portal for %(tenant_name)s. A quick honest "
+"check-in:"
+msgstr ""
+"před týdnem jste si zřídili portál pro %(tenant_name)s. Krátké upřímné "
+"ohlédnutí:"
+
+#: app/email/templates/trial_ending.html:6
+#: app/email/templates/trial_ending.html:13
+#: app/email/templates/trial_ending.txt:1
+msgid "Your trial is ending"
+msgstr "Zkušební období končí"
+
+#: app/email/templates/trial_ending.html:10
+msgid "Pick a plan to keep your portal running — takes two minutes."
+msgstr "Vyberte si plán, ať portál běží dál — zabere to dvě minuty."
+
+#: app/email/templates/trial_ending.html:16
+#, python-format
+msgid ""
+"the 30-day trial for <strong>%(tenant_name)s</strong> ends on "
+"<strong>%(trial_end_date)s</strong>. To keep the portal (and your "
+"clients' access) running without interruption, pick a plan before then:"
+msgstr ""
+"30denní zkušební období pro <strong>%(tenant_name)s</strong> končí "
+"<strong>%(trial_end_date)s</strong>. Aby portál (a přístup vašich klientů) "
+"běžel bez přerušení, vyberte si do té doby plán:"
+
+#: app/email/templates/trial_ending.html:21
+#: app/email/templates/trial_ending.txt:7
+msgid "Choose a plan"
+msgstr "Vybrat plán"
+
+#: app/email/templates/trial_ending.html:25
+#: app/email/templates/trial_ending.txt:9
+msgid ""
+"Prefer annual invoicing by bank transfer? Just reply to this email — "
+"typically two months free for the year."
+msgstr ""
+"Preferujete roční fakturaci převodem? Stačí odpovědět na tento e-mail — "
+"obvykle dva měsíce v roce zdarma."
+
+#: app/email/templates/trial_ending.html:28
+#: app/email/templates/trial_ending.txt:11
+msgid ""
+"If you decide not to continue, your data stays exportable for 3 days "
+"after the trial ends, and we can erase everything on request (GDPR)."
+msgstr ""
+"Pokud se rozhodnete nepokračovat, data lze exportovat ještě 3 dny po konci "
+"zkušebního období a na požádání vše smažeme (GDPR)."
+
+#: app/email/templates/trial_ending.subject.txt:1
+#, python-format
+msgid "Your Assoluto trial ends in %(days_left)s days"
+msgstr "Zkušební období Assoluto končí za %(days_left)s dní"
+
+#: app/email/templates/trial_ending.txt:5
+#, python-format
+msgid ""
+"the 30-day trial for %(tenant_name)s ends on %(trial_end_date)s. To keep "
+"the portal (and your clients' access) running without interruption, pick "
+"a plan before then:"
+msgstr ""
+"30denní zkušební období pro %(tenant_name)s končí %(trial_end_date)s. Aby "
+"portál (a přístup vašich klientů) běžel bez přerušení, vyberte si do té doby "
+"plán:"
 
 #: app/routers/assets.py:126
 msgid "An asset with this code already exists for this client."
@@ -2874,8 +3061,8 @@ msgid ""
 "These details appear on every Czech tax invoice we issue. We need them "
 "before the first paid checkout."
 msgstr ""
-"Tyto údaje se objeví na každém daňovém dokladu, který vystavíme. Potřebujeme "
-"je před první placenou objednávkou."
+"Tyto údaje se objeví na každém daňovém dokladu, který vystavíme. "
+"Potřebujeme je před první placenou objednávkou."
 
 #: app/templates/platform/billing/details.html:23
 msgid "Company name (as on the invoice)"
@@ -3588,7 +3775,7 @@ msgid "Terms of Service"
 msgstr "Obchodní podmínky"
 
 #: app/templates/www/imprint.html:55 app/templates/www/privacy.html:3
-#: app/templates/www/privacy.html:7 app/templates/www/terms.html:103
+#: app/templates/www/privacy.html:7 app/templates/www/terms.html:106
 msgid "Privacy Policy"
 msgstr "Zásady ochrany osobních údajů"
 
@@ -3635,8 +3822,8 @@ msgid "Try free for 30 days"
 msgstr "Vyzkoušet 30 dní zdarma"
 
 #: app/templates/www/index.html:45
-msgid "Book a 15-min demo"
-msgstr "Domluvit 15min ukázku"
+msgid "Request a 15-min demo"
+msgstr "Vyžádat si 15min demo"
 
 #: app/templates/www/index.html:50
 msgid "No credit card · Cancel anytime · Up and running in 30 minutes"
@@ -3979,7 +4166,7 @@ msgstr "Zakázky bez limitu"
 msgid "2 GB attachment storage"
 msgstr "2 GB na přílohy"
 
-#: app/templates/www/index.html:301 app/templates/www/pricing.html:54
+#: app/templates/www/index.html:301
 msgid "Email support (48 h)"
 msgstr "E-mailová podpora (48 h)"
 
@@ -4006,7 +4193,7 @@ msgstr "100 kontaktů zákazníků"
 msgid "20 GB attachment storage"
 msgstr "20 GB na přílohy"
 
-#: app/templates/www/index.html:324 app/templates/www/pricing.html:78
+#: app/templates/www/index.html:324
 msgid "Priority email support (12 h)"
 msgstr "Prioritní e-mailová podpora (12 h)"
 
@@ -4186,11 +4373,12 @@ msgid ""
 " uptime 24/7. Target uptime: 99.9 %%. The Enterprise plan includes a "
 "written SLA."
 msgstr ""
-"Bezpečnost: každý zákazník vidí jen svá data — vynuceno přímo v databázi, ne "
-"jen v aplikaci. Hesla nikdy neuchováváme v čitelné podobě. Přihlašování je "
-"chráněno proti útokům hrubou silou. Výpadky: Hetzner provozuje redundantní "
-"infrastrukturu. Zálohujeme denně (14 dní), monitorujeme dostupnost 24/7. "
-"Cílová dostupnost 99,9 %%. Enterprise plán má písemné SLA."
+"Bezpečnost: každý zákazník vidí jen svá data — vynuceno přímo v databázi,"
+" ne jen v aplikaci. Hesla nikdy neuchováváme v čitelné podobě. "
+"Přihlašování je chráněno proti útokům hrubou silou. Výpadky: Hetzner "
+"provozuje redundantní infrastrukturu. Zálohujeme denně (14 dní), "
+"monitorujeme dostupnost 24/7. Cílová dostupnost 99,9 %%. Enterprise plán "
+"má písemné SLA."
 
 #: app/templates/www/index.html:429 app/templates/www/index.html:527
 msgid "Will you teach my people how to use it?"
@@ -4295,6 +4483,10 @@ msgstr "Malá dílna, 3 uživatelé v týmu"
 msgid "The price of lunch for the team"
 msgstr "Cena oběda pro tým"
 
+#: app/templates/www/pricing.html:54
+msgid "Email support (reply within 1 working day)"
+msgstr "E-mailová podpora (odpověď do 1 pracovního dne)"
+
 #: app/templates/www/pricing.html:64
 msgid "Recommended"
 msgstr "Doporučujeme"
@@ -4306,6 +4498,10 @@ msgstr "Rostoucí výrobce, 15 uživatelů"
 #: app/templates/www/pricing.html:72
 msgid "Cheaper than one bad day on the shop floor"
 msgstr "Levnější než jeden špatný den na dílně"
+
+#: app/templates/www/pricing.html:78
+msgid "Priority email support (same working day)"
+msgstr "Prioritní e-mailová podpora (tentýž pracovní den)"
 
 #: app/templates/www/pricing.html:88
 msgid "Over 15 people, SLA, custom domain"
@@ -4328,8 +4524,8 @@ msgid "Your own domain (portal.yourfirm.cz)"
 msgstr "Vlastní doména (portal.vasefirma.cz)"
 
 #: app/templates/www/pricing.html:96
-msgid "Priority support (4 h business hours, written SLA)"
-msgstr "Prioritní podpora (4 h v pracovní době, písemné SLA)"
+msgid "Priority support (individual written SLA available)"
+msgstr "Prioritní podpora (individuální písemné SLA na vyžádání)"
 
 #: app/templates/www/pricing.html:98
 msgid "On-premises deployment possible"
@@ -4429,9 +4625,9 @@ msgid ""
 "payer. We need these to issue a valid Czech tax invoice. You enter them "
 "once — we keep them on file."
 msgstr ""
-"Fakturační název, IČO (8 číslic) a fakturační adresu. DIČ pokud jste plátce "
-"DPH. Bez nich nemůžeme vystavit platný daňový doklad. Vyplníte jednou — "
-"uložíme."
+"Fakturační název, IČO (8 číslic) a fakturační adresu. DIČ pokud jste "
+"plátce DPH. Bez nich nemůžeme vystavit platný daňový doklad. Vyplníte "
+"jednou — uložíme."
 
 #: app/templates/www/pricing.html:166
 msgid "How does billing actually work?"
@@ -4478,10 +4674,25 @@ msgstr ""
 "okamžité smazání nám napište — GDPR čl. 17 vyřídíme do 48 hodin."
 
 #: app/templates/www/pricing.html:169
+msgid "Can I get a refund?"
+msgstr "Mohu dostat peníze zpět?"
+
+#: app/templates/www/pricing.html:169
+msgid ""
+"Monthly plans are not refunded mid-period — when you cancel, you keep "
+"full access until the end of the period you already paid for. Annual "
+"invoices arranged on request are refunded pro-rata for unused full "
+"months, by agreement via team@assoluto.eu."
+msgstr ""
+"U měsíčních plánů peníze v průběhu období nevracíme — po zrušení máte plný "
+"přístup do konce zaplaceného období. Roční faktury sjednané individuálně "
+"vracíme poměrně za nevyužité celé měsíce, po dohodě přes team@assoluto.eu."
+
+#: app/templates/www/pricing.html:170
 msgid "Does the self-hosted Community version cost anything?"
 msgstr "Stojí Community (self-hosted) verze něco?"
 
-#: app/templates/www/pricing.html:169
+#: app/templates/www/pricing.html:170
 msgid ""
 "No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No "
 "restrictions on users or features — only you need to run updates "
@@ -4490,11 +4701,11 @@ msgstr ""
 "Ne. AGPL-3.0 open source. Platíte jen vlastní VPS a S3. Bez omezení "
 "uživatelů a funkcí — jen aktualizace si musíte pouštět sami."
 
-#: app/templates/www/pricing.html:170
+#: app/templates/www/pricing.html:171
 msgid "Do you have a discount for schools / associations / non-profits?"
 msgstr "Máte slevu pro školy / spolky / neziskovky?"
 
-#: app/templates/www/pricing.html:170
+#: app/templates/www/pricing.html:171
 msgid ""
 "Yes. Write to us at team@assoluto.eu with a description of the use — half"
 " price is typical, free access for small organisations."
@@ -5276,6 +5487,18 @@ msgstr ""
 
 #: app/templates/www/terms.html:65
 msgid ""
+"Fees already paid for the current billing period are non-refundable; the "
+"Customer retains access for the remainder of the paid period. For annual "
+"subscriptions paid by bank transfer, unused full months are refunded pro-"
+"rata upon written request, by mutual agreement."
+msgstr ""
+"Poplatky již uhrazené za probíhající fakturační období se nevracejí; "
+"Zákazník si ponechává přístup po zbytek zaplaceného období. U ročních "
+"předplatných hrazených převodem se nevyužité celé měsíce vracejí poměrně na "
+"základě písemné žádosti a vzájemné dohody."
+
+#: app/templates/www/terms.html:68
+msgid ""
 "The Provider may unilaterally adjust prices and plan limits with at least"
 " 30 days' prior notice sent to the Customer's billing email. If the "
 "Customer disagrees with the new price, they may cancel the subscription "
@@ -5287,11 +5510,11 @@ msgstr ""
 "zákazník s novou cenou nesouhlasí, může předplatné zrušit před účinností "
 "změny; jinak pokračující užívání po datu účinnosti znamená souhlas."
 
-#: app/templates/www/terms.html:70
+#: app/templates/www/terms.html:73
 msgid "5. Customer content and intellectual property"
 msgstr "5. Obsah zákazníka a duševní vlastnictví"
 
-#: app/templates/www/terms.html:72
+#: app/templates/www/terms.html:75
 msgid ""
 "The Customer retains ownership of all content they upload to the Service "
 "(orders, comments, attachments, drawings, customer data — \"Customer "
@@ -5308,7 +5531,7 @@ msgstr ""
 "zákazníka výhradně v rozsahu nezbytném pro provoz služby pro zákazníka. "
 "Provozovatel si k obsahu zákazníka nenárokuje žádná další práva."
 
-#: app/templates/www/terms.html:75
+#: app/templates/www/terms.html:78
 msgid ""
 "The Customer warrants that they have the right to upload and use the "
 "Customer Content (including the right to upload personal data of their "
@@ -5320,7 +5543,7 @@ msgstr ""
 " ochrany osobních údajů ohledně role provozovatele jako zpracovatele "
 "takových dat)."
 
-#: app/templates/www/terms.html:78
+#: app/templates/www/terms.html:81
 msgid ""
 "The Service software (with the exception of code released under AGPL-3.0 "
 "in the public source repository), the Assoluto trademark and brand assets"
@@ -5334,15 +5557,15 @@ msgstr ""
 "jménu Assoluto, logu ani doméně assoluto.eu (viz soubor NOTICE ve "
 "zdrojovém repozitáři)."
 
-#: app/templates/www/terms.html:83
+#: app/templates/www/terms.html:86
 msgid "6. Acceptable use"
 msgstr "6. Pravidla užívání"
 
-#: app/templates/www/terms.html:85
+#: app/templates/www/terms.html:88
 msgid "The Customer agrees not to:"
 msgstr "Zákazník se zavazuje, že nebude:"
 
-#: app/templates/www/terms.html:88
+#: app/templates/www/terms.html:91
 msgid ""
 "upload content that violates Czech or EU law (in particular: illegal, "
 "defamatory, infringing, or fraudulent content);"
@@ -5350,7 +5573,7 @@ msgstr ""
 "nahrávat obsah porušující české nebo unijní právo (zejména: nezákonný, "
 "hanlivý, obsah porušující práva třetích osob nebo podvodný obsah);"
 
-#: app/templates/www/terms.html:89
+#: app/templates/www/terms.html:92
 msgid ""
 "use the Service to send unsolicited bulk communications (spam) or to "
 "phish their own clients;"
@@ -5358,7 +5581,7 @@ msgstr ""
 "používat službu k odesílání nevyžádaných hromadných sdělení (spam) ani k "
 "phishingu vlastních klientů;"
 
-#: app/templates/www/terms.html:90
+#: app/templates/www/terms.html:93
 msgid ""
 "attempt to interfere with the Service's operation, bypass security or "
 "rate-limit measures, or access data belonging to other tenants;"
@@ -5366,7 +5589,7 @@ msgstr ""
 "pokoušet se narušit provoz služby, obcházet bezpečnostní nebo rate-limit "
 "opatření ani přistupovat k datům jiných tenantů;"
 
-#: app/templates/www/terms.html:91
+#: app/templates/www/terms.html:94
 msgid ""
 "reverse-engineer the Hosted Service infrastructure (this clause does not "
 "restrict any right granted by the AGPL-3.0 license to the open-source "
@@ -5375,7 +5598,7 @@ msgstr ""
 "reverzně inženýrovat infrastrukturu hostované služby (toto ustanovení "
 "neomezuje žádné právo udělené licencí AGPL-3.0 ke open-source kódu);"
 
-#: app/templates/www/terms.html:92
+#: app/templates/www/terms.html:95
 msgid ""
 "use the Service for cryptocurrency mining or any computation unrelated to"
 " the order portal use case."
@@ -5383,7 +5606,7 @@ msgstr ""
 "používat službu k těžbě kryptoměn nebo jakémukoli výpočtu nesouvisejícímu"
 " s účelem zákaznického portálu pro zakázky."
 
-#: app/templates/www/terms.html:95
+#: app/templates/www/terms.html:98
 msgid ""
 "Material breach of acceptable use is grounds for the Provider to suspend "
 "the account; see Section 9."
@@ -5391,11 +5614,11 @@ msgstr ""
 "Podstatné porušení pravidel užívání je důvodem pro pozastavení účtu "
 "provozovatelem; viz čl. 9."
 
-#: app/templates/www/terms.html:100
+#: app/templates/www/terms.html:103
 msgid "7. Personal data"
 msgstr "7. Osobní údaje"
 
-#: app/templates/www/terms.html:102
+#: app/templates/www/terms.html:105
 msgid ""
 "The Provider processes the Customer's personal data and acts as a data "
 "processor for end-client personal data uploaded by the Customer. The full"
@@ -5405,7 +5628,7 @@ msgstr ""
 "zpracovatel pro osobní údaje koncových klientů nahrané zákazníkem. Úplné "
 "informace o zpracování a seznam dílčích zpracovatelů jsou uvedeny v"
 
-#: app/templates/www/terms.html:104
+#: app/templates/www/terms.html:107
 msgid ""
 "which forms an integral part of these Terms. Customers requiring a "
 "separate written Data Processing Agreement (DPA) under Article 28 GDPR "
@@ -5417,11 +5640,11 @@ msgstr ""
 "ni mohou napsat na team@assoluto.eu — vzorovou DPA poskytuje provozovatel"
 " zdarma."
 
-#: app/templates/www/terms.html:109
+#: app/templates/www/terms.html:112
 msgid "8. Service availability, no formal SLA on Starter/Pro"
 msgstr "8. Dostupnost služby, žádné formální SLA u Starter/Pro"
 
-#: app/templates/www/terms.html:114
+#: app/templates/www/terms.html:117
 #, python-format
 msgid ""
 "The Provider operates the Hosted Service with reasonable care and targets"
@@ -5441,7 +5664,7 @@ msgstr ""
 " na kompenzaci. Plán Enterprise může obsahovat samostatně sjednané "
 "písemné SLA — napište na team@assoluto.eu."
 
-#: app/templates/www/terms.html:117
+#: app/templates/www/terms.html:120
 msgid ""
 "The Provider performs upgrades during low-traffic windows where possible."
 " Brief service interruptions during deployment (typically under 60 "
@@ -5452,7 +5675,7 @@ msgstr ""
 "Krátká přerušení služby během nasazování (typicky pod 60 sekund) jsou "
 "běžnou součástí provozu a nepovažují se za výpadek."
 
-#: app/templates/www/terms.html:120
+#: app/templates/www/terms.html:123
 msgid ""
 "The Customer is responsible for maintaining their own data exports as a "
 "safeguard against any data loss. The CSV / ZIP export endpoints are "
@@ -5462,11 +5685,11 @@ msgstr ""
 "proti ztrátě dat. CSV / ZIP export endpointy jsou dostupné kdykoli během "
 "aktivního předplatného."
 
-#: app/templates/www/terms.html:125
+#: app/templates/www/terms.html:128
 msgid "9. Suspension and termination by the Provider"
 msgstr "9. Pozastavení a ukončení ze strany provozovatele"
 
-#: app/templates/www/terms.html:127
+#: app/templates/www/terms.html:130
 msgid ""
 "The Provider may, with prior notice sent to the Customer's billing email "
 "and a remedy period of at least 7 days where reasonably possible, suspend"
@@ -5486,7 +5709,7 @@ msgstr ""
 "případě bude oznámeno min. 90 dní předem a export endpointy zůstanou po "
 "celou dobu dostupné)."
 
-#: app/templates/www/terms.html:130
+#: app/templates/www/terms.html:133
 msgid ""
 "Suspension for non-payment may take effect without prior notice if Stripe"
 " reports a payment failure and the situation has not been remedied within"
@@ -5496,11 +5719,11 @@ msgstr ""
 "Stripe ohlásí selhání platby a situace není napravena v rámci "
 "standardního dunning období Stripe (typicky 21 dní)."
 
-#: app/templates/www/terms.html:135
+#: app/templates/www/terms.html:138
 msgid "10. Warranties and limitation of liability"
 msgstr "10. Záruky a omezení odpovědnosti"
 
-#: app/templates/www/terms.html:137
+#: app/templates/www/terms.html:140
 msgid ""
 "The Service is provided \"as available\". Beyond what is required by "
 "mandatory provisions of Czech law, the Provider gives no warranties of "
@@ -5512,7 +5735,7 @@ msgstr ""
 " výslovné ani implicitní, včetně implicitních záruk obchodovatelnosti "
 "nebo vhodnosti pro určitý účel."
 
-#: app/templates/www/terms.html:140
+#: app/templates/www/terms.html:143
 msgid ""
 "To the maximum extent permitted by law, the Provider's aggregate "
 "liability to the Customer for any cause arising out of or relating to the"
@@ -5534,7 +5757,7 @@ msgstr ""
 "zálohy) ani za nárok třetí strany, a to i v případě, že byl provozovatel "
 "na možnost takových škod upozorněn."
 
-#: app/templates/www/terms.html:143
+#: app/templates/www/terms.html:146
 msgid ""
 "Nothing in these Terms limits liability for damage caused intentionally "
 "or by gross negligence, or for any other liability that cannot be limited"
@@ -5544,11 +5767,11 @@ msgstr ""
 "způsobenou úmyslně nebo z hrubé nedbalosti ani jinou odpovědnost, kterou "
 "podle českého práva nelze omezit."
 
-#: app/templates/www/terms.html:148
+#: app/templates/www/terms.html:151
 msgid "11. Force majeure"
 msgstr "11. Vyšší moc"
 
-#: app/templates/www/terms.html:150
+#: app/templates/www/terms.html:153
 msgid ""
 "Neither party is liable for non-performance caused by force majeure — "
 "events outside its reasonable control, including without limitation "
@@ -5563,11 +5786,11 @@ msgstr ""
 "telekomunikační nebo elektrické infrastruktury nebo vládními nařízeními "
 "ovlivňujícími provoz cloudových služeb v České republice nebo Německu."
 
-#: app/templates/www/terms.html:155
+#: app/templates/www/terms.html:158
 msgid "12. Modifications to these Terms"
 msgstr "12. Změny těchto podmínek"
 
-#: app/templates/www/terms.html:157
+#: app/templates/www/terms.html:160
 msgid ""
 "The Provider may amend these Terms with at least 30 days' prior notice "
 "sent to the Customer's billing email and posted on this page. The version"
@@ -5583,7 +5806,7 @@ msgstr ""
 "zrušit před datem účinnosti; jinak pokračující užívání po datu účinnosti "
 "znamená souhlas s novými podmínkami."
 
-#: app/templates/www/terms.html:160
+#: app/templates/www/terms.html:163
 msgid ""
 "Material changes — pricing, scope of the Service, or the limitation of "
 "liability in Section 10 — will be highlighted in the notice email rather "
@@ -5593,11 +5816,11 @@ msgstr ""
 "— budou v oznamovacím e-mailu zvýrazněny, nikoli ukryty v dlouhém "
 "changelogu."
 
-#: app/templates/www/terms.html:165
+#: app/templates/www/terms.html:168
 msgid "13. Governing law and jurisdiction"
 msgstr "13. Rozhodné právo a příslušnost soudů"
 
-#: app/templates/www/terms.html:167
+#: app/templates/www/terms.html:170
 msgid ""
 "These Terms and any dispute arising out of or in connection with them are"
 " governed by the law of the Czech Republic, without regard to conflict-"
@@ -5612,7 +5835,7 @@ msgstr ""
 "příslušný soud se určí podle sídla provozovatele (v současnosti Okresní "
 "soud v Děčíně)."
 
-#: app/templates/www/terms.html:170
+#: app/templates/www/terms.html:173
 msgid ""
 "The parties will attempt to resolve any dispute amicably first by direct "
 "negotiation; failing that, the parties may agree to non-binding mediation"
@@ -5622,11 +5845,11 @@ msgstr ""
 "jednáním; pokud se to nepodaří, mohou se smluvní strany dohodnout na "
 "nezávazné mediaci před zahájením soudního řízení."
 
-#: app/templates/www/terms.html:175
+#: app/templates/www/terms.html:178
 msgid "14. Severability and entire agreement"
 msgstr "14. Oddělitelnost a úplnost ujednání"
 
-#: app/templates/www/terms.html:177
+#: app/templates/www/terms.html:180
 msgid ""
 "If any provision of these Terms is held to be invalid or unenforceable by"
 " a competent court, the remaining provisions remain in full force and "
@@ -5638,7 +5861,7 @@ msgstr ""
 "platnosti a účinnosti a neplatné ustanovení se nahradí takovým, jehož "
 "účinek je nejblíže původnímu záměru a které je zároveň platné."
 
-#: app/templates/www/terms.html:180
+#: app/templates/www/terms.html:183
 msgid ""
 "These Terms, together with the Privacy Policy, the Cookies policy, and "
 "the published pricing page, form the entire agreement between the "
@@ -5650,11 +5873,11 @@ msgstr ""
 "provozovatelem ohledně hostované služby a nahrazují všechny dřívější "
 "návrhy, jednání nebo marketingové materiály."
 
-#: app/templates/www/terms.html:185
+#: app/templates/www/terms.html:188
 msgid "15. Contact and notices"
 msgstr "15. Kontakt a doručování"
 
-#: app/templates/www/terms.html:187
+#: app/templates/www/terms.html:190
 msgid ""
 "All notices under these Terms (including cancellation, modification "
 "notices, breach notices, DPA requests) are sent in writing by email — to "
@@ -5664,7 +5887,7 @@ msgstr ""
 "změnách, oznámení o porušení, žádostí o DPA) se zasílají písemně e-mailem"
 " — na evidovaný fakturační e-mail zákazníka a provozovateli na"
 
-#: app/templates/www/terms.html:189
+#: app/templates/www/terms.html:192
 msgid ""
 "A notice is deemed delivered the day after it is sent, unless the sender "
 "receives an automatic non-delivery report."
@@ -6982,4 +7205,7 @@ msgstr "Soukromí"
 #~ " DPH. Bez nich nemůžeme vystavit "
 #~ "platný daňový doklad. Vyplníte jednou —"
 #~ " uložíme."
+
+#~ msgid "Priority support (4 h business hours, written SLA)"
+#~ msgstr "Prioritní podpora (4 h v pracovní době, písemné SLA)"
 

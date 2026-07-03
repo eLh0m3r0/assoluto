@@ -51,7 +51,7 @@
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("20 client contacts") }}</li>
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Unlimited orders") }}</li>
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("2 GB attachment storage") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Email support (48 h)") }}</li>
+                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Email support (reply within 1 working day)") }}</li>
             </ul>
             <a href="/platform/signup?plan=starter" class="mt-8">
                 <span class="block rounded-lg bg-slate-900 px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">{{ _("Start 30-day trial") }}</span>
@@ -75,7 +75,7 @@
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("100 client contacts") }}</li>
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Unlimited orders") }}</li>
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("20 GB attachment storage") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Priority email support (12 h)") }}</li>
+                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Priority email support (same working day)") }}</li>
             </ul>
             <a href="/platform/signup?plan=pro" class="mt-8">
                 <span class="block rounded-lg bg-gradient-to-r from-brand-600 to-brand-500 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition hover:shadow-md hover:brightness-105">{{ _("Start 30-day trial") }}</span>
@@ -93,7 +93,7 @@
             <ul class="mt-6 grow space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("No limits on users / orders / storage") }}</li>
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Your own domain (portal.yourfirm.cz)") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Priority support (4 h business hours, written SLA)") }}</li>
+                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Priority support (individual written SLA available)") }}</li>
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("SLA") }} {% if locale == 'en' %}99.9{% else %}99,9{% endif %} %</li>
                 <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("On-premises deployment possible") }}</li>
             </ul>
@@ -166,6 +166,7 @@
             {{ pfaq(_("How does billing actually work?"), _("Monthly plan: card via Stripe, invoice emailed the same day. Annual plan: arranged on request — bank transfer with a Czech invoice, net-14, typically two months free for the year.")) }}
             {{ pfaq(_("Can I change plans later?"), _("Yes, any time. The difference is prorated down to the day. Downgrade happens at the start of the next billing period (you keep what you paid for).")) }}
             {{ pfaq(_("What happens when I cancel?"), _("You keep full access until the end of the current billing period, then have 3 days to export your data (CSV + attachments as ZIP). After that, access ends. Need to recover data later? Email team@assoluto.eu within 30 days. For immediate erasure email us — we action GDPR Art. 17 requests within 48 hours.")) }}
+            {{ pfaq(_("Can I get a refund?"), _("Monthly plans are not refunded mid-period — when you cancel, you keep full access until the end of the period you already paid for. Annual invoices arranged on request are refunded pro-rata for unused full months, by agreement via team@assoluto.eu.")) }}
             {{ pfaq(_("Does the self-hosted Community version cost anything?"), _("No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No restrictions on users or features — only you need to run updates yourself.")) }}
             {{ pfaq(_("Do you have a discount for schools / associations / non-profits?"), _("Yes. Write to us at team@assoluto.eu with a description of the use — half price is typical, free access for small organisations.")) }}
         </dl>
