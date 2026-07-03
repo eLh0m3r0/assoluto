@@ -306,24 +306,19 @@ async def sitemap_xml(request: Request) -> Response:
             ("/cookies", "0.3"),
             ("/imprint", "0.3"),
         ]
-    # hreflang alternates per <url>: same URL serves all three locales via
-    # Accept-Language. Without these tags Google indexes whichever locale
-    # Googlebot's data centre lands on. UX audit 2026-05-01-1335 F-UX-010.
-    locales = ("cs", "en", "de")
+    # NO hreflang alternates on purpose (UX audit 2026-07-03 F-UX-001):
+    # every locale shares one URL via Accept-Language negotiation, so the
+    # alternates would all carry an identical href — Google treats that
+    # cluster as misconfigured. Re-add only once per-locale URLs exist.
 
     def _entry(path: str, priority: str) -> str:
         loc = f"{base}{path}"
-        alts = "\n".join(
-            f'    <xhtml:link rel="alternate" hreflang="{lang}" href="{loc}"/>' for lang in locales
-        )
-        alts += f'\n    <xhtml:link rel="alternate" hreflang="x-default" href="{loc}"/>'
-        return f"  <url><loc>{loc}</loc><priority>{priority}</priority>\n{alts}\n  </url>"
+        return f"  <url><loc>{loc}</loc><priority>{priority}</priority></url>"
 
     urls = "\n".join(_entry(path, p) for path, p in pages)
     body = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
-        '        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         f"{urls}\n"
         "</urlset>\n"
     )
