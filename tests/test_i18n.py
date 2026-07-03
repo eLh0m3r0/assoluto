@@ -75,6 +75,17 @@ async def test_set_lang_endpoint(tenant_client) -> None:
 
 
 @pytest.mark.postgres
+async def test_set_lang_head_does_not_set_cookie(tenant_client) -> None:
+    """HEAD /set-lang must not mutate state (F-SEC-002): same redirect
+    headers as GET, but no Set-Cookie. Guards the original_method
+    plumbing in HeadMethodMiddleware."""
+    r = await tenant_client.head("/set-lang?lang=en&next=/", follow_redirects=False)
+    assert r.status_code == 303
+    assert r.headers["location"] == "/"
+    assert "sme_locale" not in r.headers.get("set-cookie", "")
+
+
+@pytest.mark.postgres
 async def test_set_lang_rejects_unsupported_locale(tenant_client) -> None:
     r = await tenant_client.get("/set-lang?lang=xx&next=/", follow_redirects=False)
     # Falls back to default locale; cookie still written.

@@ -29,8 +29,11 @@ class HeadMethodMiddleware:
             await self.app(scope, receive, send)
             return
 
-        # Re-dispatch as GET so routing finds the GET handler.
-        rewritten: Scope = {**scope, "method": "GET"}
+        # Re-dispatch as GET so routing finds the GET handler. The original
+        # verb is preserved in scope so handlers that must not mutate state
+        # on HEAD (e.g. the set-lang cookie) can still tell the difference:
+        # ``request.scope.get("original_method") == "HEAD"``.
+        rewritten: Scope = {**scope, "method": "GET", "original_method": "HEAD"}
 
         async def head_send(message: Message) -> None:
             # Forward the start message verbatim — keeps headers (incl.

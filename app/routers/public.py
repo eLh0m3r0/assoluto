@@ -359,8 +359,11 @@ async def set_language(
 
     # HEAD must not mutate state — return the redirect headers without
     # the Set-Cookie. (Caching layers will see the same Location for
-    # both methods, which is what we want.)
-    if request.method == "HEAD":
+    # both methods, which is what we want.) HeadMethodMiddleware rewrites
+    # the verb to GET before routing, so the original verb lives in
+    # ``scope["original_method"]`` — ``request.method`` is always "GET"
+    # here (audit F-SEC-002/2026-05-09: the old check was dead code).
+    if request.scope.get("original_method") == "HEAD":
         return response
 
     cookie_domain = (settings.platform_cookie_domain or "").strip()
