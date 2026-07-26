@@ -30,6 +30,14 @@ def _render_thumbnail(data: bytes, content_type: str) -> bytes | None:
     except ImportError:  # pragma: no cover - Pillow is a hard dep in prod
         return None
 
+    # Attacker-controlled bytes. Pillow's stock ceiling is ~89M pixels and
+    # it only *warns* between 1x and 2x that, so a modest "pixel bomb"
+    # (a few KB of PNG that decodes to hundreds of megabytes) is inflated
+    # in full on the worker before anything complains. Thumbnails never
+    # need more than a handful of megapixels, so cap it hard and let
+    # Pillow raise instead.
+    Image.MAX_IMAGE_PIXELS = 40_000_000
+
     if content_type.startswith("image/"):
         try:
             with Image.open(BytesIO(data)) as img:

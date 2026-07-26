@@ -25,7 +25,7 @@ from app.i18n import supported_locale_list
 from app.i18n import t as _t
 from app.models.customer import CustomerContact
 from app.security.csrf import verify_csrf
-from app.services.audit_service import actor_from_principal
+from app.services.audit_service import ActorInfo, actor_from_principal
 from app.services.auth_service import (
     InvalidCredentials,
     change_contact_password,
@@ -242,15 +242,29 @@ async def profile_delete(
             status_code=303,
         )
 
-    original_label = f"{contact.full_name} <{contact.email}>"
+    # Deliberately NOT the name/email. audit_events is append-only —
+    # migration 0009 grants portal_app SELECT + INSERT and no UPDATE or
+    # DELETE — so anything written here can never be scrubbed. Recording
+    # "Jan Novák <jan@acme.cz>" on the very event that erases him left
+    # his identifying data permanently readable by any staff user via
+    # /app/admin/audit, which is not erasure. The entity_id is a
+    # pseudonymous reference to a row that is now anonymised, and it
+    # preserves the accountability the log exists for.
+    erased_actor = actor_from_principal(principal)
+    if erased_actor.id == contact.id:
+        # Self-erasure: the actor and the subject are the same person,
+        # so actor_label would reintroduce exactly what we just removed.
+        erased_actor = ActorInfo(
+            type=erased_actor.type, id=erased_actor.id, label="(erased contact)"
+        )
     await erase_contact(db, contact=contact)
     await audit_record(
         db,
         action="contact.gdpr_erased",
         entity_type="contact",
         entity_id=contact.id,
-        entity_label=original_label,
-        actor=actor_from_principal(principal),
+        entity_label=f"contact {contact.id}",
+        actor=erased_actor,
         tenant_id=contact.tenant_id,
     )
     await db.commit()

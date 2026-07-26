@@ -17,7 +17,7 @@ from app.models.enums import UserRole
 from app.models.user import User
 from app.security.csrf import verify_csrf
 from app.services import audit_service, sla_service
-from app.services.audit_service import actor_from_principal
+from app.services.audit_service import ActorInfo, actor_from_principal
 from app.services.auth_service import (
     InvalidCredentials,
     InvalidInvitation,
@@ -675,15 +675,23 @@ async def profile_delete(
                 status_code=303,
             )
 
-    original_label = f"{user.full_name} <{user.email}>"
+    # See app/routers/me.py: audit_events is append-only, so the erased
+    # subject's name and email must never be written onto the erasure
+    # event itself. entity_id is a pseudonymous reference to a row that
+    # is now anonymised.
+    erased_actor = actor_from_principal(principal)
+    if erased_actor.id == user.id:
+        erased_actor = ActorInfo(
+            type=erased_actor.type, id=erased_actor.id, label="(erased user)"
+        )
     await erase_user(db, user=user)
     await audit_record(
         db,
         action="user.gdpr_erased",
         entity_type="user",
         entity_id=user.id,
-        entity_label=original_label,
-        actor=actor_from_principal(principal),
+        entity_label=f"user {user.id}",
+        actor=erased_actor,
         tenant_id=user.tenant_id,
     )
     await db.commit()

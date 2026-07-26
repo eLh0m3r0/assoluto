@@ -28,7 +28,9 @@ from datetime import UTC, date, datetime
 from decimal import Decimal
 from io import BytesIO
 from typing import TYPE_CHECKING
+from xml.sax.saxutils import escape as _xml_escape
 
+import reportlab.rl_config
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -52,6 +54,30 @@ if TYPE_CHECKING:  # pragma: no cover
 # Czech standard VAT rate. Reduced rates (15%, 12%) only apply to
 # specific goods lists; SaaS service falls under the standard rate.
 CZ_VAT_STANDARD = Decimal("0.21")
+
+
+# ReportLab's Paragraph takes a mini-HTML dialect, so any user text
+# interpolated into one is markup, not data. Two real consequences,
+# both reproduced against the pinned reportlab:
+#
+#   * DoS — an order line described as `M8 <b>bolt, zinc` raises
+#     "Parse error" and the whole PDF export 500s. Any customer contact
+#     can type that (can_add_items defaults to True), and it breaks the
+#     supplier's export, not just their own order.
+#   * SSRF — `<img src="http://169.254.169.254/...">` makes the PDF
+#     renderer fetch that URL server-side; rl_config trusts
+#     file/http/https/ftp out of the box.
+#
+# Escape the VARIABLE, never the surrounding literal <b>/<i> tags.
+def _esc(value: object) -> str:
+    """XML-escape a value for safe interpolation into a Paragraph."""
+    return _xml_escape("" if value is None else str(value))
+
+
+# Defence in depth: even correctly escaped input cannot make the PDF
+# engine open a socket or read a local file.
+reportlab.rl_config.trustedSchemes = []
+reportlab.rl_config.trustedHosts = []
 
 
 def _dot_amount(amount: Decimal) -> str:
@@ -273,13 +299,13 @@ def render_invoice_pdf(
 
     customer_block = [
         Paragraph(f"<b>{L['customer']}</b>", h2),
-        Paragraph(cust_name, base),
+        Paragraph(_esc(cust_name), base),
     ]
     if cust_address:
-        customer_block.append(Paragraph(cust_address.replace("\n", "<br/>"), base))
-    customer_block.append(Paragraph(f"IČO: {cust_ico or '—'}", base))
+        customer_block.append(Paragraph(_esc(cust_address).replace("\n", "<br/>"), base))
+    customer_block.append(Paragraph(f"IČO: {_esc(cust_ico) or '—'}", base))
     if cust_dic:
-        customer_block.append(Paragraph(f"DIČ: {cust_dic}", base))
+        customer_block.append(Paragraph(f"DIČ: {_esc(cust_dic)}", base))
 
     parties = Table(
         [[supplier_block, customer_block]],

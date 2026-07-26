@@ -182,7 +182,15 @@ async def test_profile_delete_happy_path_anonymises_and_logs_out(
             .all()
         )
     assert len(events) == 1
-    assert events[0].entity_label == "4MEX Owner <owner@4mex.cz>"
+    # audit_events is append-only (migration 0009 grants portal_app no
+    # UPDATE/DELETE), so writing the subject's name and email onto the
+    # erasure event made them permanently readable via /app/admin/audit
+    # — the opposite of erasure. The pseudonymous entity id preserves
+    # accountability without re-storing what was just removed.
+    assert events[0].entity_label == f"user {seeded.id}"
+    serialised = f"{events[0].entity_label} {events[0].actor_label}"
+    assert "4MEX Owner" not in serialised
+    assert "owner@4mex.cz" not in serialised
 
     # The old session cookie must be dead now.
     page = await tenant_client.get("/app/admin/profile", follow_redirects=False)
@@ -347,7 +355,11 @@ async def test_contact_profile_delete_happy_path(
             .all()
         )
     assert len(events) == 1
-    assert events[0].entity_label == "Jan Novák <jan@acme.cz>"
+    # Same rule as the staff path above — see test_profile_delete_*.
+    assert events[0].entity_label.startswith("contact ")
+    serialised = f"{events[0].entity_label} {events[0].actor_label}"
+    assert "Jan Novák" not in serialised
+    assert "jan@acme.cz" not in serialised
 
     # Erased credentials can no longer log in.
     relogin = await tenant_client.post(

@@ -76,6 +76,15 @@ class SecurityHeadersMiddleware:
             await self.app(scope, receive, send)
             return
 
+        # Anything served off an authenticated path is per-user data:
+        # order lists, customer records, invoice PDFs. With no
+        # Cache-Control the browser (and any intermediary) may store it
+        # on disk, so it survives logout and is readable by the next
+        # person on a shared workshop PC via the back button. Static
+        # assets keep their own long-lived caching.
+        path = scope.get("path", "")
+        private = path.startswith(("/app", "/platform", "/auth", "/me"))
+
         async def send_wrapper(message: Message) -> None:
             if message["type"] == "http.response.start":
                 headers = list(message.get("headers", []))
@@ -83,6 +92,10 @@ class SecurityHeadersMiddleware:
                 for name, value in self._extra_headers:
                     if name not in existing:
                         headers.append((name, value))
+                if private and b"cache-control" not in existing:
+                    headers.append(
+                        (b"cache-control", b"no-store, no-cache, must-revalidate, private")
+                    )
                 message["headers"] = headers
             await send(message)
 

@@ -70,8 +70,17 @@ find "${BACKUP_DIR}" -name 'portal-*.sql.gz.gpg' -type f -mtime "+${KEEP_DAYS}" 
 
 # ---------- Off-site sync ----------
 if [ -n "${RCLONE_REMOTE:-}" ]; then
-    echo "[backup] Syncing ${BACKUP_DIR} -> ${RCLONE_REMOTE}"
-    rclone sync "${BACKUP_DIR}" "${RCLONE_REMOTE}/pg" --progress --retries=3
+    echo "[backup] Copying ${BACKUP_DIR} -> ${RCLONE_REMOTE}"
+    # `copy`, NOT `sync`. `sync` is a destructive mirror: it deletes
+    # remote objects that are absent locally, so an emptied or
+    # unmounted ${BACKUP_DIR} (rm -rf, failed mount, wrong volume)
+    # propagated the deletion off-site on the next nightly run and took
+    # the entire dump history with it. `copy` only ever adds.
+    #
+    # Retention off-site is therefore the REMOTE's job — set a bucket
+    # lifecycle rule (and object lock / versioning) at the provider.
+    # PORTAL_KEEP_DAYS below only rotates the LOCAL copies.
+    rclone copy "${BACKUP_DIR}" "${RCLONE_REMOTE}/pg" --progress --retries=3
 fi
 
 echo "[backup] Done."
