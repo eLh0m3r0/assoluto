@@ -413,6 +413,36 @@ honest: ``STATUS_LABELS`` (nouns) label positions, ``STATUS_ACTIONS``
 goes backwards carries ``data-confirm`` (handled by the delegated
 listener in ``static/js/app.js`` — CSP forbids inline ``onsubmit``).
 
+### 19. Git authority: no trunk writes on your own, but the operator may command them
+
+Standing rule from the operator (Václav), recorded 2026-07-26:
+
+> **Never push to main/master, force-push, or merge ON YOUR OWN
+> WITHOUT DIRECT COMMAND. YOU MAY HOWEVER DO IT BASED ON DIRECT
+> COMMAND FROM THE OPERATOR.**
+
+The distinction is *initiative*, not the operation. Read it as:
+
+* **On your own** — ship to a feature branch and open a PR. Never
+  land on ``main`` or ``production``, never force-push, never merge
+  as a side effect of "finishing the task". Don't infer authority
+  from the fact that a merge would be convenient or that CI is green.
+* **On a direct command from the operator** — "merge it", "nasaď to do
+  produkce", "push to main" — that *is* the authorization. Carry it
+  out; don't bounce it back as a command for them to paste. Raising a
+  concern once is fine; if they reaffirm, it's their call and their
+  repo.
+* A command authorizes *that* action, not a standing licence. The next
+  merge needs its own instruction.
+
+Before executing a commanded trunk write, verify and report: CI status,
+whether the move is a fast-forward (``git merge-base --is-ancestor``),
+and whether the diff contains migrations. Then watch the deploy through
+to green rather than declaring victory at ``git push``.
+
+Deploy mechanics live in §11 — pushing to ``production`` is what fires
+``deploy-production.yml``.
+
 ## Test fixtures quick reference
 
 | Fixture | Needs PG | What |
