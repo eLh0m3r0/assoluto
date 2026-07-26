@@ -410,6 +410,7 @@ def _normalise_locale(raw: str) -> str | None:
 async def users_resend_invite(
     user_id: UUID,
     request: Request,
+    background_tasks: BackgroundTasks,
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -464,7 +465,10 @@ async def users_resend_invite(
     await db.commit()
 
     locale = resolve_email_locale(recipient=target, tenant=tenant, settings=settings)
-    send_staff_invitation(
+    # Same reason as the platform reset path: blocking SMTP must not run
+    # on the event loop of a single-worker app.
+    background_tasks.add_task(
+        send_staff_invitation,
         request.app.state.email_sender,
         to=target.email,
         tenant_name=tenant.name,

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -148,6 +148,7 @@ async def platform_password_reset_form(
 @rate_limit("5/15 minutes")
 async def platform_password_reset_submit(
     request: Request,
+    background_tasks: BackgroundTasks,
     email: str = Form(...),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
@@ -171,7 +172,13 @@ async def platform_password_reset_submit(
         # currently showing the user (the language switcher on the
         # public page sets this cookie).
         locale = getattr(request.state, "locale", settings.default_locale)
-        send_password_reset(
+        # Hand off to a background task instead of sending inline. SMTP is
+        # blocking (10s connect timeout, up to 3 attempts with 2s/4s
+        # backoff), the app runs a single uvicorn worker, and this
+        # endpoint is unauthenticated — so an inline send let anyone
+        # stall the whole server for ~36s per request.
+        background_tasks.add_task(
+            send_password_reset,
             sender,
             to=identity.email,
             tenant_name="Assoluto",

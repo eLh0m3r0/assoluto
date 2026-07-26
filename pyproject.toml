@@ -22,7 +22,11 @@ dependencies = [
     # Web framework
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
-    "python-multipart>=0.0.12",
+    # Floor raised from 0.0.12: older releases carry known multipart
+# parsing DoS advisories, and verify_csrf calls request.form() on
+# EVERY mutating route — including unauthenticated ones — so the
+# parser is reachable pre-auth.
+    "python-multipart>=0.0.32",
     "itsdangerous>=2.2",
     # Templating
     "jinja2>=3.1",
