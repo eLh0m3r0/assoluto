@@ -614,6 +614,49 @@ async def profile_export(
     )
 
 
+@router.get("/export")
+async def tenant_data_export(
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Download the whole tenant as one ZIP — the "leave whenever you
+    like" promise the Terms already make.
+
+    Tenant-admin only: this is every order, customer, contact and
+    uploaded drawing in the account, so it is a strictly higher bar than
+    the per-person GDPR export above (which returns only the caller's
+    own data and is open to any staff member).
+    """
+    _require_tenant_admin(principal)
+
+    from app.services.tenant_export_service import build_tenant_export
+
+    tenant = request.state.tenant
+    # The DB work stays on the event loop (the AsyncSession's connection
+    # belongs to it); only the blocking boto3 reads are offloaded, inside
+    # the builder.
+    blob = await build_tenant_export(db, tenant_slug=tenant.slug)
+
+    await audit_service.record(
+        db,
+        action="tenant.data_exported",
+        entity_type="tenant",
+        entity_id=tenant.id,
+        entity_label=tenant.slug,
+        actor=actor_from_principal(principal),
+        tenant_id=tenant.id,
+    )
+    await db.commit()
+
+    filename = f"assoluto-{tenant.slug}-{date.today().isoformat()}.zip"
+    return Response(
+        content=blob,
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
 @router.post("/profile/delete")
 async def profile_delete(
     request: Request,
