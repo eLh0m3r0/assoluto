@@ -234,6 +234,30 @@ async def handle_subscription_upserted(db: AsyncSession, event: dict) -> None:
         log.warning("stripe.webhook.subscription_missing", tenant_id=str(tenant_id))
         raise WebhookNotYetReady("subscription row not yet created")
 
+    # Stripe does not guarantee delivery ORDER, only delivery. Dedup on
+    # event.id stops the same event being applied twice, but says
+    # nothing about a *different*, older event arriving late. A
+    # customer.subscription.updated generated before the cancellation,
+    # but delivered after customer.subscription.deleted, used to write
+    # status='active' straight over 'canceled' — resurrecting a
+    # subscription nobody is paying for and cancelling the hard-cut.
+    #
+    # 'canceled' is terminal for us: only an explicit new subscription
+    # (a fresh checkout, which goes through start/upsert with a new
+    # stripe_subscription_id) may lift it.
+    incoming_sub_id = data.get("id")
+    if (
+        subscription.status == "canceled"
+        and incoming_sub_id
+        and incoming_sub_id == subscription.stripe_subscription_id
+    ):
+        log.info(
+            "stripe.webhook.ignored_stale_update",
+            tenant_id=str(tenant_id),
+            subscription_id=incoming_sub_id,
+        )
+        return
+
     subscription.stripe_subscription_id = data.get("id") or subscription.stripe_subscription_id
     subscription.stripe_customer_id = data.get("customer") or subscription.stripe_customer_id
     new_status = data.get("status")
@@ -265,6 +289,19 @@ async def handle_subscription_upserted(db: AsyncSession, event: dict) -> None:
         if plan is not None:
             subscription.plan_id = plan.id
             break
+
+    # Paying again must undo the hard cut. ``enforce_canceled_subscriptions``
+    # sets ``tenants.is_active = false`` once the grace window elapses, and
+    # nothing ever set it back — so a customer who cancelled, got cut off,
+    # then resubscribed had a live paid subscription and a tenant they
+    # still could not log into, with no self-service way out.
+    if subscription.status in ("active", "trialing"):
+        tenant = (
+            await db.execute(select(Tenant).where(Tenant.id == tenant_id))
+        ).scalar_one_or_none()
+        if tenant is not None and not tenant.is_active:
+            tenant.is_active = True
+            log.info("stripe.webhook.tenant_reactivated", tenant_id=str(tenant_id))
 
     await db.flush()
 

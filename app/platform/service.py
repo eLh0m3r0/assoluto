@@ -565,6 +565,7 @@ async def signup_tenant(
     owner_password: str,
     consent_ip: str | None = None,
     consent_version: str | None = None,
+    plan_code: str = "starter",
 ) -> tuple[Tenant, User, Identity]:
     """Create a tenant + admin user + Identity for the self-signup flow.
 
@@ -619,14 +620,20 @@ async def signup_tenant(
         identity.terms_accepted_ip = consent_ip[:45]
     await db.flush()
 
-    # Give the new tenant a 14-day trial on the starter plan by default.
-    # The only known failure mode here is "migration 1003 hasn't been
-    # applied yet" (PlanNotFound). Anything else indicates a real bug
-    # and should surface rather than silently continue.
+    # Start the trial on the plan the visitor actually clicked. This was
+    # hard-coded to "starter": someone who chose Pro on /pricing got a
+    # Starter trial capped at 3 users and 20 contacts, disclosed only in
+    # the Terms — so a 25-person shop hit a 402 wall on their fourth
+    # invite, mid-evaluation. (The comment here also said "14-day" while
+    # TRIAL_DAYS has been 30 for some time.)
+    #
+    # The only known failure mode is "migration 1003 hasn't been applied
+    # yet" (PlanNotFound). Anything else indicates a real bug and should
+    # surface rather than silently continue.
     try:
         from app.platform.billing.service import PlanNotFound, start_trial_subscription
 
-        await start_trial_subscription(db, tenant=tenant, plan_code="starter")
+        await start_trial_subscription(db, tenant=tenant, plan_code=plan_code or "starter")
     except PlanNotFound:
         pass
 

@@ -176,6 +176,12 @@ async def signup_submit(
     # container.
     from app.security.rate_limit import _client_ip as _real_client_ip
 
+    # The plan the visitor clicked on /pricing. It drives BOTH the trial
+    # subscription created below and the "Finish setup" CTA later, so it
+    # has to be resolved before the tenant is created — clicking Pro used
+    # to still start a Starter trial (3 users / 20 contacts).
+    selected_plan = _safe_plan_code(plan)
+
     try:
         tenant, _owner, identity = await signup_tenant(
             db,
@@ -186,6 +192,7 @@ async def signup_submit(
             owner_password=form.password,
             consent_ip=_real_client_ip(request),
             consent_version=settings.legal_doc_version,
+            plan_code=selected_plan or "starter",
         )
     except DuplicateTenantSlug:
         html = _templates(request).render(
@@ -225,7 +232,6 @@ async def signup_submit(
 
     # Preserve the plan the user clicked on the pricing page so verify-sent /
     # verify-email can surface a "Finish setup" CTA that leads into checkout.
-    selected_plan = _safe_plan_code(plan)
     if selected_plan:
         tenant_settings = dict(tenant.settings or {})
         tenant_settings["selected_plan"] = selected_plan
