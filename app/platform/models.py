@@ -20,6 +20,7 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     ForeignKey,
+    Integer,
     String,
     UniqueConstraint,
     Uuid,
@@ -53,6 +54,15 @@ class Identity(Base, TimestampMixin):
     )
 
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    # Bumped on password reset (and any future "log me out everywhere").
+    # Embedded in the platform session cookie and in password-reset
+    # tokens, so a reset both kills live sessions and makes the reset
+    # link single-use — the platform half of CLAUDE.md §14, which used
+    # to exist only in the tenant flow. See migration 1007.
+    session_version: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
 
     # Self-signup lifecycle fields (see migration 1002).
     email_verified_at: Mapped[datetime | None] = mapped_column(

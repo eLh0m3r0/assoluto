@@ -357,6 +357,10 @@ def create_checkout_session(
         subscription_data["trial_period_days"] = TRIAL_DAYS
     # else: trial already consumed — no trial on the new checkout.
 
+    # Single source of truth for "does this operator charge VAT?", shared
+    # with invoice_pdf_service. Empty DIČ = neplátce DPH.
+    operator_is_vat_registered = bool((settings.platform_operator_dic or "").strip())
+
     session_kwargs: dict[str, Any] = {
         "mode": "subscription",
         "success_url": success_url,
@@ -367,12 +371,22 @@ def create_checkout_session(
         "subscription_data": subscription_data,
         # Launch-promo-code support; harmless when none exist.
         "allow_promotion_codes": True,
-        # Czech market compliance: DPH 21 % for domestic customers,
-        # reverse-charge (0 %) for EU B2B with a valid DIČ. Stripe Tax
-        # computes both automatically — we just have to enable it
-        # and collect the tax-id + billing address.
-        "automatic_tax": {"enabled": True},
-        "tax_id_collection": {"enabled": True},
+        # Tax is driven by ONE setting: PLATFORM_OPERATOR_DIC.
+        #
+        # The operator is currently a non-VAT payer (§6 ZDPH, stated on
+        # /imprint), so no DPH may be charged and no daňový doklad may
+        # be issued. These flags were hard-coded True, which told Stripe
+        # Tax to add 21 % on top of the listed price — money the
+        # operator is not registered to collect, on an invoice they
+        # cannot legally issue. Asking for a DIČ was equally pointless:
+        # reverse-charge only exists for a VAT-registered supplier.
+        #
+        # invoice_pdf_service already keys its whole VAT/non-VAT layout
+        # off the same setting (``supplier_is_vat``), so registering for
+        # VAT later is one env var and Stripe, the PDF and the document
+        # label all flip together.
+        "automatic_tax": {"enabled": operator_is_vat_registered},
+        "tax_id_collection": {"enabled": operator_is_vat_registered},
         "billing_address_collection": "required",
         # Render the Stripe-hosted Checkout in Czech.
         "locale": "cs",

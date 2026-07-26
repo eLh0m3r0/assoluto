@@ -13,7 +13,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
-from app.deps import get_current_tenant, get_db
+from app.deps import Principal, get_current_principal, get_current_tenant, get_db
 from app.i18n import t as _t
 from app.logging import get_logger
 from app.models.tenant import Tenant
@@ -316,8 +316,25 @@ async def login_submit(
 
 
 @router.post("/auth/logout")
-async def logout(request: Request) -> Response:
+async def logout(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    principal: Principal | None = Depends(get_current_principal),
+) -> Response:
+    """Log out, and actually invalidate the session server-side.
+
+    Deleting the cookie only removes the browser's copy. A token already
+    captured — shared machine, synced browser profile, screenshot, proxy
+    log — stayed valid for the remaining 14 days because nothing checked
+    anything but the signature. Bumping ``session_version`` makes every
+    outstanding cookie for this principal fail its next request, which
+    is what a user pressing "log out" believes is happening.
+    """
     response = RedirectResponse(url="/auth/login", status_code=status.HTTP_303_SEE_OTHER)
+    if principal is not None:
+        row = principal.raw
+        row.session_version = (row.session_version or 0) + 1
+        await db.commit()
     clear_session(response)
     return response
 

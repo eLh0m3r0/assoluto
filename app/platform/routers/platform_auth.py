@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -102,6 +102,7 @@ async def platform_login_submit(
         PlatformSession(
             identity_id=str(identity.id),
             is_platform_admin=identity.is_platform_admin,
+            session_version=identity.session_version,
         ),
         domain=_cookie_domain(settings),
         secure=settings.is_production,
@@ -147,6 +148,7 @@ async def platform_password_reset_form(
 @rate_limit("5/15 minutes")
 async def platform_password_reset_submit(
     request: Request,
+    background_tasks: BackgroundTasks,
     email: str = Form(...),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
@@ -160,7 +162,9 @@ async def platform_password_reset_submit(
 
     identity = await find_identity_by_email(db, email)
     if identity is not None and identity.is_active and PASSWORD_RESET_THROTTLE.allow(email):
-        reset_token = create_platform_password_reset_token(settings.app_secret_key, identity.id)
+        reset_token = create_platform_password_reset_token(
+            settings.app_secret_key, identity.id, identity.session_version
+        )
         reset_url = f"{settings.app_base_url}/platform/password-reset/confirm?token={reset_token}"
         sender = request.app.state.email_sender
         # Platform identities aren't scoped to a tenant, so there's no
@@ -168,7 +172,13 @@ async def platform_password_reset_submit(
         # currently showing the user (the language switcher on the
         # public page sets this cookie).
         locale = getattr(request.state, "locale", settings.default_locale)
-        send_password_reset(
+        # Hand off to a background task instead of sending inline. SMTP is
+        # blocking (10s connect timeout, up to 3 attempts with 2s/4s
+        # backoff), the app runs a single uvicorn worker, and this
+        # endpoint is unauthenticated — so an inline send let anyone
+        # stall the whole server for ~36s per request.
+        background_tasks.add_task(
+            send_password_reset,
             sender,
             to=identity.email,
             tenant_name="Assoluto",
@@ -249,7 +259,7 @@ async def platform_password_reset_confirm_submit(
     )
 
     try:
-        identity_id = decode_platform_password_reset_token(
+        identity_id, token_sv = decode_platform_password_reset_token(
             settings.app_secret_key, token, PLATFORM_RESET_MAX_AGE
         )
     except Exception:
@@ -265,16 +275,33 @@ async def platform_password_reset_confirm_submit(
         )
         return HTMLResponse(html, status_code=400)
 
-    try:
-        await reset_platform_password(db, identity_id, password)
-        await db.commit()
-    except Exception:
+    if len(password) < 8:
         html = _templates(request).render(
             request,
             "platform/password_reset_confirm.html",
             {
                 "token": token,
-                "error": "Nepodařilo se nastavit nové heslo.",
+                "error": "Heslo musí mít alespoň 8 znaků.",
+                "notice": None,
+                "principal": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
+
+    try:
+        await reset_platform_password(db, identity_id, password, token_session_version=token_sv)
+        await db.commit()
+    except Exception:
+        # Covers an already-consumed link as well as a genuine failure.
+        # Both get the same wording on purpose: a distinct "this link was
+        # already used" message would tell a stranger holding the URL
+        # that the address is real and that a reset just happened.
+        html = _templates(request).render(
+            request,
+            "platform/password_reset_confirm.html",
+            {
+                "token": token,
+                "error": "Odkaz je neplatný nebo již byl použit.",
                 "notice": None,
                 "principal": None,
             },

@@ -17,7 +17,7 @@ from app.models.enums import UserRole
 from app.models.user import User
 from app.security.csrf import verify_csrf
 from app.services import audit_service, sla_service
-from app.services.audit_service import actor_from_principal
+from app.services.audit_service import ActorInfo, actor_from_principal
 from app.services.auth_service import (
     InvalidCredentials,
     InvalidInvitation,
@@ -410,6 +410,7 @@ def _normalise_locale(raw: str) -> str | None:
 async def users_resend_invite(
     user_id: UUID,
     request: Request,
+    background_tasks: BackgroundTasks,
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -464,7 +465,10 @@ async def users_resend_invite(
     await db.commit()
 
     locale = resolve_email_locale(recipient=target, tenant=tenant, settings=settings)
-    send_staff_invitation(
+    # Same reason as the platform reset path: blocking SMTP must not run
+    # on the event loop of a single-worker app.
+    background_tasks.add_task(
+        send_staff_invitation,
         request.app.state.email_sender,
         to=target.email,
         tenant_name=tenant.name,
@@ -614,6 +618,49 @@ async def profile_export(
     )
 
 
+@router.get("/export")
+async def tenant_data_export(
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Download the whole tenant as one ZIP — the "leave whenever you
+    like" promise the Terms already make.
+
+    Tenant-admin only: this is every order, customer, contact and
+    uploaded drawing in the account, so it is a strictly higher bar than
+    the per-person GDPR export above (which returns only the caller's
+    own data and is open to any staff member).
+    """
+    _require_tenant_admin(principal)
+
+    from app.services.tenant_export_service import build_tenant_export
+
+    tenant = request.state.tenant
+    # The DB work stays on the event loop (the AsyncSession's connection
+    # belongs to it); only the blocking boto3 reads are offloaded, inside
+    # the builder.
+    blob = await build_tenant_export(db, tenant_slug=tenant.slug)
+
+    await audit_service.record(
+        db,
+        action="tenant.data_exported",
+        entity_type="tenant",
+        entity_id=tenant.id,
+        entity_label=tenant.slug,
+        actor=actor_from_principal(principal),
+        tenant_id=tenant.id,
+    )
+    await db.commit()
+
+    filename = f"assoluto-{tenant.slug}-{date.today().isoformat()}.zip"
+    return Response(
+        content=blob,
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
 @router.post("/profile/delete")
 async def profile_delete(
     request: Request,
@@ -675,15 +722,21 @@ async def profile_delete(
                 status_code=303,
             )
 
-    original_label = f"{user.full_name} <{user.email}>"
+    # See app/routers/me.py: audit_events is append-only, so the erased
+    # subject's name and email must never be written onto the erasure
+    # event itself. entity_id is a pseudonymous reference to a row that
+    # is now anonymised.
+    erased_actor = actor_from_principal(principal)
+    if erased_actor.id == user.id:
+        erased_actor = ActorInfo(type=erased_actor.type, id=erased_actor.id, label="(erased user)")
     await erase_user(db, user=user)
     await audit_record(
         db,
         action="user.gdpr_erased",
         entity_type="user",
         entity_id=user.id,
-        entity_label=original_label,
-        actor=actor_from_principal(principal),
+        entity_label=f"user {user.id}",
+        actor=erased_actor,
         tenant_id=user.tenant_id,
     )
     await db.commit()

@@ -97,6 +97,19 @@
             ⬇ {{ _('Download my data (JSON)') }}
         </a>
 
+        {% if principal.role == 'tenant_admin' %}
+        <hr class="my-6 border-slate-200 dark:border-slate-800">
+
+        <h2 class="mb-2 font-semibold text-slate-900 dark:text-slate-100">{{ _('Export the whole company') }}</h2>
+        <p class="mb-4 text-sm text-slate-500 dark:text-slate-400">
+            {{ _('One ZIP with every order, customer, contact, product and uploaded file — CSV plus the original documents. Yours to keep, whether or not you stay with us.') }}
+        </p>
+        <a href="/app/admin/export"
+           class="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+            ⬇ {{ _('Download company data (ZIP)') }}
+        </a>
+        {% endif %}
+
         <hr class="my-6 border-slate-200 dark:border-slate-800">
 
         <details class="rounded-lg border border-red-200 bg-red-50/50 p-4 dark:border-red-500/30 dark:bg-red-900/10">

@@ -40,6 +40,18 @@ from app.templating import Templates, build_jinja_env
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 
+# Values that ship in the repo / compose defaults and must never sign
+# real sessions. Keep in sync with app/config.py and docker-compose.yml.
+_INSECURE_SECRET_KEYS = frozenset(
+    {
+        "dev-insecure-secret-change-me",
+        "dev-insecure-change-me",
+        "change-me",
+        "",
+    }
+)
+
+
 async def _sync_stripe_prices_from_env(settings: Settings, log: Any) -> None:
     """UPSERT ``platform_plans.stripe_price_id`` from env for each plan.
 
@@ -389,6 +401,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             log.error("Add FEATURE_PLATFORM_ALLOW_DEMO=true to /etc/assoluto/env to")
             log.error("acknowledge this and silence the error-level log.")
             log.error("==================================================================")
+
+    # Refuse to serve production traffic with the shipped development
+    # secret. Every session cookie, CSRF token, password-reset link and
+    # invitation token is signed with this value, so a deployment that
+    # kept the default is trivially forgeable by anyone who has read the
+    # public repo.
+    #
+    # docker-compose.prod.yml already asserts ${APP_SECRET_KEY:?}, which
+    # covers the documented deploy path — but that is a property of one
+    # compose file, not of the application. A self-hoster running
+    # uvicorn directly (which SELF_HOST.md describes) got no such
+    # protection. Fail loudly at boot rather than silently.
+    if settings.is_production and settings.app_secret_key in _INSECURE_SECRET_KEYS:
+        raise RuntimeError(
+            "APP_SECRET_KEY is still the development default while "
+            "APP_ENV=production. Generate one with "
+            "`python -c 'import secrets; print(secrets.token_urlsafe(48))'` "
+            "and set it in the environment before starting the app."
+        )
 
     # Optional SaaS layer — loaded only when FEATURE_PLATFORM is on.
     # Core self-hosted builds skip this entirely so none of the

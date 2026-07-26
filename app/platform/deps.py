@@ -71,6 +71,11 @@ async def get_current_identity(
     ).scalar_one_or_none()
     if identity is None or not identity.is_active:
         return None
+    # Reject cookies minted before the last password reset. Without this
+    # a completed reset left every previously-issued platform session
+    # signed in — including one held by whoever prompted the reset.
+    if session_data.session_version != identity.session_version:
+        return None
     return identity
 
 

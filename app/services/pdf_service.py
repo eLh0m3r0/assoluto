@@ -25,7 +25,9 @@ from decimal import Decimal
 from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING
+from xml.sax.saxutils import escape as _xml_escape
 
+import reportlab.rl_config
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -57,6 +59,30 @@ FONTS_DIR = Path(__file__).resolve().parent.parent / "static" / "fonts"
 _FONT_NAME = "DejaVuSans"
 _FONT_NAME_BOLD = "DejaVuSans-Bold"
 _FONTS_REGISTERED = False
+
+
+# ReportLab's Paragraph takes a mini-HTML dialect, so any user text
+# interpolated into one is markup, not data. Two real consequences,
+# both reproduced against the pinned reportlab:
+#
+#   * DoS — an order line described as `M8 <b>bolt, zinc` raises
+#     "Parse error" and the whole PDF export 500s. Any customer contact
+#     can type that (can_add_items defaults to True), and it breaks the
+#     supplier's export, not just their own order.
+#   * SSRF — `<img src="http://169.254.169.254/...">` makes the PDF
+#     renderer fetch that URL server-side; rl_config trusts
+#     file/http/https/ftp out of the box.
+#
+# Escape the VARIABLE, never the surrounding literal <b>/<i> tags.
+def _esc(value: object) -> str:
+    """XML-escape a value for safe interpolation into a Paragraph."""
+    return _xml_escape("" if value is None else str(value))
+
+
+# Defence in depth: even correctly escaped input cannot make the PDF
+# engine open a socket or read a local file.
+reportlab.rl_config.trustedSchemes = []
+reportlab.rl_config.trustedHosts = []
 
 
 def _register_fonts() -> tuple[str, str]:
@@ -201,11 +227,11 @@ def render_order_pdf(
 
     # ------------------------------------------------ Header
     tenant_name = tenant.name if tenant else ""
-    story.append(Paragraph(tenant_name, h1))
+    story.append(Paragraph(_esc(tenant_name), h1))
     story.append(Spacer(1, 6))
     story.append(
         Paragraph(
-            f"{_gettext(locale, 'Order')} <b>{order.number}</b>",
+            f"{_gettext(locale, 'Order')} <b>{_esc(order.number)}</b>",
             h2,
         )
     )
@@ -263,7 +289,7 @@ def render_order_pdf(
         if customer.dic:
             cust_lines.append(f"{_gettext(locale, 'Tax ID')}: {customer.dic}")
         for line in cust_lines:
-            story.append(Paragraph(line, normal))
+            story.append(Paragraph(_esc(line), normal))
         story.append(Spacer(1, 12))
 
     # ------------------------------------------------ Items table
@@ -304,9 +330,9 @@ def render_order_pdf(
         qty_str = f"{_format_qty(item.quantity)} {item.unit or ''}".strip()
         data.append(
             [
-                Paragraph(sku, normal),
-                Paragraph(name, normal),
-                Paragraph(qty_str, normal),
+                Paragraph(_esc(sku), normal),
+                Paragraph(_esc(name), normal),
+                Paragraph(_esc(qty_str), normal),
                 Paragraph(format_money(item.unit_price, order.currency), normal),
                 Paragraph(format_money(line_total, order.currency), normal),
             ]

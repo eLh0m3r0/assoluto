@@ -109,17 +109,35 @@ async def authenticate_identity(db: AsyncSession, email: str, password: str) -> 
     return identity
 
 
-def create_platform_password_reset_token(secret_key: str, identity_id: UUID) -> str:
+def create_platform_password_reset_token(
+    secret_key: str, identity_id: UUID, session_version: int = 0
+) -> str:
+    """Mint a single-use platform password-reset token.
+
+    ``sv`` carries the identity's ``session_version`` at mint time. On
+    consume we refuse the token if the row has moved on, and bump it
+    afterwards — so the link dies the moment it is used. This mirrors
+    the tenant flow (CLAUDE.md §14); the platform side previously
+    embedded only the identity id and was replayable for the full TTL.
+    """
     from app.security.tokens import TokenPurpose, create_token
 
     return create_token(
         secret_key,
         TokenPurpose.PLATFORM_PASSWORD_RESET,
-        {"identity_id": str(identity_id)},
+        {"identity_id": str(identity_id), "sv": session_version},
     )
 
 
-def decode_platform_password_reset_token(secret_key: str, token: str, max_age_seconds: int) -> UUID:
+def decode_platform_password_reset_token(
+    secret_key: str, token: str, max_age_seconds: int
+) -> tuple[UUID, int]:
+    """Return ``(identity_id, session_version)`` from a reset token.
+
+    Tokens minted before ``sv`` existed decode as version 0, which
+    matches the column default, so links already in flight at deploy
+    time keep working exactly once.
+    """
     from app.security.tokens import TokenPurpose, verify_token
 
     try:
@@ -128,16 +146,38 @@ def decode_platform_password_reset_token(secret_key: str, token: str, max_age_se
         )
     except Exception as exc:
         raise InvalidCredentials(str(exc)) from exc
-    return UUID(data["identity_id"])
+    return UUID(data["identity_id"]), int(data.get("sv", 0))
 
 
-async def reset_platform_password(db: AsyncSession, identity_id: UUID, new_password: str) -> None:
+async def reset_platform_password(
+    db: AsyncSession,
+    identity_id: UUID,
+    new_password: str,
+    token_session_version: int | None = None,
+) -> None:
+    """Set a new platform password, consuming the reset token.
+
+    Raises ``InvalidCredentials`` when the token's ``session_version``
+    no longer matches the row — i.e. it was already used, or any other
+    event (a second reset, an admin action) superseded it.
+    """
+    if len(new_password) < 8:
+        # The tenant flow enforces this in six places; the platform flow
+        # enforced it nowhere, so a platform reset could set a 1-char
+        # password on an account that administers a whole tenant.
+        raise InvalidCredentials("Password must be at least 8 characters")
+
     identity = (
         await db.execute(select(Identity).where(Identity.id == identity_id))
     ).scalar_one_or_none()
     if identity is None or not identity.is_active:
         raise InvalidCredentials("Identity not found or disabled")
+    if token_session_version is not None and token_session_version != identity.session_version:
+        raise InvalidCredentials("token already used or superseded")
+
     identity.password_hash = hash_password(new_password)
+    # Kills this token AND every live platform session for the identity.
+    identity.session_version += 1
     await db.flush()
 
 
@@ -206,10 +246,16 @@ async def list_memberships_for_identity(
     db: AsyncSession, *, identity_id: UUID
 ) -> list[TenantMembership]:
     result = await db.execute(
-        select(TenantMembership).where(
+        select(TenantMembership)
+        .where(
             TenantMembership.identity_id == identity_id,
             TenantMembership.is_active.is_(True),
         )
+        # Deterministic order. Callers that pick "the first" membership
+        # (billing) must not depend on whatever order Postgres happens
+        # to emit — that made the resolved tenant vary between requests
+        # once an identity held more than one membership.
+        .order_by(TenantMembership.created_at, TenantMembership.id)
     )
     return list(result.scalars().all())
 
@@ -519,6 +565,7 @@ async def signup_tenant(
     owner_password: str,
     consent_ip: str | None = None,
     consent_version: str | None = None,
+    plan_code: str = "starter",
 ) -> tuple[Tenant, User, Identity]:
     """Create a tenant + admin user + Identity for the self-signup flow.
 
@@ -573,14 +620,20 @@ async def signup_tenant(
         identity.terms_accepted_ip = consent_ip[:45]
     await db.flush()
 
-    # Give the new tenant a 14-day trial on the starter plan by default.
-    # The only known failure mode here is "migration 1003 hasn't been
-    # applied yet" (PlanNotFound). Anything else indicates a real bug
-    # and should surface rather than silently continue.
+    # Start the trial on the plan the visitor actually clicked. This was
+    # hard-coded to "starter": someone who chose Pro on /pricing got a
+    # Starter trial capped at 3 users and 20 contacts, disclosed only in
+    # the Terms — so a 25-person shop hit a 402 wall on their fourth
+    # invite, mid-evaluation. (The comment here also said "14-day" while
+    # TRIAL_DAYS has been 30 for some time.)
+    #
+    # The only known failure mode is "migration 1003 hasn't been applied
+    # yet" (PlanNotFound). Anything else indicates a real bug and should
+    # surface rather than silently continue.
     try:
         from app.platform.billing.service import PlanNotFound, start_trial_subscription
 
-        await start_trial_subscription(db, tenant=tenant, plan_code="starter")
+        await start_trial_subscription(db, tenant=tenant, plan_code=plan_code or "starter")
     except PlanNotFound:
         pass
 

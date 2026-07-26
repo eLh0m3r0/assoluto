@@ -71,14 +71,26 @@ async def _resolve_current_tenant(
 
     Customer contact memberships are likewise skipped (customers should
     never see their supplier's billing dashboard).
+
+    **Support-access memberships are skipped too.** A platform operator
+    who grants themselves support access to a tenant gets exactly the
+    row this loop used to accept: a ``TENANT_ADMIN`` ``User`` in the
+    target tenant. Without this filter, opening /platform/billing after
+    a support grant could resolve to the *customer's* tenant and let the
+    operator cancel their subscription or change their plan. Support
+    access is for looking at business data through an audited grant, and
+    is never authority over that tenant's money.
     """
     from app.models.enums import UserRole
+    from app.platform.models import MEMBERSHIP_ACCESS_SUPPORT
     from app.platform.service import resolve_membership_targets
 
     memberships = await list_memberships_for_identity(db, identity_id=identity.id)
     for membership in memberships:
         if membership.user_id is None:
             continue  # customer contacts don't manage billing
+        if membership.access_type == MEMBERSHIP_ACCESS_SUPPORT:
+            continue  # operator support grant — never a billing identity
         tenant, target = await resolve_membership_targets(db, membership=membership)
         if tenant is None or not isinstance(target, User):
             continue
@@ -546,25 +558,13 @@ async def post_verify_checkout(
          CTA forever
       5. 303 to the final Stripe URL
     """
-    from app.platform.service import list_memberships_for_identity, resolve_membership_targets
     from app.security.session import SessionData, write_session
 
-    memberships = await list_memberships_for_identity(db, identity_id=identity.id)
-    tenant_obj = None
-    user_target = None
-    for membership in memberships:
-        if membership.user_id is None:
-            continue
-        t_candidate, target = await resolve_membership_targets(db, membership=membership)
-        if t_candidate is None:
-            continue
-        from app.models.enums import UserRole
-        from app.models.user import User
-
-        if isinstance(target, User) and target.role == UserRole.TENANT_ADMIN:
-            tenant_obj = t_candidate
-            user_target = target
-            break
+    # Single resolver, shared with the dashboard: it skips customer
+    # contacts, non-admin staff AND platform support-access grants, and
+    # walks memberships in a deterministic order. This used to be a
+    # second, subtly laxer copy of the same loop.
+    tenant_obj, user_target = await _resolve_current_tenant(db, identity)
     if tenant_obj is None or user_target is None:
         raise HTTPException(status_code=404, detail="No tenant to manage")
 

@@ -63,12 +63,21 @@ class LoginResult:
     session_version: int
 
 
-async def _has_unverified_identity(email: str) -> bool:
-    """True if a platform Identity for ``email`` exists and is NOT
-    verified. False on every error (DB down, table missing in self-host
-    mode, etc.) — the gate is a UX nudge, not a security control, so
-    failing open is acceptable. The actual security around platform-
-    privileged actions is enforced by ``require_verified_identity``.
+async def _has_unverified_identity(email: str, tenant_id: UUID) -> bool:
+    """True if an unverified platform Identity for ``email`` is bound to
+    ``tenant_id``. False on every error (DB down, table missing in
+    self-host mode, etc.) — the gate is a UX nudge, not a security
+    control, so failing open is acceptable. The actual security around
+    platform-privileged actions is enforced by
+    ``require_verified_identity``.
+
+    **The membership join is load-bearing.** This used to match on email
+    alone, which handed anyone a denial-of-service against a named
+    person: POST /platform/signup with a staff member's address creates
+    an unverified Identity, and that stranger's row then blocked the
+    victim from logging into their own tenant with their own correct
+    password. An Identity only speaks for a tenant it actually belongs
+    to, so scope the lookup to a membership on this tenant.
 
     Opens a fresh owner-scoped engine because the platform tables live
     outside the tenant RLS session that ``authenticate`` runs against.
@@ -88,13 +97,20 @@ async def _has_unverified_identity(email: str) -> bool:
                 row = (
                     await conn.execute(
                         text(
-                            "SELECT email_verified_at IS NULL "
-                            "FROM platform_identities WHERE email = :e LIMIT 1"
+                            "SELECT 1 "
+                            "FROM platform_identities i "
+                            "JOIN platform_tenant_memberships m "
+                            "  ON m.identity_id = i.id "
+                            "WHERE i.email = :e "
+                            "  AND i.email_verified_at IS NULL "
+                            "  AND m.tenant_id = :tid "
+                            "  AND m.is_active "
+                            "LIMIT 1"
                         ),
-                        {"e": email},
+                        {"e": email, "tid": str(tenant_id)},
                     )
                 ).scalar_one_or_none()
-                return bool(row) if row is not None else False
+                return row is not None
         finally:
             await engine.dispose()
     except Exception:  # pragma: no cover — failing open is the goal
@@ -118,10 +134,16 @@ async def authenticate(
     # Try tenant staff first.
     user = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
     if user is not None:
-        if not user.is_active:
-            raise AccountDisabled()
+        # Password FIRST, account state second. Checking ``is_active``
+        # up front turned the login form into an account-existence
+        # oracle: a disabled address answered "account disabled" while
+        # an unknown one answered "invalid credentials", so anyone could
+        # enumerate real staff addresses without knowing any password.
+        # State is only disclosed to someone who proved they own it.
         if not verify_password(password, user.password_hash):
             raise InvalidCredentials()
+        if not user.is_active:
+            raise AccountDisabled()
 
         # Email-verification gate. The User row exists for two reasons:
         # (a) self-signup via /platform/signup — also creates an
@@ -130,10 +152,12 @@ async def authenticate(
         #     they accepted via signed token, so the email IS already
         #     proven owned (the invite link landed in their inbox).
         # Path (b) does NOT mint an Identity. So: only block when an
-        # Identity exists for this email AND it's still unverified.
-        # Lookup goes through the platform-owner DSN because RLS on
-        # the tenant DB session can't see the platform tables.
-        if await _has_unverified_identity(email):
+        # unverified Identity exists for this email AND it is actually a
+        # member of *this* tenant — an unrelated signup elsewhere must
+        # never lock this user out. Lookup goes through the platform-
+        # owner DSN because RLS on the tenant DB session can't see the
+        # platform tables.
+        if await _has_unverified_identity(email, user.tenant_id):
             raise UnverifiedIdentity()
 
         # Opportunistically refresh stale hashes.
@@ -159,15 +183,23 @@ async def authenticate(
     ).scalar_one_or_none()
     if contact is None:
         raise InvalidCredentials()
+    # Same ordering rule as the staff branch above: prove the password
+    # before disclosing that the account exists but is disabled or has a
+    # pending invitation.
+    if not verify_password(password, contact.password_hash):
+        raise InvalidCredentials()
     if not contact.is_active:
         raise AccountDisabled()
     if contact.accepted_at is None:
         raise InvalidCredentials("invitation not accepted yet")
-    if not verify_password(password, contact.password_hash):
-        raise InvalidCredentials()
 
     if contact.password_hash and needs_rehash(contact.password_hash):
         contact.password_hash = hash_password(password)
+
+    # Staff logins have always been stamped; contact logins were not, so
+    # nobody could tell an active client from one who opened the invite
+    # once and never came back. See migration 1007.
+    contact.last_login_at = datetime.now(UTC)
 
     await db.flush()
 

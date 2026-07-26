@@ -142,6 +142,12 @@ async def test_plan_e2e_happy_path(
             "ico": "12345678",
             "dic": "CZ12345678",
             "notes": "",
+            # can_use_catalog is now enforced server-side when a contact
+            # attaches a product_id (audit 2026-07-26, F-18); it used to
+            # be a UI-only hint, so this happy path passed with the
+            # permission switched off. A supplier who wants contacts
+            # picking from the catalog ticks the box.
+            "can_use_catalog": "on",
         },
         follow_redirects=False,
     )
@@ -326,10 +332,20 @@ async def test_plan_e2e_happy_path(
         follow_redirects=False,
     )
     assert confirm.status_code == 303
-    confirm_mails = [m for m in capture.outbox[before_confirm:] if m.to == "jan@acme.cz"]
-    # The status email goes to contact(s); Jan receives it too since they're
-    # an active contact of ACME.
-    assert any("Potvrzeno" in m.subject for m in confirm_mails)
+    # Jan is a CONTACT and he is the one confirming the quote, so the
+    # notification must go to the SUPPLIER — this is the moment the shop
+    # has been waiting for. It used to be routed to the customer's own
+    # contacts instead, which meant the supplier was never told their
+    # quote had been accepted and Jan was emailed about his own click
+    # (audit 2026-07-26).
+    sent_after_confirm = capture.outbox[before_confirm:]
+    assert not [m for m in sent_after_confirm if m.to == "jan@acme.cz"], (
+        "the acting contact must not be emailed their own action"
+    )
+    staff_confirm_mails = [m for m in sent_after_confirm if m.to == "owner@4mex.cz"]
+    assert any("Potvrzeno" in m.subject for m in staff_confirm_mails), (
+        "the supplier must be told the quote was accepted"
+    )
 
     # -------- Step 16: owner walks IN_PRODUCTION → READY → DELIVERED -----
     await _logout(tenant_client)

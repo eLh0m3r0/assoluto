@@ -187,9 +187,16 @@ async def customers_edit_form(
                 "ico": customer.ico or "",
                 "dic": customer.dic or "",
                 "notes": customer.notes or "",
+                # Defaults MUST match OrderPermissions.from_dict, which
+                # treats every missing key as True. Rendering
+                # can_set_prices with a False default showed an unticked
+                # box for the `{}` permissions that migration 0008 gave
+                # every pre-existing customer — so staff read "these
+                # contacts cannot price line items" off a lock that was
+                # not actually engaged.
                 "can_add_items": "on" if perms.get("can_add_items", True) else "",
                 "can_use_catalog": "on" if perms.get("can_use_catalog", True) else "",
-                "can_set_prices": "on" if perms.get("can_set_prices", False) else "",
+                "can_set_prices": "on" if perms.get("can_set_prices", True) else "",
                 "can_upload_files": "on" if perms.get("can_upload_files", True) else "",
                 "preferred_locale": customer.preferred_locale or "",
             },
