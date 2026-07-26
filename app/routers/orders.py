@@ -576,7 +576,7 @@ async def orders_detail(
         await db.execute(select(Customer).where(Customer.id == order.customer_id))
     ).scalar_one_or_none()
 
-    available_transitions = _available_transitions(request, order, principal)
+    status_pipeline = _status_pipeline(request, order, principal)
 
     # Resolve per-customer order permissions.
     from app.services.customer_permissions import OrderPermissions
@@ -609,7 +609,7 @@ async def orders_detail(
             "attachments": attachments,
             "customer": customer,
             "can_edit_items": _can_edit_items(order, principal),
-            "available_transitions": available_transitions,
+            "status_pipeline": status_pipeline,
             "product_choices": product_choices,
             "error": error,
             "notice": notice,
@@ -629,64 +629,138 @@ def _can_edit_items(order, principal: Principal) -> bool:
     return order.status == OrderStatus.DRAFT
 
 
-# Label + visual category for each status transition button.
-# "kind" controls the button colour in the template:
-#   forward  = blue (primary workflow progression)
-#   back     = gray (returning to an earlier state)
-#   finish   = green (completing the order)
-#   danger   = red (cancel / destructive)
-#
-# ``label`` values are English gettext message IDs; the real translation
-# is resolved per request in ``_available_transitions`` so the CS/EN
-# switcher works on the action buttons too.
-TRANSITION_META: dict[OrderStatus, dict] = {
-    OrderStatus.DRAFT: {"label": "Return to draft", "kind": "back", "order": 0},
-    OrderStatus.SUBMITTED: {"label": "Submit", "kind": "forward", "order": 1},
-    OrderStatus.QUOTED: {"label": "Quote", "kind": "forward", "order": 2},
-    OrderStatus.CONFIRMED: {"label": "Confirm", "kind": "forward", "order": 3},
-    OrderStatus.IN_PRODUCTION: {"label": "Start production", "kind": "forward", "order": 4},
-    OrderStatus.READY: {"label": "Ready", "kind": "forward", "order": 5},
-    OrderStatus.DELIVERED: {"label": "Delivered", "kind": "finish", "order": 6},
-    OrderStatus.CLOSED: {"label": "Close", "kind": "finish", "order": 7},
-    OrderStatus.CANCELLED: {"label": "Cancel", "kind": "danger", "order": 99},
+# Status *nouns* — what the order currently is. These msgids are shared
+# with ``orders/_status_badge.html`` and the filter dropdowns, so the
+# translations already exist in the CS/DE catalogs.
+STATUS_LABELS: dict[OrderStatus, str] = {
+    OrderStatus.DRAFT: "Draft",
+    OrderStatus.SUBMITTED: "Submitted",
+    OrderStatus.QUOTED: "Quoted",
+    OrderStatus.CONFIRMED: "Confirmed",
+    OrderStatus.IN_PRODUCTION: "In production",
+    OrderStatus.READY: "Ready",
+    OrderStatus.DELIVERED: "Delivered",
+    OrderStatus.CLOSED: "Closed",
+    OrderStatus.CANCELLED: "Cancelled",
+}
+
+# Status *verbs* — what clicking does. Used only for the single primary
+# call-to-action button; every other node in the stepper is labelled
+# with its noun, because "jump the order to Ready" reads better as a
+# position on the pipeline than as a command.
+STATUS_ACTIONS: dict[OrderStatus, str] = {
+    OrderStatus.DRAFT: "Return to draft",
+    OrderStatus.SUBMITTED: "Submit",
+    OrderStatus.QUOTED: "Quote",
+    OrderStatus.CONFIRMED: "Confirm",
+    OrderStatus.IN_PRODUCTION: "Start production",
+    OrderStatus.READY: "Mark as ready",
+    OrderStatus.DELIVERED: "Mark as delivered",
+    OrderStatus.CLOSED: "Close order",
+    OrderStatus.CANCELLED: "Cancel order",
 }
 
 
-def _available_transitions(request: Request, order, principal: Principal) -> list[dict]:
-    """Return the list of transitions the current principal can perform.
+def _status_pipeline(request: Request, order, principal: Principal) -> dict:
+    """Build the view-model for the order status stepper.
 
-    Staff see every status except the current one — full admin control.
-    Contacts see only what the state machine allows. Results are sorted
-    in logical workflow order (forward first, cancel last).
+    The stepper renders the whole pipeline at once — past steps ticked,
+    the current one highlighted, future ones reachable. That replaces the
+    old flat row of buttons, whose fatal flaw was labelling moves by
+    *target status only*: from CONFIRMED, a backward move to QUOTED came
+    out as a blue button reading "Quote", visually identical to a step
+    forward. Position on a line is unambiguous in a way a verb is not.
+
+    Staff can click any node (see ``STAFF_ALLOWED_TRANSITIONS``);
+    contacts get the same picture of where their order stands, but only
+    the nodes their own graph permits are clickable. Jumps that skip
+    steps or move backwards carry a ``confirm`` message — the freedom is
+    the point, but it should never be *accidental*.
     """
-    from app.i18n import gettext as _gettext
     from app.services.order_service import (
         CONTACT_ALLOWED_TRANSITIONS,
+        PIPELINE,
         STAFF_ALLOWED_TRANSITIONS,
+        pipeline_rank,
+        skipped_statuses,
     )
 
-    locale = getattr(request.state, "locale", None) or "cs"
-
     if principal.is_staff:
-        candidates = STAFF_ALLOWED_TRANSITIONS.get(order.status, set())
+        allowed = STAFF_ALLOWED_TRANSITIONS.get(order.status, set())
     else:
-        candidates = CONTACT_ALLOWED_TRANSITIONS.get(order.status, set())
+        allowed = CONTACT_ALLOWED_TRANSITIONS.get(order.status, set())
 
-    out: list[dict] = []
-    for to_status in candidates:
-        meta = TRANSITION_META.get(
-            to_status, {"label": to_status.value, "kind": "forward", "order": 50}
-        )
-        out.append(
-            {
-                "to_status": to_status.value,
-                "label": _gettext(locale, meta["label"]),
-                "kind": meta["kind"],
-                "order": meta["order"],
-            }
-        )
-    out.sort(key=lambda x: x["order"])
-    return out
+    current = order.status
+    current_rank = pipeline_rank(current)
+    is_cancelled = current == OrderStatus.CANCELLED
+
+    def _label(status: OrderStatus) -> str:
+        return _t(request, STATUS_LABELS.get(status, status.value))
+
+    def _confirm_for(target: OrderStatus) -> str | None:
+        """Guard message for a move that isn't the obvious next step."""
+        if target == OrderStatus.CANCELLED:
+            return _t(request, "Cancel this order?")
+        skipped = skipped_statuses(current, target)
+        if skipped:
+            return _t(
+                request, "This jumps straight to {target} and skips {skipped}. Continue?"
+            ).format(
+                target=_label(target),
+                skipped=", ".join(_label(s) for s in skipped),
+            )
+        target_rank = pipeline_rank(target)
+        if current_rank is not None and target_rank is not None and target_rank < current_rank:
+            return _t(request, "This moves the order back to {target}. Continue?").format(
+                target=_label(target)
+            )
+        return None
+
+    def _node(status: OrderStatus) -> dict:
+        rank = pipeline_rank(status)
+        if is_cancelled or current_rank is None or rank is None:
+            state = "current" if status == current else "future"
+        elif rank < current_rank:
+            state = "done"
+        elif rank == current_rank:
+            state = "current"
+        else:
+            state = "future"
+        return {
+            "value": status.value,
+            "label": _label(status),
+            "action_label": _t(request, STATUS_ACTIONS.get(status, status.value)),
+            "state": state,
+            "allowed": status in allowed,
+            "confirm": _confirm_for(status) if status in allowed else None,
+        }
+
+    nodes = [_node(s) for s in PIPELINE]
+
+    # The natural next step gets a prominent CTA so the common case stays
+    # one obvious click — the stepper adds freedom without making the
+    # happy path harder to find.
+    primary = None
+    if current_rank is not None and current_rank + 1 < len(PIPELINE):
+        candidate = PIPELINE[current_rank + 1]
+        if candidate in allowed:
+            primary = _node(candidate)
+
+    cancel = _node(OrderStatus.CANCELLED) if OrderStatus.CANCELLED in allowed else None
+    # Reopening a cancelled order lands in DRAFT by default; staff can
+    # still pick any other node from the stepper.
+    reopen = _node(OrderStatus.DRAFT) if is_cancelled and OrderStatus.DRAFT in allowed else None
+
+    return {
+        "nodes": nodes,
+        "primary": primary,
+        "cancel": cancel,
+        "reopen": reopen,
+        "is_cancelled": is_cancelled,
+        "current": current.value,
+        "current_label": _label(current),
+        "has_actions": bool(allowed),
+    }
 
 
 # ---------------------------------------------------------------- add item
@@ -1221,10 +1295,11 @@ async def orders_transition(
         )
 
     # Flash so the user gets a confirmation — silent redirects leave
-    # them wondering if the click did anything. Localised via _t()
-    # and the TRANSITION_META label so "in_production" → "Ve výrobě"
-    # (cs) / "In production" (en).
-    status_label = _t(request, TRANSITION_META.get(target, {}).get("label", target.value))
+    # them wondering if the click did anything. Localised via _t() and
+    # the STATUS_LABELS *noun* so "in_production" → "Ve výrobě" (cs) /
+    # "In production" (en). It used to read the transition *verb* here,
+    # which produced "Status changed to Start production."
+    status_label = _t(request, STATUS_LABELS.get(target, target.value))
     notice_msg = _t(request, "Status changed to {status}.").format(status=status_label)
     return RedirectResponse(
         url=f"/app/orders/{order.id}?notice={quote(notice_msg)}", status_code=303
