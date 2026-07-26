@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-07-03 21:27+0200\n"
+"POT-Creation-Date: 2026-07-26 16:13+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -23,75 +23,94 @@ msgid "All statuses"
 msgstr ""
 
 #: app/i18n_messages.py:35 app/templates/orders/_status_badge.html:14
-#: app/templates/orders/detail.html:340
+#: app/templates/orders/detail.html:447
 msgid "Draft"
 msgstr "Draft"
 
 #: app/i18n_messages.py:36 app/templates/orders/_status_badge.html:15
-#: app/templates/orders/detail.html:341
+#: app/templates/orders/detail.html:448
 msgid "Submitted"
 msgstr "Submitted"
 
 #: app/i18n_messages.py:37 app/templates/orders/_status_badge.html:16
-#: app/templates/orders/detail.html:342
+#: app/templates/orders/detail.html:449
 msgid "Quoted"
 msgstr "Quoted"
 
 #: app/i18n_messages.py:38 app/templates/orders/_status_badge.html:17
-#: app/templates/orders/detail.html:343
+#: app/templates/orders/detail.html:450
 msgid "Confirmed"
 msgstr "Confirmed"
 
 #: app/i18n_messages.py:39 app/templates/orders/_status_badge.html:18
-#: app/templates/orders/detail.html:344
+#: app/templates/orders/detail.html:451
 msgid "In production"
 msgstr "In production"
 
 #: app/i18n_messages.py:40 app/templates/orders/_status_badge.html:19
-#: app/templates/orders/detail.html:345
+#: app/templates/orders/detail.html:452
 msgid "Ready"
 msgstr "Ready"
 
 #: app/i18n_messages.py:41 app/templates/orders/_status_badge.html:20
-#: app/templates/orders/detail.html:346
+#: app/templates/orders/detail.html:453
 msgid "Delivered"
 msgstr "Delivered"
 
 #: app/i18n_messages.py:42 app/templates/orders/_status_badge.html:21
-#: app/templates/orders/detail.html:347
+#: app/templates/orders/detail.html:454
 msgid "Closed"
 msgstr "Closed"
 
 #: app/i18n_messages.py:43 app/templates/orders/_status_badge.html:22
-#: app/templates/orders/detail.html:348
+#: app/templates/orders/detail.html:455
 msgid "Cancelled"
 msgstr "Cancelled"
 
-#: app/i18n_messages.py:46
+#: app/i18n_messages.py:49
 msgid "Return to draft"
 msgstr ""
 
-#: app/i18n_messages.py:47
+#: app/i18n_messages.py:50
 msgid "Submit"
 msgstr ""
 
-#: app/i18n_messages.py:48
+#: app/i18n_messages.py:51
 msgid "Quote"
 msgstr ""
 
-#: app/i18n_messages.py:49
+#: app/i18n_messages.py:52
 msgid "Confirm"
 msgstr ""
 
-#: app/i18n_messages.py:50
+#: app/i18n_messages.py:53
 msgid "Start production"
 msgstr ""
 
-#: app/i18n_messages.py:51
+#: app/i18n_messages.py:54
+msgid "Mark as ready"
+msgstr ""
+
+#: app/i18n_messages.py:55
+
+msgid "Mark as delivered"
+msgstr ""
+
+#: app/i18n_messages.py:56
+
+msgid "Close order"
+msgstr ""
+
+#: app/i18n_messages.py:57
+
+msgid "Cancel order"
+msgstr ""
+
+#: app/i18n_messages.py:60
 msgid "Close"
 msgstr ""
 
-#: app/i18n_messages.py:52 app/templates/admin/user_edit.html:68
+#: app/i18n_messages.py:61 app/templates/admin/user_edit.html:68
 #: app/templates/assets/form.html:57 app/templates/customers/form.html:99
 #: app/templates/orders/form.html:58
 #: app/templates/platform/admin/tenant_edit.html:73
@@ -99,28 +118,28 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: app/i18n_messages.py:56
+#: app/i18n_messages.py:65
 msgid "All entities"
 msgstr ""
 
-#: app/i18n_messages.py:57 app/templates/_palette_results.html:34
+#: app/i18n_messages.py:66 app/templates/_palette_results.html:34
 msgid "Order"
 msgstr ""
 
-#: app/i18n_messages.py:58 app/routers/orders.py:296
+#: app/i18n_messages.py:67 app/routers/orders.py:296
 #: app/templates/admin/sla.html:119
 msgid "Customer"
 msgstr ""
 
-#: app/i18n_messages.py:59 app/templates/_palette_results.html:76
+#: app/i18n_messages.py:68 app/templates/_palette_results.html:76
 msgid "Product"
 msgstr ""
 
-#: app/i18n_messages.py:60
+#: app/i18n_messages.py:69
 msgid "User"
 msgstr ""
 
-#: app/i18n_messages.py:61 app/templates/platform/select_tenant.html:46
+#: app/i18n_messages.py:70 app/templates/platform/select_tenant.html:46
 msgid "Customer contact"
 msgstr ""
 
@@ -724,7 +743,7 @@ msgstr ""
 msgid "Currency"
 msgstr ""
 
-#: app/routers/orders.py:302 app/templates/orders/detail.html:79
+#: app/routers/orders.py:302 app/templates/orders/detail.html:118
 #: app/templates/www/_hero_mock.html:61
 msgid "Items"
 msgstr ""
@@ -737,50 +756,64 @@ msgstr ""
 msgid "Order created."
 msgstr ""
 
-#: app/routers/orders.py:788
+#: app/routers/orders.py:703
+msgid "Cancel this order?"
+msgstr ""
+
+#: app/routers/orders.py:707
+#, python-brace-format
+msgid "This jumps straight to {target} and skips {skipped}. Continue?"
+msgstr ""
+
+#: app/routers/orders.py:714
+#, python-brace-format
+msgid "This moves the order back to {target}. Continue?"
+msgstr ""
+
+#: app/routers/orders.py:862
 msgid "Item added."
 msgstr ""
 
-#: app/routers/orders.py:860
+#: app/routers/orders.py:934
 msgid "Invalid quantity"
 msgstr ""
 
-#: app/routers/orders.py:870
+#: app/routers/orders.py:944
 msgid "Invalid unit_price"
 msgstr ""
 
-#: app/routers/orders.py:901
+#: app/routers/orders.py:975
 msgid "This order can no longer be edited."
 msgstr ""
 
-#: app/routers/orders.py:974
+#: app/routers/orders.py:1048
 msgid "Item deleted."
 msgstr ""
 
-#: app/routers/orders.py:1004
+#: app/routers/orders.py:1078
 msgid "Unknown status"
 msgstr ""
 
-#: app/routers/orders.py:1025
+#: app/routers/orders.py:1099
 msgid "Select at least one order."
 msgstr ""
 
-#: app/routers/orders.py:1120
+#: app/routers/orders.py:1194
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr ""
 
-#: app/routers/orders.py:1122
+#: app/routers/orders.py:1196
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr ""
 
-#: app/routers/orders.py:1228
+#: app/routers/orders.py:1303
 #, python-brace-format
 msgid "Status changed to {status}."
 msgstr ""
 
-#: app/routers/orders.py:1308
+#: app/routers/orders.py:1383
 msgid "Comment added."
 msgstr ""
 
@@ -899,7 +932,7 @@ msgstr ""
 
 #: app/templates/_palette_results.html:22
 #: app/templates/_palette_results.html:23 app/templates/app_base.html:45
-#: app/templates/dashboard/index.html:207 app/templates/orders/detail.html:29
+#: app/templates/dashboard/index.html:207 app/templates/orders/detail.html:68
 #: app/templates/orders/form.html:6 app/templates/orders/list.html:3
 #: app/templates/orders/list.html:7 app/templates/www/_hero_mock.html:25
 #: app/templates/www/_hero_mock.html:46
@@ -917,7 +950,7 @@ msgstr "Clients"
 
 #: app/templates/_palette_results.html:55 app/templates/assets/detail.html:14
 #: app/templates/assets/form.html:17 app/templates/assets/list.html:26
-#: app/templates/orders/detail.html:48 app/templates/orders/detail.html:268
+#: app/templates/orders/detail.html:87 app/templates/orders/detail.html:375
 #: app/templates/orders/form.html:25 app/templates/orders/list.html:85
 #: app/templates/products/form.html:55 app/templates/products/list.html:22
 #: app/templates/www/_hero_mock.html:60
@@ -963,7 +996,7 @@ msgstr ""
 #: app/templates/assets/form.html:6 app/templates/customers/detail.html:8
 #: app/templates/customers/form.html:9 app/templates/customers/form.html:13
 #: app/templates/dashboard/index.html:3 app/templates/dashboard/index.html:7
-#: app/templates/me/profile.html:7 app/templates/orders/detail.html:29
+#: app/templates/me/profile.html:7 app/templates/orders/detail.html:68
 #: app/templates/orders/form.html:6
 #: app/templates/platform/admin/_header.html:21
 #: app/templates/platform/admin/dashboard.html:3
@@ -1121,27 +1154,27 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
-#: app/templates/admin/audit.html:110 app/templates/admin/audit.html:113
+#: app/templates/admin/audit.html:115 app/templates/admin/audit.html:118
 msgid "Show details"
 msgstr ""
 
-#: app/templates/admin/audit.html:131 app/templates/orders/list.html:165
+#: app/templates/admin/audit.html:136 app/templates/orders/list.html:165
 msgid "Page"
 msgstr ""
 
-#: app/templates/admin/audit.html:131 app/templates/orders/list.html:166
+#: app/templates/admin/audit.html:136 app/templates/orders/list.html:166
 msgid "records"
 msgstr ""
 
-#: app/templates/admin/audit.html:137 app/templates/orders/list.html:172
+#: app/templates/admin/audit.html:142 app/templates/orders/list.html:172
 msgid "Previous"
 msgstr ""
 
-#: app/templates/admin/audit.html:141 app/templates/orders/list.html:178
+#: app/templates/admin/audit.html:146 app/templates/orders/list.html:178
 msgid "Next"
 msgstr ""
 
-#: app/templates/admin/audit.html:148
+#: app/templates/admin/audit.html:153
 msgid "No audit events match the current filters."
 msgstr ""
 
@@ -1508,7 +1541,7 @@ msgid "Location"
 msgstr ""
 
 #: app/templates/assets/detail.html:32 app/templates/assets/form.html:51
-#: app/templates/orders/detail.html:89 app/templates/products/detail.html:49
+#: app/templates/orders/detail.html:128 app/templates/products/detail.html:49
 #: app/templates/products/form.html:43
 msgid "Description"
 msgstr ""
@@ -1526,8 +1559,8 @@ msgid "Type"
 msgstr ""
 
 #: app/templates/assets/detail.html:48 app/templates/assets/detail.html:87
-#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:90
-#: app/templates/orders/detail.html:137
+#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:129
+#: app/templates/orders/detail.html:176
 msgid "Quantity"
 msgstr ""
 
@@ -1900,7 +1933,7 @@ msgstr ""
 msgid "Recent activity"
 msgstr ""
 
-#: app/templates/dashboard/index.html:128 app/templates/orders/detail.html:269
+#: app/templates/dashboard/index.html:128 app/templates/orders/detail.html:376
 msgid "System"
 msgstr ""
 
@@ -2048,8 +2081,8 @@ msgstr ""
 msgid "Note (optional)"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:91
-#: app/templates/orders/detail.html:144
+#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:130
+#: app/templates/orders/detail.html:183
 msgid "Price/unit"
 msgstr ""
 
@@ -2061,124 +2094,141 @@ msgstr ""
 msgid "Saved"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:210
+#: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:249
 #: app/templates/products/detail.html:34
 msgid "Delete"
 msgstr ""
 
-#: app/templates/orders/detail.html:44
+#: app/templates/orders/detail.html:34
+msgid "Move order to"
+msgstr ""
+
+#: app/templates/orders/detail.html:83
 msgid "PDF"
 msgstr ""
 
-#: app/templates/orders/detail.html:56
+#: app/templates/orders/detail.html:95
 msgid "Confirmed total price filled in by staff on transition to Quoted."
 msgstr ""
 
-#: app/templates/orders/detail.html:57
+#: app/templates/orders/detail.html:96
 msgid "Quoted (confirmed)"
 msgstr ""
 
-#: app/templates/orders/detail.html:63
+#: app/templates/orders/detail.html:102
 msgid "Requested delivery"
 msgstr ""
 
-#: app/templates/orders/detail.html:69
+#: app/templates/orders/detail.html:108
 msgid "Promised delivery"
 msgstr ""
 
-#: app/templates/orders/detail.html:92 app/templates/orders/list.html:88
+#: app/templates/orders/detail.html:131 app/templates/orders/list.html:88
 msgid "Total"
 msgstr ""
 
-#: app/templates/orders/detail.html:110
+#: app/templates/orders/detail.html:149
 msgid "No items."
 msgstr ""
 
-#: app/templates/orders/detail.html:123
+#: app/templates/orders/detail.html:162
 msgid "custom item (free-text)"
 msgstr ""
 
-#: app/templates/orders/detail.html:139
+#: app/templates/orders/detail.html:178
 msgid "unit"
 msgstr ""
 
-#: app/templates/orders/detail.html:150
+#: app/templates/orders/detail.html:189
 msgid "Item description"
 msgstr ""
 
-#: app/templates/orders/detail.html:155
+#: app/templates/orders/detail.html:194
 msgid "Add item"
 msgstr ""
 
-#: app/templates/orders/detail.html:165
+#: app/templates/orders/detail.html:204
 msgid "Attachments"
 msgstr ""
 
-#: app/templates/orders/detail.html:180
+#: app/templates/orders/detail.html:219
 msgid "IMG"
 msgstr ""
 
-#: app/templates/orders/detail.html:181
+#: app/templates/orders/detail.html:220
 msgid "DWG"
 msgstr ""
 
-#: app/templates/orders/detail.html:182
+#: app/templates/orders/detail.html:221
 msgid "DOC"
 msgstr ""
 
-#: app/templates/orders/detail.html:183
+#: app/templates/orders/detail.html:222
 msgid "OST"
 msgstr ""
 
-#: app/templates/orders/detail.html:199
+#: app/templates/orders/detail.html:238
 msgid "item"
 msgstr ""
 
-#: app/templates/orders/detail.html:218
+#: app/templates/orders/detail.html:257
 msgid "No attachments."
 msgstr ""
 
-#: app/templates/orders/detail.html:230
+#: app/templates/orders/detail.html:269
 msgid "to the whole order"
 msgstr ""
 
-#: app/templates/orders/detail.html:239
+#: app/templates/orders/detail.html:278
 msgid "Upload"
 msgstr ""
 
-#: app/templates/orders/detail.html:248
-msgid "Actions"
-msgstr ""
-
-#: app/templates/orders/detail.html:260
-msgid "Comments"
-msgstr ""
-
-#: app/templates/orders/detail.html:267
-msgid "Supplier team"
-msgstr ""
-
-#: app/templates/orders/detail.html:277
-msgid "internal"
-msgstr ""
-
-#: app/templates/orders/detail.html:282
-msgid "No comments."
-msgstr ""
-
 #: app/templates/orders/detail.html:288
-msgid "Write a comment…"
+
+msgid "Order status"
 msgstr ""
 
-#: app/templates/orders/detail.html:294
-msgid "Internal (staff only)"
+#: app/templates/orders/detail.html:291
+msgid "Click any step to move the order there."
 msgstr ""
 
 #: app/templates/orders/detail.html:301
+msgid "This order is cancelled. Pick a step below to reopen it."
+msgstr ""
+
+#: app/templates/orders/detail.html:344
+msgid "Reopen as draft"
+msgstr ""
+
+#: app/templates/orders/detail.html:367
+msgid "Comments"
+msgstr ""
+
+#: app/templates/orders/detail.html:374
+msgid "Supplier team"
+msgstr ""
+
+#: app/templates/orders/detail.html:384
+msgid "internal"
+msgstr ""
+
+#: app/templates/orders/detail.html:389
+msgid "No comments."
+msgstr ""
+
+#: app/templates/orders/detail.html:395
+msgid "Write a comment…"
+msgstr ""
+
+#: app/templates/orders/detail.html:401
+msgid "Internal (staff only)"
+msgstr ""
+
+#: app/templates/orders/detail.html:408
 msgid "Add a comment"
 msgstr ""
 
-#: app/templates/orders/detail.html:310
+#: app/templates/orders/detail.html:417
 msgid "Status history"
 msgstr ""
 
@@ -6682,5 +6732,8 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Priority support (4 h business hours, written SLA)"
+#~ msgstr ""
+
+#~ msgid "Actions"
 #~ msgstr ""
 

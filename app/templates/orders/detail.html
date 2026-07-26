@@ -2,26 +2,65 @@
 
 {% block title %}Assoluto — {{ order.number }} — {{ order.title }}{% endblock %}
 
-{% macro transition_btn(transition, order) %}
-    {% set kind = transition.kind %}
-    {% if kind == "forward" %}
-        {% set btn_class = "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-500/30 dark:bg-blue-900/30 dark:text-blue-200 dark:hover:bg-blue-900/50" %}
-    {% elif kind == "finish" %}
-        {% set btn_class = "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-900/30 dark:text-emerald-200 dark:hover:bg-emerald-900/50" %}
-    {% elif kind == "back" %}
-        {% set btn_class = "border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700" %}
-    {% elif kind == "danger" %}
-        {% set btn_class = "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-500/30 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/50" %}
+{# One node of the status stepper.
+
+   `node` comes from ``_status_pipeline`` in app/routers/orders.py and
+   carries its own `state` (done / current / future) and `allowed` flag.
+   An allowed node is a real submit button — clicking it moves the order
+   straight there, however many steps away it is. A node the current
+   principal may not reach renders as a plain marker, so customers still
+   see where their order stands without being offered controls they
+   cannot use.
+
+   `data-confirm` is picked up by the delegated handler in
+   static/js/app.js; CSP forbids inline onsubmit. #}
+{% macro status_node(node, order) %}
+    {% if node.state == "done" %}
+        {% set dot_class = "border-emerald-500 bg-emerald-500 text-white dark:border-emerald-500 dark:bg-emerald-500" %}
+        {% set text_class = "text-slate-600 dark:text-slate-400" %}
+    {% elif node.state == "current" %}
+        {% set dot_class = "border-brand-600 bg-brand-600 text-white ring-4 ring-brand-100 dark:border-brand-500 dark:bg-brand-500 dark:ring-brand-500/25" %}
+        {% set text_class = "font-semibold text-slate-900 dark:text-slate-100" %}
     {% else %}
-        {% set btn_class = "border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700" %}
+        {% set dot_class = "border-slate-300 bg-white text-slate-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-500" %}
+        {% set text_class = "text-slate-500 dark:text-slate-400" %}
     {% endif %}
-    <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ transition.to_status }}" class="inline">
-        {{ csrf_input() }}
-        <button type="submit"
-                class="rounded-lg border px-3.5 py-2 text-xs font-semibold transition {{ btn_class }}">
-            {{ transition.label }}
-        </button>
-    </form>
+
+    {% if node.allowed %}
+        <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ node.value }}"
+              {% if node.confirm %}data-confirm="{{ node.confirm }}"{% endif %}>
+            {{ csrf_input() }}
+            <button type="submit"
+                    title="{{ _('Move order to') }} {{ node.label }}"
+                    class="group flex w-full flex-col items-center gap-1.5 rounded-lg px-1 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
+                <span aria-hidden="true"
+                      class="relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold transition group-hover:border-brand-500 group-hover:ring-4 group-hover:ring-brand-100 dark:group-hover:ring-brand-500/25 {{ dot_class }}">
+                    {% if node.state == "done" %}
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    {% else %}
+                        <span class="h-2 w-2 rounded-full bg-current"></span>
+                    {% endif %}
+                </span>
+                <span class="text-[11px] leading-tight transition group-hover:text-brand-700 dark:group-hover:text-brand-300 {{ text_class }}">{{ node.label }}</span>
+            </button>
+        </form>
+    {% else %}
+        <div class="flex w-full flex-col items-center gap-1.5 px-1 py-1">
+            <span aria-hidden="true"
+                  class="relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold {{ dot_class }}">
+                {% if node.state == "done" %}
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                {% else %}
+                    <span class="h-2 w-2 rounded-full bg-current"></span>
+                {% endif %}
+            </span>
+            <span class="text-[11px] leading-tight {{ text_class }}">{{ node.label }}</span>
+        </div>
+    {% endif %}
 {% endmacro %}
 
 {% block content %}
@@ -242,17 +281,89 @@
         {% endif %}
     </section>
 
-    {# ------------------------------------------------------ transitions #}
-    {% if available_transitions %}
-        <section class="mb-8 rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h2 class="mb-3 font-semibold text-slate-900 dark:text-slate-100">{{ _('Actions') }}</h2>
-            <div class="flex flex-wrap gap-2">
-                {% for transition in available_transitions %}
-                    {{ transition_btn(transition, order) }}
-                {% endfor %}
+    {# ------------------------------------------------- status pipeline #}
+    {% set pipeline = status_pipeline %}
+    <section class="mb-8 rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 class="font-semibold text-slate-900 dark:text-slate-100">{{ _('Order status') }}</h2>
+            {% if pipeline.has_actions %}
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    {{ _('Click any step to move the order there.') }}
+                </p>
+            {% endif %}
+        </div>
+
+        {% if pipeline.is_cancelled %}
+            <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-900/25 dark:text-red-200">
+                <svg aria-hidden="true" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l4-4m0 4l-4-4m10 2a8 8 0 11-16 0 8 8 0 0116 0z"/>
+                </svg>
+                <span>{{ _('This order is cancelled. Pick a step below to reopen it.') }}</span>
             </div>
-        </section>
-    {% endif %}
+        {% endif %}
+
+        {# Horizontal on desktop, horizontally scrollable on narrow screens
+           rather than wrapping — a pipeline that wraps stops reading as a
+           line, which is the whole point of the control. #}
+        <div class="-mx-1 overflow-x-auto pb-1">
+            <ol class="flex min-w-[34rem] items-start">
+                {% for node in pipeline.nodes %}
+                    <li class="relative flex flex-1 flex-col items-center">
+                        {% if not loop.first %}
+                            {# Connector sits behind the dots (z-10 on the dot).
+                               A segment is "travelled" when the node it leads
+                               *into* has been reached — so the leg arriving at
+                               the current step counts, even though that step
+                               is not finished yet. #}
+                            <span aria-hidden="true"
+                                  class="absolute right-1/2 top-[1.4375rem] h-0.5 w-full {% if node.state in ('done', 'current') %}bg-emerald-500{% else %}bg-slate-200 dark:bg-slate-700{% endif %}"></span>
+                        {% endif %}
+                        {{ status_node(node, order) }}
+                    </li>
+                {% endfor %}
+            </ol>
+        </div>
+
+        {% if pipeline.primary or pipeline.reopen or pipeline.cancel %}
+            <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-200 pt-4 dark:border-slate-800">
+                {% if pipeline.primary %}
+                    <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ pipeline.primary.value }}"
+                          {% if pipeline.primary.confirm %}data-confirm="{{ pipeline.primary.confirm }}"{% endif %}>
+                        {{ csrf_input() }}
+                        <button type="submit"
+                                class="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900">
+                            {{ pipeline.primary.action_label }}
+                            <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                            </svg>
+                        </button>
+                    </form>
+                {% endif %}
+
+                {% if pipeline.reopen %}
+                    <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ pipeline.reopen.value }}">
+                        {{ csrf_input() }}
+                        <button type="submit"
+                                class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                            {{ _('Reopen as draft') }}
+                        </button>
+                    </form>
+                {% endif %}
+
+                {% if pipeline.cancel %}
+                    <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ pipeline.cancel.value }}"
+                          class="ml-auto"
+                          data-confirm="{{ pipeline.cancel.confirm }}">
+                        {{ csrf_input() }}
+                        <button type="submit"
+                                class="rounded-lg border border-red-200 bg-red-50 px-3.5 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 dark:border-red-500/30 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/50">
+                            {{ pipeline.cancel.action_label }}
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
 
     {# ---------------------------------------------------------- comments #}
     <section class="mb-8 rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">

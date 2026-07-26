@@ -42,12 +42,21 @@ _("Delivered")
 _("Closed")
 _("Cancelled")
 
-# Transition button labels from ``TRANSITION_META``.
+# Status *verbs* from ``STATUS_ACTIONS`` — the primary call-to-action
+# label on the order status stepper. The matching *nouns* are the
+# status names registered just above; both dicts are keyed by
+# ``OrderStatus`` in ``app/routers/orders.py``.
 _("Return to draft")
 _("Submit")
 _("Quote")
 _("Confirm")
 _("Start production")
+_("Mark as ready")
+_("Mark as delivered")
+_("Close order")
+_("Cancel order")
+
+# Generic button labels still used elsewhere in the templates.
 _("Close")
 _("Cancel")
 

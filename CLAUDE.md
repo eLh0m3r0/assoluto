@@ -372,6 +372,47 @@ global exception handler in ``app.main`` and rendered as a friendly
 402 page with an Upgrade CTA. Tenants without a subscription (self-
 hosted, pre-billing signup) skip the check and stay unlimited.
 
+### 18. Order status: staff are unrestricted, the backfill pays for it
+
+``STAFF_ALLOWED_TRANSITIONS`` lets a tenant user move an order from any
+status to any other. **Do not re-narrow this graph.** It was a
+one-step-forward / one-step-back chain until we traced why: the
+restriction was never a business rule, it was compensating for the fact
+that leaping across the pipeline skipped the per-status side effects, so
+a DRAFT → DELIVERED jump left ``delivered_at`` NULL and the order
+vanished from the SLA report in ``app.services.sla_service``.
+
+The invariant that replaced it lives in
+``order_service._backfill_milestones``: **landing on a pipeline status
+fills in the milestone data for every step passed over, and never
+overwrites a stamp that already exists.** Real shops need the freedom —
+an order agreed by phone goes DRAFT → CONFIRMED, a courier collecting
+off the machine goes IN_PRODUCTION → DELIVERED.
+
+Consequences to keep in mind:
+
+* **Adding a new milestone side effect?** Add it to
+  ``_backfill_milestones`` too, keyed on ``pipeline_rank >= …``, or
+  jumps will silently skip it — the exact bug the old graph was hiding.
+* ``CANCELLED`` is **off-pipeline**: ``pipeline_rank`` returns ``None``
+  for it. Branch on that rather than defaulting to ``0`` — cancelling
+  an order is not "moving it back to draft".
+* Backward moves deliberately keep ``delivered_at``, so toggling
+  DELIVERED off and on does not move SLA numbers.
+* Customer contacts stay on the tight ``CONTACT_ALLOWED_TRANSITIONS``
+  graph. The freedom is an operator privilege; a customer must not be
+  able to mark their own order delivered.
+
+The UI is a pipeline stepper (``orders/detail.html``, view-model in
+``orders._status_pipeline``) rather than a row of buttons. The old row
+labelled moves by *target status alone*, so a backward CONFIRMED →
+QUOTED move rendered as a blue button reading "Quote", identical to a
+step forward — that was the whole reported complaint. Two rules keep it
+honest: ``STATUS_LABELS`` (nouns) label positions, ``STATUS_ACTIONS``
+(verbs) label only the primary CTA; and any move that skips steps or
+goes backwards carries ``data-confirm`` (handled by the delegated
+listener in ``static/js/app.js`` — CSP forbids inline ``onsubmit``).
+
 ## Test fixtures quick reference
 
 | Fixture | Needs PG | What |

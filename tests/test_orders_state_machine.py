@@ -1,16 +1,16 @@
 """State-machine enforcement for both staff and contacts.
 
-Historically staff could teleport an order from any status to any other
-(DRAFT → DELIVERED, CLOSED → DRAFT, …) because the service delegated
-all access checks to the UI. Simulation found the UI happily exposed
-every button — if an operator misclicked, SLA timestamps were skipped
-and the order history became a nonsense chain.
+Staff may move an order to **any** status. That freedom was previously
+withheld — the graph only allowed one step forward or back — because
+leaping across the pipeline skipped the milestone side effects and left
+orders out of the SLA report. The restriction treated the symptom; the
+cause is now fixed in ``_backfill_milestones``, so the graph is open and
+these tests pin the *replacement* guarantee: a jump must arrive with its
+milestone data filled in.
 
-We now run staff through ``STAFF_ALLOWED_TRANSITIONS``: forward one
-step, one step back for corrections, cancel at any point, and
-reopen-cancelled → DRAFT. Everything else raises
-``ForbiddenTransition`` at the service layer — no way to bypass by
-going straight to the POST endpoint.
+Customer contacts stay on the tight ``CONTACT_ALLOWED_TRANSITIONS``
+graph, enforced at the service layer so posting straight to the endpoint
+gains nothing.
 """
 
 from __future__ import annotations
@@ -27,9 +27,12 @@ from app.models.user import User
 from app.security.passwords import hash_password
 from app.services.order_service import (
     CONTACT_ALLOWED_TRANSITIONS,
+    PIPELINE,
     STAFF_ALLOWED_TRANSITIONS,
     ActorRef,
     ForbiddenTransition,
+    pipeline_rank,
+    skipped_statuses,
     transition_order,
 )
 
@@ -61,11 +64,21 @@ async def _seed(owner_engine, tenant_id, *, status: OrderStatus):
         return user, order
 
 
+# --------------------------------------------------------------- graph shape
+
+
 def test_staff_graph_has_every_status_as_a_key() -> None:
     """Every OrderStatus must appear as a key so ``.get(status, set())``
     never silently falls back to an empty frozenset that would render
     the order immutable for no reason."""
     assert set(STAFF_ALLOWED_TRANSITIONS.keys()) == set(OrderStatus)
+
+
+def test_staff_may_reach_every_other_status() -> None:
+    """The operator graph is fully connected — minus the self-loop,
+    which ``transition_order`` rejects as "already in that status"."""
+    for status, targets in STAFF_ALLOWED_TRANSITIONS.items():
+        assert targets == set(OrderStatus) - {status}
 
 
 def test_contact_graph_is_a_subset_of_staff_graph() -> None:
@@ -78,22 +91,138 @@ def test_contact_graph_is_a_subset_of_staff_graph() -> None:
         )
 
 
+def test_cancelled_is_off_pipeline() -> None:
+    """CANCELLED must not have a rank — callers branch on ``None`` to
+    avoid treating a cancellation as "moved back to draft"."""
+    assert pipeline_rank(OrderStatus.CANCELLED) is None
+    assert OrderStatus.CANCELLED not in PIPELINE
+    assert [pipeline_rank(s) for s in PIPELINE] == list(range(len(PIPELINE)))
+
+
+# ------------------------------------------------------------ skipped steps
+
+
+def test_skipped_statuses_lists_the_jumped_over_steps() -> None:
+    assert skipped_statuses(OrderStatus.DRAFT, OrderStatus.CONFIRMED) == [
+        OrderStatus.SUBMITTED,
+        OrderStatus.QUOTED,
+    ]
+
+
+def test_adjacent_and_backward_moves_skip_nothing() -> None:
+    assert skipped_statuses(OrderStatus.DRAFT, OrderStatus.SUBMITTED) == []
+    assert skipped_statuses(OrderStatus.DELIVERED, OrderStatus.DRAFT) == []
+
+
+def test_cancelling_skips_nothing_but_reopening_counts_the_prefix() -> None:
+    """Moving *to* CANCELLED leaves the pipeline; moving *from* it lands
+    somewhere on the pipeline and everything before that point counts as
+    unobserved (the backfill only fills blanks, so genuinely-recorded
+    stamps survive)."""
+    assert skipped_statuses(OrderStatus.READY, OrderStatus.CANCELLED) == []
+    assert skipped_statuses(OrderStatus.CANCELLED, OrderStatus.QUOTED) == [
+        OrderStatus.DRAFT,
+        OrderStatus.SUBMITTED,
+    ]
+
+
+# ------------------------------------------------------------ staff freedom
+
+
 @pytest.mark.postgres
-async def test_staff_cannot_leap_draft_to_delivered(owner_engine, demo_tenant) -> None:
-    """Core regression: before the fix, staff could skip the pipeline."""
-    from sqlalchemy import select
+async def test_staff_can_leap_draft_to_delivered_with_stamps_backfilled(
+    owner_engine, demo_tenant
+) -> None:
+    """The headline change: a jump is allowed, and it arrives complete.
+
+    ``delivered_at`` in particular must be set — ``sla_service`` filters
+    on ``delivered_at IS NOT NULL``, so an order that skipped the stamp
+    would vanish from the on-time report entirely.
+    """
+    from sqlalchemy import select, text
 
     user, order = await _seed(owner_engine, demo_tenant.id, status=OrderStatus.DRAFT)
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
+        await session.execute(
+            text("SELECT set_config('app.tenant_id', :t, true)"),
+            {"t": str(demo_tenant.id)},
+        )
         fresh = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
-        with pytest.raises(ForbiddenTransition):
-            await transition_order(
-                session,
-                order=fresh,
-                to_status=OrderStatus.DELIVERED,
-                actor=ActorRef(type="user", id=user.id),
-            )
+        await transition_order(
+            session,
+            order=fresh,
+            to_status=OrderStatus.DELIVERED,
+            actor=ActorRef(type="user", id=user.id),
+        )
+
+    async with sm() as session:
+        got = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
+        assert got.status == OrderStatus.DELIVERED
+        assert got.submitted_at is not None, "submitted_at must be backfilled on a jump"
+        assert got.delivered_at is not None, "delivered_at drives the SLA report"
+        assert got.quoted_total is not None, "quoted_total must be computed on a jump"
+
+
+@pytest.mark.postgres
+async def test_backfill_never_overwrites_an_existing_stamp(owner_engine, demo_tenant) -> None:
+    """A real observed timestamp outranks a best-effort backfilled one."""
+    from datetime import UTC, date, datetime
+
+    from sqlalchemy import select, text
+
+    original_submitted = datetime(2026, 1, 2, 3, 4, tzinfo=UTC)
+    original_delivered = date(2026, 1, 9)
+
+    user, order = await _seed(owner_engine, demo_tenant.id, status=OrderStatus.DRAFT)
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        await session.execute(
+            text("SELECT set_config('app.tenant_id', :t, true)"),
+            {"t": str(demo_tenant.id)},
+        )
+        fresh = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
+        fresh.submitted_at = original_submitted
+        fresh.delivered_at = original_delivered
+        await session.flush()
+        await transition_order(
+            session,
+            order=fresh,
+            to_status=OrderStatus.CLOSED,
+            actor=ActorRef(type="user", id=user.id),
+        )
+
+    async with sm() as session:
+        got = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
+        assert got.submitted_at == original_submitted
+        assert got.delivered_at == original_delivered
+
+
+@pytest.mark.postgres
+async def test_cancelling_does_not_backfill_pipeline_stamps(owner_engine, demo_tenant) -> None:
+    """CANCELLED is off-pipeline — a cancelled draft was never delivered."""
+    from sqlalchemy import select, text
+
+    user, order = await _seed(owner_engine, demo_tenant.id, status=OrderStatus.DRAFT)
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        await session.execute(
+            text("SELECT set_config('app.tenant_id', :t, true)"),
+            {"t": str(demo_tenant.id)},
+        )
+        fresh = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
+        await transition_order(
+            session,
+            order=fresh,
+            to_status=OrderStatus.CANCELLED,
+            actor=ActorRef(type="user", id=user.id),
+        )
+
+    async with sm() as session:
+        got = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
+        assert got.cancelled_at is not None
+        assert got.delivered_at is None
+        assert got.submitted_at is None
 
 
 @pytest.mark.postgres
@@ -124,7 +253,9 @@ async def test_staff_can_step_one_back_for_corrections(owner_engine, demo_tenant
 
 
 @pytest.mark.postgres
-async def test_staff_can_reopen_cancelled_into_draft(owner_engine, demo_tenant) -> None:
+async def test_staff_can_reopen_cancelled_into_any_status(owner_engine, demo_tenant) -> None:
+    """Reopening is no longer forced through DRAFT — an order cancelled
+    by mistake while in production goes straight back to production."""
     from sqlalchemy import select, text
 
     user, order = await _seed(owner_engine, demo_tenant.id, status=OrderStatus.CANCELLED)
@@ -138,17 +269,21 @@ async def test_staff_can_reopen_cancelled_into_draft(owner_engine, demo_tenant) 
         await transition_order(
             session,
             order=fresh,
-            to_status=OrderStatus.DRAFT,
+            to_status=OrderStatus.IN_PRODUCTION,
             actor=ActorRef(type="user", id=user.id),
         )
+    async with sm() as session:
+        got = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
+        assert got.status == OrderStatus.IN_PRODUCTION
 
 
 @pytest.mark.postgres
-async def test_closed_is_near_terminal_only_delivered_reopen(owner_engine, demo_tenant) -> None:
-    """CLOSED can only step back to DELIVERED (for re-issue), nothing else."""
+async def test_staff_cannot_transition_to_the_same_status(owner_engine, demo_tenant) -> None:
+    """The one move that stays forbidden — it would write a no-op row
+    into the status history and fire a pointless notification email."""
     from sqlalchemy import select
 
-    user, order = await _seed(owner_engine, demo_tenant.id, status=OrderStatus.CLOSED)
+    user, order = await _seed(owner_engine, demo_tenant.id, status=OrderStatus.READY)
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
         fresh = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
@@ -156,6 +291,32 @@ async def test_closed_is_near_terminal_only_delivered_reopen(owner_engine, demo_
             await transition_order(
                 session,
                 order=fresh,
-                to_status=OrderStatus.DRAFT,
+                to_status=OrderStatus.READY,
                 actor=ActorRef(type="user", id=user.id),
+            )
+
+
+# ---------------------------------------------------------- contact limits
+
+
+@pytest.mark.postgres
+async def test_contact_still_cannot_leap_the_pipeline(owner_engine, demo_tenant) -> None:
+    """Freedom is an operator privilege — customers keep the tight graph
+    so they cannot mark their own order delivered."""
+    from sqlalchemy import select
+
+    _user, order = await _seed(owner_engine, demo_tenant.id, status=OrderStatus.DRAFT)
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        fresh = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
+        with pytest.raises(ForbiddenTransition):
+            await transition_order(
+                session,
+                order=fresh,
+                to_status=OrderStatus.DELIVERED,
+                actor=ActorRef(
+                    type="contact",
+                    id=uuid4(),
+                    customer_id=fresh.customer_id,
+                ),
             )

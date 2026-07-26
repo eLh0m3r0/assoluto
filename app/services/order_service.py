@@ -48,6 +48,55 @@ class OrderAccessDenied(OrderError):
 # State machine
 # ---------------------------------------------------------------------------
 
+# The manufacturing pipeline, in workflow order. ``CANCELLED`` is
+# deliberately absent — it sits *beside* the pipeline rather than on it:
+# reachable from any state and leading back to any state.
+PIPELINE: tuple[OrderStatus, ...] = (
+    OrderStatus.DRAFT,
+    OrderStatus.SUBMITTED,
+    OrderStatus.QUOTED,
+    OrderStatus.CONFIRMED,
+    OrderStatus.IN_PRODUCTION,
+    OrderStatus.READY,
+    OrderStatus.DELIVERED,
+    OrderStatus.CLOSED,
+)
+
+_PIPELINE_RANK: dict[OrderStatus, int] = {s: i for i, s in enumerate(PIPELINE)}
+
+
+def pipeline_rank(status: OrderStatus) -> int | None:
+    """Position of ``status`` on the linear pipeline.
+
+    Returns ``None`` for :attr:`OrderStatus.CANCELLED`, which is off-
+    pipeline. Callers that order or compare statuses MUST handle the
+    ``None`` case rather than defaulting to ``0`` — cancelling an order
+    is not "moving it back to draft".
+    """
+    return _PIPELINE_RANK.get(status)
+
+
+def skipped_statuses(from_status: OrderStatus, to_status: OrderStatus) -> list[OrderStatus]:
+    """Pipeline steps jumped over by a forward move.
+
+    ``DRAFT → CONFIRMED`` skips ``SUBMITTED`` and ``QUOTED``. Backward
+    moves and moves involving ``CANCELLED`` as the *target* skip nothing.
+    Reopening a cancelled order counts everything before the target as
+    skipped, because we cannot know how far it had progressed before —
+    the milestone backfill only fills blanks, so an order that really
+    did pass through those states keeps its original stamps.
+    """
+    dst = _PIPELINE_RANK.get(to_status)
+    if dst is None:
+        return []
+    src = _PIPELINE_RANK.get(from_status)
+    if src is None:  # coming back from CANCELLED
+        src = -1
+    if dst <= src:
+        return []
+    return list(PIPELINE[src + 1 : dst])
+
+
 # Allowed forward transitions for CUSTOMER CONTACTS. External portal
 # users can only request changes that advance or cancel the workflow.
 CONTACT_ALLOWED_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
@@ -62,22 +111,28 @@ CONTACT_ALLOWED_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
     OrderStatus.CANCELLED: set(),
 }
 
-# Allowed transitions for STAFF (tenant users). Roomier than the contact
-# policy — they can step one node back (for corrections) and reopen
-# cancelled orders into DRAFT, but they CANNOT leap across the
-# manufacturing pipeline (e.g. DRAFT → DELIVERED). Leaving that wide
-# open turned every status button into a "teleport" in the UI and
-# let typos skip SLA stamps.
+# Allowed transitions for STAFF (tenant users): **any status to any
+# other status**.
+#
+# This was a one-step-forward / one-step-back graph until we traced the
+# complaints about it. The restriction never modelled a real business
+# rule — it was compensating for a bug. Leaping across the pipeline
+# skipped the milestone side effects below (``submitted_at``,
+# ``quoted_total``, ``delivered_at``), so a DRAFT → DELIVERED jump left
+# the order invisible to the SLA report. Rather than keep paying for
+# that with a straitjacket, ``_backfill_milestones`` now fills the
+# blanks, and the graph is free.
+#
+# Real shops need this: an order agreed over the phone goes
+# DRAFT → CONFIRMED in one move; a courier collecting straight off the
+# machine goes IN_PRODUCTION → DELIVERED without a fake READY stop; a
+# mistake found a week later is correctable without walking the chain
+# back one state at a time.
+#
+# Customer contacts stay on the tight ``CONTACT_ALLOWED_TRANSITIONS``
+# graph — the freedom here is an operator privilege, not a public one.
 STAFF_ALLOWED_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
-    OrderStatus.DRAFT: {OrderStatus.SUBMITTED, OrderStatus.QUOTED, OrderStatus.CANCELLED},
-    OrderStatus.SUBMITTED: {OrderStatus.QUOTED, OrderStatus.DRAFT, OrderStatus.CANCELLED},
-    OrderStatus.QUOTED: {OrderStatus.CONFIRMED, OrderStatus.SUBMITTED, OrderStatus.CANCELLED},
-    OrderStatus.CONFIRMED: {OrderStatus.IN_PRODUCTION, OrderStatus.QUOTED, OrderStatus.CANCELLED},
-    OrderStatus.IN_PRODUCTION: {OrderStatus.READY, OrderStatus.CONFIRMED, OrderStatus.CANCELLED},
-    OrderStatus.READY: {OrderStatus.DELIVERED, OrderStatus.IN_PRODUCTION, OrderStatus.CANCELLED},
-    OrderStatus.DELIVERED: {OrderStatus.CLOSED, OrderStatus.READY},
-    OrderStatus.CLOSED: {OrderStatus.DELIVERED},
-    OrderStatus.CANCELLED: {OrderStatus.DRAFT},
+    status: {other for other in OrderStatus if other is not status} for status in OrderStatus
 }
 
 # Legacy alias — retained so any caller that still imports ALL_STATUSES
@@ -559,6 +614,43 @@ async def _recompute_quoted_total(db: AsyncSession, order: Order) -> None:
 # ---------------------------------------------------------------------------
 
 
+async def _backfill_milestones(
+    db: AsyncSession,
+    order: Order,
+    *,
+    to_status: OrderStatus,
+    now: datetime,
+) -> None:
+    """Fill in milestone data for pipeline steps the order jumped over.
+
+    Staff may move an order to any status (see
+    ``STAFF_ALLOWED_TRANSITIONS``), which means the per-status side
+    effects below can no longer be relied on to fire in sequence. An
+    order sent DRAFT → DELIVERED never passes through SUBMITTED, so
+    without this it would carry ``submitted_at IS NULL`` and — worse —
+    ``delivered_at IS NULL``, dropping it out of the SLA report in
+    ``app.services.sla_service`` entirely.
+
+    The rule is **fill blanks only, never overwrite**. A stamp that
+    already exists is the real one, recorded when the order genuinely
+    passed that milestone; a backfilled stamp is a best-effort "it must
+    have happened by now". Overwriting would rewrite history and move
+    SLA numbers under the operator's feet.
+    """
+    dst = _PIPELINE_RANK.get(to_status)
+    if dst is None:  # CANCELLED — off-pipeline, nothing to backfill
+        return
+
+    if dst >= _PIPELINE_RANK[OrderStatus.SUBMITTED] and order.submitted_at is None:
+        order.submitted_at = now
+    if dst >= _PIPELINE_RANK[OrderStatus.QUOTED] and order.quoted_total is None:
+        await _recompute_quoted_total(db, order)
+    if dst >= _PIPELINE_RANK[OrderStatus.DELIVERED] and order.delivered_at is None:
+        order.delivered_at = now.date()
+    if dst >= _PIPELINE_RANK[OrderStatus.CLOSED] and order.closed_at is None:
+        order.closed_at = now
+
+
 async def transition_order(
     db: AsyncSession,
     *,
@@ -568,11 +660,12 @@ async def transition_order(
     note: str | None = None,
     audit_actor: ActorInfo | None = None,
 ) -> Order:
-    """Advance the order to `to_status` after validating the move.
+    """Move the order to `to_status` after validating the move.
 
-    Both staff and contacts are constrained by a state-machine graph —
-    staff just have a roomier one (one-step-back + reopen-cancelled)
-    than contacts. Nobody can leap across the pipeline.
+    Staff may move an order to any other status; customer contacts are
+    held to the tight ``CONTACT_ALLOWED_TRANSITIONS`` graph. Milestone
+    data for any pipeline step jumped over is backfilled — see
+    :func:`_backfill_milestones`.
     """
     if order.status == to_status:
         raise ForbiddenTransition("already in that status")
@@ -589,11 +682,14 @@ async def transition_order(
             f"cannot transition from {order.status.value} to {to_status.value}"
         )
 
-    # Side effects for specific transitions.
     now = datetime.now(UTC)
     previous = order.status
+    skipped = skipped_statuses(previous, to_status)
     order.status = to_status
 
+    # Side effects for landing *exactly* on a status. These re-stamp on
+    # every hit (a re-submitted order gets a fresh ``submitted_at``),
+    # which is why they run before the fill-blanks-only backfill.
     if to_status == OrderStatus.SUBMITTED:
         order.submitted_at = now
     if to_status == OrderStatus.QUOTED:
@@ -607,6 +703,8 @@ async def transition_order(
         order.closed_at = now
     if to_status == OrderStatus.CANCELLED:
         order.cancelled_at = now
+
+    await _backfill_milestones(db, order, to_status=to_status, now=now)
 
     db.add(
         OrderStatusHistory(
@@ -629,7 +727,13 @@ async def transition_order(
         entity_label=order.number,
         actor=audit_actor or SYSTEM_ACTOR,
         before={"status": previous.value},
-        after={"status": to_status.value},
+        after={
+            "status": to_status.value,
+            # Machine-readable record of a multi-step jump, so the audit
+            # log can explain why an order shows DRAFT → DELIVERED and
+            # which stamps were backfilled rather than observed.
+            **({"skipped": [s.value for s in skipped]} if skipped else {}),
+        },
         tenant_id=order.tenant_id,
     )
     return order
