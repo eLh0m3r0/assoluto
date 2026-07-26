@@ -164,9 +164,7 @@ async def test_export_contains_business_records_and_attachment_bytes(
     assert "_export_errors.txt" not in names
 
 
-async def test_export_survives_a_missing_storage_object(
-    owner_engine, demo_tenant, mock_s3
-) -> None:
+async def test_export_survives_a_missing_storage_object(owner_engine, demo_tenant, mock_s3) -> None:
     """A dangling storage_key must degrade to a note, not a 500.
 
     A departing customer with one unreadable file still needs the other

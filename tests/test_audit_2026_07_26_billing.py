@@ -36,9 +36,7 @@ async def _seed_subscription(owner_engine, *, status: str, tenant_active: bool =
         )
         session.add(tenant)
         await session.flush()
-        plan = (
-            await session.execute(select(Plan).where(Plan.code == "starter"))
-        ).scalar_one()
+        plan = (await session.execute(select(Plan).where(Plan.code == "starter"))).scalar_one()
         sub = Subscription(
             id=uuid4(),
             tenant_id=tenant.id,
@@ -101,9 +99,7 @@ async def test_f09_stale_update_cannot_resurrect_a_cancelled_subscription(
 
     # The late-arriving stale update for the SAME subscription.
     async with sm() as session, session.begin():
-        await handle_subscription_upserted(
-            session, _event("sub_test_123", tenant.id, "active")
-        )
+        await handle_subscription_upserted(session, _event("sub_test_123", tenant.id, "active"))
 
     async with sm() as session:
         got = (
@@ -120,17 +116,13 @@ async def test_f08_resubscribing_reactivates_a_hard_cut_tenant(owner_engine) -> 
     nothing ever set it back, so a customer who paid again still could
     not log in.
     """
-    tenant, _sub = await _seed_subscription(
-        owner_engine, status="canceled", tenant_active=False
-    )
+    tenant, _sub = await _seed_subscription(owner_engine, status="canceled", tenant_active=False)
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
 
     # A genuinely new subscription — different Stripe id, so it is not
     # the stale-update case guarded above.
     async with sm() as session, session.begin():
-        await handle_subscription_upserted(
-            session, _event("sub_test_NEW", tenant.id, "active")
-        )
+        await handle_subscription_upserted(session, _event("sub_test_NEW", tenant.id, "active"))
 
     async with sm() as session:
         got = (await session.execute(select(Tenant).where(Tenant.id == tenant.id))).scalar_one()
@@ -162,9 +154,7 @@ async def test_signup_trial_uses_the_plan_the_visitor_clicked(owner_engine) -> N
 
     async with sm() as session:
         sub = (
-            await session.execute(
-                select(Subscription).where(Subscription.tenant_id == tenant_id)
-            )
+            await session.execute(select(Subscription).where(Subscription.tenant_id == tenant_id))
         ).scalar_one()
         plan = (await session.execute(select(Plan).where(Plan.id == sub.plan_id))).scalar_one()
         assert plan.code == "pro", "the trial must run on the plan that was clicked"

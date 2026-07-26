@@ -836,9 +836,7 @@ async def orders_add_item(
         product_stmt = select(Product).where(Product.id == product_uuid)
         if not principal.is_staff:
             if not perms.can_use_catalog:
-                raise HTTPException(
-                    status_code=403, detail="Catalog is disabled for your account"
-                )
+                raise HTTPException(status_code=403, detail="Catalog is disabled for your account")
             product_stmt = product_stmt.where(
                 or_(Product.customer_id.is_(None), Product.customer_id == order.customer_id)
             )

@@ -203,9 +203,7 @@ async def test_f05_platform_reset_token_is_single_use(platform_settings, owner_e
         assert row.session_version == 1
 
 
-async def test_f21_platform_reset_enforces_password_floor(
-    platform_settings, owner_engine
-) -> None:
+async def test_f21_platform_reset_enforces_password_floor(platform_settings, owner_engine) -> None:
     """The tenant flow enforces 8 chars in six places; the platform flow
     enforced it nowhere.
     """

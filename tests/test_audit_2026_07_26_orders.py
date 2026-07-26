@@ -133,9 +133,7 @@ async def test_f13_unpriced_order_never_gets_a_fabricated_zero_quote(
 
     async with sm() as session, session.begin():
         fresh = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
-        await transition_order(
-            session, order=fresh, to_status=OrderStatus.CONFIRMED, actor=actor
-        )
+        await transition_order(session, order=fresh, to_status=OrderStatus.CONFIRMED, actor=actor)
 
     async with sm() as session:
         got = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()

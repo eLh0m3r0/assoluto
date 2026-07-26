@@ -728,9 +728,7 @@ async def profile_delete(
     # is now anonymised.
     erased_actor = actor_from_principal(principal)
     if erased_actor.id == user.id:
-        erased_actor = ActorInfo(
-            type=erased_actor.type, id=erased_actor.id, label="(erased user)"
-        )
+        erased_actor = ActorInfo(type=erased_actor.type, id=erased_actor.id, label="(erased user)")
     await erase_user(db, user=user)
     await audit_record(
         db,
