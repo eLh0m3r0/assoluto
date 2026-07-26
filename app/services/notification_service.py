@@ -152,16 +152,37 @@ async def build_order_status_changed(
     to_status: OrderStatus,
     base_url: str,
     settings: Settings,
+    actor_is_contact: bool = False,
+    actor_email: str | None = None,
 ) -> OrderStatusChangedNotification | None:
-    """Prepare a status-change email for the order's customer contacts.
+    """Prepare a status-change email, addressed to *the other side*.
 
-    Returns all active contacts of the target customer. The caller is
-    expected to avoid building this payload for transitions that
-    shouldn't leak to the customer side.
+    Who hears about a status change depends on who caused it:
+
+    * Staff moved the order -> tell the customer's contacts.
+    * A **contact** moved it -> tell the supplier's staff. Contacts are
+      allowed QUOTED -> CONFIRMED and -> CANCELLED, so this is the
+      customer accepting or killing a quote: the single most
+      commercially loaded event in the product. It previously routed
+      through ``_contact_recipients`` like every other transition, so
+      the supplier was never told their quote had been accepted, and
+      the customer received an email announcing their own click.
+
+    The actor is always excluded — nobody needs to be emailed about
+    something they just did themselves.
     """
-    recipients = await _contact_recipients(
-        db, customer_id=order.customer_id, tenant=tenant, settings=settings
-    )
+    if actor_is_contact:
+        recipients = await _staff_recipients(
+            db, tenant=tenant, settings=settings, exclude_email=actor_email
+        )
+    else:
+        recipients = await _contact_recipients(
+            db,
+            customer_id=order.customer_id,
+            tenant=tenant,
+            settings=settings,
+            exclude_email=actor_email,
+        )
     if not recipients:
         return None
 

@@ -438,6 +438,12 @@ async def add_item(
     db.add(item)
     await db.flush()
 
+    # ``remove_item`` and ``update_item`` both do this; ``add_item`` did
+    # not, so adding a line to an already-quoted order left the cached
+    # total stale. The PDF prefers the cache over its own item table, so
+    # it printed a Subtotal that contradicted the lines above it.
+    await _recompute_quoted_total(db, order)
+
     await audit_service.record(
         db,
         action="order.item_added",
@@ -598,14 +604,21 @@ def _ensure_item_editable(order: Order, actor: ActorRef) -> None:
 
 
 async def _recompute_quoted_total(db: AsyncSession, order: Order) -> None:
+    """Refresh the cached ``quoted_total`` from the current line items.
+
+    ``func.sum`` returns NULL when no row has a ``line_total`` — i.e.
+    the order has no items, or none of them carry a unit price. That is
+    genuinely "no quote yet", so it must stay NULL rather than collapse
+    to 0.00: a stamped 0.00 renders as "0 Kč" on the customer-facing PDF
+    and the detail card, which reads as a free order rather than an
+    unpriced one. Only ``coalesce`` when there is something to sum.
+    """
     total = (
         await db.execute(
-            select(func.coalesce(func.sum(OrderItem.line_total), 0)).where(
-                OrderItem.order_id == order.id
-            )
+            select(func.sum(OrderItem.line_total)).where(OrderItem.order_id == order.id)
         )
     ).scalar()
-    order.quoted_total = Decimal(total) if total is not None else Decimal("0")
+    order.quoted_total = Decimal(total) if total is not None else None
     await db.flush()
 
 
@@ -650,6 +663,16 @@ async def _backfill_milestones(
     if dst >= _PIPELINE_RANK[OrderStatus.CLOSED] and order.closed_at is None:
         order.closed_at = now
 
+    # NOTE: backward moves deliberately do NOT retract milestone stamps.
+    # The 2026-07-26 audit flagged this (F-31) on the grounds that a
+    # DRAFT carrying "Delivered 12.03." contradicts itself. It is a fair
+    # observation, but keeping the stamp is the older and stronger
+    # decision, pinned by
+    # tests/test_orders_transition_delivered_at.py: the date records
+    # when the goods actually left, and clearing it on a correction
+    # would either lose that fact or re-stamp a later, wrong date when
+    # the order re-enters DELIVERED. Fill blanks; never rewrite history.
+
 
 async def transition_order(
     db: AsyncSession,
@@ -666,7 +689,18 @@ async def transition_order(
     held to the tight ``CONTACT_ALLOWED_TRANSITIONS`` graph. Milestone
     data for any pipeline step jumped over is backfilled — see
     :func:`_backfill_milestones`.
+
+    The row is locked before the guard runs. Without it a double-click
+    (or two operators on the same order) had both requests read the same
+    starting status, both pass the transition check, and both write a
+    history row and fire a customer email — so the client received two
+    "your order is ready" messages for one move.
     """
+    # SELECT ... FOR UPDATE on this order only; serialises concurrent
+    # transitions without touching readers elsewhere.
+    await db.execute(select(Order.id).where(Order.id == order.id).with_for_update())
+    await db.refresh(order)
+
     if order.status == to_status:
         raise ForbiddenTransition("already in that status")
 
@@ -760,6 +794,7 @@ async def bulk_transition(
     orders: Iterable[Order],
     to_status: OrderStatus,
     actor: ActorRef,
+    audit_actor: ActorInfo | None = None,
 ) -> BulkResult:
     """Move multiple orders to ``to_status`` in a single pass.
 
@@ -768,11 +803,22 @@ async def bulk_transition(
     errors (forbidden transitions, access denied) are captured into the
     returned :class:`BulkResult`; unexpected exceptions propagate so the
     caller can roll back.
+
+    ``audit_actor`` must be forwarded: without it every order touched by
+    a bulk change was attributed to ``system`` in the audit log, so the
+    one operation most likely to need an explanation — "who moved
+    twenty orders to Delivered?" — was the one it could not answer.
     """
     result = BulkResult()
     for order in orders:
         try:
-            await transition_order(db, order=order, to_status=to_status, actor=actor)
+            await transition_order(
+                db,
+                order=order,
+                to_status=to_status,
+                actor=actor,
+                audit_actor=audit_actor,
+            )
         except (ForbiddenTransition, ForbiddenActor, OrderAccessDenied, OrderError) as exc:
             result.errors[order.id] = str(exc) or exc.__class__.__name__
             continue

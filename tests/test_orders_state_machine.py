@@ -161,7 +161,13 @@ async def test_staff_can_leap_draft_to_delivered_with_stamps_backfilled(
         assert got.status == OrderStatus.DELIVERED
         assert got.submitted_at is not None, "submitted_at must be backfilled on a jump"
         assert got.delivered_at is not None, "delivered_at drives the SLA report"
-        assert got.quoted_total is not None, "quoted_total must be computed on a jump"
+        # This order has no line items at all, so there is nothing to
+        # price and ``quoted_total`` must stay NULL. It used to be
+        # stamped 0.00 by a ``coalesce(sum(...), 0)``, and the invoice
+        # PDF prefers that cached value over its own item table — so an
+        # unpriced order printed "0 Kč" to the customer, which reads as
+        # "free" rather than "not quoted yet" (audit 2026-07-26, F-13).
+        assert got.quoted_total is None, "an order with no priced items has no quote"
 
 
 @pytest.mark.postgres

@@ -823,11 +823,27 @@ async def orders_add_item(
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid product_id") from None
 
+        from sqlalchemy import or_
+
         from app.models.product import Product
 
-        product = (
-            await db.execute(select(Product).where(Product.id == product_uuid))
-        ).scalar_one_or_none()
+        # RLS scopes this to the tenant, but NOT to the customer. The
+        # catalog supports per-customer products, and a plain
+        # `WHERE id = :id` let a contact of customer A attach — and read
+        # the price of — a product scoped to customer B just by knowing
+        # its UUID. Mirror the scoping that product_service applies on
+        # the read path.
+        product_stmt = select(Product).where(Product.id == product_uuid)
+        if not principal.is_staff:
+            if not perms.can_use_catalog:
+                raise HTTPException(
+                    status_code=403, detail="Catalog is disabled for your account"
+                )
+            product_stmt = product_stmt.where(
+                or_(Product.customer_id.is_(None), Product.customer_id == order.customer_id)
+            )
+
+        product = (await db.execute(product_stmt)).scalar_one_or_none()
         if product is None:
             raise HTTPException(status_code=400, detail="Unknown product") from None
 
@@ -836,6 +852,10 @@ async def orders_add_item(
         if not unit or unit == "ks":
             unit = product.unit
         if price is None and product.default_price is not None:
+            # Deliberately NOT gated on can_set_prices: this is the
+            # supplier's own list price being applied, not the contact
+            # choosing a number. can_set_prices governs prices the
+            # contact types in, which is checked on unit_price above.
             price = product.default_price
 
     if not description.strip():
@@ -1109,6 +1129,7 @@ async def orders_bulk_transition(
         orders=orders,
         to_status=target,
         actor=_actor(principal),
+        audit_actor=actor_from_principal(principal),
     )
 
     # Build notification payloads while the session is still open — RLS
@@ -1152,6 +1173,8 @@ async def orders_bulk_transition(
                 order=order,
                 to_status=target,
                 base_url=tenant_url,
+                actor_is_contact=principal.type == "contact",
+                actor_email=principal.email,
                 settings=settings,
             )
         if payload is not None:
@@ -1261,6 +1284,8 @@ async def orders_transition(
             order=order,
             to_status=target,
             base_url=tenant_url,
+            actor_is_contact=principal.type == "contact",
+            actor_email=principal.email,
             settings=settings,
         )
 
