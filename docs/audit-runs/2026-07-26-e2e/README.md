@@ -15,6 +15,11 @@ Two independent audits ran:
 * [product-panel.md](product-panel.md) — 5 grounded personas (prospect, daily
   operator, client contact, CTO+DPO, operator-investor) + a synthesis judge.
 
+**➡ [FIXES.md](FIXES.md) — what was actually fixed, what was deliberately not
+changed and why, and what is still open.** 26 findings plus 6 product defects
+are fixed across six commits; 534 tests pass. Read that first if you only read
+one file.
+
 ## Coverage and honesty note
 
 The security run's verification layer was cut short: 52 of 66 verifier agents
