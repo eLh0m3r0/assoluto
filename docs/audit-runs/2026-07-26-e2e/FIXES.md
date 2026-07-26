@@ -1,6 +1,6 @@
 # What was fixed — 2026-07-26 audit
 
-Six commits on top of the audit docs. `534 tests pass` (18 new), ruff clean,
+Seven commits on top of the audit docs. `536 tests pass` (20 new), ruff clean,
 migration `1007` applied. Every behaviour change is covered by a test that
 asserts the *attack or defect*, not the fix, so re-narrowing the code later
 breaks something loud.
