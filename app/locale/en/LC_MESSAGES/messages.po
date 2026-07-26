@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-07-26 22:09+0200\n"
+"POT-Creation-Date: 2026-07-26 22:23+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -668,7 +668,7 @@ msgid "Invitation sent."
 msgstr ""
 
 #: app/routers/customers.py:387 app/routers/me.py:121
-#: app/routers/tenant_admin.py:335 app/routers/tenant_admin.py:524
+#: app/routers/tenant_admin.py:335 app/routers/tenant_admin.py:528
 msgid "Name cannot be empty."
 msgstr ""
 
@@ -684,15 +684,15 @@ msgstr ""
 msgid "This contact already has a password; use a password reset instead."
 msgstr ""
 
-#: app/routers/customers.py:478 app/routers/tenant_admin.py:447
+#: app/routers/customers.py:478 app/routers/tenant_admin.py:448
 msgid "Too many invitations sent recently. Try again later."
 msgstr ""
 
-#: app/routers/customers.py:511 app/routers/tenant_admin.py:477
+#: app/routers/customers.py:511 app/routers/tenant_admin.py:481
 msgid "Invitation resent."
 msgstr ""
 
-#: app/routers/me.py:89 app/routers/tenant_admin.py:501
+#: app/routers/me.py:89 app/routers/tenant_admin.py:505
 msgid "Profile saved."
 msgstr ""
 
@@ -700,11 +700,11 @@ msgstr ""
 msgid "Password changed. Sign in again with your new password."
 msgstr ""
 
-#: app/routers/me.py:148 app/routers/tenant_admin.py:554
+#: app/routers/me.py:148 app/routers/tenant_admin.py:558
 msgid "New passwords do not match."
 msgstr ""
 
-#: app/routers/me.py:240 app/routers/tenant_admin.py:685
+#: app/routers/me.py:240 app/routers/tenant_admin.py:689
 msgid "Password does not match — deletion cancelled."
 msgstr ""
 
@@ -876,15 +876,15 @@ msgstr ""
 msgid "Cannot demote the last administrator — promote someone else first."
 msgstr ""
 
-#: app/routers/tenant_admin.py:433
+#: app/routers/tenant_admin.py:434
 msgid "This user already has a password; use a password reset instead."
 msgstr ""
 
-#: app/routers/tenant_admin.py:713
+#: app/routers/tenant_admin.py:717
 msgid "You're the last administrator — promote someone else first."
 msgstr ""
 
-#: app/routers/tenant_admin.py:775
+#: app/routers/tenant_admin.py:779
 msgid "Saved."
 msgstr ""
 
@@ -4100,8 +4100,9 @@ msgstr ""
 msgid ""
 "Monthly plans are paid by card via Stripe. Annual plans can be arranged "
 "by bank transfer with a Czech invoice (net-14, typically two months free "
-"for the year). Enterprise customers always receive an invoice. Questions "
-"about VAT or Czech tax documents? Email team@assoluto.eu."
+"for the year). Enterprise customers always receive an invoice. We are not"
+" VAT-registered, so the listed price is final and you receive an invoice "
+"rather than a VAT tax document."
 msgstr ""
 
 #: app/templates/www/index.html:426 app/templates/www/index.html:512
@@ -6772,5 +6773,16 @@ msgstr ""
 #~ "issue a valid Czech tax invoice. "
 #~ "You enter them once — we keep "
 #~ "them on file."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Monthly plans are paid by card via"
+#~ " Stripe. Annual plans can be arranged"
+#~ " by bank transfer with a Czech "
+#~ "invoice (net-14, typically two months "
+#~ "free for the year). Enterprise customers"
+#~ " always receive an invoice. Questions "
+#~ "about VAT or Czech tax documents? "
+#~ "Email team@assoluto.eu."
 #~ msgstr ""
 

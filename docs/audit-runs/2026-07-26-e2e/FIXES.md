@@ -53,7 +53,7 @@ on business logic and security.
 | F-42 | No `Cache-Control` anywhere: authenticated HTML was disk-cacheable and survived logout on a shared machine. |
 | — | **Built the export the Terms already promised.** `terms.html:123` states the "CSV / ZIP export endpoints are available at any time"; nothing implemented it. `GET /app/admin/export` now streams a ZIP of every table plus the attachment bytes. |
 | — | `privacy.html` did not name the object-storage provider holding every drawing and every DB backup — an Art. 28(2) gap demonstrable from public repo text. |
-| — | `pricing.html` stated no VAT position while the imprint says "Neplátce DPH" and the FAQ promised a "valid Czech tax invoice" a non-VAT payer cannot issue. |
+| — | **VAT position was inconsistent across copy, Stripe and the invoice.** `pricing.html` stated no position at all; the FAQ promised a "valid Czech tax invoice"; and Stripe Checkout hard-coded `automatic_tax` + `tax_id_collection` to `True`, which would have added 21 % on top of the listed price — money a neplátce is not registered to collect. All three now follow `PLATFORM_OPERATOR_DIC`, the same single switch the invoice PDF already used: empty = price is final, no DPH, "Faktura" not "Daňový doklad". Setting it later flips checkout, invoice layout and document label together. |
 | F-01 | `backup.sh` used `rclone sync`, a destructive mirror: an emptied or unmounted `/backups` propagated the deletion off-site and took the dump history with it. Now `copy`. |
 | — | Added `customer_contacts.last_login_at` (staff had it since 0002). Nobody could tell an active client from one who opened the invite once — the number that says whether a customer portal is working at all. |
 

@@ -96,6 +96,14 @@ class Settings(BaseSettings):
     # CZ-tax invoice PDF falls back to the non-VAT path. Supplier
     # IČO alone is legally sufficient for non-DPH invoices per
     # §11 of Act 235/2004 (VAT Act).
+    #
+    # This is the SINGLE switch for the operator's VAT status. It also
+    # drives Stripe Checkout: ``automatic_tax`` and ``tax_id_collection``
+    # are enabled only when it is set (see
+    # ``app.platform.billing.service.create_checkout_session``). Setting
+    # it flips the checkout, the invoice layout and the document label
+    # ("Faktura" -> "Daňový doklad") together; leaving it empty keeps the
+    # listed price final, with no DPH charged anywhere.
     platform_operator_dic: str = Field(default="", alias="PLATFORM_OPERATOR_DIC")
     platform_operator_address: str = Field(default="", alias="PLATFORM_OPERATOR_ADDRESS")
     # Version tag stamped on every accepted Terms + Privacy consent so we

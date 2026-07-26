@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: assoluto VERSION\n"
 "Report-Msgid-Bugs-To: team@assoluto.eu\n"
-"POT-Creation-Date: 2026-07-26 22:09+0200\n"
+"POT-Creation-Date: 2026-07-26 22:23+0200\n"
 "PO-Revision-Date: 2026-04-26 11:15+0200\n"
 "Last-Translator: Assoluto Team <team@assoluto.eu>\n"
 "Language: de\n"
@@ -755,7 +755,7 @@ msgid "Invitation sent."
 msgstr "Einladung gesendet."
 
 #: app/routers/customers.py:387 app/routers/me.py:121
-#: app/routers/tenant_admin.py:335 app/routers/tenant_admin.py:524
+#: app/routers/tenant_admin.py:335 app/routers/tenant_admin.py:528
 msgid "Name cannot be empty."
 msgstr "Der Name darf nicht leer sein."
 
@@ -773,17 +773,17 @@ msgstr ""
 "Dieser Kontakt hat bereits ein Passwort; verwenden Sie stattdessen das "
 "Zurücksetzen des Passworts."
 
-#: app/routers/customers.py:478 app/routers/tenant_admin.py:447
+#: app/routers/customers.py:478 app/routers/tenant_admin.py:448
 msgid "Too many invitations sent recently. Try again later."
 msgstr ""
 "Zu viele Einladungen in letzter Zeit gesendet. Versuchen Sie es später "
 "erneut."
 
-#: app/routers/customers.py:511 app/routers/tenant_admin.py:477
+#: app/routers/customers.py:511 app/routers/tenant_admin.py:481
 msgid "Invitation resent."
 msgstr "Einladung erneut gesendet."
 
-#: app/routers/me.py:89 app/routers/tenant_admin.py:501
+#: app/routers/me.py:89 app/routers/tenant_admin.py:505
 msgid "Profile saved."
 msgstr "Profil gespeichert."
 
@@ -791,11 +791,11 @@ msgstr "Profil gespeichert."
 msgid "Password changed. Sign in again with your new password."
 msgstr "Passwort geändert. Bitte melden Sie sich mit dem neuen Passwort erneut an."
 
-#: app/routers/me.py:148 app/routers/tenant_admin.py:554
+#: app/routers/me.py:148 app/routers/tenant_admin.py:558
 msgid "New passwords do not match."
 msgstr "Die neuen Passwörter stimmen nicht überein."
 
-#: app/routers/me.py:240 app/routers/tenant_admin.py:685
+#: app/routers/me.py:240 app/routers/tenant_admin.py:689
 msgid "Password does not match — deletion cancelled."
 msgstr "Passwort stimmt nicht überein — Löschung abgebrochen."
 
@@ -975,17 +975,17 @@ msgstr ""
 "Der letzte Administrator kann nicht herabgestuft werden — befördern Sie "
 "zuerst jemand anderen."
 
-#: app/routers/tenant_admin.py:433
+#: app/routers/tenant_admin.py:434
 msgid "This user already has a password; use a password reset instead."
 msgstr ""
 "Dieser Benutzer hat bereits ein Passwort; verwenden Sie stattdessen das "
 "Zurücksetzen des Passworts."
 
-#: app/routers/tenant_admin.py:713
+#: app/routers/tenant_admin.py:717
 msgid "You're the last administrator — promote someone else first."
 msgstr "Sie sind der letzte Administrator — befördern Sie zuerst jemand anderen."
 
-#: app/routers/tenant_admin.py:775
+#: app/routers/tenant_admin.py:779
 msgid "Saved."
 msgstr "Gespeichert."
 
@@ -4433,14 +4433,15 @@ msgstr "Kann ich per Überweisung zahlen, nicht nur per Karte?"
 msgid ""
 "Monthly plans are paid by card via Stripe. Annual plans can be arranged "
 "by bank transfer with a Czech invoice (net-14, typically two months free "
-"for the year). Enterprise customers always receive an invoice. Questions "
-"about VAT or Czech tax documents? Email team@assoluto.eu."
+"for the year). Enterprise customers always receive an invoice. We are not"
+" VAT-registered, so the listed price is final and you receive an invoice "
+"rather than a VAT tax document."
 msgstr ""
-"Monatliche Zahlungen erfolgen per Karte über Stripe. Jahreszahlungen "
-"können per Überweisung mit tschechischer Rechnung (Zahlungsziel 14 Tage, "
-"üblicherweise zwei Monate kostenlos pro Jahr) vereinbart werden. "
-"Enterprise-Kunden erhalten immer eine Rechnung. Fragen zur Umsatzsteuer "
-"oder zum Steuerbeleg? Schreiben Sie an team@assoluto.eu."
+"Monatspläne werden per Karte über Stripe bezahlt. Jahrespläne sind per "
+"Banküberweisung mit tschechischer Rechnung möglich (14 Tage netto, meist "
+"zwei Monate im Jahr gratis). Enterprise-Kunden erhalten immer eine "
+"Rechnung. Wir sind nicht umsatzsteuerpflichtig, der angegebene Preis ist "
+"daher endgültig und Sie erhalten eine Rechnung, keinen Umsatzsteuerbeleg."
 
 #: app/templates/www/index.html:426 app/templates/www/index.html:512
 msgid "Do I need to sign anything?"

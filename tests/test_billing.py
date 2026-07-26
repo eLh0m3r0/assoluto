@@ -496,8 +496,17 @@ def test_checkout_skips_trial_when_already_expired() -> None:
 
 
 def test_checkout_enables_stripe_tax_and_cs_locale() -> None:
-    """CZ compliance bundle: automatic_tax + tax_id_collection +
-    billing_address_collection=required + locale=cs on every checkout."""
+    """CZ compliance bundle: billing_address_collection=required and
+    locale=cs on every checkout, with the tax flags following the
+    operator's own VAT status.
+
+    ``automatic_tax`` / ``tax_id_collection`` used to be hard-coded True.
+    The operator is a neplátce DPH (§6 ZDPH, stated on /imprint), so
+    that told Stripe Tax to add 21 % on top of the listed price — money
+    they are not registered to collect, on a daňový doklad they cannot
+    issue. PLATFORM_OPERATOR_DIC is the single switch, shared with the
+    invoice PDF (audit 2026-07-26).
+    """
     from unittest.mock import MagicMock, patch
 
     from app.config import Settings
@@ -526,9 +535,12 @@ def test_checkout_enables_stripe_tax_and_cs_locale() -> None:
             customer_email="o@example.com",
         )
 
-    # CZ market must have automatic tax + DIČ collection + address.
-    assert captured["automatic_tax"] == {"enabled": True}
-    assert captured["tax_id_collection"] == {"enabled": True}
+    # No DIČ configured above => neplátce DPH => charge no VAT and do
+    # not ask the buyer for a tax id (reverse-charge presupposes a
+    # VAT-registered supplier).
+    assert captured["automatic_tax"] == {"enabled": False}
+    assert captured["tax_id_collection"] == {"enabled": False}
+    # The address is still required — it goes on the invoice either way.
     assert captured["billing_address_collection"] == "required"
     assert captured["locale"] == "cs"
     # customer_update is only for existing-customer flows; first-time

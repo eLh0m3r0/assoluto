@@ -6,6 +6,7 @@ See docs/audit-runs/2026-07-26-e2e/findings.md.
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from types import SimpleNamespace
 from uuid import uuid4
 
 import pytest
@@ -167,3 +168,64 @@ async def test_signup_trial_uses_the_plan_the_visitor_clicked(owner_engine) -> N
         ).scalar_one()
         plan = (await session.execute(select(Plan).where(Plan.id == sub.plan_id))).scalar_one()
         assert plan.code == "pro", "the trial must run on the plan that was clicked"
+
+
+# --------------------------------------------------------------- VAT status
+
+
+def _checkout_kwargs(monkeypatch, *, dic: str) -> dict:
+    """Capture the kwargs handed to Stripe Checkout for a given DIČ."""
+    import stripe
+
+    from app.config import Settings
+    from app.platform.billing import service as billing_service
+
+    captured: dict = {}
+
+    def _fake_create(**kwargs):
+        captured.update(kwargs)
+        return SimpleNamespace(url="https://checkout.stripe.test/session")
+
+    monkeypatch.setattr(stripe.checkout.Session, "create", staticmethod(_fake_create))
+
+    settings = Settings(
+        STRIPE_SECRET_KEY="sk_test_x",
+        PLATFORM_OPERATOR_DIC=dic,
+    )
+    tenant = SimpleNamespace(id=uuid4(), name="Test s.r.o.", settings={}, stripe_customer_id=None)
+    plan = SimpleNamespace(code="starter", stripe_price_id="price_test_123")
+
+    billing_service.create_checkout_session(
+        settings,
+        tenant=tenant,
+        plan=plan,
+        success_url="https://x/ok",
+        cancel_url="https://x/no",
+        customer_email="a@b.cz",
+    )
+    return captured
+
+
+def test_non_vat_operator_does_not_ask_stripe_to_charge_vat(monkeypatch) -> None:
+    """The operator is a neplátce DPH (§6 ZDPH, stated on /imprint).
+
+    These flags were hard-coded True, which told Stripe Tax to add 21 %
+    on top of the listed price — money the operator is not registered to
+    collect, on a daňový doklad they cannot legally issue. Collecting a
+    DIČ was equally pointless: reverse-charge presupposes a VAT-
+    registered supplier.
+    """
+    kwargs = _checkout_kwargs(monkeypatch, dic="")
+    assert kwargs["automatic_tax"] == {"enabled": False}
+    assert kwargs["tax_id_collection"] == {"enabled": False}
+    # The billing address is still required — it goes on the invoice.
+    assert kwargs["billing_address_collection"] == "required"
+
+
+def test_registering_for_vat_flips_stripe_with_one_env_var(monkeypatch) -> None:
+    """PLATFORM_OPERATOR_DIC is the single switch, shared with the
+    invoice PDF's VAT layout.
+    """
+    kwargs = _checkout_kwargs(monkeypatch, dic="CZ12345678")
+    assert kwargs["automatic_tax"] == {"enabled": True}
+    assert kwargs["tax_id_collection"] == {"enabled": True}
