@@ -258,6 +258,7 @@ async def signup_submit(
         PlatformSession(
             identity_id=str(identity.id),
             is_platform_admin=identity.is_platform_admin,
+            session_version=identity.session_version,
         ),
         domain=_cookie_domain(settings),
         secure=settings.is_production,

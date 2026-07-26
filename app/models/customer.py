@@ -104,6 +104,11 @@ class CustomerContact(Base, TimestampMixin, TenantMixin):
 
     invited_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # ``accepted_at`` only says the invite was opened once, possibly
+    # months ago. This is the number that answers "is this client
+    # actually using the portal?" — the whole ROI of a customer portal.
+    # See migration 1007.
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, server_default="true"

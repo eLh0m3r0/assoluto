@@ -26,15 +26,26 @@ PLATFORM_MAX_AGE_SECONDS = 60 * 60 * 24 * 14  # 14 days
 class PlatformSession:
     identity_id: str
     is_platform_admin: bool = False
+    # Must match ``Identity.session_version`` at request time. A password
+    # reset bumps the row, which instantly invalidates every cookie
+    # minted before it. Cookies issued before this field existed decode
+    # as 0, which is also the server-side default, so existing sessions
+    # survive the deploy rather than all logging out at once.
+    session_version: int = 0
 
     def to_dict(self) -> dict[str, Any]:
-        return {"iid": self.identity_id, "admin": self.is_platform_admin}
+        return {
+            "iid": self.identity_id,
+            "admin": self.is_platform_admin,
+            "sv": self.session_version,
+        }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> PlatformSession:
         return cls(
             identity_id=str(data["iid"]),
             is_platform_admin=bool(data.get("admin", False)),
+            session_version=int(data.get("sv", 0)),
         )
 
 

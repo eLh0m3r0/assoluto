@@ -102,6 +102,7 @@ async def platform_login_submit(
         PlatformSession(
             identity_id=str(identity.id),
             is_platform_admin=identity.is_platform_admin,
+            session_version=identity.session_version,
         ),
         domain=_cookie_domain(settings),
         secure=settings.is_production,
@@ -160,7 +161,9 @@ async def platform_password_reset_submit(
 
     identity = await find_identity_by_email(db, email)
     if identity is not None and identity.is_active and PASSWORD_RESET_THROTTLE.allow(email):
-        reset_token = create_platform_password_reset_token(settings.app_secret_key, identity.id)
+        reset_token = create_platform_password_reset_token(
+            settings.app_secret_key, identity.id, identity.session_version
+        )
         reset_url = f"{settings.app_base_url}/platform/password-reset/confirm?token={reset_token}"
         sender = request.app.state.email_sender
         # Platform identities aren't scoped to a tenant, so there's no
@@ -249,7 +252,7 @@ async def platform_password_reset_confirm_submit(
     )
 
     try:
-        identity_id = decode_platform_password_reset_token(
+        identity_id, token_sv = decode_platform_password_reset_token(
             settings.app_secret_key, token, PLATFORM_RESET_MAX_AGE
         )
     except Exception:
@@ -265,16 +268,33 @@ async def platform_password_reset_confirm_submit(
         )
         return HTMLResponse(html, status_code=400)
 
-    try:
-        await reset_platform_password(db, identity_id, password)
-        await db.commit()
-    except Exception:
+    if len(password) < 8:
         html = _templates(request).render(
             request,
             "platform/password_reset_confirm.html",
             {
                 "token": token,
-                "error": "Nepodařilo se nastavit nové heslo.",
+                "error": "Heslo musí mít alespoň 8 znaků.",
+                "notice": None,
+                "principal": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
+
+    try:
+        await reset_platform_password(db, identity_id, password, token_session_version=token_sv)
+        await db.commit()
+    except Exception:
+        # Covers an already-consumed link as well as a genuine failure.
+        # Both get the same wording on purpose: a distinct "this link was
+        # already used" message would tell a stranger holding the URL
+        # that the address is real and that a reset just happened.
+        html = _templates(request).render(
+            request,
+            "platform/password_reset_confirm.html",
+            {
+                "token": token,
+                "error": "Odkaz je neplatný nebo již byl použit.",
                 "notice": None,
                 "principal": None,
             },
