@@ -1,0 +1,9 @@
+{% trans order_number=order_number, order_title=order_title %}Order {{ order_number }} — {{ order_title }}{% endtrans %}
+
+{% if author_name %}{% trans author_name=author_name %}{{ author_name }} assigned this order to you.{% endtrans %}{% else %}{{ _("This order was assigned to you.") }}{% endif %}
+
+{{ _("Status") }}: {{ _(status_label) }}
+
+{{ _("Open") }}: {{ order_url }}
+
+-- {{ tenant_name }}

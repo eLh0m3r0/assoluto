@@ -18,17 +18,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.deps import Principal, get_db, require_login, require_tenant_staff
 from app.i18n import t as _t
 from app.models.customer import Customer
-from app.models.enums import OrderStatus
+from app.models.enums import STATUS_LABELS, OrderStatus
 from app.models.order import Order, OrderItem
 from app.security.csrf import verify_csrf
 from app.services.attachment_service import list_for_order as list_attachments
 from app.services.audit_service import actor_from_principal
 from app.services.customer_service import list_customers
 from app.services.notification_service import (
+    build_order_created,
     build_order_status_changed,
     build_order_submitted,
+    merge_for_digest,
 )
 from app.services.order_service import (
+    UNASSIGNED,
     ActorRef,
     ForbiddenActor,
     ForbiddenTransition,
@@ -37,10 +40,12 @@ from app.services.order_service import (
     OrderNotFound,
     add_comment,
     add_item,
+    assign_order,
     build_orders_query,
     bulk_transition,
     create_order,
     get_order_for_principal,
+    list_assignable_staff,
     list_comments,
     list_items,
     list_orders_for_principal,
@@ -79,11 +84,35 @@ def _tenant(request: Request):
 PAGE_SIZE = 20
 
 
+def _parse_assigned_filter(raw: str | None, principal: Principal) -> UUID | str | None:
+    """Parse the ``assigned`` query param into a ``build_orders_query`` value.
+
+    Shared by the list and the CSV export: the export link forwards the
+    whole query string, so parsing it in only one of the two silently
+    hands the user more rows than the screen showed them.
+
+    ``me`` resolves server-side so a bookmarked or shared filter shows
+    each colleague their own queue. Staff-only, like the customer filter
+    — a contact has no business slicing the supplier's workload.
+    """
+    if not raw or not principal.is_staff:
+        return None
+    if raw == "me":
+        return principal.id
+    if raw == UNASSIGNED:
+        return UNASSIGNED
+    try:
+        return UUID(raw)
+    except ValueError:
+        return None
+
+
 @router.get("", response_class=HTMLResponse)
 async def orders_index(
     request: Request,
     status: str | None = None,
     customer: str | None = None,
+    assigned: str | None = None,
     q: str | None = None,
     page: int = 1,
     notice: str | None = None,
@@ -106,6 +135,8 @@ async def orders_index(
         except ValueError:
             customer_filter = None
 
+    assigned_filter = _parse_assigned_filter(assigned, principal)
+
     page = max(1, page)
     offset = (page - 1) * PAGE_SIZE
 
@@ -115,6 +146,7 @@ async def orders_index(
         status_filter=status_filter,
         customer_filter=customer_filter,
         search=q,
+        assigned_filter=assigned_filter,
         offset=offset,
         limit=PAGE_SIZE,
     )
@@ -122,9 +154,29 @@ async def orders_index(
 
     customer_by_id: dict = {}
     customers: list = []
+    staff_choices: list = []
+    assignee_by_id: dict = {}
     if principal.is_staff:
         customers = await list_customers(db)
         customer_by_id = {c.id: c for c in customers}
+        staff_choices = await list_assignable_staff(db)
+        # Names for the "Owner" column. Built from the picker list, which
+        # is already loaded; an owner who has since been deactivated falls
+        # back to a plain lookup so the column never goes blank on a row
+        # that genuinely has an owner.
+        assignee_by_id = {u.id: u.full_name for u in staff_choices}
+        missing = {
+            o.assigned_to_user_id
+            for o in orders
+            if o.assigned_to_user_id is not None and o.assigned_to_user_id not in assignee_by_id
+        }
+        if missing:
+            from app.models.user import User as _User
+
+            rows = (
+                await db.execute(select(_User.id, _User.full_name).where(_User.id.in_(missing)))
+            ).all()
+            assignee_by_id.update({row[0]: row[1] for row in rows})
 
     # Status options for the bulk-transition dropdown (staff only in the
     # template; listed without the empty option). English labels stay in
@@ -151,16 +203,22 @@ async def orders_index(
             "orders": orders,
             "customer_by_id": customer_by_id,
             "customers": customers,
+            "staff_choices": staff_choices,
+            "assignee_by_id": assignee_by_id,
             "filters": {
                 "status": status_filter.value if status_filter else "",
                 "customer": str(customer_filter) if customer_filter else "",
+                "assigned": (assigned or "") if principal.is_staff else "",
                 "q": q or "",
             },
             "page": page,
             "total_pages": total_pages,
             "total": total,
             "has_active_filters": bool(
-                (status or "").strip() or (customer or "").strip() or (q or "").strip()
+                (status or "").strip()
+                or (customer or "").strip()
+                or (assigned or "").strip()
+                or (q or "").strip()
             ),
             "notice": notice or None,
             "error": error or None,
@@ -230,6 +288,7 @@ async def orders_export_csv(
     request: Request,
     status: str | None = None,
     customer: str | None = None,
+    assigned: str | None = None,
     from_: str | None = None,
     to: str | None = None,
     q: str | None = None,
@@ -270,6 +329,7 @@ async def orders_export_csv(
         actor=_actor(principal),
         status=status_filter,
         customer_id=customer_filter,
+        assigned_to=_parse_assigned_filter(assigned, principal),
         date_from=date_from,
         date_to=date_to,
         q=q,
@@ -390,6 +450,7 @@ async def orders_new_form(
 @router.post("", response_class=HTMLResponse)
 async def orders_create(
     request: Request,
+    background_tasks: BackgroundTasks,
     title: str = Form(...),
     customer_id: str = Form(""),
     requested_delivery_at: str = Form(""),
@@ -446,6 +507,36 @@ async def orders_create(
                 "notes": notes,
             },
             error=str(exc),
+        )
+
+    # Staff opening an order for a customer: tell the customer. Without
+    # this they heard nothing until the first status transition, which for
+    # a job agreed over the phone could be days later.
+    notifications: list = []
+    if principal.is_staff:
+        tenant = request.state.tenant
+        settings = request.app.state.settings
+        from app.urls import tenant_base_url
+
+        notifications = await build_order_created(
+            db,
+            tenant=tenant,
+            order=order,
+            base_url=tenant_base_url(settings, tenant),
+            settings=settings,
+            author_name=principal.full_name,
+            actor_email=principal.email,
+        )
+
+    # Commit before scheduling — the task opens a fresh session and must
+    # see the new row (CLAUDE.md §2).
+    await db.commit()
+
+    if notifications:
+        from app.tasks.email_tasks import send_order_notifications
+
+        background_tasks.add_task(
+            send_order_notifications, request.app.state.email_sender, notifications
         )
 
     notice = quote(_t(request, "Order created."))
@@ -578,6 +669,34 @@ async def orders_detail(
 
     status_pipeline = _status_pipeline(request, order, principal)
 
+    # Assignment picker — staff only. Contacts must not see the
+    # supplier's internal staff list, let alone who is working on what.
+    staff_choices: list = []
+    assignee_name = ""
+    assignee_is_pickable = True
+    if principal.is_staff:
+        staff_choices = await list_assignable_staff(db)
+        if order.assigned_to_user_id is not None:
+            assignee_name = next(
+                (u.full_name for u in staff_choices if u.id == order.assigned_to_user_id),
+                "",
+            )
+            if not assignee_name:
+                # Owner has since been deactivated, so they are not in the
+                # picker. Look them up anyway: rendering the select with no
+                # option selected makes the browser show the first one
+                # ("Unassigned"), and re-saving the form would then clear a
+                # real assignment nobody chose to clear.
+                from app.models.user import User as _User
+
+                row = (
+                    await db.execute(
+                        select(_User.full_name).where(_User.id == order.assigned_to_user_id)
+                    )
+                ).first()
+                assignee_name = row[0] if row else ""
+                assignee_is_pickable = False
+
     # Resolve per-customer order permissions.
     from app.services.customer_permissions import OrderPermissions
 
@@ -610,6 +729,9 @@ async def orders_detail(
             "customer": customer,
             "can_edit_items": _can_edit_items(order, principal),
             "status_pipeline": status_pipeline,
+            "staff_choices": staff_choices,
+            "assignee_name": assignee_name,
+            "assignee_is_pickable": assignee_is_pickable,
             "product_choices": product_choices,
             "error": error,
             "notice": notice,
@@ -629,20 +751,11 @@ def _can_edit_items(order, principal: Principal) -> bool:
     return order.status == OrderStatus.DRAFT
 
 
-# Status *nouns* — what the order currently is. These msgids are shared
-# with ``orders/_status_badge.html`` and the filter dropdowns, so the
+# Status *nouns* — what the order currently is — now live next to the
+# enum in ``app.models.enums`` so the stepper, the emails and the order
+# PDF cannot drift apart. These msgids are shared with
+# ``orders/_status_badge.html`` and the filter dropdowns, so the
 # translations already exist in the CS/DE catalogs.
-STATUS_LABELS: dict[OrderStatus, str] = {
-    OrderStatus.DRAFT: "Draft",
-    OrderStatus.SUBMITTED: "Submitted",
-    OrderStatus.QUOTED: "Quoted",
-    OrderStatus.CONFIRMED: "Confirmed",
-    OrderStatus.IN_PRODUCTION: "In production",
-    OrderStatus.READY: "Ready",
-    OrderStatus.DELIVERED: "Delivered",
-    OrderStatus.CLOSED: "Closed",
-    OrderStatus.CANCELLED: "Cancelled",
-}
 
 # Status *verbs* — what clicking does. Used only for the single primary
 # call-to-action button; every other node in the stepper is labelled
@@ -1146,67 +1259,45 @@ async def orders_bulk_transition(
         order = orders_by_id.get(order_id)
         if order is None:
             continue
-        # build_order_submitted and build_order_status_changed return
-        # different notification dataclasses; the union is fine because
-        # the email-task functions branch on the (target, payload) tuple
-        # downstream and call the matching sender for each.
-        from app.services.notification_service import (
-            OrderStatusChangedNotification,
-            OrderSubmittedNotification,
-        )
-
-        payload: OrderSubmittedNotification | OrderStatusChangedNotification | None
         if target == OrderStatus.SUBMITTED:
-            payload = await build_order_submitted(
-                db,
-                tenant=tenant,
-                order=order,
-                base_url=tenant_url,
-                settings=settings,
+            notifications.extend(
+                await build_order_submitted(
+                    db,
+                    tenant=tenant,
+                    order=order,
+                    base_url=tenant_url,
+                    settings=settings,
+                    actor_email=principal.email,
+                )
             )
         else:
-            payload = await build_order_status_changed(
-                db,
-                tenant=tenant,
-                order=order,
-                to_status=target,
-                base_url=tenant_url,
-                actor_is_contact=principal.type == "contact",
-                actor_email=principal.email,
-                settings=settings,
+            notifications.extend(
+                await build_order_status_changed(
+                    db,
+                    tenant=tenant,
+                    order=order,
+                    to_status=target,
+                    base_url=tenant_url,
+                    # Staff-only route (``require_tenant_staff``), so the
+                    # audience is always the customer side.
+                    actor_is_contact=False,
+                    actor_email=principal.email,
+                    settings=settings,
+                )
             )
-        if payload is not None:
-            notifications.append((target, payload))
+
+    # Collapse per-order payloads into one mail per recipient. Moving 30
+    # orders used to send 30 separate emails to every recipient; now it
+    # sends one listing all 30. Recipients with a single order keep the
+    # normal single-order template.
+    batched = merge_for_digest(notifications)
 
     await db.commit()
 
-    from app.tasks.email_tasks import send_order_status_changed, send_order_submitted
+    if batched:
+        from app.tasks.email_tasks import send_order_notifications
 
-    for status, payload in notifications:
-        if status == OrderStatus.SUBMITTED:
-            assert isinstance(payload, OrderSubmittedNotification)
-            background_tasks.add_task(
-                send_order_submitted,
-                sender,
-                recipients_with_locale=payload.recipients_with_locale,
-                tenant_name=payload.tenant_name,
-                customer_name=payload.customer_name,
-                order_number=payload.order_number,
-                order_title=payload.order_title,
-                order_url=payload.order_url,
-            )
-        else:
-            assert isinstance(payload, OrderStatusChangedNotification)
-            background_tasks.add_task(
-                send_order_status_changed,
-                sender,
-                recipients_with_locale=payload.recipients_with_locale,
-                tenant_name=payload.tenant_name,
-                order_number=payload.order_number,
-                order_title=payload.order_title,
-                order_url=payload.order_url,
-                to_status=payload.to_status,
-            )
+        background_tasks.add_task(send_order_notifications, sender, batched)
 
     ok = len(result.succeeded)
     failed = len(result.errors)
@@ -1265,18 +1356,18 @@ async def orders_transition(
 
     tenant_url = tenant_base_url(settings, tenant)
 
-    notif_submitted = None
-    notif_status = None
+    notifications: list = []
     if target == OrderStatus.SUBMITTED:
-        notif_submitted = await build_order_submitted(
+        notifications = await build_order_submitted(
             db,
             tenant=tenant,
             order=order,
             base_url=tenant_url,
             settings=settings,
+            actor_email=principal.email,
         )
     else:
-        notif_status = await build_order_status_changed(
+        notifications = await build_order_status_changed(
             db,
             tenant=tenant,
             order=order,
@@ -1290,32 +1381,10 @@ async def orders_transition(
     # Commit so the background task's fresh session can see the new state.
     await db.commit()
 
-    if notif_submitted is not None:
-        from app.tasks.email_tasks import send_order_submitted
+    if notifications:
+        from app.tasks.email_tasks import send_order_notifications
 
-        background_tasks.add_task(
-            send_order_submitted,
-            sender,
-            recipients_with_locale=notif_submitted.recipients_with_locale,
-            tenant_name=notif_submitted.tenant_name,
-            customer_name=notif_submitted.customer_name,
-            order_number=notif_submitted.order_number,
-            order_title=notif_submitted.order_title,
-            order_url=notif_submitted.order_url,
-        )
-    if notif_status is not None:
-        from app.tasks.email_tasks import send_order_status_changed
-
-        background_tasks.add_task(
-            send_order_status_changed,
-            sender,
-            recipients_with_locale=notif_status.recipients_with_locale,
-            tenant_name=notif_status.tenant_name,
-            order_number=notif_status.order_number,
-            order_title=notif_status.order_title,
-            order_url=notif_status.order_url,
-            to_status=notif_status.to_status,
-        )
+        background_tasks.add_task(send_order_notifications, sender, notifications)
 
     # Flash so the user gets a confirmation — silent redirects leave
     # them wondering if the click did anything. Localised via _t() and
@@ -1365,7 +1434,7 @@ async def orders_add_comment(
 
     # Build comment notification while the session is still open; skip
     # internal comments entirely (those are staff-only).
-    notif = None
+    notifications: list = []
     if not internal_flag:
         from app.services.notification_service import build_order_comment
 
@@ -1373,7 +1442,7 @@ async def orders_add_comment(
         settings = request.app.state.settings
         from app.urls import tenant_base_url
 
-        notif = await build_order_comment(
+        notifications = await build_order_comment(
             db,
             tenant=tenant,
             order=order,
@@ -1387,21 +1456,91 @@ async def orders_add_comment(
 
     await db.commit()
 
-    if notif is not None:
-        from app.tasks.email_tasks import send_order_comment
+    if notifications:
+        from app.tasks.email_tasks import send_order_notifications
 
-        sender = request.app.state.email_sender
         background_tasks.add_task(
-            send_order_comment,
-            sender,
-            recipients_with_locale=notif.recipients_with_locale,
-            tenant_name=notif.tenant_name,
-            order_number=notif.order_number,
-            order_title=notif.order_title,
-            order_url=notif.order_url,
-            author_name=notif.author_name,
-            body_excerpt=notif.body_excerpt,
+            send_order_notifications, request.app.state.email_sender, notifications
         )
 
     notice = quote(_t(request, "Comment added."))
     return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)
+
+
+@router.post("/{order_id}/assign", response_class=HTMLResponse)
+async def orders_assign(
+    order_id: UUID,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    assigned_to: str = Form(""),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Set or clear the staff member responsible for an order.
+
+    Staff only — ``require_tenant_staff`` keeps contacts out entirely, so
+    a customer can neither see nor change who is working on their job.
+    An empty ``assigned_to`` unassigns.
+    """
+    try:
+        order = await get_order_for_principal(db, order_id=order_id, actor=_actor(principal))
+    except (OrderNotFound, OrderAccessDenied):
+        raise HTTPException(status_code=404, detail="Order not found") from None
+
+    assignee_id: UUID | None = None
+    if assigned_to.strip():
+        try:
+            assignee_id = UUID(assigned_to.strip())
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid assignee") from None
+
+    try:
+        assignee = await assign_order(
+            db,
+            order=order,
+            assignee_id=assignee_id,
+            actor=_actor(principal),
+            audit_actor=actor_from_principal(principal),
+        )
+    except ForbiddenActor as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from None
+    except OrderError:
+        return RedirectResponse(
+            url=f"/app/orders/{order.id}?error="
+            + quote(_t(request, "That person can no longer be assigned work.")),
+            status_code=303,
+        )
+
+    # ``assign_order`` returns None both for "unassigned" and for "no
+    # change"; either way there is nobody new to email.
+    notifications: list = []
+    if assignee is not None:
+        from app.services.notification_service import build_order_assigned
+        from app.urls import tenant_base_url
+
+        tenant = request.state.tenant
+        settings = request.app.state.settings
+        notifications = build_order_assigned(
+            tenant=tenant,
+            order=order,
+            assignee=assignee,
+            base_url=tenant_base_url(settings, tenant),
+            settings=settings,
+            actor_email=principal.email,
+            actor_name=principal.full_name,
+        )
+
+    await db.commit()
+
+    if notifications:
+        from app.tasks.email_tasks import send_order_notifications
+
+        background_tasks.add_task(
+            send_order_notifications, request.app.state.email_sender, notifications
+        )
+
+    if assignee is not None:
+        notice = _t(request, "Assigned to {name}.").format(name=assignee.full_name)
+    else:
+        notice = _t(request, "Assignment updated.")
+    return RedirectResponse(url=f"/app/orders/{order.id}?notice={quote(notice)}", status_code=303)

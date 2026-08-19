@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: assoluto VERSION\n"
 "Report-Msgid-Bugs-To: team@assoluto.eu\n"
-"POT-Creation-Date: 2026-07-26 22:23+0200\n"
+"POT-Creation-Date: 2026-08-19 15:33+0200\n"
 "PO-Revision-Date: 2026-04-26 11:15+0200\n"
 "Last-Translator: Assoluto Team <team@assoluto.eu>\n"
 "Language: de\n"
@@ -17,6 +17,150 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+
+#: app/i18n_messages.py:34
+msgid "All statuses"
+msgstr "Alle Status"
+
+#: app/i18n_messages.py:35 app/templates/orders/_status_badge.html:14
+#: app/templates/orders/detail.html:496
+msgid "Draft"
+msgstr "Entwurf"
+
+#: app/i18n_messages.py:36 app/templates/orders/_status_badge.html:15
+#: app/templates/orders/detail.html:497
+msgid "Submitted"
+msgstr "Gesendet"
+
+#: app/i18n_messages.py:37 app/templates/orders/_status_badge.html:16
+#: app/templates/orders/detail.html:498
+msgid "Quoted"
+msgstr "Angeboten"
+
+#: app/i18n_messages.py:38 app/templates/orders/_status_badge.html:17
+#: app/templates/orders/detail.html:499
+msgid "Confirmed"
+msgstr "Bestätigt"
+
+#: app/i18n_messages.py:39 app/templates/orders/_status_badge.html:18
+#: app/templates/orders/detail.html:500
+msgid "In production"
+msgstr "In Produktion"
+
+#: app/i18n_messages.py:40 app/templates/orders/_status_badge.html:19
+#: app/templates/orders/detail.html:501
+msgid "Ready"
+msgstr "Fertig"
+
+#: app/i18n_messages.py:41 app/templates/orders/_status_badge.html:20
+#: app/templates/orders/detail.html:502
+msgid "Delivered"
+msgstr "Geliefert"
+
+#: app/i18n_messages.py:42 app/templates/orders/_status_badge.html:21
+#: app/templates/orders/detail.html:503
+msgid "Closed"
+msgstr "Abgeschlossen"
+
+#: app/i18n_messages.py:43 app/templates/orders/_status_badge.html:22
+#: app/templates/orders/detail.html:504
+msgid "Cancelled"
+msgstr "Storniert"
+
+#: app/i18n_messages.py:49
+msgid "Return to draft"
+msgstr "Zurück zum Entwurf"
+
+#: app/i18n_messages.py:50
+msgid "Submit"
+msgstr "Senden"
+
+#: app/i18n_messages.py:51
+msgid "Quote"
+msgstr "Angebot"
+
+#: app/i18n_messages.py:52
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: app/i18n_messages.py:53
+msgid "Start production"
+msgstr "Produktion starten"
+
+#: app/i18n_messages.py:54
+msgid "Mark as ready"
+msgstr "Als fertig markieren"
+
+#: app/i18n_messages.py:55
+msgid "Mark as delivered"
+msgstr "Als geliefert markieren"
+
+#: app/i18n_messages.py:56
+msgid "Close order"
+msgstr "Auftrag abschließen"
+
+#: app/i18n_messages.py:57
+msgid "Cancel order"
+msgstr "Auftrag stornieren"
+
+#: app/i18n_messages.py:60
+msgid "Close"
+msgstr "Schließen"
+
+#: app/i18n_messages.py:61 app/templates/admin/user_edit.html:79
+#: app/templates/assets/form.html:57 app/templates/customers/form.html:99
+#: app/templates/orders/form.html:58
+#: app/templates/platform/admin/tenant_edit.html:73
+#: app/templates/products/form.html:70
+msgid "Cancel"
+msgstr "Stornieren"
+
+#: app/i18n_messages.py:65
+msgid "All entities"
+msgstr "Alle Entitäten"
+
+#: app/i18n_messages.py:66 app/templates/_palette_results.html:34
+msgid "Order"
+msgstr "Auftrag"
+
+#: app/i18n_messages.py:67 app/routers/orders.py:356
+#: app/templates/admin/sla.html:119
+msgid "Customer"
+msgstr "Kunde"
+
+#: app/i18n_messages.py:68 app/templates/_palette_results.html:76
+msgid "Product"
+msgstr "Produkt"
+
+#: app/i18n_messages.py:69
+msgid "User"
+msgstr "Benutzer"
+
+#: app/i18n_messages.py:70 app/templates/platform/select_tenant.html:46
+msgid "Customer contact"
+msgstr "Kundenkontakt"
+
+#: app/main.py:514
+msgid "staff users"
+msgstr "Team-Benutzer"
+
+#: app/main.py:515
+msgid "client contacts"
+msgstr "Kundenkontakte"
+
+#: app/main.py:516
+msgid "orders this month"
+msgstr "Aufträge diesen Monat"
+
+#: app/main.py:517
+msgid "MB of storage"
+msgstr "MB Speicher"
+
+#: app/email/templates/_layout.html:32
+#: app/email/templates/order_comment.html:23
+#: app/email/templates/order_submitted.html:20
+msgid "Open order"
+msgstr "Auftrag öffnen"
 
 #: app/email/templates/email_verification.html:6
 #: app/templates/platform/check_email.html:3
@@ -174,6 +318,96 @@ msgstr ""
 "Falls Sie diese Einladung nicht angefordert haben, ignorieren Sie diese "
 "E-Mail bitte."
 
+#: app/email/templates/order_assigned.html:2
+#: app/email/templates/order_assigned.subject.txt:1
+#, python-format
+msgid "Order %(order_number)s was assigned to you"
+msgstr "Auftrag %(order_number)s wurde Ihnen zugewiesen"
+
+#: app/email/templates/order_assigned.html:3
+msgid "Assigned to you"
+msgstr "Ihnen zugewiesen"
+
+#: app/email/templates/order_assigned.html:7
+#, python-format
+msgid ""
+"%(author_name)s assigned order <strong>%(order_number)s</strong> — "
+"%(order_title)s to you."
+msgstr ""
+"%(author_name)s hat Ihnen den Auftrag <strong>%(order_number)s</strong> —"
+" %(order_title)s zugewiesen."
+
+#: app/email/templates/order_assigned.html:9
+#, python-format
+msgid ""
+"Order <strong>%(order_number)s</strong> — %(order_title)s was assigned to"
+" you."
+msgstr ""
+"Auftrag <strong>%(order_number)s</strong> — %(order_title)s wurde Ihnen "
+"zugewiesen."
+
+#: app/email/templates/order_assigned.html:12
+#: app/email/templates/order_assigned.txt:5 app/routers/orders.py:355
+#: app/templates/orders/list.html:99
+#: app/templates/platform/admin/dashboard.html:49
+#: app/templates/platform/admin/tenant_edit.html:59
+#: app/templates/platform/billing/dashboard.html:214
+#: app/templates/www/_hero_mock.html:62
+msgid "Status"
+msgstr "Status"
+
+#: app/email/templates/order_assigned.txt:1
+#: app/email/templates/order_created.txt:1
+#, python-format
+msgid "Order %(order_number)s — %(order_title)s"
+msgstr "Auftrag %(order_number)s — %(order_title)s"
+
+#: app/email/templates/order_assigned.txt:3
+#, python-format
+msgid "%(author_name)s assigned this order to you."
+msgstr "%(author_name)s hat Ihnen diesen Auftrag zugewiesen."
+
+#: app/email/templates/order_assigned.txt:3
+msgid "This order was assigned to you."
+msgstr "Dieser Auftrag wurde Ihnen zugewiesen."
+
+#: app/email/templates/order_assigned.txt:7
+#: app/email/templates/order_attachment.txt:5
+#: app/email/templates/order_comment.txt:7
+#: app/email/templates/order_created.txt:7
+#: app/email/templates/order_submitted.txt:5
+msgid "Open"
+msgstr "Öffnen"
+
+#: app/email/templates/order_attachment.html:2
+#: app/email/templates/order_attachment.subject.txt:1
+#, python-format
+msgid "New file on order %(order_number)s"
+msgstr "Neue Datei zum Auftrag %(order_number)s"
+
+#: app/email/templates/order_attachment.html:3
+msgid "New file"
+msgstr "Neue Datei"
+
+#: app/email/templates/order_attachment.html:6
+#, python-format
+msgid ""
+"%(author_name)s uploaded a file to order "
+"<strong>%(order_number)s</strong> — %(order_title)s."
+msgstr ""
+"%(author_name)s hat eine Datei zum Auftrag "
+"<strong>%(order_number)s</strong> — %(order_title)s hochgeladen."
+
+#: app/email/templates/order_attachment.txt:1
+#, python-format
+msgid "New file on order %(order_number)s — %(order_title)s"
+msgstr "Neue Datei zum Auftrag %(order_number)s — %(order_title)s"
+
+#: app/email/templates/order_attachment.txt:3
+#, python-format
+msgid "%(author_name)s uploaded %(filename)s."
+msgstr "%(author_name)s hat %(filename)s hochgeladen."
+
 #: app/email/templates/order_comment.html:6
 #: app/email/templates/order_comment.subject.txt:1
 #, python-format
@@ -198,11 +432,6 @@ msgstr ""
 "%(author_name)s hat einen Kommentar zu Auftrag "
 "<strong>%(order_number)s</strong> — %(order_title)s hinzugefügt."
 
-#: app/email/templates/order_comment.html:23
-#: app/email/templates/order_submitted.html:20
-msgid "Open order"
-msgstr "Auftrag öffnen"
-
 #: app/email/templates/order_comment.txt:1
 #, python-format
 msgid "New comment on order %(order_number)s — %(order_title)s"
@@ -213,10 +442,77 @@ msgstr "Neuer Kommentar zu Auftrag %(order_number)s — %(order_title)s"
 msgid "%(author_name)s wrote:"
 msgstr "%(author_name)s schrieb:"
 
-#: app/email/templates/order_comment.txt:7
-#: app/email/templates/order_submitted.txt:5
-msgid "Open"
-msgstr "Öffnen"
+#: app/email/templates/order_created.html:2
+#: app/email/templates/order_created.subject.txt:1
+#, python-format
+msgid "New order %(order_number)s has been created for you"
+msgstr "Für Sie wurde der Auftrag %(order_number)s angelegt"
+
+#: app/email/templates/order_created.html:3
+#: app/templates/dashboard/index.html:207 app/templates/orders/form.html:3
+#: app/templates/orders/form.html:6 app/templates/orders/form.html:9
+#: app/templates/orders/list.html:21 app/templates/www/_hero_mock.html:51
+msgid "New order"
+msgstr "Neuer Auftrag"
+
+#: app/email/templates/order_created.html:7
+#, python-format
+msgid ""
+"%(author_name)s from %(tenant_name)s opened order "
+"<strong>%(order_number)s</strong> — %(order_title)s on your behalf."
+msgstr ""
+"%(author_name)s von %(tenant_name)s hat den Auftrag "
+"<strong>%(order_number)s</strong> — %(order_title)s für Sie angelegt."
+
+#: app/email/templates/order_created.html:9
+#, python-format
+msgid ""
+"%(tenant_name)s opened order <strong>%(order_number)s</strong> — "
+"%(order_title)s on your behalf."
+msgstr ""
+"%(tenant_name)s hat den Auftrag <strong>%(order_number)s</strong> — "
+"%(order_title)s für Sie angelegt."
+
+#: app/email/templates/order_created.html:12
+#: app/email/templates/order_created.txt:5
+msgid ""
+"You can review the details, add files and follow its progress in the "
+"portal."
+msgstr ""
+"Im Portal können Sie die Details prüfen, Dateien hinzufügen und den "
+"Fortschritt verfolgen."
+
+#: app/email/templates/order_created.txt:3
+#, python-format
+msgid "%(author_name)s from %(tenant_name)s opened this order on your behalf."
+msgstr "%(author_name)s von %(tenant_name)s hat diesen Auftrag für Sie angelegt."
+
+#: app/email/templates/order_created.txt:3
+#, python-format
+msgid "%(tenant_name)s opened this order on your behalf."
+msgstr "%(tenant_name)s hat diesen Auftrag für Sie angelegt."
+
+#: app/email/templates/order_digest.html:2
+#: app/email/templates/order_digest.html:3
+#: app/email/templates/order_digest.subject.txt:1
+#, python-format
+msgid "%(count)s order updated"
+msgid_plural "%(count)s orders updated"
+msgstr[0] "%(count)s Auftrag aktualisiert"
+msgstr[1] "%(count)s Aufträge aktualisiert"
+
+#: app/email/templates/order_digest.html:6
+msgid "The following order was updated in one action."
+msgid_plural "The following orders were updated in one action."
+msgstr[0] "Der folgende Auftrag wurde in einem Vorgang aktualisiert."
+msgstr[1] "Die folgenden Aufträge wurden in einem Vorgang aktualisiert."
+
+#: app/email/templates/order_digest.txt:1
+#, python-format
+msgid "%(count)s order was updated:"
+msgid_plural "%(count)s orders were updated:"
+msgstr[0] "%(count)s Auftrag wurde aktualisiert:"
+msgstr[1] "%(count)s Aufträge wurden aktualisiert:"
 
 #: app/email/templates/order_status_changed.html:6
 #: app/email/templates/order_status_changed.html:14
@@ -587,153 +883,15 @@ msgstr ""
 " das Portal (und der Zugang Ihrer Kunden) ohne Unterbrechung weiterläuft,"
 " wählen Sie bis dahin einen Plan:"
 
-#: app/i18n_messages.py:34
-msgid "All statuses"
-msgstr "Alle Status"
-
-#: app/i18n_messages.py:35 app/templates/orders/_status_badge.html:14
-#: app/templates/orders/detail.html:451
-msgid "Draft"
-msgstr "Entwurf"
-
-#: app/i18n_messages.py:36 app/templates/orders/_status_badge.html:15
-#: app/templates/orders/detail.html:452
-msgid "Submitted"
-msgstr "Gesendet"
-
-#: app/i18n_messages.py:37 app/templates/orders/_status_badge.html:16
-#: app/templates/orders/detail.html:453
-msgid "Quoted"
-msgstr "Angeboten"
-
-#: app/i18n_messages.py:38 app/templates/orders/_status_badge.html:17
-#: app/templates/orders/detail.html:454
-msgid "Confirmed"
-msgstr "Bestätigt"
-
-#: app/i18n_messages.py:39 app/templates/orders/_status_badge.html:18
-#: app/templates/orders/detail.html:455
-msgid "In production"
-msgstr "In Produktion"
-
-#: app/i18n_messages.py:40 app/templates/orders/_status_badge.html:19
-#: app/templates/orders/detail.html:456
-msgid "Ready"
-msgstr "Fertig"
-
-#: app/i18n_messages.py:41 app/templates/orders/_status_badge.html:20
-#: app/templates/orders/detail.html:457
-msgid "Delivered"
-msgstr "Geliefert"
-
-#: app/i18n_messages.py:42 app/templates/orders/_status_badge.html:21
-#: app/templates/orders/detail.html:458
-msgid "Closed"
-msgstr "Abgeschlossen"
-
-#: app/i18n_messages.py:43 app/templates/orders/_status_badge.html:22
-#: app/templates/orders/detail.html:459
-msgid "Cancelled"
-msgstr "Storniert"
-
-#: app/i18n_messages.py:49
-msgid "Return to draft"
-msgstr "Zurück zum Entwurf"
-
-#: app/i18n_messages.py:50
-msgid "Submit"
-msgstr "Senden"
-
-#: app/i18n_messages.py:51
-msgid "Quote"
-msgstr "Angebot"
-
-#: app/i18n_messages.py:52
-msgid "Confirm"
-msgstr "Bestätigen"
-
-#: app/i18n_messages.py:53
-msgid "Start production"
-msgstr "Produktion starten"
-
-#: app/i18n_messages.py:54
-msgid "Mark as ready"
-msgstr "Als fertig markieren"
-
-#: app/i18n_messages.py:55
-msgid "Mark as delivered"
-msgstr "Als geliefert markieren"
-
-#: app/i18n_messages.py:56
-msgid "Close order"
-msgstr "Auftrag abschließen"
-
-#: app/i18n_messages.py:57
-msgid "Cancel order"
-msgstr "Auftrag stornieren"
-
-#: app/i18n_messages.py:60
-msgid "Close"
-msgstr "Schließen"
-
-#: app/i18n_messages.py:61 app/templates/admin/user_edit.html:68
-#: app/templates/assets/form.html:57 app/templates/customers/form.html:99
-#: app/templates/orders/form.html:58
-#: app/templates/platform/admin/tenant_edit.html:73
-#: app/templates/products/form.html:70
-msgid "Cancel"
-msgstr "Stornieren"
-
-#: app/i18n_messages.py:65
-msgid "All entities"
-msgstr "Alle Entitäten"
-
-#: app/i18n_messages.py:66 app/templates/_palette_results.html:34
-msgid "Order"
-msgstr "Auftrag"
-
-#: app/i18n_messages.py:67 app/routers/orders.py:296
-#: app/templates/admin/sla.html:119
-msgid "Customer"
-msgstr "Kunde"
-
-#: app/i18n_messages.py:68 app/templates/_palette_results.html:76
-msgid "Product"
-msgstr "Produkt"
-
-#: app/i18n_messages.py:69
-msgid "User"
-msgstr "Benutzer"
-
-#: app/i18n_messages.py:70 app/templates/platform/select_tenant.html:46
-msgid "Customer contact"
-msgstr "Kundenkontakt"
-
-#: app/main.py:514
-msgid "staff users"
-msgstr "Team-Benutzer"
-
-#: app/main.py:515
-msgid "client contacts"
-msgstr "Kundenkontakte"
-
-#: app/main.py:516
-msgid "orders this month"
-msgstr "Aufträge diesen Monat"
-
-#: app/main.py:517
-msgid "MB of storage"
-msgstr "MB Speicher"
-
 #: app/routers/assets.py:126
 msgid "An asset with this code already exists for this client."
 msgstr "Ein Asset mit diesem Code existiert bereits bei diesem Kunden."
 
-#: app/routers/attachments.py:144
+#: app/routers/attachments.py:170
 msgid "Attachment uploaded."
 msgstr "Anhang hochgeladen."
 
-#: app/routers/attachments.py:225
+#: app/routers/attachments.py:251
 msgid "Attachment deleted."
 msgstr "Anhang gelöscht."
 
@@ -742,7 +900,7 @@ msgid "Customer created."
 msgstr "Kunde angelegt."
 
 #: app/routers/customers.py:278 app/routers/customers.py:398
-#: app/routers/products.py:338 app/routers/tenant_admin.py:392
+#: app/routers/products.py:338 app/routers/tenant_admin.py:412
 msgid "Changes saved."
 msgstr "Änderungen gespeichert."
 
@@ -754,8 +912,8 @@ msgstr "Ein Kontakt mit dieser E-Mail-Adresse existiert bereits."
 msgid "Invitation sent."
 msgstr "Einladung gesendet."
 
-#: app/routers/customers.py:387 app/routers/me.py:121
-#: app/routers/tenant_admin.py:335 app/routers/tenant_admin.py:528
+#: app/routers/customers.py:387 app/routers/me.py:127
+#: app/routers/tenant_admin.py:345 app/routers/tenant_admin.py:574
 msgid "Name cannot be empty."
 msgstr "Der Name darf nicht leer sein."
 
@@ -773,139 +931,148 @@ msgstr ""
 "Dieser Kontakt hat bereits ein Passwort; verwenden Sie stattdessen das "
 "Zurücksetzen des Passworts."
 
-#: app/routers/customers.py:478 app/routers/tenant_admin.py:448
+#: app/routers/customers.py:478 app/routers/tenant_admin.py:468
 msgid "Too many invitations sent recently. Try again later."
 msgstr ""
 "Zu viele Einladungen in letzter Zeit gesendet. Versuchen Sie es später "
 "erneut."
 
-#: app/routers/customers.py:511 app/routers/tenant_admin.py:481
+#: app/routers/customers.py:511 app/routers/tenant_admin.py:501
 msgid "Invitation resent."
 msgstr "Einladung erneut gesendet."
 
-#: app/routers/me.py:89 app/routers/tenant_admin.py:505
+#: app/routers/me.py:94 app/routers/tenant_admin.py:554
 msgid "Profile saved."
 msgstr "Profil gespeichert."
 
-#: app/routers/me.py:91
+#: app/routers/me.py:96
 msgid "Password changed. Sign in again with your new password."
 msgstr "Passwort geändert. Bitte melden Sie sich mit dem neuen Passwort erneut an."
 
-#: app/routers/me.py:148 app/routers/tenant_admin.py:558
+#: app/routers/me.py:168 app/routers/tenant_admin.py:611
+msgid "Notification settings saved."
+msgstr "Benachrichtigungseinstellungen gespeichert."
+
+#: app/routers/me.py:187 app/routers/tenant_admin.py:630
 msgid "New passwords do not match."
 msgstr "Die neuen Passwörter stimmen nicht überein."
 
-#: app/routers/me.py:240 app/routers/tenant_admin.py:689
+#: app/routers/me.py:279 app/routers/tenant_admin.py:755
 msgid "Password does not match — deletion cancelled."
 msgstr "Passwort stimmt nicht überein — Löschung abgebrochen."
 
-#: app/routers/orders.py:294
+#: app/routers/orders.py:354
 msgid "Order number"
 msgstr "Auftragsnummer"
 
-#: app/routers/orders.py:295 app/templates/orders/list.html:87
-#: app/templates/platform/admin/dashboard.html:49
-#: app/templates/platform/admin/tenant_edit.html:59
-#: app/templates/platform/billing/dashboard.html:214
-#: app/templates/www/_hero_mock.html:62
-msgid "Status"
-msgstr "Status"
-
-#: app/routers/orders.py:297
+#: app/routers/orders.py:357
 msgid "Created at"
 msgstr "Erstellt am"
 
-#: app/routers/orders.py:298
+#: app/routers/orders.py:358
 msgid "Submitted at"
 msgstr "Gesendet am"
 
-#: app/routers/orders.py:299
+#: app/routers/orders.py:359
 msgid "Promised delivery at"
 msgstr "Zugesagter Liefertermin"
 
-#: app/routers/orders.py:300
+#: app/routers/orders.py:360
 msgid "Quoted total"
 msgstr "Angebotspreis"
 
-#: app/routers/orders.py:301
+#: app/routers/orders.py:361
 msgid "Currency"
 msgstr "Währung"
 
-#: app/routers/orders.py:302 app/templates/orders/detail.html:118
+#: app/routers/orders.py:362 app/templates/orders/detail.html:163
 #: app/templates/www/_hero_mock.html:61
 msgid "Items"
 msgstr "Positionen"
 
-#: app/routers/orders.py:415
+#: app/routers/orders.py:476
 msgid "Choose a client."
 msgstr "Wählen Sie einen Kunden."
 
-#: app/routers/orders.py:451
+#: app/routers/orders.py:542
 msgid "Order created."
 msgstr "Auftrag angelegt."
 
-#: app/routers/orders.py:703
+#: app/routers/orders.py:816
 msgid "Cancel this order?"
 msgstr "Diesen Auftrag wirklich stornieren?"
 
-#: app/routers/orders.py:707
+#: app/routers/orders.py:820
 #, python-brace-format
 msgid "This jumps straight to {target} and skips {skipped}. Continue?"
 msgstr ""
 "Damit springen Sie direkt zu {target} und überspringen: {skipped}. "
 "Fortfahren?"
 
-#: app/routers/orders.py:714
+#: app/routers/orders.py:827
 #, python-brace-format
 msgid "This moves the order back to {target}. Continue?"
 msgstr "Damit wird der Auftrag zurück auf {target} gesetzt. Fortfahren?"
 
-#: app/routers/orders.py:882
+#: app/routers/orders.py:993
 msgid "Item added."
 msgstr "Position hinzugefügt."
 
-#: app/routers/orders.py:954
+#: app/routers/orders.py:1065
 msgid "Invalid quantity"
 msgstr "Ungültige Menge"
 
-#: app/routers/orders.py:964
+#: app/routers/orders.py:1075
 msgid "Invalid unit_price"
 msgstr "Ungültiger Stückpreis"
 
-#: app/routers/orders.py:995
+#: app/routers/orders.py:1106
 msgid "This order can no longer be edited."
 msgstr "Dieser Auftrag kann nicht mehr bearbeitet werden."
 
-#: app/routers/orders.py:1068
+#: app/routers/orders.py:1179
 msgid "Item deleted."
 msgstr "Position gelöscht."
 
-#: app/routers/orders.py:1098
+#: app/routers/orders.py:1209
 msgid "Unknown status"
 msgstr "Unbekannter Status"
 
-#: app/routers/orders.py:1119
+#: app/routers/orders.py:1230
 msgid "Select at least one order."
 msgstr "Wählen Sie mindestens einen Auftrag aus."
 
-#: app/routers/orders.py:1217
+#: app/routers/orders.py:1306
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr "{count} Aufträge übergeben."
 
-#: app/routers/orders.py:1219
+#: app/routers/orders.py:1308
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr "{ok} übergeben, {failed} fehlgeschlagen."
 
-#: app/routers/orders.py:1328
+#: app/routers/orders.py:1395
 #, python-brace-format
 msgid "Status changed to {status}."
 msgstr "Status geändert zu {status}."
 
-#: app/routers/orders.py:1408
+#: app/routers/orders.py:1466
 msgid "Comment added."
 msgstr "Kommentar hinzugefügt."
+
+#: app/routers/orders.py:1510
+msgid "That person can no longer be assigned work."
+msgstr "Dieser Person können keine Aufträge mehr zugewiesen werden."
+
+#: app/routers/orders.py:1543
+#, python-brace-format
+msgid "Assigned to {name}."
+msgstr "Zugewiesen an {name}."
+
+#: app/routers/orders.py:1545
+msgid "Assignment updated."
+msgstr "Zuweisung aktualisiert."
 
 #: app/routers/products.py:133 app/routers/products.py:312
 msgid "A product with this SKU already exists."
@@ -951,41 +1118,41 @@ msgstr "Passwörter stimmen nicht überein."
 msgid "The link is invalid or has expired."
 msgstr "Der Link ist ungültig oder abgelaufen."
 
-#: app/routers/tenant_admin.py:167
+#: app/routers/tenant_admin.py:173
 msgid "A user with this email already exists."
 msgstr "Ein Benutzer mit dieser E-Mail-Adresse existiert bereits."
 
-#: app/routers/tenant_admin.py:236
+#: app/routers/tenant_admin.py:242
 msgid "Cannot disable the last administrator — promote someone else first."
 msgstr ""
 "Der letzte Administrator kann nicht deaktiviert werden — befördern Sie "
 "zuerst jemand anderen."
 
-#: app/routers/tenant_admin.py:255
+#: app/routers/tenant_admin.py:261
 msgid "User disabled."
 msgstr "Benutzer deaktiviert."
 
-#: app/routers/tenant_admin.py:282
+#: app/routers/tenant_admin.py:288
 msgid "User reactivated."
 msgstr "Benutzer reaktiviert."
 
-#: app/routers/tenant_admin.py:367
+#: app/routers/tenant_admin.py:378
 msgid "Cannot demote the last administrator — promote someone else first."
 msgstr ""
 "Der letzte Administrator kann nicht herabgestuft werden — befördern Sie "
 "zuerst jemand anderen."
 
-#: app/routers/tenant_admin.py:434
+#: app/routers/tenant_admin.py:454
 msgid "This user already has a password; use a password reset instead."
 msgstr ""
 "Dieser Benutzer hat bereits ein Passwort; verwenden Sie stattdessen das "
 "Zurücksetzen des Passworts."
 
-#: app/routers/tenant_admin.py:717
+#: app/routers/tenant_admin.py:783
 msgid "You're the last administrator — promote someone else first."
 msgstr "Sie sind der letzte Administrator — befördern Sie zuerst jemand anderen."
 
-#: app/routers/tenant_admin.py:779
+#: app/routers/tenant_admin.py:843
 msgid "Saved."
 msgstr "Gespeichert."
 
@@ -1011,6 +1178,88 @@ msgstr "Die E-Mail-Adresse ist ungültig."
 #: app/templates/platform/admin/_header.html:47
 msgid "Breadcrumb"
 msgstr "Brotkrümelnavigation"
+
+#: app/templates/_notification_prefs.html:16
+msgid "A customer submits an order"
+msgstr "Ein Kunde reicht einen Auftrag ein"
+
+#: app/templates/_notification_prefs.html:17
+msgid "A customer accepts or cancels a quote"
+msgstr "Ein Kunde nimmt ein Angebot an oder storniert es"
+
+#: app/templates/_notification_prefs.html:18
+msgid "A customer writes a comment"
+msgstr "Ein Kunde schreibt einen Kommentar"
+
+#: app/templates/_notification_prefs.html:19
+msgid "A customer uploads a file"
+msgstr "Ein Kunde lädt eine Datei hoch"
+
+#: app/templates/_notification_prefs.html:20
+msgid "An order is assigned to me"
+msgstr "Mir wird ein Auftrag zugewiesen"
+
+#: app/templates/_notification_prefs.html:23
+msgid "An order is created for us"
+msgstr "Für uns wird ein Auftrag angelegt"
+
+#: app/templates/_notification_prefs.html:24
+msgid "An order changes status"
+msgstr "Ein Auftrag ändert den Status"
+
+#: app/templates/_notification_prefs.html:25
+msgid "The supplier writes a comment"
+msgstr "Der Lieferant schreibt einen Kommentar"
+
+#: app/templates/_notification_prefs.html:26
+msgid "The supplier uploads a file"
+msgstr "Der Lieferant lädt eine Datei hoch"
+
+#: app/templates/_notification_prefs.html:31
+msgid "Email me when"
+msgstr "E-Mail senden, wenn"
+
+#: app/templates/_notification_prefs.html:41
+msgid ""
+"Unticking one of these switches it off completely — nothing will re-"
+"enable it."
+msgstr ""
+"Wird ein Haken entfernt, ist diese Benachrichtigung vollständig aus — "
+"nichts schaltet sie wieder ein."
+
+#: app/templates/_notification_prefs.html:46
+msgid "Which orders"
+msgstr "Welche Aufträge"
+
+#: app/templates/_notification_prefs.html:52
+msgid "Every order"
+msgstr "Alle Aufträge"
+
+#: app/templates/_notification_prefs.html:52
+msgid "Every order of our company"
+msgstr "Alle Aufträge unseres Unternehmens"
+
+#: app/templates/_notification_prefs.html:61
+msgid "Only orders assigned to me"
+msgstr "Nur mir zugewiesene Aufträge"
+
+#: app/templates/_notification_prefs.html:63
+msgid "Only orders I am involved in"
+msgstr "Nur Aufträge, an denen ich beteiligt bin"
+
+#: app/templates/_notification_prefs.html:69
+msgid ""
+"An order with nobody assigned still reaches everyone, so nothing falls "
+"through the cracks."
+msgstr "Ein Auftrag ohne Zuweisung geht weiterhin an alle, damit nichts untergeht."
+
+#: app/templates/_notification_prefs.html:71
+msgid ""
+"Involved means you created the order, commented on it, or uploaded a file"
+" to it."
+msgstr ""
+"Beteiligt heißt: Sie haben den Auftrag angelegt, kommentiert oder eine "
+"Datei dazu hochgeladen."
 
 #: app/templates/_palette.html:14 app/templates/admin/audit.html:25
 msgid "Search"
@@ -1048,8 +1297,8 @@ msgstr "Kunden"
 
 #: app/templates/_palette_results.html:55 app/templates/assets/detail.html:14
 #: app/templates/assets/form.html:17 app/templates/assets/list.html:26
-#: app/templates/orders/detail.html:87 app/templates/orders/detail.html:379
-#: app/templates/orders/form.html:25 app/templates/orders/list.html:85
+#: app/templates/orders/detail.html:87 app/templates/orders/detail.html:424
+#: app/templates/orders/form.html:25 app/templates/orders/list.html:97
 #: app/templates/products/form.html:55 app/templates/products/list.html:22
 #: app/templates/www/_hero_mock.html:60
 msgid "Client"
@@ -1063,19 +1312,43 @@ msgstr "Kunde"
 msgid "Catalog"
 msgstr "Katalog"
 
-#: app/templates/admin/audit.html:3 app/templates/admin/audit.html:8
-#: app/templates/dashboard/index.html:114
-msgid "Audit log"
-msgstr "Audit-Log"
+#: app/templates/app_base.html:17
+msgid "Payment overdue"
+msgstr "Zahlung überfällig"
 
-#: app/templates/admin/audit.html:7 app/templates/admin/profile.html:7
+#: app/templates/app_base.html:18
+msgid ""
+"Your most recent invoice failed. Stripe is retrying — please check your "
+"payment method to avoid losing access."
+msgstr ""
+"Die letzte Abrechnung ist fehlgeschlagen. Stripe versucht es erneut — "
+"prüfen Sie bitte Ihre Zahlungsmethode, damit der Zugang erhalten bleibt."
+
+#: app/templates/app_base.html:21 app/templates/app_base.html:33
+msgid "Open billing"
+msgstr "Abrechnung öffnen"
+
+#: app/templates/app_base.html:29
+msgid "Subscription ended"
+msgstr "Abonnement beendet"
+
+#: app/templates/app_base.html:30
+msgid ""
+"Your access ends after the data-export grace period. Export now or "
+"contact us within 30 days to recover."
+msgstr ""
+"Nach Ablauf der Frist zum Datenexport endet Ihr Zugang. Exportieren Sie "
+"jetzt oder kontaktieren Sie uns binnen 30 Tagen für eine "
+"Wiederherstellung."
+
+#: app/templates/admin/audit.html:7 app/templates/admin/profile.html:8
 #: app/templates/admin/sla.html:7 app/templates/admin/tenant_settings.html:7
-#: app/templates/admin/user_edit.html:7 app/templates/admin/users.html:7
+#: app/templates/admin/user_edit.html:8 app/templates/admin/users.html:7
 #: app/templates/app_base.html:44 app/templates/assets/detail.html:6
 #: app/templates/assets/form.html:6 app/templates/customers/detail.html:8
 #: app/templates/customers/form.html:9 app/templates/customers/form.html:13
 #: app/templates/dashboard/index.html:3 app/templates/dashboard/index.html:7
-#: app/templates/me/profile.html:7 app/templates/orders/detail.html:68
+#: app/templates/me/profile.html:8 app/templates/orders/detail.html:68
 #: app/templates/orders/form.html:6
 #: app/templates/platform/admin/_header.html:21
 #: app/templates/platform/admin/dashboard.html:3
@@ -1085,6 +1358,115 @@ msgstr "Audit-Log"
 #: app/templates/products/form.html:13
 msgid "Dashboard"
 msgstr "Übersicht"
+
+#: app/templates/app_base.html:46 app/templates/assets/detail.html:6
+#: app/templates/assets/form.html:6 app/templates/assets/list.html:3
+msgid "Assets"
+msgstr "Assets"
+
+#: app/templates/app_base.html:50 app/templates/www/pricing.html:98
+msgid "SLA"
+msgstr "SLA"
+
+#: app/templates/app_base.html:56
+msgid "Admin"
+msgstr "Admin"
+
+#: app/templates/admin/user_edit.html:8 app/templates/admin/users.html:3
+#: app/templates/app_base.html:62
+msgid "Team"
+msgstr "Team"
+
+#: app/templates/app_base.html:63
+msgid "Audit"
+msgstr "Audit"
+
+#: app/templates/admin/tenant_settings.html:3
+#: app/templates/admin/tenant_settings.html:7
+#: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:64
+msgid "Portal settings"
+msgstr "Portal-Einstellungen"
+
+#: app/templates/app_base.html:66
+msgid "Billing"
+msgstr "Abrechnung"
+
+#: app/templates/app_base.html:83
+msgid "Switch portal"
+msgstr "Portal wechseln"
+
+#: app/templates/app_base.html:84
+msgid "Switch"
+msgstr "Wechseln"
+
+#: app/templates/admin/profile.html:4 app/templates/admin/profile.html:9
+#: app/templates/app_base.html:107 app/templates/app_base.html:111
+#: app/templates/me/profile.html:4 app/templates/me/profile.html:9
+msgid "Profile"
+msgstr "Profil"
+
+#: app/templates/app_base.html:117 app/templates/platform/admin/_header.html:14
+#: app/templates/platform/admin/dashboard.html:3
+#: app/templates/platform/admin/dashboard.html:10
+#: app/templates/platform/admin/tenant_edit.html:3
+#: app/templates/platform/admin/tenants.html:3
+msgid "Platform admin"
+msgstr "Platform Admin"
+
+#: app/templates/app_base.html:127 app/templates/platform/admin/_header.html:40
+#: app/templates/platform/select_tenant.html:17
+msgid "Sign out"
+msgstr "Abmelden"
+
+#: app/templates/base.html:38 app/templates/index.html:3
+msgid "Home"
+msgstr "Startseite"
+
+#: app/templates/base.html:47
+msgid "Toggle menu"
+msgstr "Menü öffnen"
+
+#: app/templates/base.html:64 app/templates/base.html:65
+#: app/templates/base.html:82
+msgid "Toggle theme"
+msgstr "Design wechseln"
+
+#: app/templates/base.html:66
+msgid "Theme: system"
+msgstr "Design: System"
+
+#: app/templates/base.html:67
+msgid "Theme: light"
+msgstr "Design: Hell"
+
+#: app/templates/base.html:68
+msgid "Theme: dark"
+msgstr "Design: Dunkel"
+
+#: app/templates/auth/login.html:3 app/templates/auth/login.html:12
+#: app/templates/auth/login.html:41 app/templates/index.html:8
+#: app/templates/index.html:21 app/templates/platform/login.html:3
+#: app/templates/platform/login.html:31 app/templates/platform/signup.html:133
+#: app/templates/www/www_base.html:83
+msgid "Sign in"
+msgstr "Anmelden"
+
+#: app/templates/index.html:14
+msgid "Customer portal for SMEs"
+msgstr "Kundenportal für KMU"
+
+#: app/templates/index.html:16
+msgid ""
+"Transparent order process between the manufacturer and its clients. "
+"Product catalog, attachments, client asset tracking."
+msgstr ""
+"Transparenter Auftragsprozess zwischen Hersteller und seinen Kunden. "
+"Katalog, Anhänge, Verfolgung von Kundenmaterial."
+
+#: app/templates/admin/audit.html:3 app/templates/admin/audit.html:8
+#: app/templates/dashboard/index.html:114
+msgid "Audit log"
+msgstr "Audit-Log"
 
 #: app/templates/admin/audit.html:10
 msgid "Complete and immutable record of every tracked action in this portal."
@@ -1100,7 +1482,7 @@ msgstr "Gefiltert nach"
 msgid "Entity"
 msgstr "Entität"
 
-#: app/templates/admin/audit.html:40 app/templates/orders/list.html:197
+#: app/templates/admin/audit.html:40 app/templates/orders/list.html:221
 msgid "Clear filters"
 msgstr "Filter löschen"
 
@@ -1108,7 +1490,7 @@ msgstr "Filter löschen"
 msgid "Search action, entity, actor…"
 msgstr "Aktion, Entität, Autor suchen…"
 
-#: app/templates/admin/audit.html:64 app/templates/orders/list.html:56
+#: app/templates/admin/audit.html:64 app/templates/orders/list.html:68
 msgid "Filter"
 msgstr "Filtern"
 
@@ -1132,19 +1514,19 @@ msgstr "Änderung"
 msgid "Show details"
 msgstr "Details anzeigen"
 
-#: app/templates/admin/audit.html:136 app/templates/orders/list.html:165
+#: app/templates/admin/audit.html:136 app/templates/orders/list.html:189
 msgid "Page"
 msgstr "Seite"
 
-#: app/templates/admin/audit.html:136 app/templates/orders/list.html:166
+#: app/templates/admin/audit.html:136 app/templates/orders/list.html:190
 msgid "records"
 msgstr "Einträge"
 
-#: app/templates/admin/audit.html:142 app/templates/orders/list.html:172
+#: app/templates/admin/audit.html:142 app/templates/orders/list.html:196
 msgid "Previous"
 msgstr "Zurück"
 
-#: app/templates/admin/audit.html:146 app/templates/orders/list.html:178
+#: app/templates/admin/audit.html:146 app/templates/orders/list.html:202
 msgid "Next"
 msgstr "Weiter"
 
@@ -1152,89 +1534,96 @@ msgstr "Weiter"
 msgid "No audit events match the current filters."
 msgstr "Keine Ereignisse entsprechen den aktiven Filtern."
 
-#: app/templates/admin/profile.html:3 app/templates/admin/profile.html:8
-#: app/templates/app_base.html:107 app/templates/app_base.html:111
-#: app/templates/me/profile.html:3 app/templates/me/profile.html:8
-msgid "Profile"
-msgstr "Profil"
-
-#: app/templates/admin/profile.html:15 app/templates/me/profile.html:15
+#: app/templates/admin/profile.html:16 app/templates/me/profile.html:16
 msgid "Account"
 msgstr "Konto"
 
-#: app/templates/admin/profile.html:19 app/templates/admin/user_edit.html:32
+#: app/templates/admin/profile.html:20 app/templates/admin/user_edit.html:33
 #: app/templates/admin/users.html:21 app/templates/customers/detail.html:93
-#: app/templates/me/profile.html:19
+#: app/templates/me/profile.html:20
 msgid "Full name"
 msgstr "Name"
 
-#: app/templates/admin/profile.html:25 app/templates/admin/user_edit.html:24
+#: app/templates/admin/profile.html:26 app/templates/admin/user_edit.html:25
 #: app/templates/admin/users.html:22 app/templates/auth/login.html:25
 #: app/templates/auth/password_reset_request.html:18
-#: app/templates/me/profile.html:25 app/templates/platform/check_email.html:34
+#: app/templates/me/profile.html:26 app/templates/platform/check_email.html:34
 #: app/templates/platform/login.html:18
 #: app/templates/platform/password_reset_request.html:18
 #: app/templates/www/contact.html:30 app/templates/www/contact.html:108
 msgid "Email"
 msgstr "E-Mail"
 
-#: app/templates/admin/profile.html:27 app/templates/admin/user_edit.html:27
-#: app/templates/me/profile.html:27
+#: app/templates/admin/profile.html:28 app/templates/admin/user_edit.html:28
+#: app/templates/me/profile.html:28
 msgid "Email changes need an administrator."
 msgstr "Eine E-Mail-Änderung muss durch den Administrator erfolgen."
 
-#: app/templates/admin/profile.html:31 app/templates/admin/user_edit.html:49
-#: app/templates/customers/detail.html:98 app/templates/me/profile.html:31
+#: app/templates/admin/profile.html:32 app/templates/admin/user_edit.html:50
+#: app/templates/customers/detail.html:98 app/templates/me/profile.html:32
 msgid "Email language"
 msgstr "E-Mail-Sprache"
 
-#: app/templates/admin/profile.html:36 app/templates/admin/user_edit.html:54
-#: app/templates/customers/form.html:55 app/templates/me/profile.html:36
+#: app/templates/admin/profile.html:37 app/templates/admin/user_edit.html:55
+#: app/templates/customers/form.html:55 app/templates/me/profile.html:37
 msgid "Automatic (tenant default)"
 msgstr "Automatisch (Portal-Standard)"
 
-#: app/templates/admin/profile.html:43 app/templates/me/profile.html:43
+#: app/templates/admin/profile.html:44 app/templates/me/profile.html:44
 msgid "Language used for notification emails sent to you."
 msgstr "Sprache, in der Sie Benachrichtigungs-E-Mails erhalten."
 
-#: app/templates/admin/profile.html:48 app/templates/me/profile.html:48
+#: app/templates/admin/profile.html:49 app/templates/me/profile.html:49
 msgid "Save profile"
 msgstr "Profil speichern"
 
-#: app/templates/admin/profile.html:54 app/templates/me/profile.html:54
+#: app/templates/admin/profile.html:55 app/templates/admin/user_edit.html:69
+#: app/templates/me/profile.html:55
+msgid "Notifications"
+msgstr "Benachrichtigungen"
+
+#: app/templates/admin/profile.html:57 app/templates/me/profile.html:57
+msgid "Which emails this portal sends you."
+msgstr "Welche E-Mails Ihnen dieses Portal sendet."
+
+#: app/templates/admin/profile.html:64 app/templates/me/profile.html:64
+msgid "Save notifications"
+msgstr "Benachrichtigungen speichern"
+
+#: app/templates/admin/profile.html:70 app/templates/me/profile.html:70
 msgid "Change password"
 msgstr "Passwort ändern"
 
-#: app/templates/admin/profile.html:59 app/templates/me/profile.html:59
+#: app/templates/admin/profile.html:75 app/templates/me/profile.html:75
 msgid "Current password"
 msgstr "Aktuelles Passwort"
 
-#: app/templates/admin/profile.html:66 app/templates/auth/invite_accept.html:23
+#: app/templates/admin/profile.html:82 app/templates/auth/invite_accept.html:23
 #: app/templates/auth/password_reset_confirm.html:20
-#: app/templates/me/profile.html:66
+#: app/templates/me/profile.html:82
 #: app/templates/platform/password_reset_confirm.html:20
 msgid "New password (min. 8 characters)"
 msgstr "Neues Passwort (mind. 8 Zeichen)"
 
-#: app/templates/admin/profile.html:73 app/templates/me/profile.html:73
+#: app/templates/admin/profile.html:89 app/templates/me/profile.html:89
 msgid "Confirm new password"
 msgstr "Neues Passwort bestätigen"
 
-#: app/templates/admin/profile.html:81 app/templates/me/profile.html:81
+#: app/templates/admin/profile.html:97 app/templates/me/profile.html:97
 msgid "Save new password"
 msgstr "Neues Passwort speichern"
 
-#: app/templates/admin/profile.html:84 app/templates/me/profile.html:84
+#: app/templates/admin/profile.html:100 app/templates/me/profile.html:100
 msgid "After changing your password you will be signed out and must log in again."
 msgstr ""
 "Nach dem Ändern des Passworts werden Sie abgemeldet und müssen sich "
 "erneut anmelden."
 
-#: app/templates/admin/profile.html:90 app/templates/me/profile.html:90
+#: app/templates/admin/profile.html:106 app/templates/me/profile.html:106
 msgid "Your data (GDPR)"
 msgstr "Ihre Daten (DSGVO)"
 
-#: app/templates/admin/profile.html:92 app/templates/me/profile.html:92
+#: app/templates/admin/profile.html:108 app/templates/me/profile.html:108
 msgid ""
 "Under EU law you can download everything we hold about you, and request "
 "erasure at any time."
@@ -1242,15 +1631,15 @@ msgstr ""
 "Nach EU-Recht können Sie jederzeit alles herunterladen, was wir über Sie "
 "führen, und die Löschung beantragen."
 
-#: app/templates/admin/profile.html:97 app/templates/me/profile.html:97
+#: app/templates/admin/profile.html:113 app/templates/me/profile.html:113
 msgid "Download my data (JSON)"
 msgstr "Meine Daten herunterladen (JSON)"
 
-#: app/templates/admin/profile.html:103
+#: app/templates/admin/profile.html:119
 msgid "Export the whole company"
 msgstr "Gesamte Firma exportieren"
 
-#: app/templates/admin/profile.html:105
+#: app/templates/admin/profile.html:121
 msgid ""
 "One ZIP with every order, customer, contact, product and uploaded file — "
 "CSV plus the original documents. Yours to keep, whether or not you stay "
@@ -1260,15 +1649,15 @@ msgstr ""
 "hochgeladenen Dateien — CSV plus Originaldokumente. Gehört Ihnen, ob Sie "
 "bleiben oder nicht."
 
-#: app/templates/admin/profile.html:109
+#: app/templates/admin/profile.html:125
 msgid "Download company data (ZIP)"
 msgstr "Firmendaten herunterladen (ZIP)"
 
-#: app/templates/admin/profile.html:117 app/templates/me/profile.html:104
+#: app/templates/admin/profile.html:133 app/templates/me/profile.html:120
 msgid "Delete my account (irreversible)"
 msgstr "Mein Konto löschen (unwiderruflich)"
 
-#: app/templates/admin/profile.html:120 app/templates/me/profile.html:107
+#: app/templates/admin/profile.html:136 app/templates/me/profile.html:123
 msgid ""
 "This removes your personal data (name, email, phone, password) from this "
 "tenant. Orders and comments you created stay in the company record but "
@@ -1280,15 +1669,15 @@ msgstr ""
 "Autorenspalte jedoch als „gelöscht“ angezeigt. Diese Aktion kann nicht "
 "rückgängig gemacht werden."
 
-#: app/templates/admin/profile.html:123 app/templates/me/profile.html:110
+#: app/templates/admin/profile.html:139 app/templates/me/profile.html:126
 msgid "Are you sure? This is irreversible."
 msgstr "Sind Sie sicher? Diese Aktion ist unwiderruflich."
 
-#: app/templates/admin/profile.html:127 app/templates/me/profile.html:114
+#: app/templates/admin/profile.html:143 app/templates/me/profile.html:130
 msgid "Confirm with your current password"
 msgstr "Mit aktuellem Passwort bestätigen"
 
-#: app/templates/admin/profile.html:135 app/templates/me/profile.html:122
+#: app/templates/admin/profile.html:151 app/templates/me/profile.html:138
 msgid "Delete my account"
 msgstr "Mein Konto löschen"
 
@@ -1316,7 +1705,7 @@ msgstr "Letzte 90 Tage"
 msgid "Last 365 days"
 msgstr "Letzte 365 Tage"
 
-#: app/templates/admin/sla.html:28
+#: app/templates/admin/sla.html:29
 msgid "Apply"
 msgstr "Anwenden"
 
@@ -1395,12 +1784,6 @@ msgstr "verspätet"
 msgid "No orders with a promised delivery date yet."
 msgstr "Bisher keine Aufträge mit zugesagtem Liefertermin."
 
-#: app/templates/admin/tenant_settings.html:3
-#: app/templates/admin/tenant_settings.html:7
-#: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:64
-msgid "Portal settings"
-msgstr "Portal-Einstellungen"
-
 #: app/templates/admin/tenant_settings.html:7
 msgid "Administration"
 msgstr "Verwaltung"
@@ -1418,39 +1801,42 @@ msgstr ""
 "einzelner Benutzer keine eigene Einstellung hat."
 
 #: app/templates/admin/tenant_settings.html:37
-#: app/templates/admin/user_edit.html:72
+#: app/templates/admin/user_edit.html:83
 #: app/templates/platform/admin/subscription_edit.html:121
 #: app/templates/platform/admin/tenant_edit.html:77
 msgid "Save changes"
 msgstr "Änderungen speichern"
 
-#: app/templates/admin/user_edit.html:3 app/templates/admin/user_edit.html:7
-#: app/templates/admin/user_edit.html:10
+#: app/templates/admin/user_edit.html:4 app/templates/admin/user_edit.html:8
+#: app/templates/admin/user_edit.html:11
 msgid "Edit user"
 msgstr "Benutzer bearbeiten"
 
-#: app/templates/admin/user_edit.html:7 app/templates/admin/users.html:3
-#: app/templates/app_base.html:62
-msgid "Team"
-msgstr "Team"
-
-#: app/templates/admin/user_edit.html:39 app/templates/admin/users.html:23
+#: app/templates/admin/user_edit.html:40 app/templates/admin/users.html:23
 msgid "Role"
 msgstr "Rolle"
 
-#: app/templates/admin/user_edit.html:42 app/templates/admin/users.html:34
+#: app/templates/admin/user_edit.html:43 app/templates/admin/users.html:34
 #: app/templates/admin/users.html:108 app/templates/www/imprint.html:14
 msgid "Operator"
 msgstr "Operator"
 
-#: app/templates/admin/user_edit.html:43 app/templates/admin/users.html:34
+#: app/templates/admin/user_edit.html:44 app/templates/admin/users.html:34
 #: app/templates/admin/users.html:109
 msgid "Administrator"
 msgstr "Administrator"
 
-#: app/templates/admin/user_edit.html:61
+#: app/templates/admin/user_edit.html:62
 msgid "Language used for notification emails sent to this user."
 msgstr "Sprache, in der dieser Benutzer Benachrichtigungs-E-Mails erhält."
+
+#: app/templates/admin/user_edit.html:71
+msgid ""
+"Set these up for a new colleague; they can change them later on their own"
+" profile."
+msgstr ""
+"Für neue Kolleginnen und Kollegen einstellen; sie können es später im "
+"eigenen Profil ändern."
 
 #: app/templates/admin/users.html:8
 msgid "Team users"
@@ -1553,77 +1939,6 @@ msgstr "Vorname Nachname"
 msgid "Send invitation"
 msgstr "Einladung senden"
 
-#: app/templates/app_base.html:17
-msgid "Payment overdue"
-msgstr "Zahlung überfällig"
-
-#: app/templates/app_base.html:18
-msgid ""
-"Your most recent invoice failed. Stripe is retrying — please check your "
-"payment method to avoid losing access."
-msgstr ""
-"Die letzte Abrechnung ist fehlgeschlagen. Stripe versucht es erneut — "
-"prüfen Sie bitte Ihre Zahlungsmethode, damit der Zugang erhalten bleibt."
-
-#: app/templates/app_base.html:21 app/templates/app_base.html:33
-msgid "Open billing"
-msgstr "Abrechnung öffnen"
-
-#: app/templates/app_base.html:29
-msgid "Subscription ended"
-msgstr "Abonnement beendet"
-
-#: app/templates/app_base.html:30
-msgid ""
-"Your access ends after the data-export grace period. Export now or "
-"contact us within 30 days to recover."
-msgstr ""
-"Nach Ablauf der Frist zum Datenexport endet Ihr Zugang. Exportieren Sie "
-"jetzt oder kontaktieren Sie uns binnen 30 Tagen für eine "
-"Wiederherstellung."
-
-#: app/templates/app_base.html:46 app/templates/assets/detail.html:6
-#: app/templates/assets/form.html:6 app/templates/assets/list.html:3
-msgid "Assets"
-msgstr "Assets"
-
-#: app/templates/app_base.html:50 app/templates/www/pricing.html:98
-msgid "SLA"
-msgstr "SLA"
-
-#: app/templates/app_base.html:56
-msgid "Admin"
-msgstr "Admin"
-
-#: app/templates/app_base.html:63
-msgid "Audit"
-msgstr "Audit"
-
-#: app/templates/app_base.html:66
-msgid "Billing"
-msgstr "Abrechnung"
-
-#: app/templates/app_base.html:83
-msgid "Switch portal"
-msgstr "Portal wechseln"
-
-#: app/templates/app_base.html:84
-msgid "Switch"
-msgstr "Wechseln"
-
-#: app/templates/app_base.html:117 app/templates/platform/admin/_header.html:14
-#: app/templates/platform/admin/dashboard.html:3
-#: app/templates/platform/admin/dashboard.html:10
-#: app/templates/platform/admin/tenant_edit.html:3
-#: app/templates/platform/admin/tenants.html:3
-msgid "Platform admin"
-msgstr "Platform Admin"
-
-#: app/templates/app_base.html:127 app/templates/platform/admin/_header.html:40
-#: app/templates/platform/select_tenant.html:17
-msgid "Sign out"
-msgstr "Abmelden"
-
 #: app/templates/assets/detail.html:22
 msgid "Current stock"
 msgstr "Aktueller Bestand"
@@ -1634,7 +1949,7 @@ msgid "Location"
 msgstr "Standort"
 
 #: app/templates/assets/detail.html:32 app/templates/assets/form.html:51
-#: app/templates/orders/detail.html:128 app/templates/products/detail.html:49
+#: app/templates/orders/detail.html:173 app/templates/products/detail.html:49
 #: app/templates/products/form.html:43
 msgid "Description"
 msgstr "Beschreibung"
@@ -1652,8 +1967,8 @@ msgid "Type"
 msgstr "Typ"
 
 #: app/templates/assets/detail.html:48 app/templates/assets/detail.html:87
-#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:129
-#: app/templates/orders/detail.html:176
+#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:174
+#: app/templates/orders/detail.html:221
 msgid "Quantity"
 msgstr "Menge"
 
@@ -1709,7 +2024,7 @@ msgid "Unit"
 msgstr "Einheit"
 
 #: app/templates/assets/form.html:41 app/templates/assets/list.html:24
-#: app/templates/orders/form.html:17 app/templates/orders/list.html:83
+#: app/templates/orders/form.html:17 app/templates/orders/list.html:95
 #: app/templates/platform/admin/dashboard.html:47
 #: app/templates/platform/admin/tenants.html:21
 #: app/templates/products/form.html:38 app/templates/products/list.html:21
@@ -1718,7 +2033,8 @@ msgid "Name"
 msgstr "Name"
 
 #: app/templates/assets/form.html:60 app/templates/customers/detail.html:109
-#: app/templates/customers/form.html:101 app/templates/products/form.html:73
+#: app/templates/customers/form.html:101 app/templates/orders/detail.html:127
+#: app/templates/products/form.html:73
 msgid "Save"
 msgstr "Speichern"
 
@@ -1792,14 +2108,6 @@ msgstr "Passwort bestätigen"
 msgid "Set password and sign in"
 msgstr "Passwort festlegen und anmelden"
 
-#: app/templates/auth/login.html:3 app/templates/auth/login.html:12
-#: app/templates/auth/login.html:41 app/templates/index.html:8
-#: app/templates/index.html:21 app/templates/platform/login.html:3
-#: app/templates/platform/login.html:31 app/templates/platform/signup.html:133
-#: app/templates/www/www_base.html:83
-msgid "Sign in"
-msgstr "Anmelden"
-
 #: app/templates/auth/login.html:14
 msgid "Sign in to workspace"
 msgstr "Anmeldung im Workspace"
@@ -1858,31 +2166,6 @@ msgstr "Legen Sie ein Passwort für den Zugang zum Portal %(tenant)s fest."
 msgid "Password (min. 8 characters)"
 msgstr "Passwort (mind. 8 Zeichen)"
 
-#: app/templates/base.html:38 app/templates/index.html:3
-msgid "Home"
-msgstr "Startseite"
-
-#: app/templates/base.html:47
-msgid "Toggle menu"
-msgstr "Menü öffnen"
-
-#: app/templates/base.html:64 app/templates/base.html:65
-#: app/templates/base.html:82
-msgid "Toggle theme"
-msgstr "Design wechseln"
-
-#: app/templates/base.html:66
-msgid "Theme: system"
-msgstr "Design: System"
-
-#: app/templates/base.html:67
-msgid "Theme: light"
-msgstr "Design: Hell"
-
-#: app/templates/base.html:68
-msgid "Theme: dark"
-msgstr "Design: Dunkel"
-
 #: app/templates/customers/detail.html:28 app/templates/customers/form.html:43
 msgid "Notes"
 msgstr "Notizen"
@@ -1931,14 +2214,14 @@ msgstr "Dieser Kunde hat noch keine Kontakte."
 msgid "Invite contact"
 msgstr "Kontakt einladen"
 
+#: app/templates/customers/form.html:5 app/templates/customers/form.html:17
+msgid "Edit client"
+msgstr "Kunde bearbeiten"
+
 #: app/templates/customers/form.html:5 app/templates/customers/form.html:13
 #: app/templates/customers/form.html:17 app/templates/customers/list.html:10
 msgid "New client"
 msgstr "Neuer Kunde"
-
-#: app/templates/customers/form.html:5 app/templates/customers/form.html:17
-msgid "Edit client"
-msgstr "Kunde bearbeiten"
 
 #: app/templates/customers/form.html:26
 #: app/templates/platform/admin/tenant_edit.html:33
@@ -2071,7 +2354,7 @@ msgstr "hat Passwort geändert für"
 msgid "Recent activity"
 msgstr "Letzte Aktivität"
 
-#: app/templates/dashboard/index.html:128 app/templates/orders/detail.html:380
+#: app/templates/dashboard/index.html:128 app/templates/orders/detail.html:425
 msgid "System"
 msgstr "System"
 
@@ -2090,12 +2373,6 @@ msgstr "Alle Aufträge"
 #: app/templates/dashboard/index.html:205
 msgid "Start a new order in"
 msgstr "Neuen Auftrag starten in"
-
-#: app/templates/dashboard/index.html:207 app/templates/orders/form.html:3
-#: app/templates/orders/form.html:6 app/templates/orders/form.html:9
-#: app/templates/orders/list.html:21 app/templates/www/_hero_mock.html:51
-msgid "New order"
-msgstr "Neuer Auftrag"
 
 #: app/templates/dashboard/index.html:214
 msgid "Start by adding your first client"
@@ -2232,24 +2509,12 @@ msgstr ""
 msgid "Upgrade plan"
 msgstr "Plan ändern"
 
-#: app/templates/index.html:14
-msgid "Customer portal for SMEs"
-msgstr "Kundenportal für KMU"
-
-#: app/templates/index.html:16
-msgid ""
-"Transparent order process between the manufacturer and its clients. "
-"Product catalog, attachments, client asset tracking."
-msgstr ""
-"Transparenter Auftragsprozess zwischen Hersteller und seinen Kunden. "
-"Katalog, Anhänge, Verfolgung von Kundenmaterial."
-
 #: app/templates/orders/_item_row.html:34
 msgid "Note (optional)"
 msgstr "Notiz (optional)"
 
-#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:130
-#: app/templates/orders/detail.html:183
+#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:175
+#: app/templates/orders/detail.html:228
 msgid "Price/unit"
 msgstr "Preis/Stk."
 
@@ -2261,7 +2526,7 @@ msgstr "Speichert…"
 msgid "Saved"
 msgstr "Gespeichert"
 
-#: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:249
+#: app/templates/orders/_item_row.html:100 app/templates/orders/detail.html:294
 #: app/templates/products/detail.html:34
 msgid "Delete"
 msgstr "Löschen"
@@ -2274,133 +2539,154 @@ msgstr "Auftrag verschieben nach"
 msgid "PDF"
 msgstr "PDF"
 
-#: app/templates/orders/detail.html:95
+#: app/templates/orders/detail.html:102 app/templates/orders/list.html:101
+msgid "Responsible"
+msgstr "Zuständig"
+
+#: app/templates/orders/detail.html:107 app/templates/orders/list.html:55
+#: app/templates/orders/list.html:136
+msgid "Unassigned"
+msgstr "Nicht zugewiesen"
+
+#: app/templates/orders/detail.html:114
+msgid "Unknown"
+msgstr "Unbekannt"
+
+#: app/templates/orders/detail.html:114
+msgid "inactive"
+msgstr "inaktiv"
+
+#: app/templates/orders/detail.html:131
+msgid "Gets the notifications for this order."
+msgstr "Erhält die Benachrichtigungen zu diesem Auftrag."
+
+#: app/templates/orders/detail.html:140
 msgid "Confirmed total price filled in by staff on transition to Quoted."
 msgstr ""
 "Bestätigter Gesamtpreis, vom Team beim Übergang in den Status „Angeboten“"
 " eingetragen."
 
-#: app/templates/orders/detail.html:96
+#: app/templates/orders/detail.html:141
 msgid "Quoted (confirmed)"
 msgstr "Angebot (bestätigt)"
 
-#: app/templates/orders/detail.html:102
+#: app/templates/orders/detail.html:147
 msgid "Requested delivery"
 msgstr "Wunschtermin"
 
-#: app/templates/orders/detail.html:108
+#: app/templates/orders/detail.html:153
 msgid "Promised delivery"
 msgstr "Zugesagter Termin"
 
-#: app/templates/orders/detail.html:131 app/templates/orders/list.html:88
+#: app/templates/orders/detail.html:176 app/templates/orders/list.html:103
 msgid "Total"
 msgstr "Gesamt"
 
-#: app/templates/orders/detail.html:149
+#: app/templates/orders/detail.html:194
 msgid "No items."
 msgstr "Keine Positionen."
 
-#: app/templates/orders/detail.html:162
+#: app/templates/orders/detail.html:207
 msgid "custom item (free-text)"
 msgstr "individuelle Position (Freitext)"
 
-#: app/templates/orders/detail.html:178
+#: app/templates/orders/detail.html:223
 msgid "unit"
 msgstr "Einh."
 
-#: app/templates/orders/detail.html:189
+#: app/templates/orders/detail.html:234
 msgid "Item description"
 msgstr "Positionsbeschreibung"
 
-#: app/templates/orders/detail.html:194
+#: app/templates/orders/detail.html:239
 msgid "Add item"
 msgstr "Position hinzufügen"
 
-#: app/templates/orders/detail.html:204
+#: app/templates/orders/detail.html:249
 msgid "Attachments"
 msgstr "Anhänge"
 
-#: app/templates/orders/detail.html:219
+#: app/templates/orders/detail.html:264
 msgid "IMG"
 msgstr "FOTO"
 
-#: app/templates/orders/detail.html:220
+#: app/templates/orders/detail.html:265
 msgid "DWG"
 msgstr "ZEICH"
 
-#: app/templates/orders/detail.html:221
+#: app/templates/orders/detail.html:266
 msgid "DOC"
 msgstr "DOK"
 
-#: app/templates/orders/detail.html:222
+#: app/templates/orders/detail.html:267
 msgid "OST"
 msgstr "SONST"
 
-#: app/templates/orders/detail.html:238
+#: app/templates/orders/detail.html:283
 msgid "item"
 msgstr "Position"
 
-#: app/templates/orders/detail.html:257
+#: app/templates/orders/detail.html:302
 msgid "No attachments."
 msgstr "Keine Anhänge."
 
-#: app/templates/orders/detail.html:269
+#: app/templates/orders/detail.html:314
 msgid "to the whole order"
 msgstr "zum gesamten Auftrag"
 
-#: app/templates/orders/detail.html:278
+#: app/templates/orders/detail.html:323
 msgid "Upload"
 msgstr "Hochladen"
 
-#: app/templates/orders/detail.html:288
+#: app/templates/orders/detail.html:333
 msgid "Order status"
 msgstr "Auftragsstatus"
 
-#: app/templates/orders/detail.html:291
+#: app/templates/orders/detail.html:336
 msgid "Click any step to move the order there."
 msgstr ""
 "Klicken Sie auf einen beliebigen Schritt, um den Auftrag dorthin zu "
 "verschieben."
 
-#: app/templates/orders/detail.html:301
+#: app/templates/orders/detail.html:346
 msgid "This order is cancelled. Pick a step below to reopen it."
 msgstr ""
 "Dieser Auftrag ist storniert. Wählen Sie unten einen Schritt, um ihn "
 "wieder zu öffnen."
 
-#: app/templates/orders/detail.html:348
+#: app/templates/orders/detail.html:393
 msgid "Reopen as draft"
 msgstr "Als Entwurf wieder öffnen"
 
-#: app/templates/orders/detail.html:371
+#: app/templates/orders/detail.html:416
 msgid "Comments"
 msgstr "Kommentare"
 
-#: app/templates/orders/detail.html:378
+#: app/templates/orders/detail.html:423
 msgid "Supplier team"
 msgstr "Lieferantenteam"
 
-#: app/templates/orders/detail.html:388
+#: app/templates/orders/detail.html:433
 msgid "internal"
 msgstr "intern"
 
-#: app/templates/orders/detail.html:393
+#: app/templates/orders/detail.html:438
 msgid "No comments."
 msgstr "Keine Kommentare."
 
-#: app/templates/orders/detail.html:399
+#: app/templates/orders/detail.html:444
 msgid "Write a comment…"
 msgstr "Kommentar schreiben…"
 
-#: app/templates/orders/detail.html:405
+#: app/templates/orders/detail.html:450
 msgid "Internal (staff only)"
 msgstr "Intern (nur für das Team)"
 
-#: app/templates/orders/detail.html:412
+#: app/templates/orders/detail.html:457
 msgid "Add a comment"
 msgstr "Kommentar hinzufügen"
 
-#: app/templates/orders/detail.html:421
+#: app/templates/orders/detail.html:466
 msgid "Status history"
 msgstr "Statusverlauf"
 
@@ -2420,55 +2706,263 @@ msgstr "Nummer oder Titel…"
 msgid "All clients"
 msgstr "Alle Kunden"
 
-#: app/templates/orders/list.html:78
+#: app/templates/orders/list.html:53
+msgid "Anyone responsible"
+msgstr "Beliebig zuständig"
+
+#: app/templates/orders/list.html:54
+msgid "Assigned to me"
+msgstr "Mir zugewiesen"
+
+#: app/templates/orders/list.html:90
 msgid "Select all on page"
 msgstr "Alle auf der Seite auswählen"
 
-#: app/templates/orders/list.html:82
+#: app/templates/orders/list.html:94
 #: app/templates/platform/billing/dashboard.html:212
 msgid "Number"
 msgstr "Nummer"
 
-#: app/templates/orders/list.html:89
+#: app/templates/orders/list.html:104
 #: app/templates/platform/admin/dashboard.html:48
 msgid "Created"
 msgstr "Erstellt"
 
-#: app/templates/orders/list.html:100
+#: app/templates/orders/list.html:115
 msgid "Select order"
 msgstr "Auftrag auswählen"
 
-#: app/templates/orders/list.html:137
+#: app/templates/orders/list.html:161
 msgid "selected"
 msgstr "ausgewählt"
 
-#: app/templates/orders/list.html:139 app/templates/orders/list.html:142
+#: app/templates/orders/list.html:163 app/templates/orders/list.html:166
 msgid "Set status to…"
 msgstr "Status setzen auf…"
 
-#: app/templates/orders/list.html:149
+#: app/templates/orders/list.html:173
 msgid "Apply to selected"
 msgstr "Auf ausgewählte anwenden"
 
-#: app/templates/orders/list.html:153
+#: app/templates/orders/list.html:177
 msgid "Clear selection"
 msgstr "Auswahl löschen"
 
-#: app/templates/orders/list.html:165
+#: app/templates/orders/list.html:189
 msgid "of"
 msgstr "von"
 
-#: app/templates/orders/list.html:194
+#: app/templates/orders/list.html:218
 msgid "No orders match the filter."
 msgstr "Keine Aufträge entsprechen dem Filter."
 
-#: app/templates/orders/list.html:200
+#: app/templates/orders/list.html:224
 msgid "No orders yet."
 msgstr "Bisher keine Aufträge."
 
-#: app/templates/orders/list.html:203
+#: app/templates/orders/list.html:227
 msgid "Create the first order"
 msgstr "Ersten Auftrag erstellen"
+
+#: app/templates/platform/check_email.html:12
+#: app/templates/platform/verify_sent.html:11
+msgid "Check your email"
+msgstr "Prüfen Sie Ihre E-Mails"
+
+#: app/templates/platform/check_email.html:12
+msgid "Verify your email first"
+msgstr "Bestätigen Sie zuerst Ihre E-Mail"
+
+#: app/templates/platform/check_email.html:16
+msgid "If an unverified account exists for"
+msgstr "Falls für"
+
+#: app/templates/platform/check_email.html:17
+msgid ""
+"we've sent a fresh verification link to it. Click the link and your "
+"portal will be ready to use."
+msgstr ""
+"ein nicht verifiziertes Konto existiert, haben wir einen neuen "
+"Bestätigungslink gesendet. Klicken Sie darauf, um das Portal zu "
+"aktivieren."
+
+#: app/templates/platform/check_email.html:20
+msgid "Didn't receive it? Check your spam folder."
+msgstr "Nichts erhalten? Prüfen Sie Ihren Spam-Ordner."
+
+#: app/templates/platform/check_email.html:29
+msgid ""
+"Your account exists but the email isn't confirmed yet. Click the "
+"verification link in your inbox, or request a new one below."
+msgstr ""
+"Ihr Konto existiert, aber die E-Mail wurde noch nicht bestätigt. Klicken "
+"Sie auf den Bestätigungslink in Ihrem Postfach oder fordern Sie unten "
+"einen neuen an."
+
+#: app/templates/platform/check_email.html:42
+#: app/templates/platform/verify_email.html:49
+#: app/templates/platform/verify_sent.html:23
+msgid "Send a new verification link"
+msgstr "Neuen Bestätigungslink senden"
+
+#: app/templates/platform/login.html:3 app/templates/platform/login.html:8
+msgid "Platform"
+msgstr "Plattform"
+
+#: app/templates/platform/login.html:10
+msgid "Sign in with a single account to all the portals you have access to."
+msgstr ""
+"Melden Sie sich mit einem einzigen Konto bei allen Portalen an, auf die "
+"Sie Zugriff haben."
+
+#: app/templates/platform/login.html:40
+msgid "Don't have an account yet?"
+msgstr "Noch kein Konto?"
+
+#: app/templates/platform/login.html:42
+msgid "Create new portal"
+msgstr "Neues Portal erstellen"
+
+#: app/templates/platform/password_reset_confirm.html:10
+msgid "Choose a new password for your platform account."
+msgstr "Wählen Sie ein neues Passwort für Ihr Plattform-Konto."
+
+#: app/templates/platform/password_reset_request.html:10
+msgid ""
+"Enter your email. If an account exists, we will send you a link to set a "
+"new password."
+msgstr ""
+"Geben Sie Ihre E-Mail-Adresse ein. Falls ein Konto existiert, senden wir "
+"Ihnen einen Link zum Festlegen eines neuen Passworts."
+
+#: app/templates/platform/password_reset_request.html:25
+msgid "Send reset link"
+msgstr "Reset-Link senden"
+
+#: app/templates/platform/select_tenant.html:3
+#: app/templates/platform/select_tenant.html:9
+msgid "Select portal"
+msgstr "Portal auswählen"
+
+#: app/templates/platform/admin/tenants.html:12
+#: app/templates/platform/select_tenant.html:11
+msgid "Signed in as"
+msgstr "Angemeldet als"
+
+#: app/templates/platform/select_tenant.html:32
+msgid "Switch to"
+msgstr "Wechseln zu"
+
+#: app/templates/platform/select_tenant.html:40
+msgid "Platform-admin support access — not a regular team membership."
+msgstr "Support-Zugang des Platform-Admins — keine reguläre Team-Mitgliedschaft."
+
+#: app/templates/platform/select_tenant.html:46
+msgid "Team member"
+msgstr "Team-Mitglied"
+
+#: app/templates/platform/select_tenant.html:66
+msgid "You don't have access to any portal."
+msgstr "Sie haben auf kein Portal Zugriff."
+
+#: app/templates/platform/select_tenant.html:73
+msgid "You have platform-admin permissions."
+msgstr "Sie haben Platform-Admin-Berechtigungen."
+
+#: app/templates/platform/admin/tenants.html:10
+#: app/templates/platform/select_tenant.html:75
+msgid "Manage tenants"
+msgstr "Mandanten verwalten"
+
+#: app/templates/platform/signup.html:3 app/templates/platform/signup.html:127
+msgid "Create portal"
+msgstr "Portal erstellen"
+
+#: app/templates/platform/signup.html:8
+msgid "Create your portal"
+msgstr "Erstellen Sie Ihr Portal"
+
+#: app/templates/platform/signup.html:10
+msgid "30-day free trial. No credit card required."
+msgstr "30-tägige kostenlose Testphase. Keine Kreditkarte erforderlich."
+
+#: app/templates/platform/signup.html:34
+msgid "required"
+msgstr "Pflichtfeld"
+
+#: app/templates/platform/signup.html:48
+msgid "Portal subdomain"
+msgstr "Portal-Subdomain"
+
+#: app/templates/platform/signup.html:63
+msgid "Optional — if empty we derive it from the company name."
+msgstr "Optional — leer ergibt sich diese aus dem Firmennamen."
+
+#: app/templates/platform/signup.html:73 app/templates/www/contact.html:101
+msgid "Your name"
+msgstr "Ihr Name"
+
+#: app/templates/platform/signup.html:83
+msgid "Work email"
+msgstr "Geschäftliche E-Mail-Adresse"
+
+#: app/templates/platform/signup.html:105
+msgid "At least 8 characters; avoid common passwords."
+msgstr "Mindestens 8 Zeichen; vermeiden Sie häufige Passwörter."
+
+#: app/templates/platform/signup.html:117
+msgid ""
+"I agree to the <a href=\"/terms\" target=\"_blank\" class=\"text-"
+"brand-600 hover:text-brand-700\">Terms of Service</a> and the <a "
+"href=\"/privacy\" target=\"_blank\" class=\"text-brand-600 hover:text-"
+"brand-700\">Privacy Policy</a>."
+msgstr ""
+"Ich stimme den <a href=\"/terms\" target=\"_blank\" class=\"text-"
+"brand-600 hover:text-brand-700\">Nutzungsbedingungen</a> und der <a "
+"href=\"/privacy\" target=\"_blank\" class=\"text-brand-600 hover:text-"
+"brand-700\">Datenschutzerklärung</a> zu."
+
+#: app/templates/platform/signup.html:132
+msgid "Already have an account?"
+msgstr "Bereits ein Konto?"
+
+#: app/templates/platform/verify_email.html:3
+msgid "Email verification"
+msgstr "E-Mail-Bestätigung"
+
+#: app/templates/platform/verify_email.html:12
+msgid "Email successfully verified"
+msgstr "E-Mail erfolgreich bestätigt"
+
+#: app/templates/platform/verify_email.html:26
+msgid "Finish setting up"
+msgstr "Einrichtung abschließen"
+
+#: app/templates/platform/verify_email.html:31
+msgid "Skip for now"
+msgstr "Vorerst überspringen"
+
+#: app/templates/platform/verify_email.html:36
+msgid "Continue to the portal"
+msgstr "Weiter zum Portal"
+
+#: app/templates/platform/verify_email.html:43
+msgid "Email verification failed"
+msgstr "E-Mail-Bestätigung fehlgeschlagen"
+
+#: app/templates/platform/verify_sent.html:13
+msgid "We've sent a verification link to"
+msgstr "Wir haben einen Bestätigungslink gesendet an"
+
+#: app/templates/platform/verify_sent.html:14
+msgid "Click the link and your portal will be ready to use."
+msgstr "Nach Klick auf den Link ist Ihr Portal einsatzbereit."
+
+#: app/templates/platform/verify_sent.html:17
+msgid "Didn't receive it? Check your spam folder or request a new link."
+msgstr ""
+"Keine E-Mail erhalten? Prüfen Sie den Spam-Ordner oder fordern Sie einen "
+"neuen Link an."
 
 #: app/templates/platform/admin/_header.html:27
 #: app/templates/platform/admin/subscription_edit.html:7
@@ -2650,16 +3144,6 @@ msgid "change the status via the Deactivate / Reactivate buttons in the list."
 msgstr ""
 "Status ändern Sie über die Schaltflächen Deaktivieren / Reaktivieren in "
 "der Liste."
-
-#: app/templates/platform/admin/tenants.html:10
-#: app/templates/platform/select_tenant.html:75
-msgid "Manage tenants"
-msgstr "Mandanten verwalten"
-
-#: app/templates/platform/admin/tenants.html:12
-#: app/templates/platform/select_tenant.html:11
-msgid "Signed in as"
-msgstr "Angemeldet als"
 
 #: app/templates/platform/admin/tenants.html:23
 msgid "Billing status"
@@ -3023,196 +3507,6 @@ msgstr "Zurück zum Abonnement"
 msgid "Save & continue"
 msgstr "Speichern & weiter"
 
-#: app/templates/platform/check_email.html:12
-msgid "Verify your email first"
-msgstr "Bestätigen Sie zuerst Ihre E-Mail"
-
-#: app/templates/platform/check_email.html:12
-#: app/templates/platform/verify_sent.html:11
-msgid "Check your email"
-msgstr "Prüfen Sie Ihre E-Mails"
-
-#: app/templates/platform/check_email.html:16
-msgid "If an unverified account exists for"
-msgstr "Falls für"
-
-#: app/templates/platform/check_email.html:17
-msgid ""
-"we've sent a fresh verification link to it. Click the link and your "
-"portal will be ready to use."
-msgstr ""
-"ein nicht verifiziertes Konto existiert, haben wir einen neuen "
-"Bestätigungslink gesendet. Klicken Sie darauf, um das Portal zu "
-"aktivieren."
-
-#: app/templates/platform/check_email.html:20
-msgid "Didn't receive it? Check your spam folder."
-msgstr "Nichts erhalten? Prüfen Sie Ihren Spam-Ordner."
-
-#: app/templates/platform/check_email.html:29
-msgid ""
-"Your account exists but the email isn't confirmed yet. Click the "
-"verification link in your inbox, or request a new one below."
-msgstr ""
-"Ihr Konto existiert, aber die E-Mail wurde noch nicht bestätigt. Klicken "
-"Sie auf den Bestätigungslink in Ihrem Postfach oder fordern Sie unten "
-"einen neuen an."
-
-#: app/templates/platform/check_email.html:42
-#: app/templates/platform/verify_email.html:49
-#: app/templates/platform/verify_sent.html:23
-msgid "Send a new verification link"
-msgstr "Neuen Bestätigungslink senden"
-
-#: app/templates/platform/login.html:3 app/templates/platform/login.html:8
-msgid "Platform"
-msgstr "Plattform"
-
-#: app/templates/platform/login.html:10
-msgid "Sign in with a single account to all the portals you have access to."
-msgstr ""
-"Melden Sie sich mit einem einzigen Konto bei allen Portalen an, auf die "
-"Sie Zugriff haben."
-
-#: app/templates/platform/login.html:40
-msgid "Don't have an account yet?"
-msgstr "Noch kein Konto?"
-
-#: app/templates/platform/login.html:42
-msgid "Create new portal"
-msgstr "Neues Portal erstellen"
-
-#: app/templates/platform/password_reset_confirm.html:10
-msgid "Choose a new password for your platform account."
-msgstr "Wählen Sie ein neues Passwort für Ihr Plattform-Konto."
-
-#: app/templates/platform/password_reset_request.html:10
-msgid ""
-"Enter your email. If an account exists, we will send you a link to set a "
-"new password."
-msgstr ""
-"Geben Sie Ihre E-Mail-Adresse ein. Falls ein Konto existiert, senden wir "
-"Ihnen einen Link zum Festlegen eines neuen Passworts."
-
-#: app/templates/platform/password_reset_request.html:25
-msgid "Send reset link"
-msgstr "Reset-Link senden"
-
-#: app/templates/platform/select_tenant.html:3
-#: app/templates/platform/select_tenant.html:9
-msgid "Select portal"
-msgstr "Portal auswählen"
-
-#: app/templates/platform/select_tenant.html:32
-msgid "Switch to"
-msgstr "Wechseln zu"
-
-#: app/templates/platform/select_tenant.html:40
-msgid "Platform-admin support access — not a regular team membership."
-msgstr "Support-Zugang des Platform-Admins — keine reguläre Team-Mitgliedschaft."
-
-#: app/templates/platform/select_tenant.html:46
-msgid "Team member"
-msgstr "Team-Mitglied"
-
-#: app/templates/platform/select_tenant.html:66
-msgid "You don't have access to any portal."
-msgstr "Sie haben auf kein Portal Zugriff."
-
-#: app/templates/platform/select_tenant.html:73
-msgid "You have platform-admin permissions."
-msgstr "Sie haben Platform-Admin-Berechtigungen."
-
-#: app/templates/platform/signup.html:3 app/templates/platform/signup.html:127
-msgid "Create portal"
-msgstr "Portal erstellen"
-
-#: app/templates/platform/signup.html:8
-msgid "Create your portal"
-msgstr "Erstellen Sie Ihr Portal"
-
-#: app/templates/platform/signup.html:10
-msgid "30-day free trial. No credit card required."
-msgstr "30-tägige kostenlose Testphase. Keine Kreditkarte erforderlich."
-
-#: app/templates/platform/signup.html:34
-msgid "required"
-msgstr "Pflichtfeld"
-
-#: app/templates/platform/signup.html:48
-msgid "Portal subdomain"
-msgstr "Portal-Subdomain"
-
-#: app/templates/platform/signup.html:63
-msgid "Optional — if empty we derive it from the company name."
-msgstr "Optional — leer ergibt sich diese aus dem Firmennamen."
-
-#: app/templates/platform/signup.html:73 app/templates/www/contact.html:101
-msgid "Your name"
-msgstr "Ihr Name"
-
-#: app/templates/platform/signup.html:83
-msgid "Work email"
-msgstr "Geschäftliche E-Mail-Adresse"
-
-#: app/templates/platform/signup.html:105
-msgid "At least 8 characters; avoid common passwords."
-msgstr "Mindestens 8 Zeichen; vermeiden Sie häufige Passwörter."
-
-#: app/templates/platform/signup.html:117
-msgid ""
-"I agree to the <a href=\"/terms\" target=\"_blank\" class=\"text-"
-"brand-600 hover:text-brand-700\">Terms of Service</a> and the <a "
-"href=\"/privacy\" target=\"_blank\" class=\"text-brand-600 hover:text-"
-"brand-700\">Privacy Policy</a>."
-msgstr ""
-"Ich stimme den <a href=\"/terms\" target=\"_blank\" class=\"text-"
-"brand-600 hover:text-brand-700\">Nutzungsbedingungen</a> und der <a "
-"href=\"/privacy\" target=\"_blank\" class=\"text-brand-600 hover:text-"
-"brand-700\">Datenschutzerklärung</a> zu."
-
-#: app/templates/platform/signup.html:132
-msgid "Already have an account?"
-msgstr "Bereits ein Konto?"
-
-#: app/templates/platform/verify_email.html:3
-msgid "Email verification"
-msgstr "E-Mail-Bestätigung"
-
-#: app/templates/platform/verify_email.html:12
-msgid "Email successfully verified"
-msgstr "E-Mail erfolgreich bestätigt"
-
-#: app/templates/platform/verify_email.html:26
-msgid "Finish setting up"
-msgstr "Einrichtung abschließen"
-
-#: app/templates/platform/verify_email.html:31
-msgid "Skip for now"
-msgstr "Vorerst überspringen"
-
-#: app/templates/platform/verify_email.html:36
-msgid "Continue to the portal"
-msgstr "Weiter zum Portal"
-
-#: app/templates/platform/verify_email.html:43
-msgid "Email verification failed"
-msgstr "E-Mail-Bestätigung fehlgeschlagen"
-
-#: app/templates/platform/verify_sent.html:13
-msgid "We've sent a verification link to"
-msgstr "Wir haben einen Bestätigungslink gesendet an"
-
-#: app/templates/platform/verify_sent.html:14
-msgid "Click the link and your portal will be ready to use."
-msgstr "Nach Klick auf den Link ist Ihr Portal einsatzbereit."
-
-#: app/templates/platform/verify_sent.html:17
-msgid "Didn't receive it? Check your spam folder or request a new link."
-msgstr ""
-"Keine E-Mail erhalten? Prüfen Sie den Spam-Ordner oder fordern Sie einen "
-"neuen Link an."
-
 #: app/templates/products/detail.html:20 app/templates/products/form.html:58
 #: app/templates/products/list.html:38
 msgid "shared"
@@ -3230,14 +3524,14 @@ msgstr ""
 msgid "Default price"
 msgstr "Standardpreis"
 
+#: app/templates/products/form.html:5 app/templates/products/form.html:17
+msgid "Edit product"
+msgstr "Produkt bearbeiten"
+
 #: app/templates/products/form.html:5 app/templates/products/form.html:13
 #: app/templates/products/form.html:17 app/templates/products/list.html:11
 msgid "New product"
 msgstr "Neues Produkt"
-
-#: app/templates/products/form.html:5 app/templates/products/form.html:17
-msgid "Edit product"
-msgstr "Produkt bearbeiten"
 
 #: app/templates/products/list.html:8
 msgid "Product catalog"
@@ -4205,17 +4499,21 @@ msgstr "Kunde sieht Auftragsstatus"
 msgid "often only via a separate B2B module"
 msgstr "oft nur über ein separates B2B-Modul"
 
-#: app/templates/www/index.html:264
-msgid "billable by the hour"
-msgstr "stundenweise abgerechnet"
-
 #: app/templates/www/index.html:264 app/templates/www/pricing.html:130
 msgid "Czech support"
 msgstr "Tschechischer Support"
 
+#: app/templates/www/index.html:264
+msgid "billable by the hour"
+msgstr "stundenweise abgerechnet"
+
 #: app/templates/www/index.html:265
 msgid "Audit trail"
 msgstr "Audit-Trail"
+
+#: app/templates/www/index.html:266 app/templates/www/pricing.html:126
+msgid "Data in the EU"
+msgstr "Daten in der EU"
 
 #: app/templates/www/index.html:266
 msgid "your laptop"
@@ -4228,10 +4526,6 @@ msgstr "Hetzner DE"
 #: app/templates/www/index.html:266
 msgid "depends on the vendor"
 msgstr "abhängig vom Anbieter"
-
-#: app/templates/www/index.html:266 app/templates/www/pricing.html:126
-msgid "Data in the EU"
-msgstr "Daten in der EU"
 
 #: app/templates/www/index.html:267
 msgid "Can be cancelled"

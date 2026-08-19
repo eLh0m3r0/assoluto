@@ -21,6 +21,41 @@ from app.security.passwords import hash_password
 pytestmark = pytest.mark.postgres
 
 
+@pytest.fixture
+def mock_s3(monkeypatch):  # type: ignore[misc]
+    """In-process moto S3 with the bucket pre-created.
+
+    Self-contained rather than autouse: it sets the env itself and
+    rebuilds ``Settings`` before constructing the client, so only the
+    test that asks for it is affected. The three older copies of this
+    fixture (attachments / tenant-export / plan-e2e) pair a plain
+    fixture with a file-wide autouse env fixture; consolidating all four
+    into ``conftest.py`` is a separate cleanup — they disagree on bucket
+    names.
+    """
+    import boto3
+    from moto import mock_aws
+
+    from app.config import get_settings
+    from app.storage import s3 as s3_mod
+
+    monkeypatch.setenv("S3_ENDPOINT_URL", "")
+    monkeypatch.setenv("S3_ACCESS_KEY", "test")
+    monkeypatch.setenv("S3_SECRET_KEY", "test")
+    monkeypatch.setenv("S3_BUCKET", "portal-notif-test")
+    get_settings.cache_clear()
+    bucket = get_settings().s3_bucket
+
+    with mock_aws():
+        s3_mod.get_s3_client.cache_clear()
+        boto3.client("s3", region_name="eu-central-1").create_bucket(
+            Bucket=bucket,
+            CreateBucketConfiguration={"LocationConstraint": "eu-central-1"},
+        )
+        yield
+        s3_mod.get_s3_client.cache_clear()
+
+
 async def _seed(owner_engine, tenant_id: UUID) -> dict:
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
@@ -413,3 +448,388 @@ async def test_auto_close_does_not_touch_recent_orders(
 
     closed = await auto_close_delivered_orders()
     assert closed == 0
+
+
+# ---------------------------------------------------------------------------
+# Notification redesign (docs/NOTIFICATIONS_REDESIGN_2026-08-19.md)
+# ---------------------------------------------------------------------------
+
+
+async def _seed_with_operator(owner_engine, tenant_id: UUID) -> dict:
+    """``_seed`` plus a ``tenant_staff`` Operator — the role that used to
+    be filtered out of every recipient list."""
+    seeded = await _seed(owner_engine, tenant_id)
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        operator = User(
+            id=uuid4(),
+            tenant_id=tenant_id,
+            email="operator@4mex.cz",
+            full_name="Operátor",
+            role=UserRole.TENANT_STAFF,
+            password_hash=hash_password("operpass"),
+        )
+        session.add(operator)
+        await session.flush()
+    seeded["operator"] = operator
+    return seeded
+
+
+async def test_operator_is_emailed_about_a_submitted_order(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """End to end: the Operator now hears about incoming work."""
+    await _seed_with_operator(owner_engine, demo_tenant.id)
+    capture = _capture(tenant_client)
+
+    await _login(tenant_client, "jan@acme.cz", "janpass")
+    create = await tenant_client.post(
+        "/app/orders", data={"title": "Frézování"}, follow_redirects=False
+    )
+    order_id = UUID(create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
+    submit = await tenant_client.post(
+        f"/app/orders/{order_id}/transitions/submitted", follow_redirects=False
+    )
+    assert submit.status_code == 303
+
+    assert {m.to for m in capture.outbox} == {"owner@4mex.cz", "operator@4mex.cz"}
+
+
+async def test_staff_creating_an_order_tells_the_customer(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """Previously silent until the first status transition."""
+    seeded = await _seed(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+    capture = _capture(tenant_client)
+
+    resp = await tenant_client.post(
+        "/app/orders",
+        data={"title": "Objednávka po telefonu", "customer_id": str(seeded["customer"].id)},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+
+    assert len(capture.outbox) == 1
+    msg = capture.outbox[0]
+    assert msg.to == "jan@acme.cz"
+    assert "Objednávka po telefonu" in msg.html
+
+
+async def test_contact_uploading_a_file_tells_the_supplier(
+    tenant_client: AsyncClient, owner_engine, demo_tenant, mock_s3
+) -> None:
+    """A revised drawing nobody sees is scrap metal; this used to send
+    nothing at all."""
+    await _seed_with_operator(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "jan@acme.cz", "janpass")
+    create = await tenant_client.post(
+        "/app/orders", data={"title": "Výkres"}, follow_redirects=False
+    )
+    order_id = UUID(create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
+
+    capture = _capture(tenant_client)
+    resp = await tenant_client.post(
+        f"/app/orders/{order_id}/attachments",
+        files={"file": ("vykres-rev-b.pdf", b"%PDF-1.4 fake", "application/pdf")},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303, resp.text
+
+    assert {m.to for m in capture.outbox} == {"owner@4mex.cz", "operator@4mex.cz"}
+    assert "vykres-rev-b.pdf" in capture.outbox[0].html
+
+
+async def test_assigning_an_order_emails_the_assignee(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    seeded = await _seed_with_operator(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+    create = await tenant_client.post(
+        "/app/orders",
+        data={"title": "K přiřazení", "customer_id": str(seeded["customer"].id)},
+        follow_redirects=False,
+    )
+    order_id = UUID(create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
+
+    capture = _capture(tenant_client)
+    resp = await tenant_client.post(
+        f"/app/orders/{order_id}/assign",
+        data={"assigned_to": str(seeded["operator"].id)},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+
+    assert [m.to for m in capture.outbox] == ["operator@4mex.cz"]
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        row = (await session.execute(select(Order).where(Order.id == order_id))).scalar_one()
+        assert row.assigned_to_user_id == seeded["operator"].id
+
+
+async def test_assigning_to_yourself_sends_nothing(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """Taking a job off the pile is not news to the person who took it."""
+    seeded = await _seed(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+    create = await tenant_client.post(
+        "/app/orders",
+        data={"title": "Beru si to", "customer_id": str(seeded["customer"].id)},
+        follow_redirects=False,
+    )
+    order_id = UUID(create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
+
+    capture = _capture(tenant_client)
+    resp = await tenant_client.post(
+        f"/app/orders/{order_id}/assign",
+        data={"assigned_to": str(seeded["staff"].id)},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    assert capture.outbox == []
+
+
+async def test_contacts_cannot_reach_the_assign_endpoint(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """Who is working on the job is the supplier's business."""
+    seeded = await _seed(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "jan@acme.cz", "janpass")
+    create = await tenant_client.post("/app/orders", data={"title": "Cizí"}, follow_redirects=False)
+    order_id = UUID(create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
+
+    resp = await tenant_client.post(
+        f"/app/orders/{order_id}/assign",
+        data={"assigned_to": str(seeded["staff"].id)},
+        follow_redirects=False,
+    )
+    assert resp.status_code in (401, 403, 404)
+
+
+async def test_saved_opt_out_actually_stops_the_email(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """The preferences page is wired to the router, not decorative.
+
+    ``notification_prefs`` sat unread on both tables for the whole life
+    of the product; this is the test that it is now load-bearing.
+    """
+    await _seed(owner_engine, demo_tenant.id)
+
+    # The admin unticks "a customer submits an order" but keeps the rest.
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+    saved = await tenant_client.post(
+        "/app/admin/profile/notifications",
+        data={
+            "events": ["order_status_changed", "order_comment", "order_attachment"],
+            "scope": "all",
+        },
+        follow_redirects=False,
+    )
+    assert saved.status_code == 303
+    await _logout(tenant_client)
+
+    await _login(tenant_client, "jan@acme.cz", "janpass")
+    capture = _capture(tenant_client)
+    create = await tenant_client.post(
+        "/app/orders", data={"title": "Potichu"}, follow_redirects=False
+    )
+    order_id = UUID(create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
+    await tenant_client.post(
+        f"/app/orders/{order_id}/transitions/submitted", follow_redirects=False
+    )
+
+    assert capture.outbox == [], "an opted-out event must never be re-added"
+
+
+async def test_bulk_transition_sends_one_digest_per_recipient(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """Three orders moved in one click is one email, not three."""
+    seeded = await _seed(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+
+    order_ids = []
+    for i in range(3):
+        create = await tenant_client.post(
+            "/app/orders",
+            data={"title": f"Dávka {i}", "customer_id": str(seeded["customer"].id)},
+            follow_redirects=False,
+        )
+        order_ids.append(create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
+
+    capture = _capture(tenant_client)
+    resp = await tenant_client.post(
+        "/app/orders/bulk/transition",
+        data={"order_ids": order_ids, "to_status": "confirmed"},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303, resp.text
+
+    assert len(capture.outbox) == 1, "one digest, not one mail per order"
+    msg = capture.outbox[0]
+    assert msg.to == "jan@acme.cz"
+    for order_id in order_ids:
+        assert order_id in msg.html
+
+
+# --- render smoke tests ----------------------------------------------------
+# The preference macro dereferences its context variable, so a page that
+# forgets to pass ``notification_prefs`` raises ``UndefinedError`` instead
+# of rendering. These three GETs had no coverage at all before.
+
+
+async def test_contact_profile_page_renders_preferences(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    await _seed(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "jan@acme.cz", "janpass")
+
+    resp = await tenant_client.get("/app/me/profile")
+    assert resp.status_code == 200
+    assert 'name="events"' in resp.text
+    assert 'value="order_comment"' in resp.text
+    # Staff-only events must not leak onto the customer's page.
+    assert 'value="order_assigned"' not in resp.text
+
+
+async def test_staff_profile_page_renders_preferences(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    await _seed(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+
+    resp = await tenant_client.get("/app/admin/profile")
+    assert resp.status_code == 200
+    assert 'value="order_assigned"' in resp.text
+
+
+async def test_user_edit_page_renders_preferences(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    seeded = await _seed_with_operator(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+
+    resp = await tenant_client.get(f"/app/admin/users/{seeded['operator'].id}/edit")
+    assert resp.status_code == 200
+    assert 'name="scope"' in resp.text
+
+
+async def test_order_detail_shows_the_assignment_picker_only_to_staff(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    seeded = await _seed_with_operator(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+    create = await tenant_client.post(
+        "/app/orders",
+        data={"title": "Viditelnost", "customer_id": str(seeded["customer"].id)},
+        follow_redirects=False,
+    )
+    order_id = create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0]
+
+    staff_view = await tenant_client.get(f"/app/orders/{order_id}")
+    assert staff_view.status_code == 200
+    assert 'name="assigned_to"' in staff_view.text
+    assert "operator@4mex.cz" not in staff_view.text, "emails stay off the page; names only"
+
+    await _logout(tenant_client)
+    await _login(tenant_client, "jan@acme.cz", "janpass")
+    contact_view = await tenant_client.get(f"/app/orders/{order_id}")
+    assert contact_view.status_code == 200
+    assert 'name="assigned_to"' not in contact_view.text
+    assert "Operátor" not in contact_view.text, "the supplier's staff list is internal"
+
+
+async def test_pending_colleague_cannot_be_assigned_by_direct_post(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """The picker hides them; the service has to refuse them too.
+
+    Otherwise a direct POST hands the order to somebody who cannot log
+    in, and — once they own it — colleagues on "only mine" filter
+    themselves out of every later event on that order.
+    """
+    seeded = await _seed(owner_engine, demo_tenant.id)
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        pending = User(
+            id=uuid4(),
+            tenant_id=demo_tenant.id,
+            email="pending@4mex.cz",
+            full_name="Nepřijatý",
+            role=UserRole.TENANT_STAFF,
+            password_hash=None,
+        )
+        session.add(pending)
+        await session.flush()
+
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+    create = await tenant_client.post(
+        "/app/orders",
+        data={"title": "Nepřiřaditelný", "customer_id": str(seeded["customer"].id)},
+        follow_redirects=False,
+    )
+    order_id = create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0]
+
+    capture = _capture(tenant_client)
+    resp = await tenant_client.post(
+        f"/app/orders/{order_id}/assign",
+        data={"assigned_to": str(pending.id)},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    assert "error=" in resp.headers["location"]
+    assert capture.outbox == []
+
+    async with sm() as session:
+        row = (await session.execute(select(Order).where(Order.id == UUID(order_id)))).scalar_one()
+        assert row.assigned_to_user_id is None
+
+
+async def test_deactivated_owner_survives_a_form_resubmit(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """A deactivated owner used to render as "Unassigned".
+
+    The select had no matching option, so the browser showed the first
+    one and saving the untouched form cleared an assignment nobody chose
+    to clear.
+    """
+    seeded = await _seed_with_operator(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+    create = await tenant_client.post(
+        "/app/orders",
+        data={"title": "Osiřelá", "customer_id": str(seeded["customer"].id)},
+        follow_redirects=False,
+    )
+    order_id = create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0]
+    await tenant_client.post(
+        f"/app/orders/{order_id}/assign",
+        data={"assigned_to": str(seeded["operator"].id)},
+        follow_redirects=False,
+    )
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        row = (
+            await session.execute(select(User).where(User.id == seeded["operator"].id))
+        ).scalar_one()
+        row.is_active = False
+
+    detail = await tenant_client.get(f"/app/orders/{order_id}")
+    assert detail.status_code == 200
+    assert f'<option value="{seeded["operator"].id}" selected>' in detail.text
+    assert "Operátor" in detail.text
+
+    # Re-saving the untouched form keeps the owner rather than clearing it.
+    resave = await tenant_client.post(
+        f"/app/orders/{order_id}/assign",
+        data={"assigned_to": str(seeded["operator"].id)},
+        follow_redirects=False,
+    )
+    assert resave.status_code == 303
+    async with sm() as session:
+        row = (await session.execute(select(Order).where(Order.id == UUID(order_id)))).scalar_one()
+        assert row.assigned_to_user_id == seeded["operator"].id

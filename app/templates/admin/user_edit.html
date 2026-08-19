@@ -1,4 +1,5 @@
 {% extends "app_base.html" %}
+{% from "_notification_prefs.html" import notification_fields %}
 
 {% block title %}Assoluto — {{ _('Edit user') }} · {{ tenant.name }}{% endblock %}
 
@@ -60,6 +61,16 @@
             <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 {{ _('Language used for notification emails sent to this user.') }}
             </p>
+        </div>
+
+        <hr class="border-slate-200 dark:border-slate-800">
+
+        <div>
+            <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ _('Notifications') }}</h2>
+            <p class="mb-4 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                {{ _('Set these up for a new colleague; they can change them later on their own profile.') }}
+            </p>
+            {{ notification_fields(notification_prefs, 'staff') }}
         </div>
 
         <div class="flex items-center justify-between pt-2">

@@ -26,6 +26,12 @@ from app.services.auth_service import (
     invite_tenant_staff,
 )
 from app.services.locale_service import resolve_email_locale
+from app.services.notification_prefs import (
+    NotificationPrefs,
+    NotificationSide,
+    parse_form,
+    prefs_for_user,
+)
 from app.tasks.email_tasks import send_staff_invitation
 
 router = APIRouter(prefix="/app/admin", tags=["tenant-admin"], dependencies=[Depends(verify_csrf)])
@@ -302,6 +308,7 @@ async def users_edit_form(
             "principal": principal,
             "tenant": _tenant(request),
             "user": target,
+            "notification_prefs": prefs_for_user(target).to_dict(),
             "error": None,
         },
     )
@@ -315,6 +322,8 @@ async def users_edit(
     full_name: str = Form(...),
     role: str = Form(...),
     preferred_locale: str = Form(""),
+    events: list[str] = Form(default=[]),
+    scope: str = Form(""),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -332,6 +341,7 @@ async def users_edit(
                 "principal": principal,
                 "tenant": _tenant(request),
                 "user": target,
+                "notification_prefs": prefs_for_user(target).to_dict(),
                 "error": _t(request, "Name cannot be empty."),
             },
         )
@@ -363,6 +373,7 @@ async def users_edit(
                 "principal": principal,
                 "tenant": _tenant(request),
                 "user": target,
+                "notification_prefs": prefs_for_user(target).to_dict(),
                 "error": _t(
                     request,
                     "Cannot demote the last administrator — promote someone else first.",
@@ -377,6 +388,15 @@ async def users_edit(
     target.full_name = cleaned_name
     target.role = role_enum
     target.preferred_locale = _normalise_locale(preferred_locale)
+    # Parsed against the *new* role so promoting someone to Administrator
+    # and widening their notifications in the same submit behaves as the
+    # form showed it.
+    target.notification_prefs = parse_form(
+        side=NotificationSide.STAFF,
+        role=role_enum,
+        selected_events=events,
+        scope=scope,
+    ).to_dict()
     await db.flush()
     await audit_service.record(
         db,
@@ -486,6 +506,37 @@ async def users_resend_invite(
 # -------------------------------------------------------------- profile
 
 
+async def _profile_context(
+    request: Request,
+    principal: Principal,
+    db: AsyncSession,
+    *,
+    error: str | None = None,
+    notice: str | None = None,
+) -> dict:
+    """Context for ``admin/profile.html``.
+
+    Every render — happy path and each validation error — goes through
+    here. The page grew a second form (notification preferences) whose
+    macro dereferences its context variable, so a re-render that forgot
+    to pass it raised ``UndefinedError`` instead of showing the user
+    their validation message.
+    """
+    user_row = (await db.execute(select(User).where(User.id == principal.id))).scalar_one_or_none()
+    return {
+        "principal": principal,
+        "tenant": _tenant(request),
+        "user_preferred_locale": user_row.preferred_locale if user_row else None,
+        "notification_prefs": (
+            prefs_for_user(user_row)
+            if user_row
+            else NotificationPrefs.defaults(NotificationSide.STAFF, principal.role)
+        ).to_dict(),
+        "error": error,
+        "notice": notice,
+    }
+
+
 @router.get("/profile", response_class=HTMLResponse)
 async def profile_form(
     request: Request,
@@ -493,17 +544,15 @@ async def profile_form(
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    user_row = (await db.execute(select(User).where(User.id == principal.id))).scalar_one_or_none()
     html = _templates(request).render(
         request,
         "admin/profile.html",
-        {
-            "principal": principal,
-            "tenant": _tenant(request),
-            "user_preferred_locale": user_row.preferred_locale if user_row else None,
-            "error": None,
-            "notice": _t(request, "Profile saved.") if saved else None,
-        },
+        await _profile_context(
+            request,
+            principal,
+            db,
+            notice=_t(request, "Profile saved.") if saved else None,
+        ),
     )
     return HTMLResponse(html)
 
@@ -521,13 +570,9 @@ async def profile_update(
         html = _templates(request).render(
             request,
             "admin/profile.html",
-            {
-                "principal": principal,
-                "tenant": _tenant(request),
-                "user_preferred_locale": None,
-                "error": _t(request, "Name cannot be empty."),
-                "notice": None,
-            },
+            await _profile_context(
+                request, principal, db, error=_t(request, "Name cannot be empty.")
+            ),
         )
         return HTMLResponse(html, status_code=400)
     user = (await db.execute(select(User).where(User.id == principal.id))).scalar_one()
@@ -537,6 +582,35 @@ async def profile_update(
     await db.commit()
     # Redirect so the header badge picks up the new name on its own render.
     return RedirectResponse(url="/app/admin/profile?saved=1", status_code=303)
+
+
+@router.post("/profile/notifications", response_class=HTMLResponse)
+async def profile_notifications_update(
+    request: Request,
+    events: list[str] = Form(default=[]),
+    scope: str = Form(""),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Save the signed-in staff member's own notification preferences.
+
+    A separate endpoint from ``/profile`` on purpose: the account form's
+    "name cannot be empty" re-render would otherwise silently drop every
+    checkbox on the page.
+    """
+    user = (await db.execute(select(User).where(User.id == principal.id))).scalar_one()
+    user.notification_prefs = parse_form(
+        side=NotificationSide.STAFF,
+        role=user.role,
+        selected_events=events,
+        scope=scope,
+    ).to_dict()
+    await db.flush()
+    await db.commit()
+    return RedirectResponse(
+        url="/app/admin/profile?notice=" + quote(_t(request, "Notification settings saved.")),
+        status_code=303,
+    )
 
 
 @router.post("/profile/password", response_class=HTMLResponse)
@@ -552,12 +626,9 @@ async def profile_change_password(
         html = _templates(request).render(
             request,
             "admin/profile.html",
-            {
-                "principal": principal,
-                "tenant": _tenant(request),
-                "error": _t(request, "New passwords do not match."),
-                "notice": None,
-            },
+            await _profile_context(
+                request, principal, db, error=_t(request, "New passwords do not match.")
+            ),
         )
         return HTMLResponse(html, status_code=400)
 
@@ -575,12 +646,7 @@ async def profile_change_password(
         html = _templates(request).render(
             request,
             "admin/profile.html",
-            {
-                "principal": principal,
-                "tenant": _tenant(request),
-                "error": str(exc),
-                "notice": None,
-            },
+            await _profile_context(request, principal, db, error=str(exc)),
         )
         return HTMLResponse(html, status_code=400)
 

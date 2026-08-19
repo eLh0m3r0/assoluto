@@ -1,0 +1,1 @@
+{% trans count=order_count %}{{ count }} order updated{% pluralize %}{{ count }} orders updated{% endtrans %}

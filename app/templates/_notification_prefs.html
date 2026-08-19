@@ -1,0 +1,75 @@
+{# Notification preference fields, shared by the three places they appear:
+   a staff member's own profile, a contact's own profile, and an admin
+   editing somebody else's user row.
+
+   `prefs` is a plain dict — `NotificationPrefs.to_dict()` — so the
+   template never touches the enum. `side` is "staff" or "contact" and
+   picks which events and which scope wording apply.
+
+   Checkbox semantics: only checked boxes are submitted, so the router
+   must treat an absent name as "off". That is why the whole group is
+   always rendered, never conditionally hidden.
+#}
+
+{% macro notification_fields(prefs, side) %}
+{% set staff_events = [
+    ('order_submitted',      _('A customer submits an order')),
+    ('order_status_changed', _('A customer accepts or cancels a quote')),
+    ('order_comment',        _('A customer writes a comment')),
+    ('order_attachment',     _('A customer uploads a file')),
+    ('order_assigned',       _('An order is assigned to me')),
+] %}
+{% set contact_events = [
+    ('order_created',        _('An order is created for us')),
+    ('order_status_changed', _('An order changes status')),
+    ('order_comment',        _('The supplier writes a comment')),
+    ('order_attachment',     _('The supplier uploads a file')),
+] %}
+{% set events = staff_events if side == 'staff' else contact_events %}
+
+<fieldset class="space-y-3">
+    <legend class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Email me when') }}</legend>
+    {% for value, label in events %}
+    <label class="flex items-start gap-2.5 text-sm text-slate-700 dark:text-slate-300">
+        <input type="checkbox" name="events" value="{{ value }}"
+               {% if prefs.events.get(value) %}checked{% endif %}
+               class="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800">
+        <span>{{ label }}</span>
+    </label>
+    {% endfor %}
+    <p class="text-xs text-slate-500 dark:text-slate-400">
+        {{ _('Unticking one of these switches it off completely — nothing will re-enable it.') }}
+    </p>
+</fieldset>
+
+<fieldset class="mt-5 space-y-3">
+    <legend class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Which orders') }}</legend>
+    <label class="flex items-start gap-2.5 text-sm text-slate-700 dark:text-slate-300">
+        <input type="radio" name="scope" value="all"
+               {% if prefs.scope == 'all' %}checked{% endif %}
+               class="mt-0.5 h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800">
+        <span>
+            {% if side == 'staff' %}{{ _('Every order') }}{% else %}{{ _('Every order of our company') }}{% endif %}
+        </span>
+    </label>
+    <label class="flex items-start gap-2.5 text-sm text-slate-700 dark:text-slate-300">
+        <input type="radio" name="scope" value="involved"
+               {% if prefs.scope == 'involved' %}checked{% endif %}
+               class="mt-0.5 h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800">
+        <span>
+            {% if side == 'staff' %}
+                {{ _('Only orders assigned to me') }}
+            {% else %}
+                {{ _('Only orders I am involved in') }}
+            {% endif %}
+        </span>
+    </label>
+    <p class="text-xs text-slate-500 dark:text-slate-400">
+        {% if side == 'staff' %}
+            {{ _('An order with nobody assigned still reaches everyone, so nothing falls through the cracks.') }}
+        {% else %}
+            {{ _('Involved means you created the order, commented on it, or uploaded a file to it.') }}
+        {% endif %}
+    </p>
+</fieldset>
+{% endmacro %}

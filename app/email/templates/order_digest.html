@@ -1,0 +1,22 @@
+{% extends "_layout.html" %}
+{% block subject %}{% trans count=order_count %}{{ count }} order updated{% pluralize %}{{ count }} orders updated{% endtrans %}{% endblock %}
+{% block heading %}{% trans count=order_count %}{{ count }} order updated{% pluralize %}{{ count }} orders updated{% endtrans %}{% endblock %}
+{% block body %}
+    <p style="color:#334155;">
+        {% trans count=order_count %}The following order was updated in one action.{% pluralize %}The following orders were updated in one action.{% endtrans %}
+    </p>
+    <table width="100%" style="border-collapse:collapse;margin:16px 0;">
+        {% for item in orders %}
+        <tr>
+            <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;">
+                <a href="{{ item.url }}" style="color:#2f5bd9;text-decoration:none;font-weight:600;">{{ item.number }}</a>
+                <span style="color:#334155;"> — {{ item.title }}</span>
+                {% if item.status_label %}
+                <div style="color:#64748b;font-size:12px;margin-top:2px;">{{ _(item.status_label) }}</div>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
+{% block cta %}{% endblock %}

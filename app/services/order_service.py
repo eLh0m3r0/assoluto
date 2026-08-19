@@ -20,6 +20,7 @@ from app.models.customer import Customer
 from app.models.enums import OrderStatus
 from app.models.order import Order, OrderComment, OrderItem, OrderStatusHistory
 from app.models.tenant import Tenant
+from app.models.user import User
 from app.services import audit_service
 from app.services.audit_service import SYSTEM_ACTOR, ActorInfo
 
@@ -155,6 +156,12 @@ class ActorRef:
 # ---------------------------------------------------------------------------
 
 
+#: Sentinel for "orders with nobody responsible" in the assignment
+#: filter. A plain ``None`` already means "do not filter", so the
+#: unassigned case needs its own value.
+UNASSIGNED = "unassigned"
+
+
 def build_orders_query(
     *,
     actor: ActorRef,
@@ -163,6 +170,7 @@ def build_orders_query(
     date_from: date | None = None,
     date_to: date | None = None,
     q: str | None = None,
+    assigned_to: UUID | str | None = None,
 ) -> Select:
     """Build the base `SELECT orders` query shared by list + CSV export.
 
@@ -173,6 +181,11 @@ def build_orders_query(
     ``date_from`` / ``date_to`` are **inclusive** bounds compared against
     ``Order.created_at`` (truncated to a calendar date on the caller side
     by passing a ``date`` value). A ``None`` bound means "unbounded".
+
+    ``assigned_to`` takes a user id, the :data:`UNASSIGNED` sentinel, or
+    ``None`` for no filter. Staff-only, like ``customer_id`` — a contact
+    has no business slicing the supplier's internal workload.
+
     Returns the base ``Select``; callers add ``.limit()`` / ``.offset()``.
     """
     stmt = select(Order).order_by(Order.created_at.desc())
@@ -193,6 +206,11 @@ def build_orders_query(
     if q:
         pattern = f"%{q.strip()}%"
         stmt = stmt.where((Order.number.ilike(pattern)) | (Order.title.ilike(pattern)))
+    if assigned_to is not None and actor.type != "contact":
+        if assigned_to == UNASSIGNED:
+            stmt = stmt.where(Order.assigned_to_user_id.is_(None))
+        else:
+            stmt = stmt.where(Order.assigned_to_user_id == assigned_to)
     return stmt
 
 
@@ -203,6 +221,7 @@ async def list_orders_for_principal(
     status_filter: OrderStatus | None = None,
     customer_filter: UUID | None = None,
     search: str | None = None,
+    assigned_filter: UUID | str | None = None,
     offset: int = 0,
     limit: int = 20,
 ) -> tuple[list[Order], int]:
@@ -216,6 +235,7 @@ async def list_orders_for_principal(
         status=status_filter,
         customer_id=customer_filter,
         q=search,
+        assigned_to=assigned_filter,
     )
     # Count(*) over the same filter set — re-run build_orders_query as a
     # subquery so the WHERE clauses stay in sync automatically.
@@ -877,3 +897,80 @@ async def add_comment(
         tenant_id=tenant_id,
     )
     return comment
+
+
+# ---------------------------------------------------------------------------
+# Assignment
+# ---------------------------------------------------------------------------
+
+
+async def assign_order(
+    db: AsyncSession,
+    *,
+    order: Order,
+    assignee_id: UUID | None,
+    actor: ActorRef,
+    audit_actor: ActorInfo | None = None,
+) -> User | None:
+    """Set (or clear) the staff member responsible for ``order``.
+
+    Returns the newly assigned :class:`~app.models.user.User`, or ``None``
+    when the order was unassigned. Returns early — without writing or
+    auditing — if the assignment is unchanged, so re-submitting the form
+    does not spam the audit log or re-notify the assignee.
+
+    Only staff may assign. The assignee lookup runs on the RLS-scoped
+    session, so a forged user id from another tenant simply resolves to
+    nothing and raises rather than leaking the row's existence.
+    """
+    if actor.type != "user":
+        raise ForbiddenActor("only tenant staff can assign orders")
+
+    if order.assigned_to_user_id == assignee_id:
+        return None
+
+    assignee: User | None = None
+    if assignee_id is not None:
+        assignee = (
+            await db.execute(select(User).where(User.id == assignee_id))
+        ).scalar_one_or_none()
+        # ``password_hash IS NULL`` means invited but never accepted. The
+        # picker already hides them (list_assignable_staff); the rule has
+        # to live here too, or a direct POST assigns work to somebody who
+        # cannot log in — and, once they own the order, colleagues scoped
+        # to "only mine" filter themselves out of it.
+        if assignee is None or not assignee.is_active or assignee.password_hash is None:
+            raise OrderError("unknown or inactive assignee")
+
+    previous_id = order.assigned_to_user_id
+    order.assigned_to_user_id = assignee_id
+    await db.flush()
+
+    await audit_service.record(
+        db,
+        action="order.assigned",
+        entity_type="order",
+        entity_id=order.id,
+        entity_label=order.number,
+        actor=audit_actor or SYSTEM_ACTOR,
+        before={"assigned_to_user_id": str(previous_id) if previous_id else None},
+        after={"assigned_to_user_id": str(assignee_id) if assignee_id else None},
+        tenant_id=order.tenant_id,
+    )
+    return assignee
+
+
+async def list_assignable_staff(db: AsyncSession) -> list[User]:
+    """Active staff users who can own an order, for the assignment picker.
+
+    Both roles: an Operator is exactly the person a job should be
+    assigned to. Invited-but-not-accepted rows (``password_hash IS NULL``)
+    are excluded — assigning work to somebody who cannot log in yet just
+    hides it.
+    """
+    stmt = (
+        select(User)
+        .where(User.is_active.is_(True), User.password_hash.is_not(None))
+        .order_by(User.full_name)
+    )
+    return list((await db.execute(stmt)).scalars().all())

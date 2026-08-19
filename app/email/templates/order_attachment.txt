@@ -1,0 +1,7 @@
+{% trans order_number=order_number, order_title=order_title %}New file on order {{ order_number }} — {{ order_title }}{% endtrans %}
+
+{% trans author_name=author_name, filename=filename %}{{ author_name }} uploaded {{ filename }}.{% endtrans %}
+
+{{ _("Open") }}: {{ order_url }}
+
+-- {{ tenant_name }}

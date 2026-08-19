@@ -30,6 +30,11 @@ from app.services.auth_service import (
     InvalidCredentials,
     change_contact_password,
 )
+from app.services.notification_prefs import (
+    NotificationSide,
+    parse_form,
+    prefs_for_contact,
+)
 
 router = APIRouter(prefix="/app/me", tags=["me"], dependencies=[Depends(verify_csrf)])
 
@@ -97,6 +102,7 @@ async def profile_form(
             "tenant": _tenant(request),
             "contact": contact,
             "preferred_locale": contact.preferred_locale,
+            "notification_prefs": prefs_for_contact(contact).to_dict(),
             "error": error,
             "notice": notice,
         },
@@ -129,6 +135,39 @@ async def profile_update(
     await db.flush()
     await db.commit()
     return RedirectResponse(url="/app/me/profile?saved=1", status_code=303)
+
+
+@router.post("/profile/notifications", response_class=HTMLResponse)
+async def profile_notifications_update(
+    request: Request,
+    events: list[str] = Form(default=[]),
+    scope: str = Form(""),
+    principal: Principal = Depends(require_login),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Save the signed-in contact's own notification preferences.
+
+    Separate from ``/profile`` so the account form's validation
+    re-render cannot silently wipe the checkboxes.
+    """
+    redirect = _ensure_contact_or_redirect(principal)
+    if redirect is not None:
+        return redirect
+    contact = (
+        await db.execute(select(CustomerContact).where(CustomerContact.id == principal.id))
+    ).scalar_one()
+    contact.notification_prefs = parse_form(
+        side=NotificationSide.CONTACT,
+        role=contact.role,
+        selected_events=events,
+        scope=scope,
+    ).to_dict()
+    await db.flush()
+    await db.commit()
+    return RedirectResponse(
+        url="/app/me/profile?notice=" + quote(_t(request, "Notification settings saved.")),
+        status_code=303,
+    )
 
 
 @router.post("/profile/password", response_class=HTMLResponse)

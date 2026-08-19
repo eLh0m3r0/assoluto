@@ -82,6 +82,27 @@
     }
   });
 
+  // -------- submit-on-change selects --------
+  // ``<select data-submit-on-change>`` submits its form as soon as the
+  // value changes, so picking an order's owner is one interaction rather
+  // than pick-then-click. Delegated because CSP forbids the inline
+  // ``onchange`` this replaces. The paired ``[data-hide-when-js]``
+  // fallback button is hidden here rather than in CSS, so it stays
+  // visible — and the form stays usable — when scripts do not run.
+  document.querySelectorAll("[data-hide-when-js]").forEach(function (el) {
+    el.hidden = true;
+  });
+
+  document.addEventListener("change", function (event) {
+    var select = event.target.closest("select[data-submit-on-change]");
+    if (!select || !select.form) return;
+    if (select.form.requestSubmit) {
+      select.form.requestSubmit();
+    } else {
+      select.form.submit();
+    }
+  });
+
   // -------- submit button "busy" state --------
   // Prevents double-submit by disabling the form's submit button(s) after
   // the first submit. Swaps the label with a spinner + original text so
