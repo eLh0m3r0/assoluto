@@ -8,6 +8,7 @@ rather than leave an event with nobody to send to.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
@@ -17,7 +18,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.models.customer import Customer, CustomerContact
 from app.models.enums import CustomerContactRole, OrderStatus, UserRole
-from app.models.order import Order
+from app.models.order import Order, OrderStatusHistory
 from app.models.user import User
 from app.security.passwords import hash_password
 from app.services.notification_prefs import (
@@ -224,8 +225,53 @@ async def test_opting_out_is_never_overridden(owner_engine, demo_tenant, setting
 async def test_narrow_scope_wins_when_somebody_else_is_in_scope(
     owner_engine, demo_tenant, settings
 ) -> None:
-    """An operator scoped to their own work is left alone — when there is
-    somebody else to tell."""
+    """An operator scoped to their own work is left alone — once the order
+    has an owner, and that owner is somebody else."""
+    from app.services.notification_service import build_order_submitted
+
+    seeded = await _seed(
+        owner_engine,
+        demo_tenant.id,
+        staff=[
+            {"email": "admin@4mex.cz", "role": UserRole.TENANT_ADMIN},
+            {
+                "email": "operator@4mex.cz",
+                "role": UserRole.TENANT_STAFF,
+                "notification_prefs": _prefs(
+                    side=NotificationSide.STAFF,
+                    role=UserRole.TENANT_STAFF,
+                    scope=NotificationScope.INVOLVED,
+                ),
+            },
+        ],
+    )
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        order = (
+            await session.execute(select(Order).where(Order.id == seeded["order"].id))
+        ).scalar_one()
+        order.assigned_to_user_id = seeded["staff"][0].id
+
+    async with sm() as session:
+        order = (
+            await session.execute(select(Order).where(Order.id == seeded["order"].id))
+        ).scalar_one()
+        payloads = await build_order_submitted(
+            session, tenant=demo_tenant, order=order, base_url=BASE_URL, settings=settings
+        )
+
+    assert _emails(payloads) == {"admin@4mex.cz"}
+
+
+async def test_unassigned_order_reaches_narrow_scopes_too(
+    owner_engine, demo_tenant, settings
+) -> None:
+    """An order nobody owns belongs to everyone.
+
+    "Only orders assigned to me" must not quietly bin untriaged work just
+    because one colleague happens to be on the wide setting — which is
+    what the preference page promises in as many words.
+    """
     from app.services.notification_service import build_order_submitted
 
     seeded = await _seed(
@@ -249,11 +295,12 @@ async def test_narrow_scope_wins_when_somebody_else_is_in_scope(
         order = (
             await session.execute(select(Order).where(Order.id == seeded["order"].id))
         ).scalar_one()
+        assert order.assigned_to_user_id is None
         payloads = await build_order_submitted(
             session, tenant=demo_tenant, order=order, base_url=BASE_URL, settings=settings
         )
 
-    assert _emails(payloads) == {"admin@4mex.cz"}
+    assert _emails(payloads) == {"admin@4mex.cz", "operator@4mex.cz"}
 
 
 async def test_unassigned_order_still_reaches_everyone(owner_engine, demo_tenant, settings) -> None:
@@ -671,3 +718,94 @@ async def test_actor_cannot_take_a_tier_with_them(owner_engine, demo_tenant, set
         )
 
     assert _emails(staff_reply) == {"pending@acme.cz"}
+
+
+async def test_confirming_a_quote_makes_a_contact_involved(
+    owner_engine, demo_tenant, settings
+) -> None:
+    """Accepting a quote is the most committing thing a contact can do.
+
+    Involvement counted creators, commenters and uploaders but not the
+    person who drove the transition, so a customer_user who confirmed a
+    quote and did nothing else heard nothing more about it.
+    """
+    from app.services.notification_service import build_order_comment
+
+    seeded = await _seed(
+        owner_engine,
+        demo_tenant.id,
+        order_status=OrderStatus.CONFIRMED,
+        contacts=[{"email": "signer@acme.cz"}, {"email": "bystander@acme.cz"}],
+    )
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        session.add(
+            OrderStatusHistory(
+                id=uuid4(),
+                tenant_id=demo_tenant.id,
+                order_id=seeded["order"].id,
+                from_status=OrderStatus.QUOTED,
+                to_status=OrderStatus.CONFIRMED,
+                changed_by_contact_id=seeded["contacts"][0].id,
+            )
+        )
+
+    async with sm() as session:
+        order = (
+            await session.execute(select(Order).where(Order.id == seeded["order"].id))
+        ).scalar_one()
+        payloads = await build_order_comment(
+            session,
+            tenant=demo_tenant,
+            order=order,
+            author_email="staff0@4mex.cz",
+            author_name="Staff",
+            author_is_staff=True,
+            body="Hotovo příští týden.",
+            base_url=BASE_URL,
+            settings=settings,
+        )
+
+    assert _emails(payloads) == {"signer@acme.cz"}
+
+
+def test_assignment_notification_skips_an_unaccepted_assignee() -> None:
+    """Reachability is soft everywhere there is an audience to fall back
+    on. A single addressee has none, so here it stays hard."""
+    from app.services.notification_service import build_order_assigned
+
+    tenant_id = uuid4()
+    pending = User(
+        id=uuid4(),
+        tenant_id=tenant_id,
+        email="pending@4mex.cz",
+        full_name="Pending",
+        role=UserRole.TENANT_STAFF,
+        password_hash=None,
+        notification_prefs={},
+    )
+    order = Order(
+        id=uuid4(),
+        tenant_id=tenant_id,
+        customer_id=uuid4(),
+        number="2026-000002",
+        title="Nope",
+        status=OrderStatus.DRAFT,
+    )
+
+    @dataclass(frozen=True)
+    class _Tenant:
+        id: UUID
+        name: str
+        settings: dict
+
+    assert (
+        build_order_assigned(
+            tenant=_Tenant(id=tenant_id, name="4MEX", settings={}),
+            order=order,
+            assignee=pending,
+            base_url=BASE_URL,
+            settings=None,
+        )
+        == []
+    )

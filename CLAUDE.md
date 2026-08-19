@@ -423,8 +423,9 @@ filters in decreasing strength:
    filter. A recipient who switched an event off is never re-added, for
    any reason.
 2. **relevance** — ``notification_prefs["scope"]``: ``all`` vs
-   ``involved`` (staff: assigned to me; contact: I created / commented /
-   uploaded).
+   ``involved`` (staff: assigned to me, **plus anything unassigned** —
+   untriaged work belongs to everyone; contact: I created / commented /
+   uploaded / moved it).
 3. **reachability** — they have accepted their invitation, so the link
    in the mail opens something.
 

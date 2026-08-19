@@ -34,8 +34,9 @@ least says something happened.
 Consent must never be made to yield. Re-adding somebody who opted out is
 a bug, not a safety net.
 
-The actor is always removed last. Nobody needs an email about something
-they just did themselves.
+The actor is removed *first*, before any filter runs — see :func:`_select`
+for why the ordering is load-bearing. Nobody needs an email about
+something they just did themselves.
 
 ### Per-recipient locale
 
@@ -48,7 +49,7 @@ recipients of the same event can read it in different languages.
 from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from typing import Any
 from uuid import UUID
 
@@ -60,7 +61,7 @@ from app.logging import get_logger
 from app.models.attachment import OrderAttachment
 from app.models.customer import Customer, CustomerContact
 from app.models.enums import STATUS_LABELS, OrderStatus
-from app.models.order import Order, OrderComment
+from app.models.order import Order, OrderComment, OrderStatusHistory
 from app.models.tenant import Tenant
 from app.models.user import User
 from app.services.locale_service import resolve_email_locale
@@ -281,7 +282,14 @@ async def resolve_staff_audience(
                 ),
                 full_name=user.full_name,
             ),
-            involved=assignee_id is not None and user.id == assignee_id,
+            # An unassigned order belongs to nobody, so it belongs to
+            # everyone: "only orders assigned to me" must not quietly bin
+            # work that has not been triaged yet. Without this the
+            # preference page's promise — "an order with nobody assigned
+            # still reaches everyone" — held only when *every* staff
+            # member had narrowed their scope, which is the one case
+            # where it does not matter.
+            involved=assignee_id is None or user.id == assignee_id,
             accepted=user.password_hash is not None,
         )
         for user in rows
@@ -325,6 +333,21 @@ async def _involved_contact_ids(db: AsyncSession, order: Order) -> set[UUID]:
         )
     ).all()
     involved.update(row[0] for row in attachment_rows)
+
+    # Driving a transition counts too. Contacts may only move QUOTED ->
+    # CONFIRMED and -> CANCELLED, so this is the person who accepted or
+    # killed the quote — the most committing act available to them. Left
+    # out, somebody who did nothing else would stay "uninvolved" and hear
+    # nothing more about the order they just signed off.
+    transition_rows = (
+        await db.execute(
+            select(OrderStatusHistory.changed_by_contact_id).where(
+                OrderStatusHistory.order_id == order.id,
+                OrderStatusHistory.changed_by_contact_id.is_not(None),
+            )
+        )
+    ).all()
+    involved.update(row[0] for row in transition_rows)
     return involved
 
 
@@ -655,7 +678,11 @@ def build_order_assigned(
     consent. Assigning to yourself sends nothing.
     """
     event = NotificationEvent.ORDER_ASSIGNED
-    if not assignee.is_active:
+    # Reachability is a *soft* filter everywhere else because there is an
+    # audience to fall back on. Here there is exactly one addressee, so it
+    # has nothing to yield to and stays hard: mailing "this is yours" to
+    # somebody who cannot log in helps nobody.
+    if not assignee.is_active or assignee.password_hash is None:
         return []
     if not prefs_for_user(assignee).wants(event):
         return []
@@ -762,8 +789,3 @@ def merge_for_digest(
             )
         )
     return out
-
-
-def with_recipient(notification: OrderNotification, recipient: Recipient) -> OrderNotification:
-    """Return a copy addressed to somebody else — used in tests."""
-    return replace(notification, recipient=recipient)

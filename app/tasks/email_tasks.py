@@ -304,11 +304,22 @@ def send_order_notifications(sender: EmailSender, notifications: Iterable[Any]) 
 
     One task per recipient would be correct but wasteful for a bulk
     transition; a single task keeps the ``BackgroundTasks`` list short.
-    :func:`_safe_send` swallows per-recipient failures, so one bad
-    address cannot stop the rest of the batch.
+
+    Each payload is isolated. ``_safe_send`` already swallows SMTP
+    failures, but rendering happens *before* it — so a template or
+    format error for one recipient would otherwise abort every recipient
+    queued behind them in the same task.
     """
     for notification in notifications:
-        send_order_notification(sender, notification)
+        try:
+            send_order_notification(sender, notification)
+        except Exception as exc:
+            log.error(
+                "email.render_failed",
+                kind=getattr(notification, "template", "unknown"),
+                error_class=type(exc).__name__,
+                error=_safe_error_summary(exc),
+            )
 
 
 def send_trial_nurture(

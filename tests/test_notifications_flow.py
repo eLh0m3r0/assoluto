@@ -740,3 +740,96 @@ async def test_order_detail_shows_the_assignment_picker_only_to_staff(
     assert contact_view.status_code == 200
     assert 'name="assigned_to"' not in contact_view.text
     assert "Operátor" not in contact_view.text, "the supplier's staff list is internal"
+
+
+async def test_pending_colleague_cannot_be_assigned_by_direct_post(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """The picker hides them; the service has to refuse them too.
+
+    Otherwise a direct POST hands the order to somebody who cannot log
+    in, and — once they own it — colleagues on "only mine" filter
+    themselves out of every later event on that order.
+    """
+    seeded = await _seed(owner_engine, demo_tenant.id)
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        pending = User(
+            id=uuid4(),
+            tenant_id=demo_tenant.id,
+            email="pending@4mex.cz",
+            full_name="Nepřijatý",
+            role=UserRole.TENANT_STAFF,
+            password_hash=None,
+        )
+        session.add(pending)
+        await session.flush()
+
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+    create = await tenant_client.post(
+        "/app/orders",
+        data={"title": "Nepřiřaditelný", "customer_id": str(seeded["customer"].id)},
+        follow_redirects=False,
+    )
+    order_id = create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0]
+
+    capture = _capture(tenant_client)
+    resp = await tenant_client.post(
+        f"/app/orders/{order_id}/assign",
+        data={"assigned_to": str(pending.id)},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    assert "error=" in resp.headers["location"]
+    assert capture.outbox == []
+
+    async with sm() as session:
+        row = (await session.execute(select(Order).where(Order.id == UUID(order_id)))).scalar_one()
+        assert row.assigned_to_user_id is None
+
+
+async def test_deactivated_owner_survives_a_form_resubmit(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """A deactivated owner used to render as "Unassigned".
+
+    The select had no matching option, so the browser showed the first
+    one and saving the untouched form cleared an assignment nobody chose
+    to clear.
+    """
+    seeded = await _seed_with_operator(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+    create = await tenant_client.post(
+        "/app/orders",
+        data={"title": "Osiřelá", "customer_id": str(seeded["customer"].id)},
+        follow_redirects=False,
+    )
+    order_id = create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0]
+    await tenant_client.post(
+        f"/app/orders/{order_id}/assign",
+        data={"assigned_to": str(seeded["operator"].id)},
+        follow_redirects=False,
+    )
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        row = (
+            await session.execute(select(User).where(User.id == seeded["operator"].id))
+        ).scalar_one()
+        row.is_active = False
+
+    detail = await tenant_client.get(f"/app/orders/{order_id}")
+    assert detail.status_code == 200
+    assert f'<option value="{seeded["operator"].id}" selected>' in detail.text
+    assert "Operátor" in detail.text
+
+    # Re-saving the untouched form keeps the owner rather than clearing it.
+    resave = await tenant_client.post(
+        f"/app/orders/{order_id}/assign",
+        data={"assigned_to": str(seeded["operator"].id)},
+        follow_redirects=False,
+    )
+    assert resave.status_code == 303
+    async with sm() as session:
+        row = (await session.execute(select(Order).where(Order.id == UUID(order_id)))).scalar_one()
+        assert row.assigned_to_user_id == seeded["operator"].id

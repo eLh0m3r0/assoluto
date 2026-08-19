@@ -100,8 +100,14 @@ email template triple. No new dataclass, no new task function.
 
 | Side | `scope=all` | `scope=involved` |
 |---|---|---|
-| Staff | every order in the tenant | orders assigned to me |
-| Contact | every order of my company | orders I created, commented on, or uploaded a file to |
+| Staff | every order in the tenant | orders assigned to me, **plus every unassigned order** |
+| Contact | every order of my company | orders I created, commented on, uploaded a file to, or moved (accepting a quote counts) |
+
+An **unassigned** order counts as involved for every staff member. It has
+no owner, so it belongs to the whole shop until somebody picks it up —
+untriaged work is exactly what must not fall through the cracks. Without
+this, "only orders assigned to me" silently binned new orders for anyone
+who chose it, as long as one colleague was on the wide setting.
 
 ### Defaults
 
@@ -155,11 +161,19 @@ When a tenant has **no active staff rows at all**, staff-side events fall
 back to `tenants.billing_email` and log `notifications.staff_fallback`.
 
 The fallback is keyed on the rows existing, not on consent — a tenant
-whose admins all deliberately muted an event stays silent, as they asked,
-and gets a `notifications.no_recipients` warning in the log instead.
-Pending invitations do not trigger it either: they are reachable-but-
-demoted, so a team that has all been invited and none accepted still gets
-the mail directly.
+whose staff all deliberately muted an event gets a
+`notifications.no_recipients` warning in the log rather than a mail to
+billing. Pending invitations do not trigger it either: they are
+reachable-but-demoted, so a team that has all been invited and none
+accepted still gets the mail directly.
+
+One consequence worth stating plainly, because it surprised a reviewer:
+if every *accepted* staff member mutes an event while an unaccepted
+invitation is outstanding, the mail goes to the pending address alone.
+That is consent working — the pending row never opted out, and the
+reachability filter has nobody left to prefer over them — but it means
+"everyone muted it, so nothing is sent" is only true once there are no
+outstanding invitations.
 
 ## Changes
 
@@ -222,6 +236,9 @@ the mail directly.
 - **Migrating the seven existing email templates onto `_layout.html`.**
   Mechanical, unrelated to routing, and would triple the diff.
 - **In-app notification centre.** Email only, as today.
+- **`assigned_to_user_id` in the tenant/GDPR exports.** The export already
+  omits `created_by_*`; adding ownership to both belongs with that gap,
+  not here.
 - **Consolidating the `mock_s3` fixture.** It now exists in four test
   files; they disagree on bucket names, so merging them into
   `conftest.py` is its own change.

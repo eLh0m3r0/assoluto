@@ -106,6 +106,14 @@
                 <option value="" {% if not order.assigned_to_user_id %}selected{% endif %}>
                     {{ _('Unassigned') }}
                 </option>
+                {% if order.assigned_to_user_id and not assignee_is_pickable %}
+                    {# Owner was deactivated. Keep them selected so the form
+                       shows the truth and a save does not silently clear
+                       the assignment; they cannot be re-picked once away. #}
+                    <option value="{{ order.assigned_to_user_id }}" selected>
+                        {{ assignee_name or _('Unknown') }} — {{ _('inactive') }}
+                    </option>
+                {% endif %}
                 {% for u in staff_choices %}
                     <option value="{{ u.id }}" {% if order.assigned_to_user_id == u.id %}selected{% endif %}>
                         {{ u.full_name }}

@@ -84,6 +84,29 @@ def _tenant(request: Request):
 PAGE_SIZE = 20
 
 
+def _parse_assigned_filter(raw: str | None, principal: Principal) -> UUID | str | None:
+    """Parse the ``assigned`` query param into a ``build_orders_query`` value.
+
+    Shared by the list and the CSV export: the export link forwards the
+    whole query string, so parsing it in only one of the two silently
+    hands the user more rows than the screen showed them.
+
+    ``me`` resolves server-side so a bookmarked or shared filter shows
+    each colleague their own queue. Staff-only, like the customer filter
+    — a contact has no business slicing the supplier's workload.
+    """
+    if not raw or not principal.is_staff:
+        return None
+    if raw == "me":
+        return principal.id
+    if raw == UNASSIGNED:
+        return UNASSIGNED
+    try:
+        return UUID(raw)
+    except ValueError:
+        return None
+
+
 @router.get("", response_class=HTMLResponse)
 async def orders_index(
     request: Request,
@@ -112,19 +135,7 @@ async def orders_index(
         except ValueError:
             customer_filter = None
 
-    # "me" resolves server-side so the filter survives being bookmarked
-    # or shared between colleagues — each of them sees their own queue.
-    assigned_filter: UUID | str | None = None
-    if assigned and principal.is_staff:
-        if assigned == "me":
-            assigned_filter = principal.id
-        elif assigned == UNASSIGNED:
-            assigned_filter = UNASSIGNED
-        else:
-            try:
-                assigned_filter = UUID(assigned)
-            except ValueError:
-                assigned_filter = None
+    assigned_filter = _parse_assigned_filter(assigned, principal)
 
     page = max(1, page)
     offset = (page - 1) * PAGE_SIZE
@@ -277,6 +288,7 @@ async def orders_export_csv(
     request: Request,
     status: str | None = None,
     customer: str | None = None,
+    assigned: str | None = None,
     from_: str | None = None,
     to: str | None = None,
     q: str | None = None,
@@ -317,6 +329,7 @@ async def orders_export_csv(
         actor=_actor(principal),
         status=status_filter,
         customer_id=customer_filter,
+        assigned_to=_parse_assigned_filter(assigned, principal),
         date_from=date_from,
         date_to=date_to,
         q=q,
@@ -660,6 +673,7 @@ async def orders_detail(
     # supplier's internal staff list, let alone who is working on what.
     staff_choices: list = []
     assignee_name = ""
+    assignee_is_pickable = True
     if principal.is_staff:
         staff_choices = await list_assignable_staff(db)
         if order.assigned_to_user_id is not None:
@@ -667,6 +681,21 @@ async def orders_detail(
                 (u.full_name for u in staff_choices if u.id == order.assigned_to_user_id),
                 "",
             )
+            if not assignee_name:
+                # Owner has since been deactivated, so they are not in the
+                # picker. Look them up anyway: rendering the select with no
+                # option selected makes the browser show the first one
+                # ("Unassigned"), and re-saving the form would then clear a
+                # real assignment nobody chose to clear.
+                from app.models.user import User as _User
+
+                row = (
+                    await db.execute(
+                        select(_User.full_name).where(_User.id == order.assigned_to_user_id)
+                    )
+                ).first()
+                assignee_name = row[0] if row else ""
+                assignee_is_pickable = False
 
     # Resolve per-customer order permissions.
     from app.services.customer_permissions import OrderPermissions
@@ -702,6 +731,7 @@ async def orders_detail(
             "status_pipeline": status_pipeline,
             "staff_choices": staff_choices,
             "assignee_name": assignee_name,
+            "assignee_is_pickable": assignee_is_pickable,
             "product_choices": product_choices,
             "error": error,
             "notice": notice,
@@ -1248,7 +1278,9 @@ async def orders_bulk_transition(
                     order=order,
                     to_status=target,
                     base_url=tenant_url,
-                    actor_is_contact=principal.type == "contact",
+                    # Staff-only route (``require_tenant_staff``), so the
+                    # audience is always the customer side.
+                    actor_is_contact=False,
                     actor_email=principal.email,
                     settings=settings,
                 )

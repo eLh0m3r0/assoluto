@@ -934,7 +934,12 @@ async def assign_order(
         assignee = (
             await db.execute(select(User).where(User.id == assignee_id))
         ).scalar_one_or_none()
-        if assignee is None or not assignee.is_active:
+        # ``password_hash IS NULL`` means invited but never accepted. The
+        # picker already hides them (list_assignable_staff); the rule has
+        # to live here too, or a direct POST assigns work to somebody who
+        # cannot log in — and, once they own the order, colleagues scoped
+        # to "only mine" filter themselves out of it.
+        if assignee is None or not assignee.is_active or assignee.password_hash is None:
             raise OrderError("unknown or inactive assignee")
 
     previous_id = order.assigned_to_user_id
