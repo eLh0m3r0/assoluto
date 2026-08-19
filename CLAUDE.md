@@ -22,9 +22,9 @@ app/           Python package — the FastAPI application
   tasks/       Background task bodies (email, thumbnails, periodic cleanup)
   templates/   Jinja2 HTML (base, auth, orders, customers, products, assets, admin, errors, platform)
   platform/    Opt-in SaaS package (Identity, TenantMembership, platform admin)
-migrations/    Alembic (0001-0008 core, 1001-1005 platform/billing)
+migrations/    Alembic (0001-0013 core, 1001-1008 platform/billing)
 scripts/       CLI tools: create_tenant, seed_dev, build_tailwind
-tests/         207+ tests (pytest-asyncio, httpx ASGITransport, moto for S3)
+tests/         560+ tests (pytest-asyncio, httpx ASGITransport, moto for S3)
 ```
 
 ## Critical patterns to understand
@@ -413,7 +413,58 @@ honest: ``STATUS_LABELS`` (nouns) label positions, ``STATUS_ACTIONS``
 goes backwards carries ``data-confirm`` (handled by the delegated
 listener in ``static/js/app.js`` — CSP forbids inline ``onsubmit``).
 
-### 19. Git authority: no trunk writes on your own, but the operator may command them
+### 19. Notifications: consent is absolute, everything else yields
+
+``app/services/notification_service.py`` resolves every order
+notification through one function, :func:`_select`, applying three
+filters in decreasing strength:
+
+1. **consent** — ``notification_prefs["events"][<event>]``. A *hard*
+   filter. A recipient who switched an event off is never re-added, for
+   any reason.
+2. **relevance** — ``notification_prefs["scope"]``: ``all`` vs
+   ``involved`` (staff: assigned to me; contact: I created / commented /
+   uploaded).
+3. **reachability** — they have accepted their invitation, so the link
+   in the mail opens something.
+
+**Filters 2 and 3 yield when they would empty the audience.** That
+invariant is the whole design. It lets scope be tightened aggressively
+without ever producing "the customer heard nothing about their own
+order" — which is exactly the bug that appeared when reachability was
+first written as a hard eligibility rule.
+
+Never make consent yield. Never turn a soft filter hard "to be tidy".
+
+Other things to keep in mind:
+
+* **``STAFF_EVENTS`` covers both roles.** The original bug was
+  ``_staff_recipients`` filtering ``role == TENANT_ADMIN`` while
+  ``tenant_staff`` is the *default* role and the pre-selected option in
+  the invite form — so Operators, the people actually running
+  production, were the only ones never told an order arrived. Do not
+  reintroduce a role filter here; use ``scope`` if somebody wants less.
+* **Adding an event** = one ``NotificationEvent`` member, one entry in
+  ``STAFF_EVENTS`` / ``CONTACT_EVENTS``, one email template triple named
+  after the enum *value*, one builder call site. No new dataclass and no
+  new task function — ``send_order_notification`` dispatches on
+  ``payload.template``.
+* **One payload = one recipient.** Builders return
+  ``list[OrderNotification]``. ``merge_for_digest()`` then collapses
+  same-recipient, same-event payloads into one ``order_digest`` mail;
+  the bulk-transition endpoint is the only caller today.
+* **``notification_prefs`` is shared with the GDPR eraser**, which
+  writes ``_gdpr_erased_at`` into the same column. The parser ignores
+  unknown top-level keys — keep it that way.
+* **Preference forms are checkbox groups**, so an absent field means
+  "off", not "unchanged". Every page that renders the macro must render
+  the whole group, and must pass ``notification_prefs`` on *every*
+  render path including validation-error re-renders (see
+  ``tenant_admin._profile_context``).
+
+Full rationale: ``docs/NOTIFICATIONS_REDESIGN_2026-08-19.md``.
+
+### 20. Git authority: no trunk writes on your own, but the operator may command them
 
 Standing rule from the operator (Václav), recorded 2026-07-26:
 
