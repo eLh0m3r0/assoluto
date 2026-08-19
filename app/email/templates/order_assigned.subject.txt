@@ -1,0 +1,1 @@
+{% trans order_number=order_number %}Order {{ order_number }} was assigned to you{% endtrans %}

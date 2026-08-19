@@ -162,7 +162,7 @@ async def test_contact_confirming_quote_notifies_the_supplier(
 
     async with sm() as session:
         fresh = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
-        payload = await build_order_status_changed(
+        payloads = await build_order_status_changed(
             session,
             tenant=demo_tenant,
             order=fresh,
@@ -173,8 +173,8 @@ async def test_contact_confirming_quote_notifies_the_supplier(
             actor_email=contact.email,
         )
 
-    assert payload is not None, "the supplier must be told their quote was accepted"
-    recipients = {email for email, _locale in payload.recipients_with_locale}
+    assert payloads, "the supplier must be told their quote was accepted"
+    recipients = {p.recipient.email for p in payloads}
     assert user.email in recipients, "staff must receive it"
     assert contact.email not in recipients, "the actor must not be emailed their own click"
 
@@ -192,7 +192,7 @@ async def test_staff_status_change_still_notifies_the_customer(
 
     async with sm() as session:
         fresh = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
-        payload = await build_order_status_changed(
+        payloads = await build_order_status_changed(
             session,
             tenant=demo_tenant,
             order=fresh,
@@ -203,7 +203,7 @@ async def test_staff_status_change_still_notifies_the_customer(
             actor_email=user.email,
         )
 
-    assert payload is not None
-    recipients = {email for email, _locale in payload.recipients_with_locale}
+    assert payloads
+    recipients = {p.recipient.email for p in payloads}
     assert contact.email in recipients
     assert user.email not in recipients

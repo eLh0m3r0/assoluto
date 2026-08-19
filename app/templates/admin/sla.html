@@ -16,18 +16,18 @@
         <label for="sla-timeframe" class="pl-2 font-medium text-slate-600 dark:text-slate-300">
             {{ _('Timeframe') }}
         </label>
-        <select id="sla-timeframe" name="timeframe" onchange="this.form.submit()"
+        <select id="sla-timeframe" name="timeframe" data-submit-on-change
                 class="rounded-md border border-slate-300 px-2 py-1 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100">
             <option value="30" {% if timeframe == "30" %}selected{% endif %}>{{ _('Last 30 days') }}</option>
             <option value="90" {% if timeframe == "90" %}selected{% endif %}>{{ _('Last 90 days') }}</option>
             <option value="365" {% if timeframe == "365" %}selected{% endif %}>{{ _('Last 365 days') }}</option>
         </select>
-        <noscript>
-            <button type="submit"
-                    class="rounded-md bg-brand-600 px-3 py-1 text-xs font-medium text-white hover:bg-brand-700">
-                {{ _('Apply') }}
-            </button>
-        </noscript>
+        {# Hidden by the same script that wires up submit-on-change, so the
+           filter is still usable when scripts do not run. #}
+        <button type="submit" data-hide-when-js
+                class="rounded-md bg-brand-600 px-3 py-1 text-xs font-medium text-white hover:bg-brand-700">
+            {{ _('Apply') }}
+        </button>
     </form>
 
     {# Summary cards #}

@@ -1,0 +1,39 @@
+{# Shared chrome for order-notification emails.
+
+   Table-based and fully inline-styled on purpose — Outlook and Gmail
+   both strip <style> blocks, so every rule has to ride on the element.
+   `color-scheme: light only` stops Gmail's dark mode from inverting the
+   palette into something unreadable.
+
+   The seven older templates (invitation, password_reset, …) still carry
+   their own copy of this markup; migrating them is mechanical and
+   unrelated to notification routing, so it stays a follow-up.
+#}
+<!doctype html>
+<html lang="{{ locale or 'cs' }}">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light only">
+<title>{% block subject %}{% endblock %}</title>
+</head>
+<body style="font-family:sans-serif;background:#f8fafc;padding:24px;">
+{# Preheader: the grey snippet an inbox shows next to the subject.
+   Hidden in the body itself. #}
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+    {% block preheader %}{{ self.subject() }}{% endblock %}
+</div>
+<table width="100%"><tr><td align="center"><table width="560" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:32px;">
+<tr><td>
+    <h1 style="margin-top:0;color:#0f172a;font-size:20px;">{% block heading %}{% endblock %}</h1>
+    {% block body %}{% endblock %}
+    {% block cta %}
+    <p>
+        <a href="{{ order_url }}" style="display:inline-block;background:#2f5bd9;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;">
+            {{ _("Open order") }}
+        </a>
+    </p>
+    {% endblock %}
+    <p style="color:#94a3b8;font-size:12px;margin-top:24px;">{{ tenant_name }}</p>
+</td></tr>
+</table></td></tr></table>
+</body></html>

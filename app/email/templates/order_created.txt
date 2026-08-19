@@ -1,0 +1,9 @@
+{% trans order_number=order_number, order_title=order_title %}Order {{ order_number }} — {{ order_title }}{% endtrans %}
+
+{% if author_name %}{% trans author_name=author_name, tenant_name=tenant_name %}{{ author_name }} from {{ tenant_name }} opened this order on your behalf.{% endtrans %}{% else %}{% trans tenant_name=tenant_name %}{{ tenant_name }} opened this order on your behalf.{% endtrans %}{% endif %}
+
+{{ _("You can review the details, add files and follow its progress in the portal.") }}
+
+{{ _("Open") }}: {{ order_url }}
+
+-- {{ tenant_name }}

@@ -53,3 +53,21 @@ class AttachmentKind(StrEnum):
     PHOTO = "photo"
     DOCUMENT = "document"
     OTHER = "other"
+
+
+#: English msgids for each order status, as a *noun* naming the position in
+#: the pipeline ("Delivered"), not the verb that gets you there ("Deliver").
+#: Rendered through gettext at the call site — email templates, the order
+#: PDF and the status stepper all read from this one map so a relabelled
+#: status can never mean two different things in two places.
+STATUS_LABELS: dict[OrderStatus, str] = {
+    OrderStatus.DRAFT: "Draft",
+    OrderStatus.SUBMITTED: "Submitted",
+    OrderStatus.QUOTED: "Quoted",
+    OrderStatus.CONFIRMED: "Confirmed",
+    OrderStatus.IN_PRODUCTION: "In production",
+    OrderStatus.READY: "Ready",
+    OrderStatus.DELIVERED: "Delivered",
+    OrderStatus.CLOSED: "Closed",
+    OrderStatus.CANCELLED: "Cancelled",
+}

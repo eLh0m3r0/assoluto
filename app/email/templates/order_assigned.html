@@ -1,0 +1,13 @@
+{% extends "_layout.html" %}
+{% block subject %}{% trans order_number=order_number %}Order {{ order_number }} was assigned to you{% endtrans %}{% endblock %}
+{% block heading %}{{ _("Assigned to you") }}{% endblock %}
+{% block body %}
+    <p style="color:#334155;">
+        {% if author_name %}
+        {% trans author_name=author_name, order_number=order_number, order_title=order_title %}{{ author_name }} assigned order <strong>{{ order_number }}</strong> — {{ order_title }} to you.{% endtrans %}
+        {% else %}
+        {% trans order_number=order_number, order_title=order_title %}Order <strong>{{ order_number }}</strong> — {{ order_title }} was assigned to you.{% endtrans %}
+        {% endif %}
+    </p>
+    <p style="color:#334155;">{{ _("Status") }}: <strong>{{ _(status_label) }}</strong></p>
+{% endblock %}

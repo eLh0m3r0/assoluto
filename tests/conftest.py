@@ -176,6 +176,7 @@ async def demo_tenant(owner_engine, wipe_db):  # type: ignore[misc]
         tenant_id = tenant.id
         tenant_slug = tenant.slug
         tenant_name = tenant.name
+        tenant_billing_email = tenant.billing_email
 
     # Return a lightweight record the tests can use without holding an
     # open DB session/transaction.
@@ -186,8 +187,19 @@ async def demo_tenant(owner_engine, wipe_db):  # type: ignore[misc]
         id: object
         slug: str
         name: str
+        # Mirrors the columns the app actually reads off ``request.state.tenant``
+        # (a real ``Tenant`` ORM row). Notification fallback routing reads
+        # ``billing_email``; locale resolution reads ``settings``.
+        billing_email: str
+        settings: dict
 
-    return TenantRef(id=tenant_id, slug=tenant_slug, name=tenant_name)
+    return TenantRef(
+        id=tenant_id,
+        slug=tenant_slug,
+        name=tenant_name,
+        billing_email=tenant_billing_email,
+        settings={},
+    )
 
 
 @pytest.fixture

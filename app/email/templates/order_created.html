@@ -1,0 +1,13 @@
+{% extends "_layout.html" %}
+{% block subject %}{% trans order_number=order_number %}New order {{ order_number }} has been created for you{% endtrans %}{% endblock %}
+{% block heading %}{{ _("New order") }}{% endblock %}
+{% block body %}
+    <p style="color:#334155;">
+        {% if author_name %}
+        {% trans author_name=author_name, tenant_name=tenant_name, order_number=order_number, order_title=order_title %}{{ author_name }} from {{ tenant_name }} opened order <strong>{{ order_number }}</strong> — {{ order_title }} on your behalf.{% endtrans %}
+        {% else %}
+        {% trans tenant_name=tenant_name, order_number=order_number, order_title=order_title %}{{ tenant_name }} opened order <strong>{{ order_number }}</strong> — {{ order_title }} on your behalf.{% endtrans %}
+        {% endif %}
+    </p>
+    <p style="color:#334155;">{{ _("You can review the details, add files and follow its progress in the portal.") }}</p>
+{% endblock %}

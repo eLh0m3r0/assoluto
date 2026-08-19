@@ -90,6 +90,43 @@
 
     {% include "_flash.html" %}
 
+    {% if principal.is_staff %}
+    {# Assignment. Staff-only — a customer must not see the supplier's
+       internal staff list, let alone who is working on their job. Submits
+       on change so it is one interaction, not two. #}
+    <section class="mb-6 rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <form method="post" action="/app/orders/{{ order.id }}/assign"
+              class="flex flex-wrap items-center gap-3">
+            {{ csrf_input() }}
+            <label for="assigned_to" class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                {{ _('Responsible') }}
+            </label>
+            <select id="assigned_to" name="assigned_to" data-submit-on-change
+                    class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                <option value="" {% if not order.assigned_to_user_id %}selected{% endif %}>
+                    {{ _('Unassigned') }}
+                </option>
+                {% for u in staff_choices %}
+                    <option value="{{ u.id }}" {% if order.assigned_to_user_id == u.id %}selected{% endif %}>
+                        {{ u.full_name }}
+                    </option>
+                {% endfor %}
+            </select>
+            {# Always rendered, hidden by the same script that wires up
+               submit-on-change — so the control still works with JS off. #}
+            <button type="submit" data-hide-when-js
+                    class="rounded-md bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700">
+                {{ _('Save') }}
+            </button>
+            {% if order.assigned_to_user_id and assignee_name %}
+                <span class="text-xs text-slate-500 dark:text-slate-400">
+                    {{ _('Gets the notifications for this order.') }}
+                </span>
+            {% endif %}
+        </form>
+    </section>
+    {% endif %}
+
     <section class="mb-6 grid gap-4 md:grid-cols-3">
         <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
              title="{{ _('Confirmed total price filled in by staff on transition to Quoted.') }}">

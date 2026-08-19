@@ -1,0 +1,1 @@
+{% trans order_number=order_number %}New order {{ order_number }} has been created for you{% endtrans %}

@@ -13,22 +13,23 @@ scheduling the task — the service layer owns the
 recipient/customer/tenant lookup and keeps this task module free of
 DB plumbing.
 
-Multi-recipient emails (order notifications fanning out to tenant
-staff or to all contacts of a customer) take ``recipients_with_locale``,
-a sequence of ``(email, locale_or_none)`` tuples. Each recipient gets
-their own render so a US contact and a Czech staff user can both be
-on the same notification list and each see it in their preferred
-language.
+Order notifications arrive pre-addressed instead: one
+``OrderNotification`` per recipient, each already carrying its own
+locale (see :mod:`app.services.notification_service`). One payload is
+one email, so a US contact and a Czech staff user on the same event
+each get their own render, and a failed send affects only that
+recipient.
 """
 
 from __future__ import annotations
 
 import time
 from collections.abc import Iterable
+from typing import Any
 
 from app.email.sender import EmailSender, render_email
 from app.logging import get_logger
-from app.models.enums import OrderStatus
+from app.models.enums import STATUS_LABELS as _STATUS_LABELS
 
 log = get_logger("app.tasks.email")
 
@@ -41,20 +42,12 @@ _MAX_ATTEMPTS = 3
 _BACKOFF_BASE_SECONDS = 2.0
 
 
-# English msgids — the template's ``_(status_label)`` translates at
-# render time using the recipient's locale. Keep the CS text OUT of
-# this module so one catalogue covers every surface.
-STATUS_LABELS: dict[OrderStatus, str] = {
-    OrderStatus.DRAFT: "Draft",
-    OrderStatus.SUBMITTED: "Submitted",
-    OrderStatus.QUOTED: "Quoted",
-    OrderStatus.CONFIRMED: "Confirmed",
-    OrderStatus.IN_PRODUCTION: "In production",
-    OrderStatus.READY: "Ready",
-    OrderStatus.DELIVERED: "Delivered",
-    OrderStatus.CLOSED: "Closed",
-    OrderStatus.CANCELLED: "Cancelled",
-}
+# Re-exported for callers that already import it from here. The map
+# itself now lives next to the enum in ``app.models.enums`` — it had
+# drifted into three copies (here, the orders router, the PDF service).
+# The template's ``_(status_label)`` translates at render time using the
+# recipient's locale, so the CS text stays out of Python entirely.
+STATUS_LABELS = _STATUS_LABELS
 
 
 def _safe_error_summary(exc: Exception) -> str:
@@ -284,75 +277,38 @@ def send_password_reset(
     )
 
 
-RecipientLocales = Iterable[tuple[str, str | None]]
+def send_order_notification(sender: EmailSender, notification: Any) -> None:
+    """Render and send one order notification.
+
+    Takes an :class:`~app.services.notification_service.OrderNotification`
+    or :class:`~app.services.notification_service.OrderDigestNotification`
+    — both expose ``template``, ``recipient`` and ``context()``, which is
+    the whole contract. Adding a new event therefore needs no change
+    here: define the enum member and drop in the template triple.
+
+    The payload is built while the request's DB session is still open
+    (see CLAUDE.md §2) so this function never touches the database.
+    """
+    _render_and_send(
+        sender,
+        notification.event.value,
+        notification.template,
+        notification.recipient.email,
+        notification.context(),
+        notification.recipient.locale,
+    )
 
 
-def send_order_comment(
-    sender: EmailSender,
-    *,
-    recipients_with_locale: RecipientLocales,
-    tenant_name: str,
-    order_number: str,
-    order_title: str,
-    order_url: str,
-    author_name: str,
-    body_excerpt: str,
-) -> None:
-    ctx = {
-        "tenant_name": tenant_name,
-        "order_number": order_number,
-        "order_title": order_title,
-        "order_url": order_url,
-        "author_name": author_name,
-        "body_excerpt": body_excerpt,
-    }
-    for to, locale in recipients_with_locale:
-        _render_and_send(sender, "order_comment", "order_comment", to, ctx, locale)
+def send_order_notifications(sender: EmailSender, notifications: Iterable[Any]) -> None:
+    """Send a batch of payloads in one background task.
 
-
-def send_order_submitted(
-    sender: EmailSender,
-    *,
-    recipients_with_locale: RecipientLocales,
-    tenant_name: str,
-    customer_name: str,
-    order_number: str,
-    order_title: str,
-    order_url: str,
-) -> None:
-    """Notify tenant staff that a customer just submitted an order."""
-    ctx = {
-        "tenant_name": tenant_name,
-        "customer_name": customer_name,
-        "order_number": order_number,
-        "order_title": order_title,
-        "order_url": order_url,
-    }
-    for to, locale in recipients_with_locale:
-        _render_and_send(sender, "order_submitted", "order_submitted", to, ctx, locale)
-
-
-def send_order_status_changed(
-    sender: EmailSender,
-    *,
-    recipients_with_locale: RecipientLocales,
-    tenant_name: str,
-    order_number: str,
-    order_title: str,
-    order_url: str,
-    to_status: OrderStatus,
-) -> None:
-    """Notify customer contacts that an order's status changed."""
-    label = STATUS_LABELS.get(to_status, to_status.value)
-    ctx = {
-        "tenant_name": tenant_name,
-        "order_number": order_number,
-        "order_title": order_title,
-        "order_url": order_url,
-        "status_label": label,
-    }
-    for to, locale in recipients_with_locale:
-        _render_and_send(sender, "order_status_changed", "order_status_changed", to, ctx, locale)
+    One task per recipient would be correct but wasteful for a bulk
+    transition; a single task keeps the ``BackgroundTasks`` list short.
+    :func:`_safe_send` swallows per-recipient failures, so one bad
+    address cannot stop the rest of the batch.
+    """
+    for notification in notifications:
+        send_order_notification(sender, notification)
 
 
 def send_trial_nurture(

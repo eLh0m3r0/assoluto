@@ -50,6 +50,7 @@ class Order(Base, TimestampMixin, TenantMixin):
             "customer_id",
             "created_at",
         ),
+        Index("ix_orders_tenant_id_assigned_to", "tenant_id", "assigned_to_user_id"),
     )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
@@ -77,6 +78,14 @@ class Order(Base, TimestampMixin, TenantMixin):
     )
     created_by_contact_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("customer_contacts.id", ondelete="SET NULL"), nullable=True
+    )
+
+    # Staff member responsible for this order. NULL = unassigned, which is
+    # a normal state (the list has an "Unassigned" filter for triage), not
+    # a defect. Drives notification routing for recipients whose scope is
+    # ``involved`` — see app.services.notification_service.
+    assigned_to_user_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
 
     requested_delivery_at: Mapped[date | None] = mapped_column(Date, nullable=True)

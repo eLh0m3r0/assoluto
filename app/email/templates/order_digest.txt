@@ -1,0 +1,8 @@
+{% trans count=order_count %}{{ count }} order was updated:{% pluralize %}{{ count }} orders were updated:{% endtrans %}
+
+{% for item in orders %}
+* {{ item.number }} — {{ item.title }}{% if item.status_label %} ({{ _(item.status_label) }}){% endif %}
+  {{ item.url }}
+{% endfor %}
+
+-- {{ tenant_name }}

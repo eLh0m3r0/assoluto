@@ -132,6 +132,25 @@ async def upload_attachment(
     att_id = attachment.id
     tenant_id = tenant.id
 
+    # Notify the other side. In a job shop this is the single most
+    # valuable notification there is — a revised drawing nobody sees is
+    # scrap metal — and it used to send nothing at all. Built before the
+    # commit so the queries still run under RLS in this session.
+    from app.services.notification_service import build_order_attachment
+    from app.urls import tenant_base_url
+
+    notifications = await build_order_attachment(
+        db,
+        tenant=tenant,
+        order=order,
+        uploader_email=principal.email,
+        uploader_name=principal.full_name,
+        uploader_is_staff=principal.is_staff,
+        filename=attachment.filename,
+        base_url=tenant_base_url(settings, tenant),
+        settings=settings,
+    )
+
     # IMPORTANT: commit BEFORE registering the background task. FastAPI runs
     # background tasks inside `await response(send)`, which executes before
     # the request-scoped dependency stack (and therefore `get_db`'s cleanup)
@@ -140,6 +159,13 @@ async def upload_attachment(
     await db.commit()
 
     background_tasks.add_task(generate_thumbnail, att_id, tenant_id)
+
+    if notifications:
+        from app.tasks.email_tasks import send_order_notifications
+
+        background_tasks.add_task(
+            send_order_notifications, request.app.state.email_sender, notifications
+        )
 
     notice = quote(_t(request, "Attachment uploaded."))
     return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)
