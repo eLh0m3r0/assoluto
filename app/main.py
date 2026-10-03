@@ -16,6 +16,7 @@ from app import __version__
 from app.config import Settings, get_settings
 from app.email.sender import build_sender
 from app.logging import configure_logging, get_logger
+from app.ops import router as ops_router
 from app.routers import assets as assets_router
 from app.routers import attachments as attachments_router
 from app.routers import customers as customers_router
@@ -360,6 +361,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     _mount_static(app)
     app.include_router(health_router.router)
+    app.include_router(ops_router.router)
     app.include_router(public_router.router)
     app.include_router(dashboard_router.router)
     app.include_router(customers_router.router)

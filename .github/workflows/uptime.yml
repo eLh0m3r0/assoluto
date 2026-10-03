@@ -31,7 +31,8 @@ jobs:
             "https://assoluto.eu/healthz" \
             "https://assoluto.eu/readyz" \
             "https://assoluto.eu/" \
-            "https://4mex.assoluto.eu/auth/login"; do
+            "https://4mex.assoluto.eu/auth/login" \
+            "https://assoluto.eu/healthz/backups"; do
             code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$url" || echo 000)
             echo "$url -> $code"
             if [ "$code" != "200" ]; then

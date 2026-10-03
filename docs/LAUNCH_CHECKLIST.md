@@ -178,6 +178,6 @@ As of this commit, the repo is ready for Assoluto:
   cosmetic change, skip for now
 - Demo tenant slug `4mex` in tests/seed fixtures — this is demo data, not
   brand identity
-- Generic templates (`docs/SELF_HOST.md`, `docs/DEPLOY_RAILWAY.md`,
+- Generic templates (`docs/SELF_HOST.md`,
   `.env.example` comments) keep `portal.example.com` as placeholder for
   third-party self-hosters who will substitute their own domain
