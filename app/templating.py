@@ -338,6 +338,9 @@ class Templates:
         context: dict = {
             "request": request,
             "app_version": __version__,
+            # Cache-buster for /static URLs: build id or static-dir content
+            # hash, so every deploy that changes CSS/JS gets new URLs.
+            "asset_version": getattr(request.app.state, "asset_version", __version__),
             "app_env": self.settings.app_env,
             "url_for": request.url_for,
             "csrf_token": csrf_value,

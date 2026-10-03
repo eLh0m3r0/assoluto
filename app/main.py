@@ -9,7 +9,6 @@ from typing import Any
 
 from fastapi import FastAPI, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
-from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import __version__
@@ -585,8 +584,16 @@ def _register_error_handlers(app: FastAPI) -> None:
 
 
 def _mount_static(app: FastAPI) -> None:
-    """Mount the `/static` folder for CSS, JS, images."""
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    """Mount the `/static` folder for CSS, JS, images.
+
+    Versioned requests (``?v=<asset version>``) are served ``immutable``
+    for a year; everything else must revalidate (see app/static_assets.py).
+    """
+    from app.static_assets import CachedStaticFiles, asset_version
+
+    version = asset_version(app.state.settings.app_build_id, STATIC_DIR)
+    app.state.asset_version = version
+    app.mount("/static", CachedStaticFiles(directory=STATIC_DIR, version=version), name="static")
 
 
 # Module-level app for `uvicorn app.main:app`
