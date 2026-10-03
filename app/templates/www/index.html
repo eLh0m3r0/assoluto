@@ -1,8 +1,11 @@
 {% extends "www/www_base.html" %}
 
-{% block title %}Assoluto · {{ _("Customer portal for manufacturing SMEs in the Czech Republic") }}{% endblock %}
+{% block title %}Assoluto · {{ _("The customer portal for make-to-order manufacturers") }}{% endblock %}
 
-{% block meta_description %}{{ _("Replace emails and Excel with a clean customer portal. Your clients see orders, drawings and production status on their own — 24/7. 30 days free, no card.") }}{% endblock %}
+{% block meta_description %}{{ _("The customer portal for make-to-order manufacturers. Next to your accounting software, not instead of it. Clients upload drawings, confirm quotes and follow production status on their own. 30 days free, no card.") }}{% endblock %}
+
+{% import "www/_plans.html" as plans with context %}
+{% import "www/_home_faq.html" as home_faq with context %}
 
 {% block content %}
 
@@ -25,12 +28,12 @@
         </div>
 
         <h1 class="mt-7 text-center text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl md:text-6xl dark:text-slate-100">
-            {{ _("Stop picking up the phone.") }}<br>
-            <span class="bg-gradient-to-r from-brand-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent dark:from-brand-400 dark:via-indigo-400 dark:to-purple-400">{{ _("Your clients see it themselves.") }}</span>
+            {{ _("The customer portal for make-to-order manufacturers.") }}<br>
+            <span class="bg-gradient-to-r from-brand-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent dark:from-brand-400 dark:via-indigo-400 dark:to-purple-400">{{ _("Next to your accounting software, not instead of it.") }}</span>
         </h1>
 
         <p class="mx-auto mt-6 max-w-2xl text-center text-lg text-slate-600 sm:text-xl dark:text-slate-300">
-            {{ _("A customer portal for Czech manufacturing SMEs. Orders, drawings, production status — in one place, 24/7. Without Excel, without a massive ERP.") }}
+            {{ _("Your clients upload drawings, confirm quotes and follow production status on their own — and see the material they keep at your shop. You stop picking up the phone.") }}
         </p>
 
         <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -108,6 +111,44 @@
     </div>
 </section>
 
+{# ---------------------------------------------------------------- Customer material (MKT-7) #}
+<section class="pb-20">
+    <div class="mx-auto grid max-w-5xl items-center gap-8 rounded-3xl border border-amber-200 bg-amber-50/60 p-6 sm:p-10 md:grid-cols-[1.1fr_1fr] dark:border-amber-500/20 dark:bg-amber-500/5">
+        <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">{{ _("Customer-owned material") }}</p>
+            <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                {{ _("Your client's sheet metal, blanks and fixtures — on record, not in someone's head") }}
+            </h2>
+            <p class="mt-4 text-slate-700 dark:text-slate-300">
+                {{ _("Many workshops machine, cut or paint material the client supplied. Assoluto records every receipt, issue and consumption per client and keeps the balance up to date. The client sees their own stock in the portal — read-only.") }}
+            </p>
+            <a href="/features#customer-material" class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-amber-700 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300">
+                {{ _("How material tracking works") }}
+                <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            </a>
+        </div>
+        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white text-xs shadow-sm dark:border-slate-800 dark:bg-slate-900" aria-hidden="true">
+            <div class="grid grid-cols-[1fr_auto_auto_auto] gap-3 border-b border-slate-200 bg-slate-50 px-3 py-2 text-[10px] uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400">
+                <span>{{ _("Item") }}</span><span>{{ _("In") }}</span><span>{{ _("Out") }}</span><span>{{ _("Balance") }}</span>
+            </div>
+            <div class="divide-y divide-slate-200 dark:divide-slate-800">
+                <div class="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-3 py-2.5">
+                    <span class="text-slate-900 dark:text-slate-100">{{ _("Steel sheet 2 mm") }}</span>
+                    <span class="text-emerald-600 dark:text-emerald-400">+&nbsp;18</span>
+                    <span class="text-rose-600 dark:text-rose-400">−&nbsp;4</span>
+                    <span class="font-semibold text-slate-900 dark:text-slate-100">14&nbsp;m²</span>
+                </div>
+                <div class="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-3 py-2.5">
+                    <span class="text-slate-900 dark:text-slate-100">{{ _("Fixture F-04") }}</span>
+                    <span class="text-emerald-600 dark:text-emerald-400">+&nbsp;1</span>
+                    <span class="text-slate-400">−</span>
+                    <span class="font-semibold text-slate-900 dark:text-slate-100">1&nbsp;{{ _("pc") }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 {# ---------------------------------------------------------------- Features grid #}
 <section class="-mx-4 border-y border-slate-200 bg-slate-50 px-4 py-20 sm:-mx-6 sm:px-6 dark:border-slate-800 dark:bg-slate-900/40">
     <div class="mx-auto max-w-5xl">
@@ -117,7 +158,7 @@
                 {{ _("Built specifically for manufacturing SMEs") }}
             </h2>
             <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
-                {{ _("Not a generic CRM. Not an oversized ERP. An in-between that knows what a drawing revision and a production deadline are.") }}
+                {{ _("Not a generic CRM. Not an oversized ERP. A portal built around drawings, quotes and production status.") }}
             </p>
         </div>
 
@@ -135,28 +176,28 @@
             {{ feat(
                 '<svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>',
                 _("Orders with a clear workflow"),
-                _("8-step process from request to delivery. Every transition is audited — who, when, why. No more guessing."),
+                _("Clear steps from request to delivery. Every status change is recorded — who, when and with what note. No more guessing."),
                 "blue"
             ) }}
 
             {{ feat(
                 '<svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>',
                 _("Drawings and CAD attached to orders"),
-                _("PDF, PNG, DWG, DXF, STEP. Direct upload, instant preview. The right revision next to the right order — every time."),
+                _("PDF, PNG, DWG, DXF, STEP. Direct upload, previews for PDFs and images. Every drawing attached to its order."),
                 "emerald"
             ) }}
 
             {{ feat(
                 '<svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>',
                 _("Status tracking in real time"),
-                _("The client sees on their own: DRAFT · SUBMITTED · QUOTED · CONFIRMED · IN PRODUCTION · READY · DELIVERED. Most \"where's my order?\" calls go away on their own."),
+                _("The client sees on their own: DRAFT · SUBMITTED · QUOTED · CONFIRMED · IN PRODUCTION · READY · DELIVERED · CLOSED. Most \"where's my order?\" calls go away on their own."),
                 "violet"
             ) }}
 
             {{ feat(
-                '<svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>',
-                _("Customer material on stock"),
-                _("Does the client have material, tooling, or semi-finished product at your place? Receipts, issues, balance — transparent for both sides."),
+                '<svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7l9-4 9 4M5 9v11a2 2 0 002 2h10a2 2 0 002-2V9"/></svg>',
+                _("Product catalog that knows your clients"),
+                _("A shared catalog plus items and prices per client. In the order form the client types, picks, and price and unit fill in."),
                 "amber"
             ) }}
 
@@ -170,7 +211,7 @@
             {{ feat(
                 '<svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>',
                 _("Every client sees only their own"),
-                _("PostgreSQL Row-Level Security. Data is isolated at the database level — not by a view we can forget. Zero risk of cross-visibility."),
+                _("Data is separated by the database itself, not just by the application: a client can never open another client's orders. Data stays in the EU."),
                 "indigo"
             ) }}
         </div>
@@ -219,7 +260,7 @@
                     <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">{{ _("Orders run on their own") }}</h3>
                 </div>
                 <p class="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-                    {{ _("Client uploads a drawing, you quote, they confirm. Shop floor updates status, client sees it. Your email inbox shrinks by half.") }}
+                    {{ _("Client uploads a drawing, you quote, they confirm. The shop floor updates the status and the client sees it — fewer calls and emails asking where things are.") }}
                 </p>
             </li>
         </ol>
@@ -259,7 +300,7 @@
                     </tr>
                     {% endmacro %}
                     {{ compare(_("Setup"), _("0 CZK, 10 years of habits"), _("30 minutes, zero training"), _("3–9 months, 200–800K CZK")) }}
-                    {{ compare(_("Monthly cost"), _("The cost of your patience"), _("490 – 1 490 CZK"), _("5 – 25K CZK / user")) }}
+                    {{ compare(_("Monthly cost"), _("The cost of your patience"), _("1 490 – 2 990 CZK"), _("5 – 25K CZK / user")) }}
                     {{ compare(_("Client sees order status"), "❌", "✅", "⚠️ " + _("often only via a separate B2B module")) }}
                     {{ compare(_("Czech support"), "—", "✅", "✅ " + _("billable by the hour")) }}
                     {{ compare(_("Audit trail"), "❌", "✅", "✅") }}
@@ -277,7 +318,7 @@
         <div class="mx-auto max-w-2xl text-center">
             <p class="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{{ _("Pricing") }}</p>
             <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-slate-100">
-                {{ _("A honest price list. No sales call required.") }}
+                {{ _("An honest price list. No sales call required.") }}
             </h2>
             <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
                 {{ _("30 days free. No card. Cancel any time.") }}
@@ -285,118 +326,30 @@
         </div>
 
         <div class="mt-14 grid gap-5 md:grid-cols-3">
-            {# Starter #}
-            <div class="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Starter</h3>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ _("For a small shop, 3 staff users") }}</p>
-                <p class="mt-5 flex items-baseline gap-1">
-                    <span class="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">490</span>
-                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ _("CZK / month") }}</span>
-                </p>
-                <ul class="mt-6 space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("3 staff users") }}</li>
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("20 client contacts") }}</li>
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Unlimited orders") }}</li>
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("2 GB attachment storage") }}</li>
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Email support (48 h)") }}</li>
-                </ul>
-                <a href="/platform/signup?plan=starter" class="mt-auto pt-8">
-                    <span class="block rounded-lg bg-slate-900 px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">{{ _("Start 30-day trial") }}</span>
-                </a>
-            </div>
-
-            {# Pro (highlighted) #}
-            <div class="relative flex flex-col rounded-2xl border-2 border-brand-500 bg-white p-6 shadow-xl shadow-brand-500/10 dark:bg-slate-900 dark:shadow-brand-500/20">
-                <div class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-brand-600 to-indigo-600 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-sm">
-                    {{ _("Most chosen") }}
-                </div>
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Pro</h3>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ _("For growing manufacturers, 15 users") }}</p>
-                <p class="mt-5 flex items-baseline gap-1">
-                    <span class="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">1 490</span>
-                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ _("CZK / month") }}</span>
-                </p>
-                <ul class="mt-6 space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("15 staff users") }}</li>
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("100 client contacts") }}</li>
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Unlimited orders") }}</li>
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("20 GB attachment storage") }}</li>
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Priority email support (12 h)") }}</li>
-                </ul>
-                <a href="/platform/signup?plan=pro" class="mt-auto pt-8">
-                    <span class="block rounded-lg bg-gradient-to-r from-brand-600 to-brand-500 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition hover:shadow-md hover:brightness-105">{{ _("Start 30-day trial") }}</span>
-                </a>
-            </div>
-
-            {# Community (free self-hosted) #}
-            <div class="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Community</h3>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ _("Self-hosted, AGPL-3.0") }}</p>
-                <p class="mt-5 flex items-baseline gap-1">
-                    <span class="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ _("Free") }}</span>
-                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ _("forever") }}</span>
-                </p>
-                <ul class="mt-6 space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("No user limits") }}</li>
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Your server, your data") }}</li>
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Auditable open source") }}</li>
-                    <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Community on GitHub") }}</li>
-                </ul>
-                <a href="/self-hosted" class="mt-auto pt-8">
-                    <span class="block rounded-lg bg-slate-100 px-4 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">{{ _("Installation guide") }}</span>
-                </a>
-            </div>
+            {{ plans.starter_card() }}
+            {{ plans.pro_card() }}
+            {{ plans.community_card() }}
         </div>
+
+        <p class="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
+            {{ _("We are not VAT-registered, so the listed price is the final price — no VAT is added.") }}
+        </p>
 
         <p class="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
             {{ _("Need more?") }}
-            <a href="/contact" class="font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400">{{ _("Enterprise plan with SLA →") }}</a>
+            <a href="/pricing" class="font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400">{{ _("Enterprise plan and full price list →") }}</a>
         </p>
     </div>
 </section>
 
-{# ---------------------------------------------------------------- Testimonials (generic attribution) #}
+{# ---------------------------------------------------------------- Founding customers (D1) #}
+{# The anonymous "What our first customers say" quotes were removed: no
+   paying customer stood behind them (audit 2026-10-03 BIZ-04 / MKT-10 /
+   UX-20). Real, named references go here once customers agree. #}
 <section class="-mx-4 border-y border-slate-200 bg-slate-50 px-4 py-20 sm:-mx-6 sm:px-6 dark:border-slate-800 dark:bg-slate-900/40">
-    <div class="mx-auto max-w-5xl">
-        <div class="mx-auto max-w-2xl text-center">
-            <p class="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{{ _("Early access") }}</p>
-            <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-slate-100">
-                {{ _("What our first customers say") }}
-            </h2>
-            <p class="mt-4 text-sm text-slate-500 dark:text-slate-400">
-                {{ _("Assoluto is in early-access launch. Logos will appear here as soon as clients agree to be published.") }}
-            </p>
-        </div>
-
-        <div class="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            <figure class="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-                <svg aria-hidden="true" class="h-7 w-7 text-brand-500/50" fill="currentColor" viewBox="0 0 32 32"><path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z"/></svg>
-                <blockquote class="mt-4 grow text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-                    "{{ _("Five calls a day asking about orders turned into zero. I finally have time for the shop floor.") }}"
-                </blockquote>
-                <figcaption class="mt-5 text-xs text-slate-500 dark:text-slate-400">
-                    {{ _("Owner, metalwork shop — Morava, 12 employees") }}
-                </figcaption>
-            </figure>
-            <figure class="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-                <svg aria-hidden="true" class="h-7 w-7 text-brand-500/50" fill="currentColor" viewBox="0 0 32 32"><path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z"/></svg>
-                <blockquote class="mt-4 grow text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-                    "{{ _("No more parts made from the wrong drawing revision. Every attachment belongs to exactly one order.") }}"
-                </blockquote>
-                <figcaption class="mt-5 text-xs text-slate-500 dark:text-slate-400">
-                    {{ _("Production manager, CNC machining — Vysočina, 22 employees") }}
-                </figcaption>
-            </figure>
-            <figure class="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-                <svg aria-hidden="true" class="h-7 w-7 text-brand-500/50" fill="currentColor" viewBox="0 0 32 32"><path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z"/></svg>
-                <blockquote class="mt-4 grow text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-                    "{{ _("Big ERPs wanted hundreds of thousands for implementation. With Assoluto we were running in an afternoon for 490 CZK a month.") }}"
-                </blockquote>
-                <figcaption class="mt-5 text-xs text-slate-500 dark:text-slate-400">
-                    {{ _("Co-owner, sheet-metal fabrication — Prague, 8 employees") }}
-                </figcaption>
-            </figure>
-        </div>
+    <div class="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1.4fr_1fr]">
+        {{ plans.founding_customers() }}
+        {{ plans.about_operator() }}
     </div>
 </section>
 
@@ -421,13 +374,9 @@
             </details>
             {% endmacro %}
 
-            {{ faq(_("Where is my data stored?"), _("Your data lives exclusively on Hetzner servers in Germany (EU). The PostgreSQL database is encrypted at rest; drawings and attachments are stored in EU-based cloud storage. Backups run daily and are kept for 14 days. The full subprocessor list is in our Privacy Policy.")) }}
-            {{ faq(_("Can I pay by bank transfer, not just by card?"), _("Monthly plans are paid by card via Stripe. Annual plans can be arranged by bank transfer with a Czech invoice (net-14, typically two months free for the year). Enterprise customers always receive an invoice. We are not VAT-registered, so the listed price is final and you receive an invoice rather than a VAT tax document.")) }}
-            {{ faq(_("Do I need to sign anything?"), _("No paper contract. At signup you accept our Terms of Service by clicking a button. Subscriptions are monthly with no commitment; cancel any time from your account settings. After cancellation you have 3 days to export your data, then access ends. For later recovery, email team@assoluto.eu within 30 days.")) }}
-            {{ faq(_("Can I integrate with Pohoda or Money S3?"), _("Direct integration with Pohoda or Money S3 is not available yet — we offer CSV export for manual import. A Pohoda XML connector is on our roadmap. If this is a deciding factor, write to us via the Contact page — customer demand directly shapes what we build next.")) }}
-            {{ faq(_("Is it secure? What if the server fails?"), _("Security: each client sees only their own data — enforced at the database level, not just in the application. Passwords are never stored in readable form. Login is brute-force protected. Outages: Hetzner runs redundant infrastructure. We back up daily (14-day retention) and monitor uptime 24/7. Target uptime: 99.9 %%. The Enterprise plan includes a written SLA.")) }}
-            {{ faq(_("Will you teach my people how to use it?"), _("Every paid plan includes a 30-minute online walkthrough — we show the system with your actual setup, not demo data. Most shops do not need it: the portal is designed so a client who can use email can place their first order in 3 minutes without training. Need more? Contact us.")) }}
-            {{ faq(_("What if I want to leave?"), _("Cancel in your account settings — no sales call, no approval queue. You keep full access until the current billing period ends, then have 3 days to export your data (orders and customers as CSV, attachments as ZIP). After that, access ends. Need to recover something later? Email team@assoluto.eu within 30 days. For immediate erasure (GDPR Art. 17) email us — we action requests within 48 hours.")) }}
+            {% for q, a in home_faq.items %}
+                {{ faq(q, a) }}
+            {% endfor %}
         </dl>
     </div>
 </section>
@@ -447,7 +396,7 @@
                 <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
             </a>
             <a href="/contact" class="inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-6 py-3.5 text-sm font-semibold text-white ring-1 ring-inset ring-white/20 backdrop-blur transition hover:bg-white/20">
-                {{ _("Or write / call us") }}
+                {{ _("Or write to us") }}
             </a>
         </div>
         <p class="mt-5 text-xs text-brand-200/80">
@@ -466,22 +415,22 @@
     "name": "Assoluto",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Web",
-    "description": "{{ _('Client portal for Czech manufacturing SMEs — orders, drawings, production status.') }}",
+    "description": {{ _('The customer portal for make-to-order manufacturers — orders, drawings, production status, customer-owned material.')|tojson }},
     "url": "https://assoluto.eu",
     "offers": [
         {
             "@type": "Offer",
             "name": "Starter",
-            "price": "490",
+            "price": "1490",
             "priceCurrency": "CZK",
-            "description": "{{ _('30-day free trial, no credit card required') }}"
+            "description": {{ _('30-day free trial, no credit card required')|tojson }}
         },
         {
             "@type": "Offer",
             "name": "Pro",
-            "price": "1490",
+            "price": "2990",
             "priceCurrency": "CZK",
-            "description": "{{ _('30-day free trial, no credit card required') }}"
+            "description": {{ _('30-day free trial, no credit card required')|tojson }}
         },
         {
             "@type": "Offer",
@@ -497,41 +446,13 @@
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
+        {% for q, a in home_faq.items %}
         {
             "@type": "Question",
-            "name": "{{ _('Where is my data stored?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Your data lives exclusively on Hetzner servers in Germany (EU). The PostgreSQL database is encrypted at rest; drawings and attachments are stored in EU-based cloud storage. Backups run daily and are kept for 14 days. The full subprocessor list is in our Privacy Policy.') }}"}
-        },
-        {
-            "@type": "Question",
-            "name": "{{ _('Can I pay by bank transfer, not just by card?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Monthly plans are paid by card via Stripe. Annual plans can be arranged by bank transfer with a Czech invoice (net-14, typically two months free for the year). Enterprise customers always receive an invoice. We are not VAT-registered, so the listed price is final and you receive an invoice rather than a VAT tax document.') }}"}
-        },
-        {
-            "@type": "Question",
-            "name": "{{ _('Do I need to sign anything?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('No paper contract. At signup you accept our Terms of Service by clicking a button. Subscriptions are monthly with no commitment; cancel any time from your account settings. After cancellation you have 3 days to export your data, then access ends. For later recovery, email team@assoluto.eu within 30 days.') }}"}
-        },
-        {
-            "@type": "Question",
-            "name": "{{ _('Can I integrate with Pohoda or Money S3?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Direct integration with Pohoda or Money S3 is not available yet — we offer CSV export for manual import. A Pohoda XML connector is on our roadmap. If this is a deciding factor, write to us via the Contact page — customer demand directly shapes what we build next.') }}"}
-        },
-        {
-            "@type": "Question",
-            "name": "{{ _('Is it secure? What if the server fails?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Security: each client sees only their own data — enforced at the database level, not just in the application. Passwords are never stored in readable form. Login is brute-force protected. Outages: Hetzner runs redundant infrastructure. We back up daily (14-day retention) and monitor uptime 24/7. Target uptime: 99.9 %%. The Enterprise plan includes a written SLA.') }}"}
-        },
-        {
-            "@type": "Question",
-            "name": "{{ _('Will you teach my people how to use it?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Every paid plan includes a 30-minute online walkthrough — we show the system with your actual setup, not demo data. Most shops do not need it: the portal is designed so a client who can use email can place their first order in 3 minutes without training. Need more? Contact us.') }}"}
-        },
-        {
-            "@type": "Question",
-            "name": "{{ _('What if I want to leave?') }}",
-            "acceptedAnswer": {"@type": "Answer", "text": "{{ _('Cancel in your account settings — no sales call, no approval queue. You keep full access until the current billing period ends, then have 3 days to export your data (orders and customers as CSV, attachments as ZIP). After that, access ends. Need to recover something later? Email team@assoluto.eu within 30 days. For immediate erasure (GDPR Art. 17) email us — we action requests within 48 hours.') }}"}
-        }
+            "name": {{ q|tojson }},
+            "acceptedAnswer": {"@type": "Answer", "text": {{ a|tojson }}}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
     ]
 }
 </script>

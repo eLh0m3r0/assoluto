@@ -339,6 +339,6 @@ async def test_landing_shows_marketing_when_platform_on_and_no_tenant(settings, 
         # return the translated headline and the substring mismatches.
         resp = await ac.get("/", headers={"Accept-Language": "en"})
     assert resp.status_code == 200
-    assert "Stop picking up the phone" in resp.text
+    assert "The customer portal for make-to-order manufacturers." in resp.text
 
     reset_platform_engine()

@@ -35,16 +35,12 @@
                 <a href="mailto:{{ operator_email }}" class="text-brand-600 hover:text-brand-700">{{ operator_email }}</a>
             </dd>
 
-            <dt class="font-semibold text-slate-900 dark:text-slate-100">{{ _("Regulatory supervision") }}</dt>
+            {# The EU ODR platform was shut down on 20 July 2025 (Reg. (EU)
+               2024/3228) and consumer ADR (ČOI) does not apply: the service
+               is offered to businesses only (Terms §1). Audit BIZ-19. #}
+            <dt class="font-semibold text-slate-900 dark:text-slate-100">{{ _("Customers") }}</dt>
             <dd>
-                {{ _("Czech Trade Inspection Authority (Česká obchodní inspekce), Štěpánská 44, Prague — out-of-court consumer dispute resolution.") }}
-                <br>
-                <a href="https://adr.coi.cz/cs" class="text-brand-600 hover:text-brand-700">adr.coi.cz/cs</a>
-            </dd>
-
-            <dt class="font-semibold text-slate-900 dark:text-slate-100">{{ _("EU ODR platform") }}</dt>
-            <dd>
-                <a href="https://ec.europa.eu/consumers/odr/" class="text-brand-600 hover:text-brand-700">ec.europa.eu/consumers/odr</a>
+                {{ _("The service is offered to businesses only (Terms of Service, Section 1).") }}
             </dd>
         </dl>
 
@@ -54,6 +50,7 @@
                 <li><a href="/terms" class="text-brand-600 hover:text-brand-700">{{ _("Terms of Service") }}</a></li>
                 <li><a href="/privacy" class="text-brand-600 hover:text-brand-700">{{ _("Privacy Policy") }}</a></li>
                 <li><a href="/cookies" class="text-brand-600 hover:text-brand-700">{{ _("Cookies Policy") }}</a></li>
+                <li><a href="/security" class="text-brand-600 hover:text-brand-700">{{ _("Security") }}</a></li>
             </ul>
         </section>
     </div>
