@@ -13,6 +13,7 @@ from apscheduler.events import EVENT_JOB_ERROR, JobExecutionEvent
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
+from app.email.outbox import deliver_email_outbox
 from app.logging import get_logger
 from app.tasks.periodic import (
     auto_close_delivered_orders,
@@ -108,6 +109,18 @@ def build_scheduler() -> AsyncIOScheduler:
         replace_existing=True,
         max_instances=1,
         misfire_grace_time=600,
+    )
+
+    # Durable e-mail outbox (BE-09): retry anything the inline send could
+    # not deliver. Every minute; rows are claimed with SKIP LOCKED.
+    scheduler.add_job(
+        deliver_email_outbox,
+        trigger=CronTrigger(minute="*"),
+        id="deliver_email_outbox",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=60,
     )
 
     scheduler.add_listener(_on_job_error, EVENT_JOB_ERROR)

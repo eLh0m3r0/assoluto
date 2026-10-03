@@ -7,10 +7,11 @@ without Row-Level Security; it is the anchor of the multi-tenant hierarchy.
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from sqlalchemy import JSON, Boolean, Integer, String, Uuid
+from sqlalchemy import JSON, Boolean, DateTime, Integer, String, Uuid
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -42,6 +43,13 @@ class Tenant(Base, TimestampMixin):
 
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, server_default="true"
+    )
+
+    # When ``is_active`` last flipped to false. Maintained by a DB trigger
+    # (migration 1010) so every deactivation path stamps it; the retention
+    # job purges data 30 days after this moment.
+    deactivated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, default=None
     )
 
     # Free-form per-tenant settings (branding, feature flags, etc.).

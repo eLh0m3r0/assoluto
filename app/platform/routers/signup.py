@@ -477,6 +477,11 @@ async def check_email_resend(
             company_name = await _company_name_for_identity(db, identity.id)
             verify_url = _build_verify_url(settings, identity.id)
             locale = getattr(request.state, "locale", settings.default_locale)
+            # Release the DB connection before the SMTP work: FastAPI runs
+            # background tasks BEFORE dependency cleanup, so without this the
+            # session would sit "idle in transaction" for the whole send
+            # (audit BE-08; CLAUDE.md §2).
+            await db.commit()
             background_tasks.add_task(
                 send_email_verification,
                 request.app.state.email_sender,
@@ -525,6 +530,11 @@ async def resend_verification(
     company_name = await _company_name_for_identity(db, identity.id)
     verify_url = _build_verify_url(settings, identity.id)
     locale = getattr(request.state, "locale", settings.default_locale)
+    # Release the DB connection before the SMTP work: FastAPI runs
+    # background tasks BEFORE dependency cleanup, so without this the
+    # session would sit "idle in transaction" for the whole send
+    # (audit BE-08; CLAUDE.md §2).
+    await db.commit()
     background_tasks.add_task(
         send_email_verification,
         request.app.state.email_sender,

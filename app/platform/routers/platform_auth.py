@@ -177,6 +177,11 @@ async def platform_password_reset_submit(
         # backoff), the app runs a single uvicorn worker, and this
         # endpoint is unauthenticated — so an inline send let anyone
         # stall the whole server for ~36s per request.
+        # Release the DB connection before the SMTP work: FastAPI runs
+        # background tasks BEFORE dependency cleanup, so without this the
+        # session would sit "idle in transaction" for the whole send
+        # (audit BE-08; CLAUDE.md §2).
+        await db.commit()
         background_tasks.add_task(
             send_password_reset,
             sender,
