@@ -592,3 +592,39 @@ async def test_signup_rejects_missing_tos(signup_client) -> None:
     )
     assert resp.status_code == 400
     assert "podmínkami" in resp.text.lower()
+
+
+# ---------------------------------------------------------------- UX-27
+
+
+async def test_signup_form_shows_the_chosen_plan(signup_client) -> None:
+    client, _ = signup_client
+    resp = await client.get("/platform/signup?plan=pro")
+    assert resp.status_code == 200
+    assert 'data-selected-plan="pro"' in resp.text
+    assert '<input type="hidden" name="plan" value="pro">' in resp.text
+
+    resp = await client.get("/platform/signup")
+    assert 'data-selected-plan="starter"' in resp.text
+
+
+async def test_signup_keeps_the_chosen_plan_after_a_validation_error(signup_client) -> None:
+    """A Pro visitor who forgets the terms checkbox must still be on Pro
+    after the re-render — the hidden field used to come back empty and
+    the corrected submit started a Starter trial."""
+    client, _ = signup_client
+    resp = await client.post(
+        "/platform/signup",
+        data={
+            "company_name": "Pro Shop s.r.o.",
+            "slug": "pro-shop-ux27",
+            "owner_email": "owner@pro-shop-ux27.cz",
+            "owner_full_name": "Jan Novák",
+            "password": "correct-horse-battery-staple",
+            "plan": "pro",
+            # terms_accepted missing → validation error
+        },
+    )
+    assert resp.status_code == 400
+    assert '<input type="hidden" name="plan" value="pro">' in resp.text
+    assert 'data-selected-plan="pro"' in resp.text

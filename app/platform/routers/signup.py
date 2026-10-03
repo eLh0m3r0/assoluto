@@ -119,6 +119,10 @@ async def signup_submit(
         "slug": slug,
         "owner_email": owner_email,
         "owner_full_name": owner_full_name,
+        # Keep the plan picked on /pricing across a validation error —
+        # without it the re-rendered form lost ``?plan=pro`` and the
+        # corrected submit silently started a Starter trial (UX-27).
+        "plan": _safe_plan_code(plan),
         # Intentionally not echoing the password back.
     }
 
