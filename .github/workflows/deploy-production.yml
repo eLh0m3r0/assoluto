@@ -228,6 +228,14 @@ jobs:
             echo ">>> Waiting for /healthz…"
             if wait_healthy; then
                 $COMPOSE ps
+                # Every deploy leaves a ~460 MB image behind. By 2026-10
+                # 97 of them held 26 GB and the disk was 88 % full — a full
+                # disk takes Postgres down with it. Unused images older
+                # than 10 days go; all of them stay pullable from GHCR,
+                # which is where a rollback fetches a missing tag from.
+                docker image prune -af --filter "until=240h" | tail -n1 || true
+                docker builder prune -f --filter "until=240h" | tail -n1 || true
+                df -h / | tail -n1
                 exit 0
             fi
 
