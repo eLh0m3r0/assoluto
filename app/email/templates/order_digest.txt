@@ -6,3 +6,4 @@
 {% endfor %}
 
 -- {{ tenant_name }}
+{% include "_powered_by_footer.txt" %}

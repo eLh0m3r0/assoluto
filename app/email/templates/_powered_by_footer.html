@@ -1,0 +1,8 @@
+{# "Powered by Assoluto" footer line (MKT-9). `powered_by_url` is only set
+   for customer-contact recipients on hosted, non-white-label tenants —
+   staff mail and self-hosted installs render nothing. #}
+{% if powered_by_url %}
+<p style="color:#94a3b8;font-size:11px;margin-top:8px;">
+    {{ _("Powered by") }} <a href="{{ powered_by_url }}" style="color:#64748b;">Assoluto</a> — {{ _("a customer portal for manufacturers") }}
+</p>
+{% endif %}

@@ -1,0 +1,4 @@
+{% if powered_by_url %}
+
+{{ _("Powered by") }} Assoluto — {{ _("a customer portal for manufacturers") }}: {{ powered_by_url }}
+{% endif %}

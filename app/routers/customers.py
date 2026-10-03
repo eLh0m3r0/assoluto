@@ -31,6 +31,7 @@ from app.services.customer_service import (
 )
 from app.services.locale_service import resolve_email_locale
 from app.tasks.email_tasks import send_invitation
+from app.urls import powered_by_url
 
 router = APIRouter(prefix="/app", tags=["customers"], dependencies=[Depends(verify_csrf)])
 
@@ -349,6 +350,7 @@ async def customers_invite_contact(
         contact_name=contact.full_name,
         invite_url=invite_url,
         locale=locale,
+        powered_by_url=powered_by_url(settings, tenant),
     )
 
     notice = quote(_t(request, "Invitation sent."))
@@ -506,6 +508,7 @@ async def customers_contact_resend_invite(
         contact_name=contact.full_name,
         invite_url=invite_url,
         locale=locale,
+        powered_by_url=powered_by_url(settings, tenant),
     )
     return RedirectResponse(
         url=f"/app/customers/{customer_id}?notice={quote(_t(request, 'Invitation resent.'))}",

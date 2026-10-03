@@ -71,6 +71,7 @@ from app.services.notification_prefs import (
     prefs_for_contact,
     prefs_for_user,
 )
+from app.urls import powered_by_url
 
 log = get_logger("app.notifications")
 
@@ -99,6 +100,9 @@ class Recipient:
     email: str
     locale: str | None = None
     full_name: str = ""
+    #: "Powered by Assoluto" footer link (MKT-9). Set only for customer
+    #: contacts; staff mail never carries it.
+    powered_by_url: str = ""
 
 
 @dataclass(frozen=True)
@@ -127,6 +131,7 @@ class OrderNotification:
             "order_title": self.order_title,
             "order_url": self.order_url,
             "recipient_name": self.recipient.full_name,
+            "powered_by_url": self.recipient.powered_by_url,
             **self.extra,
         }
 
@@ -393,6 +398,7 @@ async def resolve_contact_audience(
     if any(not prefs.scope_covers(event, involved=False) for prefs in prefs_by_contact.values()):
         involved_ids = await _involved_contact_ids(db, order)
 
+    footer_url = powered_by_url(settings, tenant)
     candidates = [
         _Candidate(
             prefs=prefs_by_contact[contact.id],
@@ -402,6 +408,7 @@ async def resolve_contact_audience(
                     recipient=contact, customer=customer, tenant=tenant, settings=settings
                 ),
                 full_name=contact.full_name,
+                powered_by_url=footer_url,
             ),
             involved=contact.id in involved_ids,
             accepted=contact.accepted_at is not None,
@@ -735,6 +742,7 @@ class OrderDigestNotification:
         return {
             "tenant_name": self.tenant_name,
             "recipient_name": self.recipient.full_name,
+            "powered_by_url": self.recipient.powered_by_url,
             "orders": self.orders,
             "order_count": len(self.orders),
         }

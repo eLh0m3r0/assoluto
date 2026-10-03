@@ -7,6 +7,8 @@ Core self-hosted builds never mount this router.
 
 from __future__ import annotations
 
+import re
+from urllib.parse import parse_qs, urlsplit
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request, status
@@ -67,12 +69,52 @@ async def signup_form(
         return RedirectResponse(
             url="/platform/select-tenant", status_code=status.HTTP_303_SEE_OTHER
         )
+    ref, ref_tenant = _signup_ref_from_request(request)
     html = _templates(request).render(
         request,
         "platform/signup.html",
-        {"errors": {}, "form": {}, "principal": None},
+        {
+            "errors": {},
+            "form": {"ref": ref, "ref_t": ref_tenant},
+            "principal": None,
+        },
     )
     return HTMLResponse(html)
+
+
+# Attribution for the "Powered by Assoluto" footer (MKT-9). The footer
+# links to ``<apex>/?ref=portal&t=<tenant slug>``; the visitor then
+# clicks through to this page. No cookie is set: the pair is read from
+# this page's own query string, or from the same-origin ``Referer`` (the
+# browser default ``strict-origin-when-cross-origin`` policy keeps the
+# full URL for same-origin navigations), and carried in hidden fields.
+_ALLOWED_REFS = frozenset({"portal"})
+_REF_SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$")
+
+
+def _clean_ref(ref: str, ref_tenant: str) -> tuple[str, str]:
+    ref = (ref or "").strip().lower()
+    ref_tenant = (ref_tenant or "").strip().lower()
+    if ref not in _ALLOWED_REFS:
+        return "", ""
+    if not _REF_SLUG_RE.fullmatch(ref_tenant):
+        ref_tenant = ""
+    return ref, ref_tenant
+
+
+def _signup_ref_from_request(request: Request) -> tuple[str, str]:
+    params = request.query_params
+    if params.get("ref"):
+        return _clean_ref(params.get("ref", ""), params.get("t", ""))
+    referer = request.headers.get("referer") or ""
+    if not referer:
+        return "", ""
+    parsed = urlsplit(referer)
+    # Same-origin only — a foreign site must not be able to plant a ref.
+    if parsed.netloc and parsed.netloc != request.url.netloc:
+        return "", ""
+    query = parse_qs(parsed.query)
+    return _clean_ref((query.get("ref") or [""])[0], (query.get("t") or [""])[0])
 
 
 def _safe_plan_code(plan: str) -> str:
@@ -94,6 +136,8 @@ async def signup_submit(
     terms_accepted: str = Form(""),
     plan: str = Form(""),
     website: str = Form(""),
+    ref: str = Form(""),
+    ref_t: str = Form(""),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
@@ -120,8 +164,41 @@ async def signup_submit(
         "slug": slug,
         "owner_email": owner_email,
         "owner_full_name": owner_full_name,
+        "ref": ref,
+        "ref_t": ref_t,
         # Intentionally not echoing the password back.
     }
+
+    # Throwaway-inbox domains: the same list the contact form drops
+    # silently. Here a real person may be behind it, so say why instead
+    # of pretending success — and never send a verification mail to a
+    # mailbox that will be gone tomorrow (BIZ-09). The random-local-part
+    # heuristic the contact form also uses is NOT applied: it matches
+    # real addresses like ``novakjosef1985@…``, and an unverified signup
+    # can no longer reach nurture mail or the funnel anyway.
+    from app.security.contact_filter import is_disposable_email
+
+    if is_disposable_email(owner_email):
+        get_logger("app.platform.signup").info(
+            "signup.disposable_email_rejected",
+            domain=(owner_email or "").rsplit("@", 1)[-1],
+        )
+        html = _templates(request).render(
+            request,
+            "platform/signup.html",
+            {
+                "errors": {
+                    "owner_email": _t(
+                        request,
+                        "Please use a permanent work email address — we send order "
+                        "notifications there.",
+                    )
+                },
+                "form": form_raw,
+                "principal": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
 
     # 1) Validate shape
     try:
@@ -242,6 +319,17 @@ async def signup_submit(
         tenant_settings["selected_plan"] = selected_plan
         tenant.settings = tenant_settings
         await db.flush()
+
+    # Viral-loop attribution (MKT-9): which customer portal sent them.
+    clean_ref, clean_ref_t = _clean_ref(ref, ref_t)
+    if clean_ref:
+        tenant_settings = dict(tenant.settings or {})
+        tenant_settings["signup_ref"] = {"ref": clean_ref, "t": clean_ref_t}
+        tenant.settings = tenant_settings
+        await db.flush()
+        get_logger("app.platform.signup").info(
+            "signup.attributed", ref=clean_ref, referring_tenant=clean_ref_t
+        )
 
     # 3) Commit BEFORE scheduling the email task (BackgroundTasks run before
     # the request-scoped session commit; see CLAUDE.md for the pattern).

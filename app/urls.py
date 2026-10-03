@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 from app.config import Settings
 from app.models.tenant import Tenant
@@ -35,3 +35,35 @@ def tenant_base_url(settings: Settings, tenant: Tenant) -> str:
 
     port = f":{parsed.port}" if parsed.port else ""
     return f"{parsed.scheme}://{tenant.slug}.{host}{port}"
+
+
+def powered_by_url(settings: Settings, tenant: Tenant | None) -> str:
+    """Link for the "Powered by Assoluto" footer, or ``""`` to hide it (MKT-9).
+
+    Shown to *customer contacts* in their portal and in the emails they
+    receive — the supplier's customers are often manufacturers with
+    suppliers of their own. Points at the marketing site with
+    ``?ref=portal&t=<tenant slug>`` so a resulting signup can be
+    attributed (see ``app.platform.routers.signup._signup_ref_from_request``).
+
+    Resolution: ``POWERED_BY_URL`` (``off`` disables), else ``https://<apex>``
+    derived from ``PLATFORM_COOKIE_DOMAIN``, else nothing — a self-hosted
+    install never advertises us by default. A tenant can opt out with
+    ``tenants.settings["hide_powered_by"] = true`` (white-label).
+    """
+    if tenant is None:
+        return ""
+    if (getattr(tenant, "settings", None) or {}).get("hide_powered_by"):
+        return ""
+    base = (settings.powered_by_url or "").strip()
+    if base.lower() == "off":
+        return ""
+    if not base:
+        apex = (settings.platform_cookie_domain or "").strip().lstrip(".")
+        if not apex or "." not in apex:
+            return ""
+        base = f"https://{apex}"
+    sep = "&" if "?" in base else "?"
+    if "?" not in base and not base.endswith("/"):
+        base = base + "/"
+    return f"{base}{sep}ref=portal&t={quote(tenant.slug, safe='')}"

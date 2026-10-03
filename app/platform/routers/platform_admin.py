@@ -11,7 +11,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.i18n import t as _t
@@ -208,28 +208,37 @@ async def admin_dashboard(
         ).scalar_one()
     )
 
+    # Paying = status 'active' only. Trials and demo-mode subscriptions
+    # are not revenue: counting them showed 5 880 Kč of "MRR" built
+    # from bot signups against zero invoices (BIZ-09). An operator who
+    # invoices by bank transfer marks the subscription 'active' in the
+    # subscription editor, so manual invoicing still counts.
     subs_active = int(
         (
             await db.execute(
-                select(func.count(Subscription.id)).where(
-                    Subscription.status.in_(("active", "trialing", "demo"))
+                select(func.count(Subscription.id)).where(Subscription.status == "active")
+            )
+        ).scalar_one()
+    )
+    # Trials whose owner proved their email. A tenant with no member
+    # identity at all (script-created, pre-platform) counts as verified.
+    subs_trialing = int(
+        (
+            await db.execute(
+                text(
+                    "SELECT count(*) FROM platform_subscriptions s "
+                    "WHERE s.status = 'trialing' AND ("
+                    "  EXISTS (SELECT 1 FROM platform_tenant_memberships m "
+                    "          JOIN platform_identities i ON i.id = m.identity_id "
+                    "          WHERE m.tenant_id = s.tenant_id AND m.access_type = 'member' "
+                    "            AND i.email_verified_at IS NOT NULL) "
+                    "  OR NOT EXISTS (SELECT 1 FROM platform_tenant_memberships m "
+                    "          WHERE m.tenant_id = s.tenant_id AND m.access_type = 'member'))"
                 )
             )
         ).scalar_one()
     )
-    subs_trialing = int(
-        (
-            await db.execute(
-                select(func.count(Subscription.id)).where(Subscription.status == "trialing")
-            )
-        ).scalar_one()
-    )
 
-    # Real MRR = sum of monthly plan prices for currently-active
-    # (including trialing and demo) subscriptions, grouped by
-    # currency so we never sum across CZK / EUR. For simplicity we
-    # take the dominant currency (first row) and report it; a
-    # multi-currency deployment would break this out per currency.
     mrr_rows = (
         await db.execute(
             select(
@@ -237,7 +246,7 @@ async def admin_dashboard(
                 func.coalesce(func.sum(Plan.monthly_price_cents), 0).label("total"),
             )
             .join(Subscription, Subscription.plan_id == Plan.id)
-            .where(Subscription.status.in_(("active", "trialing", "demo")))
+            .where(Subscription.status == "active")
             .group_by(Plan.currency)
             .order_by(func.sum(Plan.monthly_price_cents).desc())
         )
@@ -277,6 +286,44 @@ async def admin_dashboard(
                 "paid_30d_cents": paid_30d_cents,
             },
             "recent_signups": recent_signups,
+            "principal": None,
+        },
+    )
+    return HTMLResponse(html)
+
+
+@router.get("/funnel", response_class=HTMLResponse)
+async def admin_funnel(
+    request: Request,
+    identity: Identity = Depends(require_platform_admin),
+    db: AsyncSession = Depends(get_platform_db),
+) -> HTMLResponse:
+    """Activation funnel per signup week + per-tenant activation columns.
+
+    Verified signups → portal created → first customer invited → first
+    customer login → first order placed by a customer. Unverified
+    identities (bots, typos) are shown as an excluded count, never in the
+    denominator (BIZ-09, BIZ-16).
+    """
+    from app.platform.activation import (
+        FUNNEL_STAGES,
+        funnel_totals,
+        signup_refs,
+        tenant_activation,
+        weekly_funnel,
+    )
+
+    weeks = await weekly_funnel(db, weeks=12)
+    html = _templates(request).render(
+        request,
+        "platform/admin/funnel.html",
+        {
+            "identity": identity,
+            "weeks": weeks,
+            "totals": funnel_totals(weeks),
+            "stages": FUNNEL_STAGES,
+            "tenants": await tenant_activation(db, limit=50),
+            "refs": await signup_refs(db, days=90),
             "principal": None,
         },
     )

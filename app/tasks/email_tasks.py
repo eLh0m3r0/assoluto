@@ -188,8 +188,13 @@ def send_invitation(
     contact_name: str,
     invite_url: str,
     locale: str | None = None,
+    powered_by_url: str = "",
 ) -> None:
-    """Send an invitation email to a new customer contact."""
+    """Send an invitation email to a new customer contact.
+
+    ``powered_by_url`` renders the "Powered by Assoluto" footer line
+    (MKT-9); empty hides it.
+    """
     _render_and_send(
         sender,
         "invitation",
@@ -200,6 +205,7 @@ def send_invitation(
             "customer_name": customer_name,
             "contact_name": contact_name,
             "invite_url": invite_url,
+            "powered_by_url": powered_by_url,
         },
         locale,
     )
@@ -333,15 +339,18 @@ def send_trial_nurture(
     billing_url: str = "",
     trial_end_date: str = "",
     days_left: int = 0,
+    pending_contacts: list[dict] | None = None,
     locale: str | None = None,
 ) -> None:
-    """Send one trial-nurture email.
+    """Send one trial-nurture or activation email.
 
-    ``stage`` is one of ``day1`` / ``day7`` / ``ending`` and selects the
-    ``trial_<stage>`` template triple. Scheduled by
+    ``stage`` is one of ``day1`` / ``day7`` / ``ending`` (the
+    ``trial_<stage>`` triples) or ``invite`` / ``no_login`` (the
+    behaviour-based ``activation_*`` triples) — see
+    :data:`NURTURE_TEMPLATES`. Scheduled by
     ``app.tasks.periodic.send_trial_nurture_emails``.
     """
-    template = f"trial_{stage}"
+    template = NURTURE_TEMPLATES.get(stage, f"trial_{stage}")
     _render_and_send(
         sender,
         template,
@@ -351,9 +360,23 @@ def send_trial_nurture(
             "full_name": full_name,
             "tenant_name": tenant_name,
             "portal_url": portal_url,
+            "customers_url": f"{portal_url.rstrip('/')}/app/customers",
             "billing_url": billing_url,
             "trial_end_date": trial_end_date,
             "days_left": days_left,
+            "pending_contacts": pending_contacts or [],
         },
         locale,
     )
+
+
+#: Nurture stage → email template basename. Time-based trial stages keep
+#: their historical ``trial_<stage>`` names; the behaviour-based
+#: activation nudges (BIZ-16) have their own triples.
+NURTURE_TEMPLATES: dict[str, str] = {
+    "day1": "trial_day1",
+    "day7": "trial_day7",
+    "ending": "trial_ending",
+    "invite": "activation_invite_customer",
+    "no_login": "activation_contact_no_login",
+}
