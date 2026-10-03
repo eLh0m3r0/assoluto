@@ -5,16 +5,30 @@ from __future__ import annotations
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import or_, select
+from sqlalchemy import and_, exists, func, not_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from app.models.product import Product
 from app.services import audit_service
 from app.services.audit_service import SYSTEM_ACTOR, ActorInfo, diff_from_models
+from app.services.money import AmountError, check_money
 
 
 class ProductError(Exception):
     pass
+
+
+def _checked_price(value: Decimal | None) -> Decimal | None:
+    """Defence in depth for ``default_price`` (LOGIC-1): a list price is
+    copied into every order line that uses the product, so a ``NaN`` here
+    poisons orders the supplier has not even created yet."""
+    if value is None:
+        return None
+    try:
+        return check_money(value)
+    except AmountError as exc:
+        raise ProductError(f"invalid default_price ({exc.reason})") from None
 
 
 class DuplicateProductSku(ProductError):
@@ -49,10 +63,57 @@ async def search_products(
         q = f"%{query.strip()}%"
         stmt = stmt.where(or_(Product.sku.ilike(q), Product.name.ilike(q)))
     if customer_id is not None:
-        stmt = stmt.where(or_(Product.customer_id.is_(None), Product.customer_id == customer_id))
+        stmt = stmt.where(_customer_scope(customer_id))
     stmt = stmt.order_by(Product.name).limit(limit)
     result = await db.execute(stmt)
     return list(result.scalars().all())
+
+
+def _customer_scope(customer_id: UUID):
+    """Active products usable for ``customer_id``, customer rows winning.
+
+    A tenant may hold the same SKU twice — once shared (list price) and
+    once dedicated to a customer (their negotiated price). For that
+    customer only the dedicated row is offered (LOGIC-14); picking the
+    shared one used to put the list price on the order silently.
+    """
+    dedicated = aliased(Product)
+    has_dedicated = exists(
+        select(dedicated.id).where(
+            dedicated.sku == Product.sku,
+            dedicated.customer_id == customer_id,
+            dedicated.is_active.is_(True),
+        )
+    )
+    return and_(
+        Product.is_active.is_(True),
+        or_(
+            Product.customer_id == customer_id,
+            and_(Product.customer_id.is_(None), not_(has_dedicated)),
+        ),
+    )
+
+
+async def catalog_for_customer(
+    db: AsyncSession,
+    *,
+    customer_id: UUID,
+    query: str = "",
+    limit: int = 200,
+) -> tuple[list[Product], int]:
+    """Products for the order-item picker, plus the total matching count.
+
+    Returns at most ``limit`` rows ordered by name *and* how many exist,
+    so the UI can say "showing 200 of 640 — refine the search" instead of
+    silently dropping everything after "M" (BE-15).
+    """
+    stmt = select(Product).where(_customer_scope(customer_id))
+    if query and query.strip():
+        q = f"%{query.strip()}%"
+        stmt = stmt.where(or_(Product.sku.ilike(q), Product.name.ilike(q)))
+    total = int((await db.execute(select(func.count()).select_from(stmt.subquery()))).scalar() or 0)
+    rows = (await db.execute(stmt.order_by(Product.name).limit(limit))).scalars().all()
+    return list(rows), total
 
 
 async def create_product(
@@ -72,6 +133,7 @@ async def create_product(
     name = name.strip()
     if not sku or not name:
         raise ProductError("sku and name are required")
+    default_price = _checked_price(default_price)
 
     # Enforce SKU uniqueness at the app layer because the Postgres
     # UNIQUE(tenant_id, customer_id, sku) constraint treats two NULL
@@ -139,6 +201,7 @@ async def update_product(
     name = name.strip()
     if not sku or not name:
         raise ProductError("sku and name are required")
+    default_price = _checked_price(default_price)
 
     # Re-check SKU uniqueness if the SKU or customer scope changed.
     if sku != product.sku or customer_id != product.customer_id:

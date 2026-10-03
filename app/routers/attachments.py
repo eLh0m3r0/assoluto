@@ -235,9 +235,20 @@ async def delete_attachment_route(
     except (OrderNotFound, OrderAccessDenied):
         raise HTTPException(status_code=404, detail="Attachment not found") from None
 
-    # Contacts can only delete attachments on DRAFT orders.
-    if not principal.is_staff and order.status.value != "draft":
-        raise HTTPException(status_code=409, detail="Attachments are locked")
+    # Contacts can only delete their *own* uploads, and only while the
+    # order is a DRAFT — a supplier's drawing is not theirs to remove
+    # (LOGIC-13). Staff may delete at any stage; every deletion is
+    # audited, and past confirmation the UI warns that the file was part
+    # of the agreement.
+    if not principal.is_staff:
+        if order.status.value != "draft":
+            raise HTTPException(status_code=409, detail="Attachments are locked")
+        if attachment.uploaded_by_contact_id != principal.id:
+            return RedirectResponse(
+                url=f"/app/orders/{order.id}?error="
+                + quote(_t(request, "You can only delete files you uploaded yourself.")),
+                status_code=303,
+            )
 
     # Best-effort S3 cleanup; the row delete is the source of truth.
     try:
@@ -247,6 +258,8 @@ async def delete_attachment_route(
     except Exception:
         pass
 
-    await delete_attachment(db, attachment)
+    await delete_attachment(
+        db, attachment, order=order, audit_actor=actor_from_principal(principal)
+    )
     notice = quote(_t(request, "Attachment deleted."))
     return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)

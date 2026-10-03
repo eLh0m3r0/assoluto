@@ -528,6 +528,8 @@ async def build_order_status_changed(
     settings: Settings,
     actor_is_contact: bool = False,
     actor_email: str | None = None,
+    note: str | None = None,
+    customer: Customer | None = None,
 ) -> list[OrderNotification]:
     """Tell *the other side* that the order moved.
 
@@ -535,6 +537,12 @@ async def build_order_status_changed(
     supplier's staff: contacts may only do QUOTED -> CONFIRMED and
     -> CANCELLED, so that is the customer accepting or killing a quote,
     the most commercially loaded event in the product.
+
+    ``note`` is the staff member's optional reason (LOGIC-22) and is
+    quoted in the mail. A move to QUOTED carries the quoted total and a
+    direct link to the confirm step (IDEA-5), so the customer learns the
+    price without logging in first. ``customer`` may be passed by callers
+    that already loaded it (the bulk route) to skip a per-order lookup.
     """
     event = NotificationEvent.ORDER_STATUS_CHANGED
     if actor_is_contact:
@@ -553,18 +561,30 @@ async def build_order_status_changed(
             settings=settings,
             event=event,
             order=order,
+            customer=customer,
             exclude_email=actor_email,
         )
+    extra: dict[str, Any] = {
+        "status_label": STATUS_LABELS.get(to_status, to_status.value),
+        "status_value": to_status.value,
+        "note": _excerpt(note or ""),
+    }
+    if to_status == OrderStatus.QUOTED and not actor_is_contact:
+        from app.templating import _money_major_filter
+
+        extra["amount"] = (
+            _money_major_filter(order.quoted_total, order.currency)
+            if order.quoted_total is not None
+            else ""
+        )
+        extra["confirm_url"] = order_url(base_url, order) + "#order-status"
     return _fan_out(
         recipients,
         event=event,
         tenant=tenant,
         order=order,
         base_url=base_url,
-        extra={
-            "status_label": STATUS_LABELS.get(to_status, to_status.value),
-            "status_value": to_status.value,
-        },
+        extra=extra,
     )
 
 

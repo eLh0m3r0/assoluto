@@ -51,6 +51,11 @@ class Order(Base, TimestampMixin, TenantMixin):
             "created_at",
         ),
         Index("ix_orders_tenant_id_assigned_to", "tenant_id", "assigned_to_user_id"),
+        Index(
+            "ix_orders_tenant_id_promised_delivery_at",
+            "tenant_id",
+            "promised_delivery_at",
+        ),
     )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
@@ -106,6 +111,29 @@ class Order(Base, TimestampMixin, TenantMixin):
     # on-time calculations in ``app.services.sla_service``. Nullable —
     # historical or never-delivered orders stay NULL.
     delivered_at: Mapped[date | None] = mapped_column(Date, nullable=True)
+
+    # When the order last entered QUOTED. Re-stamped on every landing on
+    # QUOTED (a re-quote is a new offer); drives the "waiting for the
+    # customer" queue and the quote follow-up reminder.
+    quoted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Idempotency marker for the quote reminder job. A reminder is due
+    # only while this is NULL or older than ``quoted_at``.
+    quote_reminder_sent_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+    # Snapshot of what was agreed, written when the order lands on
+    # CONFIRMED (see ``order_service.transition_order``). ``quoted_total``
+    # is a live cache re-summed on every item edit, so it cannot prove
+    # which amount the customer accepted; this can.
+    confirmed_total: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
+    confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    confirmed_by_user_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    confirmed_by_contact_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("customer_contacts.id", ondelete="SET NULL"), nullable=True
+    )
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"<Order {self.number} status={self.status.value}>"

@@ -21,7 +21,7 @@ document still generates. Don't rely on that path for real users.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -141,7 +141,12 @@ def format_money(value: Decimal | float | int | None, currency: str | None = Non
     """
     if value is None:
         return ""
-    amount = f"{Decimal(value):.2f}"
+    dec = Decimal(value)
+    if not dec.is_finite():
+        return ""
+    # Half-up, matching the stored line totals (LOGIC-17). An f-string
+    # ``:.2f`` rounds half-even: 0.125 printed as 0.12.
+    amount = f"{dec.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP):.2f}"
     if currency:
         return f"{amount} {currency}"
     return amount
@@ -308,8 +313,10 @@ def render_order_pdf(
     for item in items:
         line_total = item.line_total
         if line_total is None and item.unit_price is not None:
-            line_total = Decimal(item.unit_price) * Decimal(item.quantity)
-        if line_total is not None:
+            line_total = (Decimal(item.unit_price) * Decimal(item.quantity)).quantize(
+                Decimal("0.01"), rounding=ROUND_HALF_UP
+            )
+        if line_total is not None and Decimal(line_total).is_finite():
             subtotal += Decimal(line_total)
 
         # SKU: free-text items have no product_id; leave blank.
@@ -370,6 +377,25 @@ def render_order_pdf(
             Paragraph(format_money(total_value, order.currency), th),
         ],
     ]
+    # The agreed amount, once there is one (LOGIC-2/17). It is the
+    # snapshot taken at confirmation, so a later correction to the lines
+    # shows up as a visible difference rather than silently rewriting
+    # what the customer accepted. Nothing is printed about VAT: no tenant
+    # setting records whether prices are net or gross, and guessing would
+    # put a false statement on a commercial document.
+    confirmed_total = getattr(order, "confirmed_total", None)
+    confirmed_at = getattr(order, "confirmed_at", None)
+    if confirmed_at is not None and confirmed_total is not None:
+        totals_rows.append(
+            [
+                Paragraph(
+                    f"<b>{_gettext(locale, 'Confirmed total')}</b> "
+                    f"({_esc(_format_datetime(confirmed_at))})",
+                    th,
+                ),
+                Paragraph(format_money(confirmed_total, order.currency), th),
+            ]
+        )
     totals_table = Table(totals_rows, colWidths=[140 * mm, 35 * mm])
     totals_table.setStyle(
         TableStyle(

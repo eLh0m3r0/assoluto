@@ -6,7 +6,7 @@ import csv
 import io
 from collections.abc import AsyncIterator
 from datetime import date, datetime
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from urllib.parse import quote
 from uuid import UUID
 
@@ -20,10 +20,12 @@ from app.i18n import t as _t
 from app.models.customer import Customer
 from app.models.enums import STATUS_LABELS, OrderStatus
 from app.models.order import Order, OrderItem
+from app.routers._amounts import amount_error_message
 from app.security.csrf import verify_csrf
 from app.services.attachment_service import list_for_order as list_attachments
 from app.services.audit_service import actor_from_principal
 from app.services.customer_service import list_customers
+from app.services.money import AmountError, parse_money, parse_quantity
 from app.services.notification_service import (
     build_order_created,
     build_order_status_changed,
@@ -31,30 +33,39 @@ from app.services.notification_service import (
     merge_for_digest,
 )
 from app.services.order_service import (
+    NO_TOTAL_CHECK,
     UNASSIGNED,
     ActorRef,
+    EmptyOrder,
     ForbiddenActor,
     ForbiddenTransition,
+    IncompleteQuote,
+    InvalidAmount,
     OrderAccessDenied,
     OrderError,
     OrderNotFound,
+    QuoteChanged,
     add_comment,
     add_item,
     assign_order,
     build_orders_query,
     bulk_transition,
     create_order,
+    duplicate_order,
     get_order_for_principal,
+    last_prices_for_customer,
     list_assignable_staff,
     list_comments,
     list_items,
     list_orders_for_principal,
     list_status_history,
+    quote_problems,
     remove_item,
     transition_order,
     update_item,
+    update_order_header,
 )
-from app.services.product_service import search_products
+from app.services.product_service import catalog_for_customer
 
 router = APIRouter(prefix="/app/orders", tags=["orders"], dependencies=[Depends(verify_csrf)])
 
@@ -624,6 +635,7 @@ async def orders_detail(
     request: Request,
     notice: str | None = None,
     error: str | None = None,
+    product_q: str = "",
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
@@ -667,7 +679,8 @@ async def orders_detail(
         await db.execute(select(Customer).where(Customer.id == order.customer_id))
     ).scalar_one_or_none()
 
-    status_pipeline = _status_pipeline(request, order, principal)
+    problems = await quote_problems(db, order)
+    status_pipeline = _status_pipeline(request, order, principal, quote_problems=problems)
 
     # Assignment picker — staff only. Contacts must not see the
     # supplier's internal staff list, let alone who is working on what.
@@ -708,10 +721,30 @@ async def orders_detail(
     # Products available on this order — only loaded when editable AND
     # the customer is allowed to use the catalog.
     product_choices: list = []
+    product_total = 0
+    last_prices: dict = {}
     if _can_edit_items(order, principal) and perms.can_use_catalog:
-        product_choices = await search_products(
-            db, query="", customer_id=order.customer_id, limit=200
+        # Server-side filter instead of a silent 200-row dump (BE-15):
+        # the picker shows "n of N" and a search box whenever the
+        # catalog is larger than one page. A customer's own SKU replaces
+        # the shared one for the same SKU (LOGIC-14).
+        product_choices, product_total = await catalog_for_customer(
+            db, customer_id=order.customer_id, query=product_q, limit=PRODUCT_PICKER_LIMIT
         )
+        if principal.is_staff and product_choices:
+            # Price memory (IDEA-6): what this customer last paid for each
+            # product. Staff only — it is the supplier's own pricing.
+            last_prices = await last_prices_for_customer(
+                db,
+                customer_id=order.customer_id,
+                product_ids=[p.id for p in product_choices],
+                exclude_order_id=order.id,
+            )
+
+    from app.services.order_service import is_overdue, pipeline_rank
+
+    current_rank = pipeline_rank(order.status)
+    confirmed_rank = pipeline_rank(OrderStatus.CONFIRMED)
 
     html = _templates(request).render(
         request,
@@ -733,11 +766,24 @@ async def orders_detail(
             "assignee_name": assignee_name,
             "assignee_is_pickable": assignee_is_pickable,
             "product_choices": product_choices,
+            "product_total": product_total,
+            "product_q": product_q,
+            "product_limit": PRODUCT_PICKER_LIMIT,
+            "last_prices": last_prices,
+            "is_overdue": is_overdue(order),
+            # Past the agreement — a deleted drawing there is evidence lost.
+            "is_agreed": current_rank is not None and current_rank >= (confirmed_rank or 0),
+            "can_reorder": principal.is_staff or perms.can_add_items,
             "error": error,
             "notice": notice,
         },
     )
     return HTMLResponse(html)
+
+
+#: Rows rendered in the order-item product picker before the user has to
+#: narrow it down with the search box.
+PRODUCT_PICKER_LIMIT = 200
 
 
 def _can_edit_items(order, principal: Principal) -> bool:
@@ -774,7 +820,13 @@ STATUS_ACTIONS: dict[OrderStatus, str] = {
 }
 
 
-def _status_pipeline(request: Request, order, principal: Principal) -> dict:
+def _status_pipeline(
+    request: Request,
+    order,
+    principal: Principal,
+    *,
+    quote_problems: list[str] | None = None,
+) -> dict:
     """Build the view-model for the order status stepper.
 
     The stepper renders the whole pipeline at once — past steps ticked,
@@ -789,6 +841,11 @@ def _status_pipeline(request: Request, order, principal: Principal) -> dict:
     the nodes their own graph permits are clickable. Jumps that skip
     steps or move backwards carry a ``confirm`` message — the freedom is
     the point, but it should never be *accidental*.
+
+    ``quote_problems`` (from :func:`order_service.quote_problems`) marks
+    the QUOTED / CONFIRMED nodes: staff get a "send anyway?" confirm and
+    an ``allow_incomplete`` flag (LOGIC-7); contacts cannot confirm an
+    unpriced quote at all, so the node is rendered as a plain marker.
     """
     from app.services.order_service import (
         CONTACT_ALLOWED_TRANSITIONS,
@@ -798,10 +855,13 @@ def _status_pipeline(request: Request, order, principal: Principal) -> dict:
         skipped_statuses,
     )
 
+    problems = list(quote_problems or [])
     if principal.is_staff:
-        allowed = STAFF_ALLOWED_TRANSITIONS.get(order.status, set())
+        allowed = set(STAFF_ALLOWED_TRANSITIONS.get(order.status, set()))
     else:
-        allowed = CONTACT_ALLOWED_TRANSITIONS.get(order.status, set())
+        allowed = set(CONTACT_ALLOWED_TRANSITIONS.get(order.status, set()))
+        if problems:
+            allowed.discard(OrderStatus.CONFIRMED)
 
     current = order.status
     current_rank = pipeline_rank(current)
@@ -810,24 +870,36 @@ def _status_pipeline(request: Request, order, principal: Principal) -> dict:
     def _label(status: OrderStatus) -> str:
         return _t(request, STATUS_LABELS.get(status, status.value))
 
+    def _incomplete_warning() -> str:
+        if "no_items" in problems:
+            return _t(request, "This order has no items yet. Continue anyway?")
+        return _t(request, "Some items have no price yet. Continue anyway?")
+
     def _confirm_for(target: OrderStatus) -> str | None:
         """Guard message for a move that isn't the obvious next step."""
         if target == OrderStatus.CANCELLED:
             return _t(request, "Cancel this order?")
+        messages: list[str] = []
+        if problems and target in (OrderStatus.QUOTED, OrderStatus.CONFIRMED):
+            messages.append(_incomplete_warning())
         skipped = skipped_statuses(current, target)
-        if skipped:
-            return _t(
-                request, "This jumps straight to {target} and skips {skipped}. Continue?"
-            ).format(
-                target=_label(target),
-                skipped=", ".join(_label(s) for s in skipped),
-            )
         target_rank = pipeline_rank(target)
-        if current_rank is not None and target_rank is not None and target_rank < current_rank:
-            return _t(request, "This moves the order back to {target}. Continue?").format(
-                target=_label(target)
+        if skipped:
+            messages.append(
+                _t(
+                    request, "This jumps straight to {target} and skips {skipped}. Continue?"
+                ).format(
+                    target=_label(target),
+                    skipped=", ".join(_label(s) for s in skipped),
+                )
             )
-        return None
+        elif current_rank is not None and target_rank is not None and target_rank < current_rank:
+            messages.append(
+                _t(request, "This moves the order back to {target}. Continue?").format(
+                    target=_label(target)
+                )
+            )
+        return " ".join(messages) or None
 
     def _node(status: OrderStatus) -> dict:
         rank = pipeline_rank(status)
@@ -846,6 +918,19 @@ def _status_pipeline(request: Request, order, principal: Principal) -> dict:
             "state": state,
             "allowed": status in allowed,
             "confirm": _confirm_for(status) if status in allowed else None,
+            # Staff override of the LOGIC-7 guard, sent only after the
+            # confirm above has been accepted.
+            "allow_incomplete": bool(
+                principal.is_staff
+                and problems
+                and status in (OrderStatus.QUOTED, OrderStatus.CONFIRMED)
+            ),
+            # The confirm form posts the total it showed (LOGIC-2).
+            "expects_total": status == OrderStatus.CONFIRMED,
+            # Quoting / confirming is where a delivery date is promised
+            # (IDEA-4); the primary CTA offers the date input.
+            "asks_promise": principal.is_staff
+            and status in (OrderStatus.QUOTED, OrderStatus.CONFIRMED),
         }
 
     nodes = [_node(s) for s in PIPELINE]
@@ -864,6 +949,25 @@ def _status_pipeline(request: Request, order, principal: Principal) -> dict:
     # still pick any other node from the stepper.
     reopen = _node(OrderStatus.DRAFT) if is_cancelled and OrderStatus.DRAFT in allowed else None
 
+    # A contact looking at a quote they cannot confirm yet deserves to
+    # know why the button is missing.
+    blocked_reason = None
+    if not principal.is_staff and problems and order.status == OrderStatus.QUOTED:
+        blocked_reason = _t(
+            request, "The supplier has not priced every item yet, so the quote cannot be confirmed."
+        )
+
+    # Targets for the staff "change status with a note" form (LOGIC-22).
+    note_targets = (
+        [
+            {"value": s.value, "label": _label(s)}
+            for s in (*PIPELINE, OrderStatus.CANCELLED)
+            if s in allowed
+        ]
+        if principal.is_staff
+        else []
+    )
+
     return {
         "nodes": nodes,
         "primary": primary,
@@ -873,10 +977,62 @@ def _status_pipeline(request: Request, order, principal: Principal) -> dict:
         "current": current.value,
         "current_label": _label(current),
         "has_actions": bool(allowed),
+        "blocked_reason": blocked_reason,
+        "note_targets": note_targets,
+        "has_quote_problems": bool(problems),
+        "expected_total": (
+            f"{Decimal(order.quoted_total):.2f}" if order.quoted_total is not None else ""
+        ),
     }
 
 
 # ---------------------------------------------------------------- add item
+
+
+def _order_redirect(order_id: UUID, *, notice: str | None = None, error: str | None = None):
+    """POST-redirect-GET back to the order detail with a flash (§9)."""
+    if error is not None:
+        return RedirectResponse(url=f"/app/orders/{order_id}?error={quote(error)}", status_code=303)
+    return RedirectResponse(
+        url=f"/app/orders/{order_id}?notice={quote(notice or '')}", status_code=303
+    )
+
+
+async def _resolve_catalog_product(db: AsyncSession, *, product_id: UUID, order: Order):
+    """Load a catalog product usable on ``order``, or ``None``.
+
+    Scoped to active products that are shared or dedicated to the order's
+    customer — for staff too (LOGIC-14): staff used to be able to attach
+    a deactivated product, or customer B's product *with B's negotiated
+    price*, to customer A's order. When the picked product is the shared
+    row and the customer has its own row for the same SKU, the customer's
+    row wins: that is the special price the supplier agreed with them.
+    """
+    from sqlalchemy import or_
+
+    from app.models.product import Product
+
+    product = (
+        await db.execute(
+            select(Product).where(
+                Product.id == product_id,
+                Product.is_active.is_(True),
+                or_(Product.customer_id.is_(None), Product.customer_id == order.customer_id),
+            )
+        )
+    ).scalar_one_or_none()
+    if product is None or product.customer_id is not None:
+        return product
+    override = (
+        await db.execute(
+            select(Product).where(
+                Product.sku == product.sku,
+                Product.customer_id == order.customer_id,
+                Product.is_active.is_(True),
+            )
+        )
+    ).scalar_one_or_none()
+    return override or product
 
 
 @router.post("/{order_id}/items", response_class=HTMLResponse)
@@ -884,7 +1040,7 @@ async def orders_add_item(
     order_id: UUID,
     request: Request,
     description: str = Form(""),
-    quantity: str = Form(...),
+    quantity: str = Form(""),
     unit: str = Form("ks"),
     unit_price: str = Form(""),
     product_id: str = Form(""),
@@ -899,10 +1055,10 @@ async def orders_add_item(
     # Server-side enforcement of per-customer OrderPermissions — the
     # template hides the form but a direct POST bypasses the UI.
     # Round-4 audit A1 fix.
-    if not principal.is_staff:
-        from app.models.customer import Customer
-        from app.services.customer_permissions import OrderPermissions
+    from app.services.customer_permissions import OrderPermissions
 
+    perms = OrderPermissions()
+    if not principal.is_staff:
         customer = (
             await db.execute(select(Customer).where(Customer.id == order.customer_id))
         ).scalar_one_or_none()
@@ -914,17 +1070,14 @@ async def orders_add_item(
                 status_code=403, detail="Setting prices is disabled for your account"
             )
 
+    # One parser for every money/quantity input (LOGIC-1, D4): NaN,
+    # Infinity, negatives and out-of-range values are refused with a
+    # flash instead of being stored — or 500-ing the page.
     try:
-        qty = Decimal(quantity)
-    except (InvalidOperation, ValueError):
-        raise HTTPException(status_code=400, detail="Invalid quantity") from None
-
-    price: Decimal | None = None
-    if unit_price.strip():
-        try:
-            price = Decimal(unit_price)
-        except (InvalidOperation, ValueError):
-            raise HTTPException(status_code=400, detail="Invalid unit_price") from None
+        qty = parse_quantity(quantity)
+        price = parse_money(unit_price)
+    except AmountError as exc:
+        return _order_redirect(order.id, error=amount_error_message(request, exc))
 
     # Optional product link — when provided, look it up and back-fill the
     # line item's description/unit/price from the catalog unless the caller
@@ -936,27 +1089,15 @@ async def orders_add_item(
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid product_id") from None
 
-        from sqlalchemy import or_
+        if not principal.is_staff and not perms.can_use_catalog:
+            raise HTTPException(status_code=403, detail="Catalog is disabled for your account")
 
-        from app.models.product import Product
-
-        # RLS scopes this to the tenant, but NOT to the customer. The
-        # catalog supports per-customer products, and a plain
-        # `WHERE id = :id` let a contact of customer A attach — and read
-        # the price of — a product scoped to customer B just by knowing
-        # its UUID. Mirror the scoping that product_service applies on
-        # the read path.
-        product_stmt = select(Product).where(Product.id == product_uuid)
-        if not principal.is_staff:
-            if not perms.can_use_catalog:
-                raise HTTPException(status_code=403, detail="Catalog is disabled for your account")
-            product_stmt = product_stmt.where(
-                or_(Product.customer_id.is_(None), Product.customer_id == order.customer_id)
-            )
-
-        product = (await db.execute(product_stmt)).scalar_one_or_none()
+        product = await _resolve_catalog_product(db, product_id=product_uuid, order=order)
         if product is None:
-            raise HTTPException(status_code=400, detail="Unknown product") from None
+            return _order_redirect(
+                order.id, error=_t(request, "That product is not available for this order.")
+            )
+        product_uuid = product.id
 
         if not description.strip():
             description = f"{product.sku} — {product.name}"
@@ -970,7 +1111,7 @@ async def orders_add_item(
             price = product.default_price
 
     if not description.strip():
-        raise HTTPException(status_code=400, detail="description required") from None
+        return _order_redirect(order.id, error=_t(request, "Enter an item description."))
 
     try:
         await add_item(
@@ -987,11 +1128,12 @@ async def orders_add_item(
         )
     except ForbiddenTransition as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from None
+    except InvalidAmount as exc:
+        return _order_redirect(order.id, error=amount_error_message(request, exc.amount_error))
     except OrderError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
 
-    notice = quote(_t(request, "Item added."))
-    return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)
+    return _order_redirect(order.id, notice=_t(request, "Item added."))
 
 
 @router.api_route(
@@ -1060,9 +1202,9 @@ async def orders_patch_item(
 
     if quantity.strip():
         try:
-            qty = Decimal(quantity)
-        except (InvalidOperation, ValueError):
-            row_error = _t(request, "Invalid quantity")
+            qty = parse_quantity(quantity)
+        except AmountError as exc:
+            row_error = amount_error_message(request, exc)
 
     if row_error is None and unit_price.strip():
         if not can_set_prices:
@@ -1070,9 +1212,9 @@ async def orders_patch_item(
                 status_code=403, detail="Setting prices is disabled for your account"
             )
         try:
-            price = Decimal(unit_price)
-        except (InvalidOperation, ValueError):
-            row_error = _t(request, "Invalid unit_price")
+            price = parse_money(unit_price)
+        except AmountError as exc:
+            row_error = amount_error_message(request, exc)
 
     # The note field is a free-form string; empty-string means "clear".
     # The caller sends it on every change because the whole row is
@@ -1108,6 +1250,9 @@ async def orders_patch_item(
         except OrderAccessDenied:
             await savepoint.rollback()
             raise HTTPException(status_code=404, detail="Order not found") from None
+        except InvalidAmount as exc:
+            await savepoint.rollback()
+            row_error = amount_error_message(request, exc.amount_error)
         except OrderError as exc:
             await savepoint.rollback()
             row_error = str(exc)
@@ -1315,12 +1460,34 @@ async def orders_bulk_transition(
 # --------------------------------------------------------------- transition
 
 
+def _parse_expected_total(raw: str) -> Decimal | None:
+    """The total the confirming page rendered; ``""`` = rendered unpriced."""
+    raw = (raw or "").strip()
+    if not raw:
+        return None
+    try:
+        value = Decimal(raw)
+    except (ArithmeticError, ValueError):
+        return Decimal("-1")  # never equal to a real total -> "quote changed"
+    return value if value.is_finite() else Decimal("-1")
+
+
+def _quote_problem_message(request: Request, code: str) -> str:
+    if code == "no_items":
+        return _t(request, "Add at least one item before sending or confirming the quote.")
+    return _t(request, "Every item needs a price before the quote can be sent or confirmed.")
+
+
 @router.post("/{order_id}/transitions/{to_status}", response_class=HTMLResponse)
 async def orders_transition(
     order_id: UUID,
     to_status: str,
     request: Request,
     background_tasks: BackgroundTasks,
+    note: str = Form(""),
+    promised_delivery_at: str = Form(""),
+    expected_total: str | None = Form(None),
+    allow_incomplete: str = Form(""),
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -1334,6 +1501,28 @@ async def orders_transition(
     except (OrderNotFound, OrderAccessDenied):
         raise HTTPException(status_code=404, detail="Order not found") from None
 
+    # Optimistic check on the agreed amount (LOGIC-2). The confirm form
+    # posts the total it rendered; a contact *must* send it, so a stale
+    # tab or a crafted POST can never accept a price nobody displayed.
+    check: object = NO_TOTAL_CHECK
+    if target == OrderStatus.CONFIRMED:
+        if expected_total is not None:
+            check = _parse_expected_total(expected_total)
+        elif not principal.is_staff:
+            return _order_redirect(
+                order.id,
+                error=_t(request, "The quote has changed. Please review it and confirm again."),
+            )
+
+    promised: date | None = None
+    if principal.is_staff and promised_delivery_at.strip():
+        try:
+            promised = date.fromisoformat(promised_delivery_at.strip())
+        except ValueError:
+            return _order_redirect(order.id, error=_t(request, "Enter a valid date."))
+
+    clean_note = note.strip()[:1000] if principal.is_staff else ""
+
     try:
         await transition_order(
             db,
@@ -1341,6 +1530,22 @@ async def orders_transition(
             to_status=target,
             actor=_actor(principal),
             audit_actor=actor_from_principal(principal),
+            note=clean_note or None,
+            expected_total=check,
+            allow_incomplete=principal.is_staff and bool(allow_incomplete),
+            promised_delivery_at=promised,
+            incomplete_note=_t(request, "Sent although some items had no price."),
+        )
+    except QuoteChanged:
+        return _order_redirect(
+            order.id,
+            error=_t(request, "The quote has changed. Please review it and confirm again."),
+        )
+    except IncompleteQuote as exc:
+        return _order_redirect(order.id, error=_quote_problem_message(request, str(exc)))
+    except EmptyOrder:
+        return _order_redirect(
+            order.id, error=_t(request, "Add at least one item before submitting the order.")
         )
     except (ForbiddenTransition, ForbiddenActor) as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from None
@@ -1366,6 +1571,11 @@ async def orders_transition(
             settings=settings,
             actor_email=principal.email,
         )
+    elif principal.is_staff and target == OrderStatus.DRAFT:
+        # Moving an order back to draft is an internal correction
+        # (LOGIC-22): the customer was told "Draft" for every mis-click
+        # fix, which reads as "your order was thrown away".
+        notifications = []
     else:
         notifications = await build_order_status_changed(
             db,
@@ -1376,6 +1586,7 @@ async def orders_transition(
             actor_is_contact=principal.type == "contact",
             actor_email=principal.email,
             settings=settings,
+            note=clean_note or None,
         )
 
     # Commit so the background task's fresh session can see the new state.
@@ -1393,8 +1604,232 @@ async def orders_transition(
     # which produced "Status changed to Start production."
     status_label = _t(request, STATUS_LABELS.get(target, target.value))
     notice_msg = _t(request, "Status changed to {status}.").format(status=status_label)
-    return RedirectResponse(
-        url=f"/app/orders/{order.id}?notice={quote(notice_msg)}", status_code=303
+    return _order_redirect(order.id, notice=notice_msg)
+
+
+@router.post("/{order_id}/status", response_class=HTMLResponse)
+async def orders_transition_with_note(
+    order_id: UUID,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    to_status: str = Form(...),
+    note: str = Form(""),
+    promised_delivery_at: str = Form(""),
+    expected_total: str | None = Form(None),
+    allow_incomplete: str = Form(""),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Staff status change with an optional reason (LOGIC-22).
+
+    The stepper's one-click nodes cannot carry a text field each, so the
+    "Change status with a note" form posts the target as a field and
+    shares every rule with :func:`orders_transition`.
+    """
+    return await orders_transition(
+        order_id=order_id,
+        to_status=to_status,
+        request=request,
+        background_tasks=background_tasks,
+        note=note,
+        promised_delivery_at=promised_delivery_at,
+        expected_total=expected_total,
+        allow_incomplete=allow_incomplete,
+        principal=principal,
+        db=db,
+    )
+
+
+# ------------------------------------------------------------- header edit
+
+
+async def _render_edit_form(
+    request: Request,
+    db: AsyncSession,
+    principal: Principal,
+    order: Order,
+    *,
+    form: dict,
+    error: str | None = None,
+) -> HTMLResponse:
+    from app.services.order_service import CUSTOMER_EDIT_STATES
+
+    html = _templates(request).render(
+        request,
+        "orders/edit.html",
+        {
+            "principal": principal,
+            "tenant": _tenant(request),
+            "order": order,
+            "customers": await list_customers(db),
+            "can_change_customer": order.status in CUSTOMER_EDIT_STATES,
+            "form": form,
+            "error": error,
+            "notice": None,
+        },
+    )
+    return HTMLResponse(html, status_code=400 if error else 200)
+
+
+@router.get("/{order_id}/edit", response_class=HTMLResponse)
+async def orders_edit_form(
+    order_id: UUID,
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    try:
+        order = await get_order_for_principal(db, order_id=order_id, actor=_actor(principal))
+    except (OrderNotFound, OrderAccessDenied):
+        raise HTTPException(status_code=404, detail="Order not found") from None
+    return await _render_edit_form(
+        request,
+        db,
+        principal,
+        order,
+        form={
+            "title": order.title,
+            "customer_id": str(order.customer_id),
+            "requested_delivery_at": (
+                order.requested_delivery_at.isoformat() if order.requested_delivery_at else ""
+            ),
+            "promised_delivery_at": (
+                order.promised_delivery_at.isoformat() if order.promised_delivery_at else ""
+            ),
+            "notes": order.notes or "",
+        },
+    )
+
+
+@router.post("/{order_id}/edit", response_class=HTMLResponse)
+async def orders_edit(
+    order_id: UUID,
+    request: Request,
+    title: str = Form(""),
+    customer_id: str = Form(""),
+    requested_delivery_at: str = Form(""),
+    promised_delivery_at: str = Form(""),
+    notes: str = Form(""),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Correct the order header (LOGIC-12, IDEA-4). Staff only, audited."""
+    try:
+        order = await get_order_for_principal(db, order_id=order_id, actor=_actor(principal))
+    except (OrderNotFound, OrderAccessDenied):
+        raise HTTPException(status_code=404, detail="Order not found") from None
+
+    form = {
+        "title": title,
+        "customer_id": customer_id,
+        "requested_delivery_at": requested_delivery_at,
+        "promised_delivery_at": promised_delivery_at,
+        "notes": notes,
+    }
+
+    def _date(raw: str) -> date | None:
+        return date.fromisoformat(raw.strip()) if raw.strip() else None
+
+    try:
+        requested = _date(requested_delivery_at)
+        promised = _date(promised_delivery_at)
+    except ValueError:
+        return await _render_edit_form(
+            request, db, principal, order, form=form, error=_t(request, "Enter a valid date.")
+        )
+
+    target_customer = order.customer_id
+    if customer_id.strip():
+        try:
+            target_customer = UUID(customer_id.strip())
+        except ValueError:
+            return await _render_edit_form(
+                request, db, principal, order, form=form, error=_t(request, "Choose a client.")
+            )
+
+    try:
+        changed = await update_order_header(
+            db,
+            order=order,
+            actor=_actor(principal),
+            title=title,
+            customer_id=target_customer,
+            requested_delivery_at=requested,
+            promised_delivery_at=promised,
+            notes=notes,
+            audit_actor=actor_from_principal(principal),
+        )
+    except ForbiddenTransition:
+        return await _render_edit_form(
+            request,
+            db,
+            principal,
+            order,
+            form=form,
+            error=_t(request, "The client can only be changed before the order is quoted."),
+        )
+    except OrderError:
+        return await _render_edit_form(
+            request,
+            db,
+            principal,
+            order,
+            form=form,
+            error=_t(request, "Fill in the name and choose an existing client."),
+        )
+
+    notice = _t(request, "Order updated.") if changed else _t(request, "No changes.")
+    return _order_redirect(order.id, notice=notice)
+
+
+# ------------------------------------------------------------- order again
+
+
+@router.post("/{order_id}/duplicate", response_class=HTMLResponse)
+async def orders_duplicate(
+    order_id: UUID,
+    request: Request,
+    principal: Principal = Depends(require_login),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """ "Order again" (IDEA-3): a new DRAFT with the same lines.
+
+    Available to staff and to the customer's own contacts (within their
+    add-item permission). Prices are re-taken from the current catalog or
+    left blank for a fresh quote — never copied from the old order.
+    """
+    try:
+        source = await get_order_for_principal(db, order_id=order_id, actor=_actor(principal))
+    except (OrderNotFound, OrderAccessDenied):
+        raise HTTPException(status_code=404, detail="Order not found") from None
+
+    include_catalog = True
+    if not principal.is_staff:
+        from app.services.customer_permissions import OrderPermissions
+
+        customer = (
+            await db.execute(select(Customer).where(Customer.id == source.customer_id))
+        ).scalar_one_or_none()
+        perms = OrderPermissions.from_dict(customer.order_permissions if customer else None)
+        if not perms.can_add_items:
+            return _order_redirect(
+                source.id, error=_t(request, "Adding items is disabled for your account.")
+            )
+        include_catalog = perms.can_use_catalog
+
+    new_order = await duplicate_order(
+        db,
+        tenant_id=principal.tenant_id,
+        source=source,
+        actor=_actor(principal),
+        include_catalog=include_catalog,
+        audit_actor=actor_from_principal(principal),
+    )
+    return _order_redirect(
+        new_order.id,
+        notice=_t(
+            request, "New draft created from order {number}. Check the items and prices."
+        ).format(number=source.number),
     )
 
 
