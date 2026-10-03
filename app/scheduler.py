@@ -23,6 +23,7 @@ from app.tasks.periodic import (
     expire_demo_trials,
     send_trial_nurture_emails,
 )
+from app.tasks.retention import enforce_retention
 
 log = get_logger("app.scheduler")
 
@@ -121,6 +122,18 @@ def build_scheduler() -> AsyncIOScheduler:
         max_instances=1,
         coalesce=True,
         misfire_grace_time=60,
+    )
+
+    # Data retention (D6): purge tenants deactivated > 30 days, audit
+    # events > 3 years, orphaned S3 objects > 7 days. Dry-run unless
+    # RETENTION_ENFORCE=true. After enforce_canceled_subscriptions.
+    scheduler.add_job(
+        enforce_retention,
+        trigger=CronTrigger(hour=4, minute=30),  # 04:30 UTC daily
+        id="enforce_retention",
+        replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=3600,
     )
 
     scheduler.add_listener(_on_job_error, EVENT_JOB_ERROR)
