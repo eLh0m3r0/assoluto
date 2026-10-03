@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Your account and data") }} · Assoluto{% endblock %}
+
+{% block content %}
+<section class="mx-auto mt-8 max-w-2xl">
+    <div class="mb-4">
+        <a href="/platform/select-tenant" class="text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
+            &larr; {{ _("Select portal") }}
+        </a>
+        <h1 class="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _("Your account and data") }}</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+            {{ _("Signed in as") }} {{ identity.full_name }} ({{ identity.email }})
+        </p>
+    </div>
+
+    {% include "_flash.html" %}
+
+    <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+        <h2 class="mb-2 font-semibold text-slate-900 dark:text-slate-100">{{ _("Your data") }}</h2>
+        <p class="mb-4 text-sm text-slate-500 dark:text-slate-400">
+            {{ _('Under EU law you can download everything we hold about you, and request erasure at any time.') }}
+        </p>
+        <a href="/platform/profile/export"
+           class="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+            ⬇ {{ _('Download my data (JSON)') }}
+        </a>
+
+        <hr class="my-6 border-slate-200 dark:border-slate-800">
+
+        <details class="rounded-lg border border-red-200 bg-red-50/50 p-4 dark:border-red-500/30 dark:bg-red-900/10">
+            <summary class="cursor-pointer text-sm font-semibold text-red-700 dark:text-red-400">
+                {{ _('Delete my account (irreversible)') }}
+            </summary>
+            <p class="mt-3 text-sm text-red-800 dark:text-red-300">
+                {{ _('This deletes your Assoluto login and removes your personal data (name, email, password) from every portal you belong to. Orders and comments you created stay in each company record but are shown as "erased". This cannot be undone.') }}
+            </p>
+            {% if blocked_tenants %}
+                <p class="mt-3 text-sm font-medium text-red-800 dark:text-red-300">
+                    {{ _("You're the last administrator of a portal — promote someone else first.") }}
+                </p>
+                <ul class="mt-1 list-inside list-disc text-sm text-red-800 dark:text-red-300">
+                    {% for t in blocked_tenants %}
+                        <li>{{ t.name }} ({{ t.slug }})</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <form method="post" action="/platform/profile/delete" class="mt-4 space-y-3"
+                      data-confirm="{{ _('Are you sure? This is irreversible.') }}">
+                    {{ csrf_input() }}
+                    <div>
+                        <label for="delete_password" class="block text-xs font-medium text-slate-700 dark:text-slate-300">
+                            {{ _('Confirm with your current password') }}
+                        </label>
+                        <input type="password" id="delete_password" name="password" required
+                               autocomplete="current-password"
+                               class="mt-1 w-full rounded-md border border-red-300 px-3 py-2 text-sm shadow-sm dark:border-red-500/50 dark:bg-slate-800 dark:text-slate-100">
+                    </div>
+                    <button type="submit"
+                            class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+                        {{ _('Delete my account') }}
+                    </button>
+                </form>
+            {% endif %}
+        </details>
+    </div>
+</section>
+{% endblock %}

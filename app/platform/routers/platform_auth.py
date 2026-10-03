@@ -59,6 +59,10 @@ async def platform_login_form(
     banner = None
     if notice == "password_reset":
         banner = "Heslo bylo úspěšně změněno. Přihlaste se novým heslem."
+    elif notice == "account_deleted":
+        from app.i18n import t as _t
+
+        banner = _t(request, "Your account has been deleted.")
     html = _templates(request).render(
         request,
         "platform/login.html",
