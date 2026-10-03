@@ -1,6 +1,6 @@
 {% trans order_number=order_number, order_title=order_title %}New file on order {{ order_number }} — {{ order_title }}{% endtrans %}
 
-{% trans author_name=author_name, filename=filename %}{{ author_name }} uploaded {{ filename }}.{% endtrans %}
+{% if filename %}{% trans author_name=author_name, filename=filename %}{{ author_name }} uploaded {{ filename }}.{% endtrans %}{% else %}{% trans author_name=author_name %}{{ author_name }} uploaded a file.{% endtrans %}{% if pending_invite %} {{ _("Accept your invitation to the portal to see it.") }}{% endif %}{% endif %}
 
 {{ _("Open") }}: {{ order_url }}
 
