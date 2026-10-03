@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Assoluto &middot; {{ _('Home') }}{% endblock %}
+{% block title %}{{ tenant.name }} &middot; {{ _('Customer portal') }}{% endblock %}
 
 {% block nav %}
     <a href="/auth/login"
@@ -11,9 +11,13 @@
 
 {% block content %}
     <section class="rounded-lg border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('Customer portal for SMEs') }}</h1>
+        {# UX-15: name the supplier, so a client who types the address
+           knows they are in the right place (invitations otherwise look
+           like phishing). #}
+        <p class="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{{ _('Customer portal') }}</p>
+        <h1 class="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ tenant.name }}</h1>
         <p class="mt-2 max-w-2xl text-slate-600 dark:text-slate-400">
-            {{ _('Transparent order process between the manufacturer and its clients. Product catalog, attachments, client asset tracking.') }}
+            {{ _('Your orders, drawings and production status in one place. Sign in with the account from your invitation email.') }}
         </p>
         <div class="mt-6 flex flex-wrap gap-3">
             <a href="/auth/login"
