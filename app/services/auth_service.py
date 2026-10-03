@@ -319,45 +319,6 @@ async def invite_customer_contact(
     return contact
 
 
-# ------------------------------------------------------- staff user helper
-
-
-async def create_tenant_user(
-    db: AsyncSession,
-    *,
-    tenant_id: UUID,
-    email: str,
-    full_name: str,
-    password: str,
-    role: UserRole = UserRole.TENANT_STAFF,
-    audit_actor: ActorInfo | None = None,
-) -> User:
-    """Create an active tenant staff user with a hashed password."""
-    if len(password) < 8:
-        raise ValueError("password must be at least 8 characters")
-
-    user = User(
-        tenant_id=tenant_id,
-        email=email.strip().lower(),
-        full_name=full_name.strip(),
-        password_hash=hash_password(password),
-        role=role,
-    )
-    db.add(user)
-    await db.flush()
-    await audit_service.record(
-        db,
-        action="user.invited",
-        entity_type="user",
-        entity_id=user.id,
-        entity_label=user.email,
-        actor=audit_actor or SYSTEM_ACTOR,
-        after={"email": user.email, "role": user.role.value},
-        tenant_id=tenant_id,
-    )
-    return user
-
-
 # ----------------------------------------------------- staff invite flow
 
 

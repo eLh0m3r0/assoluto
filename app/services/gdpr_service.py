@@ -365,29 +365,6 @@ async def erase_identity(db: AsyncSession, *, identity) -> None:
     await db.flush()
 
 
-# --------------------------------------------------------------- audit
-
-
-async def find_target_rows_for_email(
-    db: AsyncSession, *, email: str, tenant_id: UUID | None = None
-) -> dict[str, list[UUID]]:
-    """Lookup every row tied to ``email`` that the caller could erase.
-
-    Used by a (hypothetical) platform-admin-initiated erasure from
-    outside the data subject's own session — e.g. when an operator
-    receives an SAR by paper mail. Scoped to one tenant when
-    ``tenant_id`` is set.
-    """
-    users_q = select(User.id).where(User.email == email.lower().strip())
-    contacts_q = select(CustomerContact.id).where(CustomerContact.email == email.lower().strip())
-    if tenant_id is not None:
-        users_q = users_q.where(User.tenant_id == tenant_id)
-        contacts_q = contacts_q.where(CustomerContact.tenant_id == tenant_id)
-    users = list((await db.execute(users_q)).scalars().all())
-    contacts = list((await db.execute(contacts_q)).scalars().all())
-    return {"user_ids": users, "contact_ids": contacts}
-
-
 # ---------------------------------------------------- controller notice
 
 

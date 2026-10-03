@@ -337,14 +337,3 @@ async def require_tenant_staff(
             detail="Tenant staff required",
         )
     return principal
-
-
-async def require_customer_contact(
-    principal: Principal = Depends(require_login),
-) -> Principal:
-    if principal.is_staff:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Customer contact required",
-        )
-    return principal
