@@ -15,6 +15,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
+from app.i18n import t as _t
 from app.logging import get_logger
 from app.platform.deps import get_current_identity, get_platform_db, require_identity
 from app.platform.models import Identity
@@ -137,7 +138,7 @@ async def signup_submit(
             request,
             "platform/signup.html",
             {
-                "errors": {exc.field: exc.message},
+                "errors": {exc.field: exc.localized(lambda m: _t(request, m))},
                 "form": form_raw,
                 "principal": None,
             },
@@ -158,9 +159,10 @@ async def signup_submit(
             "platform/signup.html",
             {
                 "errors": {
-                    "owner_email": (
-                        "Tato adresa už dnes zkoušela registraci. "
-                        "Zkuste to zítra nebo obnovte heslo."
+                    "owner_email": _t(
+                        request,
+                        "This address already tried to sign up today. "
+                        "Try again tomorrow or reset your password.",
                     )
                 },
                 "form": form_raw,
@@ -199,7 +201,7 @@ async def signup_submit(
             request,
             "platform/signup.html",
             {
-                "errors": {"slug": "Tato subdoména je již obsazená."},
+                "errors": {"slug": _t(request, "This subdomain is already taken.")},
                 "form": form_raw,
                 "principal": None,
             },
@@ -211,7 +213,9 @@ async def signup_submit(
             "platform/signup.html",
             {
                 "errors": {
-                    "owner_email": "Účet s tímto e-mailem již existuje. Použijte přihlášení."
+                    "owner_email": _t(
+                        request, "An account with this email already exists. Please sign in."
+                    )
                 },
                 "form": form_raw,
                 "principal": None,
@@ -219,11 +223,12 @@ async def signup_submit(
         )
         return HTMLResponse(html, status_code=400)
     except PlatformError as exc:
+        error_label = _t(request, "Error")
         html = _templates(request).render(
             request,
             "platform/signup.html",
             {
-                "errors": {"company_name": f"Chyba: {exc}"},
+                "errors": {"company_name": f"{error_label}: {exc}"},
                 "form": form_raw,
                 "principal": None,
             },
@@ -321,7 +326,9 @@ async def verify_email(
             "platform/verify_email.html",
             {
                 "success": False,
-                "message": "Odkaz pro ověření vypršel. Můžete si zažádat o nový.",
+                "message": _t(
+                    request, "The verification link has expired. You can request a new one."
+                ),
                 "principal": None,
             },
         )
@@ -332,7 +339,7 @@ async def verify_email(
             "platform/verify_email.html",
             {
                 "success": False,
-                "message": "Odkaz pro ověření je neplatný.",
+                "message": _t(request, "The verification link is invalid."),
                 "principal": None,
             },
         )
@@ -346,7 +353,7 @@ async def verify_email(
             "platform/verify_email.html",
             {
                 "success": False,
-                "message": "Odkaz pro ověření je poškozený.",
+                "message": _t(request, "The verification link is malformed."),
                 "principal": None,
             },
         )
@@ -360,7 +367,7 @@ async def verify_email(
             "platform/verify_email.html",
             {
                 "success": False,
-                "message": "Účet k ověření nebyl nalezen.",
+                "message": _t(request, "The account to verify was not found."),
                 "principal": None,
             },
         )
@@ -378,7 +385,7 @@ async def verify_email(
         "platform/verify_email.html",
         {
             "success": True,
-            "message": "E-mail byl úspěšně ověřen.",
+            "message": _t(request, "Your email address has been verified."),
             "selected_plan": selected_plan,
             "tenant_slug": tenant_slug,
             "principal": None,

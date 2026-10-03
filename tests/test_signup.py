@@ -25,6 +25,13 @@ from tests.conftest import CsrfAwareClient
 pytestmark = pytest.mark.postgres
 
 
+def _either(text: str, english: str, czech: str) -> bool:
+    """Signup errors are English msgids run through ``_t``; the Czech
+    catalog is filled in by a separate translation pass, so accept the
+    message in either language (UX-04)."""
+    return english in text or czech in text
+
+
 @pytest.fixture
 async def signup_client(
     settings, wipe_db, owner_engine
@@ -102,7 +109,7 @@ def test_validation_rejects_whitespace_only_password() -> None:
     # 8 spaces — length passes but leading/trailing whitespace rule rejects.
     with pytest.raises(SignupValidationError) as excinfo:
         validate_password(" " * 8)
-    assert "mezerou" in excinfo.value.message.lower()
+    assert "space" in excinfo.value.message.lower()
 
     # Leading space on an otherwise strong password.
     with pytest.raises(SignupValidationError):
@@ -115,7 +122,7 @@ def test_validation_rejects_whitespace_only_password() -> None:
     # Control character (NUL).
     with pytest.raises(SignupValidationError) as excinfo:
         validate_password("good-password\x00")
-    assert "řídicí" in excinfo.value.message.lower()
+    assert "control characters" in excinfo.value.message.lower()
 
 
 def test_validation_rejects_weak_password() -> None:
@@ -125,7 +132,7 @@ def test_validation_rejects_weak_password() -> None:
     with pytest.raises(SignupValidationError) as excinfo:
         validate_password("password123")
     assert excinfo.value.field == "password"
-    assert "slab" in excinfo.value.message.lower()
+    assert "too weak" in excinfo.value.message.lower()
 
     # Still short of the score threshold: common English phrase.
     with pytest.raises(SignupValidationError):
@@ -257,7 +264,7 @@ async def test_signup_duplicate_slug_returns_400(signup_client) -> None:
         follow_redirects=False,
     )
     assert resp2.status_code == 400
-    assert "Tato subdoména je již obsazená" in resp2.text
+    assert _either(resp2.text, "This subdomain is already taken", "Tato subdoména je již obsazená")
 
 
 async def test_signup_duplicate_email_returns_400(signup_client) -> None:
@@ -289,7 +296,11 @@ async def test_signup_duplicate_email_returns_400(signup_client) -> None:
         follow_redirects=False,
     )
     assert resp2.status_code == 400
-    assert "Účet s tímto e-mailem již existuje" in resp2.text
+    assert _either(
+        resp2.text,
+        "An account with this email already exists",
+        "Účet s tímto e-mailem již existuje",
+    )
 
 
 async def test_verify_email_marks_identity_verified(signup_client, owner_engine) -> None:
@@ -342,7 +353,7 @@ async def test_verify_email_rejects_bad_token(signup_client) -> None:
     client, _ = signup_client
     resp = await client.get("/platform/verify-email?token=not-a-real-token")
     assert resp.status_code == 400
-    assert "neplatný" in resp.text.lower()
+    assert _either(resp.text.lower(), "invalid", "neplatný")
 
 
 async def test_signup_race_integrityerror_is_translated(signup_client, owner_engine) -> None:
@@ -396,7 +407,11 @@ async def test_signup_race_integrityerror_is_translated(signup_client, owner_eng
         follow_redirects=False,
     )
     assert resp.status_code == 400
-    assert "Účet s tímto e-mailem již existuje" in resp.text
+    assert _either(
+        resp.text,
+        "An account with this email already exists",
+        "Účet s tímto e-mailem již existuje",
+    )
 
 
 def test_signup_tenant_maps_integrityerror_without_preflight() -> None:

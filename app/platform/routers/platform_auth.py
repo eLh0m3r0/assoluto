@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
+from app.i18n import t as _t
 from app.models.customer import CustomerContact
 from app.models.user import User
 from app.platform.deps import (
@@ -58,7 +59,7 @@ async def platform_login_form(
         )
     banner = None
     if notice == "password_reset":
-        banner = "Heslo bylo úspěšně změněno. Přihlaste se novým heslem."
+        banner = _t(request, "Password changed. Sign in with your new password.")
     html = _templates(request).render(
         request,
         "platform/login.html",
@@ -80,9 +81,9 @@ async def platform_login_submit(
         identity = await authenticate_identity(db, email, password)
     except (InvalidCredentials, AccountDisabled) as exc:
         message = (
-            "Účet je deaktivován."
+            _t(request, "Your account is disabled.")
             if isinstance(exc, AccountDisabled)
-            else "Neplatný e-mail nebo heslo."
+            else _t(request, "Invalid email or password.")
         )
         html = _templates(request).render(
             request,
@@ -192,7 +193,7 @@ async def platform_password_reset_submit(
         "platform/password_reset_request.html",
         {
             "error": None,
-            "notice": "Pokud adresa existuje, odeslali jsme odkaz na obnovu hesla.",
+            "notice": _t(request, "If the address exists, we have sent a password reset link."),
             "principal": None,
         },
     )
@@ -215,7 +216,7 @@ async def platform_password_reset_confirm_form(
             "platform/password_reset_confirm.html",
             {
                 "token": token,
-                "error": "Odkaz je neplatný nebo vypršel.",
+                "error": _t(request, "The link is invalid or has expired."),
                 "notice": None,
                 "principal": None,
             },
@@ -246,7 +247,7 @@ async def platform_password_reset_confirm_submit(
             "platform/password_reset_confirm.html",
             {
                 "token": token,
-                "error": "Hesla se neshodují.",
+                "error": _t(request, "Passwords do not match."),
                 "notice": None,
                 "principal": None,
             },
@@ -268,7 +269,7 @@ async def platform_password_reset_confirm_submit(
             "platform/password_reset_confirm.html",
             {
                 "token": token,
-                "error": "Odkaz je neplatný nebo vypršel.",
+                "error": _t(request, "The link is invalid or has expired."),
                 "notice": None,
                 "principal": None,
             },
@@ -281,7 +282,7 @@ async def platform_password_reset_confirm_submit(
             "platform/password_reset_confirm.html",
             {
                 "token": token,
-                "error": "Heslo musí mít alespoň 8 znaků.",
+                "error": _t(request, "Password must be at least 8 characters long."),
                 "notice": None,
                 "principal": None,
             },
@@ -301,7 +302,7 @@ async def platform_password_reset_confirm_submit(
             "platform/password_reset_confirm.html",
             {
                 "token": token,
-                "error": "Odkaz je neplatný nebo již byl použit.",
+                "error": _t(request, "The link is invalid or has already been used."),
                 "notice": None,
                 "principal": None,
             },

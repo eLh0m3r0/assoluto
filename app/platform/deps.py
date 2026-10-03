@@ -101,7 +101,7 @@ async def require_verified_identity(
     if identity.email_verified_at is None:
         raise HTTPException(
             status_code=403,
-            detail=("E-mail není ověřen. Nejprve klikněte na odkaz v ověřovacím e-mailu."),
+            detail="Email address not verified. Click the link in the verification email first.",
             headers={"Location": "/platform/verify-sent"},
         )
     return identity
