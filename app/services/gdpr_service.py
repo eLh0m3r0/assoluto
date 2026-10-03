@@ -25,11 +25,12 @@ after the audit event is written.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.asset import AssetMovement
@@ -385,3 +386,62 @@ async def find_target_rows_for_email(
     users = list((await db.execute(users_q)).scalars().all())
     contacts = list((await db.execute(contacts_q)).scalars().all())
     return {"user_ids": users, "contact_ids": contacts}
+
+
+# ---------------------------------------------------- controller notice
+
+
+@dataclass(frozen=True)
+class ErasureNotice:
+    """Who to tell, and what, when a contact erases themselves (SEC-10)."""
+
+    recipients: list[tuple[str, str | None]]  # (email, preferred_locale)
+    customer_id: UUID
+    customer_name: str
+    remaining_contacts: int
+
+
+async def contact_erasure_notice(
+    db: AsyncSession, *, contact: CustomerContact, fallback_email: str | None
+) -> ErasureNotice:
+    """Build the notice for the tenant (the controller) after a contact's
+    self-erasure. Call *after* :func:`erase_contact` so the erased row no
+    longer counts as an active contact.
+
+    Recipients are the tenant's active administrators who can actually log
+    in; with none, the tenant's billing e-mail. The notice deliberately
+    carries no name or e-mail of the erased person.
+    """
+    from app.models.enums import UserRole
+
+    customer = (
+        await db.execute(select(Customer).where(Customer.id == contact.customer_id))
+    ).scalar_one_or_none()
+    admins = (
+        await db.execute(
+            select(User.email, User.preferred_locale).where(
+                User.tenant_id == contact.tenant_id,
+                User.role == UserRole.TENANT_ADMIN,
+                User.is_active.is_(True),
+                User.password_hash.is_not(None),
+            )
+        )
+    ).all()
+    recipients = [(email, locale) for email, locale in admins]
+    if not recipients and fallback_email:
+        recipients = [(fallback_email, None)]
+    remaining = (
+        await db.execute(
+            select(func.count(CustomerContact.id)).where(
+                CustomerContact.customer_id == contact.customer_id,
+                CustomerContact.is_active.is_(True),
+                CustomerContact.id != contact.id,
+            )
+        )
+    ).scalar_one()
+    return ErasureNotice(
+        recipients=recipients,
+        customer_id=contact.customer_id,
+        customer_name=customer.name if customer else "",
+        remaining_contacts=int(remaining or 0),
+    )

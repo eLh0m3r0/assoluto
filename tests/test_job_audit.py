@@ -93,3 +93,48 @@ async def test_invite_purge_records_one_event_per_contact(owner_engine, demo_ten
     assert "cleanup_stale_invited_contacts" in events[0].actor_label
     assert events[0].entity_label == "gone@acme.cz"
     assert events[0].tenant_id == demo_tenant.id
+
+
+async def test_resending_an_invitation_restarts_the_purge_clock(
+    tenant_client, owner_engine, demo_tenant
+) -> None:
+    """Audit LOGIC-10: a link re-sent on day 13 must not be purged on day 14."""
+    from app.email.sender import CaptureSender
+    from app.security.email_throttle import INVITE_RESEND_THROTTLE
+    from tests.test_notifications_flow import _login
+
+    INVITE_RESEND_THROTTLE.reset()
+    seed = await _seed(owner_engine, demo_tenant.id)
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    contact_id = uuid4()
+    async with sm() as session, session.begin():
+        session.add(
+            CustomerContact(
+                id=contact_id,
+                tenant_id=demo_tenant.id,
+                customer_id=seed["customer"].id,
+                email="late@acme.cz",
+                full_name="Late",
+                role=CustomerContactRole.CUSTOMER_USER,
+                invited_at=datetime.now(UTC) - timedelta(days=13),
+            )
+        )
+
+    tenant_client._transport.app.state.email_sender = CaptureSender()  # type: ignore[attr-defined]
+    await _login(tenant_client, "owner@4mex.cz", "staffpass")
+    resp = await tenant_client.post(
+        f"/app/customers/{seed['customer'].id}/contacts/{contact_id}/resend-invite",
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    assert "notice=" in resp.headers["location"]
+
+    from app.tasks.periodic import cleanup_stale_invited_contacts
+
+    # Two days later (day 15 of the original invite) the contact survives.
+    assert await cleanup_stale_invited_contacts(now=datetime.now(UTC) + timedelta(days=2)) == 0
+    async with sm() as session:
+        still_there = (
+            await session.execute(select(CustomerContact).where(CustomerContact.id == contact_id))
+        ).scalar_one_or_none()
+    assert still_there is not None

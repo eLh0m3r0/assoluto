@@ -409,3 +409,31 @@ def send_trial_nurture(
         },
         locale,
     )
+
+
+def send_contact_erased_notice(
+    sender: EmailSender,
+    *,
+    to: str,
+    tenant_name: str,
+    customer_name: str,
+    customer_url: str,
+    remaining_contacts: int,
+    locale: str | None = None,
+) -> None:
+    """Tell a tenant admin that a customer contact erased themselves
+    (GDPR Art. 17 self-service; audit SEC-10). Carries no data about the
+    erased person — only which customer lost a contact."""
+    _render_and_send(
+        sender,
+        "contact_erased",
+        "contact_erased",
+        to,
+        {
+            "tenant_name": tenant_name,
+            "customer_name": customer_name,
+            "customer_url": customer_url,
+            "remaining_contacts": remaining_contacts,
+        },
+        locale,
+    )
