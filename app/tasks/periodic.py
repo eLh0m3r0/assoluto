@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import delete, select, text
+from sqlalchemy import Uuid, delete, select, text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.config import get_settings
@@ -44,6 +44,16 @@ EXPIRE_TRIALS_LOCK_ID = 42_006
 # (pricing FAQ + index FAQ) commits us to this number — keep them in sync.
 ENFORCE_CANCELED_LOCK_ID = 42_007
 CANCEL_GRACE_DAYS = 3
+# Codex-8 entitlement grace windows for the other non-paying Stripe
+# states (see ``access_cutoff``). ``past_due`` keeps access while
+# Stripe's Smart Retries run (default schedule ≈ 3 weeks) — the cut
+# must not land before the last retry. The no-access states get the
+# same short export window as a cancellation.
+PAST_DUE_GRACE_DAYS = 21
+NO_ACCESS_GRACE_DAYS = CANCEL_GRACE_DAYS
+NO_ACCESS_STATUSES: frozenset[str] = frozenset(
+    {"unpaid", "incomplete", "incomplete_expired", "paused"}
+)
 
 
 def _owner_engine():
@@ -206,18 +216,25 @@ async def cleanup_old_stripe_events(now: datetime | None = None) -> int:
 
 
 async def expire_demo_trials(now: datetime | None = None) -> int:
-    """Mark expired demo-mode trials as canceled.
+    """Cancel local (non-Stripe) subscriptions whose paid-for time ran out.
 
     In live Stripe mode, ``customer.subscription.deleted`` does the
-    same thing via webhook. This job is defence-in-depth for demo/dev
-    mode where no webhook fires.
+    same thing via webhook. This job covers every subscription Stripe
+    does not manage:
+
+    * ``trialing`` / ``demo`` rows past ``trial_ends_at``;
+    * manually invoiced ``active`` rows past their ``current_period_end``
+      (LOGIC-18) — only rows written by the new subscription editor,
+      which stamps ``status_changed_at`` and requires an explicit
+      "paid until" date. Legacy manual rows (``status_changed_at`` NULL)
+      are left alone so nobody is cut off by a date that was never
+      meant as an end date; the operator re-saves them with one.
 
     Status flips to ``canceled``; ``plan_id`` is intentionally left as
-    a record of what the tenant had on trial. Per Option A there is no
-    free hosted "Community" fallback — once canceled, the tenant has
-    ``CANCEL_GRACE_DAYS`` days from ``current_period_end`` (or now,
-    whichever is later) before ``enforce_canceled_subscriptions``
-    deactivates them.
+    a record of what the tenant had. Per Option A there is no free
+    hosted "Community" fallback — once canceled, the tenant has
+    ``CANCEL_GRACE_DAYS`` days from ``current_period_end`` before
+    ``enforce_canceled_subscriptions`` deactivates them.
     """
     current = now or datetime.now(UTC)
 
@@ -243,11 +260,19 @@ async def expire_demo_trials(now: datetime | None = None) -> int:
                     text(
                         "UPDATE platform_subscriptions "
                         "SET status = 'canceled', "
+                        "    status_changed_at = :now, "
+                        "    canceled_at = COALESCE(canceled_at, :now), "
                         "    current_period_end = COALESCE(current_period_end, trial_ends_at) "
-                        "WHERE status IN ('trialing', 'demo') "
-                        "  AND trial_ends_at IS NOT NULL "
-                        "  AND trial_ends_at < :now "
-                        "  AND stripe_subscription_id IS NULL"
+                        "WHERE stripe_subscription_id IS NULL "
+                        "  AND ( "
+                        "    (status IN ('trialing', 'demo') "
+                        "     AND trial_ends_at IS NOT NULL "
+                        "     AND trial_ends_at < :now) "
+                        "    OR (status = 'active' "
+                        "     AND status_changed_at IS NOT NULL "
+                        "     AND current_period_end IS NOT NULL "
+                        "     AND current_period_end < :now) "
+                        "  )"
                     ),
                     {"now": current},
                 )
@@ -263,25 +288,78 @@ async def expire_demo_trials(now: datetime | None = None) -> int:
         await engine.dispose()
 
 
+def access_cutoff(
+    status: str | None,
+    *,
+    current_period_end: datetime | None,
+    status_changed_at: datetime | None,
+    canceled_at: datetime | None = None,
+    updated_at: datetime | None = None,
+) -> datetime | None:
+    """When does a tenant in ``status`` lose access? ``None`` = not scheduled.
+
+    Single source for the entitlement table in
+    ``app.platform.billing.service`` (Codex-8). Used by the in-app
+    banners; ``enforce_canceled_subscriptions`` applies the same rules
+    in SQL (see ``_CUTOFF_SQL``).
+    """
+    if status == "canceled":
+        anchor = current_period_end or canceled_at or status_changed_at or updated_at
+        return anchor + timedelta(days=CANCEL_GRACE_DAYS) if anchor else None
+    anchor = status_changed_at or updated_at
+    if anchor is None:
+        return None
+    if status == "past_due":
+        return anchor + timedelta(days=PAST_DUE_GRACE_DAYS)
+    if status in NO_ACCESS_STATUSES:
+        return anchor + timedelta(days=NO_ACCESS_GRACE_DAYS)
+    return None
+
+
+# SQL twin of :func:`access_cutoff` — "the grace window has elapsed".
+_CUTOFF_SQL = (
+    "("
+    "  (s.status = 'canceled' "
+    "   AND COALESCE(s.current_period_end, s.canceled_at, s.status_changed_at, s.updated_at)"
+    "       < :canceled_cutoff) "
+    "  OR (s.status = 'past_due' "
+    "   AND COALESCE(s.status_changed_at, s.updated_at) < :past_due_cutoff) "
+    "  OR (s.status IN ('unpaid', 'incomplete', 'incomplete_expired', 'paused') "
+    "   AND COALESCE(s.status_changed_at, s.updated_at) < :no_access_cutoff) "
+    ")"
+)
+
+
 async def enforce_canceled_subscriptions(now: datetime | None = None) -> int:
-    """Deactivate tenants whose canceled subscription has run out of grace.
+    """Deactivate tenants whose non-paying subscription ran out of grace.
 
-    A canceled subscription gets ``CANCEL_GRACE_DAYS`` (today: 3) of
-    full access AFTER its ``current_period_end`` so the operator can
-    export their data. This job runs daily and, for every canceled
-    subscription where the grace window has expired, flips
-    ``tenants.is_active = false`` and bumps every user/contact's
-    ``session_version`` so any in-flight browser session fails its
-    next request.
+    Entitlement rules (Codex-8, see :func:`access_cutoff`):
 
-    Tenants with ``is_active=false`` are returned as 404 by
-    ``deps.get_current_tenant`` — no further code path needs to be
-    aware of the cancellation.
+    * ``canceled`` — ``CANCEL_GRACE_DAYS`` after ``current_period_end``
+      so the operator can export their data;
+    * ``past_due`` — ``PAST_DUE_GRACE_DAYS`` after the status changed,
+      i.e. after Stripe's dunning retries had their chance;
+    * ``unpaid`` / ``incomplete`` / ``incomplete_expired`` / ``paused`` —
+      ``NO_ACCESS_GRACE_DAYS`` after the status changed. These used to be
+      stored verbatim and never acted on, so such tenants kept access
+      forever.
+
+    For every match it flips ``tenants.is_active = false`` and bumps every
+    user/contact's ``session_version`` so any in-flight browser session
+    fails its next request. Tenants with ``is_active=false`` see the
+    neutral "portal temporarily unavailable" page.
+
+    A later Stripe recovery (``active``) re-enables the tenant via the
+    webhook, unless a platform admin suspended it.
 
     Idempotent: re-running on already-deactivated tenants is a no-op.
     """
     current = now or datetime.now(UTC)
-    cutoff = current - timedelta(days=CANCEL_GRACE_DAYS)
+    params = {
+        "canceled_cutoff": current - timedelta(days=CANCEL_GRACE_DAYS),
+        "past_due_cutoff": current - timedelta(days=PAST_DUE_GRACE_DAYS),
+        "no_access_cutoff": current - timedelta(days=NO_ACCESS_GRACE_DAYS),
+    }
 
     engine = _owner_engine()
     try:
@@ -297,26 +375,23 @@ async def enforce_canceled_subscriptions(now: datetime | None = None) -> int:
                 return 0
 
             try:
-                # Find tenants whose subscription is canceled and whose
-                # grace window has elapsed AND which are still active
-                # (so re-runs don't re-disable already-disabled rows).
+                # Find tenants whose grace window has elapsed AND which are
+                # still active (so re-runs don't re-disable them).
                 rows = (
                     await conn.execute(
                         text(
-                            "SELECT t.id "
+                            "SELECT t.id, s.status "
                             "FROM tenants t "
                             "JOIN platform_subscriptions s ON s.tenant_id = t.id "
-                            "WHERE s.status = 'canceled' "
-                            "  AND s.current_period_end IS NOT NULL "
-                            "  AND s.current_period_end < :cutoff "
+                            f"WHERE {_CUTOFF_SQL} "
                             "  AND t.is_active = true"
                         ),
-                        {"cutoff": cutoff},
+                        params,
                     )
                 ).all()
 
                 deactivated = 0
-                for (tenant_id,) in rows:
+                for tenant_id, sub_status in rows:
                     await conn.execute(
                         text("UPDATE tenants SET is_active = false WHERE id = :id"),
                         {"id": tenant_id},
@@ -341,7 +416,11 @@ async def enforce_canceled_subscriptions(now: datetime | None = None) -> int:
                         {"tid": tenant_id},
                     )
                     deactivated += 1
-                    log.info("periodic.enforce_canceled.tenant_disabled", tenant_id=str(tenant_id))
+                    log.info(
+                        "periodic.enforce_canceled.tenant_disabled",
+                        tenant_id=str(tenant_id),
+                        subscription_status=sub_status,
+                    )
 
                 log.info("periodic.enforce_canceled.done", deactivated=deactivated)
                 return deactivated
@@ -379,21 +458,29 @@ def _due_nurture_stage(
     created_at: datetime,
     trial_ends_at: datetime | None,
     already_sent: dict,
+    *,
+    onboarding: bool = True,
+    ending: bool = True,
 ) -> tuple[str, int] | None:
     """Return the most urgent unsent stage whose window covers ``now``.
 
     Priority: ending > day7 > day1 (at most one email per tenant per
     run, so overlapping windows on short trials can't double-send).
+    ``onboarding`` / ``ending`` switch the day-1/day-7 and the
+    trial-ending stages on or off.
     """
     window = timedelta(days=NURTURE_WINDOW_DAYS)
     if (
-        trial_ends_at is not None
+        ending
+        and trial_ends_at is not None
         and "ending" not in already_sent
         and trial_ends_at - timedelta(days=TRIAL_ENDING_LEAD_DAYS) <= now < trial_ends_at
     ):
         return "ending", max(0, (trial_ends_at - now).days)
     if trial_ends_at is not None and now >= trial_ends_at:
         return None  # trial over — expiry job owns it from here
+    if not onboarding:
+        return None
     for stage, offset in (("day7", timedelta(days=7)), ("day1", timedelta(days=1))):
         start = created_at + offset
         if stage not in already_sent and start <= now < start + window:
@@ -404,11 +491,19 @@ def _due_nurture_stage(
 async def send_trial_nurture_emails(now: datetime | None = None, sender=None) -> int:
     """Send the day-1 / day-7 / trial-ending nudges to trial tenants.
 
-    Recipients are the tenant's active TENANT_ADMIN users. Sent stages
-    are recorded in ``tenants.settings["_trial_nurture_sent"]`` so the
-    job is idempotent across daily runs. Gated on both FEATURE_PLATFORM
-    and TRIAL_NURTURE_ENABLED (default off — copy must be approved
-    before any tenant receives it).
+    Recipients are the tenant's active TENANT_ADMIN users whose platform
+    identity has a **verified e-mail** — never a bot-typed address that
+    nobody confirmed (BIZ-09) — and never an operator's support-access
+    user (LOGIC-20). Sent stages are recorded in
+    ``tenants.settings["_trial_nurture_sent"]`` so the job is idempotent
+    across daily runs.
+
+    Gating (LOGIC-4): FEATURE_PLATFORM is required. The day-1 / day-7
+    onboarding mails additionally wait for TRIAL_NURTURE_ENABLED (copy
+    approval). The trial-ENDING reminder does not: a trial must never
+    end silently and three days later cut the tenant — and its
+    customers — off without a single warning. The ending reminder is
+    skipped for Stripe-linked trials, which convert automatically.
 
     ``platform_subscriptions`` is queried via raw SQL on purpose: core
     tasks must not import ``app.platform`` models (CLAUDE.md §6).
@@ -416,7 +511,7 @@ async def send_trial_nurture_emails(now: datetime | None = None, sender=None) ->
     from app.email.sender import build_sender
 
     settings = get_settings()
-    if not (settings.feature_platform and settings.trial_nurture_enabled):
+    if not settings.feature_platform:
         return 0
 
     current = now or datetime.now(UTC)
@@ -451,6 +546,18 @@ async def send_trial_nurture_emails(now: datetime | None = None, sender=None) ->
         await engine.dispose()
 
 
+# Users backed by a platform identity that confirmed its e-mail and that
+# are not an operator's support grant. Raw SQL — core may not import the
+# platform models (CLAUDE.md §6).
+_VERIFIED_NON_SUPPORT_ADMIN_IDS = text(
+    "SELECT m.user_id FROM platform_tenant_memberships m "
+    "JOIN platform_identities i ON i.id = m.identity_id "
+    "WHERE m.user_id IS NOT NULL AND m.is_active "
+    "  AND m.access_type <> 'support' "
+    "  AND i.email_verified_at IS NOT NULL"
+).columns(user_id=Uuid())
+
+
 async def _run_trial_nurture(engine, current: datetime, mail, settings) -> int:
     """Inner body of :func:`send_trial_nurture_emails` (lock already held)."""
     from app.models.enums import UserRole
@@ -463,7 +570,8 @@ async def _run_trial_nurture(engine, current: datetime, mail, settings) -> int:
         rows = (
             await conn.execute(
                 text(
-                    "SELECT s.tenant_id, s.created_at, s.trial_ends_at "
+                    "SELECT s.tenant_id, s.created_at, s.trial_ends_at, "
+                    "       s.stripe_subscription_id "
                     "FROM platform_subscriptions s "
                     "JOIN tenants t ON t.id = s.tenant_id "
                     "WHERE s.status IN ('trialing', 'demo') "
@@ -474,13 +582,20 @@ async def _run_trial_nurture(engine, current: datetime, mail, settings) -> int:
 
     sent = 0
     sm = async_sessionmaker(engine, expire_on_commit=False)
-    for tenant_id, created_at, trial_ends_at in rows:
+    for tenant_id, created_at, trial_ends_at, stripe_sub_id in rows:
         async with sm() as session, session.begin():
             tenant = (
                 await session.execute(select(Tenant).where(Tenant.id == tenant_id))
             ).scalar_one()
             already = dict((tenant.settings or {}).get(NURTURE_SENT_KEY) or {})
-            due = _due_nurture_stage(current, created_at, trial_ends_at, already)
+            due = _due_nurture_stage(
+                current,
+                created_at,
+                trial_ends_at,
+                already,
+                onboarding=settings.trial_nurture_enabled,
+                ending=stripe_sub_id is None,
+            )
             if due is None:
                 continue
             stage, days_left = due
@@ -492,6 +607,7 @@ async def _run_trial_nurture(engine, current: datetime, mail, settings) -> int:
                             UserModel.tenant_id == tenant_id,
                             UserModel.role == UserRole.TENANT_ADMIN,
                             UserModel.is_active.is_(True),
+                            UserModel.id.in_(_VERIFIED_NON_SUPPORT_ADMIN_IDS),
                         )
                     )
                 )
@@ -502,7 +618,9 @@ async def _run_trial_nurture(engine, current: datetime, mail, settings) -> int:
                 continue
 
             portal_url = _tenant_portal_url(settings.app_base_url, tenant.slug)
-            billing_url = settings.app_base_url.rstrip("/") + "/platform/billing"
+            billing_url = (
+                settings.app_base_url.rstrip("/") + f"/platform/billing?tenant={tenant.slug}"
+            )
             trial_end_date = trial_ends_at.strftime("%d.%m.%Y") if trial_ends_at is not None else ""
             for admin in admins:
                 locale = resolve_email_locale(recipient=admin, tenant=tenant, settings=settings)

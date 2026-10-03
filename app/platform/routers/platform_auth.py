@@ -113,8 +113,21 @@ async def platform_login_submit(
 @router.post("/platform/logout")
 async def platform_logout(
     settings: Settings = Depends(get_settings),
+    identity: Identity | None = Depends(get_current_identity),
+    db: AsyncSession = Depends(get_platform_db),
 ) -> Response:
+    """Log out of the platform AND kill every copy of the cookie (SEC-6).
+
+    Deleting the cookie only removes the browser's copy; a captured one
+    (shared machine, proxy log) stayed valid for its 14 days and could
+    mint tenant sessions via /platform/switch. Bumping
+    ``Identity.session_version`` makes every outstanding platform cookie
+    fail ``get_current_identity`` — mirrors the tenant logout.
+    """
     response = RedirectResponse(url="/platform/login", status_code=status.HTTP_303_SEE_OTHER)
+    if identity is not None:
+        identity.session_version = (identity.session_version or 0) + 1
+        await db.commit()
     clear_platform_session(response, domain=_cookie_domain(settings))
     return response
 
