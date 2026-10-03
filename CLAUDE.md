@@ -211,6 +211,14 @@ DATABASE_URL passwords, S3/SMTP).
 before `docker compose up` so **compose-file changes in the repo
 propagate on every deploy** — there is no manual copy step.
 
+**Release flow:** feature branch → PR → `main` → `git merge --ff-only
+origin/main` on `production` → push. The deploy's `ci-gate` job waits
+for a green `CI` run on `main` for that exact SHA and refuses anything
+else, so never commit to `production` directly. Each deploy dumps the
+DB to `~deploy/predeploy-backups/` before migrating and rolls back to
+the previous image if `/healthz` never goes green. Only `main` and
+`production` are long-lived; delete feature branches after merge.
+
 When you add a new setting:
 1. Add the Pydantic field in `app/config.py` with a safe default.
 2. Document in `.env.example`.

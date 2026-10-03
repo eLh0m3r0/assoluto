@@ -1,15 +1,27 @@
 name: Deploy to production
 
-# Triggers on every push to the `production` branch (typically via a
-# merge from `main` after you've verified a release). Builds a Docker
-# image, pushes it to GHCR tagged with the commit SHA, then SSHes into
-# the Hetzner VPS and rolls the `web` service over.
+# Triggers on every push to the `production` branch. The only supported
+# way to move `production` is a fast-forward to a commit that is already
+# on `main` (see docs/DEPLOY_HETZNER.md §8.2):
+#
+#   git switch production && git merge --ff-only origin/main && git push
+#
+# Pipeline: wait for CI on that exact commit → build + push image to
+# GHCR → SSH into the Hetzner VPS → dump the DB → roll `web` (migrations
+# run in the entrypoint) → health check → automatic rollback to the
+# previous image if the new one never goes healthy → public probe.
 #
 # Required GitHub secrets (Settings → Secrets and variables → Actions):
-#   DEPLOY_HOST        — public IPv4 or hostname of the VPS
-#   DEPLOY_USER        — SSH user (e.g. "deploy")
-#   DEPLOY_SSH_KEY     — private key (OpenSSH format, full file contents)
-#   DEPLOY_PORT        — optional, defaults to 22
+#   DEPLOY_HOST              — public IPv4 or hostname of the VPS
+#   DEPLOY_USER              — SSH user (e.g. "deploy")
+#   DEPLOY_SSH_KEY           — private key (OpenSSH format, full file contents)
+#   DEPLOY_PORT              — optional, defaults to 22
+#   DEPLOY_HOST_FINGERPRINT  — optional but recommended: SHA256 host key
+#                              fingerprint (`ssh-keygen -lf
+#                              /etc/ssh/ssh_host_ed25519_key.pub` on the VPS).
+#                              Unset = host key is not verified.
+# Optional repository variable:
+#   PUBLIC_HEALTH_URL        — defaults to https://assoluto.eu/healthz
 #
 # See docs/DEPLOY_HETZNER.md for the full VPS provisioning walkthrough.
 
@@ -17,7 +29,16 @@ on:
   push:
     branches:
       - production
-  workflow_dispatch: {}
+    # Docs-only pushes have nothing to roll out.
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  workflow_dispatch:
+    inputs:
+      skip_ci_gate:
+        description: "EMERGENCY ONLY — deploy without waiting for green CI on this commit"
+        type: boolean
+        default: false
 
 concurrency:
   group: production-deploy
@@ -28,11 +49,63 @@ concurrency:
 # write-all — far more than any of these jobs needs.
 permissions:
   contents: read
-  packages: write
 
 jobs:
+  ci-gate:
+    # Before this job existed, the deploy ran in parallel with CI on
+    # main: a merge started both, and the image was live on the VPS
+    # minutes before the test suite finished. A red CI would have been
+    # reported after production already ran the code.
+    name: Wait for green CI on this commit
+    if: ${{ !inputs.skip_ci_gate }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+    steps:
+      - name: Require a successful CI run on main for ${{ github.sha }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          while :; do
+            run=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml \
+                    --commit "$SHA" --branch main --event push --limit 1 \
+                    --json status,conclusion,url --jq '.[0] // empty')
+            if [ -z "$run" ]; then
+              # CI on main is triggered by the same merge; give it a few
+              # minutes to register before concluding it never will.
+              if [ "$SECONDS" -gt 300 ]; then
+                echo "::error::No CI run on main for $SHA. Production only takes commits that went through main — fast-forward production to origin/main."
+                exit 1
+              fi
+              echo "No CI run registered for $SHA yet…"
+            else
+              status=$(jq -r .status <<<"$run")
+              conclusion=$(jq -r .conclusion <<<"$run")
+              url=$(jq -r .url <<<"$run")
+              if [ "$status" = "completed" ]; then
+                if [ "$conclusion" = "success" ]; then
+                  echo "CI green: $url"
+                  exit 0
+                fi
+                # `cancelled` usually means a newer push to main superseded
+                # this commit — fast-forward production to the newer one.
+                echo "::error::CI for $SHA concluded '$conclusion': $url"
+                exit 1
+              fi
+              echo "CI $status: $url"
+            fi
+            sleep 20
+          done
+
   build-and-deploy:
     name: Build image + roll web on Hetzner
+    needs: ci-gate
+    # Run when the gate passed, or when it was skipped on purpose via the
+    # emergency input — never when it failed.
+    if: ${{ always() && (needs.ci-gate.result == 'success' || needs.ci-gate.result == 'skipped') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -82,8 +155,9 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.DEPLOY_PORT || 22 }}
+          fingerprint: ${{ secrets.DEPLOY_HOST_FINGERPRINT }}
           envs: IMAGE_TAG
-          command_timeout: 10m
+          command_timeout: 15m
           script_stop: true
           script: |
             set -euo pipefail
@@ -97,32 +171,91 @@ jobs:
             git fetch --depth=1 origin production
             git reset --hard origin/production
 
-            # /etc/assoluto/env is deploy-owned (600) so sudo isn't needed.
-            if grep -qE '^APP_IMAGE_TAG=' /etc/assoluto/env; then
-                sed -i -E "s|^APP_IMAGE_TAG=.*$|APP_IMAGE_TAG=${IMAGE_TAG}|" /etc/assoluto/env
-            else
-                echo "APP_IMAGE_TAG=${IMAGE_TAG}" >> /etc/assoluto/env
-            fi
-
             # `deploy` is in the `docker` group — no sudo needed.
             COMPOSE="docker compose --env-file /etc/assoluto/env -f docker-compose.yml -f docker-compose.prod.yml"
 
-            echo ">>> Pulling image…"
+            # /etc/assoluto/env is deploy-owned (600) so sudo isn't needed.
+            PREV_TAG=$(sed -n -E 's/^APP_IMAGE_TAG=(.*)$/\1/p' /etc/assoluto/env | tail -n1)
+            set_tag() {
+                if grep -qE '^APP_IMAGE_TAG=' /etc/assoluto/env; then
+                    sed -i -E "s|^APP_IMAGE_TAG=.*$|APP_IMAGE_TAG=$1|" /etc/assoluto/env
+                else
+                    echo "APP_IMAGE_TAG=$1" >> /etc/assoluto/env
+                fi
+            }
+            wait_healthy() {
+                for i in $(seq 1 20); do
+                    if $COMPOSE exec -T web python -c "import urllib.request, sys; r = urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=5); sys.exit(0 if r.status == 200 else 1)" >/dev/null 2>&1; then
+                        echo "Health OK on attempt $i"
+                        return 0
+                    fi
+                    sleep 3
+                done
+                return 1
+            }
+
+            # The entrypoint runs `alembic upgrade head` and there is no
+            # downgrade path in production, so take a dump first. A failed
+            # dump aborts the deploy (pipefail) — never migrate without one.
+            echo ">>> Pre-deploy database dump…"
+            BACKUP_DIR="$HOME/predeploy-backups"
+            mkdir -p "$BACKUP_DIR" && chmod 700 "$BACKUP_DIR"
+            DUMP="$BACKUP_DIR/portal-$(date -u +%Y%m%dT%H%M%SZ)-${IMAGE_TAG}.sql.gz"
+            # A failed dump is deleted so nobody restores it later by mistake.
+            if ! ( umask 077
+                   $COMPOSE exec -T postgres sh -c 'pg_dump --no-owner --no-acl -U "$POSTGRES_USER" "$POSTGRES_DB"' \
+                     | gzip > "$DUMP" ); then
+                rm -f "$DUMP"
+                echo "!!! pg_dump failed — refusing to deploy"
+                exit 1
+            fi
+            if [ "$(wc -c < "$DUMP")" -lt 1024 ]; then
+                rm -f "$DUMP"
+                echo "!!! Dump is suspiciously small — refusing to deploy"
+                exit 1
+            fi
+            echo "Dump: $DUMP ($(du -h "$DUMP" | cut -f1))"
+            # Keep the 10 most recent pre-deploy dumps.
+            ls -1t "$BACKUP_DIR"/portal-*.sql.gz | tail -n +11 | xargs -r rm --
+
+            echo ">>> Pulling image ${IMAGE_TAG}…"
+            set_tag "$IMAGE_TAG"
             $COMPOSE pull web
 
             echo ">>> Rolling web (migrations run via entrypoint)…"
             $COMPOSE up -d --no-deps --remove-orphans web
 
             echo ">>> Waiting for /healthz…"
-            for i in $(seq 1 20); do
-                if $COMPOSE exec -T web python -c "import urllib.request, sys; r = urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=5); sys.exit(0 if r.status == 200 else 1)" >/dev/null 2>&1; then
-                    echo "Health OK on attempt $i"
-                    $COMPOSE ps
-                    exit 0
-                fi
-                sleep 3
-            done
+            if wait_healthy; then
+                $COMPOSE ps
+                exit 0
+            fi
 
             echo "!!! Health check failed after 60s — container logs:"
-            $COMPOSE logs --tail=200 web
+            $COMPOSE logs --tail=200 web || true
+
+            if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$IMAGE_TAG" ]; then
+                echo ">>> Rolling back to previous image ${PREV_TAG}…"
+                set_tag "$PREV_TAG"
+                $COMPOSE up -d --no-deps web
+                if wait_healthy; then
+                    echo "Rolled back to ${PREV_TAG}. Any migration from ${IMAGE_TAG} is still applied;"
+                    echo "if the old code cannot run on the new schema, restore ${DUMP}."
+                else
+                    echo "!!! Rollback is unhealthy too. Restore ${DUMP} — see docs/BACKUP_RESTORE.md."
+                fi
+            fi
             exit 1
+
+      - name: Probe the public endpoint
+        env:
+          URL: ${{ vars.PUBLIC_HEALTH_URL || 'https://assoluto.eu/healthz' }}
+        run: |
+          # The in-container check above does not cover Caddy, TLS or DNS.
+          for _ in $(seq 1 10); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL" || echo 000)
+            echo "$URL -> $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 6
+          done
+          exit 1
