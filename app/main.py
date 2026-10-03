@@ -18,6 +18,7 @@ from app.email.sender import build_sender
 from app.logging import configure_logging, get_logger
 from app.routers import assets as assets_router
 from app.routers import attachments as attachments_router
+from app.routers import customer_team as customer_team_router
 from app.routers import customers as customers_router
 from app.routers import dashboard as dashboard_router
 from app.routers import health as health_router
@@ -370,6 +371,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(search_router.router)
     app.include_router(tenant_admin_router.router)
     app.include_router(me_router.router)
+    app.include_router(customer_team_router.router)
     app.include_router(www_router.router)
 
     # Fail fast if production deployment is misconfigured in a way that

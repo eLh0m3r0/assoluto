@@ -390,6 +390,11 @@ async def resolve_contact_audience(
         customer = (
             await db.execute(select(Customer).where(Customer.id == order.customer_id))
         ).scalar_one_or_none()
+    if customer is not None and not customer.is_active:
+        # Archived customer: its contacts can no longer sign in, so a mail
+        # whose whole point is "open the order" would only confuse them.
+        # This is not consent yielding — nobody is re-added anywhere.
+        return []
 
     # Only pay for the involvement queries when somebody actually narrows
     # their scope — for an all-``ALL`` customer they cannot change the result.

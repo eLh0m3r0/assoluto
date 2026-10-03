@@ -359,6 +359,10 @@ async def create_order(
         ).scalar_one_or_none()
         if customer is None:
             raise OrderError("unknown customer")
+        if not customer.is_active:
+            # Archived / blocked customer (LOGIC-15): history stays, new
+            # work does not start. Unarchive first.
+            raise OrderError("customer is archived")
 
     # Plan-limit gate (orders/month). Falls through for tenants on
     # community / unlimited plans.

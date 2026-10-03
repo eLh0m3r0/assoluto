@@ -315,6 +315,25 @@ async def platform_password_reset_confirm_submit(
     )
 
 
+async def _contact_customer_archived(db: AsyncSession, target) -> bool:
+    """True when ``target`` is a contact whose customer was archived.
+
+    The supplier archiving / blocking a customer locks out every one of
+    its contacts (LOGIC-15); the tenant switcher must neither list nor
+    hand off into such a membership.
+    """
+    if not isinstance(target, CustomerContact):
+        return False
+    from sqlalchemy import select
+
+    from app.models.customer import Customer
+
+    active = (
+        await db.execute(select(Customer.is_active).where(Customer.id == target.customer_id))
+    ).scalar_one_or_none()
+    return not active
+
+
 # ------------------------------------------------------- tenant picker
 
 
@@ -330,6 +349,8 @@ async def select_tenant(
     for m in memberships:
         tenant, target = await resolve_membership_targets(db, membership=m)
         if tenant is None or not tenant.is_active:
+            continue
+        if await _contact_customer_archived(db, target):
             continue
         customer_name: str | None = None
         if isinstance(target, CustomerContact):
@@ -436,6 +457,8 @@ async def switch_to_tenant(
     # row still exists. Prevents a zombie cookie from being issued.
     if not getattr(target, "is_active", True):
         raise HTTPException(status_code=403, detail="Target account is deactivated")
+    if await _contact_customer_archived(db, target):
+        raise HTTPException(status_code=403, detail="Customer account is archived")
 
     next_path = _safe_next_path(next) if next else "/app"
     if next_path == "/":
@@ -561,6 +584,8 @@ async def complete_switch(
         raise HTTPException(status_code=404, detail="Membership target missing")
     if not getattr(target, "is_active", True):
         raise HTTPException(status_code=403, detail="Target account is deactivated")
+    if await _contact_customer_archived(db, target):
+        raise HTTPException(status_code=403, detail="Customer account is archived")
 
     if isinstance(target, User):
         principal_type = "user"
