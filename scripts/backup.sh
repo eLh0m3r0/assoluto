@@ -18,8 +18,17 @@
 #   BACKUP_GPG_RECIPIENT   — gpg key id / email to encrypt to. When set,
 #                            output is .sql.gz.gpg; pubkey must be in the
 #                            local gpg keyring. Empty = unencrypted.
-#   RCLONE_REMOTE          — e.g. b2:portal-backups (must be pre-configured
-#                            in `rclone config`); leave empty to skip sync.
+#   BACKUP_S3_BUCKET       — off-site bucket (in a different location from
+#                            the VPS). When set, the encrypted dump and every
+#                            attachment are copied there by running
+#                            `python -m app.ops.offsite_backup` inside the web
+#                            container (which has boto3 + the S3 keys). Requires
+#                            BACKUP_GPG_RECIPIENT — plaintext never leaves the box.
+#   RCLONE_REMOTE          — legacy alternative: e.g. b2:portal-backups (must be
+#                            pre-configured in `rclone config`); empty = skip.
+#   PORTAL_ENV_FILE        — default /etc/assoluto/env. BACKUP_GPG_RECIPIENT,
+#                            BACKUP_S3_BUCKET and RCLONE_REMOTE are read from it
+#                            when not already set, because cron does not load it.
 #
 # See docs/BACKUP_RESTORE.md for the operator runbook.
 
@@ -28,6 +37,18 @@ set -euo pipefail
 # Dumps hold every tenant's data. Without this they landed as 0664 —
 # readable by any local account on the VPS.
 umask 077
+
+# cron runs with an empty environment, so the operator settings in the app's
+# env file were never seen here — the off-site step silently never ran.
+# Read only the keys this script needs (the file is not shell-safe to source).
+ENV_FILE="${PORTAL_ENV_FILE:-/etc/assoluto/env}"
+read_env_key() {
+    [ -r "${ENV_FILE}" ] || return 0
+    sed -n -E "s/^$1=//p" "${ENV_FILE}" | tail -n1 | sed -E 's/^"(.*)"$/\1/'
+}
+: "${BACKUP_GPG_RECIPIENT:=$(read_env_key BACKUP_GPG_RECIPIENT)}"
+: "${BACKUP_S3_BUCKET:=$(read_env_key BACKUP_S3_BUCKET)}"
+: "${RCLONE_REMOTE:=$(read_env_key RCLONE_REMOTE)}"
 
 BACKUP_DIR="${PORTAL_BACKUP_DIR:-/backups}"
 KEEP_DAYS="${PORTAL_KEEP_DAYS:-14}"
@@ -85,6 +106,20 @@ if [ -n "${RCLONE_REMOTE:-}" ]; then
     # lifecycle rule (and object lock / versioning) at the provider.
     # PORTAL_KEEP_DAYS below only rotates the LOCAL copies.
     rclone copy "${BACKUP_DIR}" "${RCLONE_REMOTE}/pg" --progress --retries=3
+fi
+
+# ---------- Off-site (S3, different location) ----------
+if [ -n "${BACKUP_S3_BUCKET:-}" ]; then
+    if [ -z "${BACKUP_GPG_RECIPIENT:-}" ]; then
+        echo "[backup] ERROR: BACKUP_S3_BUCKET is set but BACKUP_GPG_RECIPIENT is not — refusing to ship plaintext" >&2
+        exit 1
+    fi
+    echo "[backup] Uploading $(basename "${DUMP_FILE}") off-site"
+    # shellcheck disable=SC2094  # basename only reads the name
+    docker compose exec -T web python -m app.ops.offsite_backup upload \
+        --name "$(basename "${DUMP_FILE}")" < "${DUMP_FILE}"
+    echo "[backup] Copying attachments off-site"
+    docker compose exec -T web python -m app.ops.offsite_backup sync-attachments
 fi
 
 echo "[backup] Done."

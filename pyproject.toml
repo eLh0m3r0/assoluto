@@ -23,9 +23,9 @@ dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
     # Floor raised from 0.0.12: older releases carry known multipart
-# parsing DoS advisories, and verify_csrf calls request.form() on
-# EVERY mutating route — including unauthenticated ones — so the
-# parser is reachable pre-auth.
+    # parsing DoS advisories, and verify_csrf calls request.form() on
+    # EVERY mutating route — including unauthenticated ones — so the
+    # parser is reachable pre-auth.
     "python-multipart>=0.0.32",
     "itsdangerous>=2.2",
     # Templating
@@ -66,6 +66,7 @@ dependencies = [
     "slowapi>=0.1.9",
     # Password strength scoring — rejects trivial passwords (OWASP ASVS L1).
     "zxcvbn>=4.4.28",
+    "pdf2image>=1.17",
 ]
 
 [dependency-groups]

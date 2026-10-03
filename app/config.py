@@ -150,6 +150,17 @@ class Settings(BaseSettings):
     # browser can actually reach the MinIO container.
     s3_public_endpoint_url: str = Field(default="", alias="S3_PUBLIC_ENDPOINT_URL")
 
+    # Off-site backup target (app.ops.offsite_backup). A bucket in a
+    # different location from S3_BUCKET and the VPS. Credentials default to
+    # the primary S3 keys (Hetzner keys are project-wide). Empty = disabled.
+    backup_s3_endpoint_url: str = Field(default="", alias="BACKUP_S3_ENDPOINT_URL")
+    backup_s3_region: str = Field(default="", alias="BACKUP_S3_REGION")
+    backup_s3_bucket: str = Field(default="", alias="BACKUP_S3_BUCKET")
+    backup_s3_access_key: str = Field(default="", alias="BACKUP_S3_ACCESS_KEY")
+    backup_s3_secret_key: str = Field(default="", alias="BACKUP_S3_SECRET_KEY")
+    # /healthz/backups answers 503 when the newest off-site dump is older.
+    backup_max_age_hours: float = Field(default=30.0, alias="BACKUP_MAX_AGE_HOURS")
+
     # --- SMTP --------------------------------------------------------------
     smtp_host: str = Field(default="localhost", alias="SMTP_HOST")
     smtp_port: int = Field(default=1025, alias="SMTP_PORT")

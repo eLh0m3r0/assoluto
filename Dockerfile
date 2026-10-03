@@ -81,9 +81,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     APP_ENV=production \
     APP_DEBUG=false
 
-# Minimal runtime packages (libpq for psycopg, poppler in M3+, tini for PID 1)
+# Minimal runtime packages (libpq for psycopg, poppler-utils for PDF
+# thumbnails via pdf2image, tini for PID 1)
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq5 \
+        poppler-utils \
         tini \
     && rm -rf /var/lib/apt/lists/*
 

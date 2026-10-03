@@ -28,11 +28,24 @@
 # boundary because both services share a single host anyway; revisit
 # with split env files (env.web, env.caddy) if that changes.
 
+# Container logs had no size cap (json-file defaults) and grow until the
+# disk is full — the same failure mode as the 26 GB of stale images found
+# in the 2026-10-03 audit. 3 x 20 MB per container.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "3"
+
 services:
   web:
     build: null
-    image: ghcr.io/elh0m3r0/assoluto:${APP_IMAGE_TAG:-latest}
+    # No fallback: `latest` is only pushed by release.yml on v* tags (last
+    # one: v0.1.0, April 2026). A lost APP_IMAGE_TAG used to start that
+    # half-year-old code against the current schema; now compose refuses.
+    image: ghcr.io/elh0m3r0/assoluto:${APP_IMAGE_TAG:?APP_IMAGE_TAG is set by the deploy workflow}
     restart: always
+    logging: *default-logging
     depends_on: !override
       postgres:
         condition: service_healthy
@@ -117,6 +130,7 @@ services:
       - "8000"
 
   postgres:
+    logging: *default-logging
     environment:
       POSTGRES_USER: portal
       POSTGRES_PASSWORD: ${PORTAL_OWNER_PASSWORD:?}
@@ -135,6 +149,7 @@ services:
   mailhog: !reset null
 
   caddy:
+    logging: *default-logging
     build:
       context: .
       dockerfile: docker/Dockerfile.caddy
