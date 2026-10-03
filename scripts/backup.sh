@@ -25,6 +25,10 @@
 
 set -euo pipefail
 
+# Dumps hold every tenant's data. Without this they landed as 0664 —
+# readable by any local account on the VPS.
+umask 077
+
 BACKUP_DIR="${PORTAL_BACKUP_DIR:-/backups}"
 KEEP_DAYS="${PORTAL_KEEP_DAYS:-14}"
 PG_CONTAINER="${PORTAL_PG_CONTAINER:-postgres}"

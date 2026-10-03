@@ -674,33 +674,48 @@ git push -u origin production
 ```
 
 Your workflow now triggers whenever you push to `production`. The
-typical flow is:
+**only** supported flow is a fast-forward to a commit that is already on
+`main` — the deploy refuses commits that have no green CI run on `main`:
 
 ```bash
-# On main after a feature has been tested
-git checkout production
-git merge --ff-only main
+# After the PR is merged to main
+git fetch origin
+git switch production
+git merge --ff-only origin/main
 git push
-# …wait for GitHub Actions green tick…
+# …watch the Actions tab: CI gate → build → deploy → public probe…
 ```
+
+Docs-only pushes (`docs/**`, `*.md`) do not trigger a deploy.
 
 ### 8.3. ⚙️ What happens during a deploy — automatic
 
 The workflow does exactly this:
 
-1. Checks out the `production` ref.
-2. Builds `Dockerfile` for `linux/amd64` using GHA build cache.
-3. Pushes two tags to GHCR: `:<short-sha>` and `:production`.
-4. SSHes in as `deploy` and:
-   - Rewrites `APP_IMAGE_TAG` in `/etc/assoluto/env` to the new SHA.
-   - `docker compose pull web`
-   - `docker compose up -d --no-deps --remove-orphans web` — this
-     recreates only the web container. Postgres and nginx keep running.
-   - The container entrypoint runs `alembic upgrade head` before
-     uvicorn starts.
-   - Polls `curl /healthz` inside the container for 60 s.
-   - Fails the job with the last 200 lines of web logs if it never
-     goes healthy.
+1. **CI gate** — waits (up to 30 min) for the `CI` workflow run on
+   `main` for the exact commit being deployed. Red, cancelled or
+   missing CI fails the deploy before anything is built. Emergency
+   bypass: run the workflow manually (**Actions → Deploy to production →
+   Run workflow**) with `skip_ci_gate` ticked.
+2. Builds `Dockerfile` for `linux/amd64` using GHA build cache and
+   pushes two tags to GHCR: `:<short-sha>` and `:production`.
+3. SSHes in as `deploy` (host key pinned when the
+   `DEPLOY_HOST_FINGERPRINT` secret is set) and:
+   - Syncs `/opt/assoluto` to `origin/production` (compose files, Caddyfile).
+   - **Dumps the database** to `~deploy/predeploy-backups/` (mode 600,
+     newest 10 kept). A failed dump aborts the deploy — migrations never
+     run without one.
+   - Rewrites `APP_IMAGE_TAG` in `/etc/assoluto/env`, pulls, and
+     recreates only the `web` container. The entrypoint runs
+     `alembic upgrade head` before uvicorn starts.
+   - Polls `/healthz` inside the container for 60 s.
+   - **On failure: rolls back** to the previous `APP_IMAGE_TAG`, prints
+     the last 200 log lines and fails the job. Migrations from the bad
+     release stay applied; if the old code cannot run on the new
+     schema, restore the pre-deploy dump (see `BACKUP_RESTORE.md`).
+4. Probes the public URL (`PUBLIC_HEALTH_URL` repository variable,
+   default `https://assoluto.eu/healthz`) so Caddy, TLS and DNS are
+   covered too.
 
 Deploy time: ~2–4 minutes cold, ~90 s warm (GHA cache).
 
@@ -711,9 +726,9 @@ first run will build from scratch (no cache), subsequent runs pull
 cached layers.
 
 If the run fails at the SSH step:
-- Check the VPS fingerprint got recorded. `appleboy/ssh-action` sets
-  `StrictHostKeyChecking no` by default, so this is usually the
-  secrets being wrong.
+- If `DEPLOY_HOST_FINGERPRINT` is set, check it matches
+  `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` on the VPS (the
+  `SHA256:…` part). Unset, the host key is not verified at all.
 - Test the key manually: `ssh -i ~/.ssh/assoluto_deploy deploy@<IP>`.
 - Verify `deploy` can run `sudo docker …` without a password.
 
