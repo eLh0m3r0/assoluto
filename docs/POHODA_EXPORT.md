@@ -123,3 +123,63 @@ This covered the builder test and a real HTTP response from the route,
 for all three VAT rates and for CZK and EUR orders. **No import into a
 real POHODA installation has been done yet.** Do one trial import
 before advertising "works with POHODA".
+
+---
+
+# Money S3 (Seyfor)
+
+The export page also offers **Download for Money S3**
+(`/app/admin/exports/money-s3.xml`). It uses the same filters, defaults,
+VAT choice and admin-only access. The file name is
+`money-s3-objednavky-YYYYMMDD.xml`. It is in Money's native `MoneyData`
+format, which needs no XMLDE module. The manual says *"XML elektronická
+výměna dat je součástí základní instalace programu Money S3"*. The file
+is **UTF-8**, like Seyfor's official samples.
+
+## How the accountant imports it
+
+Seyfor's manual *XML elektronická výměna dat*
+(<https://money.cz/wp-content/uploads/2023/07/xml_prenosy.pdf>) says:
+
+1. In the list of XML transfers, load the standard transfer definitions
+   once, using **Připravený seznam** (or when creating the agenda,
+   *"z připravených seznamů (doporučeno)"*).
+2. Run the import from **Nástroje → Výměna dat XML → Import**. You can
+   also start it from the *Objednávky přijaté* list with **XML přenosy**.
+   Pick a definition that imports received orders, then choose the
+   downloaded file.
+3. To avoid duplicates on re-import, use **Doklad došlý** as the matching
+   key in the import configuration. The manual: *"U přijatých dokladů je
+   možné navíc použít klíč Doklad došlý"*. Assoluto writes its order
+   number into `PrimDoklad`, which is that field.
+
+## Mapping
+
+| Money S3 element | Source |
+|---|---|
+| `MoneyData/@ICAgendy` | tenant IČO (same rules as POHODA's `ico`) |
+| `ObjPrij/Popis` | order title (max 50 chars) |
+| `ObjPrij/Poznamka` | order notes |
+| `ObjPrij/Vystaveno`, `Vyridit_do` | same dates as for POHODA |
+| `ObjPrij/DodOdb` | customer: `ObchNazev`/`FaktNazev`/`Nazev`, addresses, `ICO` (max 10), `DIC` |
+| `ObjPrij/PrimDoklad` | Assoluto order number. `Doklad` (max 10 chars) is left empty, so Money numbers the order from its own series. |
+| `ObjPrij/Valuty/Mena/Kod` | order currency when not CZK. The schema requires `SouhrnDPH`/`Celkem` here, but both are ignored on import. |
+| `Polozka/Popis` | item text (max 50). If it is cut, the full text goes to `Polozka/Poznamka`, together with the item note. |
+| `Polozka/PocetMJ`, `NesklPolozka/MJ` | quantity, unit |
+| `Polozka/Cena` (CZK) or `Polozka/Valuty` (foreign currency) | unit price |
+| `Polozka/SazbaDPH` | `0` by default; `21` (standard) or `12` (reduced) when chosen |
+| `Polozka/TypCeny` | `0`: price without VAT |
+| `NesklPolozka/Katalog` | catalogue SKU |
+
+Sources: <https://money.cz/navod/s3xmlde/> (developer page),
+XSDs <https://money.cz/wp-content/uploads/2024/10/schemas.zip> (root
+`_Document.xsd`, order type in `__Objedn.xsd`), samples
+<https://money.cz/wp-content/uploads/2024/10/vzorove_xml.zip>
+(`OBJP_sklad_neskl.xml`).
+
+On 2026-10-04 the output validated against `_Document.xsd`, for all VAT
+rates and for CZK, EUR and empty orders. For the optional test, set
+`MONEY_S3_XSD_DIR` to the unpacked `Schemas` folder. **No trial import
+into a real Money S3 has been done yet.** In particular, it is not
+verified whether Money accepts a received order without `Doklad` or
+`DRada` and numbers it from the default series.

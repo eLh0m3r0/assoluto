@@ -1,4 +1,4 @@
-"""Export orders to Czech accounting software (Stormware POHODA).
+"""Export orders to Czech accounting software (POHODA, Money S3).
 
 The accountant's complaint that blocks a sale is "I would have to retype
 every order". POHODA imports *received orders* (agenda *Přijaté
@@ -52,9 +52,29 @@ Mapping decisions (see also ``docs/POHODA_EXPORT.md``):
   Characters outside that code page are written as numeric character
   references by the serializer, so nothing is lost.
 
-The XML builder is a pure function over plain dataclasses so it can be
-tested without a database; :func:`load_orders_for_export` does the DB
-side under the caller's RLS-scoped session.
+Money S3 (Seyfor) — :func:`build_money_s3_xml`, same selection, native
+``MoneyData`` format which needs no XMLDE module. Sources (fetched
+2026-10-04):
+
+* Developer page with current XSDs and samples:
+  https://money.cz/navod/s3xmlde/
+* XSDs (``_Document.xsd`` root, ``__Objedn.xsd`` → ``objednavkaType``):
+  https://money.cz/wp-content/uploads/2024/10/schemas.zip
+* Samples, incl. ``OBJP_sklad_neskl.xml`` (received order, UTF-8):
+  https://money.cz/wp-content/uploads/2024/10/vzorove_xml.zip
+* Manual "XML elektronická výměna dat" (import via Nástroje → Výměna
+  dat XML → Import; *Doklad došlý* as a matching key for received
+  documents): https://money.cz/wp-content/uploads/2023/07/xml_prenosy.pdf
+
+Money S3 mapping: ``ObjPrij`` per order; Assoluto number →
+``PrimDoklad`` (the 10-char ``Doklad`` is left for Money's own series);
+title → ``Popis`` (max 50); items as non-stock items with ``SazbaDPH``
+as a percentage (0 / 21 / 12) and ``TypCeny=0`` (price without VAT);
+SKU → ``NesklPolozka/Katalog``. UTF-8 like the official samples.
+
+The XML builders are pure functions over plain dataclasses so they can
+be tested without a database; :func:`load_orders_for_export` does the
+DB side under the caller's RLS-scoped session.
 """
 
 from __future__ import annotations
@@ -374,6 +394,151 @@ def build_pohoda_datapack(
             _sub(cur, NS_TYP, "ids", order.currency.upper())
 
     return ET.tostring(root, encoding=POHODA_ENCODING, xml_declaration=True)
+
+
+# ------------------------------------------------------- Money S3 builder
+
+MONEY_S3_ENCODING = "utf-8"
+MONEY_S3_MEDIA_TYPE = "application/xml; charset=utf-8"
+
+#: Czech VAT percentages behind the shared ``none``/``high``/``low``
+#: choice (rates in force since 2024-01-01). Money S3 items carry the
+#: percentage itself (``SazbaDPH``), not a symbolic level like POHODA.
+MONEY_S3_VAT_PERCENT: dict[str, str] = {"none": "0", "high": "21", "low": "12"}
+
+# Max lengths from __Objedn.xsd / __Comtypes.xsd (Money S3 schemas).
+_M_LEN_POPIS = 50  # popisType
+_M_LEN_PRIM_DOKLAD = 20  # ObjPrij/PrimDoklad ("doklad došlý")
+_M_LEN_ICO = 10
+_M_LEN_DIC = 20
+_M_LEN_STREET = 50
+_M_LEN_CITY = 40
+_M_LEN_ZIP = 10
+_M_LEN_UNIT = 10  # NesklPolozka/MJ
+_M_LEN_KATALOG = 60  # NesklPolozka/Katalog
+_M_LEN_CURRENCY = 4  # menaType/Kod
+
+
+def _el(parent: ET.Element, tag: str, text: str | None = None) -> ET.Element:
+    el = ET.SubElement(parent, tag)
+    if text is not None:
+        el.text = _xml_safe(text)
+    return el
+
+
+def _money_address(parent: ET.Element, tag: str, p: ExportPartner) -> None:
+    street = _clip(p.street, _M_LEN_STREET)
+    city = _clip(p.city, _M_LEN_CITY)
+    zip_code = _clip(p.zip, _M_LEN_ZIP)
+    if not (street or city or zip_code):
+        return
+    addr = _el(parent, tag)
+    for child, value in (("Ulice", street), ("Misto", city), ("PSC", zip_code)):
+        if value:
+            _el(addr, child, value)
+
+
+def build_money_s3_xml(
+    orders: Sequence[ExportOrder],
+    *,
+    ico: str | None = None,
+    vat_rate: str = DEFAULT_VAT_RATE,
+    description: str = "Assoluto export",
+) -> bytes:
+    """Serialize ``orders`` as Money S3 ``MoneyData/SeznamObjPrij`` (UTF-8).
+
+    ``ObjPrij`` is an ``xs:sequence`` in ``__Objedn.xsd`` — element order
+    below follows the schema and must not be shuffled.
+    """
+    if not orders:
+        raise NothingToExport("nothing to export")
+    if vat_rate not in MONEY_S3_VAT_PERCENT:
+        raise ValueError(f"unsupported VAT rate {vat_rate!r}")
+    vat_percent = MONEY_S3_VAT_PERCENT[vat_rate]
+
+    root = ET.Element("MoneyData")
+    ico_clean = _fits(ico, _LEN_ICO)
+    if ico_clean:
+        root.set("ICAgendy", ico_clean)
+    root.set("description", _xml_safe(description))
+    seznam = _el(root, "SeznamObjPrij")
+
+    for order in orders:
+        foreign = order.currency.upper() != HOME_CURRENCY
+        obj = _el(seznam, "ObjPrij")
+        title = _clip(order.title, _M_LEN_POPIS)
+        if title:
+            _el(obj, "Popis", title)
+        if order.note and order.note.strip():
+            _el(obj, "Poznamka", order.note.strip())
+        _el(obj, "Vystaveno", order.order_date.isoformat())
+        if order.date_to is not None:
+            _el(obj, "Vyridit_do", order.date_to.isoformat())
+
+        p = order.partner
+        firm = _el(obj, "DodOdb")
+        company = _clip(p.company, 255)
+        if company:
+            _el(firm, "ObchNazev", company)
+        _money_address(firm, "ObchAdresa", p)
+        if company:
+            _el(firm, "FaktNazev", company)
+        ico_p = _fits(p.ico, _M_LEN_ICO)
+        if ico_p:
+            _el(firm, "ICO", ico_p)
+        dic_p = _fits(p.dic, _M_LEN_DIC)
+        if dic_p:
+            _el(firm, "DIC", dic_p)
+        _money_address(firm, "FaktAdresa", p)
+        if company:
+            _el(firm, "Nazev", company)
+        _money_address(firm, "Adresa", p)
+        if len(firm) == 0:
+            obj.remove(firm)
+
+        _el(obj, "PrimDoklad", order.number[:_M_LEN_PRIM_DOKLAD])
+
+        if foreign:
+            # The schema makes SouhrnDPH + Celkem mandatory inside Valuty
+            # although both are "IMPORT: NE" (ignored on import).
+            total = sum(
+                (it.quantity * it.unit_price for it in order.items if it.unit_price is not None),
+                Decimal("0"),
+            ).quantize(Decimal("0.01"))
+            valuty = _el(obj, "Valuty")
+            mena = _el(valuty, "Mena")
+            _el(mena, "Kod", order.currency.upper()[:_M_LEN_CURRENCY])
+            _el(valuty, "SouhrnDPH")
+            _el(valuty, "Celkem", _num(total))
+
+        for idx, it in enumerate(order.items, start=1):
+            pol = _el(obj, "Polozka")
+            text = " ".join(it.text.split()) or "-"
+            popis = _clip(text, _M_LEN_POPIS) or "-"
+            _el(pol, "Popis", popis)
+            # Popis is capped at 50 chars; keep the full wording in the
+            # (unbounded) note so nothing the customer wrote is lost.
+            notes = [n for n in (text if popis != text else None, it.note) if n and n.strip()]
+            if notes:
+                _el(pol, "Poznamka", "\n".join(n.strip() for n in notes))
+            _el(pol, "PocetMJ", _num(it.quantity))
+            if it.unit_price is not None and not foreign:
+                _el(pol, "Cena", _num(it.unit_price))
+            _el(pol, "SazbaDPH", vat_percent)
+            _el(pol, "TypCeny", "0")  # 0 = bez DPH
+            _el(pol, "Poradi", str(idx))
+            if it.unit_price is not None and foreign:
+                _el(pol, "Valuty", _num(it.unit_price))
+            unit = _clip(it.unit, _M_LEN_UNIT)
+            code = _fits(it.code, _M_LEN_KATALOG)
+            if unit or code:
+                neskl = _el(pol, "NesklPolozka")
+                if unit:
+                    _el(neskl, "MJ", unit)
+                if code:
+                    _el(neskl, "Katalog", code)
+
+    return ET.tostring(root, encoding=MONEY_S3_ENCODING, xml_declaration=True)
 
 
 # ---------------------------------------------------------------- DB side

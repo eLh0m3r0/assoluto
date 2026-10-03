@@ -1,17 +1,19 @@
-"""POHODA XML export of received orders (MKT-3).
+"""POHODA / Money S3 XML export of received orders (MKT-3).
 
 Two layers:
 
-* the pure builder (``build_pohoda_datapack``) — structure, encoding,
-  escaping, schema length limits; no database;
-* the route ``/app/admin/exports/pohoda.xml`` — filters, admin-only
-  access, RLS tenant isolation.
+* the pure builders (``build_pohoda_datapack``, ``build_money_s3_xml``)
+  — structure, encoding, escaping, schema length limits; no database;
+* the routes ``/app/admin/exports/{pohoda,money-s3}.xml`` — filters,
+  admin-only access, RLS tenant isolation.
 
-Schema validation: Stormware's XSDs are not vendored (their licence
-terms for redistribution are not stated). Point ``POHODA_XSD_DIR`` at a
-directory holding ``data.xsd`` and its imports downloaded from
-https://www.stormware.cz/schema/version_2/ and have ``lxml`` importable
-(``uv run --with lxml pytest ...``) to run the strict validation test.
+Schema validation: the vendors' XSDs are not vendored here (their
+redistribution terms are not stated). To run the strict validation
+tests, have ``lxml`` importable (``uv run --with lxml pytest ...``) and
+point ``POHODA_XSD_DIR`` at a directory with ``data.xsd`` + imports from
+https://www.stormware.cz/schema/version_2/ and/or ``MONEY_S3_XSD_DIR``
+at the unpacked ``Schemas`` folder of
+https://money.cz/wp-content/uploads/2024/10/schemas.zip.
 """
 
 from __future__ import annotations
@@ -41,6 +43,7 @@ from app.services.accounting_export import (
     ExportOrder,
     ExportPartner,
     NothingToExport,
+    build_money_s3_xml,
     build_pohoda_datapack,
     parse_statuses,
 )
@@ -230,6 +233,114 @@ def test_validates_against_official_xsd() -> None:
     ]
     for rate in ("none", "high", "low"):
         doc = etree.fromstring(build_pohoda_datapack(orders, pack_id="p", ico="1", vat_rate=rate))
+        assert schema.validate(doc), schema.error_log
+
+
+# ------------------------------------------------------- Money S3 builder
+
+
+def test_money_s3_structure_and_order_of_header_elements() -> None:
+    order = _order(
+        title="Laser parts",
+        note="Rush",
+        date_to=date(2026, 10, 20),
+        partner=ExportPartner(
+            company="Šťastný & syn <s.r.o.>",
+            ico="12345678",
+            dic="CZ12345678",
+            street="Hlavní 1",
+            city="Děčín",
+            zip="405 02",
+        ),
+    )
+    body = build_money_s3_xml([order], ico="87654321", vat_rate="high")
+    assert body.startswith(b"<?xml version='1.0' encoding='utf-8'?>")
+    assert "Šťastný".encode() in body
+    assert b"&amp; syn &lt;s.r.o.&gt;" in body
+
+    root = _parse(body)
+    assert root.tag == "MoneyData"
+    assert root.get("ICAgendy") == "87654321"
+    obj = root.find("SeznamObjPrij/ObjPrij")
+    # ObjPrij is an xs:sequence — the order of children is part of the
+    # contract with the schema.
+    assert [c.tag for c in obj] == [
+        "Popis",
+        "Poznamka",
+        "Vystaveno",
+        "Vyridit_do",
+        "DodOdb",
+        "PrimDoklad",
+        "Polozka",
+    ]
+    assert obj.findtext("PrimDoklad") == "2026-000001"
+    assert obj.findtext("Vystaveno") == "2026-10-01"
+    firm = obj.find("DodOdb")
+    assert firm.findtext("ObchNazev") == "Šťastný & syn <s.r.o.>"
+    assert firm.findtext("ICO") == "12345678"
+    assert firm.findtext("DIC") == "CZ12345678"
+    assert firm.findtext("FaktAdresa/Misto") == "Děčín"
+    pol = obj.find("Polozka")
+    assert pol.findtext("Popis") == "Bracket"
+    assert pol.findtext("PocetMJ") == "12.5"
+    assert pol.findtext("Cena") == "1234.5"
+    assert pol.findtext("SazbaDPH") == "21"
+    assert pol.findtext("TypCeny") == "0"
+    assert pol.findtext("NesklPolozka/MJ") == "ks"
+    assert pol.findtext("NesklPolozka/Katalog") == "BR-1"
+
+
+def test_money_s3_vat_long_text_and_foreign_currency() -> None:
+    long_text = "Plech " + "y" * 80
+    order = _order(
+        currency="EUR",
+        items=(
+            ExportItem(
+                text=long_text, quantity=Decimal("2"), unit_price=Decimal("10.50"), note="n1"
+            ),
+        ),
+    )
+    root = _parse(build_money_s3_xml([order]))
+    assert root.get("ICAgendy") is None
+    obj = root.find("SeznamObjPrij/ObjPrij")
+    assert obj.findtext("Valuty/Mena/Kod") == "EUR"
+    assert obj.findtext("Valuty/Celkem") == "21"
+    pol = obj.find("Polozka")
+    assert pol.findtext("SazbaDPH") == "0"  # default: not a VAT payer
+    assert pol.find("Cena") is None
+    assert pol.findtext("Valuty") == "10.5"
+    assert len(pol.findtext("Popis")) <= 50
+    # Nothing the customer wrote is lost: the full text goes to the note.
+    assert pol.findtext("Poznamka") == f"{long_text}\nn1"
+
+    low = _parse(build_money_s3_xml([_order()], vat_rate="low"))
+    assert low.findtext(".//Polozka/SazbaDPH") == "12"
+    with pytest.raises(NothingToExport):
+        build_money_s3_xml([])
+    with pytest.raises(ValueError):
+        build_money_s3_xml([_order()], vat_rate="21")
+
+
+_MONEY_XSD_DIR = os.environ.get("MONEY_S3_XSD_DIR")
+
+
+@pytest.mark.skipif(not _MONEY_XSD_DIR, reason="MONEY_S3_XSD_DIR not set (XSDs are not vendored)")
+def test_money_s3_validates_against_official_xsd() -> None:
+    etree = pytest.importorskip("lxml.etree")
+    schema = etree.XMLSchema(etree.parse(str(Path(_MONEY_XSD_DIR) / "_Document.xsd")))
+    orders = [
+        _order(
+            note="Pozn",
+            date_to=date(2026, 10, 20),
+            partner=ExportPartner(
+                company="Žluťoučký kůň", ico="12345678", street="Hlavní 1", city="Praha"
+            ),
+        ),
+        _order(number="2026-000002", currency="EUR"),
+        _order(number="2026-000003", items=(), partner=ExportPartner(company="")),
+    ]
+    for rate in ("none", "high", "low"):
+        doc = etree.fromstring(build_money_s3_xml(orders, ico="1", vat_rate=rate))
         assert schema.validate(doc), schema.error_log
 
 
@@ -482,3 +593,41 @@ async def test_contact_is_refused(tenant_client: AsyncClient, owner_engine, demo
     assert b"dataPack" not in resp.content
     resp = await tenant_client.get("/app/admin/exports", follow_redirects=False)
     assert resp.status_code == 403
+
+
+@pg
+async def test_admin_downloads_money_s3_xml(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    await _seed(owner_engine, demo_tenant.id)
+    await _seed_foreign_tenant(owner_engine)
+    await _login(tenant_client, "admin@4mex.cz", "adminpass")
+
+    resp = await tenant_client.get("/app/admin/exports/money-s3.xml?vat_rate=high")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("application/xml")
+    assert 'filename="money-s3-objednavky-' in resp.headers["content-disposition"]
+    root = _parse(resp.content)
+    assert root.get("ICAgendy") == "99887766"
+    numbers = [el.text for el in root.iter("PrimDoklad")]
+    assert numbers == ["2026-000001", "2026-000004"]
+    assert b"RIVAL" not in resp.content
+    pol = root.find("SeznamObjPrij/ObjPrij/Polozka")
+    assert pol.findtext("NesklPolozka/Katalog") == "BR-1"
+    assert pol.findtext("SazbaDPH") == "21"
+
+
+@pg
+async def test_money_s3_refused_for_staff_and_contact(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    await _seed(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "staff@4mex.cz", "staffpass")
+    assert (await tenant_client.get("/app/admin/exports/money-s3.xml")).status_code == 403
+
+    await tenant_client.post("/auth/logout", follow_redirects=False)
+    tenant_client.cookies.clear()
+    await _login(tenant_client, "jan@acme.cz", "contactpass")
+    resp = await tenant_client.get("/app/admin/exports/money-s3.xml", follow_redirects=False)
+    assert resp.status_code == 403
+    assert b"MoneyData" not in resp.content

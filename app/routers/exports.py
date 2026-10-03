@@ -1,14 +1,15 @@
-"""Accounting exports: orders → POHODA XML (tenant admins only).
+"""Accounting exports: orders → POHODA / Money S3 XML (tenant admins only).
 
-Two GET routes:
+GET routes:
 
 * ``/app/admin/exports`` — small options page (statuses, period,
   customer, VAT rate, the tenant's own IČO).
-* ``/app/admin/exports/pohoda.xml`` — the download. Also linked from the
-  staff order list with the list's current filters, so "what I see is
-  what I export".
+* ``/app/admin/exports/pohoda.xml`` — POHODA download. Also linked from
+  the staff order list with the list's current filters, so "what I see
+  is what I export".
+* ``/app/admin/exports/money-s3.xml`` — the same selection for Money S3.
 
-Both are read-only GETs, so CSRF (POST-only double-submit) does not
+All are read-only GETs, so CSRF (POST-only double-submit) does not
 apply; the router still carries ``verify_csrf`` like every other router.
 Tenant isolation comes from the RLS-scoped session in ``get_db``.
 """
@@ -31,11 +32,13 @@ from app.services.accounting_export import (
     DEFAULT_STATUSES,
     DEFAULT_VAT_RATE,
     MAX_EXPORT_ORDERS,
+    MONEY_S3_MEDIA_TYPE,
     POHODA_MEDIA_TYPE,
     VAT_RATES,
     ExportFilters,
     NothingToExport,
     TooManyOrders,
+    build_money_s3_xml,
     build_pohoda_datapack,
     load_orders_for_export,
     parse_statuses,
@@ -164,15 +167,16 @@ async def exports_page(
     return HTMLResponse(html)
 
 
-@router.get("/pohoda.xml")
-async def export_pohoda_xml(
+async def _export(
     request: Request,
-    vat_rate: str = Query(DEFAULT_VAT_RATE),
-    ico: str | None = Query(None),
-    principal: Principal = Depends(require_tenant_staff),
-    db: AsyncSession = Depends(get_db),
+    *,
+    target: str,
+    vat_rate: str,
+    ico: str | None,
+    principal: Principal,
+    db: AsyncSession,
 ) -> Response:
-    """Download matching orders as a POHODA ``dataPack`` (received orders)."""
+    """Shared body of the POHODA / Money S3 downloads."""
     _require_tenant_admin(principal)
     tenant = _tenant(request)
 
@@ -193,25 +197,60 @@ async def export_pohoda_xml(
 
     now = datetime.now()
     # ``ico`` absent → tenant's billing IČO; present but blank → omit on
-    # purpose (POHODA then imports into the open accounting unit).
-    target_ico = _tenant_ico(tenant) if ico is None else ico.strip()
+    # purpose (the program then imports into the open accounting unit).
+    target_ico = (_tenant_ico(tenant) if ico is None else ico.strip()) or None
+    label = f"Assoluto {tenant.slug} {now:%Y-%m-%d %H:%M}"
     try:
-        body = build_pohoda_datapack(
-            orders,
-            pack_id=f"assoluto-{tenant.slug}-{now:%Y%m%d%H%M%S}",
-            ico=target_ico or None,
-            vat_rate=vat_rate,
-            note=f"Assoluto {tenant.slug} {now:%Y-%m-%d %H:%M}",
-        )
+        if target == "money":
+            body = build_money_s3_xml(orders, ico=target_ico, vat_rate=vat_rate, description=label)
+            media_type = MONEY_S3_MEDIA_TYPE
+            filename = f"money-s3-objednavky-{now:%Y%m%d}.xml"
+        else:
+            body = build_pohoda_datapack(
+                orders,
+                pack_id=f"assoluto-{tenant.slug}-{now:%Y%m%d%H%M%S}",
+                ico=target_ico,
+                vat_rate=vat_rate,
+                note=label,
+            )
+            media_type = POHODA_MEDIA_TYPE
+            filename = f"pohoda-objednavky-{now:%Y%m%d}.xml"
     except NothingToExport:  # pragma: no cover - guarded above
         return _back_to_page(request, _t(request, "No orders match the selected filters."))
 
-    filename = f"pohoda-objednavky-{now:%Y%m%d}.xml"
     return Response(
         content=body,
-        media_type=POHODA_MEDIA_TYPE,
+        media_type=media_type,
         headers={
             "Content-Disposition": f'attachment; filename="{filename}"',
             "Cache-Control": "no-store",
         },
+    )
+
+
+@router.get("/pohoda.xml")
+async def export_pohoda_xml(
+    request: Request,
+    vat_rate: str = Query(DEFAULT_VAT_RATE),
+    ico: str | None = Query(None),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Download matching orders as a POHODA ``dataPack`` (received orders)."""
+    return await _export(
+        request, target="pohoda", vat_rate=vat_rate, ico=ico, principal=principal, db=db
+    )
+
+
+@router.get("/money-s3.xml")
+async def export_money_s3_xml(
+    request: Request,
+    vat_rate: str = Query(DEFAULT_VAT_RATE),
+    ico: str | None = Query(None),
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Download matching orders as Money S3 ``SeznamObjPrij`` (received orders)."""
+    return await _export(
+        request, target="money", vat_rate=vat_rate, ico=ico, principal=principal, db=db
     )
