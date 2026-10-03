@@ -296,6 +296,14 @@ async def test_checkout_gates_when_billing_details_missing(billing_client, owner
         assert resp.status_code == 303
         loc = resp.headers["location"]
         assert loc.startswith("/platform/billing/details?next=")
-        assert "checkout%2Fstarter" in loc or "checkout/starter" in loc
+        # ``next`` is a GET page: the dashboard, which then offers the
+        # POST "continue to payment" button. Pointing ``next`` at the
+        # POST-only checkout URL made the browser GET it → 405.
+        from urllib.parse import unquote
+
+        assert "checkout_plan=starter" in unquote(loc)
+        dash = await client.get(unquote(loc.split("next=", 1)[1]))
+        assert dash.status_code == 200
+        assert 'action="/platform/billing/checkout/starter"' in dash.text
     finally:
         s.stripe_secret_key = ""

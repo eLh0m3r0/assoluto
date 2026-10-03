@@ -25,7 +25,23 @@ https://docs.stripe.com/api/events/types):
   tenant keeps access during Stripe's built-in retry window and is
   eventually canceled via ``.deleted`` if retries fail.
 * ``customer.subscription.trial_will_end`` — Stripe fires this 3
-  days before the trial ends; we can hook an email (not yet wired).
+  days before the trial ends; syncs ``trial_ends_at`` (the reminder
+  mail itself comes from the periodic trial-nurture job).
+* ``charge.refunded`` — mark the cached invoice refunded.
+
+State-machine rules (audit 2026-10-03, theme T4):
+
+* Only events about the CURRENT Stripe subscription
+  (``platform_subscriptions.stripe_subscription_id``) change state; an
+  older generation's events are ignored (Codex-5).
+* Within one subscription, an event older than the last applied one
+  (``stripe_last_event_at``) is ignored — Stripe promises delivery,
+  not order.
+* ``canceled`` is terminal for a given subscription; only a new
+  subscription lifts it (Codex-3), and invoices never revive it
+  (Codex-4).
+* Payment recovery may undo a billing hard cut, never a platform-admin
+  suspension (Codex-6).
 """
 
 from __future__ import annotations
@@ -41,9 +57,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.logging import get_logger
 from app.models.tenant import Tenant
 from app.platform.billing.models import Plan, Subscription
-from app.platform.billing.service import record_paid_invoice
+from app.platform.billing.service import record_paid_invoice, stripe_period_value
 
 log = get_logger("app.platform.billing.webhooks")
+
+# Local statuses that mean "a Stripe subscription is alive and is the
+# tenant's current one" — a different subscription id must not replace it.
+LIVE_STATUSES: frozenset[str] = frozenset({"active", "trialing", "past_due"})
 
 
 class WebhookNotYetReady(Exception):
@@ -154,8 +174,16 @@ def _utc_from_ts(ts: Any) -> datetime | None:
 
 
 async def _get_subscription(db: AsyncSession, tenant_id: UUID) -> Subscription | None:
+    """Load the tenant's subscription row **locked for update**.
+
+    Every handler reads, compares (generation, watermark, terminal
+    status) and then writes; two deliveries for the same tenant racing
+    in parallel must see each other's result, not the same stale row.
+    """
     return (
-        await db.execute(select(Subscription).where(Subscription.tenant_id == tenant_id))
+        await db.execute(
+            select(Subscription).where(Subscription.tenant_id == tenant_id).with_for_update()
+        )
     ).scalar_one_or_none()
 
 
@@ -169,7 +197,16 @@ async def _get_plan_by_stripe_price(db: AsyncSession, stripe_price_id: str) -> P
 
 
 async def handle_checkout_completed(db: AsyncSession, event: dict) -> None:
-    """Store the Stripe customer + subscription ids on our tenant+sub row."""
+    """Store the Stripe customer + subscription ids on our tenant+sub row.
+
+    When the session brings a subscription id we do not track yet, it
+    becomes the tenant's current subscription and the local status is
+    reconciled from the session itself (Codex-3): a canceled tenant who
+    resubscribes used to keep ``status='canceled'`` with the new id, so
+    every following ``customer.subscription.updated`` for that id hit the
+    "canceled is terminal" guard and the paying customer stayed locked
+    out.
+    """
     data = event.get("data", {}).get("object", {})
     tenant_id = await _resolve_tenant_id(db, data)
     if tenant_id is None:
@@ -178,6 +215,8 @@ async def handle_checkout_completed(db: AsyncSession, event: dict) -> None:
 
     customer_id = data.get("customer")
     subscription_id = data.get("subscription")
+    if isinstance(subscription_id, dict):  # expanded object
+        subscription_id = subscription_id.get("id")
 
     tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
     if tenant is None:
@@ -204,21 +243,138 @@ async def handle_checkout_completed(db: AsyncSession, event: dict) -> None:
             raise WebhookNotYetReady("stripe customer id collision") from exc
 
     subscription = await _get_subscription(db, tenant_id)
-    if subscription is not None and subscription_id:
-        # Order-of-arrival guard (round-2 S-N6): if
-        # ``customer.subscription.created/updated`` already landed and
-        # populated ``stripe_subscription_id``, a late-arriving
-        # ``checkout.session.completed`` must NOT flip the status.
-        already_synced = subscription.stripe_subscription_id is not None
-        subscription.stripe_customer_id = customer_id
-        subscription.stripe_subscription_id = subscription_id
-        # Only clear a "demo" marker when no prior subscription sync
-        # has happened. Status otherwise belongs to
-        # ``handle_subscription_upserted`` (active / trialing / past_due).
-        if not already_synced and subscription.status == "demo":
-            subscription.status = "trialing"
+    if subscription is None:
+        await db.flush()
+        return
 
+    if subscription.pending_checkout_session_id == data.get("id"):
+        subscription.pending_checkout_session_id = None
+
+    if not subscription_id:
+        await db.flush()
+        return
+
+    if customer_id:
+        subscription.stripe_customer_id = customer_id
+
+    current = subscription.stripe_subscription_id
+    if current == subscription_id:
+        # ``customer.subscription.created/updated`` already landed for
+        # this id and owns the status (round-2 S-N6) — nothing to add.
+        await db.flush()
+        return
+
+    if current and subscription.status in LIVE_STATUSES:
+        # The tenant already has a live subscription and a SECOND one
+        # was just paid for. The serialized checkout makes this
+        # impossible through our UI; if it happens anyway, keep the
+        # tracked one and shout — an operator must refund/cancel the
+        # duplicate in Stripe.
+        log.error(
+            "stripe.webhook.duplicate_subscription",
+            tenant_id=str(tenant_id),
+            current_subscription=current,
+            new_subscription=subscription_id,
+        )
+        await db.flush()
+        return
+
+    # Adopt the new subscription as the current generation. Its
+    # ``created`` and the event watermark are unknown from a session —
+    # leave them empty so the subscription's own events (which may carry
+    # an EARLIER event timestamp than this session event) still apply.
+    subscription.stripe_subscription_id = subscription_id
+    subscription.stripe_subscription_created_at = None
+    subscription.stripe_last_event_at = None
+    subscription.cancel_at_period_end = False
+    subscription.canceled_at = None
+    payment_status = data.get("payment_status")
+    if payment_status == "paid":
+        subscription.status = "active"
+    elif payment_status == "no_payment_required":
+        subscription.status = "trialing"
+    else:
+        # ``unpaid`` = asynchronous payment method still settling.
+        subscription.status = "incomplete"
+    await _maybe_reactivate_tenant(db, subscription)
+    log.info(
+        "stripe.webhook.subscription_adopted",
+        tenant_id=str(tenant_id),
+        subscription_id=subscription_id,
+        status=subscription.status,
+        previous_subscription=current,
+    )
     await db.flush()
+
+
+def _accepts_new_generation(subscription: Subscription, data: dict) -> bool:
+    """May an event about a subscription id we do not track replace it?
+
+    Codex-5: events about an OLD subscription (superseded generation)
+    must never overwrite the current one — a late ``updated`` used to
+    replace the id, plan and period of the replacement subscription.
+
+    * nothing tracked yet → adopt;
+    * the tracked subscription is still live → refuse (an old or a
+      duplicate subscription);
+    * the incoming one was created before the tracked one → refuse;
+    * otherwise (tracked one ended, incoming is newer or its age is
+      unknown) → adopt.
+    """
+    if subscription.stripe_subscription_id is None:
+        return True
+    if subscription.status in LIVE_STATUSES:
+        return False
+    incoming_created = _utc_from_ts(data.get("created"))
+    current_created = subscription.stripe_subscription_created_at
+    return not (
+        incoming_created is not None
+        and current_created is not None
+        and incoming_created < current_created
+    )
+
+
+def _is_stale(subscription: Subscription, event: dict) -> bool:
+    """An older event for the current subscription delivered late."""
+    event_at = _utc_from_ts(event.get("created"))
+    return (
+        event_at is not None
+        and subscription.stripe_last_event_at is not None
+        and event_at < subscription.stripe_last_event_at
+    )
+
+
+def _advance_watermark(subscription: Subscription, event: dict) -> None:
+    event_at = _utc_from_ts(event.get("created"))
+    if event_at is not None and (
+        subscription.stripe_last_event_at is None or event_at > subscription.stripe_last_event_at
+    ):
+        subscription.stripe_last_event_at = event_at
+
+
+async def _maybe_reactivate_tenant(db: AsyncSession, subscription: Subscription) -> None:
+    """Paying again undoes a *billing* hard cut — never an operator one.
+
+    ``enforce_canceled_subscriptions`` sets ``tenants.is_active = false``
+    once a grace window elapses; a customer who then resubscribes must
+    get their portal back without a support ticket (F-08). A platform
+    admin's deactivation is a different decision (abuse, contract end)
+    and payment recovery must not lift it (Codex-6).
+    """
+    if subscription.status not in ("active", "trialing"):
+        return
+    if subscription.operator_suspended_at is not None:
+        log.info(
+            "stripe.webhook.reactivation_blocked_operator_suspension",
+            tenant_id=str(subscription.tenant_id),
+        )
+        return
+    tenant = (
+        await db.execute(select(Tenant).where(Tenant.id == subscription.tenant_id))
+    ).scalar_one_or_none()
+    if tenant is not None and not tenant.is_active:
+        tenant.is_active = True
+        log.info("stripe.webhook.tenant_reactivated", tenant_id=str(subscription.tenant_id))
 
 
 async def handle_subscription_upserted(db: AsyncSession, event: dict) -> None:
@@ -234,46 +390,68 @@ async def handle_subscription_upserted(db: AsyncSession, event: dict) -> None:
         log.warning("stripe.webhook.subscription_missing", tenant_id=str(tenant_id))
         raise WebhookNotYetReady("subscription row not yet created")
 
-    # Stripe does not guarantee delivery ORDER, only delivery. Dedup on
-    # event.id stops the same event being applied twice, but says
-    # nothing about a *different*, older event arriving late. A
-    # customer.subscription.updated generated before the cancellation,
-    # but delivered after customer.subscription.deleted, used to write
-    # status='active' straight over 'canceled' — resurrecting a
-    # subscription nobody is paying for and cancelling the hard-cut.
-    #
-    # 'canceled' is terminal for us: only an explicit new subscription
-    # (a fresh checkout, which goes through start/upsert with a new
-    # stripe_subscription_id) may lift it.
     incoming_sub_id = data.get("id")
-    if (
-        subscription.status == "canceled"
-        and incoming_sub_id
-        and incoming_sub_id == subscription.stripe_subscription_id
-    ):
-        log.info(
-            "stripe.webhook.ignored_stale_update",
-            tenant_id=str(tenant_id),
-            subscription_id=incoming_sub_id,
-        )
-        return
+    if incoming_sub_id and incoming_sub_id != subscription.stripe_subscription_id:
+        if not _accepts_new_generation(subscription, data):
+            log.warning(
+                "stripe.webhook.ignored_superseded_subscription",
+                tenant_id=str(tenant_id),
+                incoming_subscription=incoming_sub_id,
+                current_subscription=subscription.stripe_subscription_id,
+                current_status=subscription.status,
+            )
+            return
+        # New generation: forget the previous subscription's bookkeeping.
+        subscription.stripe_subscription_id = incoming_sub_id
+        subscription.stripe_subscription_created_at = _utc_from_ts(data.get("created"))
+        subscription.stripe_last_event_at = None
+        subscription.canceled_at = None
+    else:
+        # Stripe does not guarantee delivery ORDER, only delivery. Dedup
+        # on event.id stops the same event being applied twice, but says
+        # nothing about a *different*, older event arriving late.
+        #
+        # 'canceled' is terminal for a given Stripe subscription (Stripe
+        # never revives one): an update generated before the deletion
+        # but delivered after it must not write 'active' back. Only a
+        # NEW subscription id (above) may lift it.
+        if subscription.status == "canceled" and incoming_sub_id:
+            log.info(
+                "stripe.webhook.ignored_stale_update",
+                tenant_id=str(tenant_id),
+                subscription_id=incoming_sub_id,
+            )
+            return
+        if _is_stale(subscription, event):
+            log.info(
+                "stripe.webhook.ignored_out_of_order",
+                tenant_id=str(tenant_id),
+                subscription_id=incoming_sub_id,
+                event_id=event.get("id"),
+            )
+            return
+        if subscription.stripe_subscription_created_at is None:
+            subscription.stripe_subscription_created_at = _utc_from_ts(data.get("created"))
 
-    subscription.stripe_subscription_id = data.get("id") or subscription.stripe_subscription_id
     subscription.stripe_customer_id = data.get("customer") or subscription.stripe_customer_id
     new_status = data.get("status")
     if new_status:
         subscription.status = new_status
 
     subscription.current_period_start = (
-        _utc_from_ts(data.get("current_period_start")) or subscription.current_period_start
+        _utc_from_ts(stripe_period_value(data, "current_period_start"))
+        or subscription.current_period_start
     )
     subscription.current_period_end = (
-        _utc_from_ts(data.get("current_period_end")) or subscription.current_period_end
+        _utc_from_ts(stripe_period_value(data, "current_period_end"))
+        or subscription.current_period_end
     )
     trial_end_ts = data.get("trial_end")
     if trial_end_ts is not None:
         subscription.trial_ends_at = _utc_from_ts(trial_end_ts)
     subscription.cancel_at_period_end = bool(data.get("cancel_at_period_end", False))
+    if not subscription.cancel_at_period_end and subscription.status in LIVE_STATUSES:
+        subscription.canceled_at = None  # a scheduled cancel was reverted
 
     # Plan swap: scan ALL line items (not just the first) for a price
     # that matches one of our seeded Plan rows. Stripe may add setup-fee
@@ -290,19 +468,8 @@ async def handle_subscription_upserted(db: AsyncSession, event: dict) -> None:
             subscription.plan_id = plan.id
             break
 
-    # Paying again must undo the hard cut. ``enforce_canceled_subscriptions``
-    # sets ``tenants.is_active = false`` once the grace window elapses, and
-    # nothing ever set it back — so a customer who cancelled, got cut off,
-    # then resubscribed had a live paid subscription and a tenant they
-    # still could not log into, with no self-service way out.
-    if subscription.status in ("active", "trialing"):
-        tenant = (
-            await db.execute(select(Tenant).where(Tenant.id == tenant_id))
-        ).scalar_one_or_none()
-        if tenant is not None and not tenant.is_active:
-            tenant.is_active = True
-            log.info("stripe.webhook.tenant_reactivated", tenant_id=str(tenant_id))
-
+    _advance_watermark(subscription, event)
+    await _maybe_reactivate_tenant(db, subscription)
     await db.flush()
 
 
@@ -311,10 +478,12 @@ async def handle_subscription_deleted(db: AsyncSession, event: dict) -> None:
 
     Does NOT flip ``plan_id`` to a free tier. The row is just stamped
     ``status='canceled'``; the ``plan_id`` stays as a record of what the
-    tenant had. ``current_period_end`` is preserved (Stripe set it when
-    the original sub started). The periodic
-    ``enforce_canceled_subscriptions`` job then hard-cuts the tenant
-    ``CANCEL_GRACE_DAYS`` after that period_end.
+    tenant had. The periodic ``enforce_canceled_subscriptions`` job then
+    hard-cuts the tenant ``CANCEL_GRACE_DAYS`` after the access end.
+
+    Only the CURRENT subscription can cancel the tenant (LOGIC-6 /
+    Codex-5): a deletion of an old or duplicate subscription used to
+    schedule a hard cut of a tenant still paying for its replacement.
     """
     data = event.get("data", {}).get("object", {})
     tenant_id = await _resolve_tenant_id(db, data)
@@ -327,13 +496,36 @@ async def handle_subscription_deleted(db: AsyncSession, event: dict) -> None:
         log.warning("stripe.webhook.subscription_missing", tenant_id=str(tenant_id))
         raise WebhookNotYetReady("subscription row missing for deletion")
 
+    incoming_sub_id = data.get("id")
+    if not incoming_sub_id or incoming_sub_id != subscription.stripe_subscription_id:
+        log.warning(
+            "stripe.webhook.ignored_foreign_deletion",
+            tenant_id=str(tenant_id),
+            incoming_subscription=incoming_sub_id,
+            current_subscription=subscription.stripe_subscription_id,
+        )
+        return
+
+    now = datetime.now(UTC)
     subscription.status = "canceled"
     subscription.cancel_at_period_end = False
-    # If Stripe sent a fresher current_period_end, prefer that; otherwise
-    # leave whatever was last set.
-    period_end_ts = data.get("current_period_end")
-    if period_end_ts:
-        subscription.current_period_end = datetime.fromtimestamp(int(period_end_ts), tz=UTC)
+    subscription.canceled_at = (
+        subscription.canceled_at or _utc_from_ts(data.get("canceled_at")) or now
+    )
+    # Access runs to the end of the paid period, but never past the
+    # moment Stripe actually ended the subscription: an ``unpaid``
+    # subscription deleted mid-period has already advanced
+    # current_period_end into a period nobody paid for.
+    period_end = _utc_from_ts(stripe_period_value(data, "current_period_end"))
+    ended_at = _utc_from_ts(data.get("ended_at"))
+    if period_end and ended_at:
+        period_end = min(period_end, ended_at)
+    period_end = period_end or ended_at
+    if period_end is not None:
+        subscription.current_period_end = period_end
+    elif subscription.current_period_end is None:
+        subscription.current_period_end = now
+    _advance_watermark(subscription, event)
     await db.flush()
 
 
@@ -377,8 +569,33 @@ async def handle_invoice_paid(db: AsyncSession, event: dict) -> None:
     )
 
 
+def _invoice_subscription_id(data: dict) -> str | None:
+    """Subscription id of an invoice, for both API shapes.
+
+    Before API version 2025-03-31 it is ``invoice.subscription``; from
+    "basil" on it lives at ``invoice.parent.subscription_details.subscription``.
+    """
+    sub = data.get("subscription")
+    if isinstance(sub, dict):
+        sub = sub.get("id")
+    if sub:
+        return str(sub)
+    parent = data.get("parent") or {}
+    details = parent.get("subscription_details") or {}
+    sub = details.get("subscription")
+    if isinstance(sub, dict):
+        sub = sub.get("id")
+    return str(sub) if sub else None
+
+
 async def handle_invoice_payment_failed(db: AsyncSession, event: dict) -> None:
-    """Flag the subscription past_due; Stripe's Smart Retries take it from here."""
+    """Flag the subscription past_due; Stripe's Smart Retries take it from here.
+
+    Codex-4: the failure must concern the CURRENT subscription and may
+    only move a paying state (active / trialing) to past_due. A delayed
+    failure used to turn a ``canceled`` row back into ``past_due`` and
+    thereby take the tenant out of the cancellation hard-cut for good.
+    """
     data = event.get("data", {}).get("object", {})
     tenant_id = await _resolve_tenant_id(db, data)
     if tenant_id is None:
@@ -389,15 +606,34 @@ async def handle_invoice_payment_failed(db: AsyncSession, event: dict) -> None:
     if subscription is None:
         log.warning("stripe.webhook.subscription_missing", tenant_id=str(tenant_id))
         raise WebhookNotYetReady("subscription row missing")
-    subscription.status = "past_due"
+
+    invoice_sub = _invoice_subscription_id(data)
+    if not invoice_sub or invoice_sub != subscription.stripe_subscription_id:
+        log.warning(
+            "stripe.webhook.payment_failed_foreign_subscription",
+            tenant_id=str(tenant_id),
+            invoice_subscription=invoice_sub,
+            current_subscription=subscription.stripe_subscription_id,
+        )
+        return
+    if _is_stale(subscription, event):
+        log.info("stripe.webhook.ignored_out_of_order", event_id=event.get("id"))
+        return
+    if subscription.status in ("active", "trialing"):
+        subscription.status = "past_due"
+    _advance_watermark(subscription, event)
     await db.flush()
 
 
 async def handle_trial_will_end(db: AsyncSession, event: dict) -> None:
-    """Placeholder: Stripe fires this 3 days before trial end.
+    """Stripe fires this 3 days before a *Stripe-side* trial ends.
 
-    A follow-up change will wire an email reminder here (R5). For now we
-    just log so the event is observable via structured logs.
+    The reminder e-mail itself is sent by the periodic trial-nurture
+    job (stage ``ending``, 5 days ahead) for every trialing tenant —
+    including Stripe-linked trials — so this handler does not mail
+    again (one reminder, not two). It only keeps ``trial_ends_at`` in
+    sync for the current subscription so that job and the in-app
+    countdown use Stripe's date.
     """
     data = event.get("data", {}).get("object", {})
     log.info(
@@ -405,6 +641,16 @@ async def handle_trial_will_end(db: AsyncSession, event: dict) -> None:
         subscription_id=data.get("id"),
         trial_end=data.get("trial_end"),
     )
+    tenant_id = await _resolve_tenant_id(db, data)
+    if tenant_id is None:
+        return
+    subscription = await _get_subscription(db, tenant_id)
+    if subscription is None or subscription.stripe_subscription_id != data.get("id"):
+        return
+    trial_end = _utc_from_ts(data.get("trial_end"))
+    if trial_end is not None:
+        subscription.trial_ends_at = trial_end
+        await db.flush()
 
 
 async def handle_charge_refunded(db: AsyncSession, event: dict) -> None:
@@ -417,37 +663,65 @@ async def handle_charge_refunded(db: AsyncSession, event: dict) -> None:
     (full) or ``partially_refunded`` (partial). Otherwise no-op — we
     don't track raw charges.
 
-    Idempotent: re-runs are safe because we only ever transition the
-    status one way (paid → refunded / partially_refunded).
+    Codex-12: a refund that arrives BEFORE its ``invoice.paid`` used to
+    be dropped (dedup row committed, refund lost). It now leaves a
+    placeholder invoice row carrying the refund status;
+    ``record_paid_invoice`` fills in the details later and never
+    overwrites the refund. Status only moves forward
+    (partially_refunded → refunded), so a stale partial-refund event
+    delivered after the full refund cannot downgrade it.
     """
+    from app.platform.billing.models import Invoice
+    from app.platform.billing.service import REFUND_STATUSES
+
     data = event.get("data", {}).get("object", {})
     invoice_id = data.get("invoice")
+    if isinstance(invoice_id, dict):
+        invoice_id = invoice_id.get("id")
     if not invoice_id:
         log.info("stripe.webhook.charge_refunded.no_invoice", charge_id=data.get("id"))
         return
 
-    from app.platform.billing.models import Invoice
-
+    amount_refunded = int(data.get("amount_refunded", 0))
     invoice = (
         await db.execute(select(Invoice).where(Invoice.stripe_invoice_id == str(invoice_id)))
     ).scalar_one_or_none()
     if invoice is None:
-        log.warning(
-            "stripe.webhook.charge_refunded.invoice_missing",
-            charge_id=data.get("id"),
-            stripe_invoice_id=invoice_id,
+        tenant_id = await _resolve_tenant_id(db, data)
+        if tenant_id is None:
+            # Not one of our customers (or not linked yet) — let Stripe
+            # retry rather than lose the refund.
+            log.warning(
+                "stripe.webhook.charge_refunded.invoice_missing",
+                charge_id=data.get("id"),
+                stripe_invoice_id=invoice_id,
+            )
+            raise WebhookNotYetReady("refund for an unknown invoice and tenant")
+        amount_charged = int(data.get("amount", 0))
+        invoice = Invoice(
+            tenant_id=tenant_id,
+            stripe_invoice_id=str(invoice_id),
+            amount_cents=amount_charged,
+            currency=str(data.get("currency", "czk")).upper()[:3],
+            status="refunded" if amount_refunded >= amount_charged > 0 else "partially_refunded",
         )
-        # Don't WebhookNotYetReady — the invoice might never land if we
-        # missed the original invoice.paid event. Better to drop the
-        # refund signal than re-deliver forever.
+        db.add(invoice)
+        await db.flush()
+        log.info(
+            "stripe.webhook.charge_refunded.placeholder",
+            tenant_id=str(tenant_id),
+            stripe_invoice_id=invoice_id,
+            new_status=invoice.status,
+        )
         return
 
-    amount_refunded = int(data.get("amount_refunded", 0))
     amount_charged = int(data.get("amount", 0)) or invoice.amount_cents
     fully_refunded = amount_refunded >= amount_charged > 0
     new_status = "refunded" if fully_refunded else "partially_refunded"
     if invoice.status == new_status:
         return  # already reflected
+    if invoice.status == "refunded" and new_status in REFUND_STATUSES:
+        return  # never step back from a full refund
     invoice.status = new_status
     await db.flush()
     log.info(

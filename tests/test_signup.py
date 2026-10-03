@@ -531,9 +531,9 @@ async def test_signup_rejects_invalid_plan_silently(signup_client, owner_engine)
 
 async def test_verify_email_success_surfaces_selected_plan_cta(signup_client, owner_engine) -> None:
     """Round-2 audit C-1 fix: when ``tenant.settings["selected_plan"]``
-    was stamped at signup, the verify-email success screen renders a
-    "Finish setting up …" CTA pointing into checkout via
-    /platform/switch."""
+    was stamped at signup, the verify-email success screen names the
+    chosen plan. Since the 2026-10-03 audit (UX-01) it is shown as the
+    running trial, not as a checkout CTA."""
     client, _ = signup_client
     resp = await client.post(
         "/platform/signup",
@@ -567,13 +567,13 @@ async def test_verify_email_success_surfaces_selected_plan_cta(signup_client, ow
     )
     resp = await client.get(f"/platform/verify-email?token={token}")
     assert resp.status_code == 200
-    # The "Finish setting up Pro" CTA exists and points at the
-    # single-step post-verify endpoint (round-3 UX-P0 fix — the old
-    # /platform/switch?next=/platform/billing/checkout/... pattern
-    # 303'd into a 405 so it's been replaced by
-    # /platform/billing/post-verify-checkout/{plan}).
-    assert "Finish setting up" in resp.text or "Dokončit nastavení" in resp.text
-    assert "/platform/billing/post-verify-checkout/pro" in resp.text
+    # 2026-10-03 audit UX-01: "30 days free, no card". The page names
+    # the chosen plan's trial; the PRIMARY action goes into the portal
+    # and paying is an optional link to the billing page — no longer a
+    # button straight into billing details + Stripe Checkout.
+    assert "Pro" in resp.text
+    assert "/platform/billing/post-verify-checkout/pro" not in resp.text
+    assert resp.text.index("/platform/select-tenant") < resp.text.index('href="/platform/billing"')
 
 
 async def test_signup_rejects_missing_tos(signup_client) -> None:

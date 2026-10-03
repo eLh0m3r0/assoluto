@@ -12,23 +12,22 @@
             <h1 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Email successfully verified") }}</h1>
             <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{{ message }}</p>
             {% if selected_plan and tenant_slug %}
-                {# User picked a paid tier on /pricing — the endpoint below
-                   collapses "mint tenant session + start Stripe Checkout"
-                   into one POST so the 303 redirect never has to pass
-                   through a second POST-only endpoint (the old
-                   switch-then-GET-checkout pattern died with 405). #}
-                <form method="post"
-                      action="/platform/billing/post-verify-checkout/{{ selected_plan }}"
-                      class="mt-6">
-                    {{ csrf_input() }}
-                    <button type="submit"
-                            class="inline-flex w-full items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
-                        {{ _("Finish setting up") }} {{ selected_plan|capitalize }}
-                    </button>
-                </form>
+                {# UX-01: the pricing page promises "30 days free, no card".
+                   The primary action therefore goes into the portal; paying
+                   is an optional, secondary step on the billing page (it
+                   used to be the primary button and led straight to
+                   billing details + Stripe Checkout). #}
+                <p class="mt-4 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-100">
+                    {{ _("Your free 30-day trial is running — no card needed. Plan:") }}
+                    <strong>{{ selected_plan|capitalize }}</strong>
+                </p>
                 <a href="/platform/select-tenant"
+                   class="mt-6 inline-flex w-full items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+                    {{ _("Continue to the portal") }}
+                </a>
+                <a href="/platform/billing"
                    class="mt-3 inline-flex w-full items-center justify-center rounded-md bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300">
-                    {{ _("Skip for now") }}
+                    {{ _("Set up payment now (optional)") }}
                 </a>
             {% else %}
                 <a href="/platform/select-tenant"

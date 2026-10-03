@@ -14,7 +14,7 @@
 
     <div class="mt-4">{% include "_flash.html" %}</div>
 
-    <form method="post" action="/platform/billing/details" class="mt-6 space-y-5 rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+    <form method="post" action="/platform/billing/details{{ tenant_qs or '' }}" class="mt-6 space-y-5 rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
         {{ csrf_input() }}
         <input type="hidden" name="next" value="{{ next }}">
 
@@ -61,7 +61,7 @@
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
-            <a href="/platform/billing" class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+            <a href="/platform/billing{{ tenant_qs or '' }}" class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
                 {{ _("Back to subscription") }}
             </a>
             <button type="submit"
