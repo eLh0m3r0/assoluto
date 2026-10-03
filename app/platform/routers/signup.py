@@ -7,6 +7,7 @@ Core self-hosted builds never mount this router.
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request, status
@@ -110,7 +111,14 @@ async def signup_submit(
         html = _templates(request).render(
             request,
             "platform/verify_sent.html",
-            {"email": owner_email or "(unknown)", "principal": None},
+            # The template reads ``identity.email``; passing a bare
+            # ``email`` used to raise UndefinedError -> 500, which told
+            # the bot it had been caught (audit BE-07).
+            {
+                "identity": SimpleNamespace(email=owner_email or ""),
+                "email": owner_email or "",
+                "principal": None,
+            },
         )
         return HTMLResponse(html)
 

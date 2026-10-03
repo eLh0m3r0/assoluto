@@ -592,3 +592,34 @@ async def test_signup_rejects_missing_tos(signup_client) -> None:
     )
     assert resp.status_code == 400
     assert "podmínkami" in resp.text.lower()
+
+
+async def test_signup_honeypot_returns_fake_success_page(signup_client, owner_engine) -> None:
+    """Audit BE-07: the honeypot branch 500'd (UndefinedError: identity),
+    telling bots they had been detected. It must look like a success and
+    create nothing."""
+    client, capture = signup_client
+
+    resp = await client.post(
+        "/platform/signup",
+        data={
+            "company_name": "Bot Corp",
+            "slug": "bot-corp",
+            "owner_email": "bot@example.com",
+            "owner_full_name": "Bot",
+            "password": "correct-horse-battery-staple",
+            "terms_accepted": "1",
+            "website": "http://spam.example",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 200, resp.text
+    assert "bot@example.com" in resp.text
+    assert capture.outbox == []
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        tenant = (
+            await session.execute(select(Tenant).where(Tenant.slug == "bot-corp"))
+        ).scalar_one_or_none()
+    assert tenant is None

@@ -163,6 +163,43 @@ class Settings(BaseSettings):
     # to the bounce/complaint counter while the spam vector is investigated.
     enable_outbound_emails: bool = Field(default=True, alias="ENABLE_OUTBOUND_EMAILS")
 
+    # Durable e-mail outbox (audit BE-09). Every templated mail is written
+    # to ``email_outbox`` before the first send attempt; failures are
+    # retried by the ``deliver_email_outbox`` job with exponential backoff.
+    # ``false`` restores the old fire-and-forget path (three quick retries,
+    # then the mail is gone) — an escape hatch, not a recommended setting.
+    email_outbox_enabled: bool = Field(default=True, alias="EMAIL_OUTBOX_ENABLED")
+
+    # --- Operations / observability ---------------------------------------
+    # Operator alert address. When set, every unhandled 500 and every
+    # crashed scheduler job mails this address (path, error type, request
+    # id, traceback frames — never request bodies or cookies), at most once
+    # per error signature per 15 minutes. Empty = disabled.
+    ops_alert_email: str = Field(default="", alias="OPS_ALERT_EMAIL")
+    # ``/readyz`` also probes the S3 bucket (short timeout, result cached
+    # for 30 s). Turn off for deployments without object storage.
+    readyz_check_s3: bool = Field(default=True, alias="READYZ_CHECK_S3")
+    # Build identifier used as the static-asset cache-buster
+    # (``/static/css/app.css?v=<build id>``). CI may pass the commit SHA as
+    # a Docker build arg; when empty the app derives a content hash of the
+    # static directory at boot, so a deploy with changed CSS/JS always
+    # gets a new URL.
+    app_build_id: str = Field(default="", alias="APP_BUILD_ID")
+
+    # --- Data retention (D6) ----------------------------------------------
+    # The retention job (daily) purges tenants deactivated more than 30 days
+    # ago (DB rows + S3 objects), audit events older than 3 years, and S3
+    # objects no DB row references that are older than 7 days. Dry-run by
+    # default: it only logs what it WOULD delete. Set to true to delete.
+    retention_enforce: bool = Field(default=False, alias="RETENTION_ENFORCE")
+
+    # --- Tenancy hardening -------------------------------------------------
+    # Honour a client-supplied ``X-Tenant-Slug`` header in production.
+    # Off by default: in production the tenant comes from the Host only, so
+    # nobody can address another tenant's app through the apex domain
+    # (audit SEC-7). Development and test always honour the header.
+    trust_tenant_header: bool = Field(default=False, alias="TRUST_TENANT_HEADER")
+
     # --- Uploads -----------------------------------------------------------
     max_upload_size_mb: int = Field(default=50, alias="MAX_UPLOAD_SIZE_MB")
 

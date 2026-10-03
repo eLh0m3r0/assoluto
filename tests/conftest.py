@@ -16,6 +16,8 @@ os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault("APP_DEBUG", "false")
 os.environ.setdefault("APP_SECRET_KEY", "test-secret-key")
 os.environ.setdefault("LOG_LEVEL", "WARNING")
+# /readyz probes S3 in production; unit tests opt in explicitly.
+os.environ.setdefault("READYZ_CHECK_S3", "false")
 
 from app.config import Settings, get_settings
 from app.main import create_app

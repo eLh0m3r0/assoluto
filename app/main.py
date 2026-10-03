@@ -553,8 +553,26 @@ def _register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> Response:
+        request_id = getattr(request.state, "request_id", None)
         get_logger("app.errors").error(
-            "unhandled", path=request.url.path, error=f"{type(exc).__name__}: {exc}"
+            "unhandled",
+            path=request.url.path,
+            request_id=request_id,
+            error=f"{type(exc).__name__}: {exc}",
+        )
+        # Mail the operator (OPS_ALERT_EMAIL; rate-limited, no request
+        # data). Route template rather than raw path so /orders/<uuid>
+        # crashes collapse into one signature.
+        from app.email.ops_alert import notify_unhandled
+
+        route = request.scope.get("route")
+        notify_unhandled(
+            exc,
+            settings=request.app.state.settings,
+            sender=getattr(request.app.state, "email_sender", None),
+            where=getattr(route, "path", None) or request.url.path,
+            request_id=request_id,
+            method=request.method,
         )
         templates: Templates = request.app.state.templates
         if _wants_html(request):

@@ -9,6 +9,7 @@ Called from `main.lifespan`; starting and shutdown are wired up there.
 
 from __future__ import annotations
 
+from apscheduler.events import EVENT_JOB_ERROR, JobExecutionEvent
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
@@ -23,6 +24,29 @@ from app.tasks.periodic import (
 )
 
 log = get_logger("app.scheduler")
+
+
+def _on_job_error(event: JobExecutionEvent) -> None:
+    """Mail the operator when a periodic job crashes (OPS_ALERT_EMAIL).
+
+    APScheduler only logs job exceptions; a retention or outbox job that
+    dies every night would otherwise go unnoticed.
+    """
+    if event.exception is None:
+        return
+    from app.config import get_settings
+    from app.email.ops_alert import notify_unhandled
+    from app.email.sender import build_sender
+
+    settings = get_settings()
+    if not settings.ops_alert_email:
+        return
+    notify_unhandled(
+        event.exception,
+        settings=settings,
+        sender=build_sender(settings),
+        where=f"scheduler:{event.job_id}",
+    )
 
 
 def build_scheduler() -> AsyncIOScheduler:
@@ -85,6 +109,8 @@ def build_scheduler() -> AsyncIOScheduler:
         max_instances=1,
         misfire_grace_time=600,
     )
+
+    scheduler.add_listener(_on_job_error, EVENT_JOB_ERROR)
 
     log.info(
         "scheduler.configured",
