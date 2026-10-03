@@ -29,6 +29,7 @@ from app.routers import search as search_router
 from app.routers import tenant_admin as tenant_admin_router
 from app.routers import www as www_router
 from app.scheduler import build_scheduler
+from app.security.body_limit import FORM_OVERHEAD_BYTES, BodySizeLimitMiddleware
 from app.security.csrf import CsrfCookieMiddleware
 from app.security.head_method import HeadMethodMiddleware
 from app.security.headers import SecurityHeadersMiddleware
@@ -329,6 +330,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # the response side. The structured-log line therefore still shows
     # method=HEAD instead of the mutated GET.
     app.add_middleware(HeadMethodMiddleware)
+
+    # Hard ceiling on request bodies, enforced while the body streams in
+    # (before multipart parsing spools it to disk). See body_limit.py.
+    app.add_middleware(
+        BodySizeLimitMiddleware,
+        max_body_bytes=settings.max_upload_size_bytes + FORM_OVERHEAD_BYTES,
+    )
 
     # Plain ASGI middleware that stamps the csrftoken cookie; validation
     # happens in `verify_csrf` as a router-level FastAPI dependency so it

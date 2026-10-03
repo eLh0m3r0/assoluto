@@ -40,6 +40,11 @@ class LogContextMiddleware:
         if not rid:
             rid = uuid4().hex[:16]
 
+        # Also expose it as ``request.state.request_id``: the unhandled-
+        # exception handler runs outside this middleware (after the
+        # contextvars below are cleared) and the operator alert needs it.
+        scope.setdefault("state", {})["request_id"] = rid
+
         path = scope.get("path", "")
         method = scope.get("method", "")
 
