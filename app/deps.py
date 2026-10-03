@@ -79,13 +79,19 @@ def resolve_tenant_slug(request: Request, settings: Settings) -> str | None:
     """Determine which tenant slug a request is addressing.
 
     Resolution order:
-    1. Explicit `X-Tenant-Slug` header (used by tests and internal tools).
+    1. Explicit `X-Tenant-Slug` header (used by tests and internal tools)
+       — outside production only, unless ``TRUST_TENANT_HEADER=true``.
+       In production a client could otherwise address any tenant's app
+       through the apex host and enumerate slugs, breaking the
+       "tenant == host" assumption that host-only cookies and the CSP
+       rely on (audit SEC-7).
     2. Subdomain of the `Host` header.
     3. `DEFAULT_TENANT_SLUG` from settings (self-host single-tenant mode).
     """
-    header = request.headers.get("x-tenant-slug")
-    if header:
-        return header.strip().lower() or None
+    if not settings.is_production or settings.trust_tenant_header:
+        header = request.headers.get("x-tenant-slug")
+        if header:
+            return header.strip().lower() or None
 
     host = request.headers.get("host", "")
     subdomain = _extract_subdomain(host)
