@@ -17,7 +17,7 @@ Odkazy `T#` = téma ve findings, ostatní ID = konkrétní nález.
 |---|---|---|
 | D1 | Reference na homepage (BIZ-04) | **Smazat hned.** Místo nich „Program zakládajících zákazníků" (MKT-10) |
 | D2 | Kdy spustit Stripe | **Až po Vlně 1.** Do té doby ruční fakturace + guard (BIZ-01) |
-| D3 | Nový ceník (MKT-1, MKT-2, BIZ-14) | Start 990 / Pro 2 490 / Business 4 990 Kč bez DPH, **neomezení odběratelé**, platí se za staff a funkce, roční platba = 2 měsíce zdarma. Prvním zákazníkům držet dnešní ceny výměnou za referenci |
+| D3 | Nový ceník (MKT-1, MKT-2, BIZ-14) | Start 1 490 / Pro 2 990 Kč (upraveno po konzultaci s founderem, viz EXECUTION_BRIEF D3), **neomezení odběratelé**, platí se za staff a funkce, roční platba = 2 měsíce zdarma. Prvním zákazníkům držet dnešní ceny výměnou za referenci |
 | D4 | Záporné řádky (slevy) v zakázce (LOGIC-1) | Zakázat, pro slevy později vlastní typ řádku |
 | D5 | Self-host/AGPL tier „Community" na ceníku jako první (BIZ-14) | Posunout na konec, ponechat jako důvěryhodnostní signál, ne jako nabídku |
 | D6 | Retence: audit log, uzavřené zakázky, smazaní tenanti (BIZ-08, BE-19) | Smazaný tenant 30 dní (jak slibují Terms), audit 3 roky, uzavřené zakázky po dobu života tenanta |
