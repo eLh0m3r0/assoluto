@@ -59,6 +59,14 @@ ALLOWED_LITERALS: set[str] = {
     "Kovárna Vlček",
     "Zámečnictví Horák",
     "Novák Engineering",
+    # Same names as single tokens: the hero mock passes them as macro
+    # arguments (`mock_row(..., "Kovárna Vlček", ...)`), so the scanner
+    # sees the words inside a longer line.
+    "Kovárna",
+    "Vlček",
+    "Zámečnictví",
+    "Horák",
+    "Novák",
     # Units / currencies that are language-neutral.
     "CZK",
     "EUR",

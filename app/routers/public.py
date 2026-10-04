@@ -144,7 +144,9 @@ async def landing(
 
     slug = resolve_tenant_slug(request, settings)
     if slug is None and settings.feature_platform:
-        html = _templates(request).render(request, "www/index.html", {"principal": None})
+        from app.routers.www import marketing_context
+
+        html = _templates(request).render(request, "www/index.html", marketing_context(settings))
         return HTMLResponse(html)
 
     from app.deps import get_current_tenant as _get_current_tenant

@@ -1,0 +1,31 @@
+{# Homepage FAQ — one list feeds both the visible <details> and the
+   FAQPage JSON-LD, so the two can never say different things.
+
+   Import WITH context (`stripe_enabled` decides the payment answer):
+       {% import "www/_home_faq.html" as home_faq with context %}
+
+   Every answer must be true today (audit 2026-10-03, theme T5): no
+   "encrypted at rest", no redundancy, no uptime percentage, no Pohoda
+   connector claim. #}
+
+{% if stripe_enabled %}
+    {% set _payment_answer = _("Monthly plans are paid by card via Stripe, or by bank transfer against an invoice. Annual plans are invoiced and paid by bank transfer — two months free. Enterprise customers always receive an invoice. We are not VAT-registered, so the listed price is final and no VAT is added.") %}
+{% else %}
+    {% set _payment_answer = _("Yes — we currently invoice by bank transfer, monthly or annually (annual = two months free). Online card payment is being set up; until then just write to team@assoluto.eu when your trial ends. We are not VAT-registered, so the listed price is final and no VAT is added.") %}
+{% endif %}
+
+{% set items = [
+    (_("Where is my data stored?"),
+     _("In Germany (EU), at Hetzner Online GmbH: the application and database run on a Hetzner server, drawings and attachments are kept in Hetzner Object Storage. Emails are delivered through Brevo (France, EU). The database is backed up daily and backups are kept for 14 days. The full subprocessor list is in our Privacy Policy.")),
+    (_("Can I pay by bank transfer, not just by card?"), _payment_answer),
+    (_("Do I need to sign anything?"),
+     _("No paper contract. At signup you accept our Terms of Service by clicking a button. Subscriptions are monthly with no commitment; cancel any time from your account settings. After cancellation you have 3 days to export your data, then access ends. For later recovery, email team@assoluto.eu within 30 days.")),
+    (_("Can I integrate with Pohoda or Money S3?"),
+     _("Assoluto does not replace your accounting software, it runs next to it. Orders and customers can be exported to CSV at any time. There is no two-way synchronisation with Pohoda or Money S3. If that is a deciding factor, write to us — customer demand directly shapes what we build next.")),
+    (_("Is it secure? What if the server fails?"),
+     _("Each client sees only their own data — enforced by the database itself (PostgreSQL Row-Level Security), not just by the application. Passwords are stored only as Argon2id hashes and logins are rate-limited. The database is backed up daily and backups are kept for 14 days. Starter and Pro come without a formal SLA; Enterprise customers can agree a written one. Details are on our security page.")),
+    (_("Will you teach my people how to use it?"),
+     _("Every paid plan includes a 30-minute online walkthrough — we show the system with your actual setup, not demo data. Most shops do not need it: the portal is designed so a client who can use email can place their first order in 3 minutes without training. Need more? Contact us.")),
+    (_("What if I want to leave?"),
+     _("Cancel in your account settings — no sales call, no approval queue. You keep full access until the current billing period ends, then have 3 days to export your data (orders and customers as CSV, attachments as ZIP). After that, access ends. Need to recover something later? Email team@assoluto.eu within 30 days. For immediate erasure (GDPR Art. 17) email us — we action requests within 48 hours.")),
+] %}

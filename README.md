@@ -1,7 +1,7 @@
 # Assoluto
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![CI](https://github.com/elh0m3r0/sme-client-portal/actions/workflows/ci.yml/badge.svg)](https://github.com/elh0m3r0/sme-client-portal/actions/workflows/ci.yml)
+[![CI](https://github.com/eLh0m3r0/assoluto/actions/workflows/ci.yml/badge.svg)](https://github.com/eLh0m3r0/assoluto/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://docs.astral.sh/ruff/)
 
@@ -42,8 +42,8 @@ stored on-site. Built with Python / FastAPI / PostgreSQL. Hosted at
 ## Quick start
 
 ```bash
-git clone https://github.com/eLh0m3r0/sme-client-portal.git
-cd sme-client-portal
+git clone https://github.com/eLh0m3r0/assoluto.git
+cd assoluto
 cp .env.example .env
 docker compose up --build
 ```
@@ -58,11 +58,11 @@ Open the portal:
 
 | URL | What |
 |---|---|
-| http://localhost:8000 | Portal (set `DEFAULT_TENANT_SLUG=4mex` in `.env`, or use `http://4mex.localhost:8000`) |
+| http://4mex.localhost:8000 | Demo portal (tenant `4mex` from `seed_dev`; the compose `web` service does not read `.env`, so use the subdomain) |
 | http://localhost:8025 | MailHog — captured emails |
 | http://localhost:9001 | MinIO console (portal / portalportal) |
 
-Demo credentials: `owner@4mex.cz` / `demo1234` (staff), `jan@acme.cz` / `demo1234` (customer contact).
+Demo credentials: `vlastnik@dilna.example.com` / `demo1234` (staff), `jan@klient.example.com` / `demo1234` (customer contact).
 
 ## Documentation
 
@@ -162,7 +162,7 @@ A formal CZ trademark filing (ÚPV) is in progress; until then the
 
 ## Community
 
-- **Bug reports & feature requests:** [GitHub Issues](https://github.com/elh0m3r0/sme-client-portal/issues)
+- **Bug reports & feature requests:** [GitHub Issues](https://github.com/eLh0m3r0/assoluto/issues)
 - **Security disclosures:** see [SECURITY.md](SECURITY.md)
 - **Code of Conduct:** [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — we follow the Contributor Covenant v2.1
 - **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md)
@@ -202,8 +202,8 @@ a open-source pod licencí AGPL-3.0.
 ### Rychlý start
 
 ```bash
-git clone https://github.com/eLh0m3r0/sme-client-portal.git
-cd sme-client-portal
+git clone https://github.com/eLh0m3r0/assoluto.git
+cd assoluto
 cp .env.example .env
 docker compose up --build
 ```
@@ -214,8 +214,8 @@ Naplnit demo data:
 docker compose exec web python -m scripts.seed_dev
 ```
 
-Demo přihlašovací údaje: `owner@4mex.cz` / `demo1234` (staff),
-`jan@acme.cz` / `demo1234` (zákaznický kontakt).
+Demo přihlašovací údaje: `vlastnik@dilna.example.com` / `demo1234` (staff),
+`jan@klient.example.com` / `demo1234` (zákaznický kontakt). Portál: http://4mex.localhost:8000
 
 ### Licence
 
@@ -229,7 +229,7 @@ Pro komerční licencování (proprietární forky, OEM integrace apod.):
 
 ### Komunita
 
-- **Bug reporty a návrhy funkcí:** [GitHub Issues](https://github.com/elh0m3r0/sme-client-portal/issues)
+- **Bug reporty a návrhy funkcí:** [GitHub Issues](https://github.com/eLh0m3r0/assoluto/issues)
 - **Bezpečnostní oznámení:** viz [SECURITY.md](SECURITY.md)
 - **Kodex chování:** [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — řídíme se Contributor Covenant v2.1
 - **Přispívání:** [CONTRIBUTING.md](CONTRIBUTING.md)

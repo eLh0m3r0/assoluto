@@ -33,5 +33,8 @@ async def test_root_returns_html_landing_for_tenant(
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/html")
     body = response.text
-    assert "Assoluto" in body
-    assert "Zákaznický portál" in body
+    # UX-15: the tenant landing names the supplier instead of a generic
+    # "Customer portal for SMEs" headline.
+    assert "4MEX s.r.o." in body
+    assert "<title>4MEX s.r.o." in body
+    assert "for SMEs" not in body and "pro SME" not in body

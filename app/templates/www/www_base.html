@@ -7,7 +7,7 @@
 
 {% block head_extra %}
     {# --- SEO basics. Each page can override description; default is safe. --- #}
-    <meta name="description" content="{% block meta_description %}{{ _('Client portal for Czech manufacturing SMEs. Orders, drawings, production status — all in one place. Replace emails and Excel. 30 days free, no card.') }}{% endblock %}">
+    <meta name="description" content="{% block meta_description %}{{ _("The customer portal for make-to-order manufacturers. Next to your accounting software, not instead of it. Clients upload drawings, confirm quotes and follow production status on their own. 30 days free, no card.") }}{% endblock %}">
     <meta name="robots" content="index,follow">
     <meta name="author" content="Assoluto">
     <meta name="theme-color" content="#3b6efb">
@@ -53,13 +53,13 @@
         "name": "Assoluto",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web",
-        "description": "{{ _('Client portal for Czech manufacturing SMEs — orders, drawings, production status.') }}",
+        "description": {{ _('The customer portal for make-to-order manufacturers — orders, drawings, production status, customer-owned material.')|tojson }},
         "url": "https://assoluto.eu",
         "offers": {
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "CZK",
-            "description": "{{ _('30-day free trial, no credit card required') }}"
+            "description": {{ _('30-day free trial, no credit card required')|tojson }}
         }
     }
     </script>
@@ -97,6 +97,8 @@
         <span class="text-slate-300 dark:text-slate-700">·</span>
         <a href="/imprint" class="hover:text-slate-700 dark:hover:text-slate-300">{{ _("Imprint") }}</a>
         <span class="text-slate-300 dark:text-slate-700">·</span>
-        <a href="https://github.com/elh0m3r0/sme-client-portal" class="hover:text-slate-700 dark:hover:text-slate-300">GitHub</a>
+        <a href="/security" class="hover:text-slate-700 dark:hover:text-slate-300">{{ _("Security") }}</a>
+        <span class="text-slate-300 dark:text-slate-700">·</span>
+        <a href="https://github.com/eLh0m3r0/assoluto" class="hover:text-slate-700 dark:hover:text-slate-300">GitHub</a>
     </div>
 {% endblock %}
