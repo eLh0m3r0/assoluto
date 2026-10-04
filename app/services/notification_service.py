@@ -681,6 +681,44 @@ async def build_order_attachment(
     )
 
 
+async def build_quote_reminder(
+    db: AsyncSession,
+    *,
+    tenant: Tenant,
+    order: Order,
+    base_url: str,
+    settings: Settings,
+) -> list[OrderNotification]:
+    """One follow-up to the customer about a quote nobody answered (IDEA-2).
+
+    Same audience rules as every other contact event — consent first and
+    absolute (a contact who unticked "A quote is still waiting" hears
+    nothing), then the two soft filters. Called by the periodic job in
+    :mod:`app.tasks.quote_reminders`, which owns the once-only marker.
+    """
+    from app.templating import _money_major_filter
+
+    event = NotificationEvent.QUOTE_REMINDER
+    recipients = await resolve_contact_audience(
+        db, tenant=tenant, settings=settings, event=event, order=order
+    )
+    return _fan_out(
+        recipients,
+        event=event,
+        tenant=tenant,
+        order=order,
+        base_url=base_url,
+        extra={
+            "amount": (
+                _money_major_filter(order.quoted_total, order.currency)
+                if order.quoted_total is not None
+                else ""
+            ),
+            "confirm_url": order_url(base_url, order) + "#order-status",
+        },
+    )
+
+
 def build_order_assigned(
     *,
     tenant: Tenant,

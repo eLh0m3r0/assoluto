@@ -1,0 +1,1 @@
+{% trans order_number=order_number %}Reminder: quote {{ order_number }} is waiting for your confirmation{% endtrans %}

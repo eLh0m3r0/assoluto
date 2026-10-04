@@ -86,6 +86,19 @@ def build_scheduler() -> AsyncIOScheduler:
         misfire_grace_time=600,
     )
 
+    # Quote follow-ups (IDEA-2). Mid-morning CET, after the trial nurture
+    # run. No-ops when QUOTE_REMINDER_DAYS=0.
+    from app.tasks.quote_reminders import send_quote_reminders
+
+    scheduler.add_job(
+        send_quote_reminders,
+        trigger=CronTrigger(hour=8, minute=15),  # 08:15 UTC daily
+        id="send_quote_reminders",
+        replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=600,
+    )
+
     log.info(
         "scheduler.configured",
         jobs=[j.id for j in scheduler.get_jobs()],

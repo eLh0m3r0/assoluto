@@ -5,6 +5,7 @@ their own customer's assets.
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
+from urllib.parse import quote
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
@@ -20,6 +21,7 @@ from app.models.enums import AssetMovementType
 from app.security.csrf import verify_csrf
 from app.services.asset_service import (
     AssetError,
+    ForeignOrderReference,
     InsufficientStock,
     add_movement,
     create_asset,
@@ -27,7 +29,9 @@ from app.services.asset_service import (
     list_assets,
     list_movements,
 )
+from app.services.audit_service import actor_from_principal
 from app.services.customer_service import list_customers
+from app.services.money import QUANTITY_MAX
 
 router = APIRouter(prefix="/app", tags=["assets"], dependencies=[Depends(verify_csrf)])
 
@@ -155,6 +159,8 @@ async def assets_create(
 async def assets_detail(
     asset_id: UUID,
     request: Request,
+    notice: str | None = None,
+    error: str | None = None,
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
@@ -199,8 +205,8 @@ async def assets_detail(
             "movements": movements,
             "customer": customer,
             "orders": orders,
-            "error": None,
-            "notice": None,
+            "error": error,
+            "notice": notice,
         },
     )
     return HTMLResponse(html)
@@ -226,17 +232,23 @@ async def assets_add_movement(
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid movement type") from None
 
+    def _back(*, notice: str | None = None, error: str | None = None) -> RedirectResponse:
+        key, msg = ("error", error) if error is not None else ("notice", notice or "")
+        return RedirectResponse(url=f"/app/assets/{asset.id}?{key}={quote(msg)}", status_code=303)
+
     try:
-        qty = Decimal(quantity)
+        qty = Decimal(quantity.strip().replace(",", "."))
     except (InvalidOperation, ValueError):
-        raise HTTPException(status_code=400, detail="Invalid quantity") from None
+        return _back(error=_t(request, "Enter a valid quantity."))
+    if not qty.is_finite() or abs(qty) > QUANTITY_MAX:
+        return _back(error=_t(request, "Enter a valid quantity."))
 
     ref_order_uuid: UUID | None = None
     if reference_order_id.strip():
         try:
             ref_order_uuid = UUID(reference_order_id.strip())
         except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid reference_order_id") from None
+            return _back(error=_t(request, "That order does not belong to this client."))
 
     try:
         await add_movement(
@@ -248,10 +260,15 @@ async def assets_add_movement(
             note=note or None,
             reference_order_id=ref_order_uuid,
             created_by_user_id=principal.id,
+            audit_actor=actor_from_principal(principal),
         )
-    except InsufficientStock as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from None
-    except AssetError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from None
+    except InsufficientStock:
+        return _back(error=_t(request, "Not enough stock for this movement."))
+    except ForeignOrderReference:
+        # LOGIC-24: a consume booked against another customer's order
+        # (or a made-up id, which used to hit the FK and 500).
+        return _back(error=_t(request, "That order does not belong to this client."))
+    except AssetError:
+        return _back(error=_t(request, "Enter a valid quantity."))
 
-    return RedirectResponse(url=f"/app/assets/{asset.id}", status_code=303)
+    return _back(notice=_t(request, "Movement recorded."))

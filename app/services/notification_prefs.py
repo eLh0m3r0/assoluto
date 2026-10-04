@@ -51,6 +51,9 @@ class NotificationEvent(StrEnum):
     ORDER_COMMENT = "order_comment"
     ORDER_ATTACHMENT = "order_attachment"
     ORDER_ASSIGNED = "order_assigned"
+    #: One follow-up when a quote sits unanswered (IDEA-2). Sent by the
+    #: periodic job in ``app.tasks.quote_reminders``.
+    QUOTE_REMINDER = "quote_reminder"
 
 
 class NotificationScope(StrEnum):
@@ -92,6 +95,7 @@ CONTACT_EVENTS: tuple[NotificationEvent, ...] = (
     NotificationEvent.ORDER_STATUS_CHANGED,
     NotificationEvent.ORDER_COMMENT,
     NotificationEvent.ORDER_ATTACHMENT,
+    NotificationEvent.QUOTE_REMINDER,
 )
 
 #: Events that always go to one specific person rather than an audience,
