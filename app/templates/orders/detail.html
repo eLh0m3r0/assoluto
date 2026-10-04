@@ -202,9 +202,22 @@
                 </div>
             {% else %}
                 <div class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ _('Current total') }}</div>
-                <div class="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">
-                    {{ order.quoted_total | money_major(order.currency) }}
-                </div>
+                {% if order.quoted_total is not none %}
+                    <div class="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">
+                        {{ order.quoted_total | money_major(order.currency) }}
+                    </div>
+                {% else %}
+                    {# Not quoted yet: quoted_total stays NULL on purpose (F-13 —
+                       "0 Kč" read as free), but priced lines already add up to
+                       something worth showing. Labelled as a running sum. #}
+                    {% set priced = items | selectattr('line_total') | list %}
+                    <div class="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100" data-running-total>
+                        {% if priced %}{{ priced | sum(attribute='line_total') | money_major(order.currency) }}{% else %}—{% endif %}
+                    </div>
+                    {% if priced %}
+                        <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _('Running sum of priced items — not quoted yet.') }}</div>
+                    {% endif %}
+                {% endif %}
             {% endif %}
             {% if status_pipeline.has_quote_problems and items %}
                 <div class="mt-1 text-xs text-amber-700 dark:text-amber-300">{{ _('Some items have no price yet.') }}</div>

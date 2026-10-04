@@ -617,19 +617,23 @@ async def add_item(
 
     # Pick the next position by MAX(position) + 1 to be insertion-order
     # stable without relying on created_at timestamps.
-    max_pos = (
+    max_pos: int = (
         await db.execute(
             select(func.coalesce(func.max(OrderItem.position), -1)).where(
                 OrderItem.order_id == order.id
             )
         )
-    ).scalar()
+    ).scalar_one()
 
     item = OrderItem(
         tenant_id=tenant_id,
         order_id=order.id,
         product_id=product_id,
-        position=int(max_pos or -1) + 1,
+        # COALESCE already maps "no items" to -1. ``max_pos or -1`` turned
+        # a legitimate 0 into -1 too, so every line got position 0 and the
+        # order fell back to created_at (since 2026-04; migration 1014
+        # renumbers existing orders).
+        position=int(max_pos) + 1,
         description=description,
         quantity=quantity,
         unit=(unit or "ks")[:16],

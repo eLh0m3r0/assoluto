@@ -136,3 +136,45 @@ async def test_seed_demo_refuses_foreign_tenant(owner_engine, wipe_db) -> None:
         )
     with pytest.raises(DemoSeedRefused):
         await seed_demo(slug="real-shop", engine=owner_engine)
+
+
+async def test_seed_demo_has_no_future_timestamps_and_snapshots_confirmations(
+    owner_engine, wipe_db
+) -> None:
+    """History used to step 20 h per status from creation, so fresh orders
+    showed transitions dated tomorrow; confirmed orders lacked the
+    LOGIC-2 snapshot the detail page and the PDF now show."""
+    from sqlalchemy import text
+
+    await seed_demo(slug="demo-time", password="Demo-heslo-1", engine=owner_engine)
+    async with owner_engine.connect() as conn:
+        future = (
+            await conn.execute(
+                text(
+                    "SELECT (SELECT count(*) FROM order_status_history WHERE created_at > now())"
+                    " + (SELECT count(*) FROM order_comments WHERE created_at > now())"
+                    " + (SELECT count(*) FROM orders WHERE submitted_at > now()"
+                    "    OR confirmed_at > now() OR quoted_at > now())"
+                )
+            )
+        ).scalar_one()
+        unsnapshotted = (
+            await conn.execute(
+                text(
+                    "SELECT count(*) FROM orders WHERE status IN "
+                    "('confirmed','in_production','ready','delivered','closed') "
+                    "AND (confirmed_total IS NULL OR confirmed_at IS NULL)"
+                )
+            )
+        ).scalar_one()
+        unpriced = (
+            await conn.execute(
+                text(
+                    "SELECT count(*) FROM orders o WHERE quoted_total IS NULL "
+                    "AND EXISTS (SELECT 1 FROM order_items i WHERE i.order_id = o.id)"
+                )
+            )
+        ).scalar_one()
+    assert future == 0
+    assert unsnapshotted == 0
+    assert unpriced == 0

@@ -8,12 +8,13 @@ access denials via RLS + ACL.
 
 from __future__ import annotations
 
+import re
 from datetime import datetime
 from uuid import UUID, uuid4
 
 import pytest
 from httpx import AsyncClient
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.models.customer import Customer, CustomerContact
@@ -363,3 +364,68 @@ async def test_staff_can_cancel_order_with_reason(
     order = await _order_row(owner_engine, order_id)
     assert order.status == OrderStatus.CANCELLED
     assert order.cancelled_at is not None
+
+
+async def test_unquoted_order_shows_running_sum_of_priced_items(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """Before quoting, ``quoted_total`` is NULL by design (F-13), but the
+    summary card read "—" next to three priced lines. It now shows the
+    running sum, labelled as not yet quoted."""
+    await _seed_everyone(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "jan@acme.cz", "contactpass")
+    resp = await tenant_client.post(
+        "/app/orders", data={"title": "Průběžný součet", "notes": ""}, follow_redirects=False
+    )
+    order_id = UUID(resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
+
+    page = await tenant_client.get(f"/app/orders/{order_id}")
+    assert re.search(r"data-running-total>\s*—", page.text)
+
+    for qty, price in (("10", "125.50"), ("2", "100")):
+        await tenant_client.post(
+            f"/app/orders/{order_id}/items",
+            data={"description": "Díl", "quantity": qty, "unit": "ks", "unit_price": price},
+            follow_redirects=False,
+        )
+    # add_item keeps quoted_total current (F-14), so the card already shows
+    # the sum. Orders seeded directly or written before that fix carry NULL
+    # with priced lines — that is the case the running sum covers.
+    async with owner_engine.begin() as conn:
+        await conn.execute(
+            text("UPDATE orders SET quoted_total = NULL WHERE id = :id"), {"id": order_id}
+        )
+    page = await tenant_client.get(f"/app/orders/{order_id}")
+    running = re.search(r"data-running-total>\s*([^<]+?)\s*<", page.text)
+    assert running is not None
+    assert running.group(1).replace("\xa0", " ").startswith("1 455")
+
+
+async def test_items_get_increasing_positions(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """``int(max_pos or -1) + 1`` gave every line position 0 (a first line
+    at 0 is falsy), so ordering by position alone was random — this test's
+    sibling flaked with the two prices swapped (2 700 instead of 1 800)."""
+    await _seed_everyone(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "jan@acme.cz", "contactpass")
+    resp = await tenant_client.post(
+        "/app/orders", data={"title": "Pozice", "notes": ""}, follow_redirects=False
+    )
+    order_id = UUID(resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
+    for name in ("A", "B", "C"):
+        await tenant_client.post(
+            f"/app/orders/{order_id}/items",
+            data={"description": name, "quantity": "1", "unit": "ks"},
+            follow_redirects=False,
+        )
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        rows = (
+            await session.execute(
+                select(OrderItem.description, OrderItem.position)
+                .where(OrderItem.order_id == order_id)
+                .order_by(OrderItem.position)
+            )
+        ).all()
+    assert [(r.description, r.position) for r in rows] == [("A", 0), ("B", 1), ("C", 2)]

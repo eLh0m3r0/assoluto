@@ -726,9 +726,12 @@ first run will build from scratch (no cache), subsequent runs pull
 cached layers.
 
 If the run fails at the SSH step:
-- If `DEPLOY_HOST_FINGERPRINT` is set, check it matches
-  `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` on the VPS (the
-  `SHA256:…` part). Unset, the host key is not verified at all.
+- If `DEPLOY_HOST_FINGERPRINT` is set, check it matches the **ECDSA**
+  host key: `ssh-keygen -lf /etc/ssh/ssh_host_ecdsa_key.pub` on the VPS
+  (the `SHA256:…` part). The Go SSH client in `appleboy/ssh-action`
+  prefers ECDSA over ED25519 when the server offers both. Reinstalling
+  the VPS rotates host keys — update the secret then. Unset, the host
+  key is not verified at all.
 - Test the key manually: `ssh -i ~/.ssh/assoluto_deploy deploy@<IP>`.
 - Verify `deploy` can run `sudo docker …` without a password.
 

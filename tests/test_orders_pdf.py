@@ -10,6 +10,8 @@ coverage holds even when the DB-backed suite is skipped.
 
 from __future__ import annotations
 
+import shutil
+import subprocess
 from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID, uuid4
@@ -255,3 +257,64 @@ async def test_pdf_export_contact_can_download_own_order(
     assert resp.status_code == 200
     assert resp.headers["content-type"].startswith("application/pdf")
     assert resp.content.startswith(b"%PDF-1.")
+
+
+@pytest.mark.skipif(shutil.which("pdftotext") is None, reason="poppler-utils not installed")
+def test_czech_order_pdf_has_no_english_labels() -> None:
+    """pdf_service called gettext through an alias Babel did not extract, so
+    "Unit price", "Subtotal", "Company ID" and the footer stayed English on
+    Czech documents sent to customers."""
+    tenant_id = uuid4()
+    tenant = Tenant(
+        id=tenant_id,
+        slug="4mex",
+        name="4MEX s.r.o.",
+        billing_email="b@b.cz",
+        storage_prefix="tenants/4mex/",
+    )
+    customer = Customer(
+        id=uuid4(),
+        tenant_id=tenant_id,
+        name="ACME s.r.o.",
+        ico="12345678",
+        dic="CZ12345678",
+    )
+    order = Order(
+        id=uuid4(),
+        tenant_id=tenant_id,
+        customer_id=customer.id,
+        number="2026-000042",
+        title="Zkouška",
+        status=OrderStatus.QUOTED,
+        quoted_total=Decimal("100.00"),
+        currency="CZK",
+    )
+    order.created_at = datetime.now(UTC)
+    order.submitted_at = datetime.now(UTC)
+    order.promised_delivery_at = None
+    item = OrderItem(
+        id=uuid4(),
+        tenant_id=tenant_id,
+        order_id=order.id,
+        position=0,
+        description="Díl",
+        quantity=Decimal("1"),
+        unit="ks",
+        unit_price=Decimal("100"),
+        line_total=Decimal("100.00"),
+    )
+    pdf = render_order_pdf(order, [item], customer, tenant, locale="cs")
+    text = subprocess.run(
+        ["pdftotext", "-", "-"], input=pdf, capture_output=True, check=True
+    ).stdout.decode()
+    for english in (
+        "Unit price",
+        "Line total",
+        "Subtotal",
+        "Company ID",
+        "Tax ID",
+        "Generated",
+        "informational purposes",
+    ):
+        assert english not in text, english
+    assert "IČO" in text and "Mezisoučet" in text

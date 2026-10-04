@@ -31,6 +31,7 @@ Each production deploy additionally takes a plain pre-migration dump in
 | Primary bucket | `assoluto` @ `nbg1` |
 | GPG key | `Assoluto Backups <backups@assoluto.eu>`, fpr `84CFB7EB56DC2BB92D9450FDAA1026BE816A9384` — public key in `deploy`'s keyring on the VPS; **private key only with the operator** |
 | Env (`/etc/assoluto/env`) | `BACKUP_GPG_RECIPIENT`, `BACKUP_S3_BUCKET`, `BACKUP_S3_ENDPOINT_URL`, `BACKUP_S3_REGION` |
+| Lifecycle | `pg/` objects expire after 180 days, noncurrent versions after 30; `attachments/` never expire |
 | Cron | `0 3 * * * cd /opt/assoluto && PORTAL_BACKUP_DIR=/home/deploy/backups PORTAL_KEEP_DAYS=14 ./scripts/backup.sh >> /home/deploy/assoluto-backup.log 2>&1` |
 
 `backup.sh` reads the `BACKUP_*` keys from `/etc/assoluto/env` itself
