@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.models.customer import Customer, CustomerContact
 from app.models.enums import CustomerContactRole, OrderStatus, UserRole
-from app.models.order import Order
+from app.models.order import Order, OrderItem
 from app.models.user import User
 from app.security.passwords import hash_password
 
@@ -152,9 +152,37 @@ async def test_full_order_lifecycle(tenant_client: AsyncClient, owner_engine, de
         follow_redirects=False,
     )
 
-    # Add prices to the first two items by re-adding? No — add_item appends;
-    # easier: transition straight to QUOTED, which recomputes the total.
-    # But total should reflect at least the priced delivery line.
+    # Quoting with the contact's two lines still unpriced is refused
+    # (audit 2026-10-03 LOGIC-7) — the customer would otherwise confirm
+    # a total that silently ignores them.
+    early_quote = await tenant_client.post(
+        f"/app/orders/{order_id}/transitions/quoted", follow_redirects=False
+    )
+    assert early_quote.status_code == 303
+    assert "error=" in early_quote.headers["location"]
+    assert (await _order_row(owner_engine, order_id)).status == OrderStatus.SUBMITTED
+
+    # Staff prices the contact's lines through the inline autosave.
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        item_ids = (
+            (
+                await session.execute(
+                    select(OrderItem.id)
+                    .where(OrderItem.order_id == order_id, OrderItem.unit_price.is_(None))
+                    .order_by(OrderItem.position)
+                )
+            )
+            .scalars()
+            .all()
+        )
+    assert len(item_ids) == 2
+    for item_id, price in ((item_ids[0], "100"), (item_ids[1], "400")):
+        patch = await tenant_client.post(
+            f"/app/orders/{order_id}/items/{item_id}/patch", data={"unit_price": price}
+        )
+        assert patch.status_code == 200
+
     quote_resp = await tenant_client.post(
         f"/app/orders/{order_id}/transitions/quoted", follow_redirects=False
     )
@@ -163,7 +191,8 @@ async def test_full_order_lifecycle(tenant_client: AsyncClient, owner_engine, de
     order = await _order_row(owner_engine, order_id)
     assert order.status == OrderStatus.QUOTED
     assert order.quoted_total is not None
-    assert float(order.quoted_total) == 500.00
+    # 5 x 100 + 2 x 400 + 500
+    assert float(order.quoted_total) == 1800.00
 
     # Contact cannot quote.
     await _logout(tenant_client)
@@ -174,11 +203,16 @@ async def test_full_order_lifecycle(tenant_client: AsyncClient, owner_engine, de
     # Order is already in QUOTED; trying to re-quote is also forbidden.
     assert bad_transition.status_code == 409
 
-    # ----------------------------------- 5) contact confirms
+    # ----------------------------------- 5) contact confirms the amount shown
     confirm_resp = await tenant_client.post(
-        f"/app/orders/{order_id}/transitions/confirmed", follow_redirects=False
+        f"/app/orders/{order_id}/transitions/confirmed",
+        data={"expected_total": "1800.00"},
+        follow_redirects=False,
     )
     assert confirm_resp.status_code == 303
+    order = await _order_row(owner_engine, order_id)
+    assert order.status == OrderStatus.CONFIRMED
+    assert float(order.confirmed_total) == 1800.00
 
     # ----------------------------------- 6) staff walks to DELIVERED
     await _logout(tenant_client)

@@ -53,6 +53,16 @@
                                     {{ _('no open orders') }}
                                 {% endif %}
                             </span>
+                            {# Portal usage (UX-14): the most recent contact sign-in. #}
+                            {% if s.last_login_at %}
+                                <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+                                    {{ _('Last sign-in') }} {{ s.last_login_at|timeago }}
+                                </span>
+                            {% elif s.contacts_active %}
+                                <span class="inline-flex items-center gap-1 rounded-full border border-dashed border-amber-300 px-2 py-0.5 text-amber-700 dark:border-amber-500/40 dark:text-amber-300">
+                                    {{ _('Never signed in') }}
+                                </span>
+                            {% endif %}
                         </div>
                     </a>
                 </li>
@@ -73,5 +83,22 @@
                 {{ _('Add the first client') }}
             </a>
         </div>
+    {% endif %}
+
+    {% if archived %}
+        <details class="mt-6 rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <summary class="cursor-pointer px-5 py-3 text-sm font-medium text-slate-600 dark:text-slate-300">
+                {{ _('Archived clients') }} ({{ archived|length }})
+            </summary>
+            <ul class="divide-y divide-slate-100 border-t border-slate-100 dark:divide-slate-800 dark:border-slate-800">
+                {% for c in archived %}
+                    <li>
+                        <a href="/app/customers/{{ c.id }}" class="block px-5 py-3 text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50">
+                            {{ c.name }}{% if c.ico %} <span class="text-xs">· IČO {{ c.ico }}</span>{% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </details>
     {% endif %}
 {% endblock %}

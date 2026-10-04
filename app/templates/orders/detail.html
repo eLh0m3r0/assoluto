@@ -2,6 +2,24 @@
 
 {% block title %}Assoluto — {{ order.number }} — {{ order.title }}{% endblock %}
 
+{# Hidden fields every transition form may need.
+
+   * ``expected_total`` — the total this page rendered. The server
+     refuses a confirmation when the live total differs (LOGIC-2), so a
+     customer can never accept an amount they did not see.
+   * ``allow_incomplete`` — the staff "send anyway" override of the
+     unpriced-quote guard (LOGIC-7). Only emitted on nodes whose
+     ``data-confirm`` already warned about the missing prices. #}
+{% macro transition_fields(node, pipeline) %}
+    {{ csrf_input() }}
+    {% if node.expects_total %}
+        <input type="hidden" name="expected_total" value="{{ pipeline.expected_total }}">
+    {% endif %}
+    {% if node.allow_incomplete %}
+        <input type="hidden" name="allow_incomplete" value="1">
+    {% endif %}
+{% endmacro %}
+
 {# One node of the status stepper.
 
    `node` comes from ``_status_pipeline`` in app/routers/orders.py and
@@ -14,7 +32,7 @@
 
    `data-confirm` is picked up by the delegated handler in
    static/js/app.js; CSP forbids inline onsubmit. #}
-{% macro status_node(node, order) %}
+{% macro status_node(node, order, pipeline) %}
     {% if node.state == "done" %}
         {% set dot_class = "border-emerald-500 bg-emerald-500 text-white dark:border-emerald-500 dark:bg-emerald-500" %}
         {% set text_class = "text-slate-600 dark:text-slate-400" %}
@@ -29,7 +47,7 @@
     {% if node.allowed %}
         <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ node.value }}"
               {% if node.confirm %}data-confirm="{{ node.confirm }}"{% endif %}>
-            {{ csrf_input() }}
+            {{ transition_fields(node, pipeline) }}
             <button type="submit"
                     title="{{ _('Move order to') }} {{ node.label }}"
                     class="group flex w-full flex-col items-center gap-1.5 rounded-lg px-1 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
@@ -75,16 +93,39 @@
             {% with status=order.status.value %}
                 {% include "orders/_status_badge.html" %}
             {% endwith %}
-            <a href="/app/orders/{{ order.id }}.pdf" target="_blank" rel="noopener"
-               class="ml-auto inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
-                <svg aria-hidden="true" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/>
-                </svg>
-                {{ _('PDF') }}
-            </a>
+            <div class="ml-auto flex flex-wrap items-center gap-2">
+                {% if principal.is_staff %}
+                    <a href="/app/orders/{{ order.id }}/edit"
+                       class="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                        {{ _('Edit order') }}
+                    </a>
+                {% endif %}
+                {% if can_reorder %}
+                    {# "Order again" (IDEA-3): copies the lines into a new
+                       draft for the same client; prices are re-quoted. #}
+                    <form method="post" action="/app/orders/{{ order.id }}/duplicate"
+                          data-confirm="{{ _('Create a new draft order with the same items?') }}">
+                        {{ csrf_input() }}
+                        <button type="submit"
+                                class="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                            {{ _('Order again') }}
+                        </button>
+                    </form>
+                {% endif %}
+                <a href="/app/orders/{{ order.id }}.pdf" target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                    <svg aria-hidden="true" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/>
+                    </svg>
+                    {{ _('PDF') }}
+                </a>
+            </div>
         </div>
         {% if principal.is_staff and customer %}
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ _('Client') }}: {{ customer.name }}</p>
+        {% endif %}
+        {% if order.notes %}
+            <p class="mt-1 whitespace-pre-wrap text-sm text-slate-600 dark:text-slate-300">{{ order.notes }}</p>
         {% endif %}
     </div>
 
@@ -135,13 +176,39 @@
     </section>
     {% endif %}
 
+    {# ------------------------------------------------------- header cards
+       The total card says *which* total it shows. Before the quote it is
+       a running sum; once confirmed it is the agreed snapshot
+       (``confirmed_total``), which no later edit can move (LOGIC-2). #}
     <section class="mb-6 grid gap-4 md:grid-cols-3">
-        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-             title="{{ _('Confirmed total price filled in by staff on transition to Quoted.') }}">
-            <div class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ _('Quoted (confirmed)') }}</div>
-            <div class="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">
-                {{ order.quoted_total | money_major(order.currency) }}
-            </div>
+        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            {% if is_agreed and order.confirmed_at %}
+                <div class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ _('Confirmed total') }}</div>
+                <div class="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100" data-confirmed-total>
+                    {{ order.confirmed_total | money_major(order.currency) }}
+                </div>
+                <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    {{ _('Confirmed on') }} {{ order.confirmed_at.strftime("%d.%m.%Y %H:%M") }}
+                </div>
+                {% if order.quoted_total is not none and order.confirmed_total is not none and order.quoted_total != order.confirmed_total %}
+                    <div class="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                        {{ _('Current total') }}: {{ order.quoted_total | money_major(order.currency) }}
+                    </div>
+                {% endif %}
+            {% elif order.status.value == 'quoted' %}
+                <div class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ _('Quoted total') }}</div>
+                <div class="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">
+                    {{ order.quoted_total | money_major(order.currency) }}
+                </div>
+            {% else %}
+                <div class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ _('Current total') }}</div>
+                <div class="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">
+                    {{ order.quoted_total | money_major(order.currency) }}
+                </div>
+            {% endif %}
+            {% if status_pipeline.has_quote_problems and items %}
+                <div class="mt-1 text-xs text-amber-700 dark:text-amber-300">{{ _('Some items have no price yet.') }}</div>
+            {% endif %}
         </div>
         <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ _('Requested delivery') }}</div>
@@ -149,12 +216,177 @@
                 {{ order.requested_delivery_at.strftime("%d.%m.%Y") if order.requested_delivery_at else "—" }}
             </div>
         </div>
-        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ _('Promised delivery') }}</div>
-            <div class="mt-1 text-sm text-slate-900 dark:text-slate-100">
+        <div class="rounded-lg border p-4 shadow-sm {% if is_overdue %}border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-900/20{% else %}border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900{% endif %}"
+             {% if is_overdue %}data-overdue{% endif %}>
+            <div class="flex items-center justify-between gap-2">
+                <div class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ _('Promised delivery') }}</div>
+                {% if principal.is_staff %}
+                    <a href="/app/orders/{{ order.id }}/edit" class="text-xs font-medium text-brand-600 hover:text-brand-700 dark:text-brand-500">{{ _('Edit') }}</a>
+                {% endif %}
+            </div>
+            <div class="mt-1 text-sm {% if is_overdue %}font-semibold text-red-700 dark:text-red-300{% else %}text-slate-900 dark:text-slate-100{% endif %}">
                 {{ order.promised_delivery_at.strftime("%d.%m.%Y") if order.promised_delivery_at else "—" }}
+                {% if is_overdue %}· {{ _('Overdue') }}{% endif %}
             </div>
         </div>
+    </section>
+
+    {# ------------------------------------------------- status pipeline
+       Sits above the items (UX-23): on a 15-line order the primary action
+       used to be a long scroll away. #}
+    {% set pipeline = status_pipeline %}
+    <section id="order-status" class="mb-8 rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 class="font-semibold text-slate-900 dark:text-slate-100">{{ _('Order status') }}</h2>
+            {% if pipeline.has_actions %}
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    {{ _('Click any step to move the order there.') }}
+                </p>
+            {% endif %}
+        </div>
+
+        {% if pipeline.is_cancelled %}
+            <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-900/25 dark:text-red-200">
+                <svg aria-hidden="true" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l4-4m0 4l-4-4m10 2a8 8 0 11-16 0 8 8 0 0116 0z"/>
+                </svg>
+                <span>{{ _('This order is cancelled. Pick a step below to reopen it.') }}</span>
+            </div>
+        {% endif %}
+
+        {# Horizontal on desktop, horizontally scrollable on narrow screens
+           rather than wrapping — a pipeline that wraps stops reading as a
+           line, which is the whole point of the control. #}
+        <div class="-mx-1 overflow-x-auto pb-1">
+            <ol class="flex min-w-[34rem] items-start" aria-label="{{ _('Order status') }}">
+                {% for node in pipeline.nodes %}
+                    <li class="relative flex flex-1 flex-col items-center"
+                        {% if node.state == "current" %}aria-current="step"{% endif %}>
+                        {% if not loop.first %}
+                            {# Connector sits behind the dots (z-10 on the dot).
+                               A segment is "travelled" when the node it leads
+                               *into* has been reached — so the leg arriving at
+                               the current step counts, even though that step
+                               is not finished yet. #}
+                            <span aria-hidden="true"
+                                  class="absolute right-1/2 top-[1.4375rem] h-0.5 w-full {% if node.state in ('done', 'current') %}bg-emerald-500{% else %}bg-slate-200 dark:bg-slate-700{% endif %}"></span>
+                        {% endif %}
+                        {{ status_node(node, order, pipeline) }}
+                    </li>
+                {% endfor %}
+            </ol>
+        </div>
+
+        {% if pipeline.blocked_reason %}
+            <p class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-900/25 dark:text-amber-200">
+                {{ pipeline.blocked_reason }}
+            </p>
+        {% endif %}
+
+        {% if pipeline.primary or pipeline.reopen or pipeline.cancel %}
+            <div class="mt-5 flex flex-wrap items-end gap-3 border-t border-slate-200 pt-4 dark:border-slate-800">
+                {% if pipeline.primary %}
+                    <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ pipeline.primary.value }}"
+                          class="flex flex-wrap items-end gap-3"
+                          {% if pipeline.primary.confirm %}data-confirm="{{ pipeline.primary.confirm }}"{% endif %}>
+                        {{ transition_fields(pipeline.primary, pipeline) }}
+                        {% if pipeline.primary.expects_total and not principal.is_staff %}
+                            <p class="text-sm text-slate-700 dark:text-slate-300">
+                                {{ _('You are confirming') }}
+                                <strong>{{ order.quoted_total | money_major(order.currency) }}</strong>
+                            </p>
+                        {% endif %}
+                        {% if pipeline.primary.asks_promise %}
+                            {# Promise a date while quoting / confirming (IDEA-4);
+                               pre-filled with what is already promised or
+                               what the client asked for. #}
+                            <label class="flex flex-col text-xs text-slate-500 dark:text-slate-400">
+                                {{ _('Promised delivery') }}
+                                {% set _promise = order.promised_delivery_at or order.requested_delivery_at %}
+                                <input type="date" name="promised_delivery_at"
+                                       value="{{ _promise.isoformat() if _promise else '' }}"
+                                       class="mt-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                            </label>
+                        {% endif %}
+                        <button type="submit"
+                                class="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900">
+                            {{ pipeline.primary.action_label }}
+                            <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                            </svg>
+                        </button>
+                    </form>
+                {% endif %}
+
+                {% if pipeline.reopen %}
+                    <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ pipeline.reopen.value }}">
+                        {{ transition_fields(pipeline.reopen, pipeline) }}
+                        <button type="submit"
+                                class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                            {{ _('Reopen as draft') }}
+                        </button>
+                    </form>
+                {% endif %}
+
+                {% if pipeline.cancel %}
+                    <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ pipeline.cancel.value }}"
+                          class="ml-auto"
+                          data-confirm="{{ pipeline.cancel.confirm }}">
+                        {{ transition_fields(pipeline.cancel, pipeline) }}
+                        <button type="submit"
+                                class="rounded-lg border border-red-200 bg-red-50 px-3.5 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 dark:border-red-500/30 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/50">
+                            {{ pipeline.cancel.action_label }}
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if pipeline.note_targets %}
+            {# Staff: move with a reason (LOGIC-22). The note lands in the
+               status history and in the customer's email; moving back to
+               Draft never emails the customer. #}
+            <details class="mt-4 rounded-lg border border-slate-200 px-4 py-3 text-sm dark:border-slate-800">
+                <summary class="cursor-pointer font-medium text-slate-700 dark:text-slate-200">{{ _('Change status with a note') }}</summary>
+                <form method="post" action="/app/orders/{{ order.id }}/status"
+                      class="mt-3 grid gap-3 sm:grid-cols-[auto_1fr_auto_auto] sm:items-end"
+                      data-confirm="{{ _('Change the order status?') }}">
+                    {{ csrf_input() }}
+                    <label class="flex flex-col text-xs text-slate-500 dark:text-slate-400">
+                        {{ _('New status') }}
+                        <select name="to_status" required
+                                class="mt-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                            {% for t in pipeline.note_targets %}
+                                <option value="{{ t.value }}">{{ t.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="flex flex-col text-xs text-slate-500 dark:text-slate-400">
+                        {{ _('Note (optional)') }}
+                        <input type="text" name="note" maxlength="1000"
+                               placeholder="{{ _('Reason, shown to the client in the email') }}"
+                               class="mt-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                    </label>
+                    <label class="flex flex-col text-xs text-slate-500 dark:text-slate-400">
+                        {{ _('Promised delivery') }}
+                        <input type="date" name="promised_delivery_at"
+                               value="{{ order.promised_delivery_at.isoformat() if order.promised_delivery_at else '' }}"
+                               class="mt-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                    </label>
+                    <button type="submit"
+                            class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                        {{ _('Apply') }}
+                    </button>
+                    <input type="hidden" name="expected_total" value="{{ pipeline.expected_total }}">
+                    {% if pipeline.has_quote_problems %}
+                        <label class="flex items-center gap-2 text-xs text-slate-600 sm:col-span-4 dark:text-slate-300">
+                            <input type="checkbox" name="allow_incomplete" value="1">
+                            {{ _('Send the quote even though some items have no price') }}
+                        </label>
+                    {% endif %}
+                </form>
+            </details>
+        {% endif %}
     </section>
 
     {# ------------------------------------------------------------ items #}
@@ -195,6 +427,24 @@
         {% endif %}
 
         {% if can_edit_items and perms.can_add_items %}
+            {% if perms.can_use_catalog and (product_total > product_limit or product_q) %}
+                {# Server-side catalog search (BE-15): the picker holds at
+                   most ``product_limit`` rows, so a large catalog is
+                   narrowed here instead of silently truncated. #}
+                <form method="get" action="/app/orders/{{ order.id }}" data-no-busy
+                      class="flex flex-wrap items-center gap-2 border-t border-gray-200 bg-gray-50 px-5 pt-4 text-sm dark:border-slate-800 dark:bg-slate-800/40">
+                    <label for="product-q" class="text-xs text-slate-500 dark:text-slate-400">{{ _('Search the catalog') }}</label>
+                    <input type="search" id="product-q" name="product_q" value="{{ product_q }}"
+                           placeholder="{{ _('SKU or name…') }}"
+                           class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                    <button type="submit" class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200">
+                        {{ _('Search') }}
+                    </button>
+                    <span class="text-xs text-slate-500 dark:text-slate-400" data-product-count>
+                        {{ _('Showing') }} {{ product_choices|length }} / {{ product_total }}
+                    </span>
+                </form>
+            {% endif %}
             <form method="post" action="/app/orders/{{ order.id }}/items"
                   id="add-item-form"
                   class="grid gap-3 border-t border-gray-200 bg-gray-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/40 sm:grid-cols-6">
@@ -203,14 +453,19 @@
                 {# Product picker — shown only when catalog is enabled #}
                 {% if perms.can_use_catalog and product_choices %}
                     <select name="product_id" id="add-item-product" data-product-picker
+                            aria-label="{{ _('Product') }}"
                             class="sm:col-span-3 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                         <option value="">— {{ _('custom item (free-text)') }} —</option>
                         {% for p in product_choices %}
+                            {# Price memory (IDEA-6, staff only): pre-fill what
+                               this client last paid, not the list price. #}
+                            {% set _last = last_prices.get(p.id) %}
+                            {% set _price = _last[0] if _last else p.default_price %}
                             <option value="{{ p.id }}"
                                     data-name="{{ p.sku }} — {{ p.name }}"
                                     data-unit="{{ p.unit }}"
-                                    data-price="{{ p.default_price if p.default_price is not none else '' }}">
-                                {{ p.sku }} — {{ p.name }}
+                                    data-price="{{ '%.2f'|format(_price) if _price is not none else '' }}">
+                                {{ p.sku }} — {{ p.name }}{% if _last %} · {{ _('last price') }} {{ _last[0] | money_major(order.currency) }} ({{ _last[1].strftime("%d.%m.%Y") }}){% endif %}
                             </option>
                         {% endfor %}
                     </select>
@@ -218,20 +473,24 @@
                     <span class="sm:col-span-3"></span>
                 {% endif %}
 
-                <input type="number" step="0.001" name="quantity" required placeholder="{{ _('Quantity') }}"
+                <input type="number" step="0.001" min="0.001" name="quantity" required placeholder="{{ _('Quantity') }}"
+                       aria-label="{{ _('Quantity') }}"
                        class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500">
                 <input type="text" name="unit" id="add-item-unit" value="ks" placeholder="{{ _('unit') }}"
+                       aria-label="{{ _('unit') }}"
                        class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500">
 
                 {# Price field — only for staff OR contacts with can_set_prices #}
                 {% if principal.is_staff or perms.can_set_prices %}
-                    <input type="number" step="0.01" name="unit_price" id="add-item-price" placeholder="{{ _('Price/unit') }}"
+                    <input type="number" step="0.01" min="0" name="unit_price" id="add-item-price" placeholder="{{ _('Price/unit') }}"
+                           aria-label="{{ _('Price/unit') }}"
                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500">
                 {% else %}
                     <span></span>
                 {% endif %}
 
                 <input type="text" name="description" id="add-item-description" placeholder="{{ _('Item description') }}"
+                       aria-label="{{ _('Item description') }}"
                        class="sm:col-span-5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500">
                 <div class="sm:col-span-6 text-right">
                     <button type="submit"
@@ -287,8 +546,15 @@
                                 </div>
                             </div>
                         </div>
-                        {% if can_edit_items %}
-                            <form method="post" action="/app/attachments/{{ att.id }}/delete">
+                        {# Staff may delete any file, but past confirmation the
+                           drawing is the agreed specification — the confirm
+                           says so and the deletion is audited (LOGIC-13).
+                           A contact may delete only their own upload, and
+                           only while the order is a draft. #}
+                        {% set _own = att.uploaded_by_contact_id == principal.id %}
+                        {% if principal.is_staff or (order.status.value == 'draft' and _own) %}
+                            <form method="post" action="/app/attachments/{{ att.id }}/delete"
+                                  data-confirm="{% if is_agreed %}{{ _('This order is already confirmed. Delete the file %(name)s anyway? The deletion is recorded in the audit log.', name=att.filename) }}{% else %}{{ _('Delete the file %(name)s?', name=att.filename) }}{% endif %}">
                                 {{ csrf_input() }}
                                 <button type="submit" class="text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
                                     {{ _('Delete') }}
@@ -326,90 +592,6 @@
         {% endif %}
     </section>
 
-    {# ------------------------------------------------- status pipeline #}
-    {% set pipeline = status_pipeline %}
-    <section class="mb-8 rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-            <h2 class="font-semibold text-slate-900 dark:text-slate-100">{{ _('Order status') }}</h2>
-            {% if pipeline.has_actions %}
-                <p class="text-xs text-slate-500 dark:text-slate-400">
-                    {{ _('Click any step to move the order there.') }}
-                </p>
-            {% endif %}
-        </div>
-
-        {% if pipeline.is_cancelled %}
-            <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-900/25 dark:text-red-200">
-                <svg aria-hidden="true" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l4-4m0 4l-4-4m10 2a8 8 0 11-16 0 8 8 0 0116 0z"/>
-                </svg>
-                <span>{{ _('This order is cancelled. Pick a step below to reopen it.') }}</span>
-            </div>
-        {% endif %}
-
-        {# Horizontal on desktop, horizontally scrollable on narrow screens
-           rather than wrapping — a pipeline that wraps stops reading as a
-           line, which is the whole point of the control. #}
-        <div class="-mx-1 overflow-x-auto pb-1">
-            <ol class="flex min-w-[34rem] items-start">
-                {% for node in pipeline.nodes %}
-                    <li class="relative flex flex-1 flex-col items-center">
-                        {% if not loop.first %}
-                            {# Connector sits behind the dots (z-10 on the dot).
-                               A segment is "travelled" when the node it leads
-                               *into* has been reached — so the leg arriving at
-                               the current step counts, even though that step
-                               is not finished yet. #}
-                            <span aria-hidden="true"
-                                  class="absolute right-1/2 top-[1.4375rem] h-0.5 w-full {% if node.state in ('done', 'current') %}bg-emerald-500{% else %}bg-slate-200 dark:bg-slate-700{% endif %}"></span>
-                        {% endif %}
-                        {{ status_node(node, order) }}
-                    </li>
-                {% endfor %}
-            </ol>
-        </div>
-
-        {% if pipeline.primary or pipeline.reopen or pipeline.cancel %}
-            <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-200 pt-4 dark:border-slate-800">
-                {% if pipeline.primary %}
-                    <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ pipeline.primary.value }}"
-                          {% if pipeline.primary.confirm %}data-confirm="{{ pipeline.primary.confirm }}"{% endif %}>
-                        {{ csrf_input() }}
-                        <button type="submit"
-                                class="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900">
-                            {{ pipeline.primary.action_label }}
-                            <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                            </svg>
-                        </button>
-                    </form>
-                {% endif %}
-
-                {% if pipeline.reopen %}
-                    <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ pipeline.reopen.value }}">
-                        {{ csrf_input() }}
-                        <button type="submit"
-                                class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
-                            {{ _('Reopen as draft') }}
-                        </button>
-                    </form>
-                {% endif %}
-
-                {% if pipeline.cancel %}
-                    <form method="post" action="/app/orders/{{ order.id }}/transitions/{{ pipeline.cancel.value }}"
-                          class="ml-auto"
-                          data-confirm="{{ pipeline.cancel.confirm }}">
-                        {{ csrf_input() }}
-                        <button type="submit"
-                                class="rounded-lg border border-red-200 bg-red-50 px-3.5 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 dark:border-red-500/30 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/50">
-                            {{ pipeline.cancel.action_label }}
-                        </button>
-                    </form>
-                {% endif %}
-            </div>
-        {% endif %}
-    </section>
-
     {# ---------------------------------------------------------- comments #}
     <section class="mb-8 rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div class="border-b border-slate-200 px-5 py-3 dark:border-slate-800">
@@ -442,6 +624,7 @@
               class="border-t border-slate-200 bg-slate-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/40">
             {{ csrf_input() }}
             <textarea name="body" rows="3" required placeholder="{{ _('Write a comment…') }}"
+                      aria-label="{{ _('Write a comment…') }}"
                       class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"></textarea>
             <div class="mt-3 flex items-center justify-between">
                 {% if principal.is_staff %}

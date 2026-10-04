@@ -106,6 +106,10 @@ services:
       SMTP_USER: ${SMTP_USER:?}
       SMTP_PASSWORD: ${SMTP_PASSWORD:?}
       SMTP_FROM: ${SMTP_FROM:?}
+      # LOG_LEVEL: same trap as SMTP_PORT — the base compose hard-codes
+      # ``LOG_LEVEL: INFO`` in ``environment:``, which shadowed the
+      # operator's value (audit BE-18 / F-37). Optional, defaults to INFO.
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
 
       # TRUSTED_PROXIES MUST be set explicitly. Empty defaults to
       # rate-limiting on the Caddy container's internal IP — i.e. one
@@ -119,11 +123,12 @@ services:
       # Everything else flows through ``env_file`` above:
       # FEATURE_PLATFORM, FEATURE_PLATFORM_ALLOW_DEMO,
       # PLATFORM_COOKIE_DOMAIN, PLATFORM_OPERATOR_*, STRIPE_*,
-      # LOG_LEVEL, MAX_UPLOAD_SIZE_MB, DEFAULT_TENANT_SLUG — all
+      # MAX_UPLOAD_SIZE_MB, DEFAULT_TENANT_SLUG, OPS_ALERT_EMAIL,
+      # RETENTION_ENFORCE, TRUST_TENANT_HEADER, APP_BUILD_ID — all
       # automatic. No docker-compose edit needed to add new app-level
       # settings. (Exception: any key the base compose hard-codes in its
       # ``environment:`` block must be re-listed above — see SMTP_PORT
-      # and S3_PUBLIC_ENDPOINT_URL.)
+      # and S3_PUBLIC_ENDPOINT_URL and LOG_LEVEL.)
 
     ports: !reset []
     expose:

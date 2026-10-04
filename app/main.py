@@ -9,7 +9,6 @@ from typing import Any
 
 from fastapi import FastAPI, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
-from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import __version__
@@ -19,8 +18,10 @@ from app.logging import configure_logging, get_logger
 from app.ops import router as ops_router
 from app.routers import assets as assets_router
 from app.routers import attachments as attachments_router
+from app.routers import customer_team as customer_team_router
 from app.routers import customers as customers_router
 from app.routers import dashboard as dashboard_router
+from app.routers import exports as exports_router
 from app.routers import health as health_router
 from app.routers import me as me_router
 from app.routers import orders as orders_router
@@ -30,6 +31,7 @@ from app.routers import search as search_router
 from app.routers import tenant_admin as tenant_admin_router
 from app.routers import www as www_router
 from app.scheduler import build_scheduler
+from app.security.body_limit import FORM_OVERHEAD_BYTES, BodySizeLimitMiddleware
 from app.security.csrf import CsrfCookieMiddleware
 from app.security.head_method import HeadMethodMiddleware
 from app.security.headers import SecurityHeadersMiddleware
@@ -331,6 +333,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # method=HEAD instead of the mutated GET.
     app.add_middleware(HeadMethodMiddleware)
 
+    # Hard ceiling on request bodies, enforced while the body streams in
+    # (before multipart parsing spools it to disk). See body_limit.py.
+    app.add_middleware(
+        BodySizeLimitMiddleware,
+        max_body_bytes=settings.max_upload_size_bytes + FORM_OVERHEAD_BYTES,
+    )
+
     # Plain ASGI middleware that stamps the csrftoken cookie; validation
     # happens in `verify_csrf` as a router-level FastAPI dependency so it
     # can read the form body via `await request.form()` without breaking
@@ -371,7 +380,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(assets_router.router)
     app.include_router(search_router.router)
     app.include_router(tenant_admin_router.router)
+    app.include_router(exports_router.router)
     app.include_router(me_router.router)
+    app.include_router(customer_team_router.router)
     app.include_router(www_router.router)
 
     # Fail fast if production deployment is misconfigured in a way that
@@ -384,7 +395,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         import logging
 
         log = logging.getLogger("app.platform")
-        if settings.feature_platform_allow_demo:
+        if not settings.billing_demo_checkout_allowed:
+            # D2 (2026-10-03): production without Stripe never grants a
+            # plan — checkout tells the customer we invoice by bank
+            # transfer. Nothing to warn about; just say so once.
+            log.info(
+                "FEATURE_PLATFORM=true in production WITHOUT Stripe; checkout asks "
+                "customers to write for a bank-transfer invoice (no plan is granted)."
+            )
+        elif settings.feature_platform_allow_demo:
             log.warning(
                 "FEATURE_PLATFORM=true in production WITHOUT Stripe; checkout "
                 "runs in demo mode (FEATURE_PLATFORM_ALLOW_DEMO acknowledged). "
@@ -421,6 +440,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "APP_ENV=production. Generate one with "
             "`python -c 'import secrets; print(secrets.token_urlsafe(48))'` "
             "and set it in the environment before starting the app."
+        )
+
+    # SEC-1: with STRIPE_SECRET_KEY set, the webhook endpoint is live.
+    # An empty STRIPE_WEBHOOK_SECRET would make the signature an HMAC
+    # keyed with "" — forgeable by anyone. ``verify_webhook`` refuses
+    # such requests anyway; refusing to boot makes the misconfiguration
+    # impossible to miss.
+    if (
+        settings.is_production
+        and settings.stripe_secret_key
+        and not (settings.stripe_webhook_secret or "").strip()
+    ):
+        raise RuntimeError(
+            "STRIPE_SECRET_KEY is set but STRIPE_WEBHOOK_SECRET is empty while "
+            "APP_ENV=production. Copy the signing secret (whsec_…) of the webhook "
+            "endpoint from the Stripe dashboard into STRIPE_WEBHOOK_SECRET."
         )
 
     # Optional SaaS layer — loaded only when FEATURE_PLATFORM is on.
@@ -482,6 +517,16 @@ def _register_error_handlers(app: FastAPI) -> None:
                 and "\\" not in location
             ):
                 return RedirectResponse(url=location, status_code=status.HTTP_303_SEE_OTHER)
+
+        from app.deps import TenantUnavailable
+
+        if isinstance(exc, TenantUnavailable) and _wants_html(request):
+            html = templates.render(
+                request,
+                "errors/tenant_unavailable.html",
+                {"principal": None, "tenant_name": exc.tenant_name},
+            )
+            return HTMLResponse(html, status_code=exc.status_code)
 
         if _wants_html(request) and exc.status_code in (403, 404):
             template = f"errors/{exc.status_code}.html"
@@ -547,8 +592,26 @@ def _register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> Response:
+        request_id = getattr(request.state, "request_id", None)
         get_logger("app.errors").error(
-            "unhandled", path=request.url.path, error=f"{type(exc).__name__}: {exc}"
+            "unhandled",
+            path=request.url.path,
+            request_id=request_id,
+            error=f"{type(exc).__name__}: {exc}",
+        )
+        # Mail the operator (OPS_ALERT_EMAIL; rate-limited, no request
+        # data). Route template rather than raw path so /orders/<uuid>
+        # crashes collapse into one signature.
+        from app.email.ops_alert import notify_unhandled
+
+        route = request.scope.get("route")
+        notify_unhandled(
+            exc,
+            settings=request.app.state.settings,
+            sender=getattr(request.app.state, "email_sender", None),
+            where=getattr(route, "path", None) or request.url.path,
+            request_id=request_id,
+            method=request.method,
         )
         templates: Templates = request.app.state.templates
         if _wants_html(request):
@@ -561,8 +624,16 @@ def _register_error_handlers(app: FastAPI) -> None:
 
 
 def _mount_static(app: FastAPI) -> None:
-    """Mount the `/static` folder for CSS, JS, images."""
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    """Mount the `/static` folder for CSS, JS, images.
+
+    Versioned requests (``?v=<asset version>``) are served ``immutable``
+    for a year; everything else must revalidate (see app/static_assets.py).
+    """
+    from app.static_assets import CachedStaticFiles, asset_version
+
+    version = asset_version(app.state.settings.app_build_id, STATIC_DIR)
+    app.state.asset_version = version
+    app.mount("/static", CachedStaticFiles(directory=STATIC_DIR, version=version), name="static")
 
 
 # Module-level app for `uvicorn app.main:app`

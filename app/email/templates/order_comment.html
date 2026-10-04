@@ -15,15 +15,20 @@
     <p style="color:#334155;">
         {% trans author_name=author_name, order_number=order_number, order_title=order_title %}{{ author_name }} added a comment to order <strong>{{ order_number }}</strong> — {{ order_title }}.{% endtrans %}
     </p>
+    {% if body_excerpt %}
     <blockquote style="margin:16px 0;padding:12px 16px;border-left:4px solid #2f5bd9;background:#f1f5fe;color:#1e3a8a;">
         {{ body_excerpt }}
     </blockquote>
+    {% elif pending_invite %}
+    <p style="color:#334155;">{{ _("Accept your invitation to the portal to read it.") }}</p>
+    {% endif %}
     <p>
         <a href="{{ order_url }}" style="display:inline-block;background:#2f5bd9;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;">
             {{ _("Open order") }}
         </a>
     </p>
     <p style="color:#94a3b8;font-size:12px;">{{ tenant_name }}</p>
+    {% include "_powered_by_footer.html" %}
 </td></tr>
 </table></td></tr></table>
 </body></html>

@@ -1,0 +1,15 @@
+{# "Powered by Assoluto" line for customer contacts (MKT-9).
+
+   Rendered only for a signed-in customer contact — staff know whose
+   software they bought, the supplier's customers don't, and they are
+   often manufacturers with suppliers of their own. `powered_by_url` is
+   empty on self-hosted installs and for white-label tenants, which
+   hides the line entirely. #}
+{% if powered_by_url and principal and not principal.is_staff %}
+    <span>
+        {{ _("Powered by") }}
+        <a href="{{ powered_by_url }}" target="_blank" rel="noopener"
+           class="font-medium text-gray-500 underline-offset-2 hover:text-gray-700 hover:underline dark:text-slate-400 dark:hover:text-slate-200">Assoluto</a>
+        — {{ _("a customer portal for manufacturers") }}
+    </span>
+{% endif %}

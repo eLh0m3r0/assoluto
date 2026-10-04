@@ -28,7 +28,7 @@
                     <option value="">— {{ _('choose a client') }} —</option>
                     {% for customer in customers %}
                         <option value="{{ customer.id }}"
-                                {% if form.customer_id == customer.id|string %}selected{% endif %}>
+                                {% if (form.customer_id or request.query_params.get('customer', '')) == customer.id|string %}selected{% endif %}>
                             {{ customer.name }}{% if customer.ico %} ({{ customer.ico }}){% endif %}
                         </option>
                     {% endfor %}

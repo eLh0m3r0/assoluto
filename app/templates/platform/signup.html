@@ -6,16 +6,32 @@
 <section class="mx-auto mt-8 max-w-xl">
     <div class="rounded-lg border border-slate-200 bg-white p-8 shadow-sm dark:bg-slate-900 dark:border-slate-800">
         <h1 class="mb-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Create your portal") }}</h1>
+        {# Preserve plan selection from /pricing?plan=pro through signup
+           so the post-verify CTA can lead the user straight into checkout.
+           Only the public codes count; anything else starts Starter, same
+           as signup.py:_safe_plan_code + the "starter" fallback. #}
+        {% set preselected_plan = form.plan if form.plan else request.query_params.get('plan', '') %}
+        {% set shown_plan = preselected_plan if preselected_plan in ('starter', 'pro') else 'starter' %}
         <p class="mb-6 text-sm text-slate-500 dark:text-slate-400">
             {{ _("30-day free trial. No credit card required.") }}
         </p>
+        {# UX-27: show which plan the trial starts on. #}
+        <div class="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-brand-200 bg-brand-50/60 px-3 py-2 text-sm text-slate-700 dark:border-brand-500/30 dark:bg-brand-500/10 dark:text-slate-200" data-selected-plan="{{ shown_plan }}">
+            <span>{{ _("Plan:") }} <strong class="text-slate-900 dark:text-slate-100">{{ 'Pro' if shown_plan == 'pro' else 'Starter' }}</strong></span>
+            <span aria-hidden="true" class="text-slate-400">·</span>
+            <span>{{ _("30 days free") }}</span>
+            <span aria-hidden="true" class="text-slate-400">·</span>
+            <a href="/pricing" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">{{ _("change") }}</a>
+        </div>
 
         <form method="post" action="/platform/signup" class="space-y-4">
             {{ csrf_input() }}
-            {# Preserve plan selection from /pricing?plan=pro through signup
-               so the post-verify CTA can lead the user straight into checkout. #}
-            {% set preselected_plan = form.plan if form.plan else request.query_params.get('plan', '') %}
             <input type="hidden" name="plan" value="{{ preselected_plan }}">
+            {# "Powered by Assoluto" attribution (MKT-9) — no cookie, just carried along. #}
+            {% if form.ref %}
+                <input type="hidden" name="ref" value="{{ form.ref }}">
+                <input type="hidden" name="ref_t" value="{{ form.ref_t or '' }}">
+            {% endif %}
 
             {# Honeypot — invisible to humans, irresistible to naive bots.
                Off-screen instead of display:none so dumb form scanners
@@ -51,7 +67,7 @@
                     <input type="text" id="slug" name="slug"
                            autocomplete="off"
                            value="{{ form.slug or '' }}"
-                           pattern="[a-z0-9-]*"
+                           pattern="[a-z0-9\-]*"
                            placeholder="acme"
                            aria-describedby="slug-help"
                            class="block w-full rounded-l-lg border {% if errors.slug %}border-red-400{% else %}border-gray-300{% endif %} bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 {% if not (errors.slug) %}dark:border-slate-700 {% endif %}dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500">

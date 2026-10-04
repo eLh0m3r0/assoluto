@@ -157,13 +157,15 @@ async def test_issue_beyond_stock_is_rejected(
         data={"type": "receive", "quantity": "5"},
         follow_redirects=False,
     )
-    # issue 10 -> 409
+    # issue 10 -> refused with an error flash (was a bare 409 page before
+    # audit 2026-10-03; CLAUDE.md §9 wants recoverable errors flashed).
     resp = await tenant_client.post(
         f"/app/assets/{asset_id}/movements",
         data={"type": "issue", "quantity": "10"},
         follow_redirects=False,
     )
-    assert resp.status_code == 409
+    assert resp.status_code == 303
+    assert "error=" in resp.headers["location"]
 
     asset = await _fresh_asset(owner_engine, asset_id)
     assert asset.current_quantity == Decimal("5")

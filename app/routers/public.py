@@ -144,7 +144,9 @@ async def landing(
 
     slug = resolve_tenant_slug(request, settings)
     if slug is None and settings.feature_platform:
-        html = _templates(request).render(request, "www/index.html", {"principal": None})
+        from app.routers.www import marketing_context
+
+        html = _templates(request).render(request, "www/index.html", marketing_context(settings))
         return HTMLResponse(html)
 
     from app.deps import get_current_tenant as _get_current_tenant
@@ -785,6 +787,11 @@ async def password_reset_request_submit(
             recipient=row, customer=customer, tenant=tenant, settings=settings
         )
 
+        # Release the DB connection before the SMTP work: FastAPI runs
+        # background tasks BEFORE dependency cleanup, so without this the
+        # session would sit "idle in transaction" for the whole send
+        # (audit BE-08; CLAUDE.md §2).
+        await db.commit()
         background_tasks.add_task(
             send_password_reset,
             sender,

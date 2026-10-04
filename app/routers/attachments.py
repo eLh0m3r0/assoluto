@@ -26,6 +26,7 @@ from fastapi.responses import RedirectResponse, Response
 
 from app.deps import Principal, get_db, require_login
 from app.i18n import t as _t
+from app.logging import get_logger
 from app.security.csrf import verify_csrf
 from app.services.attachment_service import (
     AttachmentError,
@@ -44,7 +45,21 @@ from app.services.order_service import (
 from app.storage import s3 as s3_storage
 from app.tasks.thumbnail_tasks import generate_thumbnail
 
+log = get_logger("app.attachments")
+
 router = APIRouter(prefix="/app", tags=["attachments"], dependencies=[Depends(verify_csrf)])
+
+
+def _upload_size(file: UploadFile) -> int:
+    """Size of the spooled upload without reading it into memory."""
+    if file.size is not None:
+        return file.size
+    fh = file.file
+    pos = fh.tell()
+    fh.seek(0, 2)
+    size = fh.tell()
+    fh.seek(pos)
+    return size
 
 
 def _actor(principal: Principal) -> ActorRef:
@@ -92,11 +107,20 @@ async def upload_attachment(
                 status_code=403, detail="Uploading files is disabled for your account"
             )
 
-    # Read body into memory (MVP). For large files a streaming upload will
-    # replace this in R0 alongside presigned PUTs.
-    data = await file.read()
-    if not data:
+    # Never read the body into RAM: Starlette has already spooled the
+    # part to a temp file (in memory only up to 1 MB) and recorded its
+    # size, so the limit is checked against that number and the bytes go
+    # to S3 straight from the spool. The pure-ASGI ``BodySizeLimitMiddleware``
+    # rejects anything far above the limit before multipart parsing even
+    # starts (audit BE-17 / SEC-3).
+    size_bytes = _upload_size(file)
+    if size_bytes <= 0:
         raise HTTPException(status_code=400, detail="Empty file")
+    if size_bytes > settings.max_upload_size_bytes:
+        raise HTTPException(
+            status_code=413,
+            detail=f"file exceeds max size of {settings.max_upload_size_bytes} bytes",
+        )
 
     item_uuid: UUID | None = None
     if order_item_id:
@@ -113,7 +137,7 @@ async def upload_attachment(
             order=order,
             filename=file.filename or "upload.bin",
             content_type=file.content_type or "application/octet-stream",
-            size_bytes=len(data),
+            size_bytes=size_bytes,
             max_size_bytes=settings.max_upload_size_bytes,
             order_item_id=item_uuid,
             uploaded_by_user_id=principal.id if principal.is_staff else None,
@@ -125,7 +149,25 @@ async def upload_attachment(
     except AttachmentError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
 
-    s3_storage.upload_bytes(attachment.storage_key, data, content_type=attachment.content_type)
+    # Off the event loop: a blocking PUT here used to freeze every tenant
+    # for the length of the upload. If S3 fails, raising rolls the row
+    # back with the request transaction, so no row points at nothing.
+    try:
+        await s3_storage.upload_fileobj_async(
+            attachment.storage_key, file.file, content_type=attachment.content_type
+        )
+    except Exception as exc:
+        # Roll the row back so nothing points at an object that isn't
+        # there, and tell the uploader instead of a bare 500.
+        log.error(
+            "attachment.s3_upload_failed",
+            order_id=str(order.id),
+            error_class=type(exc).__name__,
+        )
+        order_ref = order.id
+        await db.rollback()
+        error = quote(_t(request, "The file could not be stored. Please try again."))
+        return RedirectResponse(url=f"/app/orders/{order_ref}?error={error}", status_code=303)
 
     # Snapshot IDs before committing — after commit the ORM instance may be
     # expired and touching it would fire a fresh query.
@@ -213,8 +255,21 @@ async def thumbnail_redirect(
     except (OrderNotFound, OrderAccessDenied):
         raise HTTPException(status_code=404, detail="No thumbnail") from None
 
-    url = s3_storage.generate_presigned_get(attachment.thumbnail_key)
-    return RedirectResponse(url=url, status_code=302)
+    # Served from our own origin instead of a 302 to a presigned S3 URL:
+    # the CSP is ``img-src 'self' data:``, so the browser refused the
+    # redirected image and no thumbnail ever rendered (2026-10 E2E).
+    # Thumbnails are small JPEGs (~400 px), so proxying them is cheap and
+    # keeps the storage endpoint out of the page.
+    try:
+        data = await s3_storage.download_bytes_async(attachment.thumbnail_key)
+    except Exception:
+        log.warning("attachment.thumbnail_fetch_failed", attachment_id=str(attachment_id))
+        raise HTTPException(status_code=404, detail="No thumbnail") from None
+    return Response(
+        content=data,
+        media_type="image/jpeg",
+        headers={"Cache-Control": "private, max-age=3600"},
+    )
 
 
 @router.post("/attachments/{attachment_id}/delete")
@@ -235,18 +290,38 @@ async def delete_attachment_route(
     except (OrderNotFound, OrderAccessDenied):
         raise HTTPException(status_code=404, detail="Attachment not found") from None
 
-    # Contacts can only delete attachments on DRAFT orders.
-    if not principal.is_staff and order.status.value != "draft":
-        raise HTTPException(status_code=409, detail="Attachments are locked")
+    # Contacts can only delete their *own* uploads, and only while the
+    # order is a DRAFT — a supplier's drawing is not theirs to remove
+    # (LOGIC-13). Staff may delete at any stage; every deletion is
+    # audited, and past confirmation the UI warns that the file was part
+    # of the agreement.
+    if not principal.is_staff:
+        if order.status.value != "draft":
+            raise HTTPException(status_code=409, detail="Attachments are locked")
+        if attachment.uploaded_by_contact_id != principal.id:
+            return RedirectResponse(
+                url=f"/app/orders/{order.id}?error="
+                + quote(_t(request, "You can only delete files you uploaded yourself.")),
+                status_code=303,
+            )
 
-    # Best-effort S3 cleanup; the row delete is the source of truth.
+    storage_keys = [attachment.storage_key]
+    if attachment.thumbnail_key:
+        storage_keys.append(attachment.thumbnail_key)
+
+    # Row first, then S3 (audit BE-19): the row is the source of truth.
+    # Deleting the object first meant a failed row delete left a row
+    # pointing at nothing; this order can at worst leave an orphaned
+    # object, which the retention job's orphan sweep removes.
+    await delete_attachment(
+        db, attachment, order=order, audit_actor=actor_from_principal(principal)
+    )
+    await db.commit()
+
     try:
-        s3_storage.delete_object(attachment.storage_key)
-        if attachment.thumbnail_key:
-            s3_storage.delete_object(attachment.thumbnail_key)
+        await s3_storage.delete_objects_async(storage_keys)
     except Exception:
-        pass
+        log.warning("attachment.s3_delete_failed", attachment_id=str(attachment_id))
 
-    await delete_attachment(db, attachment)
     notice = quote(_t(request, "Attachment deleted."))
     return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)

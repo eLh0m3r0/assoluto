@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import func, select
@@ -43,6 +44,9 @@ class CustomerStats:
     customer: Customer
     contacts_active: int
     orders_open: int
+    #: Most recent sign-in of any of the customer's contacts — "is this
+    #: client actually using the portal?" (UX-14). ``None`` = never.
+    last_login_at: datetime | None = None
 
 
 async def list_customers_with_stats(db: AsyncSession) -> list[CustomerStats]:
@@ -73,16 +77,110 @@ async def list_customers_with_stats(db: AsyncSession) -> list[CustomerStats]:
         )
         .scalar_subquery()
     )
+    last_login_subq = (
+        select(func.max(CustomerContact.last_login_at))
+        .where(CustomerContact.customer_id == Customer.id)
+        .scalar_subquery()
+    )
     stmt = (
-        select(Customer, contacts_subq, orders_subq)
+        select(Customer, contacts_subq, orders_subq, last_login_subq)
         .where(Customer.is_active.is_(True))
         .order_by(Customer.name)
     )
     rows = (await db.execute(stmt)).all()
     return [
-        CustomerStats(customer=c, contacts_active=int(cc), orders_open=int(oo))
-        for c, cc, oo in rows
+        CustomerStats(customer=c, contacts_active=int(cc), orders_open=int(oo), last_login_at=ll)
+        for c, cc, oo, ll in rows
     ]
+
+
+async def list_archived_customers(db: AsyncSession) -> list[Customer]:
+    """Archived customers, alphabetical — for the "Archived" list section."""
+    result = await db.execute(
+        select(Customer).where(Customer.is_active.is_(False)).order_by(Customer.name)
+    )
+    return list(result.scalars().all())
+
+
+async def list_recent_orders_for_customer(
+    db: AsyncSession, customer_id: UUID, *, limit: int = 10
+) -> tuple[list[Order], int]:
+    """Newest ``limit`` orders of one customer plus the total count (UX-13)."""
+    orders = list(
+        (
+            await db.execute(
+                select(Order)
+                .where(Order.customer_id == customer_id)
+                .order_by(Order.created_at.desc())
+                .limit(limit)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    total = int(
+        (
+            await db.execute(
+                select(func.count()).select_from(Order).where(Order.customer_id == customer_id)
+            )
+        ).scalar_one()
+    )
+    return orders, total
+
+
+async def set_customer_archived(
+    db: AsyncSession,
+    customer: Customer,
+    *,
+    archived: bool,
+    audit_actor: ActorInfo | None = None,
+) -> bool:
+    """Archive (block) or unarchive a customer. Returns True if it changed.
+
+    Archiving keeps every row — orders, contacts, files, history — and
+    only flips ``customers.is_active``. What that switches off is enforced
+    where each path runs, not here (LOGIC-15):
+
+    * contacts can no longer sign in (``auth_service.authenticate``,
+      ``accept_invitation``, ``deps.get_current_principal``) — and every
+      live contact session is killed below by bumping ``session_version``;
+    * the customer disappears from pickers (``list_customers``), search
+      and the customer list, and staff cannot open a new order for it
+      (``order_service.create_order``);
+    * its contacts stop receiving order emails, whose links they could
+      no longer open (``notification_service.resolve_contact_audience``).
+
+    Unarchiving restores sign-in; contacts simply log in again.
+    """
+    target_active = not archived
+    if customer.is_active == target_active:
+        return False
+    customer.is_active = target_active
+    if archived:
+        contacts = (
+            (
+                await db.execute(
+                    select(CustomerContact).where(CustomerContact.customer_id == customer.id)
+                )
+            )
+            .scalars()
+            .all()
+        )
+        for contact in contacts:
+            contact.session_version += 1
+    await db.flush()
+    await audit_service.record(
+        db,
+        action="customer.archived" if archived else "customer.unarchived",
+        entity_type="customer",
+        entity_id=customer.id,
+        entity_label=customer.name,
+        actor=audit_actor or SYSTEM_ACTOR,
+        before={"is_active": not target_active},
+        after={"is_active": target_active},
+        tenant_id=customer.tenant_id,
+    )
+    return True
 
 
 async def get_customer(db: AsyncSession, customer_id: UUID) -> Customer | None:
@@ -153,6 +251,7 @@ async def update_customer(
     notes: str | None,
     order_permissions: dict | None = None,
     preferred_locale: str | None = None,
+    weekly_summary_enabled: bool | None = None,
     audit_actor: ActorInfo | None = None,
 ) -> Customer:
     name = name.strip()
@@ -162,7 +261,16 @@ async def update_customer(
     # Snapshot tracked fields BEFORE mutation so the diff picks up the
     # genuine prior state even after the attribute assignments below.
     before_snapshot = type("_CustomerSnapshot", (), {})()
-    for field in ("name", "ico", "dic", "notes", "order_permissions", "preferred_locale"):
+    tracked = (
+        "name",
+        "ico",
+        "dic",
+        "notes",
+        "order_permissions",
+        "preferred_locale",
+        "weekly_summary_enabled",
+    )
+    for field in tracked:
         setattr(before_snapshot, field, getattr(customer, field, None))
 
     customer.name = name
@@ -175,13 +283,11 @@ async def update_customer(
     # apply what the caller passed; callers that don't want to touch
     # this field should omit the kwarg entirely.
     customer.preferred_locale = preferred_locale
+    if weekly_summary_enabled is not None:
+        customer.weekly_summary_enabled = weekly_summary_enabled
     await db.flush()
 
-    diff = diff_from_models(
-        before_snapshot,
-        customer,
-        ["name", "ico", "dic", "notes", "order_permissions", "preferred_locale"],
-    )
+    diff = diff_from_models(before_snapshot, customer, list(tracked))
     if diff:
         await audit_service.record(
             db,

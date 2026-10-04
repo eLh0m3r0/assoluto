@@ -1,0 +1,1 @@
+{% trans tenant_name=tenant_name %}{{ tenant_name }}: a client just went over your plan limit{% endtrans %}

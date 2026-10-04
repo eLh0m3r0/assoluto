@@ -8,10 +8,19 @@ docstring in ``app.platform.billing`` for the demo/live mode split.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint, Uuid
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+    Uuid,
+    event,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -84,6 +93,43 @@ class Subscription(Base, TimestampMixin):
         DateTime(timezone=True), nullable=True
     )
     cancel_at_period_end: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
+    # --- state-machine bookkeeping (migration 1012_billing_state) -------
+    # When ``status`` last changed — stamped automatically by the ORM
+    # listener below; raw-SQL writers (periodic jobs) set it explicitly.
+    status_changed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    # First cancellation. Never moved by a repeated cancel (Codex-7).
+    canceled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # ``created`` of the Stripe subscription in ``stripe_subscription_id``
+    # — events about an older generation are ignored (Codex-5).
+    stripe_subscription_created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    # ``created`` of the newest Stripe event applied — older events
+    # delivered late are ignored.
+    stripe_last_event_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    # The single open Checkout session for this tenant (Codex-1).
+    pending_checkout_session_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Platform-admin suspension — separate from billing state (Codex-6).
+    operator_suspended_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+
+@event.listens_for(Subscription.status, "set")
+def _stamp_status_change(target: Subscription, value: str, oldvalue: object, _initiator) -> None:
+    """Record when ``status`` changes, from any ORM write path.
+
+    The periodic entitlement job measures grace windows (past_due,
+    unpaid, …) from this timestamp, so it must not depend on every call
+    site remembering to set it.
+    """
+    if value != oldvalue:
+        target.status_changed_at = datetime.now(UTC)
 
 
 class Invoice(Base, TimestampMixin):

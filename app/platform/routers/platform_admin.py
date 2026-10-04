@@ -11,9 +11,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.i18n import t as _t
 from app.models.tenant import Tenant
 from app.platform.billing.models import Invoice, Plan, Subscription
 from app.platform.deps import get_platform_db, require_platform_admin
@@ -147,7 +148,8 @@ async def tenants_create(
             {
                 "identity": identity,
                 "tenants": tenants,
-                "error": f"Tenant se slugem '{slug}' už existuje.",
+                "error": _t(request, "A tenant with slug '%(slug)s' already exists.")
+                % {"slug": slug},
                 "notice": None,
                 "principal": None,
             },
@@ -169,7 +171,7 @@ async def tenants_create(
         return HTMLResponse(html, status_code=400)
 
     await db.commit()
-    return _redir_tenants(notice=f"Tenant „{slug}“ vytvořen.")
+    return _redir_tenants(notice=_t(request, "Tenant '%(slug)s' created.") % {"slug": slug})
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
@@ -206,28 +208,54 @@ async def admin_dashboard(
         ).scalar_one()
     )
 
+    # BIZ-09: "active subscriptions" and MRR count only subscriptions
+    # somebody is actually paying for — Stripe-managed ``active`` ones,
+    # plus manually invoiced ``active`` rows the operator marked with an
+    # end date (status_changed_at is set by the subscription editor).
+    # Trials and demo rows used to be summed into MRR, which showed
+    # 5 880 Kč of revenue against zero invoices.
+    paid_filter = (Subscription.status == "active") & (
+        Subscription.stripe_subscription_id.is_not(None)
+        | Subscription.status_changed_at.is_not(None)
+    )
     subs_active = int(
-        (
-            await db.execute(
-                select(func.count(Subscription.id)).where(
-                    Subscription.status.in_(("active", "trialing", "demo"))
-                )
-            )
-        ).scalar_one()
+        (await db.execute(select(func.count(Subscription.id)).where(paid_filter))).scalar_one()
     )
     subs_trialing = int(
         (
             await db.execute(
-                select(func.count(Subscription.id)).where(Subscription.status == "trialing")
+                select(func.count(Subscription.id)).where(
+                    Subscription.status.in_(("trialing", "demo"))
+                )
+            )
+        ).scalar_one()
+    )
+    # Trials whose owner actually confirmed the e-mail address — the
+    # bot signups never do, so this is the trial number worth watching.
+    from app.models.enums import UserRole
+    from app.models.user import User
+
+    subs_trialing_verified = int(
+        (
+            await db.execute(
+                select(func.count(func.distinct(Subscription.id)))
+                .join(TenantMembership, TenantMembership.tenant_id == Subscription.tenant_id)
+                .join(User, User.id == TenantMembership.user_id)
+                .join(Identity, Identity.id == TenantMembership.identity_id)
+                .where(
+                    Subscription.status.in_(("trialing", "demo")),
+                    User.role == UserRole.TENANT_ADMIN,
+                    TenantMembership.access_type != "support",
+                    Identity.email_verified_at.is_not(None),
+                )
             )
         ).scalar_one()
     )
 
-    # Real MRR = sum of monthly plan prices for currently-active
-    # (including trialing and demo) subscriptions, grouped by
-    # currency so we never sum across CZK / EUR. For simplicity we
-    # take the dominant currency (first row) and report it; a
-    # multi-currency deployment would break this out per currency.
+    # MRR = sum of monthly plan prices of PAID subscriptions, grouped by
+    # currency so we never sum across CZK / EUR. For simplicity we take
+    # the dominant currency (first row) and report it; a multi-currency
+    # deployment would break this out per currency.
     mrr_rows = (
         await db.execute(
             select(
@@ -235,7 +263,7 @@ async def admin_dashboard(
                 func.coalesce(func.sum(Plan.monthly_price_cents), 0).label("total"),
             )
             .join(Subscription, Subscription.plan_id == Plan.id)
-            .where(Subscription.status.in_(("active", "trialing", "demo")))
+            .where(paid_filter)
             .group_by(Plan.currency)
             .order_by(func.sum(Plan.monthly_price_cents).desc())
         )
@@ -270,6 +298,7 @@ async def admin_dashboard(
                 "signups_this_month": signups_this_month,
                 "subs_active": subs_active,
                 "subs_trialing": subs_trialing,
+                "subs_trialing_verified": subs_trialing_verified,
                 "mrr_cents": mrr_cents,
                 "mrr_currency": mrr_currency,
                 "paid_30d_cents": paid_30d_cents,
@@ -281,9 +310,48 @@ async def admin_dashboard(
     return HTMLResponse(html)
 
 
+@router.get("/funnel", response_class=HTMLResponse)
+async def admin_funnel(
+    request: Request,
+    identity: Identity = Depends(require_platform_admin),
+    db: AsyncSession = Depends(get_platform_db),
+) -> HTMLResponse:
+    """Activation funnel per signup week + per-tenant activation columns.
+
+    Verified signups → portal created → first customer invited → first
+    customer login → first order placed by a customer. Unverified
+    identities (bots, typos) are shown as an excluded count, never in the
+    denominator (BIZ-09, BIZ-16).
+    """
+    from app.platform.activation import (
+        FUNNEL_STAGES,
+        funnel_totals,
+        signup_refs,
+        tenant_activation,
+        weekly_funnel,
+    )
+
+    weeks = await weekly_funnel(db, weeks=12)
+    html = _templates(request).render(
+        request,
+        "platform/admin/funnel.html",
+        {
+            "identity": identity,
+            "weeks": weeks,
+            "totals": funnel_totals(weeks),
+            "stages": FUNNEL_STAGES,
+            "tenants": await tenant_activation(db, limit=50),
+            "refs": await signup_refs(db, days=90),
+            "principal": None,
+        },
+    )
+    return HTMLResponse(html)
+
+
 @router.post("/tenants/{tenant_id}/deactivate")
 async def tenants_deactivate(
     tenant_id: UUID,
+    request: Request,
     identity: Identity = Depends(require_platform_admin),
     db: AsyncSession = Depends(get_platform_db),
 ) -> Response:
@@ -301,6 +369,11 @@ async def tenants_deactivate(
 
     settings = _get_settings()
     sub = await get_subscription_for_tenant(db, tenant_id)
+    if sub is not None:
+        # Codex-6: record that THIS deactivation is an operator decision.
+        # A later Stripe "active" update (e.g. the cancel-at-period-end
+        # toggle below) may undo a billing cut, never this.
+        sub.operator_suspended_at = sub.operator_suspended_at or datetime.now(UTC)
     if sub is not None and sub.status in {"active", "trialing", "past_due"}:
         try:
             await cancel_subscription(
@@ -326,21 +399,36 @@ async def tenants_deactivate(
     except PlatformError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from None
     await db.commit()
-    return _redir_tenants(notice="Tenant deaktivován.")
+    return _redir_tenants(notice=_t(request, "Tenant deactivated."))
 
 
 @router.post("/tenants/{tenant_id}/reactivate")
 async def tenants_reactivate(
     tenant_id: UUID,
+    request: Request,
     identity: Identity = Depends(require_platform_admin),
     db: AsyncSession = Depends(get_platform_db),
 ) -> Response:
+    from app.platform.billing.service import get_subscription_for_tenant
+
     try:
         await reactivate_tenant(db, tenant_id=tenant_id)
     except PlatformError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from None
+    notice = _t(request, "Tenant reactivated.")
+    sub = await get_subscription_for_tenant(db, tenant_id)
+    if sub is not None:
+        sub.operator_suspended_at = None
+        if sub.status not in {"active", "trialing", "demo"}:
+            # Without this hint the next daily billing job silently
+            # deactivates the tenant again.
+            notice += " " + _t(
+                request,
+                "Note: the subscription is “{status}” — unless you extend it in the "
+                "subscription editor, the daily billing job will deactivate the tenant again.",
+            ).format(status=sub.status)
     await db.commit()
-    return _redir_tenants(notice="Tenant reaktivován.")
+    return _redir_tenants(notice=notice)
 
 
 @router.get("/tenants/{tenant_id}/edit", response_class=HTMLResponse)
@@ -398,7 +486,7 @@ async def tenants_edit(
         )
         return HTMLResponse(html, status_code=400)
     await db.commit()
-    return _redir_tenants(notice="Změny uloženy.")
+    return _redir_tenants(notice=_t(request, "Changes saved."))
 
 
 # --------------------------------------------------- subscription editor
@@ -461,14 +549,27 @@ async def subscription_edit(
     plan_code: str = Form(""),
     trial_ends_at: str = Form(""),
     current_period_end: str = Form(""),
+    active_until: str = Form(""),
     quick_action: str = Form(""),
     identity: Identity = Depends(require_platform_admin),
     db: AsyncSession = Depends(get_platform_db),
 ) -> Response:
     """Apply edits to a tenant's subscription. Refuses on Stripe-managed
     subscriptions. Quick actions take precedence over date fields when
-    set. All changes audited under the target tenant."""
-    from datetime import UTC, datetime, timedelta
+    set. All changes audited under the target tenant.
+
+    2026-10-03 audit (LOGIC-18 / SEC-11):
+
+    * ``quick_action`` is validated — a malformed value is an error
+      flash, not a 500;
+    * "set active" (manual billing) requires an explicit end date
+      (``active_until``); the periodic expiry job cancels such a row at
+      that date like a trial, instead of leaving it free forever;
+    * actions that grant time also lift a *billing* hard cut
+      (``tenants.is_active``), so "extend trial" on a lapsed tenant
+      really lets them back in. An operator suspension is never lifted
+      here — that is the explicit Reactivate button.
+    """
     from datetime import date as _date
 
     from app.platform.billing.service import (
@@ -481,6 +582,31 @@ async def subscription_edit(
     from app.services.audit_service import ActorInfo
 
     redir = f"/platform/admin/tenants/{tenant_id}/subscription"
+
+    def _error(msg: str) -> RedirectResponse:
+        return RedirectResponse(url=f"{redir}?error={quote(msg)}", status_code=303)
+
+    def _parse(s: str) -> datetime | None:
+        s = (s or "").strip()
+        if not s:
+            return None
+        try:
+            d = _date.fromisoformat(s)
+        except ValueError:
+            return None
+        return datetime(d.year, d.month, d.day, 23, 59, 59, tzinfo=UTC)
+
+    # Validate the quick action up front.
+    extend_days: int | None = None
+    if quick_action.startswith("extend_trial:"):
+        try:
+            extend_days = int(quick_action.split(":", 1)[1])
+        except ValueError:
+            extend_days = None
+        if extend_days is None or not 1 <= extend_days <= 3650:
+            return _error(_t(request, "Invalid action: the number of days must be 1 to 3650."))
+    elif quick_action not in {"", "start_trial", "pin_internal", "set_active"}:
+        return _error(_t(request, "Unknown action."))
 
     tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
     if tenant is None:
@@ -495,29 +621,24 @@ async def subscription_edit(
             try:
                 sub = await start_trial_subscription(db, tenant=tenant, plan_code="starter")
             except Exception as exc:
-                return RedirectResponse(url=f"{redir}?error={quote(str(exc))}", status_code=303)
+                return _error(str(exc))
             await db.commit()
             return RedirectResponse(
-                url=f"{redir}?notice={quote('Trial spuštěn (Starter, 30 dní).')}",
+                url=f"{redir}?notice={quote(_t(request, 'Trial started (Starter, 30 days).'))}",
                 status_code=303,
             )
-        return RedirectResponse(
-            url=f"{redir}?error={quote('Tenant nemá subscription. Klikni Start trial.')}",
-            status_code=303,
-        )
+        return _error(_t(request, "Tenant has no subscription. Click Start trial."))
 
     # Stripe-managed → refuse manual edit; the next webhook would
     # overwrite anything we set anyway.
     if sub.stripe_subscription_id:
-        return RedirectResponse(
-            url=(
-                f"{redir}?error="
-                + quote(
-                    "Předplatné spravuje Stripe. Změny dělej ve Stripe dashboardu — "
-                    "uložení tady přepíše příští webhook."
-                )
-            ),
-            status_code=303,
+        return _error(
+            _t(
+                request,
+                "The subscription is managed by Stripe. Make changes in the "
+                "Stripe dashboard — saving here would be overwritten by the "
+                "next webhook.",
+            )
         )
 
     before = {
@@ -532,14 +653,15 @@ async def subscription_edit(
     # Quick actions short-circuit the date fields (deliberate: they're
     # the safer path for the common case).
     now = datetime.now(UTC)
-    if quick_action.startswith("extend_trial:"):
-        days = int(quick_action.split(":", 1)[1])
+    grants_time = False
+    if extend_days is not None:
         anchor = sub.trial_ends_at or now
         if anchor < now:
             anchor = now
-        sub.trial_ends_at = anchor + timedelta(days=days)
+        sub.trial_ends_at = anchor + timedelta(days=extend_days)
         sub.current_period_end = sub.trial_ends_at
         sub.status = "trialing"
+        grants_time = True
     elif quick_action == "pin_internal":
         # Internal-team tenants (e.g. operator's own portal) shouldn't
         # ever auto-expire. 2099-01-01 is far enough out that we'll
@@ -548,14 +670,24 @@ async def subscription_edit(
         sub.trial_ends_at = far_future
         sub.current_period_end = far_future
         sub.status = "trialing"
+        grants_time = True
     elif quick_action == "set_active":
-        # Operator decided to mark it as active without going through
-        # Stripe (e.g. handshake-billed enterprise tenant). Drops
-        # trial_ends_at, keeps current_period_end as the next renewal.
+        # Operator marks it active without Stripe (invoice / bank
+        # transfer). The paid-until date is mandatory: the expiry job
+        # cancels the row at that date, exactly like a trial.
+        until = _parse(active_until)
+        if until is None or until <= now:
+            return _error(_t(request, "“Mark as active” needs a “paid until” date in the future."))
         sub.status = "active"
         sub.trial_ends_at = None
-        if not sub.current_period_end or sub.current_period_end < now:
-            sub.current_period_end = now + timedelta(days=30)
+        sub.current_period_end = until
+        # Marks the row as an editor-managed manual subscription (also
+        # when it was already 'active' — the ORM listener only stamps
+        # real status changes). Legacy rows without it never expire.
+        sub.status_changed_at = now
+        grants_time = True
+    elif quick_action == "start_trial":
+        return _error(_t(request, "The tenant already has a subscription."))
     else:
         # Free-form edit. Plan first, then dates.
         if plan_code:
@@ -563,19 +695,7 @@ async def subscription_edit(
                 plan = await require_plan(db, plan_code)
                 await set_subscription_plan(db, subscription=sub, plan=plan)
             except Exception as exc:
-                return RedirectResponse(
-                    url=f"{redir}?error={quote(f'Plan: {exc}')}", status_code=303
-                )
-
-        def _parse(s: str) -> datetime | None:
-            s = (s or "").strip()
-            if not s:
-                return None
-            try:
-                d = _date.fromisoformat(s)
-            except ValueError:
-                return None
-            return datetime(d.year, d.month, d.day, 23, 59, 59, tzinfo=UTC)
+                return _error(f"Plan: {exc}")
 
         new_trial = _parse(trial_ends_at)
         new_period = _parse(current_period_end)
@@ -587,16 +707,24 @@ async def subscription_edit(
         # trial_ends_at is set and status was canceled/past_due, flip
         # back to trialing. Operator can override by also passing
         # quick_action=set_active.
-        if (
-            sub.trial_ends_at
-            and sub.trial_ends_at > now
-            and sub.status
-            in {
-                "canceled",
-                "past_due",
-            }
-        ):
+        if sub.trial_ends_at and sub.trial_ends_at > now and sub.status in {"canceled", "past_due"}:
             sub.status = "trialing"
+            grants_time = True
+
+    notice = _t(request, "Changes saved.")
+    if grants_time:
+        sub.canceled_at = None
+        sub.cancel_at_period_end = False
+        if not tenant.is_active:
+            if sub.operator_suspended_at is None:
+                tenant.is_active = True
+                notice += " " + _t(request, "The tenant was reactivated.")
+            else:
+                notice += " " + _t(
+                    request,
+                    "The tenant stays suspended by the operator — reactivate it in the "
+                    "tenant list if intended.",
+                )
 
     await db.flush()
 
@@ -622,7 +750,7 @@ async def subscription_edit(
         )
     await db.commit()
     return RedirectResponse(
-        url=f"{redir}?notice={quote('Změny uloženy.')}",
+        url=f"{redir}?notice={quote(notice)}",
         status_code=303,
     )
 
@@ -639,7 +767,6 @@ async def tenants_grant_support_access(
     normal /platform/select-tenant switch flow. This is an explicit
     opt-in, auditable step — no silent impersonation anywhere.
     """
-    from sqlalchemy import text
 
     from app.services import audit_service
 
@@ -672,7 +799,7 @@ async def tenants_grant_support_access(
         tenant_id=tenant_id,
     )
     await db.commit()
-    return _redir_tenants(notice="Support přístup přidělen.")
+    return _redir_tenants(notice=_t(request, "Support access granted."))
 
 
 @router.post("/tenants/{tenant_id}/revoke-support")
@@ -686,7 +813,6 @@ async def tenants_revoke_support_access(
     matching User's active flag. Records a ``platform.support_access_revoked``
     audit event so the tenant sees the full grant → revoke trail.
     """
-    from sqlalchemy import text
 
     from app.services import audit_service
 
@@ -698,7 +824,7 @@ async def tenants_revoke_support_access(
     if result is None:
         # Nothing to revoke — treat as no-op so double-click from the
         # UI doesn't 500. The tenants page will show the correct state.
-        return _redir_tenants(notice="Žádný support přístup k zrušení.")
+        return _redir_tenants(notice=_t(request, "No support access to revoke."))
 
     user, _ = result
     await db.execute(
@@ -719,4 +845,4 @@ async def tenants_revoke_support_access(
         tenant_id=tenant_id,
     )
     await db.commit()
-    return _redir_tenants(notice="Support přístup zrušen.")
+    return _redir_tenants(notice=_t(request, "Support access revoked."))

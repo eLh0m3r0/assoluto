@@ -31,7 +31,7 @@ from app.email.sender import CaptureSender
 from app.models.asset import Asset, AssetMovement
 from app.models.customer import Customer
 from app.models.enums import OrderStatus
-from app.models.order import Order
+from app.models.order import Order, OrderItem
 from app.models.product import Product
 from app.models.tenant import Tenant
 from app.models.user import User
@@ -269,10 +269,8 @@ async def test_plan_e2e_happy_path(
     )
     assert submit.status_code == 303
 
-    # -------- Step 13: owner gets "Nová objednávka" email ------------------
-    submit_mails = [
-        m for m in capture.outbox[submit_inbox_before:] if "Nová objednávka" in m.subject
-    ]
+    # -------- Step 13: owner gets "Nová zakázka" email --------------------
+    submit_mails = [m for m in capture.outbox[submit_inbox_before:] if "Nová zakázka" in m.subject]
     assert len(submit_mails) >= 1
     assert any(m.to == "owner@4mex.cz" for m in submit_mails)
 
@@ -296,6 +294,25 @@ async def test_plan_e2e_happy_path(
         },
         follow_redirects=False,
     )
+    # Every line needs a price before a quote can go out (audit
+    # 2026-10-03 LOGIC-7): price the customer's free-text line inline.
+    async with sm() as session:
+        unpriced = (
+            (
+                await session.execute(
+                    select(OrderItem.id).where(
+                        OrderItem.order_id == order_id, OrderItem.unit_price.is_(None)
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+    for item_id in unpriced:
+        patched = await tenant_client.post(
+            f"/app/orders/{order_id}/items/{item_id}/patch", data={"unit_price": "1200"}
+        )
+        assert patched.status_code == 200
     before_quote = len(capture.outbox)
     quote = await tenant_client.post(
         f"/app/orders/{order_id}/transitions/quoted",
@@ -327,11 +344,14 @@ async def test_plan_e2e_happy_path(
         follow_redirects=False,
     )
     before_confirm = len(capture.outbox)
+    # The confirm form posts the total it displayed (LOGIC-2).
     confirm = await tenant_client.post(
         f"/app/orders/{order_id}/transitions/confirmed",
+        data={"expected_total": f"{o.quoted_total:.2f}"},
         follow_redirects=False,
     )
     assert confirm.status_code == 303
+    assert "error=" not in confirm.headers["location"]
     # Jan is a CONTACT and he is the one confirming the quote, so the
     # notification must go to the SUPPLIER — this is the moment the shop
     # has been waiting for. It used to be routed to the customer's own
@@ -363,7 +383,9 @@ async def test_plan_e2e_happy_path(
 
     # -------- Step 17: audit trail on the order detail page --------------
     detail = await tenant_client.get(f"/app/orders/{order_id}")
-    for label in ("Odesláno", "Nacenění", "Potvrzeno", "Ve výrobě", "Připraveno", "Dodáno"):
+    # "Naceněno" is the QUOTED badge; the old "Nacenění" match came from
+    # the "Quoted (confirmed)" card label, relabelled in audit 2026-10-03.
+    for label in ("Odesláno", "Naceněno", "Potvrzeno", "Ve výrobě", "Připraveno", "Dodáno"):
         assert label in detail.text, f"missing {label} in audit trail"
 
     # -------- Step 18-19: asset creation + signed movements ---------------

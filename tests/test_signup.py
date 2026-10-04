@@ -25,6 +25,13 @@ from tests.conftest import CsrfAwareClient
 pytestmark = pytest.mark.postgres
 
 
+def _either(text: str, english: str, czech: str) -> bool:
+    """Signup errors are English msgids run through ``_t``; the Czech
+    catalog is filled in by a separate translation pass, so accept the
+    message in either language (UX-04)."""
+    return english in text or czech in text
+
+
 @pytest.fixture
 async def signup_client(
     settings, wipe_db, owner_engine
@@ -102,7 +109,7 @@ def test_validation_rejects_whitespace_only_password() -> None:
     # 8 spaces — length passes but leading/trailing whitespace rule rejects.
     with pytest.raises(SignupValidationError) as excinfo:
         validate_password(" " * 8)
-    assert "mezerou" in excinfo.value.message.lower()
+    assert "space" in excinfo.value.message.lower()
 
     # Leading space on an otherwise strong password.
     with pytest.raises(SignupValidationError):
@@ -115,7 +122,7 @@ def test_validation_rejects_whitespace_only_password() -> None:
     # Control character (NUL).
     with pytest.raises(SignupValidationError) as excinfo:
         validate_password("good-password\x00")
-    assert "řídicí" in excinfo.value.message.lower()
+    assert "control characters" in excinfo.value.message.lower()
 
 
 def test_validation_rejects_weak_password() -> None:
@@ -125,7 +132,7 @@ def test_validation_rejects_weak_password() -> None:
     with pytest.raises(SignupValidationError) as excinfo:
         validate_password("password123")
     assert excinfo.value.field == "password"
-    assert "slab" in excinfo.value.message.lower()
+    assert "too weak" in excinfo.value.message.lower()
 
     # Still short of the score threshold: common English phrase.
     with pytest.raises(SignupValidationError):
@@ -257,7 +264,7 @@ async def test_signup_duplicate_slug_returns_400(signup_client) -> None:
         follow_redirects=False,
     )
     assert resp2.status_code == 400
-    assert "Tato subdoména je již obsazená" in resp2.text
+    assert _either(resp2.text, "This subdomain is already taken", "Tato subdoména je již obsazená")
 
 
 async def test_signup_duplicate_email_returns_400(signup_client) -> None:
@@ -289,7 +296,11 @@ async def test_signup_duplicate_email_returns_400(signup_client) -> None:
         follow_redirects=False,
     )
     assert resp2.status_code == 400
-    assert "Účet s tímto e-mailem již existuje" in resp2.text
+    assert _either(
+        resp2.text,
+        "An account with this email already exists",
+        "Účet s tímto e-mailem již existuje",
+    )
 
 
 async def test_verify_email_marks_identity_verified(signup_client, owner_engine) -> None:
@@ -342,7 +353,7 @@ async def test_verify_email_rejects_bad_token(signup_client) -> None:
     client, _ = signup_client
     resp = await client.get("/platform/verify-email?token=not-a-real-token")
     assert resp.status_code == 400
-    assert "neplatný" in resp.text.lower()
+    assert _either(resp.text.lower(), "invalid", "neplatný")
 
 
 async def test_signup_race_integrityerror_is_translated(signup_client, owner_engine) -> None:
@@ -396,7 +407,11 @@ async def test_signup_race_integrityerror_is_translated(signup_client, owner_eng
         follow_redirects=False,
     )
     assert resp.status_code == 400
-    assert "Účet s tímto e-mailem již existuje" in resp.text
+    assert _either(
+        resp.text,
+        "An account with this email already exists",
+        "Účet s tímto e-mailem již existuje",
+    )
 
 
 def test_signup_tenant_maps_integrityerror_without_preflight() -> None:
@@ -531,9 +546,9 @@ async def test_signup_rejects_invalid_plan_silently(signup_client, owner_engine)
 
 async def test_verify_email_success_surfaces_selected_plan_cta(signup_client, owner_engine) -> None:
     """Round-2 audit C-1 fix: when ``tenant.settings["selected_plan"]``
-    was stamped at signup, the verify-email success screen renders a
-    "Finish setting up …" CTA pointing into checkout via
-    /platform/switch."""
+    was stamped at signup, the verify-email success screen names the
+    chosen plan. Since the 2026-10-03 audit (UX-01) it is shown as the
+    running trial, not as a checkout CTA."""
     client, _ = signup_client
     resp = await client.post(
         "/platform/signup",
@@ -567,13 +582,13 @@ async def test_verify_email_success_surfaces_selected_plan_cta(signup_client, ow
     )
     resp = await client.get(f"/platform/verify-email?token={token}")
     assert resp.status_code == 200
-    # The "Finish setting up Pro" CTA exists and points at the
-    # single-step post-verify endpoint (round-3 UX-P0 fix — the old
-    # /platform/switch?next=/platform/billing/checkout/... pattern
-    # 303'd into a 405 so it's been replaced by
-    # /platform/billing/post-verify-checkout/{plan}).
-    assert "Finish setting up" in resp.text or "Dokončit nastavení" in resp.text
-    assert "/platform/billing/post-verify-checkout/pro" in resp.text
+    # 2026-10-03 audit UX-01: "30 days free, no card". The page names
+    # the chosen plan's trial; the PRIMARY action goes into the portal
+    # and paying is an optional link to the billing page — no longer a
+    # button straight into billing details + Stripe Checkout.
+    assert "Pro" in resp.text
+    assert "/platform/billing/post-verify-checkout/pro" not in resp.text
+    assert resp.text.index("/platform/select-tenant") < resp.text.index('href="/platform/billing"')
 
 
 async def test_signup_rejects_missing_tos(signup_client) -> None:
@@ -592,3 +607,70 @@ async def test_signup_rejects_missing_tos(signup_client) -> None:
     )
     assert resp.status_code == 400
     assert "podmínkami" in resp.text.lower()
+
+
+async def test_signup_honeypot_returns_fake_success_page(signup_client, owner_engine) -> None:
+    """Audit BE-07: the honeypot branch 500'd (UndefinedError: identity),
+    telling bots they had been detected. It must look like a success and
+    create nothing."""
+    client, capture = signup_client
+
+    resp = await client.post(
+        "/platform/signup",
+        data={
+            "company_name": "Bot Corp",
+            "slug": "bot-corp",
+            "owner_email": "bot@example.com",
+            "owner_full_name": "Bot",
+            "password": "correct-horse-battery-staple",
+            "terms_accepted": "1",
+            "website": "http://spam.example",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 200, resp.text
+    assert "bot@example.com" in resp.text
+    assert capture.outbox == []
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        tenant = (
+            await session.execute(select(Tenant).where(Tenant.slug == "bot-corp"))
+        ).scalar_one_or_none()
+    assert tenant is None
+
+
+# ---------------------------------------------------------------- UX-27
+
+
+async def test_signup_form_shows_the_chosen_plan(signup_client) -> None:
+    client, _ = signup_client
+    resp = await client.get("/platform/signup?plan=pro")
+    assert resp.status_code == 200
+    assert 'data-selected-plan="pro"' in resp.text
+    assert '<input type="hidden" name="plan" value="pro">' in resp.text
+
+    resp = await client.get("/platform/signup")
+    assert 'data-selected-plan="starter"' in resp.text
+
+
+async def test_signup_keeps_the_chosen_plan_after_a_validation_error(signup_client) -> None:
+    """A Pro visitor who forgets the terms checkbox must still be on Pro
+    after the re-render — the hidden field used to come back empty and
+    the corrected submit started a Starter trial."""
+    client, _ = signup_client
+    resp = await client.post(
+        "/platform/signup",
+        data={
+            "company_name": "Pro Shop s.r.o.",
+            "slug": "pro-shop-ux27",
+            "owner_email": "owner@pro-shop-ux27.cz",
+            "owner_full_name": "Jan Novák",
+            "password": "correct-horse-battery-staple",
+            "plan": "pro",
+            # terms_accepted missing → validation error
+        },
+    )
+    assert resp.status_code == 400
+    assert '<input type="hidden" name="plan" value="pro">' in resp.text
+    assert 'data-selected-plan="pro"' in resp.text

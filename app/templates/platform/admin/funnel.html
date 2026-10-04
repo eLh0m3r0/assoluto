@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Platform admin") }} · {{ _("Activation") }}{% endblock %}
+
+{% block content %}
+<section class="pb-16">
+    {% with active="funnel", breadcrumbs=[{"label": _("Dashboard"), "href": "/platform/admin/dashboard"}, {"label": _("Activation")}] %}
+        {% include "platform/admin/_header.html" %}
+    {% endwith %}
+    <h1 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ _("Activation funnel") }}</h1>
+    <p class="mt-1 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
+        {{ _("Signups grouped by the week they registered. Only identities that verified their email are counted; unverified ones (usually bots or typos) are listed separately and never enter the funnel.") }}
+    </p>
+
+    <div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+            <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
+                <tr>
+                    <th scope="col" class="px-4 py-2 text-left">{{ _("Week of") }}</th>
+                    {% for key, label in stages %}
+                        <th scope="col" class="px-4 py-2 text-right">{{ _(label) }}</th>
+                    {% endfor %}
+                    <th scope="col" class="px-4 py-2 text-right">{{ _("Unverified (excluded)") }}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tr class="bg-slate-50 font-semibold dark:bg-slate-800/40">
+                    <th scope="row" class="px-4 py-2 text-left text-slate-900 dark:text-slate-100">{{ _("Last 12 weeks") }}</th>
+                    {% for key, label in stages %}
+                        <td class="px-4 py-2 text-right tabular-nums text-slate-900 dark:text-slate-100">
+                            {{ totals.stage(key) }}
+                            {% if not loop.first and totals.verified %}
+                                <span class="block text-xs font-normal text-slate-500 dark:text-slate-400">{{ (100 * totals.stage(key) / totals.verified)|round|int }}&nbsp;%</span>
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                    <td class="px-4 py-2 text-right tabular-nums text-slate-500 dark:text-slate-400">{{ totals.unverified }}</td>
+                </tr>
+                {% for w in weeks %}
+                    <tr>
+                        <th scope="row" class="px-4 py-2 text-left font-normal text-slate-700 dark:text-slate-300">{{ w.week_start.strftime("%d.%m.%Y") }}</th>
+                        {% for key, label in stages %}
+                            <td class="px-4 py-2 text-right tabular-nums text-slate-900 dark:text-slate-100">{{ w.stage(key) }}</td>
+                        {% endfor %}
+                        <td class="px-4 py-2 text-right tabular-nums text-slate-500 dark:text-slate-400">{{ w.unverified }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">
+        {{ _("Signups via the customer-portal footer link (last 90 days):") }}
+        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ refs.get("portal", 0) }}</span>
+    </p>
+
+    <h2 class="mt-10 text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Activation by tenant") }}</h2>
+    <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{{ _("Newest 50 tenants. Activity columns cover the last 30 days.") }}</p>
+    <div class="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+            <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
+                <tr>
+                    <th scope="col" class="px-4 py-2 text-left">{{ _("Slug") }}</th>
+                    <th scope="col" class="px-4 py-2 text-left">{{ _("Created") }}</th>
+                    <th scope="col" class="px-4 py-2 text-left">{{ _("Owner email") }}</th>
+                    <th scope="col" class="px-4 py-2 text-right">{{ _("Contacts invited") }}</th>
+                    <th scope="col" class="px-4 py-2 text-right">{{ _("Contacts signed in") }}</th>
+                    <th scope="col" class="px-4 py-2 text-right">{{ _("Orders by customers") }}</th>
+                    <th scope="col" class="px-4 py-2 text-right">{{ _("All orders") }}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                {% for t in tenants %}
+                    <tr class="{% if not t.is_active %}opacity-60{% endif %}">
+                        <td class="px-4 py-2 font-mono text-xs text-slate-700 dark:text-slate-300">{{ t.slug }}</td>
+                        <td class="px-4 py-2 text-slate-600 dark:text-slate-300">{{ t.created_at.strftime("%d.%m.%Y") }}</td>
+                        <td class="px-4 py-2">
+                            {% if t.owner_verified is none %}
+                                <span class="text-xs text-slate-500 dark:text-slate-400">—</span>
+                            {% elif t.owner_verified %}
+                                <span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">{{ _("verified") }}</span>
+                            {% else %}
+                                <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">{{ _("unverified") }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-right tabular-nums">{{ t.contacts_invited }}</td>
+                        <td class="px-4 py-2 text-right tabular-nums">{{ t.contacts_active_30d }}</td>
+                        <td class="px-4 py-2 text-right tabular-nums">{{ t.contact_orders_30d }}</td>
+                        <td class="px-4 py-2 text-right tabular-nums">{{ t.orders_30d }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="px-4 py-4 text-sm text-slate-500 dark:text-slate-400">{{ _("No tenants yet.") }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

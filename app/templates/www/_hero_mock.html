@@ -12,7 +12,12 @@
         </span>
     </div>
 
-    <div class="grid grid-cols-[180px_1fr] text-sm">
+    {# UX-02: single column below `sm` (the sidebar is hidden there), so the
+       table gets the full width on a 390 px phone instead of a 180 px slot.
+       UX-03: columns mirror the real staff list in orders/list.html
+       (Number · Name · Client · Status · Total) — no invented "Due" column,
+       no "waiting on you" counter. Name/Total drop out on small screens. #}
+    <div class="grid grid-cols-1 text-sm sm:grid-cols-[180px_1fr]">
         {# sidebar #}
         <aside class="hidden border-r border-slate-200 bg-slate-50/60 p-4 sm:block dark:border-slate-800 dark:bg-slate-900/50">
             <div class="flex items-center gap-2">
@@ -40,67 +45,51 @@
         </aside>
 
         {# main content #}
-        <div class="p-5 sm:p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100">{{ _("Orders") }}</h4>
-                    <p class="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{{ _("12 open · 3 need action") }}</p>
-                </div>
-                <span class="inline-flex items-center gap-1.5 rounded-md bg-gradient-to-r from-brand-600 to-brand-500 px-3 py-1.5 text-xs font-semibold text-white">
+        <div class="min-w-0 p-4 sm:p-6">
+            <div class="flex items-center justify-between gap-3">
+                <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100">{{ _("Orders") }}</h4>
+                <span class="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-gradient-to-r from-brand-600 to-brand-500 px-3 py-1.5 text-xs font-semibold text-white">
                     <svg aria-hidden="true" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                     {{ _("New order") }}
                 </span>
             </div>
 
+            {% macro mock_row(number, title, client, status_label, tint, total) %}
+                <tr class="bg-white dark:bg-slate-900">
+                    <td class="whitespace-nowrap px-2 py-2.5 font-mono text-slate-500 sm:px-3 dark:text-slate-400">{{ number }}</td>
+                    <td class="hidden px-3 py-2.5 text-slate-600 sm:table-cell dark:text-slate-300">{{ title }}</td>
+                    <td class="px-2 py-2.5 text-slate-900 sm:px-3 dark:text-slate-100">{{ client }}</td>
+                    <td class="px-2 py-2.5 sm:px-3"><span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-{{ tint }}-50 px-2 py-0.5 text-[10px] font-medium text-{{ tint }}-700 ring-1 ring-inset ring-{{ tint }}-100 dark:bg-{{ tint }}-500/10 dark:text-{{ tint }}-300 dark:ring-{{ tint }}-900/40"><span class="h-1.5 w-1.5 rounded-full bg-{{ tint }}-500"></span>{{ status_label }}</span></td>
+                    <td class="hidden whitespace-nowrap px-3 py-2.5 text-right text-slate-600 md:table-cell dark:text-slate-300">{{ total }}</td>
+                </tr>
+            {% endmacro %}
+
             <div class="mt-4 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
                 <table class="w-full text-xs">
                     <thead class="bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500 dark:bg-slate-900/50 dark:text-slate-400">
                         <tr>
-                            <th class="px-3 py-2 text-left font-semibold">#</th>
-                            <th class="px-3 py-2 text-left font-semibold">{{ _("Client") }}</th>
-                            <th class="px-3 py-2 text-left font-semibold">{{ _("Items") }}</th>
-                            <th class="px-3 py-2 text-left font-semibold">{{ _("Status") }}</th>
-                            <th class="px-3 py-2 text-left font-semibold">{{ _("Due") }}</th>
+                            <th class="px-2 py-2 text-left font-semibold sm:px-3">{{ _("Number") }}</th>
+                            <th class="hidden px-3 py-2 text-left font-semibold sm:table-cell">{{ _("Name") }}</th>
+                            <th class="px-2 py-2 text-left font-semibold sm:px-3">{{ _("Client") }}</th>
+                            <th class="px-2 py-2 text-left font-semibold sm:px-3">{{ _("Status") }}</th>
+                            <th class="hidden px-3 py-2 text-right font-semibold md:table-cell">{{ _("Total") }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
-                        <tr class="bg-white dark:bg-slate-900">
-                            <td class="px-3 py-2.5 font-mono text-slate-500 dark:text-slate-400">ORD-0142</td>
-                            <td class="px-3 py-2.5 text-slate-900 dark:text-slate-100">Kovárna Vlček</td>
-                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">12 × {{ _("bracket") }}</td>
-                            <td class="px-3 py-2.5"><span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700 ring-1 ring-inset ring-blue-100 dark:bg-blue-500/10 dark:text-blue-300 dark:ring-blue-900/40"><span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>{{ _("IN PRODUCTION") }}</span></td>
-                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">25. 4.</td>
-                        </tr>
-                        <tr class="bg-white dark:bg-slate-900">
-                            <td class="px-3 py-2.5 font-mono text-slate-500 dark:text-slate-400">ORD-0141</td>
-                            <td class="px-3 py-2.5 text-slate-900 dark:text-slate-100">TriStav s.r.o.</td>
-                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">6 × {{ _("assembly") }}</td>
-                            <td class="px-3 py-2.5"><span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700 ring-1 ring-inset ring-amber-100 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-900/40"><span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>{{ _("QUOTED") }}</span></td>
-                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">28. 4.</td>
-                        </tr>
-                        <tr class="bg-white dark:bg-slate-900">
-                            <td class="px-3 py-2.5 font-mono text-slate-500 dark:text-slate-400">ORD-0140</td>
-                            <td class="px-3 py-2.5 text-slate-900 dark:text-slate-100">Zámečnictví Horák</td>
-                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">24 × {{ _("railing") }}</td>
-                            <td class="px-3 py-2.5"><span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-900/40"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>{{ _("READY") }}</span></td>
-                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">22. 4.</td>
-                        </tr>
-                        <tr class="bg-white dark:bg-slate-900">
-                            <td class="px-3 py-2.5 font-mono text-slate-500 dark:text-slate-400">ORD-0139</td>
-                            <td class="px-3 py-2.5 text-slate-900 dark:text-slate-100">Novák Engineering</td>
-                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">48 × {{ _("shaft") }}</td>
-                            <td class="px-3 py-2.5"><span class="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-medium text-violet-700 ring-1 ring-inset ring-violet-100 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-900/40"><span class="h-1.5 w-1.5 rounded-full bg-violet-500"></span>{{ _("CONFIRMED") }}</span></td>
-                            <td class="px-3 py-2.5 text-slate-600 dark:text-slate-300">2. 5.</td>
-                        </tr>
+                        {{ mock_row("ORD-0142", "12 × " ~ _("bracket"), "Kovárna Vlček", _("IN PRODUCTION"), "blue", "18 600 Kč") }}
+                        {{ mock_row("ORD-0141", "6 × " ~ _("assembly"), "TriStav s.r.o.", _("QUOTED"), "amber", "42 300 Kč") }}
+                        {{ mock_row("ORD-0140", "24 × " ~ _("railing"), "Zámečnictví Horák", _("READY"), "emerald", "96 000 Kč") }}
+                        {{ mock_row("ORD-0139", "48 × " ~ _("shaft"), "Novák Engineering", _("CONFIRMED"), "violet", "27 840 Kč") }}
                     </tbody>
                 </table>
             </div>
 
-            {# floating notification card #}
+            {# The comment arrives by email — comments + email notifications
+               are real (NotificationEvent.ORDER_COMMENT). #}
             <div class="mt-4 hidden items-start gap-3 rounded-lg border border-brand-200 bg-brand-50/60 p-3 text-xs text-brand-800 sm:flex dark:border-brand-500/30 dark:bg-brand-500/10 dark:text-brand-200">
-                <svg aria-hidden="true" class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <svg aria-hidden="true" class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                 <div>
-                    <p class="font-semibold">{{ _("Kovárna Vlček sent a message on ORD-0142") }}</p>
+                    <p class="font-semibold">{{ _("Email: Kovárna Vlček commented on ORD-0142") }}</p>
                     <p class="mt-0.5 text-brand-700 dark:text-brand-300/80">{{ _("\"Can we move the deadline to April 29? We were just told by the paint shop…\"") }}</p>
                 </div>
             </div>

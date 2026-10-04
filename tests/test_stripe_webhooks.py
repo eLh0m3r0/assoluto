@@ -96,8 +96,14 @@ async def stripe_live_client(
     reset_platform_engine()
 
 
-async def _seed_tenant_with_trial(owner_engine) -> tuple[Tenant, Subscription]:
-    """Insert a tenant + trial subscription directly via the owner engine."""
+async def _seed_tenant_with_trial(
+    owner_engine, stripe_subscription_id: str | None = None
+) -> tuple[Tenant, Subscription]:
+    """Insert a tenant + trial subscription directly via the owner engine.
+
+    ``stripe_subscription_id`` marks the Stripe subscription the tenant
+    currently tracks — deletion / payment-failure events only act on it.
+    """
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
         tenant = Tenant(
@@ -118,6 +124,7 @@ async def _seed_tenant_with_trial(owner_engine) -> tuple[Tenant, Subscription]:
             tenant_id=tenant.id,
             plan_id=starter.id,
             status="trialing",
+            stripe_subscription_id=stripe_subscription_id,
         )
         session.add(sub)
         await session.flush()
@@ -296,12 +303,12 @@ async def test_invoice_paid_records_invoice(stripe_live_client) -> None:
 
 async def test_invoice_payment_failed_marks_past_due(stripe_live_client) -> None:
     client, engine = stripe_live_client
-    tenant, sub = await _seed_tenant_with_trial(engine)
+    tenant, sub = await _seed_tenant_with_trial(engine, stripe_subscription_id="sub_1")
 
     event = _make_event(
         "evt_inv_fail_1",
         "invoice.payment_failed",
-        {"id": "in_2", "metadata": {"tenant_id": str(tenant.id)}},
+        {"id": "in_2", "subscription": "sub_1", "metadata": {"tenant_id": str(tenant.id)}},
     )
     payload = json.dumps(event)
     sig = _sign_stripe_event(payload)
@@ -328,7 +335,7 @@ async def test_subscription_deleted_marks_canceled_keeps_plan(stripe_live_client
     the grace period (CANCEL_GRACE_DAYS) past current_period_end.
     """
     client, engine = stripe_live_client
-    tenant, sub = await _seed_tenant_with_trial(engine)
+    tenant, sub = await _seed_tenant_with_trial(engine, stripe_subscription_id="sub_1")
     original_plan_id = sub.plan_id
 
     event = _make_event(

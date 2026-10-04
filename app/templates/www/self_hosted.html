@@ -16,7 +16,7 @@
             {{ _("Full source code under AGPL-3.0. Host Assoluto on your own VPS — free, no limits, with Docker Compose.") }}
         </p>
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <a href="https://github.com/elh0m3r0/sme-client-portal"
+            <a href="https://github.com/eLh0m3r0/assoluto"
                class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">
                 <svg aria-hidden="true" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
                 {{ _("Repository on GitHub") }}
@@ -60,15 +60,15 @@
         <article class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Local demo in 60 seconds") }}</h2>
             <pre class="mt-4 overflow-x-auto rounded-xl bg-slate-900 p-5 text-xs leading-relaxed text-slate-100 dark:bg-slate-950"><code><span class="text-slate-500"># {{ _("clone, boot, done") }}</span>
-<span class="text-brand-400">git</span> clone https://github.com/elh0m3r0/sme-client-portal.git
-<span class="text-brand-400">cd</span> sme-client-portal
+<span class="text-brand-400">git</span> clone https://github.com/eLh0m3r0/assoluto.git
+<span class="text-brand-400">cd</span> assoluto
 <span class="text-brand-400">cp</span> .env.example .env
 <span class="text-brand-400">docker</span> compose up --build
 
 <span class="text-slate-500"># {{ _("in another terminal — seed demo data") }}</span>
 <span class="text-brand-400">docker</span> compose exec web python -m scripts.seed_dev
 
-<span class="text-slate-500"># {{ _("open http://localhost:8000") }}</span>
+<span class="text-slate-500"># {{ _("open http://4mex.localhost:8000 — the demo portal") }}</span>
 <span class="text-slate-500"># vlastnik@dilna.example.com / demo1234 ({{ _("staff") }})</span>
 <span class="text-slate-500"># jan@klient.example.com     / demo1234 ({{ _("client contact") }})</span></code></pre>
         </article>
@@ -77,14 +77,16 @@
         <article class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Production deployment") }}</h2>
             <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
-                {{ _("The repo ships") }} <code class="rounded bg-slate-100 px-1.5 py-0.5 text-[12px] text-slate-900 dark:bg-slate-800 dark:text-slate-100">docker-compose.prod.yml</code> {{ _("ready for nginx + TLS. Fill in the env (SMTP, S3, domain) and run:") }}
+                {{ _("The repo ships") }} <code class="rounded bg-slate-100 px-1.5 py-0.5 text-[12px] text-slate-900 dark:bg-slate-800 dark:text-slate-100">docker-compose.prod.yml</code>{{ _(", an overlay on top of the base") }} <code class="rounded bg-slate-100 px-1.5 py-0.5 text-[12px] text-slate-900 dark:bg-slate-800 dark:text-slate-100">docker-compose.yml</code>.
+                {{ _("It puts Caddy in front with automatic HTTPS. The bundled Caddyfile obtains a wildcard certificate through the Porkbun DNS API — swap the DNS plugin for your provider, or use the nginx example in docker/nginx.conf.example. Put your settings (database passwords, SMTP, S3, domain) into an env file and run:") }}
             </p>
-            <pre class="mt-3 overflow-x-auto rounded-xl bg-slate-900 p-5 text-xs leading-relaxed text-slate-100 dark:bg-slate-950"><code><span class="text-brand-400">docker</span> compose -f docker-compose.prod.yml up -d</code></pre>
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-slate-900 p-5 text-xs leading-relaxed text-slate-100 dark:bg-slate-950"><code><span class="text-brand-400">docker</span> compose --env-file /etc/assoluto/env \
+  -f docker-compose.yml -f docker-compose.prod.yml up -d</code></pre>
             <p class="mt-4 text-sm text-slate-600 dark:text-slate-300">
                 {{ _("Step-by-step guides:") }}
-                <a href="https://github.com/elh0m3r0/sme-client-portal/blob/main/docs/SELF_HOST.md" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">docs/SELF_HOST.md</a>,
+                <a href="https://github.com/eLh0m3r0/assoluto/blob/main/docs/SELF_HOST.md" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">docs/SELF_HOST.md</a>,
                 {{ _("env var list in") }}
-                <a href="https://github.com/elh0m3r0/sme-client-portal/blob/main/docs/ENV.md" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">docs/ENV.md</a>.
+                <a href="https://github.com/eLh0m3r0/assoluto/blob/main/docs/ENV.md" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">docs/ENV.md</a>.
             </p>
         </article>
 
@@ -104,7 +106,7 @@
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Self-hoster support") }}</h2>
             <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
                 {{ _("Open an issue or a discussion:") }}
-                <a href="https://github.com/elh0m3r0/sme-client-portal/issues" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">{{ _("GitHub issues") }}</a>.
+                <a href="https://github.com/eLh0m3r0/assoluto/issues" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">{{ _("GitHub issues") }}</a>.
             </p>
             <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
                 {{ _("For commercial support, a security audit, or custom development, use the") }}

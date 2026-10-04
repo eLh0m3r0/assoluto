@@ -104,10 +104,10 @@ async def test_dashboard_stats_include_orders_and_assets(
     # Placeholder strings must be gone.
     assert "přijde v M2" not in page.text
     assert "přijde v M5" not in page.text
-    # Three cards: Klienti, Otevřené objednávky, Majetek klientů.
-    assert "Klienti" in page.text
-    assert "Otevřené objednávky" in page.text
-    assert "Aktivní majetek klientů" in page.text
+    # Three cards (terminology unified in 2026-10, audit UX-10).
+    assert "Zákazníci" in page.text
+    assert "Otevřené zakázky" in page.text
+    assert "Aktivní materiál zákazníků" in page.text
 
 
 async def test_asset_movement_accepts_reference_order_id(

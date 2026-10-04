@@ -29,6 +29,10 @@ class AssetError(Exception):
     pass
 
 
+class ForeignOrderReference(AssetError):
+    """The referenced order does not exist or belongs to another customer."""
+
+
 class InsufficientStock(AssetError):
     pass
 
@@ -117,6 +121,7 @@ async def add_movement(
     reference_order_id: UUID | None = None,
     created_by_user_id: UUID | None = None,
     occurred_at: datetime | None = None,
+    audit_actor=None,
 ) -> AssetMovement:
     """Insert a movement and recompute the asset's current_quantity.
 
@@ -133,7 +138,23 @@ async def add_movement(
     if type_ != AssetMovementType.ADJUST and qty <= 0:
         raise AssetError("quantity must be positive (use ADJUST for corrections)")
 
+    if not qty.is_finite():
+        raise AssetError("quantity must be a finite number")
+
     signed = _signed_quantity(type_, qty)
+
+    # LOGIC-24: the movement must reference an order of the asset's own
+    # customer. The supplier is liable for the customer's material; a
+    # consume booked against another customer's order cannot be traced
+    # back, and a made-up id used to hit the FK and 500.
+    if reference_order_id is not None:
+        from app.models.order import Order
+
+        ref_customer = (
+            await db.execute(select(Order.customer_id).where(Order.id == reference_order_id))
+        ).scalar_one_or_none()
+        if ref_customer is None or ref_customer != asset.customer_id:
+            raise ForeignOrderReference("reference order belongs to another customer")
 
     # Re-read the row under a row-level lock so the current_quantity
     # is guaranteed not to change between our read and write.
@@ -142,7 +163,9 @@ async def add_movement(
     ).scalar_one()
 
     new_total = (locked_asset.current_quantity or Decimal("0")) + signed
-    if type_ in (AssetMovementType.ISSUE, AssetMovementType.CONSUME) and new_total < 0:
+    # ADJUST is a correction, not a licence to book stock the customer
+    # never handed over: it may not take the balance below zero either.
+    if new_total < 0:
         raise InsufficientStock(
             f"not enough stock: {locked_asset.current_quantity} < {qty.copy_abs()}"
         )
@@ -158,6 +181,28 @@ async def add_movement(
         created_by_user_id=created_by_user_id,
     )
     db.add(movement)
+    before_total = locked_asset.current_quantity
     locked_asset.current_quantity = new_total
     await db.flush()
+
+    from app.services import audit_service
+    from app.services.audit_service import SYSTEM_ACTOR
+
+    await audit_service.record(
+        db,
+        action="asset.movement_added",
+        entity_type="asset",
+        entity_id=locked_asset.id,
+        entity_label=getattr(locked_asset, "name", None) or str(locked_asset.id),
+        actor=audit_actor or SYSTEM_ACTOR,
+        before={"current_quantity": str(before_total)},
+        after={
+            "current_quantity": str(new_total),
+            "type": type_.value,
+            "quantity": str(signed),
+            "reference_order_id": str(reference_order_id) if reference_order_id else None,
+            "note": note or None,
+        },
+        tenant_id=tenant_id,
+    )
     return movement

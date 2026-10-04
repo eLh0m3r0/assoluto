@@ -1,7 +1,9 @@
 {% extends "www/www_base.html" %}
 
 {% block title %}{{ _("Pricing") }} · Assoluto{% endblock %}
-{% block meta_description %}{{ _("Honest pricing: 490 CZK / month for small shops, 1 490 CZK for growing ones, free self-hosted. 30 days free, no card, cancel any time.") }}{% endblock %}
+{% block meta_description %}{{ _("Pricing: Starter 1 490 CZK / month, Pro 2 990 CZK / month, unlimited client contacts and orders, free self-hosted Community edition. 30 days free, no card.") }}{% endblock %}
+
+{% import "www/_plans.html" as plans with context %}
 
 {% block content %}
 <section class="relative -mx-4 -mt-6 overflow-hidden px-4 pb-16 pt-14 sm:-mx-6 sm:px-6 sm:pt-20">
@@ -10,142 +12,69 @@
     <div class="mx-auto max-w-2xl text-center">
         <p class="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{{ _("Pricing") }}</p>
         <h1 class="mt-2 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-slate-100">
-            {{ _("A honest price list") }}
+            {{ _("An honest price list") }}
         </h1>
         <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
             {{ _("30 days free. No card. Cancel any time.") }}
-            <span class="block mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _("We are not VAT-registered, so the listed price is the final price — no VAT is added.") }}</span>
+            <span class="mt-1 block text-sm text-slate-500 dark:text-slate-400">{{ _("You pay for the people in your office — your clients and their orders are never metered.") }}</span>
+            <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">{{ _("We are not VAT-registered, so the listed price is the final price — no VAT is added.") }}</span>
         </p>
     </div>
 
+    {# D3: paid plans first, Enterprise, Community (self-host) last. #}
     <div class="mx-auto mt-14 grid max-w-6xl gap-5 md:grid-cols-2 lg:grid-cols-4">
-        {# Community #}
-        <div class="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-            <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Community</h3>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ _("Self-hosted, AGPL-3.0") }}</p>
-            <p class="mt-5 flex items-baseline gap-1">
-                <span class="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ _("Free") }}</span>
-            </p>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _("Run it yourself, forever") }}</p>
-            <ul class="mt-6 grow space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("No user limits") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Your own Postgres + S3") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Auditable open source") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("GitHub issues + community") }}</li>
-            </ul>
-            <a href="/self-hosted" class="mt-8">
-                <span class="block rounded-lg bg-slate-100 px-4 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">{{ _("Installation guide") }}</span>
-            </a>
-        </div>
-
-        {# Starter #}
-        <div class="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-            <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Starter</h3>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ _("Small shop, 3 staff users") }}</p>
-            <p class="mt-5 flex items-baseline gap-1">
-                <span class="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">490</span>
-                <span class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ _("CZK / month") }}</span>
-            </p>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _("The price of lunch for the team") }}</p>
-            <ul class="mt-6 grow space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("3 staff users") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("20 client contacts") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Unlimited orders") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("2 GB attachment storage") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Email support (reply within 1 working day)") }}</li>
-            </ul>
-            <a href="/platform/signup?plan=starter" class="mt-8">
-                <span class="block rounded-lg bg-slate-900 px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">{{ _("Start 30-day trial") }}</span>
-            </a>
-        </div>
-
-        {# Pro — featured #}
-        <div class="relative flex flex-col rounded-2xl border-2 border-brand-500 bg-white p-6 shadow-xl shadow-brand-500/10 dark:bg-slate-900 dark:shadow-brand-500/20">
-            <div class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-brand-600 to-indigo-600 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-sm">
-                {{ _("Recommended") }}
-            </div>
-            <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Pro</h3>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ _("Growing manufacturer, 15 users") }}</p>
-            <p class="mt-5 flex items-baseline gap-1">
-                <span class="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">1 490</span>
-                <span class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ _("CZK / month") }}</span>
-            </p>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _("Cheaper than one bad day on the shop floor") }}</p>
-            <ul class="mt-6 grow space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("15 staff users") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("100 client contacts") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Unlimited orders") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("20 GB attachment storage") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Priority email support (same working day)") }}</li>
-            </ul>
-            <a href="/platform/signup?plan=pro" class="mt-8">
-                <span class="block rounded-lg bg-gradient-to-r from-brand-600 to-brand-500 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition hover:shadow-md hover:brightness-105">{{ _("Start 30-day trial") }}</span>
-            </a>
-        </div>
-
-        {# Enterprise #}
-        <div class="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-            <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Enterprise</h3>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ _("Over 15 people, SLA, custom domain") }}</p>
-            <p class="mt-5 flex items-baseline gap-1">
-                <span class="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ _("Talk to us") }}</span>
-            </p>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _("We'll draw up an offer in 1 working day") }}</p>
-            <ul class="mt-6 grow space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("No limits on users / orders / storage") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Your own domain (portal.yourfirm.cz)") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("Priority support (individual written SLA available)") }}</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("SLA") }} {% if locale == 'en' %}99.9{% else %}99,9{% endif %} %</li>
-                <li class="flex items-start gap-2"><span class="mt-0.5 text-emerald-500">✓</span> {{ _("On-premises deployment possible") }}</li>
-            </ul>
-            <a href="/contact" class="mt-8">
-                <span class="block rounded-lg bg-slate-800 px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-slate-900">{{ _("Contact us") }}</span>
-            </a>
-        </div>
+        {{ plans.starter_card() }}
+        {{ plans.pro_card() }}
+        {{ plans.enterprise_card() }}
+        {{ plans.community_card() }}
     </div>
 
-    {# Annual savings callout #}
+    {# Annual billing #}
     <div class="mx-auto mt-10 max-w-4xl rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 text-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
         <div class="flex items-start gap-3">
             <div class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
                 <svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
             </div>
             <div>
-                <p class="font-semibold text-slate-900 dark:text-slate-100">{{ _("Annual billing on request") }}</p>
-                <p class="mt-1 text-slate-600 dark:text-slate-300">{{ _("Want to pay yearly with a Czech invoice and bank transfer? Email team@assoluto.eu and we'll send you a custom offer (typically two months free).") }}</p>
+                <p class="font-semibold text-slate-900 dark:text-slate-100">{{ _("Annual billing: 2 months free") }}</p>
+                <p class="mt-1 text-slate-600 dark:text-slate-300">{{ _("Pay for 10 months, use 12: Starter 14 900 CZK / 590 € a year, Pro 29 900 CZK / 1 190 € a year. Annual plans are invoiced and paid by bank transfer — write to team@assoluto.eu.") }}</p>
             </div>
         </div>
     </div>
 
-    {# Trust strip #}
+    {# Founding customers (D1) #}
+    <div class="mx-auto mt-10 max-w-4xl">
+        {{ plans.founding_customers() }}
+    </div>
+
+    {# Included in every plan — each line must map to code. #}
     <div class="mx-auto mt-14 max-w-4xl rounded-2xl border border-slate-200 bg-white p-6 text-sm dark:border-slate-800 dark:bg-slate-900">
         <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">{{ _("What's included in every plan") }}</h3>
-        <div class="mt-4 grid gap-3 sm:grid-cols-2">
-            <div class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
-                <span class="mt-0.5 text-brand-500">✦</span>
-                <span><strong class="text-slate-900 dark:text-slate-100">{{ _("Data in the EU") }}</strong> — {{ _("Hetzner DE, encrypted at rest.") }}</span>
-            </div>
-            <div class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
-                <span class="mt-0.5 text-brand-500">✦</span>
-                <span><strong class="text-slate-900 dark:text-slate-100">{{ _("Czech support") }}</strong> — {{ _("real people, not a chatbot.") }}</span>
-            </div>
-            <div class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
-                <span class="mt-0.5 text-brand-500">✦</span>
-                <span><strong class="text-slate-900 dark:text-slate-100">{{ _("Daily backups") }}</strong> — {{ _("kept 14 days, restorable on request.") }}</span>
-            </div>
-            <div class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
-                <span class="mt-0.5 text-brand-500">✦</span>
-                <span><strong class="text-slate-900 dark:text-slate-100">{{ _("GDPR-ready") }}</strong> — {{ _("subprocessor list, DPA on request.") }}</span>
-            </div>
-            <div class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
-                <span class="mt-0.5 text-brand-500">✦</span>
-                <span><strong class="text-slate-900 dark:text-slate-100">{{ _("CSV export") }}</strong> — {{ _("your data is yours. Leave any time.") }}</span>
-            </div>
-            <div class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
-                <span class="mt-0.5 text-brand-500">✦</span>
-                <span><strong class="text-slate-900 dark:text-slate-100">{{ _("Uptime monitoring") }}</strong> — {% if status_page_url %}{{ _("UptimeRobot 24/7,") }} <a href="{{ status_page_url }}" target="_blank" rel="noopener" class="underline hover:text-brand-600">{{ _("public status page") }}</a>.{% else %}{{ _("UptimeRobot 24/7, status page on request.") }}{% endif %}</span>
-            </div>
-        </div>
+        {% macro incl(title, body) %}
+            <li class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
+                <span aria-hidden="true" class="mt-0.5 text-brand-500">✦</span>
+                <span><strong class="text-slate-900 dark:text-slate-100">{{ title }}</strong> — {{ body }}</span>
+            </li>
+        {% endmacro %}
+        <ul class="mt-4 grid gap-3 sm:grid-cols-2">
+            {{ incl(_("Orders and quotes"), _("the full status pipeline, comments and internal notes, email notifications.")) }}
+            {{ incl(_("Drawings and attachments"), _("PDF, DWG, DXF, STEP, STL and images up to 50 MB per file.")) }}
+            {{ incl(_("Promised delivery date"), _("per order, with an on-time delivery report.")) }}
+            {{ incl(_("Customer-owned material"), _("receipts, issues and balance per client.")) }}
+            {{ incl(_("Product catalog"), _("shared items plus items and prices per client.")) }}
+            {{ incl(_("CSV and PDF export"), _("your data is yours. Leave any time.")) }}
+            {# POHODA — remove this one line if the Pohoda XML export (team POHODA) does not ship. #}
+            {{ incl(_("Export of orders to Pohoda (XML)"), _("hand finished orders over to your accounting.")) }}
+            {{ incl(_("Data in the EU"), _("Hetzner, Germany. Daily database backups.")) }}
+            {{ incl(_("Czech support"), _("real people, not a chatbot. Reply within 1 working day.")) }}
+            {{ incl(_("GDPR-ready"), _("subprocessor list, DPA on request.")) }}
+            {% if status_page_url %}
+                <li class="flex items-start gap-2 text-slate-600 dark:text-slate-300">
+                    <span aria-hidden="true" class="mt-0.5 text-brand-500">✦</span>
+                    <span><strong class="text-slate-900 dark:text-slate-100">{{ _("Uptime monitoring") }}</strong> — <a href="{{ status_page_url }}" target="_blank" rel="noopener" class="underline hover:text-brand-600">{{ _("public status page") }}</a>.</span>
+                </li>
+            {% endif %}
+        </ul>
     </div>
 
     {# FAQ #}
@@ -162,10 +91,15 @@
             </details>
             {% endmacro %}
 
-            {{ pfaq(_("Is a card required for the trial?"), _("No. Sign up with just an email. You only enter a card if you decide to continue paying after 30 days — or you can request annual invoicing by emailing team@assoluto.eu.")) }}
-            {{ pfaq(_("What do I need to enter at first paid checkout?"), _("Billing name, IČO (8 digits) and billing address. We need these to issue your invoice. We are not VAT-registered, so you receive an invoice rather than a VAT tax document, and no VAT is charged. You enter these once — we keep them on file.")) }}
-            {{ pfaq(_("How does billing actually work?"), _("Monthly plan: card via Stripe, invoice emailed the same day. Annual plan: arranged on request — bank transfer with a Czech invoice, net-14, typically two months free for the year.")) }}
-            {{ pfaq(_("Can I change plans later?"), _("Yes, any time. The difference is prorated down to the day. Downgrade happens at the start of the next billing period (you keep what you paid for).")) }}
+            {{ pfaq(_("What counts as a staff user?"), _("Anyone in your own company who logs in to manage orders — office, foreman, owner. Your clients' contacts are not staff users and are unlimited on every plan.")) }}
+            {{ pfaq(_("Is a card required for the trial?"), _("No. Sign up with just an email. When the 30 days are over, pick a plan to continue — or let the trial lapse, nothing is charged.")) }}
+            {{ pfaq(_("What do I need to enter at first paid checkout?"), _("Billing name, IČO (8 digits) and billing address. We need these to issue your invoice. We are not VAT-registered, so no VAT is charged and you receive an ordinary invoice. You enter these once — we keep them on file.")) }}
+            {% if stripe_enabled %}
+                {{ pfaq(_("How does billing actually work?"), _("Monthly plan: card via Stripe; the invoice is available to download in your account. Annual plan: invoiced and paid by bank transfer, 2 months free.")) }}
+            {% else %}
+                {{ pfaq(_("How does billing actually work?"), _("Online card payment is being set up. Until then we invoice by bank transfer — monthly or annually (annual = 2 months free). Write to team@assoluto.eu before your trial ends and we will send the invoice.")) }}
+            {% endif %}
+            {{ pfaq(_("Can I change plans later?"), _("Yes. Write to team@assoluto.eu and we will switch your plan within 1 working day.")) }}
             {{ pfaq(_("What happens when I cancel?"), _("You keep full access until the end of the current billing period, then have 3 days to export your data (CSV + attachments as ZIP). After that, access ends. Need to recover data later? Email team@assoluto.eu within 30 days. For immediate erasure email us — we action GDPR Art. 17 requests within 48 hours.")) }}
             {{ pfaq(_("Can I get a refund?"), _("Monthly plans are not refunded mid-period — when you cancel, you keep full access until the end of the period you already paid for. Annual invoices arranged on request are refunded pro-rata for unused full months, by agreement via team@assoluto.eu.")) }}
             {{ pfaq(_("Does the self-hosted Community version cost anything?"), _("No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No restrictions on users or features — only you need to run updates yourself.")) }}

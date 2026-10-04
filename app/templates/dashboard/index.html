@@ -65,6 +65,26 @@
         </a>
     </div>
 
+    {% if work_queues %}
+        {# "Needs action" (IDEA-1): what to do now, not just how much
+           exists. Every tile links to the list filtered by the same rule. #}
+        <section class="mt-8" aria-labelledby="needs-action-heading">
+            <h2 id="needs-action-heading" class="mb-3 font-semibold text-slate-900 dark:text-slate-100">{{ _('Needs action') }}</h2>
+            <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {% for q in work_queues %}
+                    <li>
+                        <a href="{{ q.url }}" data-work-queue="{{ q.key }}"
+                           class="block h-full rounded-xl border p-4 shadow-sm transition hover:shadow-md {% if q.urgent %}border-red-200 bg-red-50 hover:border-red-300 dark:border-red-500/30 dark:bg-red-900/20{% elif q.count %}border-amber-200 bg-amber-50 hover:border-amber-300 dark:border-amber-500/30 dark:bg-amber-900/20{% else %}border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900{% endif %}">
+                            <p class="text-3xl font-bold {% if q.urgent %}text-red-700 dark:text-red-300{% else %}text-slate-900 dark:text-slate-100{% endif %}">{{ q.count }}</p>
+                            <p class="mt-1 text-sm font-medium text-slate-800 dark:text-slate-200">{{ q.label }}</p>
+                            <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ q.hint }}</p>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+
     {#
         Recent activity (§7) — thin window into the audit log, scoped
         per-principal by ``audit_service.list_recent``. Staff see every
@@ -80,6 +100,11 @@
     #}
     {% set activity_icons = {
         'order.status_changed': '→',
+        'order.assigned': '@',
+        'order.updated': '*',
+        'order.duplicated': '+',
+        'attachment.upload': '+',
+        'attachment.deleted': '−',
         'order.item_added': '+',
         'order.item_updated': '*',
         'order.item_removed': '−',
@@ -92,8 +117,31 @@
         'user.invited': '+',
         'user.password_changed': '*',
     } %}
+    {# Every action the feed can show gets a human verb (UX-09); the
+       raw code only appears for something added later and forgotten. #}
     {% set activity_verbs = {
         'order.status_changed': _('changed status of'),
+        'order.assigned': _('changed who is responsible for'),
+        'order.updated': _('edited order'),
+        'order.duplicated': _('created a repeat order'),
+        'attachment.upload': _('uploaded a file to'),
+        'attachment.deleted': _('deleted a file from'),
+        'user.role_changed': _('changed the role of'),
+        'user.disabled': _('deactivated user'),
+        'user.reactivated': _('reactivated user'),
+        'user.profile_updated': _('updated the profile of'),
+        'tenant.settings_updated': _('updated settings of'),
+        'tenant.data_exported': _('exported data of'),
+        'contact.password_changed': _('changed password for'),
+        'asset.movement_added': _('recorded a stock movement of'),
+        'user.gdpr_erased': _('erased personal data of'),
+        'contact.gdpr_erased': _('erased personal data of'),
+        'auth.password_reset': _('reset the password of'),
+        'platform.support_access_granted': _('granted support access to'),
+        'platform.support_access_revoked': _('revoked support access to'),
+        'platform.support_access_session_started': _('started a support session in'),
+        'billing.subscription_canceled': _('cancelled the subscription of'),
+        'billing.subscription_edited_by_platform_admin': _('changed the subscription of'),
         'order.item_added': _('added item to'),
         'order.item_updated': _('updated item on'),
         'order.item_removed': _('removed item from'),
@@ -105,6 +153,29 @@
         'product.updated': _('updated product'),
         'user.invited': _('invited user'),
         'user.password_changed': _('changed password for'),
+    } %}
+    {% set status_labels = {
+        'draft': _('Draft'),
+        'submitted': _('Submitted'),
+        'quoted': _('Quoted'),
+        'confirmed': _('Confirmed'),
+        'in_production': _('In production'),
+        'ready': _('Ready'),
+        'delivered': _('Delivered'),
+        'closed': _('Closed'),
+        'cancelled': _('Cancelled'),
+    } %}
+    {% set entity_type_labels = {
+        'order': _('Order'),
+        'customer': _('Client'),
+        'product': _('Product'),
+        'user': _('User'),
+        'asset': _('Asset'),
+        'tenant': _('Settings'),
+        'contact': _('Contact'),
+        'customer_contact': _('Contact'),
+        'attachment': _('Attachment'),
+        'subscription': _('Subscription'),
     } %}
     <section class="mt-8 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3 dark:border-slate-800">
@@ -129,15 +200,19 @@
                                 <span class="text-slate-500 dark:text-slate-400">
                                     {{ activity_verbs.get(event.action, event.action) }}
                                 </span>
-                                <span class="font-medium text-slate-900 dark:text-slate-100">{{ event.entity_label }}</span>
+                                {% if event.entity_type == 'order' and event.entity_id %}
+                                    <a href="/app/orders/{{ event.entity_id }}" class="font-medium text-slate-900 hover:underline dark:text-slate-100">{{ event.entity_label }}</a>
+                                {% else %}
+                                    <span class="font-medium text-slate-900 dark:text-slate-100">{{ event.entity_label }}</span>
+                                {% endif %}
                                 {% if event.action == 'order.status_changed' and event.diff %}
                                     {% set _b = (event.diff.get('before') or {}).get('status') %}
                                     {% set _a = (event.diff.get('after') or {}).get('status') %}
                                     {% if _b and _a %}
                                         <span class="ml-1 text-xs text-slate-500 dark:text-slate-400">
-                                            <span class="font-mono">{{ _b }}</span>
+                                            <span>{{ status_labels.get(_b, _b) }}</span>
                                             <span aria-hidden="true">→</span>
-                                            <span class="font-mono font-semibold text-slate-700 dark:text-slate-300">{{ _a }}</span>
+                                            <span class="font-semibold text-slate-700 dark:text-slate-300">{{ status_labels.get(_a, _a) }}</span>
                                         </span>
                                     {% endif %}
                                 {% endif %}
@@ -147,7 +222,7 @@
                                       title="{{ event.occurred_at.strftime('%Y-%m-%d %H:%M') }}">
                                     {{ event.occurred_at|timeago }}
                                 </time>
-                                · <span class="uppercase tracking-wide">{{ event.entity_type }}</span>
+                                · <span>{{ entity_type_labels.get(event.entity_type, event.entity_type) }}</span>
                             </p>
                         </div>
                     </li>

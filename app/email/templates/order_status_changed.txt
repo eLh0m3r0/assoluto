@@ -1,7 +1,16 @@
 {% trans order_number=order_number, status_label=_(status_label) %}Order {{ order_number }} — {{ status_label }}{% endtrans %}
 
 {{ order_title }}
+{% if amount %}
 
-{{ _("Detail") }}: {{ order_url }}
+{{ _("Quoted total") }}: {{ amount }}
+{% endif %}
+{% if note %}
+
+{{ _("Note") }}: {{ note }}
+{% endif %}
+
+{% if confirm_url %}{{ _("Review and confirm the quote") }}: {{ confirm_url }}{% else %}{{ _("Detail") }}: {{ order_url }}{% endif %}
 
 -- {{ tenant_name }}
+{% include "_powered_by_footer.txt" %}

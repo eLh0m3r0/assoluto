@@ -381,3 +381,30 @@ async def test_staff_bounced_from_contact_gdpr_routes(
     resp = await tenant_client.get("/app/me/profile/export", follow_redirects=False)
     assert resp.status_code == 303
     assert resp.headers["location"] == "/app/admin/profile"
+
+
+async def test_contact_self_erasure_notifies_tenant_admins(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """Audit SEC-10: the controller (tenant) must hear about it — without
+    the erased person's name or e-mail in the notice."""
+    from app.email.sender import CaptureSender
+
+    await _seed_admin(owner_engine, demo_tenant.id, email="owner@4mex.cz", password_hash="x")
+    await _seed_contact(owner_engine, demo_tenant.id)
+    capture = CaptureSender()
+    tenant_client._transport.app.state.email_sender = capture  # type: ignore[attr-defined]
+
+    await _login(tenant_client, "jan@acme.cz", "contactpass")
+    resp = await tenant_client.post(
+        "/app/me/profile/delete",
+        data={"password": "contactpass"},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+
+    assert [m.to for m in capture.outbox] == ["owner@4mex.cz"]
+    mail = capture.outbox[0]
+    assert "ACME" in mail.subject
+    assert "/app/customers/" in mail.html
+    assert "Jan" not in mail.text and "jan@acme.cz" not in mail.text

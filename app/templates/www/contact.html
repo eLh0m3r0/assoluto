@@ -3,6 +3,8 @@
 {% block title %}{{ _("Contact") }} · Assoluto{% endblock %}
 {% block meta_description %}{{ _("Email, demo, Enterprise plan, bug reports. Czech support, reply within one working day.") }}{% endblock %}
 
+{% import "www/_plans.html" as plans with context %}
+
 {% block content %}
 <section class="relative -mx-4 -mt-6 overflow-hidden px-4 pb-16 pt-14 sm:-mx-6 sm:px-6 sm:pt-20">
     <div aria-hidden="true" class="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[360px] w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-br from-brand-400/20 via-indigo-400/15 to-purple-400/20 blur-3xl dark:from-brand-500/15 dark:via-indigo-500/10 dark:to-purple-500/15"></div>
@@ -11,7 +13,7 @@
         <div class="mx-auto max-w-2xl text-center">
             <p class="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{{ _("Contact") }}</p>
             <h1 class="mt-2 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-slate-100">
-                {{ _("Write or call us") }}
+                {{ _("Write to us") }}
             </h1>
             <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
                 {{ _("Questions about deployment, Enterprise plan, discount for schools, or a bug report? We get back to you within one working day.") }}
@@ -61,9 +63,11 @@
                 </div>
 
                 <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-brand-50 to-indigo-50 p-5 dark:border-slate-800 dark:from-brand-500/10 dark:to-indigo-500/10">
-                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ _("Czech team") }}</p>
+                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ _("Czech support") }}</p>
                     <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">{{ _("We reply in Czech or English. Servers in the EU. Invoicing under Czech rules.") }}</p>
                 </div>
+
+                {{ plans.about_operator() }}
             </aside>
 
             {# Form #}

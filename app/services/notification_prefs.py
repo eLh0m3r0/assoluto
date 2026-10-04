@@ -51,6 +51,12 @@ class NotificationEvent(StrEnum):
     ORDER_COMMENT = "order_comment"
     ORDER_ATTACHMENT = "order_attachment"
     ORDER_ASSIGNED = "order_assigned"
+    #: One follow-up when a quote sits unanswered (IDEA-2). Sent by the
+    #: periodic job in ``app.tasks.quote_reminders``.
+    QUOTE_REMINDER = "quote_reminder"
+    #: Monday summary of a customer's open orders (IDEA-10). Only sent
+    #: for customers the supplier opted in (``customers.weekly_summary_enabled``).
+    WEEKLY_SUMMARY = "weekly_summary"
 
 
 class NotificationScope(StrEnum):
@@ -92,11 +98,20 @@ CONTACT_EVENTS: tuple[NotificationEvent, ...] = (
     NotificationEvent.ORDER_STATUS_CHANGED,
     NotificationEvent.ORDER_COMMENT,
     NotificationEvent.ORDER_ATTACHMENT,
+    NotificationEvent.QUOTE_REMINDER,
+    NotificationEvent.WEEKLY_SUMMARY,
 )
 
 #: Events that always go to one specific person rather than an audience,
 #: so the scope filter is meaningless for them.
-_SCOPE_EXEMPT: frozenset[NotificationEvent] = frozenset({NotificationEvent.ORDER_ASSIGNED})
+_SCOPE_EXEMPT: frozenset[NotificationEvent] = frozenset(
+    {
+        NotificationEvent.ORDER_ASSIGNED,
+        # A summary of the whole company's open orders is not about one
+        # order, so "orders I'm involved in" can't narrow it.
+        NotificationEvent.WEEKLY_SUMMARY,
+    }
+)
 
 
 def events_for_side(side: NotificationSide) -> tuple[NotificationEvent, ...]:

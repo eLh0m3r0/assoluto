@@ -1,0 +1,22 @@
+{% extends "_layout.html" %}
+{% block subject %}{% trans customer_name=customer_name %}A contact at {{ customer_name }} deleted their account{% endtrans %}{% endblock %}
+{% block heading %}{{ _("A customer contact deleted their account") }}{% endblock %}
+{% block body %}
+    <p style="color:#334155;">
+        {% trans customer_name=customer_name %}A contact person of <strong>{{ customer_name }}</strong> used their right to erasure and deleted their account in your portal. Their name, e-mail and phone number were removed; orders and comments they created stay in your records, shown as "erased".{% endtrans %}
+    </p>
+    {% if remaining_contacts == 0 %}
+    <p style="color:#b91c1c;">
+        {{ _("This customer has no other active contact. Until you add one, nobody at the customer receives order notifications.") }}
+    </p>
+    {% else %}
+    <p style="color:#334155;">{{ _("Other active contacts at this customer") }}: <strong>{{ remaining_contacts }}</strong></p>
+    {% endif %}
+{% endblock %}
+{% block cta %}
+    <p>
+        <a href="{{ customer_url }}" style="display:inline-block;background:#2f5bd9;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;">
+            {{ _("Open customer") }}
+        </a>
+    </p>
+{% endblock %}

@@ -162,7 +162,7 @@ async def test_staff_searches_across_all_sections(
     assert "text/html" in resp.headers.get("content-type", "")
     assert "2026-ACME001" in resp.text
     # Section header is rendered when there are order hits.
-    assert ">Orders<" in resp.text or ">Objednávky<" in resp.text
+    assert ">Orders<" in resp.text or ">Zakázky<" in resp.text
 
     # Customer-name match — reaches customers section AND orders
     # section (Order JOIN matches customer name for staff).

@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import threading
 from datetime import UTC, datetime
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 from typing import Any
 
@@ -59,7 +59,8 @@ def _money_filter(cents: Any, currency: str = "CZK") -> str:
         return "—"
     try:
         amount_minor = int(cents)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError, ArithmeticError):
+        # OverflowError: int(Decimal("Infinity")); ValueError: NaN.
         return "—"
     code = (currency or "CZK").upper()
     symbol = _CURRENCY_SYMBOLS.get(code, code)
@@ -89,10 +90,17 @@ def _money_major_filter(value: Any, currency: str = "CZK") -> str:
         amount = Decimal(value)
     except (TypeError, ValueError, ArithmeticError):
         return "—"
+    # ``NaN`` / ``Infinity`` must never take a page down (audit
+    # 2026-10-03 LOGIC-1: one poisoned line 500'd the whole order list).
+    if not amount.is_finite():
+        return "—"
     code = (currency or "CZK").upper()
     symbol = _CURRENCY_SYMBOLS.get(code, code)
-    # Quantise to 2 decimals.
-    q = amount.quantize(Decimal("0.01"))
+    # Quantise to 2 decimals, half-up like the line totals.
+    try:
+        q = amount.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    except ArithmeticError:
+        return "—"
     whole_int = int(q)
     # Fraction as integer cents.
     frac = abs(int((q - whole_int) * 100))
@@ -264,6 +272,16 @@ def build_jinja_env() -> Environment:
     return _new_environment(locale=None)
 
 
+def _powered_by_url(settings: Settings, request: Request) -> str:
+    """Footer link for the tenant resolved on this request (or ``""``)."""
+    try:
+        from app.urls import powered_by_url
+
+        return powered_by_url(settings, getattr(request.state, "tenant", None))
+    except Exception:  # pragma: no cover - a footer must never break a page
+        return ""
+
+
 class Templates:
     """Thin wrapper exposing `render()` and `render_block()` with app context.
 
@@ -338,6 +356,9 @@ class Templates:
         context: dict = {
             "request": request,
             "app_version": __version__,
+            # Cache-buster for /static URLs: build id or static-dir content
+            # hash, so every deploy that changes CSS/JS gets new URLs.
+            "asset_version": getattr(request.app.state, "asset_version", __version__),
             "app_env": self.settings.app_env,
             "url_for": request.url_for,
             "csrf_token": csrf_value,
@@ -348,6 +369,9 @@ class Templates:
             "is_platform_admin": is_platform_admin,
             "platform_admin_url": platform_admin_url,
             "status_page_url": self.settings.status_page_url or None,
+            # "Powered by Assoluto" footer for customer contacts (MKT-9);
+            # empty string hides it. See app.urls.powered_by_url.
+            "powered_by_url": _powered_by_url(self.settings, request),
         }
         if extra:
             context.update(extra)

@@ -79,11 +79,41 @@ class Settings(BaseSettings):
     # True acknowledges the risk and lets checkout stay in ``demo`` mode.
     # Never set this on a real paying-customer deployment.
     feature_platform_allow_demo: bool = Field(default=False, alias="FEATURE_PLATFORM_ALLOW_DEMO")
+    # Whether the Stripe-less "demo" checkout may switch a tenant's plan
+    # locally without charging. Unset = allowed everywhere EXCEPT
+    # production (dev/test/staging keep the click-through demo). In
+    # production without Stripe the checkout instead tells the customer
+    # that online payment is being set up and to write to
+    # PLATFORM_OPERATOR_EMAIL for a bank-transfer invoice — it never
+    # grants a plan for free (audit 2026-10-03, BIZ-01 / D2). Set to
+    # true only on a hosted staging/demo box that has no real customers.
+    billing_demo_mode_allowed: bool | None = Field(default=None, alias="BILLING_DEMO_MODE_ALLOWED")
     # Trial-nurture email cadence (day-1 onboarding, day-7 check-in,
     # trial-ending reminder 5 days before trial_ends_at). Off by default
     # so the copy can be reviewed before any tenant receives it; flip to
     # true in /etc/assoluto/env once approved. Requires FEATURE_PLATFORM.
     trial_nurture_enabled: bool = Field(default=False, alias="TRIAL_NURTURE_ENABLED")
+    # Behaviour-based activation nudges to trial admins (BIZ-16): day 2
+    # "invite your first customer" (only if nobody was invited) and day 5
+    # "your customer hasn't signed in yet — resend the invitation" (only
+    # if invited contacts never signed in). Same copy-approval rule as
+    # TRIAL_NURTURE_ENABLED: off by default. Requires FEATURE_PLATFORM.
+    activation_nudges_enabled: bool = Field(default=False, alias="ACTIVATION_NUDGES_ENABLED")
+    # "Powered by Assoluto" footer in customer-contact emails and in the
+    # customer portal (MKT-9). Base URL of the marketing site the footer
+    # links to; ``?ref=portal&t=<tenant slug>`` is appended. Empty = derive
+    # ``https://<apex>`` from PLATFORM_COOKIE_DOMAIN; empty and no cookie
+    # domain (self-hosted) = no footer at all. Set to ``off`` to disable
+    # it on a hosted deployment. A single tenant can opt out with
+    # ``tenants.settings["hide_powered_by"] = true`` (white-label).
+    powered_by_url: str = Field(default="", alias="POWERED_BY_URL")
+
+    # --- Orders -----------------------------------------------------------
+    # Days an order may sit in QUOTED before the customer contacts get one
+    # follow-up reminder (respecting their notification consent) and the
+    # staff dashboard lists it as "waiting for the client". 0 disables
+    # the reminder mail; the dashboard then falls back to 3 days.
+    quote_reminder_days: int = Field(default=3, alias="QUOTE_REMINDER_DAYS", ge=0)
 
     # --- Platform operator (legal entity behind the hosted service) -------
     # Filled on every hosted deployment; templated into the Terms of
@@ -174,6 +204,43 @@ class Settings(BaseSettings):
     # to the bounce/complaint counter while the spam vector is investigated.
     enable_outbound_emails: bool = Field(default=True, alias="ENABLE_OUTBOUND_EMAILS")
 
+    # Durable e-mail outbox (audit BE-09). Every templated mail is written
+    # to ``email_outbox`` before the first send attempt; failures are
+    # retried by the ``deliver_email_outbox`` job with exponential backoff.
+    # ``false`` restores the old fire-and-forget path (three quick retries,
+    # then the mail is gone) — an escape hatch, not a recommended setting.
+    email_outbox_enabled: bool = Field(default=True, alias="EMAIL_OUTBOX_ENABLED")
+
+    # --- Operations / observability ---------------------------------------
+    # Operator alert address. When set, every unhandled 500 and every
+    # crashed scheduler job mails this address (path, error type, request
+    # id, traceback frames — never request bodies or cookies), at most once
+    # per error signature per 15 minutes. Empty = disabled.
+    ops_alert_email: str = Field(default="", alias="OPS_ALERT_EMAIL")
+    # ``/readyz`` also probes the S3 bucket (short timeout, result cached
+    # for 30 s). Turn off for deployments without object storage.
+    readyz_check_s3: bool = Field(default=True, alias="READYZ_CHECK_S3")
+    # Build identifier used as the static-asset cache-buster
+    # (``/static/css/app.css?v=<build id>``). CI may pass the commit SHA as
+    # a Docker build arg; when empty the app derives a content hash of the
+    # static directory at boot, so a deploy with changed CSS/JS always
+    # gets a new URL.
+    app_build_id: str = Field(default="", alias="APP_BUILD_ID")
+
+    # --- Data retention (D6) ----------------------------------------------
+    # The retention job (daily) purges tenants deactivated more than 30 days
+    # ago (DB rows + S3 objects), audit events older than 3 years, and S3
+    # objects no DB row references that are older than 7 days. Dry-run by
+    # default: it only logs what it WOULD delete. Set to true to delete.
+    retention_enforce: bool = Field(default=False, alias="RETENTION_ENFORCE")
+
+    # --- Tenancy hardening -------------------------------------------------
+    # Honour a client-supplied ``X-Tenant-Slug`` header in production.
+    # Off by default: in production the tenant comes from the Host only, so
+    # nobody can address another tenant's app through the apex domain
+    # (audit SEC-7). Development and test always honour the header.
+    trust_tenant_header: bool = Field(default=False, alias="TRUST_TENANT_HEADER")
+
     # --- Uploads -----------------------------------------------------------
     max_upload_size_mb: int = Field(default=50, alias="MAX_UPLOAD_SIZE_MB")
 
@@ -204,6 +271,17 @@ class Settings(BaseSettings):
     def stripe_enabled(self) -> bool:
         """Demo mode = billing UI without Stripe API calls."""
         return bool(self.stripe_secret_key)
+
+    @property
+    def billing_demo_checkout_allowed(self) -> bool:
+        """May a Stripe-less checkout switch the plan locally for free?
+
+        Never relevant when Stripe is configured. Defaults to "not in
+        production" — see ``billing_demo_mode_allowed``.
+        """
+        if self.billing_demo_mode_allowed is not None:
+            return self.billing_demo_mode_allowed
+        return not self.is_production
 
     @property
     def operator_identity_complete(self) -> bool:

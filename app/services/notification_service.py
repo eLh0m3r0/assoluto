@@ -53,14 +53,14 @@ from dataclasses import dataclass, field
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import Uuid, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
 from app.logging import get_logger
 from app.models.attachment import OrderAttachment
 from app.models.customer import Customer, CustomerContact
-from app.models.enums import STATUS_LABELS, OrderStatus
+from app.models.enums import STATUS_LABELS, CustomerContactRole, OrderStatus
 from app.models.order import Order, OrderComment, OrderStatusHistory
 from app.models.tenant import Tenant
 from app.models.user import User
@@ -71,6 +71,7 @@ from app.services.notification_prefs import (
     prefs_for_contact,
     prefs_for_user,
 )
+from app.urls import powered_by_url
 
 log = get_logger("app.notifications")
 
@@ -78,15 +79,11 @@ log = get_logger("app.notifications")
 # every notification log line namespaces ours as ``notification_event``.
 
 #: Staff-side events important enough that a tenant with no staff at all
-#: should still hear about them, via ``tenants.billing_email``.
-_FALLBACK_EVENTS: frozenset[NotificationEvent] = frozenset(
-    {
-        NotificationEvent.ORDER_SUBMITTED,
-        NotificationEvent.ORDER_STATUS_CHANGED,
-        NotificationEvent.ORDER_COMMENT,
-        NotificationEvent.ORDER_ATTACHMENT,
-    }
-)
+#: should still hear about them, via ``tenants.billing_email``. Only the
+#: new-order signal (Codex-11): comments and attachments quote customer
+#: content, and an address that merely receives invoices is not an
+#: authorised reader of it.
+_FALLBACK_EVENTS: frozenset[NotificationEvent] = frozenset({NotificationEvent.ORDER_SUBMITTED})
 
 #: Comment bodies are quoted in the email; keep the excerpt short enough
 #: that the mail stays scannable and long enough to be useful without
@@ -99,6 +96,23 @@ class Recipient:
     email: str
     locale: str | None = None
     full_name: str = ""
+    #: Has proved they own the address (accepted their invitation). The
+    #: reachability filter still *yields* to pending invitees (§19), but
+    #: their mail carries no content — see :data:`_PENDING_REDACTED`.
+    accepted: bool = True
+    #: "Powered by Assoluto" footer link (MKT-9). Set only for customer
+    #: contacts; staff mail never carries it.
+    powered_by_url: str = ""
+
+
+#: Context keys holding user-written content (comment text, uploaded file
+#: names). Mail to a recipient who has not accepted their invitation —
+#: i.e. never proved they own the address — still goes out, so the
+#: customer is never left uninformed, but without these keys: a mistyped
+#: invite address must not keep receiving the customer's comments and
+#: drawing names (audit SEC-8). The templates then say "accept your
+#: invitation to see it" instead.
+_PENDING_REDACTED = frozenset({"body_excerpt", "filename"})
 
 
 @dataclass(frozen=True)
@@ -127,6 +141,7 @@ class OrderNotification:
             "order_title": self.order_title,
             "order_url": self.order_url,
             "recipient_name": self.recipient.full_name,
+            "powered_by_url": self.recipient.powered_by_url,
             **self.extra,
         }
 
@@ -234,8 +249,22 @@ async def _eligible_staff(db: AsyncSession) -> list[User]:
     list and are demoted by the reachability filter in :func:`_select`
     instead of dropped here — a tenant whose whole team is still pending
     should hear about an order, not lose it.
+
+    A platform operator's **support-access** user is not staff (LOGIC-20):
+    it is a password-less TENANT_ADMIN row the reachability filter would
+    otherwise fall back to, mailing the customer's order excerpts to the
+    operator. Excluded here, by raw SQL — core does not import the
+    platform package (CLAUDE.md §6); the table exists in every schema.
     """
-    return list((await db.execute(select(User).where(User.is_active.is_(True)))).scalars().all())
+    support = text(
+        "SELECT m.user_id FROM platform_tenant_memberships m "
+        "WHERE m.access_type = 'support' AND m.user_id IS NOT NULL"
+    ).columns(user_id=Uuid())
+    return list(
+        (await db.execute(select(User).where(User.is_active.is_(True), User.id.not_in(support))))
+        .scalars()
+        .all()
+    )
 
 
 async def resolve_staff_audience(
@@ -255,13 +284,33 @@ async def resolve_staff_audience(
         # up to hear this". Route to the tenant's billing address so an
         # order submission can never vanish silently.
         if event in _FALLBACK_EVENTS and tenant.billing_email:
+            billing = tenant.billing_email.strip().lower()
+            # Codex-11: the billing address is not an authorisation. If it
+            # belongs to a (necessarily inactive) staff account — a
+            # disabled or opted-out former owner — mailing order content
+            # there would bypass both the disable and their consent.
+            owner_row = (
+                await db.execute(
+                    select(User.id).where(
+                        User.tenant_id == tenant.id, func.lower(User.email) == billing
+                    )
+                )
+            ).first()
+            if owner_row is not None:
+                log.warning(
+                    "notifications.staff_fallback_skipped",
+                    notification_event=event.value,
+                    tenant_id=str(tenant.id),
+                    reason="billing_email_is_disabled_user",
+                )
+                return []
             log.warning(
                 "notifications.staff_fallback",
                 notification_event=event.value,
                 tenant_id=str(tenant.id),
                 reason="no_eligible_staff",
             )
-            if tenant.billing_email.strip().lower() == (exclude_email or "").strip().lower():
+            if billing == (exclude_email or "").strip().lower():
                 return []
             return [
                 Recipient(
@@ -281,6 +330,7 @@ async def resolve_staff_audience(
                     recipient=user, customer=None, tenant=tenant, settings=settings
                 ),
                 full_name=user.full_name,
+                accepted=user.password_hash is not None,
             ),
             # An unassigned order belongs to nobody, so it belongs to
             # everyone: "only orders assigned to me" must not quietly bin
@@ -385,6 +435,11 @@ async def resolve_contact_audience(
         customer = (
             await db.execute(select(Customer).where(Customer.id == order.customer_id))
         ).scalar_one_or_none()
+    if customer is not None and not customer.is_active:
+        # Archived customer: its contacts can no longer sign in, so a mail
+        # whose whole point is "open the order" would only confuse them.
+        # This is not consent yielding — nobody is re-added anywhere.
+        return []
 
     # Only pay for the involvement queries when somebody actually narrows
     # their scope — for an all-``ALL`` customer they cannot change the result.
@@ -393,6 +448,7 @@ async def resolve_contact_audience(
     if any(not prefs.scope_covers(event, involved=False) for prefs in prefs_by_contact.values()):
         involved_ids = await _involved_contact_ids(db, order)
 
+    footer_url = powered_by_url(settings, tenant)
     candidates = [
         _Candidate(
             prefs=prefs_by_contact[contact.id],
@@ -402,6 +458,8 @@ async def resolve_contact_audience(
                     recipient=contact, customer=customer, tenant=tenant, settings=settings
                 ),
                 full_name=contact.full_name,
+                accepted=contact.accepted_at is not None,
+                powered_by_url=footer_url,
             ),
             involved=contact.id in involved_ids,
             accepted=contact.accepted_at is not None,
@@ -439,10 +497,19 @@ def _fan_out(
             order_number=order.number,
             order_title=order.title,
             order_url=order_url(base_url, order),
-            extra=dict(extra or {}),
+            extra=_extra_for(recipient, extra),
         )
         for recipient in recipients
     ]
+
+
+def _extra_for(recipient: Recipient, extra: dict[str, Any] | None) -> dict[str, Any]:
+    out = dict(extra or {})
+    if not recipient.accepted:
+        for key in _PENDING_REDACTED:
+            out.pop(key, None)
+        out["pending_invite"] = True
+    return out
 
 
 async def build_order_submitted(
@@ -528,6 +595,8 @@ async def build_order_status_changed(
     settings: Settings,
     actor_is_contact: bool = False,
     actor_email: str | None = None,
+    note: str | None = None,
+    customer: Customer | None = None,
 ) -> list[OrderNotification]:
     """Tell *the other side* that the order moved.
 
@@ -535,6 +604,12 @@ async def build_order_status_changed(
     supplier's staff: contacts may only do QUOTED -> CONFIRMED and
     -> CANCELLED, so that is the customer accepting or killing a quote,
     the most commercially loaded event in the product.
+
+    ``note`` is the staff member's optional reason (LOGIC-22) and is
+    quoted in the mail. A move to QUOTED carries the quoted total and a
+    direct link to the confirm step (IDEA-5), so the customer learns the
+    price without logging in first. ``customer`` may be passed by callers
+    that already loaded it (the bulk route) to skip a per-order lookup.
     """
     event = NotificationEvent.ORDER_STATUS_CHANGED
     if actor_is_contact:
@@ -553,18 +628,30 @@ async def build_order_status_changed(
             settings=settings,
             event=event,
             order=order,
+            customer=customer,
             exclude_email=actor_email,
         )
+    extra: dict[str, Any] = {
+        "status_label": STATUS_LABELS.get(to_status, to_status.value),
+        "status_value": to_status.value,
+        "note": _excerpt(note or ""),
+    }
+    if to_status == OrderStatus.QUOTED and not actor_is_contact:
+        from app.templating import _money_major_filter
+
+        extra["amount"] = (
+            _money_major_filter(order.quoted_total, order.currency)
+            if order.quoted_total is not None
+            else ""
+        )
+        extra["confirm_url"] = order_url(base_url, order) + "#order-status"
     return _fan_out(
         recipients,
         event=event,
         tenant=tenant,
         order=order,
         base_url=base_url,
-        extra={
-            "status_label": STATUS_LABELS.get(to_status, to_status.value),
-            "status_value": to_status.value,
-        },
+        extra=extra,
     )
 
 
@@ -661,6 +748,44 @@ async def build_order_attachment(
     )
 
 
+async def build_quote_reminder(
+    db: AsyncSession,
+    *,
+    tenant: Tenant,
+    order: Order,
+    base_url: str,
+    settings: Settings,
+) -> list[OrderNotification]:
+    """One follow-up to the customer about a quote nobody answered (IDEA-2).
+
+    Same audience rules as every other contact event — consent first and
+    absolute (a contact who unticked "A quote is still waiting" hears
+    nothing), then the two soft filters. Called by the periodic job in
+    :mod:`app.tasks.quote_reminders`, which owns the once-only marker.
+    """
+    from app.templating import _money_major_filter
+
+    event = NotificationEvent.QUOTE_REMINDER
+    recipients = await resolve_contact_audience(
+        db, tenant=tenant, settings=settings, event=event, order=order
+    )
+    return _fan_out(
+        recipients,
+        event=event,
+        tenant=tenant,
+        order=order,
+        base_url=base_url,
+        extra={
+            "amount": (
+                _money_major_filter(order.quoted_total, order.currency)
+                if order.quoted_total is not None
+                else ""
+            ),
+            "confirm_url": order_url(base_url, order) + "#order-status",
+        },
+    )
+
+
 def build_order_assigned(
     *,
     tenant: Tenant,
@@ -735,6 +860,7 @@ class OrderDigestNotification:
         return {
             "tenant_name": self.tenant_name,
             "recipient_name": self.recipient.full_name,
+            "powered_by_url": self.recipient.powered_by_url,
             "orders": self.orders,
             "order_count": len(self.orders),
         }
@@ -789,3 +915,128 @@ def merge_for_digest(
             )
         )
     return out
+
+
+# ------------------------------------------------- weekly summary (IDEA-10)
+
+
+@dataclass(frozen=True)
+class WeeklySummaryNotification:
+    """Monday overview of one customer's open orders, for one contact.
+
+    Same contract as :class:`OrderNotification` (``event``, ``recipient``,
+    ``template``, ``context()``), so ``send_order_notification`` sends it
+    unchanged.
+    """
+
+    event: NotificationEvent
+    recipient: Recipient
+    tenant_name: str
+    customer_name: str
+    orders: list[dict[str, Any]]
+    orders_url: str
+
+    @property
+    def template(self) -> str:
+        return self.event.value
+
+    def context(self) -> dict[str, Any]:
+        return {
+            "tenant_name": self.tenant_name,
+            "customer_name": self.customer_name,
+            "recipient_name": self.recipient.full_name,
+            "orders": self.orders,
+            "order_count": len(self.orders),
+            "orders_url": self.orders_url,
+            "powered_by_url": self.recipient.powered_by_url,
+        }
+
+
+async def build_weekly_summary(
+    db: AsyncSession,
+    *,
+    tenant: Tenant,
+    customer: Customer,
+    orders: Sequence[Order],
+    base_url: str,
+    settings: Settings,
+) -> list[WeeklySummaryNotification]:
+    """Payloads for one customer's weekly open-orders summary.
+
+    Audience, in the §19 order:
+
+    * **consent** (hard) — the contact has not switched ``weekly_summary``
+      off;
+    * **relevance** (soft) — the customer's *admin* contacts; yields to
+      every consenting contact when no admin consents;
+    * **reachability** (soft) — accepted invitation; yields likewise.
+
+    Every query filters on ``customer.id`` explicitly, because the
+    periodic job calls this on the owner engine (no RLS).
+    """
+    if not orders or not customer.is_active or not customer.weekly_summary_enabled:
+        return []
+    rows = list(
+        (
+            await db.execute(
+                select(CustomerContact).where(
+                    CustomerContact.tenant_id == customer.tenant_id,
+                    CustomerContact.customer_id == customer.id,
+                    CustomerContact.is_active.is_(True),
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    event = NotificationEvent.WEEKLY_SUMMARY
+    consenting = [c for c in rows if prefs_for_contact(c).wants(event)]
+    if not consenting:
+        return []
+    admins = [c for c in consenting if c.role == CustomerContactRole.CUSTOMER_ADMIN]
+    tier = admins or consenting
+    reachable = [c for c in tier if c.accepted_at is not None]
+    chosen = reachable or tier
+
+    footer_url = powered_by_url(settings, tenant)
+    items = [
+        {
+            "number": order.number,
+            "title": order.title,
+            "status_label": STATUS_LABELS.get(order.status, str(order.status)),
+            "requested": (
+                order.requested_delivery_at.strftime("%d.%m.%Y")
+                if order.requested_delivery_at
+                else ""
+            ),
+            "promised": (
+                order.promised_delivery_at.strftime("%d.%m.%Y")
+                if order.promised_delivery_at
+                else ""
+            ),
+            "url": order_url(base_url, order),
+        }
+        for order in orders
+    ]
+    recipients = _dedupe(
+        Recipient(
+            email=contact.email,
+            locale=resolve_email_locale(
+                recipient=contact, customer=customer, tenant=tenant, settings=settings
+            ),
+            full_name=contact.full_name,
+            powered_by_url=footer_url,
+        )
+        for contact in chosen
+    )
+    return [
+        WeeklySummaryNotification(
+            event=event,
+            recipient=recipient,
+            tenant_name=tenant.name,
+            customer_name=customer.name,
+            orders=items,
+            orders_url=f"{base_url.rstrip('/')}/app/orders",
+        )
+        for recipient in recipients
+    ]

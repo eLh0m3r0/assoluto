@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
 from app.db.session import get_sessionmaker
-from app.models.customer import CustomerContact
+from app.models.customer import Customer, CustomerContact
 from app.models.tenant import Tenant
 from app.models.user import User
 from app.security.session import SessionData, read_session
@@ -79,13 +79,19 @@ def resolve_tenant_slug(request: Request, settings: Settings) -> str | None:
     """Determine which tenant slug a request is addressing.
 
     Resolution order:
-    1. Explicit `X-Tenant-Slug` header (used by tests and internal tools).
+    1. Explicit `X-Tenant-Slug` header (used by tests and internal tools)
+       — outside production only, unless ``TRUST_TENANT_HEADER=true``.
+       In production a client could otherwise address any tenant's app
+       through the apex host and enumerate slugs, breaking the
+       "tenant == host" assumption that host-only cookies and the CSP
+       rely on (audit SEC-7).
     2. Subdomain of the `Host` header.
     3. `DEFAULT_TENANT_SLUG` from settings (self-host single-tenant mode).
     """
-    header = request.headers.get("x-tenant-slug")
-    if header:
-        return header.strip().lower() or None
+    if not settings.is_production or settings.trust_tenant_header:
+        header = request.headers.get("x-tenant-slug")
+        if header:
+            return header.strip().lower() or None
 
     host = request.headers.get("host", "")
     subdomain = _extract_subdomain(host)
@@ -96,6 +102,17 @@ def resolve_tenant_slug(request: Request, settings: Settings) -> str | None:
         return settings.default_tenant_slug.strip().lower() or None
 
     return None
+
+
+class TenantUnavailable(HTTPException):
+    """The tenant exists but is deactivated — rendered as a 503 page."""
+
+    def __init__(self, tenant_name: str) -> None:
+        super().__init__(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Portal temporarily unavailable",
+        )
+        self.tenant_name = tenant_name
 
 
 async def get_current_tenant(
@@ -119,8 +136,14 @@ async def get_current_tenant(
         result = await session.execute(select(Tenant).where(Tenant.slug == slug))
         tenant = result.scalar_one_or_none()
 
-    if tenant is None or not tenant.is_active:
+    if tenant is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tenant not found")
+    if not tenant.is_active:
+        # A known but deactivated portal (billing hard cut, operator
+        # suspension) gets a neutral, branded "temporarily unavailable"
+        # page instead of a bare 404 — its customers' orders did not
+        # vanish, and they deserve to know whom to call (LOGIC-3).
+        raise TenantUnavailable(tenant.name)
 
     # Stash on request.state so downstream code (templates, logging) can
     # use it without re-querying.
@@ -234,17 +257,48 @@ async def _stash_subscription_status(
     if hasattr(request.state, "subscription_status"):
         return  # already loaded for this request
     try:
+        from datetime import UTC, datetime
+
         from sqlalchemy import text
+
+        from app.tasks.periodic import access_cutoff
 
         row = (
             await db.execute(
-                text("SELECT status FROM platform_subscriptions WHERE tenant_id = :tid LIMIT 1"),
+                text(
+                    "SELECT status, trial_ends_at, current_period_end, status_changed_at, "
+                    "       canceled_at, updated_at, stripe_subscription_id "
+                    "FROM platform_subscriptions WHERE tenant_id = :tid LIMIT 1"
+                ),
                 {"tid": tenant_id},
             )
-        ).scalar_one_or_none()
-        request.state.subscription_status = row
+        ).one_or_none()
+        if row is None:
+            request.state.subscription_status = None
+            request.state.subscription_info = None
+            return
+        request.state.subscription_status = row.status
+        # Everything the staff banners need: the trial countdown
+        # (LOGIC-4) and the date access actually ends (hard cut).
+        days_left = None
+        if row.status == "trialing" and row.trial_ends_at is not None:
+            days_left = max(0, (row.trial_ends_at - datetime.now(UTC)).days)
+        request.state.subscription_info = {
+            "status": row.status,
+            "trial_ends_at": row.trial_ends_at,
+            "trial_days_left": days_left,
+            "stripe_managed": row.stripe_subscription_id is not None,
+            "access_ends_at": access_cutoff(
+                row.status,
+                current_period_end=row.current_period_end,
+                status_changed_at=row.status_changed_at,
+                canceled_at=row.canceled_at,
+                updated_at=row.updated_at,
+            ),
+        }
     except Exception:  # pragma: no cover - belt-and-braces
         request.state.subscription_status = None
+        request.state.subscription_info = None
 
 
 async def get_current_principal(
@@ -298,6 +352,13 @@ async def get_current_principal(
             return None
         if contact.session_version != session_data.session_version:
             return None
+        # Archived (blocked) customer: every contact is out, including
+        # sessions minted via the platform tenant switcher (LOGIC-15).
+        customer_active = (
+            await db.execute(select(Customer.is_active).where(Customer.id == contact.customer_id))
+        ).scalar_one_or_none()
+        if not customer_active:
+            return None
         structlog.contextvars.bind_contextvars(
             principal_id=str(contact.id),
             principal_type="contact",
@@ -329,16 +390,5 @@ async def require_tenant_staff(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Tenant staff required",
-        )
-    return principal
-
-
-async def require_customer_contact(
-    principal: Principal = Depends(require_login),
-) -> Principal:
-    if principal.is_staff:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Customer contact required",
         )
     return principal

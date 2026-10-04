@@ -74,6 +74,11 @@ jobs:
       - name: Ruff format check
         run: uv run ruff format --check .
 
+      # Type gate. app/ was at 0 errors for months, regressed to 1 with
+      # nothing to notice it (audit BE-11) — keep it at 0.
+      - name: Mypy
+        run: uv run mypy app/
+
       - name: Run migrations against Postgres
         run: uv run alembic upgrade head
 

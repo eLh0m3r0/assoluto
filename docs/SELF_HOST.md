@@ -15,8 +15,8 @@ the portal against a private Postgres.
 ## First run (local demo)
 
 ```bash
-git clone https://github.com/eLh0m3r0/sme-client-portal.git
-cd sme-client-portal
+git clone https://github.com/eLh0m3r0/assoluto.git
+cd assoluto
 cp .env.example .env
 docker compose up --build
 ```
@@ -41,12 +41,51 @@ docker compose exec web \
 
 Then log in at `http://4mex.localhost:8000/auth/login`.
 
-For a demo dataset (one customer, a few products, one priced order, one
-asset) run:
+For a demo dataset instead (tenant `4mex`, one customer, a few products,
+one priced order, one asset) run this on a fresh database:
 
 ```bash
 docker compose exec web python -m scripts.seed_dev
 ```
+
+and sign in at `http://4mex.localhost:8000/auth/login` as
+`vlastnik@dilna.example.com` / `demo1234` (staff) or
+`jan@klient.example.com` / `demo1234` (client contact).
+
+## Production (Caddy + automatic HTTPS)
+
+`docker-compose.prod.yml` is an **overlay** — always combine it with the
+base file:
+
+```bash
+docker compose --env-file /etc/assoluto/env \
+    -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+What the overlay does and what it needs:
+
+- **Web image**: it runs `ghcr.io/elh0m3r0/assoluto:${APP_IMAGE_TAG:-latest}`
+  instead of building. To run your own build, tag it locally first:
+  `docker build -t ghcr.io/elh0m3r0/assoluto:latest .`
+- **Required variables** (compose refuses to start without them):
+  `APP_SECRET_KEY`, `APP_BASE_URL`, `PORTAL_OWNER_PASSWORD`,
+  `PORTAL_APP_PASSWORD`, `S3_*`, `SMTP_*`, `TRUSTED_PROXIES`,
+  `PORTAL_DOMAIN`, `ACME_EMAIL` and — for the bundled Caddy —
+  `PORKBUN_API_KEY` / `PORKBUN_SECRET_KEY`.
+- **Database role password**: `docker/postgres-init.sql` creates the
+  runtime role `portal_app` with the password `portal_app`. Change it to
+  your `PORTAL_APP_PASSWORD` right after the first start:
+  `docker compose exec postgres psql -U portal -d portal -c "ALTER ROLE portal_app WITH PASSWORD '<PORTAL_APP_PASSWORD>';"`
+- **TLS**: `docker/Caddyfile` issues a wildcard certificate (needed for
+  tenant subdomains) through the Porkbun DNS API. With another DNS
+  provider, build Caddy with that provider's `caddy-dns` plugin in
+  `docker/Dockerfile.caddy` and change the `dns` block in the Caddyfile,
+  or put your own reverse proxy in front (see `docker/nginx.conf.example`).
+- **Object storage / mail**: MinIO and MailHog are removed in production;
+  point `S3_*` at any S3-compatible service and `SMTP_*` at a real relay.
+
+The full walkthrough for a single VPS (the setup assoluto.eu runs on) is in
+[`DEPLOY_HETZNER.md`](DEPLOY_HETZNER.md).
 
 ## Environment variables
 
@@ -121,7 +160,7 @@ strategy:
 
 ```bash
 # Database
-docker compose exec db pg_dump -U portal portal | gzip > portal-$(date +%F).sql.gz
+docker compose exec postgres pg_dump -U portal portal | gzip > portal-$(date +%F).sql.gz
 
 # Object storage (requires rclone configured against the MinIO endpoint)
 rclone sync minio:portal ./backups/minio/

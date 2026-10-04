@@ -190,6 +190,10 @@ async def authenticate(
         raise InvalidCredentials()
     if not contact.is_active:
         raise AccountDisabled()
+    # An archived (blocked) customer locks out all of its contacts at
+    # once, without touching each contact row (LOGIC-15).
+    if not await _customer_is_active(db, contact.customer_id):
+        raise AccountDisabled()
     if contact.accepted_at is None:
         raise InvalidCredentials("invitation not accepted yet")
 
@@ -212,6 +216,14 @@ async def authenticate(
         email=contact.email,
         session_version=contact.session_version,
     )
+
+
+async def _customer_is_active(db: AsyncSession, customer_id: UUID) -> bool:
+    """False when the contact's customer has been archived / blocked."""
+    active = (
+        await db.execute(select(Customer.is_active).where(Customer.id == customer_id))
+    ).scalar_one_or_none()
+    return bool(active)
 
 
 # ---------------------------------------------------------------- invites
@@ -258,6 +270,8 @@ async def accept_invitation(
         raise InvalidInvitation("tenant mismatch")
     if not contact.is_active:
         raise InvalidInvitation("contact disabled")
+    if not await _customer_is_active(db, contact.customer_id):
+        raise InvalidInvitation("customer archived")
     # Invitation tokens are valid for 7 days. Once accepted they must
     # NOT be replayable — otherwise an attacker who grabs the link out
     # of an email (shared inbox, forwarded screenshot, browser history
@@ -317,45 +331,6 @@ async def invite_customer_contact(
     db.add(contact)
     await db.flush()
     return contact
-
-
-# ------------------------------------------------------- staff user helper
-
-
-async def create_tenant_user(
-    db: AsyncSession,
-    *,
-    tenant_id: UUID,
-    email: str,
-    full_name: str,
-    password: str,
-    role: UserRole = UserRole.TENANT_STAFF,
-    audit_actor: ActorInfo | None = None,
-) -> User:
-    """Create an active tenant staff user with a hashed password."""
-    if len(password) < 8:
-        raise ValueError("password must be at least 8 characters")
-
-    user = User(
-        tenant_id=tenant_id,
-        email=email.strip().lower(),
-        full_name=full_name.strip(),
-        password_hash=hash_password(password),
-        role=role,
-    )
-    db.add(user)
-    await db.flush()
-    await audit_service.record(
-        db,
-        action="user.invited",
-        entity_type="user",
-        entity_id=user.id,
-        entity_label=user.email,
-        actor=audit_actor or SYSTEM_ACTOR,
-        after={"email": user.email, "role": user.role.value},
-        tenant_id=tenant_id,
-    )
-    return user
 
 
 # ----------------------------------------------------- staff invite flow

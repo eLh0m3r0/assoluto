@@ -58,8 +58,8 @@ Principal (dataclass)
 └── type = "contact"  → CustomerContact  (+ customer_id)
 ```
 
-`require_login`, `require_tenant_staff`, and `require_customer_contact`
-are the three dependencies routes use to gate access.
+`require_login` and `require_tenant_staff` are the two dependencies routes use
+to gate access.
 
 ## Request flow
 

@@ -106,6 +106,16 @@ def _capture(client: AsyncClient) -> CaptureSender:
     return capture
 
 
+async def _add_line(client: AsyncClient, order_id, *, unit_price: str = "") -> None:
+    """Give an order one line — an empty order can no longer be submitted
+    or confirmed (audit 2026-10-03 LOGIC-7)."""
+    data = {"description": "Díl", "quantity": "1", "unit": "ks"}
+    if unit_price:
+        data["unit_price"] = unit_price
+    resp = await client.post(f"/app/orders/{order_id}/items", data=data, follow_redirects=False)
+    assert resp.status_code == 303 and "error=" not in resp.headers["location"]
+
+
 async def test_submitting_order_emails_tenant_admin(
     tenant_client: AsyncClient, owner_engine, demo_tenant
 ) -> None:
@@ -132,7 +142,7 @@ async def test_submitting_order_emails_tenant_admin(
     assert len(capture.outbox) == 1
     msg = capture.outbox[0]
     assert msg.to == "owner@4mex.cz"
-    assert "Nová objednávka" in msg.subject
+    assert "Nová zakázka" in msg.subject
     assert "ACME" in msg.subject
     assert "Nová zakázka" in msg.html
     assert f"/app/orders/{order_id}" in msg.html
@@ -250,8 +260,12 @@ async def test_staff_quoting_emails_customer_contacts(
         data={"description": "Doprava", "quantity": "1", "unit": "ks", "unit_price": "500"},
         follow_redirects=False,
     )
+    # Line "A" is still unpriced: the stepper sends the staff override
+    # only after its "send anyway?" confirm (audit 2026-10-03 LOGIC-7).
     quoted = await tenant_client.post(
-        f"/app/orders/{order_id}/transitions/quoted", follow_redirects=False
+        f"/app/orders/{order_id}/transitions/quoted",
+        data={"allow_incomplete": "1"},
+        follow_redirects=False,
     )
     assert quoted.status_code == 303
 
@@ -487,6 +501,7 @@ async def test_operator_is_emailed_about_a_submitted_order(
         "/app/orders", data={"title": "Frézování"}, follow_redirects=False
     )
     order_id = UUID(create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
+    await _add_line(tenant_client, order_id)
     submit = await tenant_client.post(
         f"/app/orders/{order_id}/transitions/submitted", follow_redirects=False
     )
@@ -637,9 +652,11 @@ async def test_saved_opt_out_actually_stops_the_email(
         "/app/orders", data={"title": "Potichu"}, follow_redirects=False
     )
     order_id = UUID(create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
-    await tenant_client.post(
+    await _add_line(tenant_client, order_id)
+    submit = await tenant_client.post(
         f"/app/orders/{order_id}/transitions/submitted", follow_redirects=False
     )
+    assert "error=" not in submit.headers["location"], "the submit itself must succeed"
 
     assert capture.outbox == [], "an opted-out event must never be re-added"
 
@@ -659,6 +676,8 @@ async def test_bulk_transition_sends_one_digest_per_recipient(
             follow_redirects=False,
         )
         order_ids.append(create.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
+        # A confirmation needs a fully priced order (audit 2026-10-03 LOGIC-7).
+        await _add_line(tenant_client, order_ids[-1], unit_price="100")
 
     capture = _capture(tenant_client)
     resp = await tenant_client.post(

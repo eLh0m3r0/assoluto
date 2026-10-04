@@ -6,7 +6,10 @@
 <section class="mx-auto max-w-3xl pb-16 text-slate-700 dark:text-slate-300">
     <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ _("Privacy Policy") }}</h1>
     <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
-        {{ _("Version 1.0 · effective from May 1, 2026") }}
+        {{ _("Version 1.1 · effective from October 4, 2026") }}
+    </p>
+    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        {{ _("Changes in 1.1: the subprocessor table now correctly states that uploaded files are stored in Hetzner Object Storage in Germany (no new subprocessor was added); wording on backups and invoices corrected.") }}
     </p>
 
     <div class="mt-8 space-y-6 text-sm leading-relaxed">
@@ -38,7 +41,7 @@
                 <li>{{ _("Account identification (full name, work email, role, company name, IČO, DIČ if provided) — Article 6(1)(b) GDPR, performance of the contract.") }}</li>
                 <li>{{ _("Login credentials (password stored only as an Argon2id hash; we never see your plaintext password) — Article 6(1)(b) GDPR.") }}</li>
                 <li>{{ _("Content you create in the portal (orders, attachments, comments, customer records, products) — Article 6(1)(b) GDPR. For end-client personal data inside this content we act as a processor on your instructions.") }}</li>
-                <li>{{ _("Billing data (Czech tax-document fields, payment status, invoice history) — Article 6(1)(b) GDPR for the contract; Article 6(1)(c) GDPR for the legal obligation to retain accounting records.") }}</li>
+                <li>{{ _("Billing data (invoice details such as billing name, IČO and address, payment status, invoice history) — Article 6(1)(b) GDPR for the contract; Article 6(1)(c) GDPR for the legal obligation to retain accounting records.") }}</li>
                 <li>{{ _("Technical/security logs (IP address, User-Agent, request path, login success/failure, CSRF token activity) — Article 6(1)(f) GDPR, legitimate interest in operating a secure service.") }}</li>
                 <li>{{ _("Audit-trail records of administrative actions inside your tenant — Article 6(1)(b) and (f) GDPR.") }}</li>
             </ul>
@@ -51,9 +54,9 @@
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("3. Why we process the data (purposes)") }}</h2>
             <ul class="mt-2 list-disc space-y-1 pl-6">
                 <li>{{ _("Operating the Service you ordered — letting you log in, see your orders, send notifications, generate invoices.") }}</li>
-                <li>{{ _("Issuing tax-compliant invoices and meeting Czech accounting and tax-reporting obligations.") }}</li>
+                <li>{{ _("Issuing invoices and meeting Czech accounting and tax obligations.") }}</li>
                 <li>{{ _("Detecting and responding to abuse — brute-force login attempts, spam, attempts to access other tenants' data.") }}</li>
-                <li>{{ _("Sending operational emails (welcome, password reset, invoice delivery, subscription notifications).") }}</li>
+                <li>{{ _("Sending operational emails (welcome, password reset, order notifications, subscription notifications).") }}</li>
                 <li>{{ _("Improving the Service based on aggregated usage patterns; we do not perform automated decision-making with legal effects (no profiling, no algorithmic eligibility decisions).") }}</li>
             </ul>
         </section>
@@ -76,8 +79,8 @@
                 <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
                     <tr>
                         <td class="px-3 py-2 font-medium">Hetzner Online GmbH</td>
-                        <td class="px-3 py-2">{{ _("Application hosting + database (VPS) + S3-compatible storage") }}</td>
-                        <td class="px-3 py-2">{{ _("All Customer data (encrypted at rest)") }}</td>
+                        <td class="px-3 py-2">{{ _("Application hosting and database (VPS); Object Storage for uploaded files; database backups") }}</td>
+                        <td class="px-3 py-2">{{ _("All Customer data, including drawings and other uploaded files") }}</td>
                         <td class="px-3 py-2">DE (EU)</td>
                     </tr>
                     <tr>
@@ -91,12 +94,6 @@
                         <td class="px-3 py-2">{{ _("Subscription billing, card processing, dunning") }}</td>
                         <td class="px-3 py-2">{{ _("Billing email, company name, tax IDs, card data (held by Stripe, never by us)") }}</td>
                         <td class="px-3 py-2">{{ _("IE (EU); some processing in US under SCCs") }}</td>
-                    </tr>
-                    <tr>
-                        <td class="px-3 py-2 font-medium">Backblaze B2 (Backblaze Inc.)</td>
-                        <td class="px-3 py-2">{{ _("Object storage for uploaded files and encrypted database backups") }}</td>
-                        <td class="px-3 py-2">{{ _("Drawings, documents and any other files uploaded to an order, plus database backups") }}</td>
-                        <td class="px-3 py-2">EU (DE)</td>
                     </tr>
                     <tr>
                         <td class="px-3 py-2 font-medium">Porkbun LLC</td>
@@ -164,7 +161,7 @@
         <section>
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("8. Cookies and similar technologies") }}</h2>
             <p class="mt-2">
-                {{ _("The portal uses only strictly-necessary cookies (login session, CSRF protection, locale and theme preference). We do not deploy analytics or marketing cookies, and we do not track you across sites. Full inventory:") }}
+                {{ _("The portal uses only strictly-necessary cookies (login session, CSRF protection, language preference); your light/dark theme choice stays in your browser's local storage. We do not deploy analytics or marketing cookies, and we do not track you across sites. Full inventory:") }}
                 <a href="/cookies" class="text-brand-600 hover:text-brand-700">{{ _("Cookies policy") }}</a>.
             </p>
         </section>
@@ -172,7 +169,7 @@
         <section>
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("9. Data security") }}</h2>
             <p class="mt-2">
-                {{ _("We apply the technical and organisational measures appropriate to the risk: TLS 1.2+ for all traffic, Argon2id password hashing, per-tenant database isolation enforced at the row level (Postgres RLS), encrypted backups, principle-of-least-privilege access by the Provider, no plaintext storage of credentials or payment cards. Security incidents affecting your data will be reported to you and (where required) to the supervisory authority within 72 hours under Article 33 GDPR.") }}
+                {{ _("We apply the technical and organisational measures appropriate to the risk: TLS 1.2+ for all traffic, Argon2id password hashing, per-tenant database isolation enforced at the row level (Postgres RLS), daily database backups, principle-of-least-privilege access by the Provider, no plaintext storage of credentials or payment cards. Security incidents affecting your data will be reported to you and (where required) to the supervisory authority within 72 hours under Article 33 GDPR.") }}
             </p>
         </section>
 

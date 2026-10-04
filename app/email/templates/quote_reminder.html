@@ -1,0 +1,19 @@
+{% extends "_layout.html" %}
+{% block subject %}{% trans order_number=order_number %}Reminder: quote {{ order_number }} is waiting for your confirmation{% endtrans %}{% endblock %}
+{% block heading %}{{ _("Your quote is waiting") }}{% endblock %}
+{% block body %}
+    <p style="color:#334155;">
+        {% trans tenant_name=tenant_name, order_number=order_number, order_title=order_title %}{{ tenant_name }} sent you a quote for order <strong>{{ order_number }}</strong> — {{ order_title }}. It has not been confirmed yet.{% endtrans %}
+    </p>
+    {% if amount %}
+    <p style="color:#0f172a;font-size:18px;"><strong>{{ _("Quoted total") }}: {{ amount }}</strong></p>
+    {% endif %}
+    <p style="color:#334155;">{{ _("Review the items and confirm the order in the portal, or reply with a comment if something needs to change.") }}</p>
+{% endblock %}
+{% block cta %}
+    <p>
+        <a href="{{ confirm_url or order_url }}" style="display:inline-block;background:#2f5bd9;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;">
+            {{ _("Review and confirm the quote") }}
+        </a>
+    </p>
+{% endblock %}

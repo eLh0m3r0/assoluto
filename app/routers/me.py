@@ -12,9 +12,10 @@ who land here are bounced to the staff equivalent.
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -251,6 +252,7 @@ async def profile_export(
 @router.post("/profile/delete")
 async def profile_delete(
     request: Request,
+    background_tasks: BackgroundTasks,
     password: str = Form(...),
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
@@ -306,7 +308,42 @@ async def profile_delete(
         actor=erased_actor,
         tenant_id=contact.tenant_id,
     )
+
+    # Tell the controller (audit SEC-10). The tenant is the data
+    # controller for its customers' contacts; a contact silently erasing
+    # themselves used to leave the supplier without its only channel to
+    # that customer and no warning. Built before the commit (RLS session
+    # still open), sent after it (CLAUDE.md §2).
+    from app.services.gdpr_service import contact_erasure_notice
+    from app.services.locale_service import resolve_email_locale
+    from app.tasks.email_tasks import send_contact_erased_notice
+    from app.urls import tenant_base_url
+
+    tenant = request.state.tenant
+    settings = request.app.state.settings
+    notice = await contact_erasure_notice(
+        db, contact=contact, fallback_email=getattr(tenant, "billing_email", None)
+    )
+    customer_url = f"{tenant_base_url(settings, tenant)}/app/customers/{notice.customer_id}"
     await db.commit()
+
+    sender = request.app.state.email_sender
+    for email, preferred in notice.recipients:
+        locale = resolve_email_locale(
+            recipient=SimpleNamespace(preferred_locale=preferred),
+            tenant=tenant,
+            settings=settings,
+        )
+        background_tasks.add_task(
+            send_contact_erased_notice,
+            sender,
+            to=email,
+            tenant_name=tenant.name,
+            customer_name=notice.customer_name,
+            customer_url=customer_url,
+            remaining_contacts=notice.remaining_contacts,
+            locale=locale,
+        )
 
     # Session cookie carries a stale session_version now — clear it.
     response = RedirectResponse(url="/auth/login?notice=account_deleted", status_code=303)

@@ -6,7 +6,10 @@
 <section class="mx-auto max-w-3xl pb-16 text-slate-700 dark:text-slate-300">
     <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ _("Terms of Service") }}</h1>
     <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
-        {{ _("Version 1.0 · effective from May 1, 2026") }}
+        {{ _("Version 1.1 · effective from October 4, 2026") }}
+    </p>
+    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        {{ _("Changes in 1.1: the free trial runs on the plan selected at signup; payment by bank transfer against an invoice; the availability section no longer states an uptime target.") }}
     </p>
 
     <div class="mt-8 space-y-6 text-sm leading-relaxed">
@@ -53,10 +56,10 @@
         <section>
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("4. Free trial, plans, payment, cancellation") }}</h2>
             <p class="mt-2">
-                {{ _("A new account starts a 30-day free trial of the Starter plan. No payment card is required to start the trial. After the trial expires the Customer must select a paid plan to continue using the Hosted Service; otherwise their account moves to a 3-day grace period for data export and is then deactivated.") }}
+                {{ _("A new account starts a 30-day free trial of the plan selected at signup. No payment card is required to start the trial. After the trial expires the Customer must select a paid plan to continue using the Hosted Service; otherwise their account moves to a 3-day grace period for data export and is then deactivated.") }}
             </p>
             <p class="mt-2">
-                {{ _("Plan prices, monthly limits, and the list of paid plans are published at assoluto.eu/pricing and form part of these Terms. Monthly subscriptions are paid by card via Stripe Payments Europe Limited (Ireland); annual subscriptions can be arranged on request and are paid by bank transfer with a Czech tax document (faktura), payment terms net-14.") }}
+                {{ _("Plan prices, limits, and the list of paid plans are published at assoluto.eu/pricing and form part of these Terms. Monthly subscriptions are paid by card via Stripe Payments Europe Limited (Ireland) or, where online card payment is not available, by bank transfer against an invoice; annual subscriptions are invoiced and paid by bank transfer, payment terms net-14. The Provider is not a VAT payer, so invoices are issued without VAT.") }}
             </p>
             <p class="mt-2">
                 {{ _("The Customer may cancel the subscription at any time from the billing dashboard. The cancellation takes effect at the end of the current billing period; the Customer keeps full access until that date and an additional 3 days for data export. After that, the Customer's account is deactivated and access ends. The Customer may, within 30 days of deactivation, request manual data recovery by emailing team@assoluto.eu; after 30 days the data is permanently deleted (subject to legally-required retention of accounting records as set out in the Privacy Policy).") }}
@@ -111,10 +114,7 @@
         <section>
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("8. Service availability, no formal SLA on Starter/Pro") }}</h2>
             <p class="mt-2">
-                {# `99.9%%` (escaped) — Jinja's i18n extension runs gettext output through `% variables`.
-                   Bare `99.9%` would crash the EN fallback path with `unsupported format character 'm'`.
-                   See CLAUDE.md §7. CS / DE msgstrs already use `99,9 %%` correctly. #}
-                {{ _("The Provider operates the Hosted Service with reasonable care and targets 99.9%% monthly uptime measured at the application HTTP layer, with daily database backups retained for 14 days. The Starter and Pro plans do not include a contractual service-level agreement (SLA); planned and unplanned downtime, force-majeure events, and outages caused by upstream subprocessors (Hetzner, Stripe, Brevo) do not give rise to any compensation claim. The Enterprise plan may include a separately-negotiated written SLA — contact team@assoluto.eu.") }}
+                {{ _("The Provider operates the Hosted Service with reasonable care, with daily database backups retained for 14 days. The Starter and Pro plans do not include a contractual service-level agreement (SLA); planned and unplanned downtime, force-majeure events, and outages caused by upstream subprocessors (Hetzner, Stripe, Brevo) do not give rise to any compensation claim. The Enterprise plan may include a separately-negotiated written SLA — contact team@assoluto.eu.") }}
             </p>
             <p class="mt-2">
                 {{ _("The Provider performs upgrades during low-traffic windows where possible. Brief service interruptions during deployment (typically under 60 seconds) are an ordinary part of operating the Service and are not considered an outage.") }}

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator
 from functools import lru_cache
 
 from sqlalchemy.ext.asyncio import (
@@ -44,15 +43,3 @@ def get_sessionmaker() -> async_sessionmaker[AsyncSession]:
         expire_on_commit=False,
         class_=AsyncSession,
     )
-
-
-async def session_scope() -> AsyncIterator[AsyncSession]:
-    """Provide an `AsyncSession` in a context-managed block.
-
-    Mostly used by scripts and background tasks. FastAPI request handlers
-    should depend on `app.deps.get_db` instead so they get tenant-scoped
-    sessions with RLS context set.
-    """
-    sm = get_sessionmaker()
-    async with sm() as session:
-        yield session

@@ -11,6 +11,8 @@ prefer).
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
+
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from markupsafe import escape
@@ -27,6 +29,9 @@ from app.security.rate_limit import limit as rate_limit
 CONTACT_MESSAGE_MAX_CHARS = 4000
 CONTACT_NAME_MAX_CHARS = 120
 
+# Published in /.well-known/security.txt and on /security.
+SECURITY_CONTACT_EMAIL = "team@assoluto.eu"
+
 router = APIRouter(tags=["www"], dependencies=[Depends(verify_csrf)])
 
 
@@ -42,6 +47,23 @@ def _operator_context(settings: Settings) -> dict:
         "operator_dic": settings.platform_operator_dic,
         "operator_address": settings.platform_operator_address,
         "operator_email": settings.platform_operator_email,
+    }
+
+
+def marketing_context(settings: Settings) -> dict:
+    """Context shared by the public marketing pages.
+
+    * ``operator_*`` + ``operator_identity_complete`` feed the "Who is
+      behind Assoluto" block (only facts already on /imprint).
+    * ``stripe_enabled`` picks the honest payment wording: while online
+      card payment is off (CEO decision D2) the pages say "we invoice by
+      bank transfer" instead of promising a card checkout.
+    """
+    return {
+        "principal": None,
+        **_operator_context(settings),
+        "operator_identity_complete": settings.operator_identity_complete,
+        "stripe_enabled": settings.stripe_enabled,
     }
 
 
@@ -63,15 +85,44 @@ def _require_operator_identity(settings: Settings) -> None:
 
 
 @router.get("/features", response_class=HTMLResponse)
-async def features(request: Request) -> HTMLResponse:
-    html = _templates(request).render(request, "www/features.html", {"principal": None})
+async def features(request: Request, settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    html = _templates(request).render(request, "www/features.html", marketing_context(settings))
     return HTMLResponse(html)
 
 
 @router.get("/pricing", response_class=HTMLResponse)
-async def pricing(request: Request) -> HTMLResponse:
-    html = _templates(request).render(request, "www/pricing.html", {"principal": None})
+async def pricing(request: Request, settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    html = _templates(request).render(request, "www/pricing.html", marketing_context(settings))
     return HTMLResponse(html)
+
+
+@router.get("/security", response_class=HTMLResponse)
+async def security_page(
+    request: Request, settings: Settings = Depends(get_settings)
+) -> HTMLResponse:
+    """Trust page (BIZ-17): what is actually implemented, in plain words.
+
+    Every statement on the page maps to code or to a documented
+    operational fact — see the comments in ``www/security.html``.
+    """
+    html = _templates(request).render(request, "www/security.html", marketing_context(settings))
+    return HTMLResponse(html)
+
+
+@router.get("/.well-known/security.txt", include_in_schema=False)
+async def security_txt(request: Request) -> PlainTextResponse:
+    """RFC 9116 security contact. ``Expires`` is always one year ahead so
+    the file never goes stale between deploys."""
+    expires = (datetime.now(UTC) + timedelta(days=365)).replace(microsecond=0)
+    base = f"{request.url.scheme}://{request.url.netloc}"
+    body = (
+        f"Contact: mailto:{SECURITY_CONTACT_EMAIL}\n"
+        f"Expires: {expires.strftime('%Y-%m-%dT%H:%M:%SZ')}\n"
+        "Preferred-Languages: cs, en\n"
+        f"Canonical: {base}/.well-known/security.txt\n"
+        f"Policy: {base}/security\n"
+    )
+    return PlainTextResponse(body, media_type="text/plain; charset=utf-8")
 
 
 @router.get("/self-hosted", response_class=HTMLResponse)
@@ -81,11 +132,13 @@ async def self_hosted(request: Request) -> HTMLResponse:
 
 
 @router.get("/contact", response_class=HTMLResponse)
-async def contact_form(request: Request) -> HTMLResponse:
+async def contact_form(
+    request: Request, settings: Settings = Depends(get_settings)
+) -> HTMLResponse:
     html = _templates(request).render(
         request,
         "www/contact.html",
-        {"principal": None, "submitted": False, "error": None},
+        {**marketing_context(settings), "submitted": False, "error": None},
     )
     return HTMLResponse(html)
 
@@ -124,7 +177,7 @@ async def contact_submit(
         html = _templates(request).render(
             request,
             "www/contact.html",
-            {"principal": None, "submitted": True, "error": None},
+            {**marketing_context(settings), "submitted": True, "error": None},
         )
         return HTMLResponse(html)
 
@@ -148,7 +201,7 @@ async def contact_submit(
             request,
             "www/contact.html",
             {
-                "principal": None,
+                **marketing_context(settings),
                 "submitted": False,
                 "error": err,
                 "form": {"name": name, "email": email, "message": message},
@@ -296,6 +349,7 @@ async def sitemap_xml(request: Request) -> Response:
         ("/", "1.0"),
         ("/features", "0.9"),
         ("/pricing", "0.9"),
+        ("/security", "0.6"),
         ("/self-hosted", "0.7"),
         ("/contact", "0.6"),
     ]

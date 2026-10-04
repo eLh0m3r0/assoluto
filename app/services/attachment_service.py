@@ -114,7 +114,15 @@ async def create_attachment_row(
     from app.platform.usage import ensure_within_limit
 
     size_mb = max(1, (size_bytes + 1024 * 1024 - 1) // (1024 * 1024))
-    await ensure_within_limit(db, tenant_id=tenant.id, metric="storage_mb", delta=size_mb)
+    # A customer contact's upload is never bounced on the supplier's plan
+    # (LOGIC-3): accepted, and the tenant admins are e-mailed instead.
+    await ensure_within_limit(
+        db,
+        tenant_id=tenant.id,
+        metric="storage_mb",
+        delta=size_mb,
+        soft=uploaded_by_contact_id is not None,
+    )
 
     attachment = OrderAttachment(
         id=uuid4(),
@@ -173,6 +181,45 @@ async def get_attachment(db: AsyncSession, attachment_id: UUID) -> OrderAttachme
     ).scalar_one_or_none()
 
 
-async def delete_attachment(db: AsyncSession, attachment: OrderAttachment) -> None:
+async def delete_attachment(
+    db: AsyncSession,
+    attachment: OrderAttachment,
+    *,
+    order=None,
+    audit_actor=None,
+) -> None:
+    """Delete the row and record who removed which file (LOGIC-13).
+
+    In a job shop the drawing *is* the specification; an unaudited
+    delete left no trace of which file existed when the order was
+    agreed. The audit row keeps the filename, size, uploader and the
+    order status at the moment of deletion.
+    """
+    from app.services import audit_service
+    from app.services.audit_service import SYSTEM_ACTOR
+
+    snapshot = {
+        "attachment_id": str(attachment.id),
+        "filename": attachment.filename,
+        "size_bytes": attachment.size_bytes,
+        "content_type": attachment.content_type,
+        "uploaded_by_user_id": (
+            str(attachment.uploaded_by_user_id) if attachment.uploaded_by_user_id else None
+        ),
+        "uploaded_by_contact_id": (
+            str(attachment.uploaded_by_contact_id) if attachment.uploaded_by_contact_id else None
+        ),
+        "order_status": order.status.value if order is not None else None,
+    }
     await db.delete(attachment)
     await db.flush()
+    await audit_service.record(
+        db,
+        action="attachment.deleted",
+        entity_type="order",
+        entity_id=attachment.order_id,
+        entity_label=order.number if order is not None else str(attachment.order_id),
+        actor=audit_actor or SYSTEM_ACTOR,
+        before=snapshot,
+        tenant_id=attachment.tenant_id,
+    )

@@ -12,13 +12,20 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.deps import Principal, get_db, require_login
+from app.i18n import t as _t
 from app.models.asset import Asset
 from app.models.customer import Customer
 from app.models.enums import OrderStatus
 from app.models.order import Order
 from app.security.csrf import verify_csrf
 from app.services import audit_service
-from app.services.order_service import ActorRef, list_orders_for_principal
+from app.services.order_service import (
+    DEFAULT_STALE_QUOTE_DAYS,
+    WORK_QUEUES,
+    ActorRef,
+    list_orders_for_principal,
+    work_queue_counts,
+)
 
 router = APIRouter(prefix="/app", tags=["dashboard"], dependencies=[Depends(verify_csrf)])
 
@@ -70,6 +77,66 @@ async def dashboard_index(
             (await db.execute(select(func.count()).select_from(Customer))).scalar() or 0
         )
 
+    # "Needs action" (IDEA-1 / UX-12): the four questions a supplier
+    # answers every morning by scanning the list by eye. Each count links
+    # to the order list filtered by the same predicate, so the number and
+    # the list behind it can never disagree. Contacts get their own
+    # single queue: quotes waiting for *their* confirmation.
+    work_queues: list[dict] = []
+    if principal.is_staff:
+        settings = request.app.state.settings
+        stale_days = int(getattr(settings, "quote_reminder_days", 0) or DEFAULT_STALE_QUOTE_DAYS)
+        counts = await work_queue_counts(db, stale_quote_days=stale_days)
+        labels = {
+            "awaiting_quote": _t(request, "Submitted, waiting for a quote"),
+            "no_promise": _t(request, "Confirmed without a promised date"),
+            "overdue": _t(request, "Overdue"),
+            "stale_quotes": _t(request, "Quotes waiting for the client"),
+        }
+        hints = {
+            "awaiting_quote": _t(request, "Price them and send the quote."),
+            "no_promise": _t(request, "Promise the client a delivery date."),
+            "overdue": _t(request, "The promised date has passed."),
+            "stale_quotes": _t(request, "Older than {days} days — follow up.").format(
+                days=stale_days
+            ),
+        }
+        work_queues = [
+            {
+                "key": key,
+                "label": labels[key],
+                "hint": hints[key],
+                "count": counts[key],
+                "url": f"/app/orders?queue={key}",
+                "urgent": key == "overdue" and counts[key] > 0,
+            }
+            for key in WORK_QUEUES
+        ]
+    else:
+        awaiting = int(
+            (
+                await db.execute(
+                    select(func.count())
+                    .select_from(Order)
+                    .where(
+                        Order.customer_id == principal.customer_id,
+                        Order.status == OrderStatus.QUOTED,
+                    )
+                )
+            ).scalar()
+            or 0
+        )
+        work_queues = [
+            {
+                "key": "awaiting_confirmation",
+                "label": _t(request, "Quotes waiting for your confirmation"),
+                "hint": _t(request, "Review the price and confirm the order."),
+                "count": awaiting,
+                "url": "/app/orders?status=quoted",
+                "urgent": awaiting > 0,
+            }
+        ]
+
     # Recent orders: last 5 across all statuses (scoped for contacts via
     # ``list_orders_for_principal``). Used on the dashboard so the user
     # lands on something actionable rather than three bare counters.
@@ -105,6 +172,7 @@ async def dashboard_index(
             "tenant": tenant,
             "stats": stats,
             "recent_orders": recent_orders,
+            "work_queues": work_queues,
             "customer_by_id": customer_by_id,
             "recent_activity": recent_activity,
         },

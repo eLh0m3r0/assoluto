@@ -28,7 +28,21 @@ T0 = datetime(2026, 6, 1, 12, 0, 0, tzinfo=UTC)
 TRIAL_END = T0 + timedelta(days=30)
 
 
-async def _seed_trial(owner_engine, tenant_id, *, status: str = "trialing") -> None:
+async def _seed_trial(
+    owner_engine,
+    tenant_id,
+    *,
+    status: str = "trialing",
+    verified: bool = True,
+    stripe_subscription_id: str | None = None,
+) -> None:
+    """Trial subscription + one tenant admin linked to a platform identity.
+
+    ``verified`` stamps the identity's ``email_verified_at`` — nurture
+    mail only ever goes to confirmed addresses (BIZ-09).
+    """
+    from app.platform.models import Identity, TenantMembership
+
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session, session.begin():
         plan = Plan(id=uuid4(), code=f"test-{uuid4().hex[:8]}", name="Test plan")
@@ -42,16 +56,30 @@ async def _seed_trial(owner_engine, tenant_id, *, status: str = "trialing") -> N
                 status=status,
                 trial_ends_at=TRIAL_END,
                 created_at=T0,
+                stripe_subscription_id=stripe_subscription_id,
             )
         )
+        user = User(
+            id=uuid4(),
+            tenant_id=tenant_id,
+            email="owner@4mex.cz",
+            full_name="4MEX Owner",
+            role=UserRole.TENANT_ADMIN,
+            password_hash=hash_password("ownerpass"),
+        )
+        session.add(user)
+        identity = Identity(
+            id=uuid4(),
+            email="owner@4mex.cz",
+            full_name="4MEX Owner",
+            password_hash=hash_password("ownerpass"),
+            email_verified_at=T0 if verified else None,
+        )
+        session.add(identity)
+        await session.flush()
         session.add(
-            User(
-                id=uuid4(),
-                tenant_id=tenant_id,
-                email="owner@4mex.cz",
-                full_name="4MEX Owner",
-                role=UserRole.TENANT_ADMIN,
-                password_hash=hash_password("ownerpass"),
+            TenantMembership(
+                id=uuid4(), identity_id=identity.id, tenant_id=tenant_id, user_id=user.id
             )
         )
 
@@ -68,7 +96,9 @@ def _enable(settings) -> None:
     settings.trial_nurture_enabled = True
 
 
-async def test_disabled_flag_sends_nothing(settings, wipe_db, owner_engine, demo_tenant) -> None:
+async def test_disabled_flag_sends_no_onboarding_mail(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
     settings.feature_platform = True
     settings.trial_nurture_enabled = False
     await _seed_trial(owner_engine, demo_tenant.id)
@@ -77,6 +107,89 @@ async def test_disabled_flag_sends_nothing(settings, wipe_db, owner_engine, demo
     sent = await send_trial_nurture_emails(now=T0 + timedelta(days=2), sender=capture)
     assert sent == 0
     assert capture.outbox == []
+
+
+async def test_trial_ending_reminder_sent_even_with_flag_off(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    """LOGIC-4: the copy-approval flag gates the onboarding mails only.
+    A trial must never end silently."""
+    settings.feature_platform = True
+    settings.trial_nurture_enabled = False
+    await _seed_trial(owner_engine, demo_tenant.id)
+
+    capture = CaptureSender()
+    sent = await send_trial_nurture_emails(now=TRIAL_END - timedelta(days=3), sender=capture)
+    assert sent == 1
+    assert capture.outbox[0].to == "owner@4mex.cz"
+    assert "01.07.2026" in capture.outbox[0].text
+
+
+async def test_unverified_identity_gets_no_nurture(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    """BIZ-09: bot signups never confirm the address — do not mail them."""
+    _enable(settings)
+    await _seed_trial(owner_engine, demo_tenant.id, verified=False)
+
+    capture = CaptureSender()
+    assert await send_trial_nurture_emails(now=T0 + timedelta(days=2), sender=capture) == 0
+    assert await send_trial_nurture_emails(now=TRIAL_END - timedelta(days=3), sender=capture) == 0
+    assert capture.outbox == []
+
+
+async def test_support_access_user_gets_no_nurture(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    """LOGIC-20: the operator's support grant is not the customer."""
+    from app.platform.models import Identity, TenantMembership
+
+    _enable(settings)
+    await _seed_trial(owner_engine, demo_tenant.id)
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        support_user = User(
+            id=uuid4(),
+            tenant_id=demo_tenant.id,
+            email="root@platform.local",
+            full_name="root",
+            role=UserRole.TENANT_ADMIN,
+        )
+        session.add(support_user)
+        ident = Identity(
+            id=uuid4(),
+            email="root@platform.local",
+            full_name="root",
+            password_hash=hash_password("x" * 12),
+            is_platform_admin=True,
+            email_verified_at=T0,
+        )
+        session.add(ident)
+        await session.flush()
+        session.add(
+            TenantMembership(
+                id=uuid4(),
+                identity_id=ident.id,
+                tenant_id=demo_tenant.id,
+                user_id=support_user.id,
+                access_type="support",
+            )
+        )
+
+    capture = CaptureSender()
+    await send_trial_nurture_emails(now=T0 + timedelta(days=2), sender=capture)
+    assert [m.to for m in capture.outbox] == ["owner@4mex.cz"]
+
+
+async def test_stripe_linked_trial_gets_no_ending_reminder(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    """A Stripe trial with a card converts by itself — "pick a plan"
+    would be wrong."""
+    _enable(settings)
+    await _seed_trial(owner_engine, demo_tenant.id, stripe_subscription_id="sub_1")
+    capture = CaptureSender()
+    assert await send_trial_nurture_emails(now=TRIAL_END - timedelta(days=3), sender=capture) == 0
 
 
 async def test_day1_sent_once(settings, wipe_db, owner_engine, demo_tenant) -> None:
@@ -139,3 +252,158 @@ async def test_non_trial_subscription_skipped(settings, wipe_db, owner_engine, d
     sent = await send_trial_nurture_emails(now=T0 + timedelta(days=2), sender=capture)
     assert sent == 0
     assert capture.outbox == []
+
+
+# ------------------------------------------------ verification gate (BIZ-09)
+
+
+async def test_unverified_signup_gets_no_nurture(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    _enable(settings)
+    await _seed_trial(owner_engine, demo_tenant.id, verified=False)
+
+    capture = CaptureSender()
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=2), sender=capture)
+    assert sent == 0
+    assert capture.outbox == []
+    assert await _sent_markers(owner_engine, demo_tenant.id) == {}
+
+
+async def test_verified_signup_gets_nurture(settings, wipe_db, owner_engine, demo_tenant) -> None:
+    _enable(settings)
+    await _seed_trial(owner_engine, demo_tenant.id, verified=True)
+
+    capture = CaptureSender()
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=2), sender=capture)
+    assert sent == 1
+    assert capture.outbox[0].to == "owner@4mex.cz"
+
+
+# ------------------------------------------- activation nudges (BIZ-16)
+
+
+def _enable_activation_only(settings) -> None:
+    settings.feature_platform = True
+    settings.trial_nurture_enabled = False
+    settings.activation_nudges_enabled = True
+
+
+async def _seed_contact(owner_engine, tenant_id, *, accepted: bool) -> None:
+    from app.models.customer import Customer, CustomerContact
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        customer = Customer(id=uuid4(), tenant_id=tenant_id, name="Strojírna Ukázková s.r.o.")
+        session.add(customer)
+        await session.flush()
+        session.add(
+            CustomerContact(
+                id=uuid4(),
+                tenant_id=tenant_id,
+                customer_id=customer.id,
+                email="nakup@ukazkova.test",
+                full_name="Petra Nákupčí",
+                invited_at=T0,
+                accepted_at=T0 + timedelta(days=1) if accepted else None,
+                password_hash=hash_password("contactpass") if accepted else None,
+            )
+        )
+
+
+async def test_activation_flag_off_sends_nothing(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    settings.feature_platform = True
+    settings.trial_nurture_enabled = False
+    settings.activation_nudges_enabled = False
+    await _seed_trial(owner_engine, demo_tenant.id)
+
+    capture = CaptureSender()
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=3), sender=capture)
+    assert sent == 0
+
+
+async def test_invite_nudge_when_no_customer_invited(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    _enable_activation_only(settings)
+    await _seed_trial(owner_engine, demo_tenant.id)
+
+    capture = CaptureSender()
+    # Day 1: the trial day-1 mail is off and the invite nudge is not due yet.
+    assert await send_trial_nurture_emails(now=T0 + timedelta(days=1, hours=1), sender=capture) == 0
+
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=2, hours=1), sender=capture)
+    assert sent == 1
+    mail = capture.outbox[0]
+    assert f"{demo_tenant.slug}." in mail.text and "/app/customers" in mail.text
+    assert "invite" in (await _sent_markers(owner_engine, demo_tenant.id))
+
+    # Idempotent.
+    assert await send_trial_nurture_emails(now=T0 + timedelta(days=3), sender=capture) == 0
+
+
+async def test_invite_nudge_skipped_when_customer_already_invited(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    _enable_activation_only(settings)
+    await _seed_trial(owner_engine, demo_tenant.id)
+    await _seed_contact(owner_engine, demo_tenant.id, accepted=True)
+
+    capture = CaptureSender()
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=2, hours=1), sender=capture)
+    assert sent == 0
+    assert capture.outbox == []
+
+
+async def test_no_login_nudge_lists_pending_contact(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    _enable_activation_only(settings)
+    await _seed_trial(owner_engine, demo_tenant.id)
+    await _seed_contact(owner_engine, demo_tenant.id, accepted=False)
+
+    capture = CaptureSender()
+    # Day 2: a contact was invited, so "invite your first customer" is moot.
+    assert await send_trial_nurture_emails(now=T0 + timedelta(days=2, hours=1), sender=capture) == 0
+
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=5, hours=1), sender=capture)
+    assert sent == 1
+    mail = capture.outbox[0]
+    assert "Petra Nákupčí" in mail.text
+    assert "Strojírna Ukázková s.r.o." in mail.text
+    assert "/app/customers/" in mail.text
+    assert "no_login" in (await _sent_markers(owner_engine, demo_tenant.id))
+
+
+async def test_no_login_nudge_skipped_when_contact_signed_in(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    _enable_activation_only(settings)
+    await _seed_trial(owner_engine, demo_tenant.id)
+    await _seed_contact(owner_engine, demo_tenant.id, accepted=True)
+
+    capture = CaptureSender()
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=5, hours=1), sender=capture)
+    assert sent == 0
+
+
+def test_activation_templates_render_in_every_locale() -> None:
+    from app.email.sender import render_email
+
+    ctx = {
+        "full_name": "Jan",
+        "tenant_name": "ACME",
+        "portal_url": "https://acme.example.test",
+        "customers_url": "https://acme.example.test/app/customers",
+        "pending_contacts": [
+            {"contact_name": "Petra", "customer_name": "Zákazník", "url": "https://x.test/c"}
+        ],
+    }
+    for template in ("activation_invite_customer", "activation_contact_no_login"):
+        for locale in (None, "cs", "en", "de"):
+            rendered = render_email(template, ctx, locale=locale)
+            assert rendered.subject.strip()
+            assert "https://acme.example.test/app/customers" in rendered.text
+            assert "https://acme.example.test/app/customers" in rendered.html

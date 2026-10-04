@@ -6,10 +6,12 @@ response; the thumbnail shows up a few seconds later.
 
 from __future__ import annotations
 
+import contextlib
 from io import BytesIO
 from uuid import UUID
 
-from sqlalchemy import select
+import anyio
+from sqlalchemy import select, update
 
 from app.db.session import get_sessionmaker
 from app.deps import set_tenant_context
@@ -60,7 +62,9 @@ def _render_thumbnail(data: bytes, content_type: str) -> bytes | None:
         except ImportError:
             return None
         try:
-            pages = convert_from_bytes(data, first_page=1, last_page=1, size=400)
+            # poppler parses customer-supplied files: cap the time a hostile or
+            # pathological PDF can hold the worker thread.
+            pages = convert_from_bytes(data, first_page=1, last_page=1, size=400, timeout=30)
             if not pages:
                 return None
             out = BytesIO()
@@ -80,10 +84,20 @@ async def generate_thumbnail(attachment_id: UUID, tenant_id: UUID) -> None:
     transaction doesn't need to stay alive. Uploader endpoints MUST
     `await db.commit()` before scheduling this task — see
     `app.routers.attachments.upload_attachment` for the rationale.
+
+    Three phases, so no pooled connection or open transaction is held
+    while S3 and Pillow work (audit BE-03):
+
+    1. short transaction: read the row + tenant;
+    2. no transaction: download, render and upload, each in a worker
+       thread (boto3 and Pillow are blocking);
+    3. short transaction: stamp ``thumbnail_key``.
     """
     log.info("thumbnail.start", id=str(attachment_id))
     sm = get_sessionmaker()
     try:
+        from app.models.tenant import Tenant
+
         async with sm() as session, session.begin():
             await set_tenant_context(session, str(tenant_id))
             attachment = (
@@ -98,48 +112,59 @@ async def generate_thumbnail(attachment_id: UUID, tenant_id: UUID) -> None:
                     id=str(attachment_id),
                 )
                 return
-
-            try:
-                data = s3_storage.download_bytes(attachment.storage_key)
-            except Exception as exc:
-                log.warning(
-                    "thumbnail.download_failed",
-                    id=str(attachment_id),
-                    error=str(exc),
-                )
-                return
-
-            jpeg = _render_thumbnail(data, attachment.content_type)
-            if jpeg is None:
-                log.info(
-                    "thumbnail.unsupported",
-                    id=str(attachment_id),
-                    content_type=attachment.content_type,
-                )
-                return
-
-            from app.models.tenant import Tenant
-
             tenant = (
                 await session.execute(select(Tenant).where(Tenant.id == tenant_id))
             ).scalar_one_or_none()
             if tenant is None:
                 return
-
+            storage_key = attachment.storage_key
+            content_type = attachment.content_type
             thumb_key = build_thumbnail_key(
                 tenant=tenant,
                 order_id=attachment.order_id,
                 attachment_id=attachment.id,
             )
-            try:
-                s3_storage.upload_bytes(thumb_key, jpeg, content_type="image/jpeg")
-            except Exception as exc:
-                log.warning("thumbnail.upload_failed", error=str(exc))
-                return
 
-            attachment.thumbnail_key = thumb_key
-            await session.flush()
-            log.info("thumbnail.generated", id=str(attachment_id), key=thumb_key)
+        try:
+            data = await s3_storage.download_bytes_async(storage_key)
+        except Exception as exc:
+            log.warning(
+                "thumbnail.download_failed",
+                id=str(attachment_id),
+                error=str(exc),
+            )
+            return
+
+        jpeg = await anyio.to_thread.run_sync(_render_thumbnail, data, content_type)
+        del data
+        if jpeg is None:
+            log.info(
+                "thumbnail.unsupported",
+                id=str(attachment_id),
+                content_type=content_type,
+            )
+            return
+
+        try:
+            await s3_storage.upload_bytes_async(thumb_key, jpeg, content_type="image/jpeg")
+        except Exception as exc:
+            log.warning("thumbnail.upload_failed", error=str(exc))
+            return
+
+        async with sm() as session, session.begin():
+            await set_tenant_context(session, str(tenant_id))
+            result = await session.execute(
+                update(OrderAttachment)
+                .where(OrderAttachment.id == attachment_id)
+                .values(thumbnail_key=thumb_key)
+            )
+            if not result.rowcount:  # type: ignore[attr-defined]
+                # Deleted while we were rendering — don't leave the JPEG behind.
+                log.info("thumbnail.skip", reason="attachment gone", id=str(attachment_id))
+                with contextlib.suppress(Exception):
+                    await s3_storage.delete_object_async(thumb_key)
+                return
+        log.info("thumbnail.generated", id=str(attachment_id), key=thumb_key)
     except Exception as exc:
         log.error(
             "thumbnail.fatal",

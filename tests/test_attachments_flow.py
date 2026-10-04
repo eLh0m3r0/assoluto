@@ -173,6 +173,13 @@ async def test_contact_uploads_image_and_thumbnail_is_generated(
     detail = await tenant_client.get(f"/app/orders/{order_id}")
     assert "vykres.png" in detail.text
 
+    # The thumbnail is served from our own origin. A 302 to presigned S3
+    # was blocked by the CSP (img-src 'self'), so no thumbnail ever showed.
+    thumb = await tenant_client.get(f"/app/attachments/{att.id}/thumbnail")
+    assert thumb.status_code == 200
+    assert thumb.headers["content-type"] == "image/jpeg"
+    assert thumb.content[:3] == b"\xff\xd8\xff"
+
     # Download route redirects to a presigned URL.
     download = await tenant_client.get(
         f"/app/attachments/{att.id}/download", follow_redirects=False
@@ -330,11 +337,18 @@ async def test_contact_cannot_delete_after_submit(
         files={"file": ("a.png", _png_bytes(), "image/png")},
         follow_redirects=False,
     )
+    # An empty order can no longer be submitted (audit 2026-10-03 LOGIC-7).
+    await tenant_client.post(
+        f"/app/orders/{order_id}/items",
+        data={"description": "Plech", "quantity": "1"},
+        follow_redirects=False,
+    )
 
     # Submit the order.
-    await tenant_client.post(
+    submit = await tenant_client.post(
         f"/app/orders/{order_id}/transitions/submitted", follow_redirects=False
     )
+    assert "error=" not in submit.headers["location"]
 
     sm = async_sessionmaker(owner_engine, expire_on_commit=False)
     async with sm() as session:
