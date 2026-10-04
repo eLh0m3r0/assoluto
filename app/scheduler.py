@@ -20,6 +20,7 @@ from app.tasks.periodic import (
     enforce_canceled_subscriptions,
     expire_demo_trials,
     send_trial_nurture_emails,
+    send_weekly_order_summaries,
 )
 
 log = get_logger("app.scheduler")
@@ -84,6 +85,18 @@ def build_scheduler() -> AsyncIOScheduler:
         replace_existing=True,
         max_instances=1,
         misfire_grace_time=600,
+    )
+
+    # Monday 05:00 UTC (06:00/07:00 Prague) — in the inbox before the
+    # customer's buyer starts the week. Only customers the supplier opted
+    # in receive it (IDEA-10).
+    scheduler.add_job(
+        send_weekly_order_summaries,
+        trigger=CronTrigger(day_of_week="mon", hour=5, minute=0),
+        id="send_weekly_order_summaries",
+        replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=3600,
     )
 
     log.info(

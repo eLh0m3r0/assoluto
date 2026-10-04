@@ -269,6 +269,7 @@ async def customers_edit_form(
                 "can_set_prices": "on" if perms.get("can_set_prices", True) else "",
                 "can_upload_files": "on" if perms.get("can_upload_files", True) else "",
                 "preferred_locale": customer.preferred_locale or "",
+                "weekly_summary_enabled": "on" if customer.weekly_summary_enabled else "",
             },
             "error": None,
             "notice": None,
@@ -290,6 +291,7 @@ async def customers_update(
     can_set_prices: str = Form(""),
     can_upload_files: str = Form(""),
     preferred_locale: str = Form(""),
+    weekly_summary_enabled: str = Form(""),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -318,6 +320,7 @@ async def customers_update(
             notes=notes,
             order_permissions=order_perms,
             preferred_locale=clean_locale,
+            weekly_summary_enabled=weekly_summary_enabled == "on",
             audit_actor=actor_from_principal(principal),
         )
     except ValueError as exc:
@@ -338,6 +341,7 @@ async def customers_update(
                     "can_set_prices": can_set_prices,
                     "can_upload_files": can_upload_files,
                     "preferred_locale": preferred_locale,
+                    "weekly_summary_enabled": weekly_summary_enabled,
                 },
                 "error": str(exc),
                 "notice": None,

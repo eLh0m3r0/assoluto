@@ -24,6 +24,7 @@
     ('order_status_changed', _('An order changes status')),
     ('order_comment',        _('The supplier writes a comment')),
     ('order_attachment',     _('The supplier uploads a file')),
+    ('weekly_summary',       _('Weekly summary of our open orders (if the supplier sends one)')),
 ] %}
 {% set events = staff_events if side == 'staff' else contact_events %}
 

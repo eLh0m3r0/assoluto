@@ -65,6 +65,12 @@ class Customer(Base, TimestampMixin, TenantMixin):
     # their own preference. NULL = inherit from tenant default.
     preferred_locale: Mapped[str | None] = mapped_column(String(8), nullable=True)
 
+    # Monday "your open orders" email to this customer's admin contacts
+    # (IDEA-10). Opt-in per customer; see migration 1013.
+    weekly_summary_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+
     def __repr__(self) -> str:  # pragma: no cover
         return f"<Customer id={self.id} name={self.name!r}>"
 

@@ -251,6 +251,7 @@ async def update_customer(
     notes: str | None,
     order_permissions: dict | None = None,
     preferred_locale: str | None = None,
+    weekly_summary_enabled: bool | None = None,
     audit_actor: ActorInfo | None = None,
 ) -> Customer:
     name = name.strip()
@@ -260,7 +261,16 @@ async def update_customer(
     # Snapshot tracked fields BEFORE mutation so the diff picks up the
     # genuine prior state even after the attribute assignments below.
     before_snapshot = type("_CustomerSnapshot", (), {})()
-    for field in ("name", "ico", "dic", "notes", "order_permissions", "preferred_locale"):
+    tracked = (
+        "name",
+        "ico",
+        "dic",
+        "notes",
+        "order_permissions",
+        "preferred_locale",
+        "weekly_summary_enabled",
+    )
+    for field in tracked:
         setattr(before_snapshot, field, getattr(customer, field, None))
 
     customer.name = name
@@ -273,13 +283,11 @@ async def update_customer(
     # apply what the caller passed; callers that don't want to touch
     # this field should omit the kwarg entirely.
     customer.preferred_locale = preferred_locale
+    if weekly_summary_enabled is not None:
+        customer.weekly_summary_enabled = weekly_summary_enabled
     await db.flush()
 
-    diff = diff_from_models(
-        before_snapshot,
-        customer,
-        ["name", "ico", "dic", "notes", "order_permissions", "preferred_locale"],
-    )
+    diff = diff_from_models(before_snapshot, customer, list(tracked))
     if diff:
         await audit_service.record(
             db,

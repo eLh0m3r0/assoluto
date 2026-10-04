@@ -676,3 +676,149 @@ async def _run_trial_nurture(
             )
 
     return sent
+
+
+# Weekly open-orders summary to each opted-in customer (IDEA-10). Lock id
+# picked well away from the 42_00x block so parallel additions there
+# can't collide.
+WEEKLY_SUMMARY_LOCK_ID = 42_101
+#: tenants.settings marker: the ISO week ("2026-W41") last processed, so
+#: a restart or a second worker in the same week never double-sends.
+WEEKLY_SUMMARY_SENT_KEY = "_weekly_summary_sent"
+#: Orders the customer is waiting on. DRAFT is the customer's own unsent
+#: work; DELIVERED / CLOSED / CANCELLED are done.
+WEEKLY_SUMMARY_STATUSES: tuple[OrderStatus, ...] = (
+    OrderStatus.SUBMITTED,
+    OrderStatus.QUOTED,
+    OrderStatus.CONFIRMED,
+    OrderStatus.IN_PRODUCTION,
+    OrderStatus.READY,
+)
+
+
+async def send_weekly_order_summaries(now: datetime | None = None, sender=None) -> int:
+    """Email each opted-in customer's admin contacts their open orders.
+
+    Runs Mondays. Only customers with ``weekly_summary_enabled`` (off by
+    default, toggled on the customer edit form) and at least one open
+    order get a mail; recipients are resolved by
+    :func:`app.services.notification_service.build_weekly_summary`, which
+    honours each contact's ``weekly_summary`` consent (§19). Returns the
+    number of emails sent.
+    """
+    from app.email.sender import build_sender
+
+    settings = get_settings()
+    current = now or datetime.now(UTC)
+    iso = current.isocalendar()
+    week_key = f"{iso.year}-W{iso.week:02d}"
+    mail = sender if sender is not None else build_sender(settings)
+
+    engine = _owner_engine()
+    try:
+        async with engine.connect() as lock_conn:
+            got_lock = (
+                await lock_conn.execute(
+                    text("SELECT pg_try_advisory_lock(:id)"), {"id": WEEKLY_SUMMARY_LOCK_ID}
+                )
+            ).scalar()
+            if not got_lock:
+                log.info("periodic.weekly_summary.skipped", reason="lock held")
+                return 0
+            try:
+                sent = await _run_weekly_summaries(engine, week_key, mail, settings)
+            finally:
+                await lock_conn.execute(
+                    text("SELECT pg_advisory_unlock(:id)"), {"id": WEEKLY_SUMMARY_LOCK_ID}
+                )
+        log.info("periodic.weekly_summary.done", sent=sent, week=week_key)
+        return sent
+    finally:
+        await engine.dispose()
+
+
+async def _run_weekly_summaries(engine, week_key: str, mail, settings) -> int:
+    from app.models.customer import Customer
+    from app.models.tenant import Tenant
+    from app.services.notification_service import build_weekly_summary
+    from app.tasks.email_tasks import send_order_notifications
+    from app.urls import tenant_base_url
+
+    sm = async_sessionmaker(engine, expire_on_commit=False)
+    async with sm() as session:
+        tenant_ids = (
+            (
+                await session.execute(
+                    select(Customer.tenant_id)
+                    .join(Tenant, Tenant.id == Customer.tenant_id)
+                    .where(
+                        Tenant.is_active.is_(True),
+                        Customer.is_active.is_(True),
+                        Customer.weekly_summary_enabled.is_(True),
+                    )
+                    .distinct()
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+    sent = 0
+    for tenant_id in tenant_ids:
+        async with sm() as session, session.begin():
+            tenant = (
+                await session.execute(select(Tenant).where(Tenant.id == tenant_id))
+            ).scalar_one()
+            if (tenant.settings or {}).get(WEEKLY_SUMMARY_SENT_KEY) == week_key:
+                continue
+            customers = (
+                (
+                    await session.execute(
+                        select(Customer).where(
+                            Customer.tenant_id == tenant_id,
+                            Customer.is_active.is_(True),
+                            Customer.weekly_summary_enabled.is_(True),
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            base_url = tenant_base_url(settings, tenant)
+            payloads = []
+            for customer in customers:
+                orders = (
+                    (
+                        await session.execute(
+                            select(Order)
+                            .where(
+                                Order.tenant_id == tenant_id,
+                                Order.customer_id == customer.id,
+                                Order.status.in_(WEEKLY_SUMMARY_STATUSES),
+                            )
+                            .order_by(Order.created_at)
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+                payloads.extend(
+                    await build_weekly_summary(
+                        session,
+                        tenant=tenant,
+                        customer=customer,
+                        orders=orders,
+                        base_url=base_url,
+                        settings=settings,
+                    )
+                )
+            send_order_notifications(mail, payloads)
+            sent += len(payloads)
+            tenant.settings = {**(tenant.settings or {}), WEEKLY_SUMMARY_SENT_KEY: week_key}
+            log.info(
+                "periodic.weekly_summary.tenant",
+                tenant_id=str(tenant_id),
+                customers=len(customers),
+                emails=len(payloads),
+            )
+    return sent
