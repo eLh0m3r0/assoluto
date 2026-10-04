@@ -25,6 +25,14 @@
 
     {% include "_flash.html" %}
 
+    {% if filters.queue %}
+        {# A "needs action" queue opened from the dashboard (IDEA-1). #}
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-900/20 dark:text-amber-100" data-queue="{{ filters.queue }}">
+            <span>{{ _('Work queue') }}: <strong>{{ queue_labels.get(filters.queue, filters.queue) }}</strong></span>
+            <a href="/app/orders" class="text-xs font-medium underline">{{ _('Show all orders') }}</a>
+        </div>
+    {% endif %}
+
     <form method="get" action="/app/orders" data-no-busy
           class="mb-4 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-4 lg:grid-cols-5">
         <input type="text" name="q" value="{{ filters.q }}"
@@ -63,6 +71,8 @@
             <span></span>
             <span class="hidden lg:block"></span>
         {% endif %}
+        {% if filters.queue %}<input type="hidden" name="queue" value="{{ filters.queue }}">{% endif %}
+        {% if filters.sort %}<input type="hidden" name="sort" value="{{ filters.sort }}">{% endif %}
         <button type="submit"
                 class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
             {{ _('Filter') }}
@@ -75,8 +85,11 @@
            sticky action bar at the bottom is revealed via JS once ≥1 row
            is selected. Contacts never see the checkbox column. #}
         {% if principal.is_staff %}
+            {# Confirmed (UX-07): two clicks used to cancel 20 orders and
+               email every customer. ``{count}`` is filled in by app.js. #}
             <form method="post" action="/app/orders/bulk/transition"
-                  id="orders-bulk-form" data-bulk-form>
+                  id="orders-bulk-form" data-bulk-form
+                  data-confirm="{{ _('Change the status of {count} selected orders? Their clients may be notified by email.') }}">
                 {{ csrf_input() }}
         {% endif %}
 
@@ -101,6 +114,17 @@
                             <th class="px-4 py-3 text-left">{{ _('Responsible') }}</th>
                         {% endif %}
                         <th class="px-4 py-3 text-right">{{ _('Total') }}</th>
+                        {# Sortable by promised date (UX-12): the column a
+                           job shop actually plans by. #}
+                        {% set _next_sort = 'due' if filters.sort != 'due' else '-due' %}
+                        <th class="px-4 py-3 text-left"
+                            {% if filters.sort %}aria-sort="{{ 'ascending' if filters.sort == 'due' else 'descending' }}"{% endif %}>
+                            <a href="?{{ sort_qs }}{{ '&' if sort_qs else '' }}sort={{ _next_sort }}"
+                               class="inline-flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-200">
+                                {{ _('Due') }}
+                                {% if filters.sort == 'due' %}<span aria-hidden="true">↑</span>{% elif filters.sort == '-due' %}<span aria-hidden="true">↓</span>{% endif %}
+                            </a>
+                        </th>
                         <th class="px-4 py-3 text-left">{{ _('Created') }}</th>
                     </tr>
                 </thead>
@@ -116,7 +140,13 @@
                                            class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800">
                                 </td>
                             {% endif %}
-                            <td class="px-4 py-3 font-mono text-slate-700 dark:text-slate-300">{{ order.number }}</td>
+                            {# A real link (UX-05): Tab + Enter, middle-click and
+                               "open in new tab" all work; the row's data-href
+                               stays a mouse convenience. #}
+                            <td class="px-4 py-3 font-mono text-slate-700 dark:text-slate-300">
+                                <a href="/app/orders/{{ order.id }}"
+                                   class="rounded hover:text-brand-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:hover:text-brand-300">{{ order.number }}</a>
+                            </td>
                             <td class="px-4 py-3 text-slate-900 dark:text-slate-100">{{ order.title }}</td>
                             {% if principal.is_staff %}
                                 <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
@@ -139,6 +169,17 @@
                             {% endif %}
                             <td class="px-4 py-3 text-right text-slate-700 dark:text-slate-300">
                                 {{ order.quoted_total | money_major(order.currency) }}
+                            </td>
+                            {% set _overdue = order.promised_delivery_at and order.promised_delivery_at < today
+                                              and order.status.value not in ('delivered', 'closed', 'cancelled') %}
+                            <td class="px-4 py-3 {% if _overdue %}font-semibold text-red-700 dark:text-red-300{% else %}text-slate-600 dark:text-slate-400{% endif %}"
+                                {% if _overdue %}data-overdue{% endif %}>
+                                {% if order.promised_delivery_at %}
+                                    {{ order.promised_delivery_at.strftime("%d.%m.%Y") }}
+                                    {% if _overdue %}<span class="ml-1 text-xs">· {{ _('Overdue') }}</span>{% endif %}
+                                {% else %}
+                                    <span class="text-slate-400 dark:text-slate-500">—</span>
+                                {% endif %}
                             </td>
                             <td class="px-4 py-3 text-slate-500 dark:text-slate-400">
                                 {{ order.created_at.strftime("%d.%m.%Y") }}
@@ -183,7 +224,7 @@
 
         {# pagination #}
         {% if total_pages > 1 %}
-            {% set _base_qs = "&q=" ~ filters.q ~ "&status=" ~ filters.status ~ "&customer=" ~ filters.customer %}
+            {% set _base_qs = ("&" ~ page_qs) if page_qs else "" %}
             <nav class="mt-4 flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
                 <span>
                     {{ _('Page') }} <strong>{{ page }}</strong> {{ _('of') }} <strong>{{ total_pages }}</strong>

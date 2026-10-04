@@ -7,7 +7,7 @@ import io
 from collections.abc import AsyncIterator
 from datetime import date, datetime
 from decimal import Decimal
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
@@ -33,8 +33,10 @@ from app.services.notification_service import (
     merge_for_digest,
 )
 from app.services.order_service import (
+    DEFAULT_STALE_QUOTE_DAYS,
     NO_TOTAL_CHECK,
     UNASSIGNED,
+    WORK_QUEUES,
     ActorRef,
     EmptyOrder,
     ForbiddenActor,
@@ -118,6 +120,28 @@ def _parse_assigned_filter(raw: str | None, principal: Principal) -> UUID | str 
         return None
 
 
+def _stale_quote_days(request: Request) -> int:
+    """Days after which an unanswered quote needs chasing (setting)."""
+    settings = getattr(request.app.state, "settings", None)
+    return int(getattr(settings, "quote_reminder_days", 0) or DEFAULT_STALE_QUOTE_DAYS)
+
+
+def _queue_labels(request: Request) -> dict[str, str]:
+    """Human names of the "needs action" queues (IDEA-1)."""
+    return {
+        "awaiting_quote": _t(request, "Submitted, waiting for a quote"),
+        "no_promise": _t(request, "Confirmed without a promised date"),
+        "overdue": _t(request, "Overdue"),
+        "stale_quotes": _t(request, "Quotes waiting for the client"),
+    }
+
+
+def _query_without(request: Request, *drop: str) -> str:
+    """The current query string minus ``drop`` (and one-shot flashes)."""
+    skip = {*drop, "notice", "error"}
+    return urlencode([(k, v) for k, v in request.query_params.multi_items() if k not in skip])
+
+
 @router.get("", response_class=HTMLResponse)
 async def orders_index(
     request: Request,
@@ -125,6 +149,8 @@ async def orders_index(
     customer: str | None = None,
     assigned: str | None = None,
     q: str | None = None,
+    queue: str | None = None,
+    sort: str | None = None,
     page: int = 1,
     notice: str | None = None,
     error: str | None = None,
@@ -147,6 +173,8 @@ async def orders_index(
             customer_filter = None
 
     assigned_filter = _parse_assigned_filter(assigned, principal)
+    queue_filter = queue if (principal.is_staff and queue in WORK_QUEUES) else None
+    sort_key = sort if sort in ("due", "-due") else None
 
     page = max(1, page)
     offset = (page - 1) * PAGE_SIZE
@@ -158,6 +186,9 @@ async def orders_index(
         customer_filter=customer_filter,
         search=q,
         assigned_filter=assigned_filter,
+        queue=queue_filter,
+        sort=sort_key,
+        stale_quote_days=_stale_quote_days(request),
         offset=offset,
         limit=PAGE_SIZE,
     )
@@ -221,7 +252,17 @@ async def orders_index(
                 "customer": str(customer_filter) if customer_filter else "",
                 "assigned": (assigned or "") if principal.is_staff else "",
                 "q": q or "",
+                "queue": queue_filter or "",
+                "sort": sort_key or "",
             },
+            # Query string for pagination and the sort toggle: every
+            # current filter except the page itself. The pager used to
+            # rebuild it by hand and dropped ``assigned`` (UX-08), so
+            # page 2 of "Assigned to me" showed everyone's orders.
+            "page_qs": _query_without(request, "page"),
+            "sort_qs": _query_without(request, "page", "sort"),
+            "queue_labels": _queue_labels(request),
+            "today": date.today(),
             "page": page,
             "total_pages": total_pages,
             "total": total,
@@ -230,6 +271,7 @@ async def orders_index(
                 or (customer or "").strip()
                 or (assigned or "").strip()
                 or (q or "").strip()
+                or queue_filter
             ),
             "notice": notice or None,
             "error": error or None,
@@ -1328,6 +1370,10 @@ async def orders_delete_item(
 # ----------------------------------------------------------- bulk transition
 
 
+#: Upper bound on one bulk status change (BE-21).
+BULK_MAX_ORDERS = 200
+
+
 @router.post("/bulk/transition")
 async def orders_bulk_transition(
     request: Request,
@@ -1375,6 +1421,12 @@ async def orders_bulk_transition(
             url=f"/app/orders?error={_t(request, 'Select at least one order.')}",
             status_code=303,
         )
+    if len(parsed_ids) > BULK_MAX_ORDERS:
+        # BE-21: every order is locked FOR UPDATE until commit and fans
+        # out recipient queries; an unbounded list is a self-inflicted
+        # outage. The UI selects at most one page (20).
+        msg = _t(request, "Select at most {count} orders at once.").format(count=BULK_MAX_ORDERS)
+        return RedirectResponse(url=f"/app/orders?error={quote(msg)}", status_code=303)
 
     # Defence-in-depth: RLS already restricts the tenant; filter by the
     # submitted IDs explicitly so we never act on anything not requested.
@@ -1400,6 +1452,12 @@ async def orders_bulk_transition(
 
     notifications: list = []
     orders_by_id = {o.id: o for o in orders}
+    # One customer lookup per batch instead of one per order (BE-21).
+    customer_ids = {o.customer_id for o in orders}
+    customers_by_id = {
+        c.id: c
+        for c in (await db.execute(select(Customer).where(Customer.id.in_(customer_ids)))).scalars()
+    }
     for order_id in result.succeeded:
         order = orders_by_id.get(order_id)
         if order is None:
@@ -1428,6 +1486,7 @@ async def orders_bulk_transition(
                     actor_is_contact=False,
                     actor_email=principal.email,
                     settings=settings,
+                    customer=customers_by_id.get(order.customer_id),
                 )
             )
 

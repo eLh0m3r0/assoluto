@@ -23,7 +23,7 @@ from decimal import Decimal
 from typing import Any, Literal
 from uuid import UUID
 
-from sqlalchemy import Select, and_, false, func, or_, select
+from sqlalchemy import Select, and_, false, func, not_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.audit_event import AuditEvent
@@ -228,12 +228,26 @@ def _apply_principal_scope(stmt: Select, principal: Any) -> Select:
 
     # Subquery: order IDs belonging to the contact's customer.
     order_ids = select(Order.id).where(Order.customer_id == customer_id)
+    # Supplier-internal events stay internal (audit 2026-10-03 LOGIC-11):
+    # who on the supplier's side owns the job, and the fact that an
+    # internal comment was written. The contact used to see "Staff User
+    # commented on 2026-000001" for a comment they can never open.
+    is_internal_comment = and_(
+        AuditEvent.action == "order.comment_added",
+        func.coalesce(AuditEvent.diff["after"]["is_internal"].as_boolean(), False).is_(True),
+    )
     return stmt.where(
         and_(
             AuditEvent.entity_type == "order",
             AuditEvent.entity_id.in_(order_ids),
+            AuditEvent.action.notin_(CONTACT_HIDDEN_ACTIONS),
+            not_(is_internal_comment),
         )
     )
+
+
+#: Order events a customer contact never sees in their activity feed.
+CONTACT_HIDDEN_ACTIONS: tuple[str, ...] = ("order.assigned",)
 
 
 async def list_events(
