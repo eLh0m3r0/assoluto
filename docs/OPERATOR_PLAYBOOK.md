@@ -454,15 +454,19 @@ history), and client-owned material in stock with movements.
 All names are fictional, every email ends in `.example.com`, no IČO/DIČ
 is set. Prices are illustrative.
 
+`scripts/` is not part of the image, so pipe the script in from a
+checkout (the deploy user's `/opt/assoluto` is one):
+
 ```bash
-ssh -i ~/.ssh/hetzner_assoluto deploy@<VPS_IP>
-cd /opt/assoluto
-docker compose --env-file /etc/assoluto/env \
-  -f docker-compose.yml -f docker-compose.prod.yml \
-  exec -T web python -m scripts.seed_demo --slug demo --password '<pick-one>'
+ssh deploy@<VPS_IP> \
+  "docker exec -i assoluto-web-1 python - --slug ukazka --password '<pick-one>'" \
+  < scripts/seed_demo.py
 ```
 
-- Open `https://demo.<apex>/auth/login` and sign in as
+Production uses the slug **`ukazka`** (`https://ukazka.assoluto.eu`,
+seeded 2026-10-04): `demo` was already taken by an older tenant there.
+
+- Open `https://ukazka.<apex>/auth/login` and sign in as
   `vedouci@dilna-vzorova.example.com` (staff, admin) or
   `nakup@ukazkova.example.com` (client admin — shows the client view and
   the "My team" page). Every demo login shares the one password.
