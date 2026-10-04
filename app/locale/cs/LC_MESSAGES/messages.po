@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-10-04 12:35+0200\n"
+"POT-Creation-Date: 2026-10-04 13:02+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: cs\n"
@@ -28,7 +28,8 @@ msgstr "Všechny stavy"
 msgid "Draft"
 msgstr "Koncept"
 
-#: app/i18n_messages.py:36 app/templates/dashboard/index.html:159
+#: app/i18n_messages.py:36 app/services/pdf_service.py:259
+#: app/templates/dashboard/index.html:159
 #: app/templates/orders/_status_badge.html:15
 #: app/templates/orders/detail.html:693
 msgid "Submitted"
@@ -128,13 +129,14 @@ msgstr "Zrušit"
 msgid "All entities"
 msgstr "Všechny entity"
 
-#: app/i18n_messages.py:66 app/templates/_palette_results.html:34
+#: app/i18n_messages.py:66 app/services/pdf_service.py:218
+#: app/services/pdf_service.py:243 app/templates/_palette_results.html:34
 #: app/templates/dashboard/index.html:169
 msgid "Order"
 msgstr "Zakázka"
 
 #: app/i18n_messages.py:67 app/routers/orders.py:409
-#: app/templates/admin/sla.html:119
+#: app/services/pdf_service.py:280 app/templates/admin/sla.html:119
 msgid "Customer"
 msgstr "Zákazník"
 
@@ -548,7 +550,7 @@ msgstr ""
 
 #: app/email/templates/order_assigned.html:12
 #: app/email/templates/order_assigned.txt:5 app/routers/orders.py:408
-#: app/templates/orders/list.html:119
+#: app/services/pdf_service.py:253 app/templates/orders/list.html:119
 #: app/templates/platform/admin/dashboard.html:53
 #: app/templates/platform/admin/tenant_edit.html:59
 #: app/templates/platform/billing/dashboard.html:298
@@ -1839,7 +1841,8 @@ msgstr "Slíbené dodání"
 msgid "Currency"
 msgstr "Měna"
 
-#: app/routers/orders.py:415 app/templates/orders/detail.html:408
+#: app/routers/orders.py:415 app/services/pdf_service.py:305
+#: app/templates/orders/detail.html:408
 msgid "Items"
 msgstr "Položky"
 
@@ -2072,6 +2075,76 @@ msgstr "Jméno může mít nejvýše {n} znaků."
 #, python-brace-format
 msgid "Message may be at most {n} characters."
 msgstr "Zpráva může mít nejvýše {n} znaků."
+
+#: app/services/pdf_service.py:255 app/templates/orders/list.html:135
+#: app/templates/platform/admin/dashboard.html:52
+#: app/templates/platform/admin/funnel.html:64
+msgid "Created"
+msgstr "Vytvořeno"
+
+#: app/services/pdf_service.py:261 app/templates/orders/detail.html:235
+#: app/templates/orders/detail.html:317 app/templates/orders/detail.html:384
+#: app/templates/orders/edit.html:62
+msgid "Promised delivery"
+msgstr "Slíbený termín"
+
+#: app/services/pdf_service.py:297
+msgid "Company ID"
+msgstr "IČO"
+
+#: app/services/pdf_service.py:299
+msgid "Tax ID"
+msgstr "DIČ"
+
+#: app/services/pdf_service.py:308
+msgid "SKU"
+msgstr "Kód"
+
+#: app/services/pdf_service.py:309 app/templates/assets/form.html:41
+#: app/templates/assets/list.html:24 app/templates/orders/edit.html:17
+#: app/templates/orders/form.html:17 app/templates/orders/list.html:115
+#: app/templates/platform/admin/dashboard.html:51
+#: app/templates/platform/admin/tenants.html:21
+#: app/templates/products/form.html:38 app/templates/products/list.html:21
+#: app/templates/www/_hero_mock.html:72 app/templates/www/cookies.html:32
+msgid "Name"
+msgstr "Název"
+
+#: app/services/pdf_service.py:310 app/templates/assets/detail.html:48
+#: app/templates/assets/detail.html:87 app/templates/orders/_item_row.html:51
+#: app/templates/orders/detail.html:419 app/templates/orders/detail.html:489
+#: app/templates/orders/detail.html:490
+msgid "Quantity"
+msgstr "Množství"
+
+#: app/services/pdf_service.py:311
+msgid "Unit price"
+msgstr "Cena/ks"
+
+#: app/services/pdf_service.py:312
+msgid "Line total"
+msgstr "Celkem"
+
+#: app/services/pdf_service.py:380
+msgid "Subtotal"
+msgstr "Mezisoučet"
+
+#: app/services/pdf_service.py:396 app/templates/orders/detail.html:186
+msgid "Confirmed total"
+msgstr "Potvrzená částka"
+
+#: app/services/pdf_service.py:423
+msgid "Generated"
+msgstr "Vygenerováno"
+
+#: app/services/pdf_service.py:426
+msgid "This document is for informational purposes only."
+msgstr "Tento dokument má pouze informativní charakter."
+
+#: app/services/pdf_service.py:435 app/templates/admin/audit.html:136
+#: app/templates/orders/list.html:237
+msgid "Page"
+msgstr "Strana"
 
 #: app/templates/_breadcrumbs.html:4
 #: app/templates/platform/admin/_header.html:53
@@ -2460,10 +2533,6 @@ msgstr "Změna"
 #: app/templates/admin/audit.html:115 app/templates/admin/audit.html:118
 msgid "Show details"
 msgstr "Zobrazit detaily"
-
-#: app/templates/admin/audit.html:136 app/templates/orders/list.html:237
-msgid "Page"
-msgstr "Strana"
 
 #: app/templates/admin/audit.html:136 app/templates/orders/list.html:238
 msgid "records"
@@ -3005,12 +3074,6 @@ msgstr "Datum"
 msgid "Type"
 msgstr "Typ"
 
-#: app/templates/assets/detail.html:48 app/templates/assets/detail.html:87
-#: app/templates/orders/_item_row.html:51 app/templates/orders/detail.html:419
-#: app/templates/orders/detail.html:489 app/templates/orders/detail.html:490
-msgid "Quantity"
-msgstr "Množství"
-
 #: app/templates/assets/detail.html:59 app/templates/assets/detail.html:82
 msgid "Receipt"
 msgstr "Příjem"
@@ -3056,16 +3119,6 @@ msgstr "Kód"
 #: app/templates/products/list.html:24
 msgid "Unit"
 msgstr "Jednotka"
-
-#: app/templates/assets/form.html:41 app/templates/assets/list.html:24
-#: app/templates/orders/edit.html:17 app/templates/orders/form.html:17
-#: app/templates/orders/list.html:115
-#: app/templates/platform/admin/dashboard.html:51
-#: app/templates/platform/admin/tenants.html:21
-#: app/templates/products/form.html:38 app/templates/products/list.html:21
-#: app/templates/www/_hero_mock.html:72 app/templates/www/cookies.html:32
-msgid "Name"
-msgstr "Název"
 
 #: app/templates/assets/form.html:60 app/templates/customers/detail.html:197
 #: app/templates/customers/form.html:113 app/templates/orders/detail.html:168
@@ -3829,10 +3882,6 @@ msgstr "neaktivní"
 msgid "Gets the notifications for this order."
 msgstr "Dostává notifikace k této zakázce."
 
-#: app/templates/orders/detail.html:186
-msgid "Confirmed total"
-msgstr "Potvrzená částka"
-
 #: app/templates/orders/detail.html:191
 msgid "Confirmed on"
 msgstr "Potvrzeno dne"
@@ -3852,11 +3901,6 @@ msgstr "Některé položky zatím nemají cenu."
 #: app/templates/orders/detail.html:227
 msgid "Requested delivery"
 msgstr "Požadovaný termín"
-
-#: app/templates/orders/detail.html:235 app/templates/orders/detail.html:317
-#: app/templates/orders/detail.html:384 app/templates/orders/edit.html:62
-msgid "Promised delivery"
-msgstr "Slíbený termín"
 
 #: app/templates/orders/detail.html:253 app/templates/orders/detail.html:274
 msgid "Order status"
@@ -4091,12 +4135,6 @@ msgstr "Číslo"
 #: app/templates/orders/list.html:131
 msgid "Due"
 msgstr "Termín"
-
-#: app/templates/orders/list.html:135
-#: app/templates/platform/admin/dashboard.html:52
-#: app/templates/platform/admin/funnel.html:64
-msgid "Created"
-msgstr "Vytvořeno"
 
 #: app/templates/orders/list.html:146
 msgid "Select order"

@@ -42,7 +42,11 @@ from reportlab.platypus import (
     TableStyle,
 )
 
-from app.i18n import gettext as _gettext
+# Imported as ``_t`` on purpose: Babel extracts ``_t:2`` (second argument
+# is the msgid), which matches ``gettext(locale, msgid)``. Under any other
+# alias the PDF labels were never extracted and printed in English on
+# Czech documents ("Unit price", "Subtotal", the footer).
+from app.i18n import gettext as _t
 from app.models.enums import OrderStatus
 
 if TYPE_CHECKING:  # pragma: no cover - type hints only
@@ -211,7 +215,7 @@ def render_order_pdf(
         rightMargin=20 * mm,
         topMargin=20 * mm,
         bottomMargin=20 * mm,
-        title=f"{_gettext(locale, 'Order')} {order.number}",
+        title=f"{_t(locale, 'Order')} {order.number}",
         author=tenant.name if tenant else "",
     )
 
@@ -236,25 +240,25 @@ def render_order_pdf(
     story.append(Spacer(1, 6))
     story.append(
         Paragraph(
-            f"{_gettext(locale, 'Order')} <b>{_esc(order.number)}</b>",
+            f"{_t(locale, 'Order')} <b>{_esc(order.number)}</b>",
             h2,
         )
     )
     story.append(Spacer(1, 10))
 
     # ------------------------------------------------ Meta block
-    status_label = _gettext(locale, _STATUS_LABELS.get(order.status, order.status.value))
+    status_label = _t(locale, _STATUS_LABELS.get(order.status, order.status.value))
     meta_rows = [
         [
-            Paragraph(f"<b>{_gettext(locale, 'Status')}:</b>", normal),
+            Paragraph(f"<b>{_t(locale, 'Status')}:</b>", normal),
             Paragraph(status_label, normal),
-            Paragraph(f"<b>{_gettext(locale, 'Created')}:</b>", normal),
+            Paragraph(f"<b>{_t(locale, 'Created')}:</b>", normal),
             Paragraph(_format_datetime(order.created_at), normal),
         ],
         [
-            Paragraph(f"<b>{_gettext(locale, 'Submitted')}:</b>", normal),
+            Paragraph(f"<b>{_t(locale, 'Submitted')}:</b>", normal),
             Paragraph(_format_datetime(order.submitted_at), normal),
-            Paragraph(f"<b>{_gettext(locale, 'Promised delivery')}:</b>", normal),
+            Paragraph(f"<b>{_t(locale, 'Promised delivery')}:</b>", normal),
             Paragraph(_format_date(order.promised_delivery_at), normal),
         ],
     ]
@@ -273,7 +277,7 @@ def render_order_pdf(
 
     # ------------------------------------------------ Customer block
     if customer is not None:
-        story.append(Paragraph(_gettext(locale, "Customer"), h2))
+        story.append(Paragraph(_t(locale, "Customer"), h2))
         cust_lines = [customer.name]
         # billing_address is a JSON blob with free-form keys. Render a few
         # conventional ones if present, skip otherwise.
@@ -290,22 +294,22 @@ def render_order_pdf(
             if country:
                 cust_lines.append(str(country))
         if customer.ico:
-            cust_lines.append(f"{_gettext(locale, 'Company ID')}: {customer.ico}")
+            cust_lines.append(f"{_t(locale, 'Company ID')}: {customer.ico}")
         if customer.dic:
-            cust_lines.append(f"{_gettext(locale, 'Tax ID')}: {customer.dic}")
+            cust_lines.append(f"{_t(locale, 'Tax ID')}: {customer.dic}")
         for line in cust_lines:
             story.append(Paragraph(_esc(line), normal))
         story.append(Spacer(1, 12))
 
     # ------------------------------------------------ Items table
-    story.append(Paragraph(_gettext(locale, "Items"), h2))
+    story.append(Paragraph(_t(locale, "Items"), h2))
 
     header = [
-        Paragraph(_gettext(locale, "SKU"), th),
-        Paragraph(_gettext(locale, "Name"), th),
-        Paragraph(_gettext(locale, "Quantity"), th),
-        Paragraph(_gettext(locale, "Unit price"), th),
-        Paragraph(_gettext(locale, "Line total"), th),
+        Paragraph(_t(locale, "SKU"), th),
+        Paragraph(_t(locale, "Name"), th),
+        Paragraph(_t(locale, "Quantity"), th),
+        Paragraph(_t(locale, "Unit price"), th),
+        Paragraph(_t(locale, "Line total"), th),
     ]
     data: list[list] = [header]
 
@@ -373,7 +377,7 @@ def render_order_pdf(
     total_value = Decimal(order.quoted_total) if order.quoted_total is not None else subtotal
     totals_rows = [
         [
-            Paragraph(f"<b>{_gettext(locale, 'Subtotal')}</b>", th),
+            Paragraph(f"<b>{_t(locale, 'Subtotal')}</b>", th),
             Paragraph(format_money(total_value, order.currency), th),
         ],
     ]
@@ -389,7 +393,7 @@ def render_order_pdf(
         totals_rows.append(
             [
                 Paragraph(
-                    f"<b>{_gettext(locale, 'Confirmed total')}</b> "
+                    f"<b>{_t(locale, 'Confirmed total')}</b> "
                     f"({_esc(_format_datetime(confirmed_at))})",
                     th,
                 ),
@@ -416,9 +420,9 @@ def render_order_pdf(
         canvas.setFont(font, 8)
         canvas.setFillGray(0.4)
         footer_text = "{} — {} · {}".format(
-            _gettext(locale, "Generated"),
+            _t(locale, "Generated"),
             datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
-            _gettext(
+            _t(
                 locale,
                 "This document is for informational purposes only.",
             ),
@@ -428,7 +432,7 @@ def render_order_pdf(
         canvas.drawRightString(
             A4[0] - 20 * mm,
             10 * mm,
-            f"{_gettext(locale, 'Page')} {_doc.page}",
+            f"{_t(locale, 'Page')} {_doc.page}",
         )
         canvas.restoreState()
 
