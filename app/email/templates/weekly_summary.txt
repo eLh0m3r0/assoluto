@@ -1,0 +1,13 @@
+{% trans tenant_name=tenant_name, count=order_count %}This week's overview from {{ tenant_name }}: {{ count }} order in progress.{% pluralize count %}This week's overview from {{ tenant_name }}: {{ count }} orders in progress.{% endtrans %}
+
+{% for item in orders %}
+* {{ item.number }} — {{ item.title }} ({{ _(item.status_label) }}{% if item.promised %}, {{ _("Promised") }}: {{ item.promised }}{% elif item.requested %}, {{ _("Requested") }}: {{ item.requested }}{% endif %})
+  {{ item.url }}
+{% endfor %}
+
+{{ _("Open your orders") }}: {{ orders_url }}
+
+{{ _("You receive this summary every Monday. You can switch it off in your profile in the portal.") }}
+
+-- {{ tenant_name }}
+{% include "_powered_by_footer.txt" %}

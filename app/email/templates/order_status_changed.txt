@@ -13,3 +13,4 @@
 {% if confirm_url %}{{ _("Review and confirm the quote") }}: {{ confirm_url }}{% else %}{{ _("Detail") }}: {{ order_url }}{% endif %}
 
 -- {{ tenant_name }}
+{% include "_powered_by_footer.txt" %}

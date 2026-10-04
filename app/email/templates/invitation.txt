@@ -9,3 +9,4 @@
 {{ _("If you didn't request this invitation, please ignore this email.") }}
 
 -- {{ tenant_name }}
+{% include "_powered_by_footer.txt" %}

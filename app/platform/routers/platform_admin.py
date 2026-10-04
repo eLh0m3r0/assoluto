@@ -11,9 +11,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.i18n import t as _t
 from app.models.tenant import Tenant
 from app.platform.billing.models import Invoice, Plan, Subscription
 from app.platform.deps import get_platform_db, require_platform_admin
@@ -147,7 +148,8 @@ async def tenants_create(
             {
                 "identity": identity,
                 "tenants": tenants,
-                "error": f"Tenant se slugem '{slug}' už existuje.",
+                "error": _t(request, "A tenant with slug '%(slug)s' already exists.")
+                % {"slug": slug},
                 "notice": None,
                 "principal": None,
             },
@@ -169,7 +171,7 @@ async def tenants_create(
         return HTMLResponse(html, status_code=400)
 
     await db.commit()
-    return _redir_tenants(notice=f"Tenant „{slug}“ vytvořen.")
+    return _redir_tenants(notice=_t(request, "Tenant '%(slug)s' created.") % {"slug": slug})
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
@@ -206,28 +208,37 @@ async def admin_dashboard(
         ).scalar_one()
     )
 
+    # Paying = status 'active' only. Trials and demo-mode subscriptions
+    # are not revenue: counting them showed 5 880 Kč of "MRR" built
+    # from bot signups against zero invoices (BIZ-09). An operator who
+    # invoices by bank transfer marks the subscription 'active' in the
+    # subscription editor, so manual invoicing still counts.
     subs_active = int(
         (
             await db.execute(
-                select(func.count(Subscription.id)).where(
-                    Subscription.status.in_(("active", "trialing", "demo"))
+                select(func.count(Subscription.id)).where(Subscription.status == "active")
+            )
+        ).scalar_one()
+    )
+    # Trials whose owner proved their email. A tenant with no member
+    # identity at all (script-created, pre-platform) counts as verified.
+    subs_trialing = int(
+        (
+            await db.execute(
+                text(
+                    "SELECT count(*) FROM platform_subscriptions s "
+                    "WHERE s.status = 'trialing' AND ("
+                    "  EXISTS (SELECT 1 FROM platform_tenant_memberships m "
+                    "          JOIN platform_identities i ON i.id = m.identity_id "
+                    "          WHERE m.tenant_id = s.tenant_id AND m.access_type = 'member' "
+                    "            AND i.email_verified_at IS NOT NULL) "
+                    "  OR NOT EXISTS (SELECT 1 FROM platform_tenant_memberships m "
+                    "          WHERE m.tenant_id = s.tenant_id AND m.access_type = 'member'))"
                 )
             )
         ).scalar_one()
     )
-    subs_trialing = int(
-        (
-            await db.execute(
-                select(func.count(Subscription.id)).where(Subscription.status == "trialing")
-            )
-        ).scalar_one()
-    )
 
-    # Real MRR = sum of monthly plan prices for currently-active
-    # (including trialing and demo) subscriptions, grouped by
-    # currency so we never sum across CZK / EUR. For simplicity we
-    # take the dominant currency (first row) and report it; a
-    # multi-currency deployment would break this out per currency.
     mrr_rows = (
         await db.execute(
             select(
@@ -235,7 +246,7 @@ async def admin_dashboard(
                 func.coalesce(func.sum(Plan.monthly_price_cents), 0).label("total"),
             )
             .join(Subscription, Subscription.plan_id == Plan.id)
-            .where(Subscription.status.in_(("active", "trialing", "demo")))
+            .where(Subscription.status == "active")
             .group_by(Plan.currency)
             .order_by(func.sum(Plan.monthly_price_cents).desc())
         )
@@ -281,9 +292,48 @@ async def admin_dashboard(
     return HTMLResponse(html)
 
 
+@router.get("/funnel", response_class=HTMLResponse)
+async def admin_funnel(
+    request: Request,
+    identity: Identity = Depends(require_platform_admin),
+    db: AsyncSession = Depends(get_platform_db),
+) -> HTMLResponse:
+    """Activation funnel per signup week + per-tenant activation columns.
+
+    Verified signups → portal created → first customer invited → first
+    customer login → first order placed by a customer. Unverified
+    identities (bots, typos) are shown as an excluded count, never in the
+    denominator (BIZ-09, BIZ-16).
+    """
+    from app.platform.activation import (
+        FUNNEL_STAGES,
+        funnel_totals,
+        signup_refs,
+        tenant_activation,
+        weekly_funnel,
+    )
+
+    weeks = await weekly_funnel(db, weeks=12)
+    html = _templates(request).render(
+        request,
+        "platform/admin/funnel.html",
+        {
+            "identity": identity,
+            "weeks": weeks,
+            "totals": funnel_totals(weeks),
+            "stages": FUNNEL_STAGES,
+            "tenants": await tenant_activation(db, limit=50),
+            "refs": await signup_refs(db, days=90),
+            "principal": None,
+        },
+    )
+    return HTMLResponse(html)
+
+
 @router.post("/tenants/{tenant_id}/deactivate")
 async def tenants_deactivate(
     tenant_id: UUID,
+    request: Request,
     identity: Identity = Depends(require_platform_admin),
     db: AsyncSession = Depends(get_platform_db),
 ) -> Response:
@@ -326,12 +376,13 @@ async def tenants_deactivate(
     except PlatformError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from None
     await db.commit()
-    return _redir_tenants(notice="Tenant deaktivován.")
+    return _redir_tenants(notice=_t(request, "Tenant deactivated."))
 
 
 @router.post("/tenants/{tenant_id}/reactivate")
 async def tenants_reactivate(
     tenant_id: UUID,
+    request: Request,
     identity: Identity = Depends(require_platform_admin),
     db: AsyncSession = Depends(get_platform_db),
 ) -> Response:
@@ -340,7 +391,7 @@ async def tenants_reactivate(
     except PlatformError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from None
     await db.commit()
-    return _redir_tenants(notice="Tenant reaktivován.")
+    return _redir_tenants(notice=_t(request, "Tenant reactivated."))
 
 
 @router.get("/tenants/{tenant_id}/edit", response_class=HTMLResponse)
@@ -398,7 +449,7 @@ async def tenants_edit(
         )
         return HTMLResponse(html, status_code=400)
     await db.commit()
-    return _redir_tenants(notice="Změny uloženy.")
+    return _redir_tenants(notice=_t(request, "Changes saved."))
 
 
 # --------------------------------------------------- subscription editor
@@ -498,11 +549,11 @@ async def subscription_edit(
                 return RedirectResponse(url=f"{redir}?error={quote(str(exc))}", status_code=303)
             await db.commit()
             return RedirectResponse(
-                url=f"{redir}?notice={quote('Trial spuštěn (Starter, 30 dní).')}",
+                url=f"{redir}?notice={quote(_t(request, 'Trial started (Starter, 30 days).'))}",
                 status_code=303,
             )
         return RedirectResponse(
-            url=f"{redir}?error={quote('Tenant nemá subscription. Klikni Start trial.')}",
+            url=f"{redir}?error={quote(_t(request, 'Tenant has no subscription. Click Start trial.'))}",
             status_code=303,
         )
 
@@ -513,8 +564,12 @@ async def subscription_edit(
             url=(
                 f"{redir}?error="
                 + quote(
-                    "Předplatné spravuje Stripe. Změny dělej ve Stripe dashboardu — "
-                    "uložení tady přepíše příští webhook."
+                    _t(
+                        request,
+                        "The subscription is managed by Stripe. Make changes in the "
+                        "Stripe dashboard — saving here would be overwritten by the "
+                        "next webhook.",
+                    )
                 )
             ),
             status_code=303,
@@ -622,7 +677,7 @@ async def subscription_edit(
         )
     await db.commit()
     return RedirectResponse(
-        url=f"{redir}?notice={quote('Změny uloženy.')}",
+        url=f"{redir}?notice={quote(_t(request, 'Changes saved.'))}",
         status_code=303,
     )
 
@@ -672,7 +727,7 @@ async def tenants_grant_support_access(
         tenant_id=tenant_id,
     )
     await db.commit()
-    return _redir_tenants(notice="Support přístup přidělen.")
+    return _redir_tenants(notice=_t(request, "Support access granted."))
 
 
 @router.post("/tenants/{tenant_id}/revoke-support")
@@ -698,7 +753,7 @@ async def tenants_revoke_support_access(
     if result is None:
         # Nothing to revoke — treat as no-op so double-click from the
         # UI doesn't 500. The tenants page will show the correct state.
-        return _redir_tenants(notice="Žádný support přístup k zrušení.")
+        return _redir_tenants(notice=_t(request, "No support access to revoke."))
 
     user, _ = result
     await db.execute(
@@ -719,4 +774,4 @@ async def tenants_revoke_support_access(
         tenant_id=tenant_id,
     )
     await db.commit()
-    return _redir_tenants(notice="Support přístup zrušen.")
+    return _redir_tenants(notice=_t(request, "Support access revoked."))

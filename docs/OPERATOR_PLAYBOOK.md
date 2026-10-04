@@ -437,3 +437,77 @@ These are engineering tasks, not operator config:
 
 If you find yourself wanting to edit these via SQL or env, stop and
 file a ticket instead.
+
+---
+
+## 9. Sales demo tenant (`scripts/seed_demo.py`)
+
+A ready-to-show portal for a Czech sheet-metal / CNC job shop — for
+trade fairs (MSV Brno) and sales calls. Creates **"CNC Dílna Vzorová
+s.r.o."** with 3 staff users, 6 fictional clients (Strojírna Ukázková,
+Kovovýroba Vzorová, …) and 12 contacts (some never signed in, so the
+"last sign-in" column and the activation nudges have something to show),
+a 21-item priced catalogue in CZK, 25 orders covering every status (line
+items, comments incl. one internal note, requested + promised dates,
+history), and client-owned material in stock with movements.
+
+All names are fictional, every email ends in `.example.com`, no IČO/DIČ
+is set. Prices are illustrative.
+
+```bash
+ssh -i ~/.ssh/hetzner_assoluto deploy@<VPS_IP>
+cd /opt/assoluto
+docker compose --env-file /etc/assoluto/env \
+  -f docker-compose.yml -f docker-compose.prod.yml \
+  exec -T web python -m scripts.seed_demo --slug demo --password '<pick-one>'
+```
+
+- Open `https://demo.<apex>/auth/login` and sign in as
+  `vedouci@dilna-vzorova.example.com` (staff, admin) or
+  `nakup@ukazkova.example.com` (client admin — shows the client view and
+  the "My team" page). Every demo login shares the one password.
+- Omit `--password` and a random one is generated and printed.
+- **Re-run any time** (e.g. the morning of each fair day): it wipes and
+  recreates only that tenant's data, so dates stay relative to today and
+  whatever a prospect clicked yesterday is gone.
+- It refuses to touch a tenant it did not create (marker
+  `tenants.settings.demo_seed`); `--force` overrides — never point it at
+  a real customer's slug.
+- `demo` is on the signup reserved-slug list, so nobody can register it.
+- Drawings are **not** seeded (they live in S3). Before a demo, upload
+  two or three sample PDFs to an order by hand.
+- The demo tenant has no subscription row, so plan limits don't apply.
+
+## 10. Growth switches (activation, nurture, viral footer)
+
+| Setting | Default | What it does |
+|---|---|---|
+| `TRIAL_NURTURE_ENABLED` | `false` | day-1 / day-7 / trial-ending mails to trial admins |
+| `ACTIVATION_NUDGES_ENABLED` | `false` | day 2 "invite your first client" (only if nobody invited), day 5 "your client hasn't signed in — resend the invite" (only if invited contacts never signed in) |
+| `POWERED_BY_URL` | empty | footer "Powered by Assoluto — a customer portal for manufacturers" shown to client contacts (portal + emails); empty = `https://<apex>` from `PLATFORM_COOKIE_DOMAIN`, `off` = disabled |
+
+Both mail switches need `FEATURE_PLATFORM=true`; flip them only after
+reading the copy (`app/email/templates/trial_*` and `activation_*`) in
+Czech **and** English. Nurture and activation mails go **only to
+verified signups** — an identity that never clicked the verification
+link receives nothing beyond that one mail.
+
+- **Funnel:** `/platform/admin/funnel` — per signup week: verified
+  signups → portal created → first client invited → first client
+  sign-in → first order by a client, with unverified signups shown as an
+  excluded count, plus per-tenant activation columns and the number of
+  signups that came through the footer link.
+- **MRR** on the dashboard counts only `status = 'active'`
+  subscriptions. When you invoice a client by bank transfer, set their
+  subscription to `active` in the subscription editor so it counts.
+- **White-label one tenant** (hide the footer):
+
+  ```sql
+  UPDATE tenants SET settings = settings || '{"hide_powered_by": true}'
+  WHERE slug = '<slug>';
+  ```
+- **Footer attribution:** the link carries `?ref=portal&t=<tenant slug>`.
+  A signup that arrives from it (directly, or from the homepage with that
+  query string one click earlier) stores
+  `tenants.settings.signup_ref = {"ref": "portal", "t": "<slug>"}` — no
+  cookie involved.

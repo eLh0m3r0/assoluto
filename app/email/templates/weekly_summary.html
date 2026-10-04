@@ -1,0 +1,32 @@
+{% extends "_layout.html" %}
+{% block subject %}{% trans customer_name=customer_name %}Your open orders — {{ customer_name }}{% endtrans %}{% endblock %}
+{% block heading %}{{ _("Your open orders") }}{% endblock %}
+{% block body %}
+    <p style="color:#334155;">
+        {% trans tenant_name=tenant_name, count=order_count %}This week's overview from {{ tenant_name }}: {{ count }} order in progress.{% pluralize count %}This week's overview from {{ tenant_name }}: {{ count }} orders in progress.{% endtrans %}
+    </p>
+    <table width="100%" style="border-collapse:collapse;margin:16px 0;">
+        {% for item in orders %}
+        <tr>
+            <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;">
+                <a href="{{ item.url }}" style="color:#2f5bd9;text-decoration:none;font-weight:600;">{{ item.number }}</a>
+                <span style="color:#334155;"> — {{ item.title }}</span>
+                <div style="color:#64748b;font-size:12px;margin-top:2px;">
+                    {{ _(item.status_label) }}
+                    {% if item.promised %} · {{ _("Promised") }}: {{ item.promised }}{% elif item.requested %} · {{ _("Requested") }}: {{ item.requested }}{% endif %}
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p style="color:#94a3b8;font-size:12px;">
+        {{ _("You receive this summary every Monday. You can switch it off in your profile in the portal.") }}
+    </p>
+{% endblock %}
+{% block cta %}
+    <p>
+        <a href="{{ orders_url }}" style="display:inline-block;background:#2f5bd9;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;">
+            {{ _("Open your orders") }}
+        </a>
+    </p>
+{% endblock %}

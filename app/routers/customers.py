@@ -15,6 +15,7 @@ from app.config import Settings, get_settings
 from app.deps import Principal, get_db, require_tenant_staff
 from app.i18n import t as _t
 from app.models.customer import CustomerContact
+from app.models.enums import CustomerContactRole
 from app.models.tenant import Tenant
 from app.security.csrf import verify_csrf
 from app.services.audit_service import actor_from_principal
@@ -26,11 +27,15 @@ from app.services.auth_service import (
 from app.services.customer_service import (
     create_customer,
     get_customer,
+    list_archived_customers,
     list_contacts_for_customer,
+    list_recent_orders_for_customer,
+    set_customer_archived,
     update_customer,
 )
 from app.services.locale_service import resolve_email_locale
 from app.tasks.email_tasks import send_invitation
+from app.urls import powered_by_url
 
 router = APIRouter(prefix="/app", tags=["customers"], dependencies=[Depends(verify_csrf)])
 
@@ -46,6 +51,77 @@ def _tenant(principal: Principal, request: Request) -> Tenant:
     return tenant
 
 
+def _parse_contact_role(raw: str) -> CustomerContactRole:
+    """Form value -> role; anything unknown falls back to a plain user."""
+    try:
+        return CustomerContactRole((raw or "").strip())
+    except ValueError:
+        return CustomerContactRole.CUSTOMER_USER
+
+
+async def _detail_context(
+    db: AsyncSession,
+    request: Request,
+    principal: Principal,
+    customer,
+    *,
+    error: str | None = None,
+    notice: str | None = None,
+) -> dict:
+    """Everything ``customers/detail.html`` needs, on every render path."""
+    contacts = await list_contacts_for_customer(db, customer.id)
+    orders, orders_total = await list_recent_orders_for_customer(db, customer.id, limit=10)
+    return {
+        "principal": principal,
+        "tenant": _tenant(principal, request),
+        "customer": customer,
+        "contacts": contacts,
+        "orders": orders,
+        "orders_total": orders_total,
+        "contact_roles": [r.value for r in CustomerContactRole],
+        "error": error,
+        "notice": notice,
+    }
+
+
+def schedule_contact_invitation(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    settings: Settings,
+    *,
+    tenant: Tenant,
+    customer,
+    contact: CustomerContact,
+) -> None:
+    """Sign an invitation token and queue the invitation email.
+
+    The caller MUST have committed the contact row first (CLAUDE.md §2).
+    Shared by the staff invite form and the customer-admin team page.
+    """
+    from app.urls import tenant_base_url
+
+    token = create_invitation_token(
+        settings.app_secret_key,
+        tenant_id=tenant.id,
+        contact_id=contact.id,
+    )
+    invite_url = f"{tenant_base_url(settings, tenant)}/invite/accept?token={token}"
+    locale = resolve_email_locale(
+        recipient=contact, customer=customer, tenant=tenant, settings=settings
+    )
+    background_tasks.add_task(
+        send_invitation,
+        request.app.state.email_sender,
+        to=contact.email,
+        tenant_name=tenant.name,
+        customer_name=customer.name,
+        contact_name=contact.full_name,
+        invite_url=invite_url,
+        locale=locale,
+        powered_by_url=powered_by_url(settings, tenant),
+    )
+
+
 @router.get("/customers", response_class=HTMLResponse)
 async def customers_index(
     request: Request,
@@ -55,6 +131,7 @@ async def customers_index(
     from app.services.customer_service import list_customers_with_stats
 
     stats = await list_customers_with_stats(db)
+    archived = await list_archived_customers(db)
     html = _templates(request).render(
         request,
         "customers/list.html",
@@ -62,6 +139,7 @@ async def customers_index(
             "principal": principal,
             "tenant": _tenant(principal, request),
             "stats": stats,
+            "archived": archived,
         },
     )
     return HTMLResponse(html)
@@ -148,18 +226,10 @@ async def customers_detail(
     if customer is None:
         raise HTTPException(status_code=404, detail="Customer not found")
 
-    contacts = await list_contacts_for_customer(db, customer_id)
     html = _templates(request).render(
         request,
         "customers/detail.html",
-        {
-            "principal": principal,
-            "tenant": _tenant(principal, request),
-            "customer": customer,
-            "contacts": contacts,
-            "error": error,
-            "notice": notice,
-        },
+        await _detail_context(db, request, principal, customer, error=error, notice=notice),
     )
     return HTMLResponse(html)
 
@@ -199,6 +269,7 @@ async def customers_edit_form(
                 "can_set_prices": "on" if perms.get("can_set_prices", True) else "",
                 "can_upload_files": "on" if perms.get("can_upload_files", True) else "",
                 "preferred_locale": customer.preferred_locale or "",
+                "weekly_summary_enabled": "on" if customer.weekly_summary_enabled else "",
             },
             "error": None,
             "notice": None,
@@ -220,6 +291,7 @@ async def customers_update(
     can_set_prices: str = Form(""),
     can_upload_files: str = Form(""),
     preferred_locale: str = Form(""),
+    weekly_summary_enabled: str = Form(""),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -248,6 +320,7 @@ async def customers_update(
             notes=notes,
             order_permissions=order_perms,
             preferred_locale=clean_locale,
+            weekly_summary_enabled=weekly_summary_enabled == "on",
             audit_actor=actor_from_principal(principal),
         )
     except ValueError as exc:
@@ -268,6 +341,7 @@ async def customers_update(
                     "can_set_prices": can_set_prices,
                     "can_upload_files": can_upload_files,
                     "preferred_locale": preferred_locale,
+                    "weekly_summary_enabled": weekly_summary_enabled,
                 },
                 "error": str(exc),
                 "notice": None,
@@ -286,6 +360,7 @@ async def customers_invite_contact(
     background_tasks: BackgroundTasks,
     email: str = Form(...),
     full_name: str = Form(...),
+    role: str = Form(""),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -293,32 +368,41 @@ async def customers_invite_contact(
     customer = await get_customer(db, customer_id)
     if customer is None:
         raise HTTPException(status_code=404, detail="Customer not found")
+    if not customer.is_active:
+        return RedirectResponse(
+            url=f"/app/customers/{customer_id}?error="
+            + quote(_t(request, "This client is archived. Unarchive it to invite contacts.")),
+            status_code=303,
+        )
 
     try:
-        contact = await invite_customer_contact(
-            db,
-            tenant_id=principal.tenant_id,
-            customer_id=customer_id,
-            email=email,
-            full_name=full_name,
-        )
+        # SAVEPOINT: a duplicate-email IntegrityError rolls back only the
+        # INSERT, so the request transaction (and its RLS tenant context)
+        # stays usable for re-rendering the page below.
+        async with db.begin_nested():
+            contact = await invite_customer_contact(
+                db,
+                tenant_id=principal.tenant_id,
+                customer_id=customer_id,
+                email=email,
+                full_name=full_name,
+                role=_parse_contact_role(role),
+            )
     except (InvalidInvitation, IntegrityError) as exc:
-        contacts = await list_contacts_for_customer(db, customer_id)
         html = _templates(request).render(
             request,
             "customers/detail.html",
-            {
-                "principal": principal,
-                "tenant": _tenant(principal, request),
-                "customer": customer,
-                "contacts": contacts,
-                "error": (
+            await _detail_context(
+                db,
+                request,
+                principal,
+                customer,
+                error=(
                     _t(request, "A contact with the same email already exists.")
                     if isinstance(exc, IntegrityError)
                     else str(exc)
                 ),
-                "notice": None,
-            },
+            ),
         )
         return HTMLResponse(html, status_code=400)
 
@@ -327,28 +411,13 @@ async def customers_invite_contact(
     # Explicit commit first — see CLAUDE.md "BackgroundTasks + explicit
     # commit" for why this is mandatory.
     await db.commit()
-    token = create_invitation_token(
-        settings.app_secret_key,
-        tenant_id=principal.tenant_id,
-        contact_id=contact.id,
-    )
-    sender = request.app.state.email_sender
-    tenant = _tenant(principal, request)
-    from app.urls import tenant_base_url
-
-    invite_url = f"{tenant_base_url(settings, tenant)}/invite/accept?token={token}"
-    locale = resolve_email_locale(
-        recipient=contact, customer=customer, tenant=tenant, settings=settings
-    )
-    background_tasks.add_task(
-        send_invitation,
-        sender,
-        to=contact.email,
-        tenant_name=tenant.name,
-        customer_name=customer.name,
-        contact_name=contact.full_name,
-        invite_url=invite_url,
-        locale=locale,
+    schedule_contact_invitation(
+        request,
+        background_tasks,
+        settings,
+        tenant=_tenant(principal, request),
+        customer=customer,
+        contact=contact,
     )
 
     notice = quote(_t(request, "Invitation sent."))
@@ -376,6 +445,7 @@ async def customers_contact_edit(
     request: Request,
     full_name: str = Form(...),
     preferred_locale: str = Form(""),
+    role: str = Form(""),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -393,6 +463,9 @@ async def customers_contact_edit(
     loc = (preferred_locale or "").strip().lower().split("-", 1)[0]
     contact.preferred_locale = loc if loc and loc in supported else None
     contact.full_name = cleaned
+    # Older forms without the role select leave the role untouched.
+    if role:
+        contact.role = _parse_contact_role(role)
     await db.flush()
     return RedirectResponse(
         url=f"/app/customers/{customer_id}?notice={quote(_t(request, 'Changes saved.'))}",
@@ -491,29 +564,53 @@ async def customers_contact_resend_invite(
     contact.invited_at = datetime.now(UTC)
     await db.commit()
 
-    token = create_invitation_token(
-        settings.app_secret_key,
-        tenant_id=principal.tenant_id,
-        contact_id=contact.id,
-    )
-    from app.urls import tenant_base_url
-
-    tenant = _tenant(principal, request)
-    invite_url = f"{tenant_base_url(settings, tenant)}/invite/accept?token={token}"
-    locale = resolve_email_locale(
-        recipient=contact, customer=customer, tenant=tenant, settings=settings
-    )
-    background_tasks.add_task(
-        send_invitation,
-        request.app.state.email_sender,
-        to=contact.email,
-        tenant_name=tenant.name,
-        customer_name=customer.name,
-        contact_name=contact.full_name,
-        invite_url=invite_url,
-        locale=locale,
+    schedule_contact_invitation(
+        request,
+        background_tasks,
+        settings,
+        tenant=_tenant(principal, request),
+        customer=customer,
+        contact=contact,
     )
     return RedirectResponse(
         url=f"/app/customers/{customer_id}?notice={quote(_t(request, 'Invitation resent.'))}",
         status_code=303,
     )
+
+
+# ------------------------------------------------------- archive / block
+
+
+@router.post("/customers/{customer_id}/archive", response_class=HTMLResponse)
+async def customers_archive(
+    customer_id: UUID,
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Archive / block a client: contacts are locked out, data is kept (LOGIC-15)."""
+    customer = await get_customer(db, customer_id)
+    if customer is None:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    await set_customer_archived(
+        db, customer, archived=True, audit_actor=actor_from_principal(principal)
+    )
+    notice = quote(_t(request, "Client archived. Its contacts can no longer sign in."))
+    return RedirectResponse(url=f"/app/customers/{customer_id}?notice={notice}", status_code=303)
+
+
+@router.post("/customers/{customer_id}/unarchive", response_class=HTMLResponse)
+async def customers_unarchive(
+    customer_id: UUID,
+    request: Request,
+    principal: Principal = Depends(require_tenant_staff),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    customer = await get_customer(db, customer_id)
+    if customer is None:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    await set_customer_archived(
+        db, customer, archived=False, audit_actor=actor_from_principal(principal)
+    )
+    notice = quote(_t(request, "Client restored. Its contacts can sign in again."))
+    return RedirectResponse(url=f"/app/customers/{customer_id}?notice={notice}", status_code=303)

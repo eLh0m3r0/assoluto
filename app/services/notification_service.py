@@ -60,7 +60,7 @@ from app.config import Settings
 from app.logging import get_logger
 from app.models.attachment import OrderAttachment
 from app.models.customer import Customer, CustomerContact
-from app.models.enums import STATUS_LABELS, OrderStatus
+from app.models.enums import STATUS_LABELS, CustomerContactRole, OrderStatus
 from app.models.order import Order, OrderComment, OrderStatusHistory
 from app.models.tenant import Tenant
 from app.models.user import User
@@ -71,6 +71,7 @@ from app.services.notification_prefs import (
     prefs_for_contact,
     prefs_for_user,
 )
+from app.urls import powered_by_url
 
 log = get_logger("app.notifications")
 
@@ -103,6 +104,9 @@ class Recipient:
     #: reachability filter still *yields* to pending invitees (§19), but
     #: their mail carries no content — see :data:`_PENDING_REDACTED`.
     accepted: bool = True
+    #: "Powered by Assoluto" footer link (MKT-9). Set only for customer
+    #: contacts; staff mail never carries it.
+    powered_by_url: str = ""
 
 
 #: Context keys holding user-written content (comment text, uploaded file
@@ -141,6 +145,7 @@ class OrderNotification:
             "order_title": self.order_title,
             "order_url": self.order_url,
             "recipient_name": self.recipient.full_name,
+            "powered_by_url": self.recipient.powered_by_url,
             **self.extra,
         }
 
@@ -400,6 +405,11 @@ async def resolve_contact_audience(
         customer = (
             await db.execute(select(Customer).where(Customer.id == order.customer_id))
         ).scalar_one_or_none()
+    if customer is not None and not customer.is_active:
+        # Archived customer: its contacts can no longer sign in, so a mail
+        # whose whole point is "open the order" would only confuse them.
+        # This is not consent yielding — nobody is re-added anywhere.
+        return []
 
     # Only pay for the involvement queries when somebody actually narrows
     # their scope — for an all-``ALL`` customer they cannot change the result.
@@ -408,6 +418,7 @@ async def resolve_contact_audience(
     if any(not prefs.scope_covers(event, involved=False) for prefs in prefs_by_contact.values()):
         involved_ids = await _involved_contact_ids(db, order)
 
+    footer_url = powered_by_url(settings, tenant)
     candidates = [
         _Candidate(
             prefs=prefs_by_contact[contact.id],
@@ -418,6 +429,7 @@ async def resolve_contact_audience(
                 ),
                 full_name=contact.full_name,
                 accepted=contact.accepted_at is not None,
+                powered_by_url=footer_url,
             ),
             involved=contact.id in involved_ids,
             accepted=contact.accepted_at is not None,
@@ -818,6 +830,7 @@ class OrderDigestNotification:
         return {
             "tenant_name": self.tenant_name,
             "recipient_name": self.recipient.full_name,
+            "powered_by_url": self.recipient.powered_by_url,
             "orders": self.orders,
             "order_count": len(self.orders),
         }
@@ -872,3 +885,128 @@ def merge_for_digest(
             )
         )
     return out
+
+
+# ------------------------------------------------- weekly summary (IDEA-10)
+
+
+@dataclass(frozen=True)
+class WeeklySummaryNotification:
+    """Monday overview of one customer's open orders, for one contact.
+
+    Same contract as :class:`OrderNotification` (``event``, ``recipient``,
+    ``template``, ``context()``), so ``send_order_notification`` sends it
+    unchanged.
+    """
+
+    event: NotificationEvent
+    recipient: Recipient
+    tenant_name: str
+    customer_name: str
+    orders: list[dict[str, Any]]
+    orders_url: str
+
+    @property
+    def template(self) -> str:
+        return self.event.value
+
+    def context(self) -> dict[str, Any]:
+        return {
+            "tenant_name": self.tenant_name,
+            "customer_name": self.customer_name,
+            "recipient_name": self.recipient.full_name,
+            "orders": self.orders,
+            "order_count": len(self.orders),
+            "orders_url": self.orders_url,
+            "powered_by_url": self.recipient.powered_by_url,
+        }
+
+
+async def build_weekly_summary(
+    db: AsyncSession,
+    *,
+    tenant: Tenant,
+    customer: Customer,
+    orders: Sequence[Order],
+    base_url: str,
+    settings: Settings,
+) -> list[WeeklySummaryNotification]:
+    """Payloads for one customer's weekly open-orders summary.
+
+    Audience, in the §19 order:
+
+    * **consent** (hard) — the contact has not switched ``weekly_summary``
+      off;
+    * **relevance** (soft) — the customer's *admin* contacts; yields to
+      every consenting contact when no admin consents;
+    * **reachability** (soft) — accepted invitation; yields likewise.
+
+    Every query filters on ``customer.id`` explicitly, because the
+    periodic job calls this on the owner engine (no RLS).
+    """
+    if not orders or not customer.is_active or not customer.weekly_summary_enabled:
+        return []
+    rows = list(
+        (
+            await db.execute(
+                select(CustomerContact).where(
+                    CustomerContact.tenant_id == customer.tenant_id,
+                    CustomerContact.customer_id == customer.id,
+                    CustomerContact.is_active.is_(True),
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    event = NotificationEvent.WEEKLY_SUMMARY
+    consenting = [c for c in rows if prefs_for_contact(c).wants(event)]
+    if not consenting:
+        return []
+    admins = [c for c in consenting if c.role == CustomerContactRole.CUSTOMER_ADMIN]
+    tier = admins or consenting
+    reachable = [c for c in tier if c.accepted_at is not None]
+    chosen = reachable or tier
+
+    footer_url = powered_by_url(settings, tenant)
+    items = [
+        {
+            "number": order.number,
+            "title": order.title,
+            "status_label": STATUS_LABELS.get(order.status, str(order.status)),
+            "requested": (
+                order.requested_delivery_at.strftime("%d.%m.%Y")
+                if order.requested_delivery_at
+                else ""
+            ),
+            "promised": (
+                order.promised_delivery_at.strftime("%d.%m.%Y")
+                if order.promised_delivery_at
+                else ""
+            ),
+            "url": order_url(base_url, order),
+        }
+        for order in orders
+    ]
+    recipients = _dedupe(
+        Recipient(
+            email=contact.email,
+            locale=resolve_email_locale(
+                recipient=contact, customer=customer, tenant=tenant, settings=settings
+            ),
+            full_name=contact.full_name,
+            powered_by_url=footer_url,
+        )
+        for contact in chosen
+    )
+    return [
+        WeeklySummaryNotification(
+            event=event,
+            recipient=recipient,
+            tenant_name=tenant.name,
+            customer_name=customer.name,
+            orders=items,
+            orders_url=f"{base_url.rstrip('/')}/app/orders",
+        )
+        for recipient in recipients
+    ]

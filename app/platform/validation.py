@@ -100,18 +100,45 @@ class SignupForm:
     terms_accepted: bool
 
 
+def _(msg: str) -> str:
+    """Msgid marker — identity at runtime, a keyword for ``pybabel extract``.
+
+    This module has no ``Request`` (it is unit-tested without one), so it
+    cannot translate. It hands an English msgid to the router, which runs
+    it through ``_t(request, …)`` — see :meth:`SignupValidationError.localized`.
+    Wrapping the literal in ``_()`` is what keeps the msgid in
+    ``messages.pot`` (same trick as ``app/i18n_messages.py``).
+    """
+    return msg
+
+
 class SignupValidationError(Exception):
     """Raised when a signup form is invalid.
 
-    Carries a `field` attribute so the caller can render the error next
-    to the right input, and a human-readable message in Czech (the
-    signup page is bilingual via gettext).
+    Carries a ``field`` attribute so the caller can render the error next
+    to the right input. ``message`` is an English gettext msgid (with
+    optional ``%(name)s`` placeholders filled from ``params``); the router
+    localises it with :meth:`localized` so EN / DE prospects never see a
+    Czech sentence inside an English page (UX-04 / F-39).
     """
 
-    def __init__(self, field: str, message: str) -> None:
+    def __init__(self, field: str, message: str, params: dict | None = None) -> None:
         super().__init__(message)
         self.field = field
         self.message = message
+        self.params = params or {}
+        #: Untranslatable tail appended after the localised message (the
+        #: zxcvbn hint is English-only text from the library).
+        self.detail = ""
+
+    def localized(self, translate) -> str:
+        """Return the message translated by ``translate(msgid)``."""
+        text = translate(self.message)
+        if self.params:
+            text = text % self.params
+        if self.detail:
+            text = f"{text} {self.detail}"
+        return text
 
 
 def normalise_slug(raw: str) -> str:
@@ -126,18 +153,26 @@ def normalise_slug(raw: str) -> str:
 def validate_slug(slug: str) -> str:
     """Return the slug if valid, raise :class:`SignupValidationError` otherwise."""
     if not slug:
-        raise SignupValidationError("slug", "Subdoména je povinná.")
+        raise SignupValidationError("slug", _("Subdomain is required."))
     if len(slug) < SLUG_MIN_LEN:
-        raise SignupValidationError("slug", f"Subdoména musí mít alespoň {SLUG_MIN_LEN} znaky.")
+        raise SignupValidationError(
+            "slug",
+            _("Subdomain must be at least %(n)s characters long."),
+            {"n": SLUG_MIN_LEN},
+        )
     if len(slug) > SLUG_MAX_LEN:
-        raise SignupValidationError("slug", f"Subdoména může mít nejvýše {SLUG_MAX_LEN} znaků.")
+        raise SignupValidationError(
+            "slug",
+            _("Subdomain can be at most %(n)s characters long."),
+            {"n": SLUG_MAX_LEN},
+        )
     if not _SLUG_RE.fullmatch(slug):
         raise SignupValidationError(
             "slug",
-            "Subdoména smí obsahovat jen malá písmena, číslice a pomlčky.",
+            _("Subdomain may contain only lowercase letters, digits and hyphens."),
         )
     if slug in RESERVED_SLUGS:
-        raise SignupValidationError("slug", "Tato subdoména je rezervovaná.")
+        raise SignupValidationError("slug", _("This subdomain is reserved."))
     return slug
 
 
@@ -154,21 +189,21 @@ def validate_password(password: str, *, user_inputs: list[str] | None = None) ->
     is a weak password for someone registering "ACME s.r.o.".
     """
     if len(password) < 8:
-        raise SignupValidationError("password", "Heslo musí mít alespoň 8 znaků.")
+        raise SignupValidationError("password", _("Password must be at least 8 characters long."))
     if len(password) > 200:
-        raise SignupValidationError("password", "Heslo je příliš dlouhé.")
+        raise SignupValidationError("password", _("Password is too long."))
     # Reject leading/trailing whitespace and control characters outright —
     # these usually indicate a paste accident and dramatically weaken the
     # effective entropy we give zxcvbn to score.
     if password.strip() != password:
         raise SignupValidationError(
             "password",
-            "Heslo nesmí začínat ani končit mezerou.",
+            _("Password must not start or end with a space."),
         )
     if any(ord(c) < 32 or ord(c) == 127 for c in password):
         raise SignupValidationError(
             "password",
-            "Heslo nesmí obsahovat řídicí znaky.",
+            _("Password must not contain control characters."),
         )
 
     # zxcvbn import is lazy so the dependency stays optional at module
@@ -179,15 +214,19 @@ def validate_password(password: str, *, user_inputs: list[str] | None = None) ->
     result = zxcvbn(password, user_inputs=user_inputs or [])
     score = int(result.get("score", 0))
     if score < 2:
-        # Surface the zxcvbn suggestion when present; these are well-known
-        # short English strings (e.g. "Use a few words, avoid common
-        # phrases") — we prepend a Czech framing so users understand.
+        # Surface the zxcvbn warning when present; it is short English
+        # text from the library (e.g. "This is a top-10 common password"),
+        # so it rides along untranslated after the localised framing.
         feedback = result.get("feedback", {}) or {}
-        warning = feedback.get("warning") or "Zvolte silnější heslo."
-        raise SignupValidationError(
+        warning = feedback.get("warning") or ""
+        err = SignupValidationError(
             "password",
-            f"Heslo je příliš slabé. {warning}",
+            _("Password is too weak. Choose a stronger password.")
+            if not warning
+            else _("Password is too weak."),
         )
+        err.detail = warning
+        raise err
     return password
 
 
@@ -200,7 +239,7 @@ def validate_email(email: str) -> str:
     try:
         info = _ve(email, check_deliverability=False)
     except EmailNotValidError as exc:
-        raise SignupValidationError("email", str(exc)) from exc
+        raise SignupValidationError("email", _("Email address is not valid.")) from exc
     return info.normalized
 
 
@@ -216,7 +255,7 @@ def parse_signup_form(
     """Validate every field; normalise where possible."""
     company_name = (company_name or "").strip()
     if len(company_name) < 2:
-        raise SignupValidationError("company_name", "Název firmy je povinný.")
+        raise SignupValidationError("company_name", _("Company name is required."))
 
     # If the user left the slug blank, derive one from the company name.
     slug_candidate = (slug or "").strip().lower() or normalise_slug(company_name)
@@ -237,9 +276,7 @@ def parse_signup_form(
     full_name = (owner_full_name or "").strip() or validated_email.split("@", 1)[0]
 
     if not terms_accepted:
-        raise SignupValidationError(
-            "terms_accepted", "Musíte potvrdit souhlas s podmínkami služby."
-        )
+        raise SignupValidationError("terms_accepted", _("You must accept the terms of service."))
 
     return SignupForm(
         company_name=company_name,

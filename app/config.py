@@ -84,6 +84,20 @@ class Settings(BaseSettings):
     # so the copy can be reviewed before any tenant receives it; flip to
     # true in /etc/assoluto/env once approved. Requires FEATURE_PLATFORM.
     trial_nurture_enabled: bool = Field(default=False, alias="TRIAL_NURTURE_ENABLED")
+    # Behaviour-based activation nudges to trial admins (BIZ-16): day 2
+    # "invite your first customer" (only if nobody was invited) and day 5
+    # "your customer hasn't signed in yet — resend the invitation" (only
+    # if invited contacts never signed in). Same copy-approval rule as
+    # TRIAL_NURTURE_ENABLED: off by default. Requires FEATURE_PLATFORM.
+    activation_nudges_enabled: bool = Field(default=False, alias="ACTIVATION_NUDGES_ENABLED")
+    # "Powered by Assoluto" footer in customer-contact emails and in the
+    # customer portal (MKT-9). Base URL of the marketing site the footer
+    # links to; ``?ref=portal&t=<tenant slug>`` is appended. Empty = derive
+    # ``https://<apex>`` from PLATFORM_COOKIE_DOMAIN; empty and no cookie
+    # domain (self-hosted) = no footer at all. Set to ``off`` to disable
+    # it on a hosted deployment. A single tenant can opt out with
+    # ``tenants.settings["hide_powered_by"] = true`` (white-label).
+    powered_by_url: str = Field(default="", alias="POWERED_BY_URL")
 
     # --- Orders -----------------------------------------------------------
     # Days an order may sit in QUOTED before the customer contacts get one

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="{{ locale or 'cs' }}">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light only">
+<title>{{ _("Invite your first client to the portal") }}</title>
+</head>
+<body style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #111827; line-height: 1.5; background:#f8fafc;">
+    <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+        {{ _("One invitation is all it takes for a client to see their orders.") }}
+    </div>
+    <div style="max-width: 560px; margin: 0 auto; padding: 24px; background:#ffffff;">
+        <h1 style="font-size: 20px; margin: 0 0 16px;">{{ _("Your portal is ready for its first client") }}</h1>
+        <p>{% trans full_name=full_name %}Hello {{ full_name }},{% endtrans %}</p>
+        <p>
+            {% trans tenant_name=tenant_name %}the portal for <strong>{{ tenant_name }}</strong> doesn't have any client contacts yet. The portal only starts saving you phone calls once a client can see their own orders.{% endtrans %}
+        </p>
+        <ol style="padding-left: 20px;">
+            <li>{{ _("Open Clients and create the client (or pick an existing one).") }}</li>
+            <li>{{ _("Click Invite contact and enter the email of the person who usually calls you about order status.") }}</li>
+            <li>{{ _("They get an email, set a password, and see their orders straight away.") }}</li>
+        </ol>
+        <p style="margin: 24px 0;">
+            <a href="{{ customers_url }}"
+               style="display: inline-block; background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+                {{ _("Invite a client") }}
+            </a>
+        </p>
+        <p style="font-size: 13px; color: #6b7280;">
+            {{ _("Not sure which client to start with? Just reply to this email.") }}
+        </p>
+    </div>
+</body>
+</html>

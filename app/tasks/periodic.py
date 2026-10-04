@@ -8,6 +8,7 @@ web workers won't cause the same job to execute twice.
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import delete, select, text
@@ -425,6 +426,27 @@ TRIAL_ENDING_LEAD_DAYS = 5
 # prefix = machine-managed, mirrors the "_gdpr_erased_at" convention.
 NURTURE_SENT_KEY = "_trial_nurture_sent"
 
+# Behaviour-based activation nudges (BIZ-16). Unlike day1/day7 they are
+# only sent when the tenant has *not* done the thing yet, so an admin who
+# already invited a customer never hears "invite your first customer".
+ACTIVATION_INVITE_DAY = 2  # no customer contact invited yet
+ACTIVATION_NO_LOGIN_DAY = 5  # contacts invited, none has signed in
+
+# Stage → template mapping lives next to the sender:
+# ``app.tasks.email_tasks.NURTURE_TEMPLATES``.
+
+
+@dataclass
+class TenantActivationState:
+    """What the tenant has done so far — drives the behavioural nudges."""
+
+    contacts_invited: int = 0
+    contacts_logged_in: int = 0
+    contact_orders: int = 0
+    #: Up to five invited-but-never-signed-in contacts, for the "resend
+    #: the invitation" email.
+    pending: list[dict] = field(default_factory=list)
+
 
 def _tenant_portal_url(base_url: str, slug: str) -> str:
     """Derive the tenant's subdomain URL from APP_BASE_URL."""
@@ -439,44 +461,82 @@ def _due_nurture_stage(
     created_at: datetime,
     trial_ends_at: datetime | None,
     already_sent: dict,
+    activation: TenantActivationState | None = None,
+    *,
+    trial_stages: bool = True,
+    activation_stages: bool = False,
 ) -> tuple[str, int] | None:
     """Return the most urgent unsent stage whose window covers ``now``.
 
-    Priority: ending > day7 > day1 (at most one email per tenant per
-    run, so overlapping windows on short trials can't double-send).
+    Priority: ending > day7 > no_login > invite > day1 (at most one email
+    per tenant per run, so overlapping windows can't double-send).
+
+    ``trial_stages`` / ``activation_stages`` mirror the two copy-approval
+    flags (``TRIAL_NURTURE_ENABLED`` / ``ACTIVATION_NUDGES_ENABLED``); a
+    stage family whose flag is off is never due.
     """
     window = timedelta(days=NURTURE_WINDOW_DAYS)
+    state = activation or TenantActivationState()
     if (
-        trial_ends_at is not None
+        trial_stages
+        and trial_ends_at is not None
         and "ending" not in already_sent
         and trial_ends_at - timedelta(days=TRIAL_ENDING_LEAD_DAYS) <= now < trial_ends_at
     ):
         return "ending", max(0, (trial_ends_at - now).days)
     if trial_ends_at is not None and now >= trial_ends_at:
         return None  # trial over — expiry job owns it from here
-    for stage, offset in (("day7", timedelta(days=7)), ("day1", timedelta(days=1))):
-        start = created_at + offset
-        if stage not in already_sent and start <= now < start + window:
-            return stage, 0
+
+    def _in_window(stage: str, offset_days: int) -> bool:
+        start = created_at + timedelta(days=offset_days)
+        return stage not in already_sent and start <= now < start + window
+
+    # day7 says "if a client is already placing orders — ignore this";
+    # when one is, don't send it at all.
+    if trial_stages and state.contact_orders == 0 and _in_window("day7", 7):
+        return "day7", 0
+    if activation_stages:
+        if (
+            state.contacts_invited > 0
+            and state.contacts_logged_in == 0
+            and _in_window("no_login", ACTIVATION_NO_LOGIN_DAY)
+        ):
+            return "no_login", 0
+        if state.contacts_invited == 0 and _in_window("invite", ACTIVATION_INVITE_DAY):
+            return "invite", 0
+    if trial_stages and _in_window("day1", 1):
+        return "day1", 0
     return None
 
 
 async def send_trial_nurture_emails(now: datetime | None = None, sender=None) -> int:
-    """Send the day-1 / day-7 / trial-ending nudges to trial tenants.
+    """Send the trial nudges and the behaviour-based activation nudges.
 
-    Recipients are the tenant's active TENANT_ADMIN users. Sent stages
+    Time-based stages (day-1 / day-7 / trial-ending) are gated on
+    ``TRIAL_NURTURE_ENABLED``; the activation stages ("invite your first
+    customer" on day 2 when nobody was invited, "your customer hasn't
+    signed in — resend the invite" on day 5 when invited contacts never
+    signed in) on ``ACTIVATION_NUDGES_ENABLED``. Both default off — copy
+    must be approved before any tenant receives it — and both need
+    FEATURE_PLATFORM.
+
+    Recipients are the tenant's active TENANT_ADMIN users, and only for
+    tenants whose signup email was verified: an unverified identity is
+    somebody else's address typed into the form (or a bot), so it gets
+    nothing beyond the verification mail itself (BIZ-09). Sent stages
     are recorded in ``tenants.settings["_trial_nurture_sent"]`` so the
-    job is idempotent across daily runs. Gated on both FEATURE_PLATFORM
-    and TRIAL_NURTURE_ENABLED (default off — copy must be approved
-    before any tenant receives it).
+    job is idempotent across daily runs.
 
-    ``platform_subscriptions`` is queried via raw SQL on purpose: core
-    tasks must not import ``app.platform`` models (CLAUDE.md §6).
+    ``platform_subscriptions`` / ``platform_identities`` are queried via
+    raw SQL on purpose: core tasks must not import ``app.platform``
+    models (CLAUDE.md §6).
     """
     from app.email.sender import build_sender
 
     settings = get_settings()
-    if not (settings.feature_platform and settings.trial_nurture_enabled):
+    trial_on = bool(settings.trial_nurture_enabled)
+    activation_on = bool(settings.activation_nudges_enabled)
+    if not (settings.feature_platform and (trial_on or activation_on)):
         return 0
 
     current = now or datetime.now(UTC)
@@ -499,7 +559,14 @@ async def send_trial_nurture_emails(now: datetime | None = None, sender=None) ->
                 log.info("periodic.trial_nurture.skipped", reason="lock held")
                 return 0
             try:
-                sent = await _run_trial_nurture(engine, current, mail, settings)
+                sent = await _run_trial_nurture(
+                    engine,
+                    current,
+                    mail,
+                    settings,
+                    trial_on=trial_on,
+                    activation_on=activation_on,
+                )
             finally:
                 await lock_conn.execute(
                     text("SELECT pg_advisory_unlock(:id)"),
@@ -511,7 +578,76 @@ async def send_trial_nurture_emails(now: datetime | None = None, sender=None) ->
         await engine.dispose()
 
 
-async def _run_trial_nurture(engine, current: datetime, mail, settings) -> int:
+# A tenant is nurtured only when its signup identity verified the email.
+# Tenants with no member identity at all (created by scripts/create_tenant
+# before the platform layer existed) have nobody to verify and stay
+# eligible.
+_NURTURE_TENANTS_SQL = text(
+    "SELECT s.tenant_id, s.created_at, s.trial_ends_at "
+    "FROM platform_subscriptions s "
+    "JOIN tenants t ON t.id = s.tenant_id "
+    "WHERE s.status IN ('trialing', 'demo') "
+    "  AND t.is_active = true "
+    "  AND ("
+    "    EXISTS (SELECT 1 FROM platform_tenant_memberships m "
+    "            JOIN platform_identities i ON i.id = m.identity_id "
+    "            WHERE m.tenant_id = s.tenant_id AND m.access_type = 'member' "
+    "              AND i.email_verified_at IS NOT NULL) "
+    "    OR NOT EXISTS (SELECT 1 FROM platform_tenant_memberships m "
+    "            WHERE m.tenant_id = s.tenant_id AND m.access_type = 'member')"
+    "  )"
+)
+
+# Admin addresses that belong to a still-unverified identity of this
+# tenant. Never mailed, even when a verified co-owner exists.
+_UNVERIFIED_EMAILS_SQL = text(
+    "SELECT lower(i.email) FROM platform_tenant_memberships m "
+    "JOIN platform_identities i ON i.id = m.identity_id "
+    "WHERE m.tenant_id = :tid AND i.email_verified_at IS NULL"
+)
+
+_ACTIVATION_COUNTS_SQL = text(
+    "SELECT "
+    " (SELECT count(*) FROM customer_contacts WHERE tenant_id = :tid), "
+    " (SELECT count(*) FROM customer_contacts WHERE tenant_id = :tid "
+    "    AND (last_login_at IS NOT NULL OR accepted_at IS NOT NULL)), "
+    " (SELECT count(*) FROM orders WHERE tenant_id = :tid "
+    "    AND created_by_contact_id IS NOT NULL)"
+)
+
+_PENDING_CONTACTS_SQL = text(
+    "SELECT cc.full_name, c.name, c.id FROM customer_contacts cc "
+    "JOIN customers c ON c.id = cc.customer_id "
+    "WHERE cc.tenant_id = :tid AND cc.is_active = true "
+    "  AND cc.accepted_at IS NULL AND cc.last_login_at IS NULL "
+    "ORDER BY cc.invited_at NULLS LAST LIMIT 5"
+)
+
+
+async def _activation_state(session, tenant_id) -> TenantActivationState:
+    """Count what the tenant has done (owner session — sees every tenant)."""
+    counts = (await session.execute(_ACTIVATION_COUNTS_SQL, {"tid": tenant_id})).one()
+    pending_rows = (await session.execute(_PENDING_CONTACTS_SQL, {"tid": tenant_id})).all()
+    return TenantActivationState(
+        contacts_invited=int(counts[0]),
+        contacts_logged_in=int(counts[1]),
+        contact_orders=int(counts[2]),
+        pending=[
+            {"contact_name": name, "customer_name": cname, "customer_id": str(cid)}
+            for name, cname, cid in pending_rows
+        ],
+    )
+
+
+async def _run_trial_nurture(
+    engine,
+    current: datetime,
+    mail,
+    settings,
+    *,
+    trial_on: bool = True,
+    activation_on: bool = False,
+) -> int:
     """Inner body of :func:`send_trial_nurture_emails` (lock already held)."""
     from app.models.enums import UserRole
     from app.models.tenant import Tenant
@@ -520,17 +656,7 @@ async def _run_trial_nurture(engine, current: datetime, mail, settings) -> int:
     from app.tasks.email_tasks import send_trial_nurture
 
     async with engine.connect() as conn:
-        rows = (
-            await conn.execute(
-                text(
-                    "SELECT s.tenant_id, s.created_at, s.trial_ends_at "
-                    "FROM platform_subscriptions s "
-                    "JOIN tenants t ON t.id = s.tenant_id "
-                    "WHERE s.status IN ('trialing', 'demo') "
-                    "  AND t.is_active = true"
-                )
-            )
-        ).all()
+        rows = (await conn.execute(_NURTURE_TENANTS_SQL)).all()
 
     sent = 0
     sm = async_sessionmaker(engine, expire_on_commit=False)
@@ -540,13 +666,27 @@ async def _run_trial_nurture(engine, current: datetime, mail, settings) -> int:
                 await session.execute(select(Tenant).where(Tenant.id == tenant_id))
             ).scalar_one()
             already = dict((tenant.settings or {}).get(NURTURE_SENT_KEY) or {})
-            due = _due_nurture_stage(current, created_at, trial_ends_at, already)
+            activation = await _activation_state(session, tenant_id)
+            due = _due_nurture_stage(
+                current,
+                created_at,
+                trial_ends_at,
+                already,
+                activation,
+                trial_stages=trial_on,
+                activation_stages=activation_on,
+            )
             if due is None:
                 continue
             stage, days_left = due
 
-            admins = (
-                (
+            unverified = {
+                row[0]
+                for row in (await session.execute(_UNVERIFIED_EMAILS_SQL, {"tid": tenant_id})).all()
+            }
+            admins = [
+                admin
+                for admin in (
                     await session.execute(
                         select(UserModel).where(
                             UserModel.tenant_id == tenant_id,
@@ -557,13 +697,18 @@ async def _run_trial_nurture(engine, current: datetime, mail, settings) -> int:
                 )
                 .scalars()
                 .all()
-            )
+                if admin.email.strip().lower() not in unverified
+            ]
             if not admins:
                 continue
 
             portal_url = _tenant_portal_url(settings.app_base_url, tenant.slug)
             billing_url = settings.app_base_url.rstrip("/") + "/platform/billing"
             trial_end_date = trial_ends_at.strftime("%d.%m.%Y") if trial_ends_at is not None else ""
+            pending = [
+                {**p, "url": f"{portal_url}/app/customers/{p['customer_id']}"}
+                for p in activation.pending
+            ]
             for admin in admins:
                 locale = resolve_email_locale(recipient=admin, tenant=tenant, settings=settings)
                 send_trial_nurture(
@@ -576,6 +721,7 @@ async def _run_trial_nurture(engine, current: datetime, mail, settings) -> int:
                     billing_url=billing_url,
                     trial_end_date=trial_end_date,
                     days_left=days_left,
+                    pending_contacts=pending,
                     locale=locale,
                 )
                 sent += 1
@@ -589,4 +735,150 @@ async def _run_trial_nurture(engine, current: datetime, mail, settings) -> int:
                 recipients=len(admins),
             )
 
+    return sent
+
+
+# Weekly open-orders summary to each opted-in customer (IDEA-10). Lock id
+# picked well away from the 42_00x block so parallel additions there
+# can't collide.
+WEEKLY_SUMMARY_LOCK_ID = 42_102
+#: tenants.settings marker: the ISO week ("2026-W41") last processed, so
+#: a restart or a second worker in the same week never double-sends.
+WEEKLY_SUMMARY_SENT_KEY = "_weekly_summary_sent"
+#: Orders the customer is waiting on. DRAFT is the customer's own unsent
+#: work; DELIVERED / CLOSED / CANCELLED are done.
+WEEKLY_SUMMARY_STATUSES: tuple[OrderStatus, ...] = (
+    OrderStatus.SUBMITTED,
+    OrderStatus.QUOTED,
+    OrderStatus.CONFIRMED,
+    OrderStatus.IN_PRODUCTION,
+    OrderStatus.READY,
+)
+
+
+async def send_weekly_order_summaries(now: datetime | None = None, sender=None) -> int:
+    """Email each opted-in customer's admin contacts their open orders.
+
+    Runs Mondays. Only customers with ``weekly_summary_enabled`` (off by
+    default, toggled on the customer edit form) and at least one open
+    order get a mail; recipients are resolved by
+    :func:`app.services.notification_service.build_weekly_summary`, which
+    honours each contact's ``weekly_summary`` consent (§19). Returns the
+    number of emails sent.
+    """
+    from app.email.sender import build_sender
+
+    settings = get_settings()
+    current = now or datetime.now(UTC)
+    iso = current.isocalendar()
+    week_key = f"{iso.year}-W{iso.week:02d}"
+    mail = sender if sender is not None else build_sender(settings)
+
+    engine = _owner_engine()
+    try:
+        async with engine.connect() as lock_conn:
+            got_lock = (
+                await lock_conn.execute(
+                    text("SELECT pg_try_advisory_lock(:id)"), {"id": WEEKLY_SUMMARY_LOCK_ID}
+                )
+            ).scalar()
+            if not got_lock:
+                log.info("periodic.weekly_summary.skipped", reason="lock held")
+                return 0
+            try:
+                sent = await _run_weekly_summaries(engine, week_key, mail, settings)
+            finally:
+                await lock_conn.execute(
+                    text("SELECT pg_advisory_unlock(:id)"), {"id": WEEKLY_SUMMARY_LOCK_ID}
+                )
+        log.info("periodic.weekly_summary.done", sent=sent, week=week_key)
+        return sent
+    finally:
+        await engine.dispose()
+
+
+async def _run_weekly_summaries(engine, week_key: str, mail, settings) -> int:
+    from app.models.customer import Customer
+    from app.models.tenant import Tenant
+    from app.services.notification_service import build_weekly_summary
+    from app.tasks.email_tasks import send_order_notifications
+    from app.urls import tenant_base_url
+
+    sm = async_sessionmaker(engine, expire_on_commit=False)
+    async with sm() as session:
+        tenant_ids = (
+            (
+                await session.execute(
+                    select(Customer.tenant_id)
+                    .join(Tenant, Tenant.id == Customer.tenant_id)
+                    .where(
+                        Tenant.is_active.is_(True),
+                        Customer.is_active.is_(True),
+                        Customer.weekly_summary_enabled.is_(True),
+                    )
+                    .distinct()
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+    sent = 0
+    for tenant_id in tenant_ids:
+        async with sm() as session, session.begin():
+            tenant = (
+                await session.execute(select(Tenant).where(Tenant.id == tenant_id))
+            ).scalar_one()
+            if (tenant.settings or {}).get(WEEKLY_SUMMARY_SENT_KEY) == week_key:
+                continue
+            customers = (
+                (
+                    await session.execute(
+                        select(Customer).where(
+                            Customer.tenant_id == tenant_id,
+                            Customer.is_active.is_(True),
+                            Customer.weekly_summary_enabled.is_(True),
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            base_url = tenant_base_url(settings, tenant)
+            payloads = []
+            for customer in customers:
+                orders = (
+                    (
+                        await session.execute(
+                            select(Order)
+                            .where(
+                                Order.tenant_id == tenant_id,
+                                Order.customer_id == customer.id,
+                                Order.status.in_(WEEKLY_SUMMARY_STATUSES),
+                            )
+                            .order_by(Order.created_at)
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+                payloads.extend(
+                    await build_weekly_summary(
+                        session,
+                        tenant=tenant,
+                        customer=customer,
+                        orders=orders,
+                        base_url=base_url,
+                        settings=settings,
+                    )
+                )
+            send_order_notifications(mail, payloads)
+            sent += len(payloads)
+            tenant.settings = {**(tenant.settings or {}), WEEKLY_SUMMARY_SENT_KEY: week_key}
+            log.info(
+                "periodic.weekly_summary.tenant",
+                tenant_id=str(tenant_id),
+                customers=len(customers),
+                emails=len(payloads),
+            )
     return sent

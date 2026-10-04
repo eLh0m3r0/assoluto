@@ -8,3 +8,4 @@
 {{ _("Open") }}: {{ order_url }}
 
 -- {{ tenant_name }}
+{% include "_powered_by_footer.txt" %}

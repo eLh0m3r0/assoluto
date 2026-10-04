@@ -27,6 +27,11 @@
         <form method="post" action="/platform/signup" class="space-y-4">
             {{ csrf_input() }}
             <input type="hidden" name="plan" value="{{ preselected_plan }}">
+            {# "Powered by Assoluto" attribution (MKT-9) — no cookie, just carried along. #}
+            {% if form.ref %}
+                <input type="hidden" name="ref" value="{{ form.ref }}">
+                <input type="hidden" name="ref_t" value="{{ form.ref_t or '' }}">
+            {% endif %}
 
             {# Honeypot — invisible to humans, irresistible to naive bots.
                Off-screen instead of display:none so dumb form scanners

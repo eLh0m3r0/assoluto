@@ -272,6 +272,16 @@ def build_jinja_env() -> Environment:
     return _new_environment(locale=None)
 
 
+def _powered_by_url(settings: Settings, request: Request) -> str:
+    """Footer link for the tenant resolved on this request (or ``""``)."""
+    try:
+        from app.urls import powered_by_url
+
+        return powered_by_url(settings, getattr(request.state, "tenant", None))
+    except Exception:  # pragma: no cover - a footer must never break a page
+        return ""
+
+
 class Templates:
     """Thin wrapper exposing `render()` and `render_block()` with app context.
 
@@ -359,6 +369,9 @@ class Templates:
             "is_platform_admin": is_platform_admin,
             "platform_admin_url": platform_admin_url,
             "status_page_url": self.settings.status_page_url or None,
+            # "Powered by Assoluto" footer for customer contacts (MKT-9);
+            # empty string hides it. See app.urls.powered_by_url.
+            "powered_by_url": _powered_by_url(self.settings, request),
         }
         if extra:
             context.update(extra)

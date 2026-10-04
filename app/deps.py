@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
 from app.db.session import get_sessionmaker
-from app.models.customer import CustomerContact
+from app.models.customer import Customer, CustomerContact
 from app.models.tenant import Tenant
 from app.models.user import User
 from app.security.session import SessionData, read_session
@@ -303,6 +303,13 @@ async def get_current_principal(
         if contact is None or not contact.is_active:
             return None
         if contact.session_version != session_data.session_version:
+            return None
+        # Archived (blocked) customer: every contact is out, including
+        # sessions minted via the platform tenant switcher (LOGIC-15).
+        customer_active = (
+            await db.execute(select(Customer.is_active).where(Customer.id == contact.customer_id))
+        ).scalar_one_or_none()
+        if not customer_active:
             return None
         structlog.contextvars.bind_contextvars(
             principal_id=str(contact.id),

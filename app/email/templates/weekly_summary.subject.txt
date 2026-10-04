@@ -1,0 +1,1 @@
+{% trans customer_name=customer_name %}Your open orders — {{ customer_name }}{% endtrans %}

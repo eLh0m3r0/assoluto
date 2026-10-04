@@ -1,0 +1,13 @@
+{{ _("Your portal is ready for its first client") }}
+
+{% trans full_name=full_name %}Hello {{ full_name }},{% endtrans %}
+
+{% trans tenant_name=tenant_name %}the portal for {{ tenant_name }} doesn't have any client contacts yet. The portal only starts saving you phone calls once a client can see their own orders.{% endtrans %}
+
+1. {{ _("Open Clients and create the client (or pick an existing one).") }}
+2. {{ _("Click Invite contact and enter the email of the person who usually calls you about order status.") }}
+3. {{ _("They get an email, set a password, and see their orders straight away.") }}
+
+{{ _("Invite a client") }}: {{ customers_url }}
+
+{{ _("Not sure which client to start with? Just reply to this email.") }}

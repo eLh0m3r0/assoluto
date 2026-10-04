@@ -8,6 +8,8 @@ Core self-hosted builds never mount this router.
 from __future__ import annotations
 
 from types import SimpleNamespace
+import re
+from urllib.parse import parse_qs, urlsplit
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request, status
@@ -16,6 +18,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
+from app.i18n import t as _t
 from app.logging import get_logger
 from app.platform.deps import get_current_identity, get_platform_db, require_identity
 from app.platform.models import Identity
@@ -67,12 +70,52 @@ async def signup_form(
         return RedirectResponse(
             url="/platform/select-tenant", status_code=status.HTTP_303_SEE_OTHER
         )
+    ref, ref_tenant = _signup_ref_from_request(request)
     html = _templates(request).render(
         request,
         "platform/signup.html",
-        {"errors": {}, "form": {}, "principal": None},
+        {
+            "errors": {},
+            "form": {"ref": ref, "ref_t": ref_tenant},
+            "principal": None,
+        },
     )
     return HTMLResponse(html)
+
+
+# Attribution for the "Powered by Assoluto" footer (MKT-9). The footer
+# links to ``<apex>/?ref=portal&t=<tenant slug>``; the visitor then
+# clicks through to this page. No cookie is set: the pair is read from
+# this page's own query string, or from the same-origin ``Referer`` (the
+# browser default ``strict-origin-when-cross-origin`` policy keeps the
+# full URL for same-origin navigations), and carried in hidden fields.
+_ALLOWED_REFS = frozenset({"portal"})
+_REF_SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$")
+
+
+def _clean_ref(ref: str, ref_tenant: str) -> tuple[str, str]:
+    ref = (ref or "").strip().lower()
+    ref_tenant = (ref_tenant or "").strip().lower()
+    if ref not in _ALLOWED_REFS:
+        return "", ""
+    if not _REF_SLUG_RE.fullmatch(ref_tenant):
+        ref_tenant = ""
+    return ref, ref_tenant
+
+
+def _signup_ref_from_request(request: Request) -> tuple[str, str]:
+    params = request.query_params
+    if params.get("ref"):
+        return _clean_ref(params.get("ref", ""), params.get("t", ""))
+    referer = request.headers.get("referer") or ""
+    if not referer:
+        return "", ""
+    parsed = urlsplit(referer)
+    # Same-origin only — a foreign site must not be able to plant a ref.
+    if parsed.netloc and parsed.netloc != request.url.netloc:
+        return "", ""
+    query = parse_qs(parsed.query)
+    return _clean_ref((query.get("ref") or [""])[0], (query.get("t") or [""])[0])
 
 
 def _safe_plan_code(plan: str) -> str:
@@ -94,6 +137,8 @@ async def signup_submit(
     terms_accepted: str = Form(""),
     plan: str = Form(""),
     website: str = Form(""),
+    ref: str = Form(""),
+    ref_t: str = Form(""),
     db: AsyncSession = Depends(get_platform_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
@@ -131,8 +176,41 @@ async def signup_submit(
         # without it the re-rendered form lost ``?plan=pro`` and the
         # corrected submit silently started a Starter trial (UX-27).
         "plan": _safe_plan_code(plan),
+        "ref": ref,
+        "ref_t": ref_t,
         # Intentionally not echoing the password back.
     }
+
+    # Throwaway-inbox domains: the same list the contact form drops
+    # silently. Here a real person may be behind it, so say why instead
+    # of pretending success — and never send a verification mail to a
+    # mailbox that will be gone tomorrow (BIZ-09). The random-local-part
+    # heuristic the contact form also uses is NOT applied: it matches
+    # real addresses like ``novakjosef1985@…``, and an unverified signup
+    # can no longer reach nurture mail or the funnel anyway.
+    from app.security.contact_filter import is_disposable_email
+
+    if is_disposable_email(owner_email):
+        get_logger("app.platform.signup").info(
+            "signup.disposable_email_rejected",
+            domain=(owner_email or "").rsplit("@", 1)[-1],
+        )
+        html = _templates(request).render(
+            request,
+            "platform/signup.html",
+            {
+                "errors": {
+                    "owner_email": _t(
+                        request,
+                        "Please use a permanent work email address — we send order "
+                        "notifications there.",
+                    )
+                },
+                "form": form_raw,
+                "principal": None,
+            },
+        )
+        return HTMLResponse(html, status_code=400)
 
     # 1) Validate shape
     try:
@@ -149,7 +227,7 @@ async def signup_submit(
             request,
             "platform/signup.html",
             {
-                "errors": {exc.field: exc.message},
+                "errors": {exc.field: exc.localized(lambda m: _t(request, m))},
                 "form": form_raw,
                 "principal": None,
             },
@@ -170,9 +248,10 @@ async def signup_submit(
             "platform/signup.html",
             {
                 "errors": {
-                    "owner_email": (
-                        "Tato adresa už dnes zkoušela registraci. "
-                        "Zkuste to zítra nebo obnovte heslo."
+                    "owner_email": _t(
+                        request,
+                        "This address already tried to sign up today. "
+                        "Try again tomorrow or reset your password.",
                     )
                 },
                 "form": form_raw,
@@ -211,7 +290,7 @@ async def signup_submit(
             request,
             "platform/signup.html",
             {
-                "errors": {"slug": "Tato subdoména je již obsazená."},
+                "errors": {"slug": _t(request, "This subdomain is already taken.")},
                 "form": form_raw,
                 "principal": None,
             },
@@ -223,7 +302,9 @@ async def signup_submit(
             "platform/signup.html",
             {
                 "errors": {
-                    "owner_email": "Účet s tímto e-mailem již existuje. Použijte přihlášení."
+                    "owner_email": _t(
+                        request, "An account with this email already exists. Please sign in."
+                    )
                 },
                 "form": form_raw,
                 "principal": None,
@@ -231,11 +312,12 @@ async def signup_submit(
         )
         return HTMLResponse(html, status_code=400)
     except PlatformError as exc:
+        error_label = _t(request, "Error")
         html = _templates(request).render(
             request,
             "platform/signup.html",
             {
-                "errors": {"company_name": f"Chyba: {exc}"},
+                "errors": {"company_name": f"{error_label}: {exc}"},
                 "form": form_raw,
                 "principal": None,
             },
@@ -249,6 +331,17 @@ async def signup_submit(
         tenant_settings["selected_plan"] = selected_plan
         tenant.settings = tenant_settings
         await db.flush()
+
+    # Viral-loop attribution (MKT-9): which customer portal sent them.
+    clean_ref, clean_ref_t = _clean_ref(ref, ref_t)
+    if clean_ref:
+        tenant_settings = dict(tenant.settings or {})
+        tenant_settings["signup_ref"] = {"ref": clean_ref, "t": clean_ref_t}
+        tenant.settings = tenant_settings
+        await db.flush()
+        get_logger("app.platform.signup").info(
+            "signup.attributed", ref=clean_ref, referring_tenant=clean_ref_t
+        )
 
     # 3) Commit BEFORE scheduling the email task (BackgroundTasks run before
     # the request-scoped session commit; see CLAUDE.md for the pattern).
@@ -333,7 +426,9 @@ async def verify_email(
             "platform/verify_email.html",
             {
                 "success": False,
-                "message": "Odkaz pro ověření vypršel. Můžete si zažádat o nový.",
+                "message": _t(
+                    request, "The verification link has expired. You can request a new one."
+                ),
                 "principal": None,
             },
         )
@@ -344,7 +439,7 @@ async def verify_email(
             "platform/verify_email.html",
             {
                 "success": False,
-                "message": "Odkaz pro ověření je neplatný.",
+                "message": _t(request, "The verification link is invalid."),
                 "principal": None,
             },
         )
@@ -358,7 +453,7 @@ async def verify_email(
             "platform/verify_email.html",
             {
                 "success": False,
-                "message": "Odkaz pro ověření je poškozený.",
+                "message": _t(request, "The verification link is malformed."),
                 "principal": None,
             },
         )
@@ -372,7 +467,7 @@ async def verify_email(
             "platform/verify_email.html",
             {
                 "success": False,
-                "message": "Účet k ověření nebyl nalezen.",
+                "message": _t(request, "The account to verify was not found."),
                 "principal": None,
             },
         )
@@ -390,7 +485,7 @@ async def verify_email(
         "platform/verify_email.html",
         {
             "success": True,
-            "message": "E-mail byl úspěšně ověřen.",
+            "message": _t(request, "Your email address has been verified."),
             "selected_plan": selected_plan,
             "tenant_slug": tenant_slug,
             "principal": None,

@@ -139,3 +139,188 @@ async def test_non_trial_subscription_skipped(settings, wipe_db, owner_engine, d
     sent = await send_trial_nurture_emails(now=T0 + timedelta(days=2), sender=capture)
     assert sent == 0
     assert capture.outbox == []
+
+
+# ------------------------------------------------ verification gate (BIZ-09)
+
+
+async def _seed_owner_identity(owner_engine, tenant_id, *, verified: bool) -> None:
+    """Link the seeded owner to a platform Identity, as signup does."""
+    from app.platform.models import Identity, TenantMembership
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        owner = (
+            await session.execute(select(User).where(User.email == "owner@4mex.cz"))
+        ).scalar_one()
+        identity = Identity(
+            id=uuid4(),
+            email="owner@4mex.cz",
+            full_name="4MEX Owner",
+            password_hash=hash_password("ownerpass"),
+            email_verified_at=T0 if verified else None,
+        )
+        session.add(identity)
+        await session.flush()
+        session.add(
+            TenantMembership(
+                identity_id=identity.id,
+                tenant_id=tenant_id,
+                user_id=owner.id,
+                access_type="member",
+            )
+        )
+
+
+async def test_unverified_signup_gets_no_nurture(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    _enable(settings)
+    await _seed_trial(owner_engine, demo_tenant.id)
+    await _seed_owner_identity(owner_engine, demo_tenant.id, verified=False)
+
+    capture = CaptureSender()
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=2), sender=capture)
+    assert sent == 0
+    assert capture.outbox == []
+    assert await _sent_markers(owner_engine, demo_tenant.id) == {}
+
+
+async def test_verified_signup_gets_nurture(settings, wipe_db, owner_engine, demo_tenant) -> None:
+    _enable(settings)
+    await _seed_trial(owner_engine, demo_tenant.id)
+    await _seed_owner_identity(owner_engine, demo_tenant.id, verified=True)
+
+    capture = CaptureSender()
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=2), sender=capture)
+    assert sent == 1
+    assert capture.outbox[0].to == "owner@4mex.cz"
+
+
+# ------------------------------------------- activation nudges (BIZ-16)
+
+
+def _enable_activation_only(settings) -> None:
+    settings.feature_platform = True
+    settings.trial_nurture_enabled = False
+    settings.activation_nudges_enabled = True
+
+
+async def _seed_contact(owner_engine, tenant_id, *, accepted: bool) -> None:
+    from app.models.customer import Customer, CustomerContact
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        customer = Customer(id=uuid4(), tenant_id=tenant_id, name="Strojírna Ukázková s.r.o.")
+        session.add(customer)
+        await session.flush()
+        session.add(
+            CustomerContact(
+                id=uuid4(),
+                tenant_id=tenant_id,
+                customer_id=customer.id,
+                email="nakup@ukazkova.test",
+                full_name="Petra Nákupčí",
+                invited_at=T0,
+                accepted_at=T0 + timedelta(days=1) if accepted else None,
+                password_hash=hash_password("contactpass") if accepted else None,
+            )
+        )
+
+
+async def test_activation_flag_off_sends_nothing(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    settings.feature_platform = True
+    settings.trial_nurture_enabled = False
+    settings.activation_nudges_enabled = False
+    await _seed_trial(owner_engine, demo_tenant.id)
+
+    capture = CaptureSender()
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=3), sender=capture)
+    assert sent == 0
+
+
+async def test_invite_nudge_when_no_customer_invited(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    _enable_activation_only(settings)
+    await _seed_trial(owner_engine, demo_tenant.id)
+
+    capture = CaptureSender()
+    # Day 1: the trial day-1 mail is off and the invite nudge is not due yet.
+    assert await send_trial_nurture_emails(now=T0 + timedelta(days=1, hours=1), sender=capture) == 0
+
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=2, hours=1), sender=capture)
+    assert sent == 1
+    mail = capture.outbox[0]
+    assert f"{demo_tenant.slug}." in mail.text and "/app/customers" in mail.text
+    assert "invite" in (await _sent_markers(owner_engine, demo_tenant.id))
+
+    # Idempotent.
+    assert await send_trial_nurture_emails(now=T0 + timedelta(days=3), sender=capture) == 0
+
+
+async def test_invite_nudge_skipped_when_customer_already_invited(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    _enable_activation_only(settings)
+    await _seed_trial(owner_engine, demo_tenant.id)
+    await _seed_contact(owner_engine, demo_tenant.id, accepted=True)
+
+    capture = CaptureSender()
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=2, hours=1), sender=capture)
+    assert sent == 0
+    assert capture.outbox == []
+
+
+async def test_no_login_nudge_lists_pending_contact(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    _enable_activation_only(settings)
+    await _seed_trial(owner_engine, demo_tenant.id)
+    await _seed_contact(owner_engine, demo_tenant.id, accepted=False)
+
+    capture = CaptureSender()
+    # Day 2: a contact was invited, so "invite your first customer" is moot.
+    assert await send_trial_nurture_emails(now=T0 + timedelta(days=2, hours=1), sender=capture) == 0
+
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=5, hours=1), sender=capture)
+    assert sent == 1
+    mail = capture.outbox[0]
+    assert "Petra Nákupčí" in mail.text
+    assert "Strojírna Ukázková s.r.o." in mail.text
+    assert "/app/customers/" in mail.text
+    assert "no_login" in (await _sent_markers(owner_engine, demo_tenant.id))
+
+
+async def test_no_login_nudge_skipped_when_contact_signed_in(
+    settings, wipe_db, owner_engine, demo_tenant
+) -> None:
+    _enable_activation_only(settings)
+    await _seed_trial(owner_engine, demo_tenant.id)
+    await _seed_contact(owner_engine, demo_tenant.id, accepted=True)
+
+    capture = CaptureSender()
+    sent = await send_trial_nurture_emails(now=T0 + timedelta(days=5, hours=1), sender=capture)
+    assert sent == 0
+
+
+def test_activation_templates_render_in_every_locale() -> None:
+    from app.email.sender import render_email
+
+    ctx = {
+        "full_name": "Jan",
+        "tenant_name": "ACME",
+        "portal_url": "https://acme.example.test",
+        "customers_url": "https://acme.example.test/app/customers",
+        "pending_contacts": [
+            {"contact_name": "Petra", "customer_name": "Zákazník", "url": "https://x.test/c"}
+        ],
+    }
+    for template in ("activation_invite_customer", "activation_contact_no_login"):
+        for locale in (None, "cs", "en", "de"):
+            rendered = render_email(template, ctx, locale=locale)
+            assert rendered.subject.strip()
+            assert "https://acme.example.test/app/customers" in rendered.text
+            assert "https://acme.example.test/app/customers" in rendered.html

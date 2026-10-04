@@ -94,6 +94,18 @@
             </div>
         </fieldset>
 
+        {% if _is_edit %}
+            <label class="flex items-start gap-2 text-sm text-gray-700 dark:text-slate-300">
+                <input type="checkbox" name="weekly_summary_enabled" value="on"
+                       {% if form.get('weekly_summary_enabled') == 'on' %}checked{% endif %}
+                       class="mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800">
+                <span>
+                    {{ _('Send a weekly summary of open orders') }}
+                    <span class="block text-xs text-gray-500 dark:text-slate-400">{{ _("Every Monday morning the client's admin contacts get a list of their orders in progress with dates. Each contact can switch it off in their profile.") }}</span>
+                </span>
+            </label>
+        {% endif %}
+
         <div class="flex items-center justify-end gap-3 pt-2">
             <a href="{{ '/app/customers/' ~ customer.id if _is_edit else '/app/customers' }}"
                class="text-sm text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200">{{ _('Cancel') }}</a>

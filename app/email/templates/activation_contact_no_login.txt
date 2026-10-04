@@ -1,0 +1,18 @@
+{{ _("Your client hasn't signed in yet") }}
+
+{% trans full_name=full_name %}Hello {{ full_name }},{% endtrans %}
+
+{% trans tenant_name=tenant_name %}you invited clients to the portal for {{ tenant_name }}, but nobody has accepted the invitation yet. Invitation emails sometimes end up in spam or get buried — a resend plus a quick phone call usually does it.{% endtrans %}
+
+{% if pending_contacts %}
+{{ _("Waiting for:") }}
+{% for p in pending_contacts %}
+- {{ p.contact_name }} ({{ p.customer_name }}): {{ p.url }}
+{% endfor %}
+
+{% endif %}
+{{ _("On the client's page, click Resend invite next to the contact.") }}
+
+{{ _("Open clients") }}: {{ customers_url }}
+
+{{ _("If the invitation never arrives, reply to this email and we'll look into it.") }}

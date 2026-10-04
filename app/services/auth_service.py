@@ -190,6 +190,10 @@ async def authenticate(
         raise InvalidCredentials()
     if not contact.is_active:
         raise AccountDisabled()
+    # An archived (blocked) customer locks out all of its contacts at
+    # once, without touching each contact row (LOGIC-15).
+    if not await _customer_is_active(db, contact.customer_id):
+        raise AccountDisabled()
     if contact.accepted_at is None:
         raise InvalidCredentials("invitation not accepted yet")
 
@@ -212,6 +216,14 @@ async def authenticate(
         email=contact.email,
         session_version=contact.session_version,
     )
+
+
+async def _customer_is_active(db: AsyncSession, customer_id: UUID) -> bool:
+    """False when the contact's customer has been archived / blocked."""
+    active = (
+        await db.execute(select(Customer.is_active).where(Customer.id == customer_id))
+    ).scalar_one_or_none()
+    return bool(active)
 
 
 # ---------------------------------------------------------------- invites
@@ -258,6 +270,8 @@ async def accept_invitation(
         raise InvalidInvitation("tenant mismatch")
     if not contact.is_active:
         raise InvalidInvitation("contact disabled")
+    if not await _customer_is_active(db, contact.customer_id):
+        raise InvalidInvitation("customer archived")
     # Invitation tokens are valid for 7 days. Once accepted they must
     # NOT be replayable — otherwise an attacker who grabs the link out
     # of an email (shared inbox, forwarded screenshot, browser history
