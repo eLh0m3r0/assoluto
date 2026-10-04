@@ -25,6 +25,11 @@ def configure_logging(settings: Settings) -> None:
         level=level,
         force=True,
     )
+    # APScheduler logs "Running job …" / "executed successfully" at INFO for
+    # every tick — two lines a minute from the e-mail outbox alone. Job
+    # failures still surface: they log at ERROR and reach the operator via
+    # the scheduler's error listener (OPS_ALERT_EMAIL).
+    logging.getLogger("apscheduler").setLevel(max(level, logging.WARNING))
 
     shared_processors: list[structlog.typing.Processor] = [
         structlog.contextvars.merge_contextvars,

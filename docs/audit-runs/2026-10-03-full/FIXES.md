@@ -43,7 +43,7 @@ Pracovní fronta „Vyžaduje akci“, Objednat znovu, cenová paměť, připom�
 nepotvrzené nabídky, e-mail s nabídkou a potvrzením, export do POHODA a
 Money S3, aktivační funnel, „Powered by“ smyčka, archivace zákazníka,
 správce za zákazníka zve kolegy, týdenní souhrn (opt-in), ukázkový tenant
-`ukazka.assoluto.eu` pro MSV.
+`ukazka.assoluto.eu` pro online ukázky a obchodní hovory (na MSV 2026 se nejede — rozhodnutí foundera 2026-10-04).
 
 ## Odloženo vědomě
 - **Dependabot major verze** (Actions v deploy pipeline, reportlab 5,
@@ -54,10 +54,17 @@ správce za zákazníka zve kolegy, týdenní souhrn (opt-in), ukázkový tenant
   web zatím netvrdí „funguje s POHODA“ bez zkušebního importu.
 - **Časová pásma v UI** (LOGIC-16) a EUR (LOGIC-5) — s DACH.
 
-## Operátor (ručně)
-- Privátní GPG klíč záloh uložit do správce hesel (`~/assoluto-backup-PRIVATE-KEY.asc`), soubor smazat.
-- `sudo journalctl --vacuum-size=500M` + `SystemMaxUse=500M` (journal 2,9 GB, vyžaduje root).
-- Secret `DEPLOY_HOST_FINGERPRINT` (pin SSH klíče VPS).
-- Projít dry-run log retence, pak případně `RETENTION_ENFORCE=true` (první běh smaže tenanty `test-a`, `test-b`, `testfirma`).
-- Schválit texty aktivačních e-mailů → `ACTIVATION_NUDGES_ENABLED=true`.
-- Stripe: nové ceny 1 490 / 2 990 Kč, 12 scénářů v test mode, pak klíče.
+## Operátor
+
+Hotovo 2026-10-04:
+- journal vyčištěn (2,9 GB → 15 MB);
+- `DEPLOY_HOST_FINGERPRINT` = ECDSA host key VPS (`SHA256:S9t8SIJ6…`), ověřeno deployem;
+- životní cyklus záložního bucketu: dumpy `pg/` 180 dní, staré verze 30 dní;
+- dry-run retence prošel (jen `test-a`, `test-b`, `testfirma`, 0 osiřelých objektů) → `RETENTION_ENFORCE=true`;
+- texty aktivačních e-mailů zkontrolovány v češtině → `ACTIVATION_NUDGES_ENABLED=true`.
+
+Zbývá (vyžaduje founderův přístup nebo účet):
+- privátní GPG klíč záloh uložit do správce hesel (`~/assoluto-backup-PRIVATE-KEY.asc`), soubor smazat;
+- `SystemMaxUse=500M` v `/etc/systemd/journald.conf` (root), aby journal znovu nenarostl;
+- Stripe: nové ceny 1 490 / 2 990 Kč, 12 scénářů v test mode, pak klíče;
+- zkušební import exportu do POHODA / Money S3.

@@ -598,7 +598,13 @@ async def seed_demo(
             year = day0.year
             created_orders: list[Order] = []
             for seq, spec in enumerate(sorted(ORDERS, key=lambda o: -o.age_days), start=1):
-                created = at(spec.age_days)
+                # "Today" orders still need room for one history step per
+                # status before now, or the steps tie on one timestamp.
+                created = (
+                    at(spec.age_days)
+                    if spec.age_days
+                    else now - timedelta(hours=len(_status_path(spec.status)) + 1)
+                )
                 created_day = created.date()
                 author = contacts[spec.client][0]
                 lines: list[OrderItem] = []
@@ -624,6 +630,14 @@ async def seed_demo(
                         )
                     )
                 rank = PIPELINE.index(spec.status) if spec.status in PIPELINE else None
+                # Spread the pipeline between creation and now. A fixed 20 h
+                # per step pushed fresh orders' history into the future.
+                path = _status_path(spec.status)
+                gap = min(timedelta(hours=20), (now - created) / (len(path) + 1))
+
+                def step_at(status: OrderStatus, _path=path, _gap=gap, _created=created):
+                    return _created + _gap * _path.index(status)
+
                 order = Order(
                     id=uuid4(),
                     tenant_id=tid,
@@ -644,10 +658,20 @@ async def seed_demo(
                         if spec.promised_in is not None
                         else None
                     ),
-                    quoted_total=(total if rank is not None and rank >= 2 else None),
+                    # As the app does: add_item keeps the running total cached
+                    # (F-14), and confirming snapshots it (LOGIC-2).
+                    quoted_total=total if lines else None,
+                    quoted_at=(
+                        step_at(OrderStatus.QUOTED) if rank is not None and rank >= 2 else None
+                    ),
+                    confirmed_total=(total if rank is not None and rank >= 3 else None),
+                    confirmed_at=(
+                        step_at(OrderStatus.CONFIRMED) if rank is not None and rank >= 3 else None
+                    ),
+                    confirmed_by_contact_id=(author.id if rank is not None and rank >= 3 else None),
                     currency="CZK",
                     submitted_at=(
-                        created + timedelta(hours=2) if spec.status != OrderStatus.DRAFT else None
+                        step_at(OrderStatus.SUBMITTED) if spec.status != OrderStatus.DRAFT else None
                     ),
                     delivered_at=(
                         min(
@@ -676,7 +700,6 @@ async def seed_demo(
                 session.add_all(lines)
 
                 # Status history along the pipeline.
-                path = _status_path(spec.status)
                 prev: OrderStatus | None = None
                 for step, status in enumerate(path):
                     # The client drafts, submits and cancels its own orders;
@@ -695,7 +718,7 @@ async def seed_demo(
                             to_status=status,
                             changed_by_contact_id=author.id if by_contact else None,
                             changed_by_user_id=None if by_contact else owner.id,
-                            created_at=created + timedelta(hours=step * 20),
+                            created_at=created + gap * step,
                         )
                     )
                     prev = status
@@ -710,7 +733,10 @@ async def seed_demo(
                             author_user_id=None if kind == "contact" else planner.id,
                             body=body,
                             is_internal=kind == "internal",
-                            created_at=created + timedelta(hours=3 + n * 18),
+                            created_at=min(
+                                created + timedelta(hours=3 + n * 18),
+                                now - timedelta(minutes=10 * (len(spec.comments) - n)),
+                            ),
                         )
                     )
                 created_orders.append(order)
