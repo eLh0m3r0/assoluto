@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="{{ locale or 'cs' }}">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light only">
+<title>{{ _("Your portal is over its plan limit") }}</title>
+</head>
+<body style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #111827; line-height: 1.5; background:#f8fafc;">
+    {% set metric_label = {
+        "storage_mb": _("storage"),
+        "orders": _("orders per month"),
+        "contacts": _("client contacts"),
+        "users": _("staff users"),
+    }.get(metric, metric) %}
+    <div style="max-width: 560px; margin: 0 auto; padding: 24px; background:#ffffff;">
+        <h1 style="font-size: 20px; margin: 0 0 16px;">{{ _("Your portal is over its plan limit") }}</h1>
+        <p>{% trans full_name=full_name %}Hello {{ full_name }},{% endtrans %}</p>
+        <p>
+            {% trans tenant_name=tenant_name %}one of your clients just uploaded a file or created an order in <strong>{{ tenant_name }}</strong> although the portal has reached its plan limit.{% endtrans %}
+            {{ _("Limit:") }} {{ limit }} ({{ metric_label }}).
+        </p>
+        <p>
+            {{ _("We accepted it anyway — your client saw no error and nothing was lost. Your staff cannot add more until usage drops or the plan is raised.") }}
+        </p>
+        <p style="margin: 24px 0;">
+            <a href="{{ billing_url }}"
+               style="display: inline-block; background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+                {{ _("Open billing") }}
+            </a>
+        </p>
+    </div>
+</body>
+</html>

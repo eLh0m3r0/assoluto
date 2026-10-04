@@ -429,6 +429,16 @@ async def customers_contact_reactivate(
     db: AsyncSession = Depends(get_db),
 ) -> Response:
     contact = await _get_contact(db, customer_id=customer_id, contact_id=contact_id)
+    if not contact.is_active:
+        from app.routers.tenant_admin import _reactivation_refusal
+
+        refusal = await _reactivation_refusal(
+            request, db, row=contact, tenant_id=principal.tenant_id, metric="contacts"
+        )
+        if refusal is not None:
+            return RedirectResponse(
+                url=f"/app/customers/{customer_id}?error={quote(refusal)}", status_code=303
+            )
     contact.is_active = True
     await db.flush()
     return RedirectResponse(

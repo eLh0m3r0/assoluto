@@ -14,18 +14,36 @@ no limits apply.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.logging import get_logger
 from app.models.attachment import OrderAttachment
 from app.models.customer import CustomerContact
 from app.models.order import Order
 from app.models.user import User
 from app.platform.billing.models import Plan
 from app.platform.billing.service import get_subscription_for_tenant
+from app.platform.models import MEMBERSHIP_ACCESS_SUPPORT, TenantMembership
+
+log = get_logger("app.billing")
+
+
+def _support_user_ids():
+    """User ids that are a platform operator's support-access grant.
+
+    LOGIC-20: such a user is a TENANT_ADMIN row in the customer's tenant
+    but is not the customer's staff — it must not eat a paid seat (a
+    Starter tenant with 3 staff showed 4/3 while support was granted)
+    nor receive the tenant's mail.
+    """
+    return select(TenantMembership.user_id).where(
+        TenantMembership.access_type == MEMBERSHIP_ACCESS_SUPPORT,
+        TenantMembership.user_id.is_not(None),
+    )
 
 
 @dataclass(frozen=True)
@@ -67,7 +85,11 @@ async def snapshot_tenant_usage(db: AsyncSession, tenant_id: UUID) -> UsageSnaps
     every request that needs it; if profiling says otherwise we can
     cache per-tenant for 60 s.
     """
-    users_q = select(func.count(User.id)).where(User.tenant_id == tenant_id, User.is_active)
+    users_q = select(func.count(User.id)).where(
+        User.tenant_id == tenant_id,
+        User.is_active,
+        User.id.not_in(_support_user_ids()),
+    )
     users = int((await db.execute(users_q)).scalar_one())
 
     contacts_q = select(func.count(CustomerContact.id)).where(
@@ -109,18 +131,38 @@ class PlanLimitExceeded(Exception):
         self.current = current
 
 
+# Advisory-lock namespace (two-int form) for "count usage, then insert".
+# See ``ensure_within_limit``.
+PLAN_LIMIT_LOCK_NAMESPACE = 42_102
+
+
 async def ensure_within_limit(
     db: AsyncSession,
     *,
     tenant_id: UUID,
     metric: str,
     delta: int = 1,
+    soft: bool = False,
 ) -> None:
     """Raise :class:`PlanLimitExceeded` if ``current + delta > plan_limit``.
 
     ``metric`` is one of ``users`` / ``contacts`` / ``orders`` / ``storage_mb``.
     If the tenant has no active subscription (self-hosted fallback) no
     limit is applied. Plan ``community`` also has no caps.
+
+    **Serialised per tenant (Codex-10).** Counting and inserting are two
+    statements; two concurrent requests used to both see the last free
+    slot and both succeed. When a cap applies we take a transaction-
+    scoped advisory lock on the tenant before counting, held until the
+    caller's transaction commits — i.e. through the INSERT that follows.
+
+    **``soft=True`` — the action of a supplier's CUSTOMER (LOGIC-3).**
+    A customer contact uploading a drawing or creating an order must
+    never hit the supplier's "upgrade your plan" page: they cannot act
+    on it, and a bounced drawing that nobody at the supplier hears about
+    is the worst outcome. Over the cap the action is accepted, logged,
+    and the tenant's administrators get an e-mail (at most one per
+    metric per day).
     """
     sub = await get_subscription_for_tenant(db, tenant_id)
     if sub is None:
@@ -140,6 +182,11 @@ async def ensure_within_limit(
     if limit is None or limit <= 0:
         return  # unlimited
 
+    await db.execute(
+        text("SELECT pg_advisory_xact_lock(:ns, hashtext(:tid))"),
+        {"ns": PLAN_LIMIT_LOCK_NAMESPACE, "tid": str(tenant_id)},
+    )
+
     usage = await snapshot_tenant_usage(db, tenant_id)
     current = {
         "users": usage.users,
@@ -149,4 +196,103 @@ async def ensure_within_limit(
     }[metric]
 
     if current + delta > limit:
+        if soft:
+            log.warning(
+                "plan_limit.exceeded_soft",
+                tenant_id=str(tenant_id),
+                metric=metric,
+                limit=limit,
+                current=current,
+            )
+            await _alert_tenant_admins(db, tenant_id=tenant_id, metric=metric, limit=limit)
+            return
         raise PlanLimitExceeded(metric=metric, limit=limit, current=current)
+
+
+# ----------------------------------------------- over-limit admin alert
+
+# (tenant_id, metric) → last alert. In-process throttle: production runs
+# one worker, so this bounds the mail to ~1 per metric per day (plus at
+# most one extra after a restart) without a table for it.
+_ALERT_INTERVAL = timedelta(hours=24)
+_last_alert: dict[tuple[UUID, str], datetime] = {}
+
+
+def _alert_sender(settings):  # pragma: no cover - patched in tests
+    from app.email.sender import build_sender
+
+    return build_sender(settings)
+
+
+def _dispatch(fn) -> None:  # pragma: no cover - patched in tests
+    """Run the blocking SMTP send off the event loop, fire-and-forget.
+
+    The mail needs nothing from the DB (recipients are resolved before),
+    so it does not have to wait for the request's commit (CLAUDE.md §2).
+    """
+    import asyncio
+
+    asyncio.get_running_loop().run_in_executor(None, fn)
+
+
+async def _alert_tenant_admins(
+    db: AsyncSession, *, tenant_id: UUID, metric: str, limit: int
+) -> None:
+    from functools import partial
+
+    from app.config import get_settings
+    from app.models.enums import UserRole
+    from app.models.tenant import Tenant
+    from app.services.locale_service import resolve_email_locale
+    from app.tasks.email_tasks import _render_and_send
+
+    now = datetime.now(UTC)
+    key = (tenant_id, metric)
+    last = _last_alert.get(key)
+    if last is not None and now - last < _ALERT_INTERVAL:
+        return
+
+    tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
+    if tenant is None:
+        return
+    admins = (
+        (
+            await db.execute(
+                select(User).where(
+                    User.tenant_id == tenant_id,
+                    User.role == UserRole.TENANT_ADMIN,
+                    User.is_active.is_(True),
+                    User.password_hash.is_not(None),
+                    User.id.not_in(_support_user_ids()),
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not admins:
+        return
+    _last_alert[key] = now
+
+    settings = get_settings()
+    sender = _alert_sender(settings)
+    billing_url = settings.app_base_url.rstrip("/") + f"/platform/billing?tenant={tenant.slug}"
+    for admin in admins:
+        locale = resolve_email_locale(recipient=admin, tenant=tenant, settings=settings)
+        _dispatch(
+            partial(
+                _render_and_send,
+                sender,
+                "plan_limit_reached",
+                "plan_limit_reached",
+                admin.email,
+                {
+                    "full_name": admin.full_name,
+                    "tenant_name": tenant.name,
+                    "metric": metric,
+                    "limit": limit,
+                    "billing_url": billing_url,
+                },
+                locale,
+            )
+        )

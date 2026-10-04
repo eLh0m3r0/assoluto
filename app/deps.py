@@ -98,6 +98,17 @@ def resolve_tenant_slug(request: Request, settings: Settings) -> str | None:
     return None
 
 
+class TenantUnavailable(HTTPException):
+    """The tenant exists but is deactivated — rendered as a 503 page."""
+
+    def __init__(self, tenant_name: str) -> None:
+        super().__init__(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Portal temporarily unavailable",
+        )
+        self.tenant_name = tenant_name
+
+
 async def get_current_tenant(
     request: Request,
     settings: Settings = Depends(get_settings),
@@ -119,8 +130,14 @@ async def get_current_tenant(
         result = await session.execute(select(Tenant).where(Tenant.slug == slug))
         tenant = result.scalar_one_or_none()
 
-    if tenant is None or not tenant.is_active:
+    if tenant is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tenant not found")
+    if not tenant.is_active:
+        # A known but deactivated portal (billing hard cut, operator
+        # suspension) gets a neutral, branded "temporarily unavailable"
+        # page instead of a bare 404 — its customers' orders did not
+        # vanish, and they deserve to know whom to call (LOGIC-3).
+        raise TenantUnavailable(tenant.name)
 
     # Stash on request.state so downstream code (templates, logging) can
     # use it without re-querying.
@@ -234,17 +251,48 @@ async def _stash_subscription_status(
     if hasattr(request.state, "subscription_status"):
         return  # already loaded for this request
     try:
+        from datetime import UTC, datetime
+
         from sqlalchemy import text
+
+        from app.tasks.periodic import access_cutoff
 
         row = (
             await db.execute(
-                text("SELECT status FROM platform_subscriptions WHERE tenant_id = :tid LIMIT 1"),
+                text(
+                    "SELECT status, trial_ends_at, current_period_end, status_changed_at, "
+                    "       canceled_at, updated_at, stripe_subscription_id "
+                    "FROM platform_subscriptions WHERE tenant_id = :tid LIMIT 1"
+                ),
                 {"tid": tenant_id},
             )
-        ).scalar_one_or_none()
-        request.state.subscription_status = row
+        ).one_or_none()
+        if row is None:
+            request.state.subscription_status = None
+            request.state.subscription_info = None
+            return
+        request.state.subscription_status = row.status
+        # Everything the staff banners need: the trial countdown
+        # (LOGIC-4) and the date access actually ends (hard cut).
+        days_left = None
+        if row.status == "trialing" and row.trial_ends_at is not None:
+            days_left = max(0, (row.trial_ends_at - datetime.now(UTC)).days)
+        request.state.subscription_info = {
+            "status": row.status,
+            "trial_ends_at": row.trial_ends_at,
+            "trial_days_left": days_left,
+            "stripe_managed": row.stripe_subscription_id is not None,
+            "access_ends_at": access_cutoff(
+                row.status,
+                current_period_end=row.current_period_end,
+                status_changed_at=row.status_changed_at,
+                canceled_at=row.canceled_at,
+                updated_at=row.updated_at,
+            ),
+        }
     except Exception:  # pragma: no cover - belt-and-braces
         request.state.subscription_status = None
+        request.state.subscription_info = None
 
 
 async def get_current_principal(

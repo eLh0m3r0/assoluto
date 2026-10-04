@@ -53,7 +53,7 @@ from dataclasses import dataclass, field
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import Uuid, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
@@ -78,15 +78,11 @@ log = get_logger("app.notifications")
 # every notification log line namespaces ours as ``notification_event``.
 
 #: Staff-side events important enough that a tenant with no staff at all
-#: should still hear about them, via ``tenants.billing_email``.
-_FALLBACK_EVENTS: frozenset[NotificationEvent] = frozenset(
-    {
-        NotificationEvent.ORDER_SUBMITTED,
-        NotificationEvent.ORDER_STATUS_CHANGED,
-        NotificationEvent.ORDER_COMMENT,
-        NotificationEvent.ORDER_ATTACHMENT,
-    }
-)
+#: should still hear about them, via ``tenants.billing_email``. Only the
+#: new-order signal (Codex-11): comments and attachments quote customer
+#: content, and an address that merely receives invoices is not an
+#: authorised reader of it.
+_FALLBACK_EVENTS: frozenset[NotificationEvent] = frozenset({NotificationEvent.ORDER_SUBMITTED})
 
 #: Comment bodies are quoted in the email; keep the excerpt short enough
 #: that the mail stays scannable and long enough to be useful without
@@ -234,8 +230,22 @@ async def _eligible_staff(db: AsyncSession) -> list[User]:
     list and are demoted by the reachability filter in :func:`_select`
     instead of dropped here — a tenant whose whole team is still pending
     should hear about an order, not lose it.
+
+    A platform operator's **support-access** user is not staff (LOGIC-20):
+    it is a password-less TENANT_ADMIN row the reachability filter would
+    otherwise fall back to, mailing the customer's order excerpts to the
+    operator. Excluded here, by raw SQL — core does not import the
+    platform package (CLAUDE.md §6); the table exists in every schema.
     """
-    return list((await db.execute(select(User).where(User.is_active.is_(True)))).scalars().all())
+    support = text(
+        "SELECT m.user_id FROM platform_tenant_memberships m "
+        "WHERE m.access_type = 'support' AND m.user_id IS NOT NULL"
+    ).columns(user_id=Uuid())
+    return list(
+        (await db.execute(select(User).where(User.is_active.is_(True), User.id.not_in(support))))
+        .scalars()
+        .all()
+    )
 
 
 async def resolve_staff_audience(
@@ -255,13 +265,33 @@ async def resolve_staff_audience(
         # up to hear this". Route to the tenant's billing address so an
         # order submission can never vanish silently.
         if event in _FALLBACK_EVENTS and tenant.billing_email:
+            billing = tenant.billing_email.strip().lower()
+            # Codex-11: the billing address is not an authorisation. If it
+            # belongs to a (necessarily inactive) staff account — a
+            # disabled or opted-out former owner — mailing order content
+            # there would bypass both the disable and their consent.
+            owner_row = (
+                await db.execute(
+                    select(User.id).where(
+                        User.tenant_id == tenant.id, func.lower(User.email) == billing
+                    )
+                )
+            ).first()
+            if owner_row is not None:
+                log.warning(
+                    "notifications.staff_fallback_skipped",
+                    notification_event=event.value,
+                    tenant_id=str(tenant.id),
+                    reason="billing_email_is_disabled_user",
+                )
+                return []
             log.warning(
                 "notifications.staff_fallback",
                 notification_event=event.value,
                 tenant_id=str(tenant.id),
                 reason="no_eligible_staff",
             )
-            if tenant.billing_email.strip().lower() == (exclude_email or "").strip().lower():
+            if billing == (exclude_email or "").strip().lower():
                 return []
             return [
                 Recipient(

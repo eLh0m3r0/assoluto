@@ -305,3 +305,31 @@ async def test_platform_logout_invalidates_copied_cookie(admin_client) -> None:
     admin_client.cookies.set(PLATFORM_COOKIE_NAME, stolen)
     resp = await admin_client.get("/platform/admin/tenants", follow_redirects=False)
     assert resp.status_code in (303, 401)
+
+
+async def test_billing_jobs_leave_an_audit_trail(owner_engine, wipe_db) -> None:
+    """BE-13: jobs disabled tenants without a trace."""
+    tenant = await _seed(
+        owner_engine,
+        status="trialing",
+        trial_ends_at=NOW - timedelta(days=10),
+        current_period_end=NOW - timedelta(days=10),
+    )
+    assert await expire_demo_trials(now=NOW) == 1
+    assert await enforce_canceled_subscriptions(now=NOW) == 1
+    async with owner_engine.connect() as conn:
+        rows = (
+            await conn.execute(
+                text(
+                    "SELECT action, actor_type, actor_label FROM audit_events "
+                    "WHERE tenant_id = :t ORDER BY occurred_at"
+                ),
+                {"t": tenant.id},
+            )
+        ).all()
+    assert [r.action for r in rows] == [
+        "billing.subscription_expired",
+        "tenant.deactivated_for_billing",
+    ]
+    assert {r.actor_type for r in rows} == {"system"}
+    assert rows[1].actor_label == "job:enforce_canceled_subscriptions"

@@ -505,6 +505,16 @@ def _register_error_handlers(app: FastAPI) -> None:
             ):
                 return RedirectResponse(url=location, status_code=status.HTTP_303_SEE_OTHER)
 
+        from app.deps import TenantUnavailable
+
+        if isinstance(exc, TenantUnavailable) and _wants_html(request):
+            html = templates.render(
+                request,
+                "errors/tenant_unavailable.html",
+                {"principal": None, "tenant_name": exc.tenant_name},
+            )
+            return HTMLResponse(html, status_code=exc.status_code)
+
         if _wants_html(request) and exc.status_code in (403, 404):
             template = f"errors/{exc.status_code}.html"
             html = templates.render(request, template, {"principal": None})

@@ -272,11 +272,23 @@ async def expire_demo_trials(now: datetime | None = None) -> int:
                         "     AND status_changed_at IS NOT NULL "
                         "     AND current_period_end IS NOT NULL "
                         "     AND current_period_end < :now) "
-                        "  )"
+                        "  ) "
+                        "RETURNING id, tenant_id"
                     ),
                     {"now": current},
                 )
-                expired = result.rowcount or 0
+                expired_rows = result.all()
+                for sub_id, tenant_id in expired_rows:
+                    await _billing_job_audit(
+                        conn,
+                        job="expire_demo_trials",
+                        action="billing.subscription_expired",
+                        entity_type="subscription",
+                        entity_id=sub_id,
+                        tenant_id=tenant_id,
+                        after={"status": "canceled", "at": current.isoformat()},
+                    )
+                expired = len(expired_rows)
                 log.info("periodic.expire_trials.done", expired=expired)
                 return expired
             finally:
@@ -286,6 +298,40 @@ async def expire_demo_trials(now: datetime | None = None) -> int:
                 )
     finally:
         await engine.dispose()
+
+
+async def _billing_job_audit(
+    conn,
+    *,
+    job: str,
+    action: str,
+    entity_type: str,
+    entity_id,
+    tenant_id,
+    after: dict,
+) -> None:
+    """Tenant-visible audit row for a billing job's decision (BE-13).
+
+    Scheduled jobs disabled tenants without a trace; the tenant admin's
+    audit log now says which job did what. Actor = ``system`` /
+    ``job:<name>``. Written in the job's own transaction.
+    """
+    from app.services import audit_service
+    from app.services.audit_service import ActorInfo
+
+    sm = async_sessionmaker(bind=conn, expire_on_commit=False)
+    async with sm() as session:
+        await audit_service.record(
+            session,
+            action=action,
+            entity_type=entity_type,
+            entity_id=entity_id,
+            entity_label=job,
+            actor=ActorInfo(type="system", id=None, label=f"job:{job}"),
+            after=after,
+            tenant_id=tenant_id,
+        )
+        await session.flush()
 
 
 def access_cutoff(
@@ -414,6 +460,15 @@ async def enforce_canceled_subscriptions(now: datetime | None = None) -> int:
                             "WHERE tenant_id = :tid"
                         ),
                         {"tid": tenant_id},
+                    )
+                    await _billing_job_audit(
+                        conn,
+                        job="enforce_canceled_subscriptions",
+                        action="tenant.deactivated_for_billing",
+                        entity_type="tenant",
+                        entity_id=tenant_id,
+                        tenant_id=tenant_id,
+                        after={"subscription_status": sub_status},
                     )
                     deactivated += 1
                     log.info(

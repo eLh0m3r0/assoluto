@@ -57,18 +57,51 @@ def _require_tenant_admin(principal: Principal) -> None:
 
 
 async def _other_active_admins_exist(db: AsyncSession, *, exclude_user_id: UUID) -> bool:
-    """Return True iff at least one OTHER active TENANT_ADMIN exists in the
-    current tenant (RLS-scoped session). Used to block the last-admin
-    self-lockout in disable / role-change paths.
+    """Return True iff at least one OTHER *usable* TENANT_ADMIN exists in
+    the current tenant (RLS-scoped session). Used to block the last-admin
+    self-lockout in disable / role-change / self-erase paths.
+
+    "Usable" = active AND able to log in (``password_hash IS NOT NULL``).
+    LOGIC-9: an invited-but-never-accepted admin and a platform
+    operator's support-access user (both have no password) used to
+    count, so the real owner could demote or erase themselves and leave
+    the tenant with nobody able to administer — or pay for — it.
     """
     result = await db.execute(
         select(User.id).where(
             User.role == UserRole.TENANT_ADMIN,
             User.is_active.is_(True),
+            User.password_hash.is_not(None),
             User.id != exclude_user_id,
         )
     )
     return result.first() is not None
+
+
+async def _reactivation_refusal(
+    request: Request, db: AsyncSession, *, row, tenant_id: UUID, metric: str
+) -> str | None:
+    """Why an inactive user/contact may NOT be switched back on, or None.
+
+    LOGIC-8 / Codex-9: plan caps were checked only at invite time and
+    usage counts active rows, so "disable → invite a replacement →
+    reactivate" stretched any cap indefinitely. Every inactive→active
+    transition now passes the same gate as an invite. A GDPR-erased row
+    is a tombstone and never comes back.
+    """
+    from app.platform.usage import PlanLimitExceeded, ensure_within_limit
+
+    if "_gdpr_erased_at" in (row.notification_prefs or {}):
+        return _t(request, "This account was erased (GDPR) and cannot be reactivated.")
+    try:
+        await ensure_within_limit(db, tenant_id=tenant_id, metric=metric)
+    except PlanLimitExceeded as exc:
+        return _t(
+            request,
+            "Your plan allows {limit} — reactivating would exceed it. "
+            "Disable someone else first or upgrade the plan.",
+        ).format(limit=exc.limit)
+    return None
 
 
 # --------------------------------------------------------------- users
@@ -274,6 +307,12 @@ async def users_reactivate(
     target = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
     if target is None:
         raise HTTPException(status_code=404, detail="User not found")
+    if not target.is_active:
+        refusal = await _reactivation_refusal(
+            request, db, row=target, tenant_id=principal.tenant_id, metric="users"
+        )
+        if refusal is not None:
+            return RedirectResponse(url=f"/app/admin/users?error={quote(refusal)}", status_code=303)
     target.is_active = True
     await db.flush()
     await audit_service.record(
@@ -760,33 +799,21 @@ async def profile_delete(
     # Block the last remaining tenant admin from erasing themselves —
     # would leave the tenant without an admin. Operator has to
     # promote someone first.
-    if user.role == UserRole.TENANT_ADMIN:
-        other_admins = (
-            (
-                await db.execute(
-                    select(User).where(
-                        User.role == UserRole.TENANT_ADMIN,
-                        User.is_active.is_(True),
-                        User.id != user.id,
+    if user.role == UserRole.TENANT_ADMIN and not await _other_active_admins_exist(
+        db, exclude_user_id=user.id
+    ):
+        return RedirectResponse(
+            url=(
+                "/app/admin/profile?error="
+                + quote(
+                    _t(
+                        request,
+                        "You're the last administrator — promote someone else first.",
                     )
                 )
-            )
-            .scalars()
-            .all()
+            ),
+            status_code=303,
         )
-        if not other_admins:
-            return RedirectResponse(
-                url=(
-                    "/app/admin/profile?error="
-                    + quote(
-                        _t(
-                            request,
-                            "You're the last administrator — promote someone else first.",
-                        )
-                    )
-                ),
-                status_code=303,
-            )
 
     # See app/routers/me.py: audit_events is append-only, so the erased
     # subject's name and email must never be written onto the erasure

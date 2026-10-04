@@ -364,7 +364,10 @@ async def create_order(
     # community / unlimited plans.
     from app.platform.usage import ensure_within_limit
 
-    await ensure_within_limit(db, tenant_id=tenant_id, metric="orders")
+    # Soft for a customer contact (LOGIC-3) — see ensure_within_limit.
+    await ensure_within_limit(
+        db, tenant_id=tenant_id, metric="orders", soft=actor.type == "contact"
+    )
 
     number = await _next_order_number(db, tenant_id=tenant_id)
 
