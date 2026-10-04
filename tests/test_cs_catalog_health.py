@@ -227,9 +227,10 @@ def test_en_catalog_msgstrs_are_empty_or_match_msgid() -> None:
 @pytest.mark.parametrize(
     "msgid,must_contain",
     [
-        ("Stop picking up the phone.", "Přestaňte zvedat telefon"),
+        # Hero after the 2026-10 positioning change (market.md §2).
+        ("The customer portal for make-to-order manufacturers.", "zakázkovou výrobu"),
+        ("Next to your accounting software, not instead of it.", "ne místo"),
         ("Need more?", "Potřebujete víc"),
-        ("Your server, your data", "server"),
         ("Why Assoluto", "Assoluto"),  # CS translation should mention Assoluto
         ("How it works", "Jak to funguje"),
     ],

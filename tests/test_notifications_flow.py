@@ -142,7 +142,7 @@ async def test_submitting_order_emails_tenant_admin(
     assert len(capture.outbox) == 1
     msg = capture.outbox[0]
     assert msg.to == "owner@4mex.cz"
-    assert "Nová objednávka" in msg.subject
+    assert "Nová zakázka" in msg.subject
     assert "ACME" in msg.subject
     assert "Nová zakázka" in msg.html
     assert f"/app/orders/{order_id}" in msg.html

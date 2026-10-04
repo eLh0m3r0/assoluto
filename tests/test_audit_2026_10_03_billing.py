@@ -136,7 +136,9 @@ async def test_production_without_stripe_never_grants_a_plan(
 
     page = await billing_app.get(loc)
     assert page.status_code == 200
-    assert "Online payment is being set up" in page.text
+    assert (
+        "Online payment is being set up" in page.text or "Online platby připravujeme" in page.text
+    )
     assert settings.platform_operator_email in page.text
     assert "Demo mode (Stripe not configured)" not in page.text
 

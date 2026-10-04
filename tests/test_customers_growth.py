@@ -132,7 +132,7 @@ async def test_detail_shows_last_sign_in_per_contact(
     resp = await tenant_client.get(f"/app/customers/{seeded['customer'].id}")
     # The admin signed in 3 days ago; the technician never did.
     assert resp.text.count("<time datetime=") == 1
-    assert "Never signed in" in resp.text or "Nikdy" in resp.text
+    assert "Never signed in" in resp.text or "Zatím bez přihlášení" in resp.text
     listing = await tenant_client.get("/app/customers")
     assert "Strojírna Ukázková s.r.o." in listing.text
 

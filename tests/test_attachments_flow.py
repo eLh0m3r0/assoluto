@@ -173,6 +173,13 @@ async def test_contact_uploads_image_and_thumbnail_is_generated(
     detail = await tenant_client.get(f"/app/orders/{order_id}")
     assert "vykres.png" in detail.text
 
+    # The thumbnail is served from our own origin. A 302 to presigned S3
+    # was blocked by the CSP (img-src 'self'), so no thumbnail ever showed.
+    thumb = await tenant_client.get(f"/app/attachments/{att.id}/thumbnail")
+    assert thumb.status_code == 200
+    assert thumb.headers["content-type"] == "image/jpeg"
+    assert thumb.content[:3] == b"\xff\xd8\xff"
+
     # Download route redirects to a presigned URL.
     download = await tenant_client.get(
         f"/app/attachments/{att.id}/download", follow_redirects=False

@@ -275,7 +275,7 @@ async def test_signup_rejects_disposable_email(platform, owner_engine) -> None:
         follow_redirects=False,
     )
     assert resp.status_code == 400
-    assert "permanent work email" in resp.text or "trvalou" in resp.text
+    assert "permanent work email" in resp.text or "trvalý pracovní e-mail" in resp.text
     async with owner_engine.connect() as conn:
         n = (await conn.execute(text("SELECT count(*) FROM tenants"))).scalar_one()
     assert n == 0
@@ -434,5 +434,5 @@ async def test_unverified_trial_not_counted_as_trial(platform, owner_engine) -> 
     assert len(tm) == 1
     import re
 
-    match = re.search(r"with verified e-mail:\s*(\d+)", resp.text)
+    match = re.search(r"(?:with verified e-mail|s ověřeným e-mailem):\s*(\d+)", resp.text)
     assert match is not None and match.group(1) == "0"

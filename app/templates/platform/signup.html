@@ -67,7 +67,7 @@
                     <input type="text" id="slug" name="slug"
                            autocomplete="off"
                            value="{{ form.slug or '' }}"
-                           pattern="[a-z0-9-]*"
+                           pattern="[a-z0-9\-]*"
                            placeholder="acme"
                            aria-describedby="slug-help"
                            class="block w-full rounded-l-lg border {% if errors.slug %}border-red-400{% else %}border-gray-300{% endif %} bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 {% if not (errors.slug) %}dark:border-slate-700 {% endif %}dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500">

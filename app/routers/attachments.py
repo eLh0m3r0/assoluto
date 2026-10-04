@@ -255,8 +255,21 @@ async def thumbnail_redirect(
     except (OrderNotFound, OrderAccessDenied):
         raise HTTPException(status_code=404, detail="No thumbnail") from None
 
-    url = s3_storage.generate_presigned_get(attachment.thumbnail_key)
-    return RedirectResponse(url=url, status_code=302)
+    # Served from our own origin instead of a 302 to a presigned S3 URL:
+    # the CSP is ``img-src 'self' data:``, so the browser refused the
+    # redirected image and no thumbnail ever rendered (2026-10 E2E).
+    # Thumbnails are small JPEGs (~400 px), so proxying them is cheap and
+    # keeps the storage endpoint out of the page.
+    try:
+        data = await s3_storage.download_bytes_async(attachment.thumbnail_key)
+    except Exception:
+        log.warning("attachment.thumbnail_fetch_failed", attachment_id=str(attachment_id))
+        raise HTTPException(status_code=404, detail="No thumbnail") from None
+    return Response(
+        content=data,
+        media_type="image/jpeg",
+        headers={"Cache-Control": "private, max-age=3600"},
+    )
 
 
 @router.post("/attachments/{attachment_id}/delete")

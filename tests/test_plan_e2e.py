@@ -269,10 +269,8 @@ async def test_plan_e2e_happy_path(
     )
     assert submit.status_code == 303
 
-    # -------- Step 13: owner gets "Nová objednávka" email ------------------
-    submit_mails = [
-        m for m in capture.outbox[submit_inbox_before:] if "Nová objednávka" in m.subject
-    ]
+    # -------- Step 13: owner gets "Nová zakázka" email --------------------
+    submit_mails = [m for m in capture.outbox[submit_inbox_before:] if "Nová zakázka" in m.subject]
     assert len(submit_mails) >= 1
     assert any(m.to == "owner@4mex.cz" for m in submit_mails)
 
