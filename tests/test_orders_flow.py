@@ -399,3 +399,33 @@ async def test_unquoted_order_shows_running_sum_of_priced_items(
     running = re.search(r"data-running-total>\s*([^<]+?)\s*<", page.text)
     assert running is not None
     assert running.group(1).replace("\xa0", " ").startswith("1 455")
+
+
+async def test_items_get_increasing_positions(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """``int(max_pos or -1) + 1`` gave every line position 0 (a first line
+    at 0 is falsy), so ordering by position alone was random — this test's
+    sibling flaked with the two prices swapped (2 700 instead of 1 800)."""
+    await _seed_everyone(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "jan@acme.cz", "contactpass")
+    resp = await tenant_client.post(
+        "/app/orders", data={"title": "Pozice", "notes": ""}, follow_redirects=False
+    )
+    order_id = UUID(resp.headers["location"].rsplit("/", 1)[-1].split("?", 1)[0])
+    for name in ("A", "B", "C"):
+        await tenant_client.post(
+            f"/app/orders/{order_id}/items",
+            data={"description": name, "quantity": "1", "unit": "ks"},
+            follow_redirects=False,
+        )
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session:
+        rows = (
+            await session.execute(
+                select(OrderItem.description, OrderItem.position)
+                .where(OrderItem.order_id == order_id)
+                .order_by(OrderItem.position)
+            )
+        ).all()
+    assert [(r.description, r.position) for r in rows] == [("A", 0), ("B", 1), ("C", 2)]
