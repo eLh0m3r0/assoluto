@@ -16,6 +16,13 @@
                 </svg>
                 CSV
             </a>
+            {% if principal.role == "tenant_admin" %}
+                <a href="/app/admin/exports/pohoda.xml{{ _csv_qs }}"
+                   title="{{ _('Download the listed orders as XML for POHODA (drafts and cancelled orders are skipped unless filtered)') }}"
+                   class="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                    {{ _('Export to POHODA') }}
+                </a>
+            {% endif %}
             <a href="/app/orders/new"
                class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
                 {{ _('New order') }}

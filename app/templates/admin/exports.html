@@ -1,0 +1,98 @@
+{% extends "app_base.html" %}
+
+{% block title %}Assoluto — {{ _('Accounting export') }} · {{ tenant.name }}{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-2xl">
+    {% with items=[(_('Dashboard'), '/app'), (_('Administration'), '/app/admin/users'), (_('Accounting export'), None)] %}
+        {% include "_breadcrumbs.html" %}
+    {% endwith %}
+
+    <h1 class="mb-2 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('Accounting export') }}</h1>
+    <p class="mb-6 text-sm text-slate-600 dark:text-slate-400">
+        {{ _('Download orders as an XML file of received orders for POHODA or Money S3, so your accountant imports them instead of retyping them.') }}
+    </p>
+
+    {% include "_flash.html" %}
+
+    <form method="get" action="/app/admin/exports/pohoda.xml" data-no-busy
+          class="space-y-5 rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        {% if filters.q %}<input type="hidden" name="q" value="{{ filters.q }}">{% endif %}
+        {% if filters.assigned %}<input type="hidden" name="assigned" value="{{ filters.assigned }}">{% endif %}
+
+        <fieldset>
+            <legend class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Order statuses') }}</legend>
+            <div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {% for value, label in status_options %}
+                    <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                        <input type="checkbox" name="status" value="{{ value }}"
+                               {% if value in selected_statuses %}checked{% endif %}
+                               class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800">
+                        {{ _(label) }}
+                    </label>
+                {% endfor %}
+            </div>
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                {{ _('Drafts and cancelled orders are left out unless you tick them.') }}
+            </p>
+        </fieldset>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+                <label for="exp-from" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Created from') }}</label>
+                <input id="exp-from" type="date" name="from" value="{{ filters['from'] }}"
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+            </div>
+            <div>
+                <label for="exp-to" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Created to') }}</label>
+                <input id="exp-to" type="date" name="to" value="{{ filters['to'] }}"
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+            </div>
+        </div>
+
+        <div>
+            <label for="exp-customer" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Client') }}</label>
+            <select id="exp-customer" name="customer"
+                    class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                <option value="">{{ _('All clients') }}</option>
+                {% for c in customers %}
+                    <option value="{{ c.id }}" {% if filters.customer == c.id|string %}selected{% endif %}>{{ c.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+                <label for="exp-vat" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('VAT rate for items') }}</label>
+                <select id="exp-vat" name="vat_rate"
+                        class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                    <option value="none" {% if vat_rate == 'none' %}selected{% endif %}>{{ _('No VAT (not a VAT payer)') }}</option>
+                    <option value="high" {% if vat_rate == 'high' %}selected{% endif %}>{{ _('Standard rate') }}</option>
+                    <option value="low" {% if vat_rate == 'low' %}selected{% endif %}>{{ _('Reduced rate') }}</option>
+                </select>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _('Prices are exported without VAT; the accounting program adds VAT at the chosen rate.') }}</p>
+            </div>
+            <div>
+                <label for="exp-ico" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ _('Your company ID in the accounting program') }}</label>
+                <input id="exp-ico" type="text" name="ico" value="{{ ico }}" maxlength="15" inputmode="numeric"
+                       class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ _('Marks which company (accounting unit) the file belongs to. Leave empty to import into the one that is open.') }}</p>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-3 pt-2">
+            <p class="text-xs text-slate-500 dark:text-slate-400">{{ _('At most') }} {{ max_orders }} {{ _('orders per file.') }}</p>
+            <div class="flex flex-wrap items-center justify-end gap-2">
+                <button type="submit" formaction="/app/admin/exports/money-s3.xml"
+                        class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                    {{ _('Download for Money S3') }}
+                </button>
+                <button type="submit"
+                        class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                    {{ _('Download for POHODA') }}
+                </button>
+            </div>
+        </div>
+    </form>
+</section>
+{% endblock %}

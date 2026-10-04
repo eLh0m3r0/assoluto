@@ -20,6 +20,7 @@ from app.routers import assets as assets_router
 from app.routers import attachments as attachments_router
 from app.routers import customers as customers_router
 from app.routers import dashboard as dashboard_router
+from app.routers import exports as exports_router
 from app.routers import health as health_router
 from app.routers import me as me_router
 from app.routers import orders as orders_router
@@ -378,6 +379,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(assets_router.router)
     app.include_router(search_router.router)
     app.include_router(tenant_admin_router.router)
+    app.include_router(exports_router.router)
     app.include_router(me_router.router)
     app.include_router(www_router.router)
 
