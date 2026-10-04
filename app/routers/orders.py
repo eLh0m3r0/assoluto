@@ -1473,6 +1473,10 @@ async def orders_bulk_transition(
                     actor_email=principal.email,
                 )
             )
+        elif target == OrderStatus.DRAFT:
+            # Back to draft is an internal correction (LOGIC-22) — same
+            # rule as the single-order route: the customer is not mailed.
+            continue
         else:
             notifications.extend(
                 await build_order_status_changed(

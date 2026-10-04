@@ -525,6 +525,44 @@ async def test_picker_prefills_the_last_price_for_this_customer(
 # ------------------------------------------------------------ LOGIC-22
 
 
+async def test_bulk_move_back_to_draft_is_silent(tenant_client, owner_engine, demo_tenant) -> None:
+    seed = await _seed(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "staff@4mex.cz", "staffpass")
+    order_id = await _new_order(tenant_client, seed["acme"].id)
+    await _add(tenant_client, order_id)
+    await _move(tenant_client, order_id, "in_production")
+    capture = _capture(tenant_client)
+    resp = await tenant_client.post(
+        "/app/orders/bulk/transition",
+        data={"order_ids": [str(order_id)], "to_status": "draft"},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    assert (await _order(owner_engine, order_id)).status == OrderStatus.DRAFT
+    assert capture.outbox == []
+
+
+async def test_stepper_marks_the_current_step_and_badges_differ(
+    tenant_client, owner_engine, demo_tenant
+) -> None:
+    seed = await _seed(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "staff@4mex.cz", "staffpass")
+    order_id = await _new_order(tenant_client, seed["acme"].id)
+    body = (await tenant_client.get(f"/app/orders/{order_id}")).text
+    # UX-23: one current step, announced; stepper sits above the items.
+    assert body.count('aria-current="step"') == 1
+    assert body.index('id="order-status"') < body.index("add-item-form")
+
+    from app.templating import build_jinja_env
+
+    env = build_jinja_env()
+    tpl = env.get_template("orders/_status_badge.html")
+    confirmed = tpl.render(status="confirmed")
+    delivered = tpl.render(status="delivered")
+    # UX-24: "to be produced" must not look like "done".
+    assert confirmed.split('class="')[1] != delivered.split('class="')[1]
+
+
 async def test_status_note_reaches_history_and_mail_and_draft_is_silent(
     tenant_client, owner_engine, demo_tenant
 ) -> None:
