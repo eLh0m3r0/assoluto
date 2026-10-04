@@ -69,6 +69,20 @@
     }
   });
 
+  // A middle-click fires ``auxclick``, never ``click`` — so the promise
+  // above ("middle-click opens a new tab") only held on the real <a> in
+  // the first cell (UX-05). Mirror it for the rest of the row.
+  document.addEventListener("auxclick", function (event) {
+    if (event.button !== 1) return;
+    var row = event.target.closest("[data-href]");
+    if (!row) return;
+    if (event.target.closest("a, button, input, select, textarea, label")) return;
+    var href = row.getAttribute("data-href");
+    if (!href) return;
+    event.preventDefault();
+    window.open(href, "_blank", "noopener");
+  });
+
   // -------- destructive-action confirmation --------
   // Forms that carry ``data-confirm="..."`` pop up the native confirm
   // dialog on submit; cancelling aborts the submission. Replaces the
@@ -77,6 +91,12 @@
     var form = event.target.closest("form[data-confirm]");
     if (!form) return;
     var msg = form.getAttribute("data-confirm") || "";
+    // Bulk forms carry a ``{count}`` placeholder filled with the number
+    // of ticked rows, so "Change 7 orders?" names the real blast radius.
+    if (msg.indexOf("{count}") !== -1) {
+      var ticked = form.querySelectorAll("[data-bulk-row-checkbox]:checked").length;
+      msg = msg.replace("{count}", String(ticked));
+    }
     if (msg && !window.confirm(msg)) {
       event.preventDefault();
     }
@@ -118,6 +138,9 @@
   document.addEventListener("submit", function (event) {
     var form = event.target;
     if (!form || !(form instanceof HTMLFormElement)) return;
+    // A cancelled ``data-confirm`` dialog prevents the submit; the buttons
+    // must stay usable rather than spin for 5 s on a form that never left.
+    if (event.defaultPrevented) return;
     // Skip forms that explicitly opt out — e.g. filters, search.
     if (form.hasAttribute("data-no-busy")) return;
     var buttons = form.querySelectorAll("button[type='submit'], input[type='submit']");
@@ -300,6 +323,14 @@
     syncBulkBar();
   }
 
+  // Typing into an auto-filled field makes it the user's own value.
+  document.addEventListener("input", function (event) {
+    var el = event.target;
+    if (el && el.getAttribute && el.getAttribute("data-autofilled") === "1") {
+      el.setAttribute("data-autofilled", "0");
+    }
+  });
+
   // -------- order item product picker --------
   // When a staff/contact picks a product from the dropdown on the order
   // detail page, pre-fill the description, unit, and unit_price inputs.
@@ -318,8 +349,17 @@
     var unit = option.getAttribute("data-unit") || "";
     var price = option.getAttribute("data-price") || "";
 
-    if (descEl && !descEl.value) descEl.value = name;
+    // Overwrite what the *previous* pick filled in, but never what the
+    // user typed: switching products used to keep the first product's
+    // description and price.
+    if (descEl && (!descEl.value || descEl.getAttribute("data-autofilled") === "1")) {
+      descEl.value = name;
+      descEl.setAttribute("data-autofilled", name ? "1" : "0");
+    }
     if (unitEl) unitEl.value = unit || "ks";
-    if (priceEl && !priceEl.value) priceEl.value = price;
+    if (priceEl && (!priceEl.value || priceEl.getAttribute("data-autofilled") === "1")) {
+      priceEl.value = price;
+      priceEl.setAttribute("data-autofilled", price ? "1" : "0");
+    }
   });
 })();

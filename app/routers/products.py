@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from decimal import Decimal, InvalidOperation
 from urllib.parse import quote
 from uuid import UUID
 
@@ -13,9 +12,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.deps import Principal, get_db, require_tenant_staff
 from app.i18n import t as _t
+from app.routers._amounts import amount_error_message
 from app.security.csrf import verify_csrf
 from app.services.audit_service import actor_from_principal
 from app.services.customer_service import list_customers
+from app.services.money import AmountError, parse_money
 from app.services.product_service import (
     DuplicateProductSku,
     ProductError,
@@ -39,6 +40,30 @@ def _tenant(request: Request):
     if tenant is None:
         raise HTTPException(status_code=500, detail="Tenant not resolved")
     return tenant
+
+
+async def _product_form_error(
+    request: Request,
+    db: AsyncSession,
+    principal: Principal,
+    *,
+    product,
+    form: dict,
+    error: str,
+) -> HTMLResponse:
+    customers = await list_customers(db)
+    context = {
+        "principal": principal,
+        "tenant": _tenant(request),
+        "customers": customers,
+        "form": form,
+        "error": error,
+        "notice": None,
+    }
+    if product is not None:
+        context["product"] = product
+    html = _templates(request).render(request, "products/form.html", context)
+    return HTMLResponse(html, status_code=400)
 
 
 @router.get("/products", response_class=HTMLResponse)
@@ -101,12 +126,27 @@ async def products_create(
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
-    price_dec: Decimal | None = None
-    if default_price.strip():
-        try:
-            price_dec = Decimal(default_price)
-        except (InvalidOperation, ValueError):
-            raise HTTPException(status_code=400, detail="Invalid price") from None
+    try:
+        price_dec = parse_money(default_price)
+    except AmountError as exc:
+        # Re-render, not 400/500: NaN / negative / oversized list prices
+        # used to be stored and then copied into every order line using
+        # the product (LOGIC-1, D4).
+        return await _product_form_error(
+            request,
+            db,
+            principal,
+            product=None,
+            form={
+                "sku": sku,
+                "name": name,
+                "description": description,
+                "unit": unit,
+                "default_price": default_price,
+                "customer_id": customer_id,
+            },
+            error=amount_error_message(request, exc),
+        )
 
     target_customer_id: UUID | None = None
     if customer_id.strip():
@@ -280,12 +320,27 @@ async def products_update(
     if product is None or not product.is_active:
         raise HTTPException(status_code=404, detail="Product not found")
 
-    price_dec: Decimal | None = None
-    if default_price.strip():
-        try:
-            price_dec = Decimal(default_price)
-        except (InvalidOperation, ValueError):
-            raise HTTPException(status_code=400, detail="Invalid price") from None
+    try:
+        price_dec = parse_money(default_price)
+    except AmountError as exc:
+        # Re-render, not 400/500: NaN / negative / oversized list prices
+        # used to be stored and then copied into every order line using
+        # the product (LOGIC-1, D4).
+        return await _product_form_error(
+            request,
+            db,
+            principal,
+            product=product,
+            form={
+                "sku": sku,
+                "name": name,
+                "description": description,
+                "unit": unit,
+                "default_price": default_price,
+                "customer_id": customer_id,
+            },
+            error=amount_error_message(request, exc),
+        )
 
     target_customer_id: UUID | None = None
     if customer_id.strip():

@@ -85,6 +85,13 @@ class Settings(BaseSettings):
     # true in /etc/assoluto/env once approved. Requires FEATURE_PLATFORM.
     trial_nurture_enabled: bool = Field(default=False, alias="TRIAL_NURTURE_ENABLED")
 
+    # --- Orders -----------------------------------------------------------
+    # Days an order may sit in QUOTED before the customer contacts get one
+    # follow-up reminder (respecting their notification consent) and the
+    # staff dashboard lists it as "waiting for the client". 0 disables
+    # the reminder mail; the dashboard then falls back to 3 days.
+    quote_reminder_days: int = Field(default=3, alias="QUOTE_REMINDER_DAYS", ge=0)
+
     # --- Platform operator (legal entity behind the hosted service) -------
     # Filled on every hosted deployment; templated into the Terms of
     # Service + Privacy Policy pages. Leaving *any* of these empty hides

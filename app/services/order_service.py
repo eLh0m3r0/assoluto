@@ -13,7 +13,7 @@ from datetime import UTC, date, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select, and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.customer import Customer
@@ -23,6 +23,7 @@ from app.models.tenant import Tenant
 from app.models.user import User
 from app.services import audit_service
 from app.services.audit_service import SYSTEM_ACTOR, ActorInfo
+from app.services.money import MONEY_MAX, AmountError, check_money, check_quantity, line_total
 
 
 class OrderError(Exception):
@@ -43,6 +44,32 @@ class OrderNotFound(OrderError):
 
 class OrderAccessDenied(OrderError):
     pass
+
+
+class InvalidAmount(OrderError):
+    """A price or quantity failed :mod:`app.services.money` validation."""
+
+    def __init__(self, error: AmountError) -> None:
+        super().__init__(str(error))
+        self.amount_error = error
+
+
+class QuoteChanged(OrderError):
+    """The quote moved between the customer reading it and confirming it.
+
+    Raised by :func:`transition_order` when the caller passes the total it
+    rendered (``expected_total``) and the live total differs. Nothing is
+    written; the customer must look again.
+    """
+
+
+class IncompleteQuote(OrderError):
+    """A quote/confirmation was attempted on an order that is not fully
+    priced (or has no items at all)."""
+
+
+class EmptyOrder(OrderError):
+    """A customer tried to submit an order without a single line."""
 
 
 # ---------------------------------------------------------------------------
@@ -162,6 +189,22 @@ class ActorRef:
 UNASSIGNED = "unassigned"
 
 
+#: Default age (days) after which an unanswered quote counts as "waiting
+#: too long" on the dashboard and gets a follow-up reminder (IDEA-1/2).
+DEFAULT_STALE_QUOTE_DAYS = 3
+
+#: Statuses in which a passed promised date no longer matters — the
+#: goods are out, or the order is dead.
+DONE_STATUSES: frozenset[OrderStatus] = frozenset(
+    {OrderStatus.DELIVERED, OrderStatus.CLOSED, OrderStatus.CANCELLED}
+)
+
+#: Named "needs action" queues (IDEA-1). Each is a predicate on
+#: ``orders`` shared by the dashboard counters and the filtered list the
+#: counter links to, so the two can never disagree.
+WORK_QUEUES: tuple[str, ...] = ("awaiting_quote", "no_promise", "overdue", "stale_quotes")
+
+
 def build_orders_query(
     *,
     actor: ActorRef,
@@ -171,6 +214,10 @@ def build_orders_query(
     date_to: date | None = None,
     q: str | None = None,
     assigned_to: UUID | str | None = None,
+    queue: str | None = None,
+    sort: str | None = None,
+    today: date | None = None,
+    stale_quote_days: int = DEFAULT_STALE_QUOTE_DAYS,
 ) -> Select:
     """Build the base `SELECT orders` query shared by list + CSV export.
 
@@ -186,9 +233,21 @@ def build_orders_query(
     ``None`` for no filter. Staff-only, like ``customer_id`` — a contact
     has no business slicing the supplier's internal workload.
 
+    ``queue`` names one of the "needs action" work queues
+    (:data:`WORK_QUEUES`, staff only); ``sort`` is ``"due"`` / ``"-due"``
+    for promised-date order (undated orders last) or ``None`` for
+    newest first.
+
     Returns the base ``Select``; callers add ``.limit()`` / ``.offset()``.
     """
-    stmt = select(Order).order_by(Order.created_at.desc())
+    if sort in ("due", "-due"):
+        due = Order.promised_delivery_at
+        stmt = select(Order).order_by(
+            (due.asc() if sort == "due" else due.desc()).nulls_last(),
+            Order.created_at.desc(),
+        )
+    else:
+        stmt = select(Order).order_by(Order.created_at.desc())
     if actor.type == "contact":
         stmt = stmt.where(Order.customer_id == actor.customer_id)
     elif customer_id is not None:
@@ -211,7 +270,63 @@ def build_orders_query(
             stmt = stmt.where(Order.assigned_to_user_id.is_(None))
         else:
             stmt = stmt.where(Order.assigned_to_user_id == assigned_to)
+    if queue in WORK_QUEUES and actor.type != "contact":
+        stmt = stmt.where(
+            queue_predicate(queue, today=today or date.today(), stale_quote_days=stale_quote_days)
+        )
     return stmt
+
+
+def queue_predicate(queue: str, *, today: date, stale_quote_days: int = DEFAULT_STALE_QUOTE_DAYS):
+    """SQL predicate for one of :data:`WORK_QUEUES`."""
+    from datetime import timedelta
+
+    if queue == "awaiting_quote":
+        return Order.status == OrderStatus.SUBMITTED
+    if queue == "no_promise":
+        return and_(
+            Order.status.in_((OrderStatus.CONFIRMED, OrderStatus.IN_PRODUCTION, OrderStatus.READY)),
+            Order.promised_delivery_at.is_(None),
+        )
+    if queue == "overdue":
+        return and_(
+            Order.promised_delivery_at.is_not(None),
+            Order.promised_delivery_at < today,
+            Order.status.notin_(tuple(DONE_STATUSES)),
+        )
+    if queue == "stale_quotes":
+        cutoff = datetime.now(UTC) - timedelta(days=max(0, stale_quote_days))
+        return and_(
+            Order.status == OrderStatus.QUOTED,
+            Order.quoted_at.is_not(None),
+            Order.quoted_at < cutoff,
+        )
+    raise ValueError(f"unknown queue {queue!r}")
+
+
+def is_overdue(order: Order, today: date | None = None) -> bool:
+    """True when the promised date has passed and the order is not done."""
+    if order.promised_delivery_at is None or order.status in DONE_STATUSES:
+        return False
+    return order.promised_delivery_at < (today or date.today())
+
+
+async def work_queue_counts(
+    db: AsyncSession,
+    *,
+    today: date | None = None,
+    stale_quote_days: int = DEFAULT_STALE_QUOTE_DAYS,
+) -> dict[str, int]:
+    """Counts for every staff work queue, in one round trip (IDEA-1)."""
+    when = today or date.today()
+    columns = [
+        func.count()
+        .filter(queue_predicate(name, today=when, stale_quote_days=stale_quote_days))
+        .label(name)
+        for name in WORK_QUEUES
+    ]
+    row = (await db.execute(select(*columns).select_from(Order))).one()
+    return {name: int(getattr(row, name) or 0) for name in WORK_QUEUES}
 
 
 async def list_orders_for_principal(
@@ -222,6 +337,9 @@ async def list_orders_for_principal(
     customer_filter: UUID | None = None,
     search: str | None = None,
     assigned_filter: UUID | str | None = None,
+    queue: str | None = None,
+    sort: str | None = None,
+    stale_quote_days: int = DEFAULT_STALE_QUOTE_DAYS,
     offset: int = 0,
     limit: int = 20,
 ) -> tuple[list[Order], int]:
@@ -236,6 +354,9 @@ async def list_orders_for_principal(
         customer_id=customer_filter,
         q=search,
         assigned_to=assigned_filter,
+        queue=queue,
+        sort=sort,
+        stale_quote_days=stale_quote_days,
     )
     # Count(*) over the same filter set — re-run build_orders_query as a
     # subquery so the WHERE clauses stay in sync automatically.
@@ -397,12 +518,53 @@ async def create_order(
 
 
 def _recalculate_line_total(item: OrderItem) -> None:
-    if item.unit_price is None:
-        item.line_total = None
-    else:
-        item.line_total = (Decimal(item.quantity) * Decimal(item.unit_price)).quantize(
-            Decimal("0.01")
-        )
+    """``quantity * unit_price``, rounded half-up (LOGIC-17).
+
+    Czech and German commercial practice rounds 0.125 to 0.13; the old
+    default-context ``quantize`` used banker's rounding (0.12), a
+    one-cent disagreement with the customer's ERP.
+    """
+    item.line_total = line_total(Decimal(item.quantity), item.unit_price)
+
+
+def _validated_amounts(
+    quantity: Decimal | None, unit_price: Decimal | None
+) -> tuple[Decimal | None, Decimal | None]:
+    """Defence-in-depth validation of an item's quantity and price.
+
+    Routers already parse with :mod:`app.services.money`, but the service
+    is the last line before a ``NaN`` reaches a ``numeric`` column — and
+    from there every page that renders the order (LOGIC-1).
+    """
+    try:
+        qty = check_quantity(quantity) if quantity is not None else None
+        price = check_money(unit_price) if unit_price is not None else None
+    except AmountError as exc:
+        raise InvalidAmount(exc) from None
+    return qty, price
+
+
+async def _ensure_total_fits(
+    db: AsyncSession,
+    order: Order,
+    new_line_total: Decimal | None,
+    *,
+    excluding_item_id: UUID | None = None,
+) -> None:
+    """Refuse a line whose addition would overflow ``orders.quoted_total``.
+
+    Checked *before* the write: once a too-large sum is assigned to the
+    ``Numeric(12, 2)`` cache the flush fails with a 500, and a route that
+    redirects instead of raising would have committed the item already.
+    """
+    if new_line_total is None:
+        return
+    stmt = select(func.sum(OrderItem.line_total)).where(OrderItem.order_id == order.id)
+    if excluding_item_id is not None:
+        stmt = stmt.where(OrderItem.id != excluding_item_id)
+    others = (await db.execute(stmt)).scalar() or Decimal("0")
+    if Decimal(others) + new_line_total > MONEY_MAX:
+        raise InvalidAmount(AmountError("price", "too_large"))
 
 
 async def add_item(
@@ -430,8 +592,18 @@ async def add_item(
     description = description.strip()
     if not description:
         raise OrderError("item description is required")
-    if quantity is None or Decimal(quantity) <= 0:
+    if quantity is None:
         raise OrderError("quantity must be positive")
+    # Same rules as ``update_item``: finite, quantity > 0, price >= 0 and
+    # within the column range. ``add_item`` used to have no sign or
+    # finiteness check at all, so it accepted lines ``update_item`` then
+    # refused to edit.
+    quantity, unit_price = _validated_amounts(quantity, unit_price)
+    try:
+        new_total = line_total(quantity, unit_price)
+    except AmountError as exc:
+        raise InvalidAmount(exc) from None
+    await _ensure_total_fits(db, order, new_total)
 
     # Pick the next position by MAX(position) + 1 to be insertion-order
     # stable without relying on created_at timestamps.
@@ -449,9 +621,9 @@ async def add_item(
         product_id=product_id,
         position=int(max_pos or -1) + 1,
         description=description,
-        quantity=Decimal(quantity),
-        unit=unit or "ks",
-        unit_price=Decimal(unit_price) if unit_price is not None else None,
+        quantity=quantity,
+        unit=(unit or "ks")[:16],
+        unit_price=unit_price,
         notes=notes or None,
     )
     _recalculate_line_total(item)
@@ -555,17 +727,23 @@ async def update_item(
         "notes": item.notes,
     }
 
+    # Validate everything before touching the row, so a rejected value
+    # leaves the item exactly as it was. ``None`` means "do not touch";
+    # there is no sentinel for clearing a price.
+    quantity, unit_price = _validated_amounts(quantity, unit_price)
+    new_quantity = quantity if quantity is not None else item.quantity
+    new_price = unit_price if unit_price is not None else item.unit_price
+    try:
+        new_total = line_total(Decimal(new_quantity), new_price)
+    except AmountError as exc:
+        raise InvalidAmount(exc) from None
+    await _ensure_total_fits(db, order, new_total, excluding_item_id=item.id)
+
     if quantity is not None:
-        if Decimal(quantity) <= 0:
-            raise OrderError("quantity must be positive")
-        item.quantity = Decimal(quantity)
+        item.quantity = quantity
 
     if unit_price is not None:
-        # A sentinel Decimal("-1") is NOT used — callers pass None to
-        # signal "do not touch". Passing a real negative price is an error.
-        if Decimal(unit_price) < 0:
-            raise OrderError("unit_price must not be negative")
-        item.unit_price = Decimal(unit_price)
+        item.unit_price = unit_price
 
     if note is not None:
         # Empty string clears the note; treat "   " as empty too.
@@ -647,12 +825,25 @@ async def _recompute_quoted_total(db: AsyncSession, order: Order) -> None:
 # ---------------------------------------------------------------------------
 
 
+def _stamp_confirmation(order: Order, *, actor: ActorRef, now: datetime) -> None:
+    """Snapshot the agreed amount and who agreed to it (LOGIC-2).
+
+    ``quoted_total`` is a live cache that is re-summed on every item
+    edit; it cannot prove what the customer accepted. This copy can.
+    """
+    order.confirmed_total = order.quoted_total
+    order.confirmed_at = now
+    order.confirmed_by_user_id = actor.id if actor.type == "user" else None
+    order.confirmed_by_contact_id = actor.id if actor.type == "contact" else None
+
+
 async def _backfill_milestones(
     db: AsyncSession,
     order: Order,
     *,
     to_status: OrderStatus,
     now: datetime,
+    actor: ActorRef | None = None,
 ) -> None:
     """Fill in milestone data for pipeline steps the order jumped over.
 
@@ -678,6 +869,17 @@ async def _backfill_milestones(
         order.submitted_at = now
     if dst >= _PIPELINE_RANK[OrderStatus.QUOTED] and order.quoted_total is None:
         await _recompute_quoted_total(db, order)
+    if dst >= _PIPELINE_RANK[OrderStatus.QUOTED] and order.quoted_at is None:
+        order.quoted_at = now
+    # A phone-agreed DRAFT → IN_PRODUCTION jump is still an agreement:
+    # snapshot whatever total stood at that moment, attributed to the
+    # staff member who made the jump.
+    if (
+        dst >= _PIPELINE_RANK[OrderStatus.CONFIRMED]
+        and order.confirmed_at is None
+        and actor is not None
+    ):
+        _stamp_confirmation(order, actor=actor, now=now)
     if dst >= _PIPELINE_RANK[OrderStatus.DELIVERED] and order.delivered_at is None:
         order.delivered_at = now.date()
     if dst >= _PIPELINE_RANK[OrderStatus.CLOSED] and order.closed_at is None:
@@ -692,6 +894,41 @@ async def _backfill_milestones(
     # when the goods actually left, and clearing it on a correction
     # would either lose that fact or re-stamp a later, wrong date when
     # the order re-enters DELIVERED. Fill blanks; never rewrite history.
+    #
+    # The 2026-10-03 audit (LOGIC-21) re-raised the DRAFT → CLOSED case:
+    # the jump backfills ``delivered_at`` although nothing was delivered.
+    # The stamp stays (CLAUDE.md §18); instead ``sla_service`` refuses to
+    # count a CLOSED order whose history never entered DELIVERED, so the
+    # backfilled date cannot reach the on-time metric.
+
+
+#: Sentinel for :func:`transition_order`'s ``expected_total`` — "the
+#: caller did not render a total, do not compare". ``None`` is a real
+#: value there (an unpriced quote), so it cannot double as "no check".
+NO_TOTAL_CHECK: object = object()
+
+
+def _same_total(a: Decimal | None, b: Decimal | None) -> bool:
+    if a is None or b is None:
+        return a is None and b is None
+    return Decimal(a).quantize(Decimal("0.01")) == Decimal(b).quantize(Decimal("0.01"))
+
+
+async def quote_problems(db: AsyncSession, order: Order) -> list[str]:
+    """Why ``order`` cannot be quoted or confirmed as it stands.
+
+    Returns machine codes — ``"no_items"`` or ``"unpriced_items"`` — so
+    the router can word them and the stepper can warn *before* the
+    click. Empty list = fully priced, at least one line.
+    """
+    rows = (
+        await db.execute(select(OrderItem.unit_price).where(OrderItem.order_id == order.id))
+    ).all()
+    if not rows:
+        return ["no_items"]
+    if any(row[0] is None for row in rows):
+        return ["unpriced_items"]
+    return []
 
 
 async def transition_order(
@@ -702,6 +939,10 @@ async def transition_order(
     actor: ActorRef,
     note: str | None = None,
     audit_actor: ActorInfo | None = None,
+    expected_total: object = NO_TOTAL_CHECK,
+    allow_incomplete: bool = False,
+    promised_delivery_at: date | None = None,
+    incomplete_note: str = "sent with unpriced items",
 ) -> Order:
     """Move the order to `to_status` after validating the move.
 
@@ -715,6 +956,23 @@ async def transition_order(
     starting status, both pass the transition check, and both write a
     history row and fire a customer email — so the client received two
     "your order is ready" messages for one move.
+
+    Content guards (audit 2026-10-03), all checked under the lock:
+
+    * a contact cannot **submit** an order with no items (LOGIC-7);
+    * landing on **QUOTED** or **CONFIRMED** needs at least one item and
+      every line priced (LOGIC-7). Contacts are always held to it; staff
+      may pass ``allow_incomplete=True`` — the stepper only does so after
+      an explicit "send anyway" confirm, and the history note records it.
+      Jumps *past* CONFIRMED are not guarded: a phone-agreed job may go
+      straight into production (CLAUDE.md §18);
+    * ``expected_total`` (the total the confirming page rendered) must
+      equal the live total when landing on **CONFIRMED**, or
+      :class:`QuoteChanged` is raised and nothing is written (LOGIC-2).
+
+    Landing on CONFIRMED snapshots ``confirmed_total`` / ``confirmed_at``
+    / ``confirmed_by_*``; ``promised_delivery_at`` (staff only) is stored
+    when given (IDEA-4).
     """
     # SELECT ... FOR UPDATE on this order only; serialises concurrent
     # transitions without touching readers elsewhere.
@@ -736,10 +994,39 @@ async def transition_order(
             f"cannot transition from {order.status.value} to {to_status.value}"
         )
 
+    if promised_delivery_at is not None and actor.type != "user":
+        raise ForbiddenActor("only staff can promise a delivery date")
+
+    if (
+        to_status == OrderStatus.SUBMITTED
+        and actor.type == "contact"
+        and "no_items" in await quote_problems(db, order)
+    ):
+        raise EmptyOrder("an order needs at least one item before it is submitted")
+
+    override_note: str | None = None
+    if to_status in (OrderStatus.QUOTED, OrderStatus.CONFIRMED):
+        problems = await quote_problems(db, order)
+        if problems:
+            if actor.type == "contact" or not allow_incomplete:
+                raise IncompleteQuote(problems[0])
+            # Recorded in the history so the override is never silent.
+            override_note = incomplete_note
+
+    if to_status == OrderStatus.CONFIRMED and expected_total is not NO_TOTAL_CHECK:
+        # Compare against a freshly summed total, not the cache — the
+        # cache is what a concurrent edit may just have moved.
+        await _recompute_quoted_total(db, order)
+        if not _same_total(order.quoted_total, expected_total):  # type: ignore[arg-type]
+            raise QuoteChanged("the quote changed since it was displayed")
+
     now = datetime.now(UTC)
     previous = order.status
     skipped = skipped_statuses(previous, to_status)
     order.status = to_status
+
+    if promised_delivery_at is not None:
+        order.promised_delivery_at = promised_delivery_at
 
     # Side effects for landing *exactly* on a status. These re-stamp on
     # every hit (a re-submitted order gets a fresh ``submitted_at``),
@@ -749,6 +1036,11 @@ async def transition_order(
     if to_status == OrderStatus.QUOTED:
         # Make sure we have a total computed from the item prices.
         await _recompute_quoted_total(db, order)
+        # A re-quote is a new offer: restart the follow-up clock.
+        order.quoted_at = now
+    if to_status == OrderStatus.CONFIRMED:
+        await _recompute_quoted_total(db, order)
+        _stamp_confirmation(order, actor=actor, now=now)
     if to_status == OrderStatus.DELIVERED and order.delivered_at is None:
         # Stamp only once — if staff toggle DELIVERED off and back on, we
         # keep the original delivery date so SLA numbers remain stable.
@@ -758,7 +1050,9 @@ async def transition_order(
     if to_status == OrderStatus.CANCELLED:
         order.cancelled_at = now
 
-    await _backfill_milestones(db, order, to_status=to_status, now=now)
+    await _backfill_milestones(db, order, to_status=to_status, now=now, actor=actor)
+
+    history_note = "; ".join(part for part in ((note or "").strip(), override_note) if part)
 
     db.add(
         OrderStatusHistory(
@@ -768,10 +1062,27 @@ async def transition_order(
             to_status=to_status,
             changed_by_user_id=actor.id if actor.type == "user" else None,
             changed_by_contact_id=actor.id if actor.type == "contact" else None,
-            note=note,
+            note=history_note or None,
         )
     )
     await db.flush()
+
+    after: dict = {
+        "status": to_status.value,
+        # Machine-readable record of a multi-step jump, so the audit
+        # log can explain why an order shows DRAFT → DELIVERED and
+        # which stamps were backfilled rather than observed.
+        **({"skipped": [s.value for s in skipped]} if skipped else {}),
+    }
+    if to_status == OrderStatus.CONFIRMED:
+        # The amount the customer agreed to, in the tamper-evident log.
+        after["confirmed_total"] = (
+            str(order.confirmed_total) if order.confirmed_total is not None else None
+        )
+    if promised_delivery_at is not None:
+        after["promised_delivery_at"] = promised_delivery_at.isoformat()
+    if history_note:
+        after["note"] = history_note
 
     await audit_service.record(
         db,
@@ -781,13 +1092,7 @@ async def transition_order(
         entity_label=order.number,
         actor=audit_actor or SYSTEM_ACTOR,
         before={"status": previous.value},
-        after={
-            "status": to_status.value,
-            # Machine-readable record of a multi-step jump, so the audit
-            # log can explain why an order shows DRAFT → DELIVERED and
-            # which stamps were backfilled rather than observed.
-            **({"skipped": [s.value for s in skipped]} if skipped else {}),
-        },
+        after=after,
         tenant_id=order.tenant_id,
     )
     return order
@@ -974,3 +1279,206 @@ async def list_assignable_staff(db: AsyncSession) -> list[User]:
         .order_by(User.full_name)
     )
     return list((await db.execute(stmt)).scalars().all())
+
+
+# ---------------------------------------------------------------------------
+# Price memory (IDEA-6)
+# ---------------------------------------------------------------------------
+
+
+async def last_prices_for_customer(
+    db: AsyncSession,
+    *,
+    customer_id: UUID,
+    product_ids: list[UUID],
+    exclude_order_id: UUID | None = None,
+) -> dict[UUID, tuple[Decimal, datetime]]:
+    """Most recent priced line per product on this customer's orders.
+
+    Quoting is the supplier's most repetitive task; showing (and
+    pre-filling) "last quoted to this customer: 12,40 Kč" saves a trip
+    through old PDFs. Cancelled orders are ignored — a price nobody
+    accepted is not a precedent. One query, ``DISTINCT ON`` product.
+    """
+    if not product_ids:
+        return {}
+    stmt = (
+        select(OrderItem.product_id, OrderItem.unit_price, OrderItem.created_at)
+        .join(Order, Order.id == OrderItem.order_id)
+        .where(
+            Order.customer_id == customer_id,
+            Order.status != OrderStatus.CANCELLED,
+            OrderItem.product_id.in_(product_ids),
+            OrderItem.unit_price.is_not(None),
+        )
+        .order_by(OrderItem.product_id, OrderItem.created_at.desc())
+        .distinct(OrderItem.product_id)
+    )
+    if exclude_order_id is not None:
+        stmt = stmt.where(OrderItem.order_id != exclude_order_id)
+    rows = (await db.execute(stmt)).all()
+    return {
+        row.product_id: (row.unit_price, row.created_at)
+        for row in rows
+        if row.unit_price is not None and Decimal(row.unit_price).is_finite()
+    }
+
+
+# ---------------------------------------------------------------------------
+# Order header edit (LOGIC-12)
+# ---------------------------------------------------------------------------
+
+#: The customer may be changed only before the supplier has committed to
+#: anything on the order — a quote names the customer.
+CUSTOMER_EDIT_STATES: frozenset[OrderStatus] = frozenset({OrderStatus.DRAFT, OrderStatus.SUBMITTED})
+
+_HEADER_FIELDS = ("title", "customer_id", "requested_delivery_at", "promised_delivery_at", "notes")
+
+
+async def update_order_header(
+    db: AsyncSession,
+    *,
+    order: Order,
+    actor: ActorRef,
+    title: str,
+    customer_id: UUID,
+    requested_delivery_at: date | None,
+    promised_delivery_at: date | None,
+    notes: str | None,
+    audit_actor: ActorInfo | None = None,
+) -> list[str]:
+    """Correct an order's header (staff only). Returns the changed fields.
+
+    Until now nothing could change ``title``, ``customer_id``,
+    ``requested_delivery_at`` or ``promised_delivery_at`` after creation:
+    a mis-picked customer burned the order number, and the promised date
+    the SLA report reads had no writer at all.
+    """
+    if actor.type != "user":
+        raise ForbiddenActor("only tenant staff can edit the order header")
+
+    title = (title or "").strip()
+    if not title:
+        raise OrderError("title is required")
+
+    if customer_id != order.customer_id:
+        if order.status not in CUSTOMER_EDIT_STATES:
+            raise ForbiddenTransition("the client can only be changed before the order is quoted")
+        exists_row = (
+            await db.execute(select(Customer.id).where(Customer.id == customer_id))
+        ).scalar_one_or_none()
+        if exists_row is None:
+            raise OrderError("unknown customer")
+
+    before = {name: getattr(order, name) for name in _HEADER_FIELDS}
+    order.title = title[:255]
+    order.customer_id = customer_id
+    order.requested_delivery_at = requested_delivery_at
+    order.promised_delivery_at = promised_delivery_at
+    order.notes = (notes or "").strip() or None
+    after = {name: getattr(order, name) for name in _HEADER_FIELDS}
+
+    changed = [name for name in _HEADER_FIELDS if before[name] != after[name]]
+    if not changed:
+        return []
+    await db.flush()
+    await audit_service.record(
+        db,
+        action="order.updated",
+        entity_type="order",
+        entity_id=order.id,
+        entity_label=order.number,
+        actor=audit_actor or SYSTEM_ACTOR,
+        before={name: before[name] for name in changed},
+        after={name: after[name] for name in changed},
+        tenant_id=order.tenant_id,
+    )
+    return changed
+
+
+# ---------------------------------------------------------------------------
+# Order again (IDEA-3)
+# ---------------------------------------------------------------------------
+
+
+async def duplicate_order(
+    db: AsyncSession,
+    *,
+    tenant_id: UUID,
+    source: Order,
+    actor: ActorRef,
+    include_catalog: bool = True,
+    audit_actor: ActorInfo | None = None,
+) -> Order:
+    """Copy ``source``'s lines into a new DRAFT for the same customer.
+
+    Job-shop customers reorder the same parts constantly. The copy keeps
+    description, quantity, unit, product link and line note. Prices are
+    **not** carried over from the old order — the supplier re-quotes:
+    a catalog line takes the product's *current* list price (the same
+    rule as adding it fresh), a free-text line starts unpriced.
+    Attachments are not copied; drawings are re-attached deliberately.
+
+    ``include_catalog=False`` (a contact without catalog access) drops the
+    product link and its list price, mirroring the add-item permission.
+    """
+    from app.models.product import Product
+
+    if actor.type == "contact" and source.customer_id != actor.customer_id:
+        raise OrderAccessDenied()
+
+    order = await create_order(
+        db,
+        tenant_id=tenant_id,
+        actor=actor,
+        customer_id=source.customer_id,
+        title=source.title,
+        notes=source.notes,
+    )
+
+    items = await list_items(db, source.id)
+    product_ids = [i.product_id for i in items if i.product_id is not None]
+    products: dict = {}
+    if include_catalog and product_ids:
+        rows = (
+            await db.execute(
+                select(Product).where(
+                    Product.id.in_(product_ids),
+                    Product.is_active.is_(True),
+                )
+            )
+        ).scalars()
+        products = {
+            p.id: p for p in rows if p.customer_id is None or p.customer_id == source.customer_id
+        }
+
+    for position, item in enumerate(items):
+        product = products.get(item.product_id) if item.product_id else None
+        price = product.default_price if product is not None else None
+        copy = OrderItem(
+            tenant_id=tenant_id,
+            order_id=order.id,
+            product_id=product.id if product is not None else None,
+            position=position,
+            description=item.description,
+            quantity=item.quantity,
+            unit=item.unit,
+            unit_price=price,
+            notes=item.notes,
+        )
+        _recalculate_line_total(copy)
+        db.add(copy)
+    await db.flush()
+    await _recompute_quoted_total(db, order)
+
+    await audit_service.record(
+        db,
+        action="order.duplicated",
+        entity_type="order",
+        entity_id=order.id,
+        entity_label=order.number,
+        actor=audit_actor or SYSTEM_ACTOR,
+        after={"source_order_id": str(source.id), "source_number": source.number},
+        tenant_id=tenant_id,
+    )
+    return order

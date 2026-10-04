@@ -92,8 +92,11 @@
                     {{ _('Saved') }}
                 </span>
             {% endif %}
+            {# Confirmed (UX-06): the red link sits right next to the
+               autosaving inputs, and a priced line is gone in one click. #}
             <form method="post"
                   action="/app/orders/{{ order.id }}/items/{{ item.id }}/delete"
+                  data-confirm="{{ _('Delete this item?') }}"
                   class="inline">
                 {{ csrf_input() }}
                 <button type="submit" class="ml-2 text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">

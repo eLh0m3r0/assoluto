@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import threading
 from datetime import UTC, datetime
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 from typing import Any
 
@@ -59,7 +59,8 @@ def _money_filter(cents: Any, currency: str = "CZK") -> str:
         return "—"
     try:
         amount_minor = int(cents)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError, ArithmeticError):
+        # OverflowError: int(Decimal("Infinity")); ValueError: NaN.
         return "—"
     code = (currency or "CZK").upper()
     symbol = _CURRENCY_SYMBOLS.get(code, code)
@@ -89,10 +90,17 @@ def _money_major_filter(value: Any, currency: str = "CZK") -> str:
         amount = Decimal(value)
     except (TypeError, ValueError, ArithmeticError):
         return "—"
+    # ``NaN`` / ``Infinity`` must never take a page down (audit
+    # 2026-10-03 LOGIC-1: one poisoned line 500'd the whole order list).
+    if not amount.is_finite():
+        return "—"
     code = (currency or "CZK").upper()
     symbol = _CURRENCY_SYMBOLS.get(code, code)
-    # Quantise to 2 decimals.
-    q = amount.quantize(Decimal("0.01"))
+    # Quantise to 2 decimals, half-up like the line totals.
+    try:
+        q = amount.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    except ArithmeticError:
+        return "—"
     whole_int = int(q)
     # Fraction as integer cents.
     frac = abs(int((q - whole_int) * 100))

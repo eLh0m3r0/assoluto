@@ -14,9 +14,14 @@ order into exactly one of:
   promised_delivery_at``.
 * **late** — ``delivered_at`` is set and ``delivered_at >
   promised_delivery_at``.
-* **pending** — ``delivered_at`` is NULL and ``promised_delivery_at <
-  today()`` (i.e. overdue, still open, counted separately so it does
-  not inflate the "late" bucket until it actually ships).
+* **pending** — the order is still open (not delivered, closed or
+  cancelled) and ``promised_delivery_at < today()`` (i.e. overdue,
+  counted separately so it does not inflate the "late" bucket until it
+  actually ships).
+
+Cancelled orders never count. "Delivered" means the order sits at
+DELIVERED, or at CLOSED with a DELIVERED entry in its history — see
+``_IS_DELIVERED`` for why ``delivered_at`` alone is not trusted.
 
 Orders whose promised date is still in the future and are not yet
 delivered are ignored entirely — they have neither happened nor slipped.
@@ -30,11 +35,39 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from sqlalchemy import and_, case, func, select
+from sqlalchemy import and_, case, exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.customer import Customer
-from app.models.order import Order
+from app.models.enums import OrderStatus
+from app.models.order import Order, OrderStatusHistory
+
+#: Orders that count at all. A cancelled order was never going to be
+#: delivered; counting it made the report read "late" for work the
+#: customer called off (audit F-32 / 2026-10-03 LOGIC-19).
+_NOT_CANCELLED = Order.status != OrderStatus.CANCELLED
+
+#: "Really delivered": the order sits at DELIVERED, or at CLOSED *and*
+#: its history shows it entered DELIVERED. ``delivered_at`` alone is not
+#: enough — it survives backward corrections (CLAUDE.md §18) and is
+#: backfilled on a DRAFT -> CLOSED bookkeeping jump where nothing was
+#: delivered (LOGIC-21). Both would otherwise count as on-time deliveries.
+_ENTERED_DELIVERED = exists(
+    select(OrderStatusHistory.id).where(
+        OrderStatusHistory.order_id == Order.id,
+        OrderStatusHistory.to_status == OrderStatus.DELIVERED,
+    )
+)
+_IS_DELIVERED = and_(
+    Order.delivered_at.is_not(None),
+    or_(
+        Order.status == OrderStatus.DELIVERED,
+        and_(Order.status == OrderStatus.CLOSED, _ENTERED_DELIVERED),
+    ),
+)
+_STILL_OPEN = Order.status.notin_(
+    (OrderStatus.DELIVERED, OrderStatus.CLOSED, OrderStatus.CANCELLED)
+)
 
 
 async def on_time_rate(
@@ -58,33 +91,15 @@ async def on_time_rate(
     )
 
     on_time_expr = case(
-        (
-            and_(
-                Order.delivered_at.is_not(None),
-                Order.delivered_at <= Order.promised_delivery_at,
-            ),
-            1,
-        ),
+        (and_(_IS_DELIVERED, Order.delivered_at <= Order.promised_delivery_at), 1),
         else_=0,
     )
     late_expr = case(
-        (
-            and_(
-                Order.delivered_at.is_not(None),
-                Order.delivered_at > Order.promised_delivery_at,
-            ),
-            1,
-        ),
+        (and_(_IS_DELIVERED, Order.delivered_at > Order.promised_delivery_at), 1),
         else_=0,
     )
     pending_expr = case(
-        (
-            and_(
-                Order.delivered_at.is_(None),
-                Order.promised_delivery_at < today,
-            ),
-            1,
-        ),
+        (and_(_STILL_OPEN, Order.promised_delivery_at < today), 1),
         else_=0,
     )
 
@@ -92,7 +107,7 @@ async def on_time_rate(
         func.coalesce(func.sum(on_time_expr), 0).label("on_time"),
         func.coalesce(func.sum(late_expr), 0).label("late"),
         func.coalesce(func.sum(pending_expr), 0).label("pending"),
-    ).where(in_window)
+    ).where(in_window, _NOT_CANCELLED)
 
     row = (await db.execute(stmt)).one()
     on_time = int(row.on_time)
@@ -138,23 +153,11 @@ async def heatmap_data(
     week_start = func.date_trunc("week", Order.promised_delivery_at).label("week_start")
 
     on_time_expr = case(
-        (
-            and_(
-                Order.delivered_at.is_not(None),
-                Order.delivered_at <= Order.promised_delivery_at,
-            ),
-            1,
-        ),
+        (and_(_IS_DELIVERED, Order.delivered_at <= Order.promised_delivery_at), 1),
         else_=0,
     )
     late_expr = case(
-        (
-            and_(
-                Order.delivered_at.is_not(None),
-                Order.delivered_at > Order.promised_delivery_at,
-            ),
-            1,
-        ),
+        (and_(_IS_DELIVERED, Order.delivered_at > Order.promised_delivery_at), 1),
         else_=0,
     )
 
@@ -171,6 +174,7 @@ async def heatmap_data(
         .where(
             Order.promised_delivery_at.is_not(None),
             Order.promised_delivery_at >= start_week,
+            _NOT_CANCELLED,
         )
         .group_by(week_start, Customer.id, Customer.name)
         .order_by(Customer.name, week_start)

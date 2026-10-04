@@ -164,10 +164,16 @@ async def test_staff_can_post_a_multi_step_jump(
     seed = await _seed(owner_engine, demo_tenant.id, status=OrderStatus.DRAFT)
     await _login(tenant_client, "staff@4mex.cz", "staffpass")
 
+    # The seeded order has no items, so this is the phone-agreed case: the
+    # stepper sends the staff override after its "continue anyway?"
+    # confirm (audit 2026-10-03 LOGIC-7).
     resp = await tenant_client.post(
-        f"/app/orders/{seed['order'].id}/transitions/confirmed", follow_redirects=False
+        f"/app/orders/{seed['order'].id}/transitions/confirmed",
+        data={"allow_incomplete": "1"},
+        follow_redirects=False,
     )
     assert resp.status_code == 303, resp.text
+    assert "error=" not in resp.headers["location"]
 
     order = await _order_row(owner_engine, seed["order"].id)
     assert order.status == OrderStatus.CONFIRMED
