@@ -3,13 +3,27 @@
 Keeps boto3 configuration in one place so the rest of the app only
 touches a thin wrapper. Used by the attachment upload route (put_object)
 and the background thumbnail task (get_object + put_object).
+
+### Never call boto3 on the event loop
+
+boto3 is synchronous. The app runs a single uvicorn worker, so one
+blocking ``put_object`` of a 50 MB drawing freezes every tenant's
+requests, ``/healthz`` and the Stripe webhook for as long as the PUT
+takes (audit BE-03 / SEC-3). Code running inside ``async def`` must use
+the ``*_async`` variants below, which hop to a worker thread via
+:func:`anyio.to_thread.run_sync`. The plain sync functions remain for
+code that already runs in a thread (CLI scripts, threadpool helpers).
 """
 
 from __future__ import annotations
 
-from functools import lru_cache
+from collections.abc import Iterator
+from datetime import datetime
+from functools import lru_cache, partial
 from io import BytesIO
+from typing import IO, Any
 
+import anyio
 import boto3
 from botocore.client import Config
 from botocore.exceptions import ClientError
@@ -146,6 +160,119 @@ def download_bytes(key: str) -> bytes:
 def delete_object(key: str) -> None:
     settings = get_settings()
     get_s3_client().delete_object(Bucket=settings.s3_bucket, Key=key)
+
+
+def upload_fileobj(
+    key: str, fileobj: IO[bytes], *, content_type: str = "application/octet-stream"
+) -> None:
+    """Upload a file-like object under ``key`` without reading it into RAM.
+
+    ``upload_fileobj`` streams in parts (multipart above 8 MB), so the
+    peak memory cost of a 50 MB upload is a few MB of buffers, not the
+    whole file.
+    """
+    settings = get_settings()
+    fileobj.seek(0)
+    get_s3_client().upload_fileobj(
+        fileobj,
+        settings.s3_bucket,
+        key,
+        ExtraArgs={"ContentType": content_type},
+    )
+
+
+def iter_object_chunks(key: str, chunk_size: int = 1024 * 1024) -> Iterator[bytes]:
+    """Yield an object's body in ``chunk_size`` pieces (blocking)."""
+    settings = get_settings()
+    body = get_s3_client().get_object(Bucket=settings.s3_bucket, Key=key)["Body"]
+    try:
+        while True:
+            chunk = body.read(chunk_size)
+            if not chunk:
+                return
+            yield chunk
+    finally:
+        body.close()
+
+
+def copy_object_to(key: str, out: IO[bytes], chunk_size: int = 1024 * 1024) -> int:
+    """Stream an object into the writable ``out``; return bytes written."""
+    written = 0
+    for chunk in iter_object_chunks(key, chunk_size):
+        out.write(chunk)
+        written += len(chunk)
+    return written
+
+
+def list_objects(prefix: str = "") -> Iterator[dict[str, Any]]:
+    """Yield ``{"key", "size", "last_modified"}`` for every object under ``prefix``."""
+    settings = get_settings()
+    paginator = get_s3_client().get_paginator("list_objects_v2")
+    for page in paginator.paginate(Bucket=settings.s3_bucket, Prefix=prefix):
+        for obj in page.get("Contents", []) or []:
+            last_modified: datetime = obj["LastModified"]
+            yield {"key": obj["Key"], "size": obj.get("Size", 0), "last_modified": last_modified}
+
+
+def delete_objects(keys: list[str]) -> int:
+    """Delete ``keys`` in batches of 1000 (the S3 API maximum)."""
+    settings = get_settings()
+    client = get_s3_client()
+    deleted = 0
+    for start in range(0, len(keys), 1000):
+        batch = keys[start : start + 1000]
+        if not batch:
+            continue
+        client.delete_objects(
+            Bucket=settings.s3_bucket,
+            Delete={"Objects": [{"Key": k} for k in batch], "Quiet": True},
+        )
+        deleted += len(batch)
+    return deleted
+
+
+def head_bucket() -> None:
+    """Raise if the configured bucket is unreachable."""
+    settings = get_settings()
+    get_s3_client().head_bucket(Bucket=settings.s3_bucket)
+
+
+# ---------------------------------------------------------------- async
+#
+# Thin threadpool wrappers. Every ``async def`` caller uses these so a
+# slow S3 endpoint stalls only the request that is waiting on it.
+
+
+async def upload_bytes_async(
+    key: str, data: bytes, *, content_type: str = "application/octet-stream"
+) -> None:
+    await anyio.to_thread.run_sync(partial(upload_bytes, key, data, content_type=content_type))
+
+
+async def upload_fileobj_async(
+    key: str, fileobj: IO[bytes], *, content_type: str = "application/octet-stream"
+) -> None:
+    await anyio.to_thread.run_sync(partial(upload_fileobj, key, fileobj, content_type=content_type))
+
+
+async def download_bytes_async(key: str) -> bytes:
+    return await anyio.to_thread.run_sync(download_bytes, key)
+
+
+async def delete_object_async(key: str) -> None:
+    await anyio.to_thread.run_sync(delete_object, key)
+
+
+async def delete_objects_async(keys: list[str]) -> int:
+    return await anyio.to_thread.run_sync(delete_objects, keys)
+
+
+async def list_objects_async(prefix: str = "") -> list[dict[str, Any]]:
+    return await anyio.to_thread.run_sync(lambda: list(list_objects(prefix)))
+
+
+async def copy_object_to_async(key: str, out: IO[bytes]) -> int:
+    return await anyio.to_thread.run_sync(copy_object_to, key, out)
 
 
 def generate_presigned_get(

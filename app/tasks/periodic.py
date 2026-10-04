@@ -46,6 +46,14 @@ ENFORCE_CANCELED_LOCK_ID = 42_007
 CANCEL_GRACE_DAYS = 3
 
 
+def _system_actor(job: str):
+    """Audit actor for a scheduled job: type ``system``, labelled with the
+    job name so the tenant's audit log says *which* job acted (BE-13)."""
+    from app.services.audit_service import ActorInfo
+
+    return ActorInfo(type="system", id=None, label=f"system: {job}")
+
+
 def _owner_engine():
     """Return a fresh async engine using the owner DSN (bypasses RLS)."""
     return create_async_engine(get_settings().database_owner_url, future=True)
@@ -103,6 +111,9 @@ async def auto_close_delivered_orders(now: datetime | None = None) -> int:
                         )
                     )
                     rows = (await session.execute(stmt)).scalars().all()
+                    from app.services import audit_service
+
+                    actor = _system_actor("auto_close_delivered_orders")
                     for order in rows:
                         order.status = OrderStatus.CLOSED
                         order.closed_at = current
@@ -114,6 +125,19 @@ async def auto_close_delivered_orders(now: datetime | None = None) -> int:
                                 to_status=OrderStatus.CLOSED,
                                 note="auto-closed after 14 days",
                             )
+                        )
+                        # Same action/shape as a manual transition so the
+                        # activity feed renders it like any status change.
+                        await audit_service.record(
+                            session,
+                            action="order.status_changed",
+                            entity_type="order",
+                            entity_id=order.id,
+                            entity_label=order.number,
+                            actor=actor,
+                            before={"status": OrderStatus.DELIVERED.value},
+                            after={"status": OrderStatus.CLOSED.value, "auto_closed": True},
+                            tenant_id=order.tenant_id,
                         )
                     await session.flush()
                     log.info("periodic.auto_close.done", closed=len(rows))
@@ -150,14 +174,50 @@ async def cleanup_stale_invited_contacts(now: datetime | None = None) -> int:
                 return 0
 
             try:
-                result = await conn.execute(
-                    delete(CustomerContact).where(
-                        CustomerContact.invited_at.is_not(None),
-                        CustomerContact.accepted_at.is_(None),
-                        CustomerContact.invited_at <= cutoff,
+                from app.services import audit_service
+
+                stale = (
+                    await conn.execute(
+                        select(
+                            CustomerContact.id,
+                            CustomerContact.tenant_id,
+                            CustomerContact.customer_id,
+                            CustomerContact.email,
+                            CustomerContact.invited_at,
+                        ).where(
+                            CustomerContact.invited_at.is_not(None),
+                            CustomerContact.accepted_at.is_(None),
+                            CustomerContact.invited_at <= cutoff,
+                        )
                     )
+                ).all()
+                if not stale:
+                    log.info("periodic.cleanup_invites.done", removed=0)
+                    return 0
+                result = await conn.execute(
+                    delete(CustomerContact).where(CustomerContact.id.in_([r.id for r in stale]))
                 )
                 removed = result.rowcount or 0
+                # One audit row per purged invitation so the supplier can
+                # see why a contact vanished from the customer card (BE-13).
+                sm = async_sessionmaker(bind=conn, expire_on_commit=False)
+                async with sm() as session:
+                    actor = _system_actor("cleanup_stale_invited_contacts")
+                    for row in stale:
+                        await audit_service.record(
+                            session,
+                            action="contact.invite_expired",
+                            entity_type="contact",
+                            entity_id=row.id,
+                            entity_label=row.email,
+                            actor=actor,
+                            after={
+                                "customer_id": str(row.customer_id),
+                                "invited_at": row.invited_at.isoformat(),
+                                "expired_after_days": INVITE_EXPIRY_DAYS,
+                            },
+                            tenant_id=row.tenant_id,
+                        )
                 log.info("periodic.cleanup_invites.done", removed=removed)
                 return removed
             finally:

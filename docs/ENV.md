@@ -106,3 +106,14 @@ are made. Setting these switches to **live mode** automatically.
 |---|---|---|---|---|
 | `LOG_LEVEL` | `DEBUG` / `INFO` / `WARNING` / `ERROR` | `INFO` | no | structlog minimum level |
 | `LOG_JSON` | bool | `false` | recommended (`true`) | `true` = JSON lines on stdout (for log aggregators); `false` = coloured dev console |
+
+## Operations, e-mail reliability, retention
+
+| Variable | Type | Default | Prod required | Description |
+|---|---|---|---|---|
+| `OPS_ALERT_EMAIL` | string | *(empty)* | recommended | Operator address mailed on every unhandled 500 and every crashed scheduler job (route, error type, request id, traceback frames; never bodies or cookies). Max one mail per error signature per 15 min. Empty = off |
+| `READYZ_CHECK_S3` | bool | `true` | no | `/readyz` also probes the S3 bucket (2 s timeout, cached 30 s). `/healthz` stays static |
+| `EMAIL_OUTBOX_ENABLED` | bool | `true` | no | Store every templated mail in `email_outbox` and retry failed sends with backoff (`deliver_email_outbox` job, every minute) |
+| `APP_BUILD_ID` | string | *(empty)* | no | Static-asset cache-buster; empty = SHA-256 of the static directory computed at boot |
+| `RETENTION_ENFORCE` | bool | `false` | decide | Retention job (04:30 UTC): purge tenants deactivated > 30 days (DB + S3), audit events > 3 years, orphaned attachment objects > 7 days. `false` = dry run, logs `retention.*.would_delete` only |
+| `TRUST_TENANT_HEADER` | bool | `false` | no | Honour a client `X-Tenant-Slug` header in production. Off: the Host decides. Dev/test always honour it |

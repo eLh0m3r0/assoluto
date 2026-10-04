@@ -88,46 +88,24 @@ def _safe_error_summary(exc: Exception) -> str:
     return cleaned[:160]
 
 
-def _safe_send(
+def _send_with_retries(
     sender: EmailSender,
     kind: str,
     to: str,
     subject: str,
     html: str,
     text: str,
-) -> None:
-    """Send one email, retrying briefly on transient failures.
-
-    Fire-and-forget: the caller is a FastAPI BackgroundTask running
-    after the request has been served, so exceptions must not escape.
-    We retry up to :data:`_MAX_ATTEMPTS` times with exponential backoff
-    — this catches the SMTP-relay blips that would otherwise drop a
-    single password-reset or invite mail on the floor. Permanent
-    errors (auth failure, invalid recipient) fail on every attempt and
-    end up in the ``email.failed`` log with ``attempts`` set.
+    max_attempts: int,
+) -> tuple[Exception | None, int]:
+    """Try ``sender.send`` up to ``max_attempts`` times with exponential
+    backoff. Returns ``(last_error_or_None, attempts_used)``; never raises.
 
     Each attempt logs both start and outcome with a duration so the
     operator can tell "Brevo took 9.5 s" apart from "DNS resolution
     bounced in 30 ms" when chasing the next silent-drop incident.
     """
-    # Kill-switch — operator can stop all outbound mail by flipping
-    # ENABLE_OUTBOUND_EMAILS=false in /etc/assoluto/env (or compose env)
-    # the moment a sending-platform block lands. We import inline so the
-    # check picks up the value at task-execution time, not module import
-    # time, which means a settings reload (or restart) is the only ceremony.
-    from app.config import get_settings
-
-    if not get_settings().enable_outbound_emails:
-        log.warning(
-            "email.disabled_via_killswitch",
-            kind=kind,
-            to=to,
-            subject=subject[:80],
-        )
-        return
-
     last_exc: Exception | None = None
-    for attempt in range(1, _MAX_ATTEMPTS + 1):
+    for attempt in range(1, max_attempts + 1):
         log.info("email.attempt", kind=kind, to=to, attempt=attempt)
         started = time.monotonic()
         try:
@@ -140,11 +118,11 @@ def _safe_send(
                 attempts=attempt,
                 duration_ms=duration_ms,
             )
-            return
+            return None, attempt
         except Exception as exc:
             duration_ms = int((time.monotonic() - started) * 1000)
             last_exc = exc
-            if attempt < _MAX_ATTEMPTS:
+            if attempt < max_attempts:
                 # Backoff: 2s, 4s, 8s …
                 time.sleep(_BACKOFF_BASE_SECONDS**attempt)
                 log.warning(
@@ -156,13 +134,63 @@ def _safe_send(
                     error_class=type(exc).__name__,
                     error=_safe_error_summary(exc),
                 )
+    return last_exc, max_attempts
+
+
+def _killswitch_engaged(kind: str, to: str, subject: str) -> bool:
+    """True (and logged) when ENABLE_OUTBOUND_EMAILS=false.
+
+    Operator can stop all outbound mail by flipping the flag in
+    /etc/assoluto/env the moment a sending-platform block lands. Read at
+    call time, not import time.
+    """
+    from app.config import get_settings
+
+    if get_settings().enable_outbound_emails:
+        return False
+    log.warning(
+        "email.disabled_via_killswitch",
+        kind=kind,
+        to=to,
+        subject=subject[:80],
+    )
+    return True
+
+
+def _safe_send(
+    sender: EmailSender,
+    kind: str,
+    to: str,
+    subject: str,
+    html: str,
+    text: str,
+) -> None:
+    """Send one pre-rendered email, retrying briefly on transient failures.
+
+    Fire-and-forget: the caller is a FastAPI BackgroundTask running
+    after the request has been served, so exceptions must not escape.
+    We retry up to :data:`_MAX_ATTEMPTS` times with exponential backoff.
+    Permanent errors (auth failure, invalid recipient) fail on every
+    attempt and end up in the ``email.failed`` log with ``attempts`` set.
+
+    Templated mails go through the durable outbox instead (see
+    :func:`_render_and_send`); this direct path remains for pre-rendered
+    mail (the public contact form) and as the fallback when the outbox
+    table can't be written.
+    """
+    if _killswitch_engaged(kind, to, subject):
+        return
+
+    last_exc, attempts = _send_with_retries(sender, kind, to, subject, html, text, _MAX_ATTEMPTS)
+    if last_exc is None:
+        return
     log.error(
         "email.failed",
         kind=kind,
         to=to,
-        attempts=_MAX_ATTEMPTS,
-        error_class=type(last_exc).__name__ if last_exc else "unknown",
-        error=_safe_error_summary(last_exc) if last_exc else "",
+        attempts=attempts,
+        error_class=type(last_exc).__name__,
+        error=_safe_error_summary(last_exc),
     )
 
 
@@ -174,7 +202,31 @@ def _render_and_send(
     context: dict,
     locale: str | None,
 ) -> None:
-    """Render ``template`` in ``locale`` and hand it to the sender."""
+    """Persist ``template`` for ``to`` in the outbox and send it.
+
+    With the outbox enabled (default) the mail is written to
+    ``email_outbox`` first and attempted inline; if every quick retry
+    fails, the ``deliver_email_outbox`` job keeps retrying with backoff
+    (audit BE-09). If the outbox can't be written, or is disabled, this
+    is the old direct render + send.
+    """
+    from app.config import get_settings
+
+    if _killswitch_engaged(kind, to, template):
+        return
+    if get_settings().email_outbox_enabled:
+        from app.email.outbox import deliver_via_outbox
+
+        if deliver_via_outbox(
+            sender,
+            kind=kind,
+            template=template,
+            to=to,
+            context=context,
+            locale=locale,
+            max_tries=_MAX_ATTEMPTS,
+        ):
+            return
     rendered = render_email(template, context, locale=locale)
     _safe_send(sender, kind, to, rendered.subject, rendered.html, rendered.text)
 
@@ -354,6 +406,34 @@ def send_trial_nurture(
             "billing_url": billing_url,
             "trial_end_date": trial_end_date,
             "days_left": days_left,
+        },
+        locale,
+    )
+
+
+def send_contact_erased_notice(
+    sender: EmailSender,
+    *,
+    to: str,
+    tenant_name: str,
+    customer_name: str,
+    customer_url: str,
+    remaining_contacts: int,
+    locale: str | None = None,
+) -> None:
+    """Tell a tenant admin that a customer contact erased themselves
+    (GDPR Art. 17 self-service; audit SEC-10). Carries no data about the
+    erased person — only which customer lost a contact."""
+    _render_and_send(
+        sender,
+        "contact_erased",
+        "contact_erased",
+        to,
+        {
+            "tenant_name": tenant_name,
+            "customer_name": customer_name,
+            "customer_url": customer_url,
+            "remaining_contacts": remaining_contacts,
         },
         locale,
     )

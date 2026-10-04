@@ -700,28 +700,46 @@ async def tenant_data_export(
     """
     _require_tenant_admin(principal)
 
-    from app.services.tenant_export_service import build_tenant_export
+    from fastapi.responses import StreamingResponse
+
+    from app.services.tenant_export_service import STREAM_CHUNK_BYTES, build_tenant_export_file
 
     tenant = request.state.tenant
-    # The DB work stays on the event loop (the AsyncSession's connection
-    # belongs to it); only the blocking boto3 reads are offloaded, inside
-    # the builder.
-    blob = await build_tenant_export(db, tenant_slug=tenant.slug)
+    # The archive is spooled to a temp file (not RAM) and streamed back in
+    # chunks — a tenant with gigabytes of drawings must not OOM the
+    # single worker (audit BE-16).
+    export_file = await build_tenant_export_file(db, tenant_slug=tenant.slug)
 
-    await audit_service.record(
-        db,
-        action="tenant.data_exported",
-        entity_type="tenant",
-        entity_id=tenant.id,
-        entity_label=tenant.slug,
-        actor=actor_from_principal(principal),
-        tenant_id=tenant.id,
-    )
-    await db.commit()
+    try:
+        await audit_service.record(
+            db,
+            action="tenant.data_exported",
+            entity_type="tenant",
+            entity_id=tenant.id,
+            entity_label=tenant.slug,
+            actor=actor_from_principal(principal),
+            tenant_id=tenant.id,
+        )
+        await db.commit()
+    except BaseException:
+        export_file.close()
+        raise
+
+    async def _chunks():
+        import anyio
+
+        try:
+            while True:
+                chunk = await anyio.to_thread.run_sync(export_file.read, STREAM_CHUNK_BYTES)
+                if not chunk:
+                    break
+                yield chunk
+        finally:
+            export_file.close()
 
     filename = f"assoluto-{tenant.slug}-{date.today().isoformat()}.zip"
-    return Response(
-        content=blob,
+    return StreamingResponse(
+        _chunks(),
         media_type="application/zip",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )

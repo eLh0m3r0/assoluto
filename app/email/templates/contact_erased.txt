@@ -1,0 +1,7 @@
+{% trans customer_name=customer_name %}A contact person of {{ customer_name }} used their right to erasure and deleted their account in your portal. Their name, e-mail and phone number were removed; orders and comments they created stay in your records, shown as "erased".{% endtrans %}
+
+{% if remaining_contacts == 0 %}{{ _("This customer has no other active contact. Until you add one, nobody at the customer receives order notifications.") }}{% else %}{{ _("Other active contacts at this customer") }}: {{ remaining_contacts }}{% endif %}
+
+{{ _("Open customer") }}: {{ customer_url }}
+
+-- {{ tenant_name }}

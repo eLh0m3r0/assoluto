@@ -689,12 +689,12 @@ async def orders_detail(
                 # real assignment nobody chose to clear.
                 from app.models.user import User as _User
 
-                row = (
+                assignee_row = (
                     await db.execute(
                         select(_User.full_name).where(_User.id == order.assigned_to_user_id)
                     )
                 ).first()
-                assignee_name = row[0] if row else ""
+                assignee_name = assignee_row[0] if assignee_row else ""
                 assignee_is_pickable = False
 
     # Resolve per-customer order permissions.

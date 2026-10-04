@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import csv
 import io
+import os
 import zipfile
 from decimal import Decimal
 from uuid import uuid4
@@ -214,3 +215,77 @@ async def test_export_route_requires_tenant_admin(tenant_client, demo_tenant) ->
     # Unauthenticated -> auth redirect / 401, never a ZIP.
     assert resp.status_code != 200
     assert "application/zip" not in resp.headers.get("content-type", "")
+
+
+async def test_export_spools_to_disk_and_never_buffers_whole_objects(
+    owner_engine, demo_tenant, mock_s3, monkeypatch
+) -> None:
+    """Audit BE-16: a big tenant must not build the archive in RAM.
+
+    The archive rolls over to a temp file past the spool threshold and
+    attachment bodies are streamed in chunks — ``download_bytes`` (which
+    returns the whole object) is never called.
+    """
+    from app.services import tenant_export_service as svc
+    from app.storage import s3 as s3_mod
+
+    monkeypatch.setattr(svc, "SPOOL_MAX_MEMORY_BYTES", 64 * 1024)
+
+    def forbidden(*a, **kw):
+        raise AssertionError("export must stream attachments, not buffer them")
+
+    monkeypatch.setattr(s3_mod, "download_bytes", forbidden)
+
+    big = os.urandom(1024 * 1024)  # incompressible, 1 MiB
+    s3_mod.upload_bytes("tenants/4mex/big.bin", big)
+
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        cust = Customer(id=uuid4(), tenant_id=demo_tenant.id, name="Big")
+        session.add(cust)
+        await session.flush()
+        order = Order(
+            id=uuid4(),
+            tenant_id=demo_tenant.id,
+            customer_id=cust.id,
+            number="2026-EXP-0003",
+            title="Velký",
+        )
+        session.add(order)
+        await session.flush()
+        session.add(
+            OrderAttachment(
+                id=uuid4(),
+                tenant_id=demo_tenant.id,
+                order_id=order.id,
+                kind=AttachmentKind.DRAWING,
+                filename="big.bin",
+                content_type="application/octet-stream",
+                size_bytes=len(big),
+                storage_key="tenants/4mex/big.bin",
+            )
+        )
+
+    async with sm() as session:
+        fh = await svc.build_tenant_export_file(session, tenant_slug=demo_tenant.slug)
+    try:
+        assert fh._rolled  # type: ignore[attr-defined]  # spilled to disk
+        zf = zipfile.ZipFile(fh)
+        assert zf.read("attachments/2026-EXP-0003/big.bin") == big
+    finally:
+        fh.close()
+
+
+async def test_export_route_streams_a_valid_zip(
+    tenant_client, owner_engine, demo_tenant, mock_s3
+) -> None:
+    from tests.test_attachments_flow import _login, _seed_everyone
+
+    await _seed_everyone(owner_engine, demo_tenant.id)
+    await _login(tenant_client, "staff@4mex.cz", "staffpass")
+    resp = await tenant_client.get("/app/admin/export")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "application/zip"
+    zf = zipfile.ZipFile(io.BytesIO(resp.content))
+    assert "customers.csv" in zf.namelist()
+    assert any(r["name"] == "ACME" for r in _read(zf, "customers.csv"))

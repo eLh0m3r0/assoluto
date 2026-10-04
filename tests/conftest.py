@@ -16,6 +16,8 @@ os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault("APP_DEBUG", "false")
 os.environ.setdefault("APP_SECRET_KEY", "test-secret-key")
 os.environ.setdefault("LOG_LEVEL", "WARNING")
+# /readyz probes S3 in production; unit tests opt in explicitly.
+os.environ.setdefault("READYZ_CHECK_S3", "false")
 
 from app.config import Settings, get_settings
 from app.main import create_app
@@ -124,6 +126,7 @@ async def wipe_db(owner_engine):  # type: ignore[misc]
             # Order matters because of FK constraints. Children first, then
             # parents; `customers` is RESTRICTed by `orders`, so orders (and
             # their dependents) must go first.
+            await conn.execute(text("DELETE FROM email_outbox"))
             await conn.execute(text("DELETE FROM audit_events"))
             await conn.execute(text("DELETE FROM asset_movements"))
             await conn.execute(text("DELETE FROM assets"))

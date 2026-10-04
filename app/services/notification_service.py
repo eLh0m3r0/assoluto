@@ -99,6 +99,20 @@ class Recipient:
     email: str
     locale: str | None = None
     full_name: str = ""
+    #: Has proved they own the address (accepted their invitation). The
+    #: reachability filter still *yields* to pending invitees (§19), but
+    #: their mail carries no content — see :data:`_PENDING_REDACTED`.
+    accepted: bool = True
+
+
+#: Context keys holding user-written content (comment text, uploaded file
+#: names). Mail to a recipient who has not accepted their invitation —
+#: i.e. never proved they own the address — still goes out, so the
+#: customer is never left uninformed, but without these keys: a mistyped
+#: invite address must not keep receiving the customer's comments and
+#: drawing names (audit SEC-8). The templates then say "accept your
+#: invitation to see it" instead.
+_PENDING_REDACTED = frozenset({"body_excerpt", "filename"})
 
 
 @dataclass(frozen=True)
@@ -281,6 +295,7 @@ async def resolve_staff_audience(
                     recipient=user, customer=None, tenant=tenant, settings=settings
                 ),
                 full_name=user.full_name,
+                accepted=user.password_hash is not None,
             ),
             # An unassigned order belongs to nobody, so it belongs to
             # everyone: "only orders assigned to me" must not quietly bin
@@ -402,6 +417,7 @@ async def resolve_contact_audience(
                     recipient=contact, customer=customer, tenant=tenant, settings=settings
                 ),
                 full_name=contact.full_name,
+                accepted=contact.accepted_at is not None,
             ),
             involved=contact.id in involved_ids,
             accepted=contact.accepted_at is not None,
@@ -439,10 +455,19 @@ def _fan_out(
             order_number=order.number,
             order_title=order.title,
             order_url=order_url(base_url, order),
-            extra=dict(extra or {}),
+            extra=_extra_for(recipient, extra),
         )
         for recipient in recipients
     ]
+
+
+def _extra_for(recipient: Recipient, extra: dict[str, Any] | None) -> dict[str, Any]:
+    out = dict(extra or {})
+    if not recipient.accepted:
+        for key in _PENDING_REDACTED:
+            out.pop(key, None)
+        out["pending_invite"] = True
+    return out
 
 
 async def build_order_submitted(

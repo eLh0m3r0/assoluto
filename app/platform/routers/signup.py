@@ -7,6 +7,7 @@ Core self-hosted builds never mount this router.
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request, status
@@ -110,7 +111,14 @@ async def signup_submit(
         html = _templates(request).render(
             request,
             "platform/verify_sent.html",
-            {"email": owner_email or "(unknown)", "principal": None},
+            # The template reads ``identity.email``; passing a bare
+            # ``email`` used to raise UndefinedError -> 500, which told
+            # the bot it had been caught (audit BE-07).
+            {
+                "identity": SimpleNamespace(email=owner_email or ""),
+                "email": owner_email or "",
+                "principal": None,
+            },
         )
         return HTMLResponse(html)
 
@@ -469,6 +477,11 @@ async def check_email_resend(
             company_name = await _company_name_for_identity(db, identity.id)
             verify_url = _build_verify_url(settings, identity.id)
             locale = getattr(request.state, "locale", settings.default_locale)
+            # Release the DB connection before the SMTP work: FastAPI runs
+            # background tasks BEFORE dependency cleanup, so without this the
+            # session would sit "idle in transaction" for the whole send
+            # (audit BE-08; CLAUDE.md §2).
+            await db.commit()
             background_tasks.add_task(
                 send_email_verification,
                 request.app.state.email_sender,
@@ -517,6 +530,11 @@ async def resend_verification(
     company_name = await _company_name_for_identity(db, identity.id)
     verify_url = _build_verify_url(settings, identity.id)
     locale = getattr(request.state, "locale", settings.default_locale)
+    # Release the DB connection before the SMTP work: FastAPI runs
+    # background tasks BEFORE dependency cleanup, so without this the
+    # session would sit "idle in transaction" for the whole send
+    # (audit BE-08; CLAUDE.md §2).
+    await db.commit()
     background_tasks.add_task(
         send_email_verification,
         request.app.state.email_sender,

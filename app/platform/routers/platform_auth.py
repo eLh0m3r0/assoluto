@@ -59,6 +59,10 @@ async def platform_login_form(
     banner = None
     if notice == "password_reset":
         banner = "Heslo bylo úspěšně změněno. Přihlaste se novým heslem."
+    elif notice == "account_deleted":
+        from app.i18n import t as _t
+
+        banner = _t(request, "Your account has been deleted.")
     html = _templates(request).render(
         request,
         "platform/login.html",
@@ -177,6 +181,11 @@ async def platform_password_reset_submit(
         # backoff), the app runs a single uvicorn worker, and this
         # endpoint is unauthenticated — so an inline send let anyone
         # stall the whole server for ~36s per request.
+        # Release the DB connection before the SMTP work: FastAPI runs
+        # background tasks BEFORE dependency cleanup, so without this the
+        # session would sit "idle in transaction" for the whole send
+        # (audit BE-08; CLAUDE.md §2).
+        await db.commit()
         background_tasks.add_task(
             send_password_reset,
             sender,

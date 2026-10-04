@@ -5,23 +5,24 @@
        before the stylesheet links and Tailwind's `dark:` variants apply
        without a flash on first paint. CSP-safe: external `script-src
        'self'` file, no inline script bytes. #}
-    <script src="{{ url_for('static', path='js/theme-init.js') }}?v={{ app_version }}"></script>
+    <script src="{{ url_for('static', path='js/theme-init.js') }}?v={{ asset_version }}"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <title>{% block title %}Assoluto{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', path='favicon.svg') }}">
     {% block head_extra %}{% endblock %}
-    <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v={{ asset_version }}">
     {# HTMX is loaded before app.js so the `htmx:configRequest` listener
        registered inside app.js sees the global `htmx` and can hook into
        every non-GET request to add the X-CSRF-Token header. Vendored to
        keep CSP `script-src 'self'` intact. Version query-param busts the
-       browser cache whenever ``app_version`` changes — in production,
-       that happens on every new deploy. #}
-    <script src="{{ url_for('static', path='vendor/htmx.min.js') }}?v={{ app_version }}" defer></script>
-    <script src="{{ url_for('static', path='js/app.js') }}?v={{ app_version }}" defer></script>
-    <script src="{{ url_for('static', path='js/palette.js') }}?v={{ app_version }}" defer></script>
+       browser cache whenever ``asset_version`` changes — the build id
+       or a hash of the static files, so on every deploy that changes
+       them; versioned assets are then cached as immutable. #}
+    <script src="{{ url_for('static', path='vendor/htmx.min.js') }}?v={{ asset_version }}" defer></script>
+    <script src="{{ url_for('static', path='js/app.js') }}?v={{ asset_version }}" defer></script>
+    <script src="{{ url_for('static', path='js/palette.js') }}?v={{ asset_version }}" defer></script>
     <style>
         /* Minimal inline fallback so pages look decent even before Tailwind loads */
         body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }

@@ -1,0 +1,1 @@
+{% trans customer_name=customer_name %}A contact at {{ customer_name }} deleted their account{% endtrans %}

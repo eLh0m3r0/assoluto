@@ -20,11 +20,10 @@ Design notes
 ------------
 * Runs under the caller's RLS-scoped session, so it can only ever see
   the caller's own tenant. There is no tenant_id parameter to get wrong.
-* Streams into an in-memory buffer. Fine at the scale the plans allow
-  (Starter 2 GB, Pro 20 GB is the storage cap, and real tenants sit far
-  below); if that stops being true this becomes a background job writing
-  to S3 with an emailed link, which is why the router hands back a
-  single response object rather than a file path.
+* Writes into a ``SpooledTemporaryFile`` (RAM up to 8 MB, then disk) and
+  the router streams that file back in 1 MB chunks. Attachment bodies are
+  copied from S3 chunk by chunk in a worker thread, so peak memory is a
+  few MB regardless of how large the tenant's storage is (audit BE-16).
 * Attachment bytes are best-effort: a missing S3 object records a line
   in ``_export_errors.txt`` rather than failing the whole export. A
   partial archive is worth far more to a departing customer than a 500.
@@ -34,13 +33,14 @@ from __future__ import annotations
 
 import csv
 import io
+import tempfile
 import zipfile
 from datetime import UTC, datetime
-from typing import Any
+from typing import IO, Any
 
+import anyio
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.concurrency import run_in_threadpool
 
 from app.logging import get_logger
 from app.models.asset import Asset, AssetMovement
@@ -206,27 +206,54 @@ _TABLES: list[tuple[str, Any, list[str]]] = [
 ]
 
 
-async def build_tenant_export(db: AsyncSession, *, tenant_slug: str) -> bytes:
-    """Return a ZIP of the current tenant's data.
+# Archives up to this size stay in RAM; anything bigger rolls over to a
+# temp file on disk, so a Pro tenant's 20 GB of drawings can't OOM-kill
+# the single uvicorn worker (audit BE-16).
+SPOOL_MAX_MEMORY_BYTES = 8 * 1024 * 1024
+STREAM_CHUNK_BYTES = 1024 * 1024
+
+
+def _copy_attachment_into_zip(zf: zipfile.ZipFile, arcname: str, storage_key: str) -> int:
+    """Stream one S3 object into the archive (blocking — run in a thread)."""
+    from app.storage.s3 import iter_object_chunks
+
+    written = 0
+    with zf.open(arcname, "w", force_zip64=True) as dest:
+        for chunk in iter_object_chunks(storage_key, STREAM_CHUNK_BYTES):
+            dest.write(chunk)
+            written += len(chunk)
+    return written
+
+
+async def build_tenant_export_file(db: AsyncSession, *, tenant_slug: str) -> IO[bytes]:
+    """Write a ZIP of the current tenant's data to a spooled temp file.
 
     ``db`` must be the request-scoped, RLS-bound session — that is what
-    confines the export to one tenant.
+    confines the export to one tenant. The returned file is rewound to
+    the start; the caller streams it out and closes it.
+
+    The DB reads stay on the event loop (the AsyncSession's connection
+    belongs to it); every compression step and every S3 read runs in a
+    worker thread, and attachment bodies are copied chunk by chunk, so
+    neither the loop nor RAM ever holds a whole file.
     """
-    buf = io.BytesIO()
+    out: IO[bytes] = tempfile.SpooledTemporaryFile(max_size=SPOOL_MAX_MEMORY_BYTES)  # noqa: SIM115
     errors: list[str] = []
     attachment_bytes_written = 0
 
-    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-        for name, model, columns in _TABLES:
-            rows = list((await db.execute(select(model))).scalars().all())
-            zf.writestr(f"{name}.csv", _rows_to_csv(rows, columns))
+    try:
+        zf = zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, allowZip64=True)
+        try:
+            for name, model, columns in _TABLES:
+                rows = list((await db.execute(select(model))).scalars().all())
+                payload = _rows_to_csv(rows, columns)
+                await anyio.to_thread.run_sync(zf.writestr, f"{name}.csv", payload)
 
-        # Attachment bytes, under attachments/<order-number>/<filename>.
-        attachments = list((await db.execute(select(OrderAttachment))).scalars().all())
-        order_numbers = {o.id: o.number for o in (await db.execute(select(Order))).scalars().all()}
-        if attachments:
-            from app.storage.s3 import download_bytes
-
+            # Attachment bytes, under attachments/<order-number>/<filename>.
+            attachments = list((await db.execute(select(OrderAttachment))).scalars().all())
+            order_numbers = {
+                o.id: o.number for o in (await db.execute(select(Order))).scalars().all()
+            }
             seen: set[str] = set()
             for att in attachments:
                 if attachment_bytes_written > MAX_ATTACHMENT_BYTES:
@@ -243,10 +270,9 @@ async def build_tenant_export(db: AsyncSession, *, tenant_slug: str) -> bytes:
                     arcname = f"attachments/{folder}/{att.id}-{att.filename}"
                 seen.add(arcname)
                 try:
-                    # boto3 is blocking and the app runs one uvicorn
-                    # worker: downloading inline would stall every other
-                    # request for the length of the export.
-                    data = await run_in_threadpool(download_bytes, att.storage_key)
+                    attachment_bytes_written += await anyio.to_thread.run_sync(
+                        _copy_attachment_into_zip, zf, arcname, att.storage_key
+                    )
                 except Exception as exc:
                     errors.append(f"{arcname}: could not read from storage ({type(exc).__name__})")
                     log.warning(
@@ -255,21 +281,35 @@ async def build_tenant_export(db: AsyncSession, *, tenant_slug: str) -> bytes:
                         error=str(exc),
                     )
                     continue
-                attachment_bytes_written += len(data)
-                zf.writestr(arcname, data)
 
-        readme = (
-            f"Assoluto data export\n"
-            f"Tenant: {tenant_slug}\n"
-            f"Generated: {datetime.now(UTC).isoformat()}\n\n"
-            "Every CSV is UTF-8 with a byte-order mark so Excel opens Czech and\n"
-            "German text correctly. Identifiers are UUIDs and match across files:\n"
-            "order_items.order_id refers to orders.id, and so on.\n\n"
-            "attachments/ holds the uploaded files, grouped by order number.\n"
-        )
-        zf.writestr("README.txt", readme.encode("utf-8"))
+            readme = (
+                f"Assoluto data export\n"
+                f"Tenant: {tenant_slug}\n"
+                f"Generated: {datetime.now(UTC).isoformat()}\n\n"
+                "Every CSV is UTF-8 with a byte-order mark so Excel opens Czech and\n"
+                "German text correctly. Identifiers are UUIDs and match across files:\n"
+                "order_items.order_id refers to orders.id, and so on.\n\n"
+                "attachments/ holds the uploaded files, grouped by order number.\n"
+            )
+            zf.writestr("README.txt", readme.encode("utf-8"))
 
-        if errors:
-            zf.writestr("_export_errors.txt", "\n".join(errors).encode("utf-8"))
+            if errors:
+                zf.writestr("_export_errors.txt", "\n".join(errors).encode("utf-8"))
+        finally:
+            await anyio.to_thread.run_sync(zf.close)
+    except BaseException:
+        out.close()
+        raise
 
-    return buf.getvalue()
+    out.seek(0)
+    return out
+
+
+async def build_tenant_export(db: AsyncSession, *, tenant_slug: str) -> bytes:
+    """Return the export as bytes. Convenience for tests and small tenants;
+    the HTTP route streams :func:`build_tenant_export_file` instead."""
+    fh = await build_tenant_export_file(db, tenant_slug=tenant_slug)
+    try:
+        return fh.read()
+    finally:
+        fh.close()

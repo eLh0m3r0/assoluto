@@ -9,7 +9,6 @@ from typing import Any
 
 from fastapi import FastAPI, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
-from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import __version__
@@ -30,6 +29,7 @@ from app.routers import search as search_router
 from app.routers import tenant_admin as tenant_admin_router
 from app.routers import www as www_router
 from app.scheduler import build_scheduler
+from app.security.body_limit import FORM_OVERHEAD_BYTES, BodySizeLimitMiddleware
 from app.security.csrf import CsrfCookieMiddleware
 from app.security.head_method import HeadMethodMiddleware
 from app.security.headers import SecurityHeadersMiddleware
@@ -331,6 +331,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # method=HEAD instead of the mutated GET.
     app.add_middleware(HeadMethodMiddleware)
 
+    # Hard ceiling on request bodies, enforced while the body streams in
+    # (before multipart parsing spools it to disk). See body_limit.py.
+    app.add_middleware(
+        BodySizeLimitMiddleware,
+        max_body_bytes=settings.max_upload_size_bytes + FORM_OVERHEAD_BYTES,
+    )
+
     # Plain ASGI middleware that stamps the csrftoken cookie; validation
     # happens in `verify_csrf` as a router-level FastAPI dependency so it
     # can read the form body via `await request.form()` without breaking
@@ -547,8 +554,26 @@ def _register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> Response:
+        request_id = getattr(request.state, "request_id", None)
         get_logger("app.errors").error(
-            "unhandled", path=request.url.path, error=f"{type(exc).__name__}: {exc}"
+            "unhandled",
+            path=request.url.path,
+            request_id=request_id,
+            error=f"{type(exc).__name__}: {exc}",
+        )
+        # Mail the operator (OPS_ALERT_EMAIL; rate-limited, no request
+        # data). Route template rather than raw path so /orders/<uuid>
+        # crashes collapse into one signature.
+        from app.email.ops_alert import notify_unhandled
+
+        route = request.scope.get("route")
+        notify_unhandled(
+            exc,
+            settings=request.app.state.settings,
+            sender=getattr(request.app.state, "email_sender", None),
+            where=getattr(route, "path", None) or request.url.path,
+            request_id=request_id,
+            method=request.method,
         )
         templates: Templates = request.app.state.templates
         if _wants_html(request):
@@ -561,8 +586,16 @@ def _register_error_handlers(app: FastAPI) -> None:
 
 
 def _mount_static(app: FastAPI) -> None:
-    """Mount the `/static` folder for CSS, JS, images."""
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    """Mount the `/static` folder for CSS, JS, images.
+
+    Versioned requests (``?v=<asset version>``) are served ``immutable``
+    for a year; everything else must revalidate (see app/static_assets.py).
+    """
+    from app.static_assets import CachedStaticFiles, asset_version
+
+    version = asset_version(app.state.settings.app_build_id, STATIC_DIR)
+    app.state.asset_version = version
+    app.mount("/static", CachedStaticFiles(directory=STATIC_DIR, version=version), name="static")
 
 
 # Module-level app for `uvicorn app.main:app`

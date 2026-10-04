@@ -28,7 +28,7 @@ def install(app: FastAPI) -> None:
     Called from `app.main.create_app()` only when the FEATURE_PLATFORM
     flag is on. Safe to call multiple times — idempotent.
     """
-    from app.platform.routers import billing, platform_admin, platform_auth, signup
+    from app.platform.routers import billing, gdpr, platform_admin, platform_auth, signup
 
     # Register the platform routes with their own prefixes; they live
     # alongside the core tenant routes and share the same FastAPI app.
@@ -36,3 +36,4 @@ def install(app: FastAPI) -> None:
     app.include_router(platform_admin.router)
     app.include_router(signup.router)
     app.include_router(billing.router)
+    app.include_router(gdpr.router)

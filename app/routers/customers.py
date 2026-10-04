@@ -483,6 +483,12 @@ async def customers_contact_resend_invite(
             status_code=303,
         )
 
+    # Restart the 14-day purge clock (audit LOGIC-10): the stale-invite
+    # job keys on invited_at, so without this a link re-sent on day 13
+    # was deleted together with the contact two days later.
+    from datetime import UTC, datetime
+
+    contact.invited_at = datetime.now(UTC)
     await db.commit()
 
     token = create_invitation_token(

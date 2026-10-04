@@ -72,6 +72,21 @@ def test_returns_none_when_nothing_resolves() -> None:
     assert resolve_tenant_slug(req, settings) is None
 
 
+def test_production_ignores_client_tenant_header() -> None:
+    """Audit SEC-7: in production the Host decides, not a client header."""
+    settings = Settings(APP_ENV="production", DEFAULT_TENANT_SLUG=None)
+    apex = _make_request(host="assoluto.eu", x_tenant_slug="demo")
+    assert resolve_tenant_slug(apex, settings) is None
+    sub = _make_request(host="beta.assoluto.eu", x_tenant_slug="alpha")
+    assert resolve_tenant_slug(sub, settings) == "beta"
+
+
+def test_production_can_opt_in_to_tenant_header() -> None:
+    settings = Settings(APP_ENV="production", TRUST_TENANT_HEADER=True, DEFAULT_TENANT_SLUG=None)
+    req = _make_request(host="assoluto.eu", x_tenant_slug="demo")
+    assert resolve_tenant_slug(req, settings) == "demo"
+
+
 def test_slug_is_lowercased() -> None:
     settings = Settings(DEFAULT_TENANT_SLUG="SelfHost")
     req = _make_request(host="localhost")
