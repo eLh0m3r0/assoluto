@@ -45,9 +45,23 @@ Money S3, aktivační funnel, „Powered by“ smyčka, archivace zákazníka,
 správce za zákazníka zve kolegy, týdenní souhrn (opt-in), ukázkový tenant
 `ukazka.assoluto.eu` pro online ukázky a obchodní hovory (na MSV 2026 se nejede — rozhodnutí foundera 2026-10-04).
 
+## Druhé kolo (2026-10-04, PR #20, #10, #15)
+- **Pořadí položek zakázky** — `int(max_pos or -1) + 1` dávalo všem
+  položkám pozici 0 (chyba od 2026-04, nalezena opakovaným během testů:
+  ceny se v testu prohodily, 2 700 místo 1 800). Opraveno + migrace
+  `1014` přečíslovala existující zakázky v dosavadním pořadí zobrazení.
+- **Česká PDF tiskla anglické popisky** („Unit price“, „Subtotal“,
+  patička) — alias `_gettext` Babel neextrahoval. Opraveno, ověřeno
+  na produkčním PDF.
+- Průběžný součet u nenaceněné zakázky; realistický seed (bez časů v
+  budoucnosti, snapshot potvrzení); tichý log scheduleru.
+- **Závislosti:** reportlab 5 (PDF pixelově shodná se 4.4), python-slugify 9
+  (shodné slugy), structlog 26 (shodné JSON logy), mypy 2, GitHub Actions
+  (checkout v7, setup-uv v10, build-push v7, login v4, ssh-action 1.2.5) —
+  vše nasazeno, deploy s novými Actions prošel.
+- Deploy ověřuje SSH host key VPS (ECDSA pin).
+
 ## Odloženo vědomě
-- **Dependabot major verze** (Actions v deploy pipeline, reportlab 5,
-  python-slugify 9, structlog 26): kritické cesty, samostatná změna.
 - **AI příjem objednávek (MKT-4)**, revize výkresů (IDEA-8), formální nabídka
   s e-podpisem (MKT-6), import BOM: Vlna 3, vyžaduje rozhodnutí (API klíč, náklady).
 - **Trial import do skutečné POHODY / Money S3** — export validuje proti XSD,
