@@ -18,6 +18,7 @@ colleague" requests. Scope is deliberately narrow:
 from __future__ import annotations
 
 from urllib.parse import quote
+from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -47,6 +48,13 @@ async def require_customer_admin(
     return principal
 
 
+def _own_customer_id(principal: Principal) -> UUID:
+    """A client admin always belongs to a customer; narrows the type."""
+    if principal.customer_id is None:
+        raise HTTPException(status_code=403, detail="Client admin required")
+    return principal.customer_id
+
+
 def _redirect(notice: str | None = None, error: str | None = None) -> RedirectResponse:
     if error:
         return RedirectResponse(url=f"/app/me/team?error={quote(error)}", status_code=303)
@@ -61,7 +69,7 @@ async def team_index(
     principal: Principal = Depends(require_customer_admin),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    customer = await get_customer(db, principal.customer_id)
+    customer = await get_customer(db, _own_customer_id(principal))
     if customer is None:
         raise HTTPException(status_code=404, detail="Customer not found")
     contacts = await list_contacts_for_customer(db, customer.id)
@@ -91,7 +99,7 @@ async def team_invite(
     db: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> Response:
-    customer = await get_customer(db, principal.customer_id)
+    customer = await get_customer(db, _own_customer_id(principal))
     if customer is None or not customer.is_active:
         raise HTTPException(status_code=404, detail="Customer not found")
     if not (email or "").strip() or not (full_name or "").strip():

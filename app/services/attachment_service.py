@@ -114,7 +114,15 @@ async def create_attachment_row(
     from app.platform.usage import ensure_within_limit
 
     size_mb = max(1, (size_bytes + 1024 * 1024 - 1) // (1024 * 1024))
-    await ensure_within_limit(db, tenant_id=tenant.id, metric="storage_mb", delta=size_mb)
+    # A customer contact's upload is never bounced on the supplier's plan
+    # (LOGIC-3): accepted, and the tenant admins are e-mailed instead.
+    await ensure_within_limit(
+        db,
+        tenant_id=tenant.id,
+        metric="storage_mb",
+        delta=size_mb,
+        soft=uploaded_by_contact_id is not None,
+    )
 
     attachment = OrderAttachment(
         id=uuid4(),

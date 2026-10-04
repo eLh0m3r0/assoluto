@@ -7,8 +7,8 @@ Core self-hosted builds never mount this router.
 
 from __future__ import annotations
 
-from types import SimpleNamespace
 import re
+from types import SimpleNamespace
 from urllib.parse import parse_qs, urlsplit
 from uuid import UUID
 

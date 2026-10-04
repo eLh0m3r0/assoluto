@@ -62,7 +62,9 @@ def _render_thumbnail(data: bytes, content_type: str) -> bytes | None:
         except ImportError:
             return None
         try:
-            pages = convert_from_bytes(data, first_page=1, last_page=1, size=400)
+            # poppler parses customer-supplied files: cap the time a hostile or
+            # pathological PDF can hold the worker thread.
+            pages = convert_from_bytes(data, first_page=1, last_page=1, size=400, timeout=30)
             if not pages:
                 return None
             out = BytesIO()

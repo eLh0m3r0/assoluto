@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{# Served for a tenant subdomain whose portal is deactivated (billing hard
+   cut or operator suspension) — to staff AND to the supplier's
+   customers. Deliberately neutral: it never mentions payment, plans or
+   subscriptions (LOGIC-3), only who to contact. #}
+{% block title %}{{ tenant_name }} · {{ _("Portal temporarily unavailable") }}{% endblock %}
+{% block content %}
+<div class="flex min-h-[50vh] items-center justify-center">
+    <div class="max-w-md text-center">
+        <p class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ tenant_name }}</p>
+        <h1 class="mt-3 text-xl font-bold text-slate-900 dark:text-slate-100">{{ _("This portal is temporarily unavailable") }}</h1>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+            {{ _("For anything urgent, please contact the company running this portal directly:") }}
+            <strong>{{ tenant_name }}</strong>.
+        </p>
+    </div>
+</div>
+{% endblock %}

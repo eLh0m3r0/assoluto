@@ -1,0 +1,14 @@
+{% set metric_label = {
+    "storage_mb": _("storage"),
+    "orders": _("orders per month"),
+    "contacts": _("client contacts"),
+    "users": _("staff users"),
+}.get(metric, metric) %}{{ _("Your portal is over its plan limit") }}
+
+{% trans full_name=full_name %}Hello {{ full_name }},{% endtrans %}
+
+{% trans tenant_name=tenant_name %}one of your clients just uploaded a file or created an order in {{ tenant_name }} although the portal has reached its plan limit.{% endtrans %} {{ _("Limit:") }} {{ limit }} ({{ metric_label }}).
+
+{{ _("We accepted it anyway — your client saw no error and nothing was lost. Your staff cannot add more until usage drops or the plan is raised.") }}
+
+{{ _("Open billing") }}: {{ billing_url }}

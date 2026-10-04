@@ -489,7 +489,10 @@ async def create_order(
     # community / unlimited plans.
     from app.platform.usage import ensure_within_limit
 
-    await ensure_within_limit(db, tenant_id=tenant_id, metric="orders")
+    # Soft for a customer contact (LOGIC-3) — see ensure_within_limit.
+    await ensure_within_limit(
+        db, tenant_id=tenant_id, metric="orders", soft=actor.type == "contact"
+    )
 
     number = await _next_order_number(db, tenant_id=tenant_id)
 
@@ -602,7 +605,10 @@ async def add_item(
     # within the column range. ``add_item`` used to have no sign or
     # finiteness check at all, so it accepted lines ``update_item`` then
     # refused to edit.
-    quantity, unit_price = _validated_amounts(quantity, unit_price)
+    checked_quantity, unit_price = _validated_amounts(quantity, unit_price)
+    if checked_quantity is None:  # unreachable: checked above; narrows the type
+        raise OrderError("quantity must be positive")
+    quantity = checked_quantity
     try:
         new_total = line_total(quantity, unit_price)
     except AmountError as exc:

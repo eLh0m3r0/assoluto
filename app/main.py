@@ -395,7 +395,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         import logging
 
         log = logging.getLogger("app.platform")
-        if settings.feature_platform_allow_demo:
+        if not settings.billing_demo_checkout_allowed:
+            # D2 (2026-10-03): production without Stripe never grants a
+            # plan — checkout tells the customer we invoice by bank
+            # transfer. Nothing to warn about; just say so once.
+            log.info(
+                "FEATURE_PLATFORM=true in production WITHOUT Stripe; checkout asks "
+                "customers to write for a bank-transfer invoice (no plan is granted)."
+            )
+        elif settings.feature_platform_allow_demo:
             log.warning(
                 "FEATURE_PLATFORM=true in production WITHOUT Stripe; checkout "
                 "runs in demo mode (FEATURE_PLATFORM_ALLOW_DEMO acknowledged). "
@@ -432,6 +440,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "APP_ENV=production. Generate one with "
             "`python -c 'import secrets; print(secrets.token_urlsafe(48))'` "
             "and set it in the environment before starting the app."
+        )
+
+    # SEC-1: with STRIPE_SECRET_KEY set, the webhook endpoint is live.
+    # An empty STRIPE_WEBHOOK_SECRET would make the signature an HMAC
+    # keyed with "" — forgeable by anyone. ``verify_webhook`` refuses
+    # such requests anyway; refusing to boot makes the misconfiguration
+    # impossible to miss.
+    if (
+        settings.is_production
+        and settings.stripe_secret_key
+        and not (settings.stripe_webhook_secret or "").strip()
+    ):
+        raise RuntimeError(
+            "STRIPE_SECRET_KEY is set but STRIPE_WEBHOOK_SECRET is empty while "
+            "APP_ENV=production. Copy the signing secret (whsec_…) of the webhook "
+            "endpoint from the Stripe dashboard into STRIPE_WEBHOOK_SECRET."
         )
 
     # Optional SaaS layer — loaded only when FEATURE_PLATFORM is on.
@@ -493,6 +517,16 @@ def _register_error_handlers(app: FastAPI) -> None:
                 and "\\" not in location
             ):
                 return RedirectResponse(url=location, status_code=status.HTTP_303_SEE_OTHER)
+
+        from app.deps import TenantUnavailable
+
+        if isinstance(exc, TenantUnavailable) and _wants_html(request):
+            html = templates.render(
+                request,
+                "errors/tenant_unavailable.html",
+                {"principal": None, "tenant_name": exc.tenant_name},
+            )
+            return HTMLResponse(html, status_code=exc.status_code)
 
         if _wants_html(request) and exc.status_code in (403, 404):
             template = f"errors/{exc.status_code}.html"

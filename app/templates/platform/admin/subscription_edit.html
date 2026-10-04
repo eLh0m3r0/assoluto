@@ -62,7 +62,6 @@
                 ("extend_trial:90", _("Extend trial +90 days"), "bg-sky-600 hover:bg-sky-700"),
                 ("extend_trial:365", _("Extend trial +365 days"), "bg-sky-600 hover:bg-sky-700"),
                 ("pin_internal", _("Internal — never expires"), "bg-violet-600 hover:bg-violet-700"),
-                ("set_active", _("Mark as active (manual billing)"), "bg-emerald-600 hover:bg-emerald-700"),
             ] %}
                 <form method="post" action="/platform/admin/tenants/{{ tenant.id }}/subscription">
                     {{ csrf_input() }}
@@ -74,6 +73,29 @@
                 </form>
             {% endfor %}
         </div>
+
+        {# Manual billing (invoice / bank transfer). The paid-until date is
+           mandatory: the daily expiry job cancels the row at that date,
+           exactly like a trial — "active" without an end used to mean
+           free forever (LOGIC-18). #}
+        <form method="post" action="/platform/admin/tenants/{{ tenant.id }}/subscription"
+              class="mb-6 flex flex-wrap items-end gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/30 dark:bg-emerald-900/10">
+            {{ csrf_input() }}
+            <input type="hidden" name="quick_action" value="set_active">
+            <div>
+                <label for="active_until" class="block text-xs font-medium text-slate-700 dark:text-slate-300">{{ _("Paid until") }}</label>
+                <input type="date" id="active_until" name="active_until" required
+                       value="{{ subscription.current_period_end.strftime('%Y-%m-%d') if subscription.status == 'active' and subscription.current_period_end else '' }}"
+                       class="mt-1 rounded-md border border-slate-300 px-3 py-1.5 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+            </div>
+            <button type="submit"
+                    class="rounded-md bg-emerald-600 px-3 py-2 text-xs font-medium text-white hover:bg-emerald-700">
+                {{ _("Mark as active (manual billing)") }}
+            </button>
+            <p class="w-full text-xs text-slate-600 dark:text-slate-400">
+                {{ _("Access ends on this date unless you extend it; then the usual 3-day export grace applies.") }}
+            </p>
+        </form>
 
         {# Free-form edit form — plan + dates. #}
         <form method="post" action="/platform/admin/tenants/{{ tenant.id }}/subscription"

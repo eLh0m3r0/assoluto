@@ -434,5 +434,5 @@ async def test_unverified_trial_not_counted_as_trial(platform, owner_engine) -> 
     assert len(tm) == 1
     import re
 
-    match = re.search(r"(\d+) (?:verified trials|ověřen)", resp.text)
+    match = re.search(r"with verified e-mail:\s*(\d+)", resp.text)
     assert match is not None and match.group(1) == "0"

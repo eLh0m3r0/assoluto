@@ -79,6 +79,15 @@ class Settings(BaseSettings):
     # True acknowledges the risk and lets checkout stay in ``demo`` mode.
     # Never set this on a real paying-customer deployment.
     feature_platform_allow_demo: bool = Field(default=False, alias="FEATURE_PLATFORM_ALLOW_DEMO")
+    # Whether the Stripe-less "demo" checkout may switch a tenant's plan
+    # locally without charging. Unset = allowed everywhere EXCEPT
+    # production (dev/test/staging keep the click-through demo). In
+    # production without Stripe the checkout instead tells the customer
+    # that online payment is being set up and to write to
+    # PLATFORM_OPERATOR_EMAIL for a bank-transfer invoice — it never
+    # grants a plan for free (audit 2026-10-03, BIZ-01 / D2). Set to
+    # true only on a hosted staging/demo box that has no real customers.
+    billing_demo_mode_allowed: bool | None = Field(default=None, alias="BILLING_DEMO_MODE_ALLOWED")
     # Trial-nurture email cadence (day-1 onboarding, day-7 check-in,
     # trial-ending reminder 5 days before trial_ends_at). Off by default
     # so the copy can be reviewed before any tenant receives it; flip to
@@ -262,6 +271,17 @@ class Settings(BaseSettings):
     def stripe_enabled(self) -> bool:
         """Demo mode = billing UI without Stripe API calls."""
         return bool(self.stripe_secret_key)
+
+    @property
+    def billing_demo_checkout_allowed(self) -> bool:
+        """May a Stripe-less checkout switch the plan locally for free?
+
+        Never relevant when Stripe is configured. Defaults to "not in
+        production" — see ``billing_demo_mode_allowed``.
+        """
+        if self.billing_demo_mode_allowed is not None:
+            return self.billing_demo_mode_allowed
+        return not self.is_production
 
     @property
     def operator_identity_complete(self) -> bool:

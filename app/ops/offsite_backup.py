@@ -173,12 +173,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[offsite] attachments: {copied} copied, {present} already present")
         return 0
     if args.cmd == "fetch":
-        key = latest_dump_key(target) if args.latest else args.key
-        if key is None:
+        fetch_key: str | None = latest_dump_key(target) if args.latest else args.key
+        if fetch_key is None:
             print("[offsite] no dump found", file=sys.stderr)
             return 1
-        written = fetch_dump(target, key, sys.stdout.buffer)
-        print(f"[offsite] fetched {key} ({written} bytes)", file=sys.stderr)
+        written = fetch_dump(target, fetch_key, sys.stdout.buffer)
+        print(f"[offsite] fetched {fetch_key} ({written} bytes)", file=sys.stderr)
         return 0
     age = latest_dump_age_hours(target)
     if age is None:
