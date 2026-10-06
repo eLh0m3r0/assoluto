@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import io
 from collections.abc import AsyncIterator
+from dataclasses import dataclass
 from datetime import date, datetime, tzinfo
 from decimal import Decimal
 from urllib.parse import quote, urlencode
@@ -319,26 +320,64 @@ def _parse_iso_date(raw: str | None) -> date | None:
         return None
 
 
-def _fmt_datetime(value: datetime | None, tz: tzinfo | None = None) -> str:
+@dataclass(frozen=True)
+class CsvDialect:
+    """How a spreadsheet in the user's language expects a CSV (P3-11).
+
+    Czech and German Excel use ``;`` as the list separator and a decimal
+    comma, and read ``dd.mm.yyyy`` as a date; English Excel wants ``,``
+    and a dot. The file is UTF-8 with a BOM either way.
+    """
+
+    delimiter: str
+    decimal_comma: bool
+    day_first: bool
+
+
+_CSV_DIALECTS: dict[str, CsvDialect] = {
+    "cs": CsvDialect(delimiter=";", decimal_comma=True, day_first=True),
+    "de": CsvDialect(delimiter=";", decimal_comma=True, day_first=True),
+}
+_CSV_DEFAULT_DIALECT = CsvDialect(delimiter=",", decimal_comma=False, day_first=False)
+
+
+def csv_dialect(locale: str | None) -> CsvDialect:
+    """The CSV dialect for a UI locale (anything unknown: English)."""
+    return _CSV_DIALECTS.get((locale or "").split("-", 1)[0].lower(), _CSV_DEFAULT_DIALECT)
+
+
+def _fmt_datetime(
+    value: datetime | None, tz: tzinfo | None = None, dialect: CsvDialect = _CSV_DEFAULT_DIALECT
+) -> str:
+    """A UTC instant as wall-clock time in the tenant's zone ``tz``.
+
+    Day-first locales get ``03.03.2026 00:30`` (what Czech / German
+    Excel recognises as a date-time); otherwise ISO 8601 with the local
+    offset (``2026-03-03T00:30:00+01:00``) so a machine can still recover
+    the instant. The header names the zone either way (E2 / LOGIC-16).
+    """
     if value is None:
         return ""
-    # ISO 8601 without microseconds, in the tenant's zone and carrying
-    # its offset (``2026-03-03T00:30:00+01:00``) so a spreadsheet user
-    # reads local time and a machine can still recover the instant. The
-    # header names the zone too (E2 / LOGIC-16).
-    return to_local(value, tz).replace(microsecond=0).isoformat()
+    local = to_local(value, tz).replace(microsecond=0)
+    if dialect.day_first:
+        return local.strftime("%d.%m.%Y %H:%M")
+    return local.isoformat()
 
 
-def _fmt_date(value: date | None) -> str:
-    return value.isoformat() if value is not None else ""
-
-
-def _fmt_decimal(value: Decimal | None) -> str:
+def _fmt_date(value: date | None, dialect: CsvDialect = _CSV_DEFAULT_DIALECT) -> str:
     if value is None:
         return ""
-    # Let Excel-friendly locales parse the number — emit a plain dot,
-    # never scientific notation.
-    return format(value, "f")
+    return value.strftime("%d.%m.%Y") if dialect.day_first else value.isoformat()
+
+
+def _fmt_decimal(value: Decimal | None, dialect: CsvDialect = _CSV_DEFAULT_DIALECT) -> str:
+    if value is None:
+        return ""
+    # Plain digits, never scientific notation and no thousands grouping
+    # (a grouped number is text to Excel); the decimal mark matches the
+    # spreadsheet's locale so the column sums.
+    text = format(value, "f")
+    return text.replace(".", ",") if dialect.decimal_comma else text
 
 
 @router.get(".csv")
@@ -413,6 +452,9 @@ async def orders_export_csv(
         return name
 
     zone = tz_label(tz)
+    dialect = csv_dialect(getattr(request.state, "locale", None))
+    # Status column in words, in the user's language (not "in_production").
+    status_names = {s: _t(request, label) for s, label in STATUS_LABELS.items()}
     header = [
         _t(request, "Order number"),
         _t(request, "Status"),
@@ -427,10 +469,8 @@ async def orders_export_csv(
 
     async def _row_iter() -> AsyncIterator[str]:
         buffer = io.StringIO()
-        # ``;`` delimiter — CZ Excel assumes semicolons when the system
-        # list separator is set that way; Excel also handles this on US
-        # locales when the file is opened via the "Data > Get Data" flow.
-        writer = csv.writer(buffer, delimiter=";", lineterminator="\r\n")
+        # ``;`` for cs / de (their Excel's list separator), ``,`` otherwise.
+        writer = csv.writer(buffer, delimiter=dialect.delimiter, lineterminator="\r\n")
 
         # First chunk: BOM + header row.
         writer.writerow(header)
@@ -458,12 +498,12 @@ async def orders_export_csv(
                 writer.writerow(
                     [
                         order.number,
-                        order.status.value,
+                        status_names.get(order.status, order.status.value),
                         await _customer_name(order.customer_id),
-                        _fmt_datetime(order.created_at, tz),
-                        _fmt_datetime(order.submitted_at, tz),
-                        _fmt_date(order.promised_delivery_at),
-                        _fmt_decimal(order.quoted_total),
+                        _fmt_datetime(order.created_at, tz, dialect),
+                        _fmt_datetime(order.submitted_at, tz, dialect),
+                        _fmt_date(order.promised_delivery_at, dialect),
+                        _fmt_decimal(order.quoted_total, dialect),
                         order.currency,
                         str(item_counts.get(order.id, 0)),
                     ]

@@ -415,8 +415,8 @@ async def test_csv_is_local_with_zone_in_header_and_local_date_filters(
     assert header[4].endswith("(Europe/Prague)")
     row = next(line for line in lines if line.startswith("2026-000001"))
     cols = row.split(";")
-    assert cols[3] == "2026-03-03T00:30:00+01:00"
-    assert cols[4] == "2026-03-03T00:30:00+01:00"
+    assert cols[3] == "03.03.2026 00:30"  # cs: day-first, local
+    assert cols[4] == "03.03.2026 00:30"
 
     # 3 March (local) = [2 Mar 23:00 UTC, 3 Mar 23:00 UTC): only the early order.
     one_day = (await tenant_client.get("/app/orders.csv?from=2026-03-03&to=2026-03-03")).text
@@ -436,7 +436,7 @@ async def test_csv_is_local_with_zone_in_header_and_local_date_filters(
     ny = (await tenant_client.get("/app/orders.csv?from=2026-03-02&to=2026-03-02")).text
     assert "2026-000001" in ny
     assert "(America/New_York)" in ny.split("\r\n", 1)[0]
-    assert "2026-03-02T18:30:00-05:00" in ny
+    assert "02.03.2026 18:30" in ny
 
 
 @postgres_only
