@@ -18,6 +18,11 @@ os.environ.setdefault("APP_SECRET_KEY", "test-secret-key")
 os.environ.setdefault("LOG_LEVEL", "WARNING")
 # /readyz probes S3 in production; unit tests opt in explicitly.
 os.environ.setdefault("READYZ_CHECK_S3", "false")
+# Early access (E1) is date-driven and ON by default until 2027-01-31.
+# The suite tests the regular trial rules unless a test switches early
+# access on explicitly (tests/test_early_access.py) — otherwise results
+# would depend on today's date.
+os.environ.setdefault("EARLY_ACCESS_UNTIL", "")
 
 from app.config import Settings, get_settings
 from app.main import create_app

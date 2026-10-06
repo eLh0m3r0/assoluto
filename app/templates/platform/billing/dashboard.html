@@ -103,8 +103,10 @@
                             "demo": _("Demo"),
                         } %}
                         {{ _("Status:") }} <span class="font-medium">{{ status_labels.get(subscription.status, subscription.status) }}</span>
-                        {% if subscription.trial_ends_at and subscription.status == 'trialing' %}
-                            · {{ _("Trial until") }} {{ subscription.trial_ends_at.strftime("%d.%m.%Y") }}
+                        {% if early_access %}
+                            · {{ _("Free early access until") }} {{ trial_until.strftime("%d.%m.%Y") }}
+                        {% elif trial_until and subscription.status == 'trialing' %}
+                            · {{ _("Trial until") }} {{ trial_until.strftime("%d.%m.%Y") }}
                         {% elif subscription.status == 'canceled' and subscription.current_period_end %}
                             · {{ _("Access until") }} {{ subscription.current_period_end.strftime("%d.%m.%Y") }}
                         {% elif subscription.current_period_end %}
@@ -124,7 +126,25 @@
             {% endif %}
         </div>
 
-        {% if continue_plan %}
+        {% if early_access %}
+            {# E1: free until the early-access date. Facts and a quiet
+               mailto — no payment button, no countdown pressure. #}
+            <div class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-slate-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-slate-100" data-early-access="billing">
+                <p class="font-semibold">{{ _("Free early access until") }} {{ early_access_label }}</p>
+                <p class="mt-1">
+                    {% if current_plan and current_plan.monthly_price_cents > 0 %}
+                        {{ _("Your plan:") }} <strong>{{ current_plan.name }}</strong>
+                        — {{ _("after early access") }} {{ current_plan.monthly_price_cents|money(current_plan.currency) }} {{ _("/month") }}, {{ _("invoiced.") }}
+                    {% endif %}
+                    {{ _("Nothing is charged until then and your data stays.") }}
+                </p>
+                <p class="mt-2 text-xs text-slate-600 dark:text-slate-300">
+                    {{ _("Want to secure the founding price?") }}
+                    <a href="mailto:{{ operator_email }}?subject={{ ('Assoluto — ' ~ tenant.slug)|urlencode }}"
+                       class="font-medium text-brand-600 underline underline-offset-2 hover:text-brand-700 dark:text-brand-400">{{ _("Write to us") }}</a>
+                </p>
+            </div>
+        {% elif continue_plan %}
             <form method="post" action="/platform/billing/checkout/{{ continue_plan.code }}{{ tenant_qs }}" class="mt-4">
                 {{ csrf_input() }}
                 <button type="submit"

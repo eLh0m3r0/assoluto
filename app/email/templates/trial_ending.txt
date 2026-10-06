@@ -1,3 +1,20 @@
+{% if early_access -%}
+{{ _("Free early access is ending") }}
+
+{% trans full_name=full_name %}Hello {{ full_name }},{% endtrans %}
+
+{% trans tenant_name=tenant_name, trial_end_date=trial_end_date %}free early access to Assoluto for {{ tenant_name }} ends on {{ trial_end_date }}.{% endtrans %}
+
+{{ _("After that the portal continues at 1 490 CZK per month (Starter) or 2 990 CZK per month (Pro), invoiced. Your orders, clients and drawings stay where they are.") }}
+
+{{ _("The first 10 workshops that start paying keep the founding price for good: 490 CZK per month for Starter, 1 490 CZK per month for Pro.") }}
+
+{{ _("Want to continue? Just reply to this email and we will send you an invoice.") }}
+
+{{ _("Your plan and billing") }}: {{ billing_url }}
+
+{{ _("If you decide not to continue, your data stays exportable for 3 days after early access ends, and we can erase everything on request (GDPR).") }}
+{%- else -%}
 {{ _("Your trial is ending") }}
 
 {% trans full_name=full_name %}Hello {{ full_name }},{% endtrans %}
@@ -9,3 +26,4 @@
 {{ _("Prefer annual invoicing by bank transfer? Just reply to this email — typically two months free for the year.") }}
 
 {{ _("If you decide not to continue, your data stays exportable for 3 days after the trial ends, and we can erase everything on request (GDPR).") }}
+{%- endif %}

@@ -95,8 +95,19 @@ async def tenants_index(
             .order_by(Subscription.tenant_id)
         )
     ).all()
+    from app.config import get_settings
+    from app.platform.billing.early_access import covered_by_early_access, effective_trial_end
+
+    settings = get_settings()
     sub_by_tenant_id: dict = {
-        str(sub.tenant_id): {"sub": sub, "plan": plan} for sub, plan in sub_rows
+        str(sub.tenant_id): {
+            "sub": sub,
+            "plan": plan,
+            # E1: the date the trial really ends (early access included).
+            "trial_until": effective_trial_end(sub, settings),
+            "early_access": covered_by_early_access(sub, settings),
+        }
+        for sub, plan in sub_rows
     }
 
     html = _templates(request).render(
@@ -283,6 +294,33 @@ async def admin_dashboard(
         ).scalar_one()
     )
 
+    # E1: how many trials currently end on the early-access date (SQL
+    # twin of app.services.early_access.covered_by_early_access_for).
+    from app.config import get_settings
+    from app.services.early_access import (
+        COVERED_BY_EARLY_ACCESS_SQL,
+        early_access_ends_at,
+        early_access_info,
+    )
+
+    settings = get_settings()
+    early_access = early_access_info(
+        settings.early_access_until, getattr(request.state, "locale", None), now
+    )
+    early_access_tenants = 0
+    if early_access.ends_at is not None:
+        early_access_tenants = int(
+            (
+                await db.execute(
+                    text(
+                        "SELECT count(*) FROM platform_subscriptions s "
+                        f"WHERE {COVERED_BY_EARLY_ACCESS_SQL}"
+                    ),
+                    {"early_access_end": early_access_ends_at(settings.early_access_until)},
+                )
+            ).scalar_one()
+        )
+
     recent_signups_q = select(Tenant).order_by(Tenant.created_at.desc()).limit(10)
     recent_signups = list((await db.execute(recent_signups_q)).scalars().all())
 
@@ -304,6 +342,8 @@ async def admin_dashboard(
                 "paid_30d_cents": paid_30d_cents,
             },
             "recent_signups": recent_signups,
+            "early_access": early_access,
+            "early_access_tenants": early_access_tenants,
             "principal": None,
         },
     )
@@ -524,6 +564,10 @@ async def subscription_edit_form(
     if sub is not None:
         current_plan = next((p for p in plans if p.id == sub.plan_id), None)
 
+    from app.config import get_settings
+    from app.platform.billing.early_access import covered_by_early_access, effective_trial_end
+
+    settings = get_settings()
     html = _templates(request).render(
         request,
         "platform/admin/subscription_edit.html",
@@ -531,6 +575,8 @@ async def subscription_edit_form(
             "identity": identity,
             "tenant": tenant,
             "subscription": sub,
+            "trial_until": effective_trial_end(sub, settings),
+            "early_access": covered_by_early_access(sub, settings),
             "current_plan": current_plan,
             "plans": plans,
             "stripe_managed": bool(sub and sub.stripe_subscription_id),
@@ -655,7 +701,12 @@ async def subscription_edit(
     now = datetime.now(UTC)
     grants_time = False
     if extend_days is not None:
-        anchor = sub.trial_ends_at or now
+        # Extend from the date the trial really ends — early access (E1)
+        # included — so "+30 days" never lands before what they have.
+        from app.config import get_settings
+        from app.platform.billing.early_access import effective_trial_end
+
+        anchor = effective_trial_end(sub, get_settings()) or now
         if anchor < now:
             anchor = now
         sub.trial_ends_at = anchor + timedelta(days=extend_days)

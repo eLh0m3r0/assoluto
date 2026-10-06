@@ -257,17 +257,24 @@ async def _stash_subscription_status(
     if hasattr(request.state, "subscription_status"):
         return  # already loaded for this request
     try:
-        from datetime import UTC, datetime
+        from datetime import UTC, datetime, timedelta
 
         from sqlalchemy import text
 
+        from app.services.early_access import (
+            EARLY_ACCESS_BANNER_DAYS,
+            covered_by_early_access_for,
+            early_access_ends_at,
+            effective_trial_end_for,
+        )
         from app.tasks.periodic import access_cutoff
 
         row = (
             await db.execute(
                 text(
                     "SELECT status, trial_ends_at, current_period_end, status_changed_at, "
-                    "       canceled_at, updated_at, stripe_subscription_id "
+                    "       canceled_at, updated_at, stripe_subscription_id, "
+                    "       operator_suspended_at "
                     "FROM platform_subscriptions WHERE tenant_id = :tid LIMIT 1"
                 ),
                 {"tid": tenant_id},
@@ -280,14 +287,43 @@ async def _stash_subscription_status(
         request.state.subscription_status = row.status
         # Everything the staff banners need: the trial countdown
         # (LOGIC-4) and the date access actually ends (hard cut).
+        # The trial end is the *effective* one — early access (E1) may
+        # push it past the stored ``trial_ends_at``.
+        stripe_managed = row.stripe_subscription_id is not None
+        suspended = row.operator_suspended_at is not None
+        ea_end = early_access_ends_at(settings.early_access_until)
+        trial_ends_at = effective_trial_end_for(
+            row.status,
+            trial_ends_at=row.trial_ends_at,
+            stripe_managed=stripe_managed,
+            operator_suspended=suspended,
+            early_access_end=ea_end,
+        )
+        early_access = covered_by_early_access_for(
+            row.status,
+            trial_ends_at=row.trial_ends_at,
+            stripe_managed=stripe_managed,
+            operator_suspended=suspended,
+            early_access_end=ea_end,
+        )
+        now = datetime.now(UTC)
         days_left = None
-        if row.status == "trialing" and row.trial_ends_at is not None:
-            days_left = max(0, (row.trial_ends_at - datetime.now(UTC)).days)
+        if row.status == "trialing" and trial_ends_at is not None:
+            days_left = max(0, (trial_ends_at - now).days)
+        # During early access the countdown stays out of the way: one calm
+        # line in the last EARLY_ACCESS_BANNER_DAYS days, nothing before.
+        early_access_banner = (
+            early_access
+            and trial_ends_at is not None
+            and trial_ends_at - now <= timedelta(days=EARLY_ACCESS_BANNER_DAYS)
+        )
         request.state.subscription_info = {
             "status": row.status,
-            "trial_ends_at": row.trial_ends_at,
+            "trial_ends_at": trial_ends_at,
             "trial_days_left": days_left,
-            "stripe_managed": row.stripe_subscription_id is not None,
+            "early_access": early_access,
+            "early_access_banner": early_access_banner,
+            "stripe_managed": stripe_managed,
             "access_ends_at": access_cutoff(
                 row.status,
                 current_period_end=row.current_period_end,

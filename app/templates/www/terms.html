@@ -6,7 +6,10 @@
 <section class="mx-auto max-w-3xl pb-16 text-slate-700 dark:text-slate-300">
     <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ _("Terms of Service") }}</h1>
     <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
-        {{ _("Version 1.1 · effective from October 4, 2026") }}
+        {{ _("Version 1.2 · effective from October 6, 2026") }}
+    </p>
+    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        {{ _("Changes in 1.2: new early access clause in section 4 — the Hosted Service is free until the date stated there; what happens afterwards.") }}
     </p>
     <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
         {{ _("Changes in 1.1: the free trial runs on the plan selected at signup; payment by bank transfer against an invoice; the availability section no longer states an uptime target.") }}
@@ -58,6 +61,21 @@
             <p class="mt-2">
                 {{ _("A new account starts a 30-day free trial of the plan selected at signup. No payment card is required to start the trial. After the trial expires the Customer must select a paid plan to continue using the Hosted Service; otherwise their account moves to a 3-day grace period for data export and is then deactivated.") }}
             </p>
+            {# E1 — early access. The date is EARLY_ACCESS_UNTIL; the clause
+               stays published after the date (it describes what applied
+               until then) and is omitted only when the setting is empty. #}
+            {% if early_access_offer and early_access_offer.until %}
+                <p class="mt-2" id="early-access">
+                    <strong>{{ _("Early access.") }}</strong>
+                    {{ _("Until the end of") }} {{ early_access_offer.until_label }} {{ _("(Prague time) the Hosted Service is free of charge for every account, whatever the plan selected at signup and whenever the account was created (\"Early Access\"). A free trial never ends before Early Access ends. No payment card is required.") }}
+                </p>
+                <p class="mt-2">
+                    {{ _("The Provider reminds the Customer by email 14 days and 3 days before Early Access ends. After it ends, continued use of the Hosted Service requires a paid plan at the prices published at assoluto.eu/pricing, invoiced by the Provider. The Customer Content stays in the account when the Customer continues on a paid plan. If the Customer does not continue, the 3-day grace period for data export applies and the account is then deactivated, as for an expired trial.") }}
+                </p>
+                <p class="mt-2">
+                    {{ _("Either party may end the use of the Hosted Service during Early Access at any time by written notice (email is sufficient). The 3-day grace period for data export then applies.") }}
+                </p>
+            {% endif %}
             <p class="mt-2">
                 {{ _("Plan prices, limits, and the list of paid plans are published at assoluto.eu/pricing and form part of these Terms. Monthly subscriptions are paid by card via Stripe Payments Europe Limited (Ireland) or, where online card payment is not available, by bank transfer against an invoice; annual subscriptions are invoiced and paid by bank transfer, payment terms net-14. The Provider is not a VAT payer, so invoices are issued without VAT.") }}
             </p>

@@ -1,0 +1,2 @@
+{#- 14-day reminder (E1) — same body as trial_ending.txt. -#}
+{% include "trial_ending.txt" %}
