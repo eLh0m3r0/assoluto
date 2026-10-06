@@ -22,6 +22,7 @@ from app.i18n import t as _t
 from app.security.contact_filter import is_disposable_email, looks_like_bot_local_part
 from app.security.csrf import verify_csrf
 from app.security.rate_limit import limit as rate_limit
+from app.urls import public_demo_url
 
 # Cap the contact-form message to keep the transactional email sender
 # happy (most providers start scoring messages above ~64 KB as spam)
@@ -64,6 +65,8 @@ def marketing_context(settings: Settings) -> dict:
         **_operator_context(settings),
         "operator_identity_complete": settings.operator_identity_complete,
         "stripe_enabled": settings.stripe_enabled,
+        # "Try the live demo — no sign-up" (E3); empty hides the button.
+        "public_demo_url": public_demo_url(settings),
     }
 
 

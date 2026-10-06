@@ -127,6 +127,8 @@ class OrderNotification:
     order_url: str
     #: Event-specific template context (author_name, status_label, …).
     extra: dict[str, Any] = field(default_factory=dict)
+    #: Owning tenant — lets the send layer drop public-demo mail (E3).
+    tenant_id: UUID | None = None
 
     @property
     def template(self) -> str:
@@ -498,6 +500,7 @@ def _fan_out(
             order_title=order.title,
             order_url=order_url(base_url, order),
             extra=_extra_for(recipient, extra),
+            tenant_id=tenant.id,
         )
         for recipient in recipients
     ]
@@ -851,6 +854,7 @@ class OrderDigestNotification:
     recipient: Recipient
     tenant_name: str
     orders: list[dict[str, Any]]
+    tenant_id: UUID | None = None
 
     @property
     def template(self) -> str:
@@ -912,6 +916,7 @@ def merge_for_digest(
                     }
                     for item in batch
                 ],
+                tenant_id=first.tenant_id,
             )
         )
     return out
@@ -935,6 +940,7 @@ class WeeklySummaryNotification:
     customer_name: str
     orders: list[dict[str, Any]]
     orders_url: str
+    tenant_id: UUID | None = None
 
     @property
     def template(self) -> str:
@@ -1037,6 +1043,7 @@ async def build_weekly_summary(
             customer_name=customer.name,
             orders=items,
             orders_url=f"{base_url.rstrip('/')}/app/orders",
+            tenant_id=tenant.id,
         )
         for recipient in recipients
     ]

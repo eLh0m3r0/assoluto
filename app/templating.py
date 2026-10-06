@@ -408,6 +408,10 @@ class Templates:
             # CTAs, meta/JSON-LD). ``.active`` turns false by itself once
             # EARLY_ACCESS_UNTIL has passed.
             "early_access_offer": early_access_info(self.settings.early_access_until, locale),
+            # Public demo host (E3): banner + "Create your own portal".
+            # Set by app.demo.guard.PublicDemoMiddleware, False elsewhere.
+            "public_demo": bool(getattr(request.state, "public_demo", False)),
+            "public_demo_signup_url": getattr(request.state, "public_demo_signup_url", ""),
         }
         if extra:
             context.update(extra)

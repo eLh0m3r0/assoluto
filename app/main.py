@@ -13,6 +13,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import __version__
 from app.config import Settings, get_settings
+from app.demo import router as demo_router
 from app.email.sender import build_sender
 from app.logging import configure_logging, get_logger
 from app.ops import router as ops_router
@@ -340,6 +341,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         max_body_bytes=settings.max_upload_size_bytes + FORM_OVERHEAD_BYTES,
     )
 
+    # Public demo guard (E3): inert unless the request addresses the
+    # PUBLIC_DEMO_TENANT host. Inside the CSRF / CSP / locale layers so its
+    # own redirects still carry the csrftoken cookie, the CSP and a
+    # resolved locale. See app/demo/guard.py.
+    from app.demo.guard import PublicDemoMiddleware
+
+    app.add_middleware(PublicDemoMiddleware, settings=settings)
+
     # Plain ASGI middleware that stamps the csrftoken cookie; validation
     # happens in `verify_csrf` as a router-level FastAPI dependency so it
     # can read the form body via `await request.form()` without breaking
@@ -384,6 +393,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(me_router.router)
     app.include_router(customer_team_router.router)
     app.include_router(www_router.router)
+    app.include_router(demo_router.router)
 
     # Fail fast if production deployment is misconfigured in a way that
     # silently gives free plans via the demo-mode checkout fallback.

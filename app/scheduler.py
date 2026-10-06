@@ -164,6 +164,19 @@ def build_scheduler() -> AsyncIOScheduler:
         misfire_grace_time=600,
     )
 
+    # Public demo (E3): re-seed PUBLIC_DEMO_TENANT nightly, at a quiet
+    # hour for Czech visitors. No-op when the setting is empty.
+    from app.tasks.demo_reset import reset_public_demo
+
+    scheduler.add_job(
+        reset_public_demo,
+        trigger=CronTrigger(hour=2, minute=30, timezone="Europe/Prague"),
+        id="reset_public_demo",
+        replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=3600,
+    )
+
     log.info(
         "scheduler.configured",
         jobs=[j.id for j in scheduler.get_jobs()],

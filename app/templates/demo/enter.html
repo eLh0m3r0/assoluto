@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{# Public demo chooser (E3). Two personas of the seeded fictional job
+   shop; each button POSTs to /demo/enter and lands in /app. #}
+
+{% block title %}{{ _("Live demo") }} · {{ tenant.name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl py-4 sm:py-8">
+    <div class="text-center">
+        <div class="mx-auto h-14 w-14 drop-shadow-xl">
+            {% with size="h-14 w-14", variant="login" %}{% include "_logo.html" %}{% endwith %}
+        </div>
+        <h1 class="mt-4 text-2xl font-bold text-gray-900 sm:text-3xl dark:text-slate-100">{{ _("Try Assoluto — live demo") }}</h1>
+        <p class="mx-auto mt-2 max-w-xl text-sm text-gray-600 dark:text-slate-300">
+            {{ _("A fictional sheet-metal and CNC job shop with six clients, real-looking orders, quotes, drawings and client material. No sign-up, no password.") }}
+        </p>
+    </div>
+
+    <div class="mt-6">{% include "_flash.html" %}</div>
+
+    {% if signed_in_as %}
+        <p class="mt-2 text-center text-sm">
+            <a href="/app" class="font-medium text-brand-600 hover:text-brand-500 dark:text-brand-400 dark:hover:text-brand-300">{{ _("Continue where you left off") }} →</a>
+        </p>
+    {% endif %}
+
+    <div class="mt-6 grid gap-5 sm:grid-cols-2">
+        <form method="post" action="/demo/enter" class="flex flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            {{ csrf_input() }}
+            <input type="hidden" name="role" value="staff">
+            <p class="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{{ _("Supplier") }}</p>
+            <h2 class="mt-1 text-lg font-semibold text-gray-900 dark:text-slate-100">{{ _("See it as the supplier") }}</h2>
+            <p class="mt-2 flex-1 text-sm text-gray-600 dark:text-slate-300">
+                {{ _("You run the shop: incoming orders from all clients, quotes, the production pipeline, client material in stock, exports for your accounting software.") }}
+            </p>
+            <button type="submit" class="mt-5 flex w-full justify-center rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/50 active:bg-brand-800">
+                {{ _("Enter as the supplier") }}
+            </button>
+        </form>
+
+        <form method="post" action="/demo/enter" class="flex flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            {{ csrf_input() }}
+            <input type="hidden" name="role" value="customer">
+            <p class="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{{ _("Customer") }}</p>
+            <h2 class="mt-1 text-lg font-semibold text-gray-900 dark:text-slate-100">{{ _("See it as the customer") }}</h2>
+            <p class="mt-2 flex-1 text-sm text-gray-600 dark:text-slate-300">
+                {{ _("You buy from the shop: place an order, upload a drawing, confirm a quote, follow production and see the material you keep there.") }}
+            </p>
+            <button type="submit" class="mt-5 flex w-full justify-center rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/50 active:bg-brand-800">
+                {{ _("Enter as the customer") }}
+            </button>
+        </form>
+    </div>
+
+    <p class="mt-6 text-center text-xs text-gray-500 dark:text-slate-400">
+        {{ _("All companies, people and data are fictional. No e-mails are sent from the demo, and everything is reset every night.") }}
+    </p>
+</div>
+{% endblock %}

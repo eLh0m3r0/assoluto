@@ -1,0 +1,30 @@
+{# Public demo banner (E3) — on every page of the demo tenant's host.
+   ``?demo_blocked=<kind>`` is set by app.demo.guard when it refused an
+   action; the explanation is picked from a fixed list (never echoed). #}
+{% set blocked = request.query_params.get("demo_blocked") %}
+<div role="status" class="border-b border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-500/30 dark:bg-amber-900/20 dark:text-amber-100">
+    <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-sm sm:px-6">
+        <span class="font-semibold">{{ _("Public demo") }}</span>
+        <span>{{ _("This is a public demo with fictional data. Anything you change is reset every night.") }}</span>
+        <a href="{{ public_demo_signup_url }}" class="ml-auto rounded-md bg-amber-600 px-3 py-1 text-xs font-medium text-white hover:bg-amber-700">
+            {{ _("Create your own portal") }}
+        </a>
+    </div>
+    {% if blocked %}
+        <div role="alert" class="mx-auto max-w-6xl px-4 pb-2 text-sm font-medium sm:px-6">
+            {% if blocked == "account" %}
+                {{ _("Passwords, e-mail addresses and user accounts cannot be changed in the public demo.") }}
+            {% elif blocked == "invite" %}
+                {{ _("Invitations are turned off in the public demo — it never sends e-mail.") }}
+            {% elif blocked == "settings" %}
+                {{ _("Portal settings are read-only in the public demo.") }}
+            {% elif blocked == "export" %}
+                {{ _("Personal-data and full-portal exports are turned off in the public demo. Order PDFs and accounting exports work.") }}
+            {% elif blocked == "customer" %}
+                {{ _("Archiving clients is turned off in the public demo.") }}
+            {% else %}
+                {{ _("This action is turned off in the public demo.") }}
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

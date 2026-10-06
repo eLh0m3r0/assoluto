@@ -19,6 +19,16 @@
             <span class="mt-1 block text-sm text-slate-500 dark:text-slate-400">{{ _("You pay for the people in your office — your clients and their orders are never metered.") }}</span>
             <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">{{ _("We are not VAT-registered, so the listed price is the final price — no VAT is added.") }}</span>
         </p>
+        {% if public_demo_url %}
+        {# E3: public demo, no sign-up. Hidden when PUBLIC_DEMO_TENANT is empty. #}
+        <p class="mt-5">
+            <a href="{{ public_demo_url }}" data-testid="public-demo-link"
+               class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-800 shadow-sm transition hover:shadow-md dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+                {{ _("Try the live demo — no sign-up") }}
+                <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            </a>
+        </p>
+        {% endif %}
     </div>
 
     {{ plans.early_access_banner() }}

@@ -22,6 +22,10 @@ def tenant_base_url(settings: Settings, tenant: Tenant) -> str:
     is needed; we return `app_base_url` unchanged. Same for bare hosts
     like `localhost` or IPs where a subdomain can't be added.
     """
+    return _base_url_for_slug(settings, tenant.slug)
+
+
+def _base_url_for_slug(settings: Settings, slug: str) -> str:
     base = settings.app_base_url.rstrip("/")
 
     if settings.default_tenant_slug:
@@ -34,7 +38,19 @@ def tenant_base_url(settings: Settings, tenant: Tenant) -> str:
         return base
 
     port = f":{parsed.port}" if parsed.port else ""
-    return f"{parsed.scheme}://{tenant.slug}.{host}{port}"
+    return f"{parsed.scheme}://{slug}.{host}{port}"
+
+
+def public_demo_url(settings: Settings) -> str:
+    """Entry page of the public demo (``https://<slug>.<apex>/demo``), or ``""``.
+
+    Empty when ``PUBLIC_DEMO_TENANT`` is not set, which hides the "Try the
+    live demo" buttons on the marketing site (E3).
+    """
+    slug = (settings.public_demo_tenant or "").strip().lower()
+    if not slug:
+        return ""
+    return f"{_base_url_for_slug(settings, slug)}/demo"
 
 
 def powered_by_url(settings: Settings, tenant: Tenant | None) -> str:

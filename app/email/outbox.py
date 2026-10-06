@@ -66,7 +66,7 @@ FAILED_RETENTION = timedelta(days=30)
 #: Rows processed per job run — bounds one run's duration.
 JOB_BATCH = 100
 
-_COLUMNS = "id, kind, template, to_address, context, locale, attempts"
+_COLUMNS = "id, tenant_id, kind, template, to_address, context, locale, attempts"
 
 
 def backoff_after(attempts: int) -> timedelta:
@@ -191,6 +191,28 @@ def _record_outcome(
     )
 
 
+def _drop_if_public_demo(conn: Connection, row: Any, now: datetime) -> bool:
+    """Retire a queued mail of the public demo tenant instead of sending it.
+
+    Mail is suppressed before it is enqueued (``app.tasks.email_tasks``);
+    this catches rows queued before ``PUBLIC_DEMO_TENANT`` was switched
+    on. The context (which may hold a one-shot link) is wiped.
+    """
+    from app.demo.guard import mail_suppressed
+
+    if row.tenant_id is None or not mail_suppressed(row.tenant_id):
+        return False
+    conn.execute(
+        text(
+            "UPDATE email_outbox SET failed_at = :now, context = NULL, "
+            "last_error = 'suppressed: public demo tenant' WHERE id = :id"
+        ),
+        {"now": now, "id": row.id},
+    )
+    log.info("email.suppressed_public_demo", kind=row.kind, to=row.to_address, outbox=True)
+    return True
+
+
 # ------------------------------------------------------------------ enqueue
 
 
@@ -244,6 +266,8 @@ def deliver_row(sender: Any, row_id: UUID, *, max_tries: int, engine: Engine | N
         ).first()
         if row is None:
             return False  # someone else has it, or it is already done
+        if _drop_if_public_demo(conn, row, datetime.now(UTC)):
+            return False
         sent, tries, error = _attempt(sender, row, max_tries)
         _record_outcome(conn, row, sent=sent, tries=tries, error=error, now=datetime.now(UTC))
         return sent
@@ -303,6 +327,8 @@ def _drain_blocking(sender: Any, now: datetime, limit: int, engine: Engine) -> d
             ).first()
             if row is None:
                 break
+            if _drop_if_public_demo(conn, row, now):
+                continue
             # One try per job run; the backoff spaces them out.
             sent, tries, error = _attempt(sender, row, 1)
             _record_outcome(conn, row, sent=sent, tries=tries, error=error, now=now)
