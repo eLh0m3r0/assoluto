@@ -440,47 +440,97 @@ file a ticket instead.
 
 ---
 
-## 9. Sales demo tenant (`scripts/seed_demo.py`)
+## 9. Demo tenant and the public demo (`app/demo/`)
 
 A ready-to-show portal for a Czech sheet-metal / CNC job shop — for
-trade fairs (MSV Brno) and sales calls. Creates **"CNC Dílna Vzorová
-s.r.o."** with 3 staff users, 6 fictional clients (Strojírna Ukázková,
-Kovovýroba Vzorová, …) and 12 contacts (some never signed in, so the
-"last sign-in" column and the activation nudges have something to show),
-a 21-item priced catalogue in CZK, 25 orders covering every status (line
-items, comments incl. one internal note, requested + promised dates,
-history), and client-owned material in stock with movements.
+trade fairs (MSV Brno), sales calls and, since E3, a **public demo
+anyone can enter from the website without signing up**. The seed creates
+**"CNC Dílna Vzorová s.r.o."** with 3 staff users, 6 fictional clients
+(Strojírna Ukázková, Kovovýroba Vzorová, …) and 11 contacts (some only
+invited, so the "last sign-in" column and the activation nudges have
+something to show), a 21-item priced catalogue in CZK, 27 orders covering
+every status (line items, comments incl. one internal note, requested +
+promised dates, one order in production past its promised date, quotes
+waiting for the client), client-owned material with receive / consume /
+return movements, and **three fictional drawings** (PDF rendered at seed
+time with a large "UKÁZKA / SAMPLE" watermark, thumbnails included)
+attached to orders.
 
 All names are fictional, every email ends in `.example.com`, no IČO/DIČ
 is set. Prices are illustrative.
 
-`scripts/` is not part of the image, so pipe the script in from a
-checkout (the deploy user's `/opt/assoluto` is one):
+### Seeding by hand
+
+The seed lives in the app package, so it runs inside the container:
 
 ```bash
 ssh deploy@<VPS_IP> \
-  "docker exec -i assoluto-web-1 python - --slug ukazka --password '<pick-one>'" \
-  < scripts/seed_demo.py
+  "docker exec -i assoluto-web-1 python -m app.demo.seed --slug ukazka --password '<pick-one>'"
 ```
 
+(`python -m scripts.seed_demo …` is a thin wrapper and still works.)
 Production uses the slug **`ukazka`** (`https://ukazka.assoluto.eu`,
 seeded 2026-10-04): `demo` was already taken by an older tenant there.
 
-- Open `https://ukazka.<apex>/auth/login` and sign in as
-  `vedouci@dilna-vzorova.example.com` (staff, admin) or
-  `nakup@ukazkova.example.com` (client admin — shows the client view and
-  the "My team" page). Every demo login shares the one password.
-- Omit `--password` and a random one is generated and printed.
-- **Re-run any time** (e.g. the morning of each fair day): it wipes and
-  recreates only that tenant's data, so dates stay relative to today and
-  whatever a prospect clicked yesterday is gone.
+- Omit `--password` and a random one is generated and printed. With a
+  password you can still sign in at `/auth/login`… on any tenant *except*
+  the public demo, where `/auth/login` leads to the `/demo` chooser.
+- **Re-run any time**: it wipes and recreates only that tenant's data —
+  DB rows **and every S3 object under `tenants/<slug>/`** — so dates stay
+  relative to today and whatever a prospect clicked is gone.
+- `--no-files` skips S3 entirely (no drawings, no clean-up) — for a box
+  without object storage.
 - It refuses to touch a tenant it did not create (marker
   `tenants.settings.demo_seed`); `--force` overrides — never point it at
   a real customer's slug.
 - `demo` is on the signup reserved-slug list, so nobody can register it.
-- Drawings are **not** seeded (they live in S3). Before a demo, upload
-  two or three sample PDFs to an order by hand.
 - The demo tenant has no subscription row, so plan limits don't apply.
+
+### The public demo (`PUBLIC_DEMO_TENANT`)
+
+Turn it on with one line in `/etc/assoluto/env` and a redeploy/restart:
+
+```
+PUBLIC_DEMO_TENANT=ukazka
+```
+
+- **Entry:** `https://ukazka.<apex>/demo` → "See it as the supplier"
+  (signs in as `vedouci@dilna-vzorova.example.com`, the shop's admin) or
+  "See it as the customer" (`nakup@ukazkova.example.com`, the client's
+  admin). No password; 20 entries / 15 min per IP. The marketing homepage
+  hero and `/pricing` show **"Try the live demo — no sign-up"** linking
+  there (hidden while the setting is empty).
+- **Only a seeded tenant can be public.** If the slug belongs to a tenant
+  without the `demo_seed` marker the demo stays off (`/demo` is 404, log
+  `public_demo.refused`) and the nightly reset refuses it.
+- **No e-mail of any kind** leaves that tenant — notifications, invites,
+  resets, weekly summaries, quote reminders, the outbox retry job. Logged
+  at info as `email.suppressed_public_demo`.
+- **Blocked** (friendly banner message, nothing changes): password change
+  and reset, profile name/e-mail change, staff and contact invitations and
+  re-sends, enabling / disabling / role changes of users and contacts,
+  tenant settings, GDPR self-erase and self-export, customer archive, the
+  whole-portal ZIP export, anything under `/platform/`. Logout only clears
+  the visitor's own cookie (a normal logout would sign out every visitor
+  sharing the persona).
+- **Allowed** — the point of the demo: browsing everything, orders and
+  items, comments, status changes, quotes and confirmations, catalogue and
+  material, POHODA / Money S3 / CSV / PDF downloads, notification
+  preferences (harmless — no mail goes out).
+- **Uploads:** images (PNG/JPEG/WebP) and PDF only, checked by content,
+  up to 2 MB, at most 20 new files per rolling 24 h for the whole tenant.
+- A yellow banner on every page ("This is a public demo with fictional
+  data. Anything you change is reset every night." + "Create your own
+  portal" → apex signup) and `X-Robots-Tag: noindex, nofollow` on the
+  whole demo host.
+- **Nightly reset** at **02:30 Europe/Prague** (scheduler job
+  `reset_public_demo`, advisory lock 42 201) re-runs the seed with a random
+  password and deletes visitors' files from S3. Visitors' sessions end
+  with it and land back on `/demo`. Log line: `periodic.demo_reset.done`.
+  To reset immediately, run the seed by hand (above).
+- Visitors share the two personas, so they can see each other's changes
+  (comments, orders) until the next reset. If someone posts something
+  offensive, re-seed by hand.
 
 ## 10. Growth switches (activation, nurture, viral footer)
 

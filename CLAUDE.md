@@ -503,6 +503,27 @@ to green rather than declaring victory at ``git push``.
 Deploy mechanics live in §11 — pushing to ``production`` is what fires
 ``deploy-production.yml``.
 
+### 21. Public demo: new routes must be classified
+
+``PUBLIC_DEMO_TENANT`` (E3) turns one seeded tenant into a playground
+anyone can enter via ``/demo`` as its admin or as a client admin. The
+guard is ``app/demo/guard.py`` — a pure-ASGI middleware that is inert for
+every other host. Two rules for anyone adding features:
+
+* **A new route that changes accounts, credentials, invitations, tenant
+  settings, or exports personal / whole-portal data** must be added to
+  ``_BLOCKED`` in ``guard.py`` (and to the parametrised list in
+  ``tests/test_public_demo.py``). Everything else is allowed by default —
+  the demo exists to show orders, quotes and production.
+* **A new outbound mail** must go through ``app.tasks.email_tasks``
+  (``_render_and_send``) and, if it is sent outside a request, carry the
+  ``tenant_id`` — that is where demo mail is dropped. A direct
+  ``sender.send`` bypasses it.
+
+The data comes from ``app/demo/seed.py`` (``python -m app.demo.seed``),
+re-run nightly by ``app/tasks/demo_reset.py``. Operator docs:
+``docs/OPERATOR_PLAYBOOK.md`` §9.
+
 ## Test fixtures quick reference
 
 | Fixture | Needs PG | What |
