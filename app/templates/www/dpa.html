@@ -303,6 +303,7 @@
                 <li>{{ _("The database is dumped daily and the dump is encrypted (GPG) as it is written; the private key needed to decrypt it is not kept on the server.") }}</li>
                 <li>{{ _("Encrypted dumps and copies of uploaded files are kept in a separate, private, versioned storage bucket in a different Hetzner location in Germany than the server and the primary file storage.") }}</li>
                 <li>{{ _("Retention: encrypted daily dumps 14 days on the server and 180 days in the backup location; database copies taken before each software deployment — the latest 10, on the server only.") }}</li>
+                <li>{{ _("A backup copy of an uploaded file is deleted at the latest 180 days after the file was deleted from the portal; all copies of a deleted portal are removed when the portal's data is purged.") }}</li>
                 <li>{{ _("Restoring from the off-site backup has been tested, and an automated check reports a failure when the newest off-site copy is older than 30 hours.") }}</li>
             </ul>
 

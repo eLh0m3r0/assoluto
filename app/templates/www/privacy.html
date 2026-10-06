@@ -8,9 +8,10 @@
 <section class="mx-auto max-w-3xl pb-16 text-slate-700 dark:text-slate-300">
     <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ _("Privacy Policy") }}</h1>
     <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
-        {{ _("Version 1.1 · effective from October 4, 2026") }}
+        {{ _("Version 1.2 · effective from October 6, 2026") }}
     </p>
     <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        {{ _("Changes in 1.2: backup retention (14 days on the server, 180 days off-site) and audit-trail deletion stated precisely; breach-notification deadlines aligned with the Data Processing Agreement.") }}
         {{ _("Changes in 1.1: the subprocessor table now correctly states that uploaded files are stored in Hetzner Object Storage in Germany (no new subprocessor was added); wording on backups and invoices corrected.") }}
     </p>
 
@@ -85,9 +86,9 @@
                 <li>{{ _("Active account data — for the duration of the active subscription.") }}</li>
                 <li>{{ _("After subscription cancellation — full access continues until the end of the paid period plus a 3-day data-export grace period; afterwards the account is deactivated.") }}</li>
                 <li>{{ _("Manual recovery on request — data remains recoverable on written request for 30 days after deactivation. After that, it is permanently deleted.") }}</li>
-                <li>{{ _("Database backups — 14 days rolling, then automatically purged.") }}</li>
+                <li>{{ _("Database backups — encrypted daily copies, kept 14 days on the server and 180 days in a second Hetzner location, then automatically purged. Backup copies of uploaded files are removed at the latest 180 days after the file is deleted.") }}</li>
                 <li>{{ _("Authentication and security logs (last_login timestamps, failed login attempts, IP) — 90 days.") }}</li>
-                <li>{{ _("Audit trail of admin actions inside the tenant — for the lifetime of the tenant; after deletion, retained for up to 3 years for evidentiary purposes in case of dispute.") }}</li>
+                <li>{{ _("Audit trail of admin actions inside the tenant — for the lifetime of the tenant, at most 3 years per record; deleted together with the tenant's other data 30 days after the tenant is deactivated.") }}</li>
                 <li>{{ _("Billing records and tax documents — 10 years from the end of the accounting period, as required by Czech Act 563/1991 Coll. on Accounting.") }}</li>
                 <li>{{ _("Application request and error logs — 14 days.") }}</li>
             </ul>
@@ -136,7 +137,7 @@
         <section>
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("9. Data security") }}</h2>
             <p class="mt-2">
-                {{ _("We apply the technical and organisational measures appropriate to the risk: TLS 1.2+ for all traffic, Argon2id password hashing, per-tenant database isolation enforced at the row level (Postgres RLS), daily database backups, principle-of-least-privilege access by the Provider, no plaintext storage of credentials or payment cards. Security incidents affecting your data will be reported to you and (where required) to the supervisory authority within 72 hours under Article 33 GDPR.") }}
+                {{ _("We apply the technical and organisational measures appropriate to the risk: TLS 1.2+ for all traffic, Argon2id password hashing, per-tenant database isolation enforced at the row level (Postgres RLS), daily database backups, principle-of-least-privilege access by the Provider, no plaintext storage of credentials or payment cards. Security incidents affecting data in your portal will be reported to you without undue delay and within 48 hours (see the Data Processing Agreement); where we are the controller, we notify the supervisory authority within 72 hours under Article 33 GDPR.") }}
             </p>
         </section>
 

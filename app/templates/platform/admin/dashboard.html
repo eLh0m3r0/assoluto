@@ -46,9 +46,9 @@
         <div class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-slate-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-slate-100" data-early-access="dashboard">
             <span class="font-semibold">{{ _("Early access") }}:</span>
             {% if early_access.active %}
-                {{ _("free until") }} {{ early_access.until.strftime("%d.%m.%Y") }}
+                {{ _("free until") }} {{ early_access.until|localdate }}
             {% else %}
-                {{ _("ended on") }} {{ early_access.until.strftime("%d.%m.%Y") }}
+                {{ _("ended on") }} {{ early_access.until|localdate }}
             {% endif %}
             · {{ _("Tenants covered:") }} <strong>{{ early_access_tenants }}</strong>
         </div>

@@ -16,7 +16,10 @@ and is append-only from the backup path: ``upload`` and ``sync-attachments``
 never delete, so a wiped primary bucket or a wiped ``/backups`` directory
 cannot propagate. Retention of dumps is the bucket's lifecycle rule.
 
-The single exception is :func:`purge_tenant_copies`, called only by the
+Two exceptions, both promised by the privacy policy and the DPA.
+:func:`expire_deleted_attachment_copies` (run after every sync) removes
+the backup copy of a single file 180 days after it was deleted from the
+primary bucket. :func:`purge_tenant_copies` is called only by the
 retention job (``app.tasks.retention``) when a tenant deactivated more than
 30 days ago is purged: the Terms and the DPA promise that its data is then
 deleted, and copies of its drawings in this bucket are part of that data.
@@ -30,10 +33,11 @@ and the customers' drawings had no backup at all (audit 2026-10-03 BE-01).
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any, BinaryIO
 
 DB_PREFIX = "pg/"
@@ -153,6 +157,70 @@ def purge_tenant_copies(target: BackupTarget, storage_prefix: str, *, enforce: b
     return len(found)
 
 
+MISSING_MANIFEST_KEY = "meta/missing-attachments.json"
+DELETED_FILE_GRACE_DAYS = 180
+
+
+def _delete_all_versions(target: BackupTarget, key: str) -> None:
+    """Remove every version of ``key`` — a plain delete on a versioned
+    bucket only adds a delete marker and keeps the data."""
+    paginator = target.client.get_paginator("list_object_versions")
+    for page in paginator.paginate(Bucket=target.bucket, Prefix=key):
+        for v in page.get("Versions", []) + page.get("DeleteMarkers", []):
+            if v["Key"] == key:
+                target.client.delete_object(Bucket=target.bucket, Key=key, VersionId=v["VersionId"])
+
+
+def expire_deleted_attachment_copies(
+    source_client: Any,
+    source_bucket: str,
+    target: BackupTarget,
+    *,
+    now: datetime | None = None,
+    grace_days: int = DELETED_FILE_GRACE_DAYS,
+) -> tuple[int, int]:
+    """Purge backup copies of files deleted from the primary bucket > ``grace_days`` ago.
+
+    The backup stays append-only day to day — a wiped primary bucket must
+    not propagate — but a file a customer deleted cannot be kept forever
+    (privacy policy / DPA: removed at the latest 180 days after deletion).
+    When a copy is first seen without its primary object, the date goes into
+    a small manifest; only copies missing for longer than the grace period
+    are deleted, with all their versions. An empty primary listing is
+    treated as a fault (wrong bucket, outage) and changes nothing.
+    Returns ``(tracked_missing, purged)``.
+    """
+    current = now or datetime.now(UTC)
+    source = _list(source_client, source_bucket)
+    if not source:
+        return 0, 0
+    backup = _list(target.client, target.bucket, ATTACHMENTS_PREFIX)
+    try:
+        raw = target.client.get_object(Bucket=target.bucket, Key=MISSING_MANIFEST_KEY)[
+            "Body"
+        ].read()
+        manifest: dict[str, str] = json.loads(raw)
+    except target.client.exceptions.NoSuchKey:
+        manifest = {}
+    missing = {k for k in backup if k[len(ATTACHMENTS_PREFIX) :] not in source}
+    manifest = {k: v for k, v in manifest.items() if k in missing}
+    for key in missing:
+        manifest.setdefault(key, current.isoformat())
+    purged = 0
+    for key, since in list(manifest.items()):
+        if current - datetime.fromisoformat(since) > timedelta(days=grace_days):
+            _delete_all_versions(target, key)
+            del manifest[key]
+            purged += 1
+    target.client.put_object(
+        Bucket=target.bucket,
+        Key=MISSING_MANIFEST_KEY,
+        Body=json.dumps(manifest, sort_keys=True).encode(),
+        ContentType="application/json",
+    )
+    return len(manifest), purged
+
+
 def latest_dump_age_hours(target: BackupTarget, *, now: datetime | None = None) -> float | None:
     """Age of the newest ``pg/`` object in hours, or ``None`` if there is none."""
     newest: datetime | None = None
@@ -212,6 +280,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "sync-attachments":
         copied, present = sync_attachments(source_client, source_bucket, target)
         print(f"[offsite] attachments: {copied} copied, {present} already present")
+        tracked, purged = expire_deleted_attachment_copies(source_client, source_bucket, target)
+        print(f"[offsite] deleted files: {tracked} awaiting expiry, {purged} purged")
         return 0
     if args.cmd == "fetch":
         fetch_key: str | None = latest_dump_key(target) if args.latest else args.key

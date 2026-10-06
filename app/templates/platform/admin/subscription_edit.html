@@ -44,9 +44,9 @@
                 <dt class="font-medium">Status</dt>
                 <dd>{{ subscription.status }}</dd>
                 <dt class="font-medium">Trial ends</dt>
-                <dd>{{ subscription.trial_ends_at.strftime("%d.%m.%Y") if subscription.trial_ends_at else "—" }}</dd>
+                <dd>{{ subscription.trial_ends_at|localdate if subscription.trial_ends_at else "—" }}</dd>
                 <dt class="font-medium">Period end</dt>
-                <dd>{{ subscription.current_period_end.strftime("%d.%m.%Y") if subscription.current_period_end else "—" }}</dd>
+                <dd>{{ subscription.current_period_end|localdate if subscription.current_period_end else "—" }}</dd>
                 <dt class="font-medium">Stripe sub id</dt>
                 <dd class="font-mono text-xs">{{ subscription.stripe_subscription_id }}</dd>
             </dl>
@@ -127,7 +127,7 @@
                     {% if early_access and trial_until %}
                         {# E1: the stored date is not the one that counts. #}
                         <p class="mt-1 text-xs text-emerald-700 dark:text-emerald-300" data-early-access="admin">
-                            {{ _("Early access: the trial actually ends on") }} {{ trial_until.strftime("%d.%m.%Y") }}.
+                            {{ _("Early access: the trial actually ends on") }} {{ trial_until|localdate }}.
                         </p>
                     {% endif %}
                 </div>

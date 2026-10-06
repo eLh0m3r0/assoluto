@@ -76,7 +76,7 @@
     {% if subscription and subscription.cancel_at_period_end %}
         <div class="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
             <strong>{{ _("Subscription will be cancelled.") }}</strong>
-            {{ _("Access remains until") }} {{ subscription.current_period_end.strftime("%d.%m.%Y") if subscription.current_period_end else _("end of period") }}.
+            {{ _("Access remains until") }} {{ subscription.current_period_end|localdate if subscription.current_period_end else _("end of period") }}.
             {{ _("You can revert the cancellation in the Stripe Portal below.") }}
         </div>
     {% endif %}
@@ -104,13 +104,13 @@
                         } %}
                         {{ _("Status:") }} <span class="font-medium">{{ status_labels.get(subscription.status, subscription.status) }}</span>
                         {% if early_access %}
-                            · {{ _("Free early access until") }} {{ trial_until.strftime("%d.%m.%Y") }}
+                            · {{ _("Free early access until") }} {{ trial_until|localdate }}
                         {% elif trial_until and subscription.status == 'trialing' %}
-                            · {{ _("Trial until") }} {{ trial_until.strftime("%d.%m.%Y") }}
+                            · {{ _("Trial until") }} {{ trial_until|localdate }}
                         {% elif subscription.status == 'canceled' and subscription.current_period_end %}
-                            · {{ _("Access until") }} {{ subscription.current_period_end.strftime("%d.%m.%Y") }}
+                            · {{ _("Access until") }} {{ subscription.current_period_end|localdate }}
                         {% elif subscription.current_period_end %}
-                            · {{ _("Next billing") }} {{ subscription.current_period_end.strftime("%d.%m.%Y") }}
+                            · {{ _("Next billing") }} {{ subscription.current_period_end|localdate }}
                         {% endif %}
                     {% else %}
                         {{ _("No active subscription") }}
