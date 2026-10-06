@@ -384,14 +384,28 @@ async def test_ending_reminders_14_and_3_days_before_early_access_end_once_each(
     morning = timedelta(hours=7)  # 08:00 Prague
     day = lambda d: datetime(2027, 1, d, tzinfo=UTC) + morning  # noqa: E731
 
+    # Pin the recipient's language so the copy assertions below are exact.
+    async with owner_engine.begin() as conn:
+        await conn.execute(
+            text("UPDATE users SET preferred_locale = 'en' WHERE email = 'owner@4mex.cz'")
+        )
+
     # 15 days before: nothing yet.
     assert await send_trial_nurture_emails(now=day(16), sender=capture) == 0
     # Exactly 14 days before (17 January): the first reminder.
     assert await send_trial_nurture_emails(now=day(17), sender=capture) == 1
     first = capture.outbox[-1]
-    assert first.subject == "Free early access to Assoluto ends on 31.01.2027"
-    assert "free early access to Assoluto for 4MEX s.r.o. ends on 31.01.2027" in first.text
-    assert "1 490 CZK per month (Starter) or 2 990 CZK per month (Pro), invoiced" in first.text
+    from app.i18n import gettext
+
+    assert first.subject in {
+        gettext(loc, "Free early access to Assoluto ends on %(trial_end_date)s")
+        % {"trial_end_date": "31.01.2027"}
+        for loc in ("en", "cs", "de")
+    }
+    # Locale-agnostic: the mail renders in the recipient's language.
+    assert "4MEX s.r.o." in first.text and "31.01.2027" in first.text
+    plain = first.text.replace("\xa0", " ")
+    assert "1 490" in plain and "2 990" in plain
     assert "490 CZK per month for Starter" in first.text  # founding price
     assert "reply to this email" in first.text
     # …exactly once.

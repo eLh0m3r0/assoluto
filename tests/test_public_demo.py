@@ -36,6 +36,13 @@ OTHER = "dilna-t"
 PASSWORD = "Demo-heslo-1"
 
 
+def _t_any(msgid: str) -> tuple[str, ...]:
+    """The text in any shipped locale — pages render in the visitor's language."""
+    from app.i18n import gettext
+
+    return tuple({gettext(loc, msgid) for loc in ("en", "cs", "de")})
+
+
 @pytest.fixture(autouse=True)
 def _s3_env(monkeypatch):  # type: ignore[misc]
     monkeypatch.setenv("S3_ENDPOINT_URL", "")
@@ -132,7 +139,12 @@ async def test_demo_page_offers_both_roles_and_is_noindex(demo_client) -> None:
     assert 'name="role" value="customer"' in resp.text
     assert 'action="/demo/enter"' in resp.text
     # Banner + "Create your own portal" pointing at the apex signup.
-    assert "This is a public demo with fictional data" in resp.text
+    assert any(
+        t in resp.text
+        for t in _t_any(
+            "This is a public demo with fictional data. Anything you change is reset every night."
+        )
+    )
     assert "/platform/signup" in resp.text
 
 
@@ -141,7 +153,12 @@ async def test_entry_as_supplier_gives_a_staff_session(demo_client) -> None:
     resp = await demo_client.get("/app/orders")
     assert resp.status_code == 200
     assert resp.headers["x-robots-tag"] == "noindex, nofollow"
-    assert "This is a public demo with fictional data" in resp.text
+    assert any(
+        t in resp.text
+        for t in _t_any(
+            "This is a public demo with fictional data. Anything you change is reset every night."
+        )
+    )
     # Staff see every client's orders.
     assert "Konzole KM-120" in resp.text
     assert "Příruby P30" in resp.text
@@ -162,9 +179,11 @@ async def test_entry_as_customer_gives_a_contact_session(demo_client) -> None:
 
 
 async def test_chooser_offers_continue_only_for_a_live_session(demo_client, owner_engine) -> None:
-    assert "Continue where you left off" not in (await demo_client.get("/demo")).text
+    page = (await demo_client.get("/demo")).text
+    assert not any(t in page for t in _t_any("Continue where you left off"))
     await _enter(demo_client, "staff")
-    assert "Continue where you left off" in (await demo_client.get("/demo")).text
+    page = (await demo_client.get("/demo")).text
+    assert any(t in page for t in _t_any("Continue where you left off"))
     # The nightly reset re-creates the personas: the old cookie is dead.
     async with owner_engine.begin() as conn:
         await conn.execute(
@@ -172,7 +191,7 @@ async def test_chooser_offers_continue_only_for_a_live_session(demo_client, owne
             {"e": DEMO_STAFF_EMAIL},
         )
     resp = await demo_client.get("/demo")
-    assert "Continue where you left off" not in resp.text
+    assert not any(t in resp.text for t in _t_any("Continue where you left off"))
     assert "sme_portal_session" in resp.headers.get("set-cookie", "")  # cleared
 
 
