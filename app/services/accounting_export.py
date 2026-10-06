@@ -83,7 +83,7 @@ import re
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime
+from datetime import date, datetime, tzinfo
 from decimal import Decimal
 from typing import Any
 from uuid import UUID
@@ -96,6 +96,7 @@ from app.models.enums import OrderStatus
 from app.models.order import Order, OrderItem
 from app.models.product import Product
 from app.services.order_service import ActorRef, build_orders_query
+from app.timezones import local_date
 
 NS_DAT = "http://www.stormware.cz/schema/version_2/data.xsd"
 NS_ORD = "http://www.stormware.cz/schema/version_2/order.xsd"
@@ -238,14 +239,13 @@ def _num(value: Decimal) -> str:
     return text or "0"
 
 
-def _local_date(value: datetime) -> date:
-    """Calendar date of a timestamp as a Czech accountant sees it."""
-    try:
-        from zoneinfo import ZoneInfo
+def _local_date(value: datetime, tz: tzinfo | None = None) -> date:
+    """Calendar date of a timestamp as the tenant's accountant sees it.
 
-        return value.astimezone(ZoneInfo("Europe/Prague")).date()
-    except Exception:  # pragma: no cover - tzdata missing on a slim image
-        return value.astimezone(UTC).date() if value.tzinfo else value.date()
+    ``tz`` is the tenant's zone (``app.timezones``); ``None`` falls back
+    to ``DEFAULT_TIMEZONE``.
+    """
+    return local_date(value, tz)
 
 
 # Characters XML 1.0 forbids even as character references (C0 controls
@@ -550,12 +550,16 @@ async def load_orders_for_export(
     actor: ActorRef,
     filters: ExportFilters,
     limit: int = MAX_EXPORT_ORDERS,
+    tz: tzinfo | None = None,
 ) -> list[ExportOrder]:
     """Load the matching orders as builder input, oldest first.
 
     Runs on the request's RLS-scoped session, so another tenant's orders
     cannot be selected whatever the filters say. Uses the same base
     query as the order list / CSV export so filters mean the same thing.
+
+    ``tz`` is the tenant's zone: the ``from`` / ``to`` days and each
+    order's document date are local calendar days (E2 / LOGIC-16).
     """
     stmt = build_orders_query(
         actor=actor,
@@ -564,6 +568,7 @@ async def load_orders_for_export(
         date_to=filters.date_to,
         q=filters.q,
         assigned_to=filters.assigned_to,
+        tz=tz,
     )
     stmt = (
         stmt.where(Order.status.in_(list(filters.statuses)))
@@ -639,7 +644,7 @@ async def load_orders_for_export(
                 number=o.number,
                 title=o.title,
                 currency=o.currency or HOME_CURRENCY,
-                order_date=_local_date(stamp),
+                order_date=_local_date(stamp, tz),
                 date_to=o.promised_delivery_at or o.requested_delivery_at,
                 partner=partner,
                 items=tuple(items),

@@ -3,7 +3,8 @@
 Semantics chosen (see docstring in ``order_service.transition_order``):
 
 * Transitioning **into** ``OrderStatus.DELIVERED`` stamps
-  ``delivered_at = date.today()`` **only if it is currently None** —
+  ``delivered_at`` = today in the tenant's zone (``Europe/Prague`` by
+  default, see ``app.timezones``) **only if it is currently None** —
   staff re-entering DELIVERED after toggling away keeps the original
   delivery date so historical SLA numbers stay stable.
 * Transitioning **away from** DELIVERED (e.g. back to READY) does NOT
@@ -24,6 +25,7 @@ from app.models.enums import OrderStatus, UserRole
 from app.models.order import Order
 from app.models.user import User
 from app.services.order_service import ActorRef, transition_order
+from app.timezones import local_today
 
 pytestmark = pytest.mark.postgres
 
@@ -74,7 +76,7 @@ async def test_delivered_transition_sets_delivered_at(owner_engine, demo_tenant)
     async with sm() as session:
         db_order = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
         assert db_order.status == OrderStatus.DELIVERED
-        assert db_order.delivered_at == date.today()
+        assert db_order.delivered_at == local_today(None)
 
 
 async def test_delivered_at_is_not_cleared_on_transition_back(owner_engine, demo_tenant) -> None:
@@ -99,7 +101,7 @@ async def test_delivered_at_is_not_cleared_on_transition_back(owner_engine, demo
     async with sm() as session:
         db_order = (await session.execute(select(Order).where(Order.id == order.id))).scalar_one()
         assert db_order.status == OrderStatus.READY
-        assert db_order.delivered_at == date.today()
+        assert db_order.delivered_at == local_today(None)
 
     # Re-enter DELIVERED: date must be unchanged (not re-stamped).
     # We simulate the "date drifts" case by pre-setting delivered_at to

@@ -33,6 +33,15 @@ from app.services.notification_prefs import (
     prefs_for_user,
 )
 from app.tasks.email_tasks import send_staff_invitation
+from app.timezones import (
+    CURATED_TIMEZONES,
+    local_today,
+    normalize_timezone,
+    request_tz,
+    tenant_timezone_name,
+    timezone_choices,
+)
+from app.timezones import SETTINGS_KEY as TIMEZONE_SETTINGS_KEY
 
 router = APIRouter(prefix="/app/admin", tags=["tenant-admin"], dependencies=[Depends(verify_csrf)])
 
@@ -716,7 +725,7 @@ async def profile_export(
 
     user = (await db.execute(select(User).where(User.id == principal.id))).scalar_one()
     payload = await export_for_user(db, user=user)
-    filename = f"assoluto-export-{user.email}-{date.today().isoformat()}.json"
+    filename = f"assoluto-export-{user.email}-{local_today(request_tz(request)).isoformat()}.json"
     return JSONResponse(
         payload,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
@@ -776,7 +785,7 @@ async def tenant_data_export(
         finally:
             export_file.close()
 
-    filename = f"assoluto-{tenant.slug}-{date.today().isoformat()}.zip"
+    filename = f"assoluto-{tenant.slug}-{local_today(request_tz(request)).isoformat()}.zip"
     return StreamingResponse(
         _chunks(),
         media_type="application/zip",
@@ -862,6 +871,32 @@ async def profile_delete(
 # --------------------------------------------------------- tenant settings
 
 
+def _render_tenant_settings(
+    request: Request,
+    principal: Principal,
+    *,
+    locale_code: str,
+    timezone_name: str,
+    notice: str | None = None,
+    error: str | None = None,
+) -> HTMLResponse:
+    html = _templates(request).render(
+        request,
+        "admin/tenant_settings.html",
+        {
+            "principal": principal,
+            "tenant": _tenant(request),
+            "tenant_default_locale": locale_code,
+            "tenant_timezone": timezone_name,
+            "curated_timezones": CURATED_TIMEZONES,
+            "other_timezones": [z for z in timezone_choices() if z not in CURATED_TIMEZONES],
+            "notice": notice,
+            "error": error,
+        },
+    )
+    return HTMLResponse(html, status_code=400 if error else 200)
+
+
 @router.get("/tenant-settings", response_class=HTMLResponse)
 async def tenant_settings_form(
     request: Request,
@@ -869,8 +904,8 @@ async def tenant_settings_form(
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    """Tenant-admin-only screen for portal-wide settings (currently only
-    the default email locale)."""
+    """Tenant-admin-only screen for portal-wide settings: the default
+    email locale and the time zone every timestamp is displayed in."""
     _require_tenant_admin(principal)
     tenant = _tenant(request)
     # The current session's `request.state.tenant` is a snapshot captured
@@ -878,24 +913,20 @@ async def tenant_settings_form(
     # write to it on POST (below).
     settings_blob = tenant.settings or {}
     current_locale = str(settings_blob.get("default_locale") or "").lower() or "cs"
-    html = _templates(request).render(
+    return _render_tenant_settings(
         request,
-        "admin/tenant_settings.html",
-        {
-            "principal": principal,
-            "tenant": tenant,
-            "tenant_default_locale": current_locale,
-            "notice": _t(request, "Saved.") if saved else None,
-            "error": None,
-        },
+        principal,
+        locale_code=current_locale,
+        timezone_name=tenant_timezone_name(tenant),
+        notice=_t(request, "Saved.") if saved else None,
     )
-    return HTMLResponse(html)
 
 
 @router.post("/tenant-settings", response_class=HTMLResponse)
 async def tenant_settings_update(
     request: Request,
     default_locale: str = Form(...),
+    timezone: str | None = Form(None),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -911,15 +942,40 @@ async def tenant_settings_update(
         raise HTTPException(status_code=400, detail="Unsupported locale")
 
     tenant = _tenant(request)
+    # ``timezone`` absent (an older form) = leave it alone; present but
+    # not an IANA zone = refuse the whole save, nothing half-applied.
+    tz_name: str | None = None
+    if timezone is not None:
+        tz_name = normalize_timezone(timezone)
+        if tz_name is None:
+            return _render_tenant_settings(
+                request,
+                principal,
+                locale_code=code,
+                timezone_name=tenant_timezone_name(tenant),
+                error=_t(request, "Unknown time zone. Pick one from the list."),
+            )
+
     # Re-load the row under the current session so SQLAlchemy emits
     # the UPDATE. ``request.state.tenant`` is read-only for this purpose.
     row = (await db.execute(select(Tenant).where(Tenant.id == tenant.id))).scalar_one()
     current = dict(row.settings or {})
+    before: dict[str, object] = {}
+    after: dict[str, object] = {}
     locale_before = current.get("default_locale")
     current["default_locale"] = code
+    if locale_before != code:
+        before["default_locale"] = locale_before
+        after["default_locale"] = code
+    if tz_name is not None:
+        tz_before = current.get(TIMEZONE_SETTINGS_KEY)
+        current[TIMEZONE_SETTINGS_KEY] = tz_name
+        if tz_before != tz_name:
+            before[TIMEZONE_SETTINGS_KEY] = tz_before
+            after[TIMEZONE_SETTINGS_KEY] = tz_name
     row.settings = current
     await db.flush()
-    if locale_before != code:
+    if after:
         await audit_service.record(
             db,
             action="tenant.settings_updated",
@@ -927,8 +983,8 @@ async def tenant_settings_update(
             entity_id=tenant.id,
             entity_label=tenant.slug,
             actor=actor_from_principal(principal),
-            before={"default_locale": locale_before},
-            after={"default_locale": code},
+            before=before,
+            after=after,
         )
     await db.commit()
     return RedirectResponse(url="/app/admin/tenant-settings?saved=1", status_code=303)
@@ -1000,6 +1056,7 @@ async def audit_index(
         q=(q or None),
         limit=AUDIT_PAGE_SIZE,
         offset=offset,
+        tz=request_tz(request),
     )
     total_pages = max(1, (total + AUDIT_PAGE_SIZE - 1) // AUDIT_PAGE_SIZE)
 
@@ -1076,12 +1133,13 @@ async def sla_dashboard(
     days = _SLA_TIMEFRAMES.get(timeframe, 90)
     timeframe_value = timeframe if timeframe in _SLA_TIMEFRAMES else "90"
 
-    today = date.today()
+    # Promised / delivered dates are tenant-local days; so is "today".
+    today = local_today(request_tz(request))
     date_from = today - timedelta(days=days)
 
-    summary = await sla_service.on_time_rate(db, date_from=date_from, date_to=today)
+    summary = await sla_service.on_time_rate(db, date_from=date_from, date_to=today, today=today)
     heatmap_weeks = max(8, min(52, (days // 7) + 1))
-    cells = await sla_service.heatmap_data(db, weeks=heatmap_weeks)
+    cells = await sla_service.heatmap_data(db, weeks=heatmap_weeks, today=today)
     grid = _heatmap_grid(cells)
 
     html = _templates(request).render(

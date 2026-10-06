@@ -24,6 +24,7 @@ from app.models.customer import Customer, CustomerContact
 from app.models.tenant import Tenant
 from app.models.user import User
 from app.security.session import SessionData, read_session
+from app.timezones import tenant_tz
 
 
 def _extract_subdomain(host: str) -> str | None:
@@ -148,6 +149,9 @@ async def get_current_tenant(
     # Stash on request.state so downstream code (templates, logging) can
     # use it without re-querying.
     request.state.tenant = tenant
+    # The tenant's display zone (UTC -> local), resolved once per request
+    # for templates, CSV, PDF and date filters. See ``app.timezones``.
+    request.state.tz = tenant_tz(tenant)
     return tenant
 
 

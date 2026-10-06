@@ -189,7 +189,7 @@
                                 {% endif %}
                             </td>
                             <td class="px-4 py-3 text-slate-500 dark:text-slate-400">
-                                {{ order.created_at.strftime("%d.%m.%Y") }}
+                                {{ order.created_at|localdate }}
                             </td>
                         </tr>
                     {% endfor %}

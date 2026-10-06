@@ -1869,6 +1869,7 @@ dependencies = [
     { name = "sqlalchemy", extra = ["asyncio"] },
     { name = "stripe" },
     { name = "structlog" },
+    { name = "tzdata" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "zxcvbn" },
 ]
@@ -1915,6 +1916,7 @@ requires-dist = [
     { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.36" },
     { name = "stripe", specifier = ">=10.0" },
     { name = "structlog", specifier = ">=24.4" },
+    { name = "tzdata", specifier = ">=2024.1" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.32" },
     { name = "zxcvbn", specifier = ">=4.4.28" },
 ]

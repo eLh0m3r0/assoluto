@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 import io
 from collections.abc import AsyncIterator
-from datetime import date, datetime
+from datetime import date, datetime, tzinfo
 from decimal import Decimal
 from urllib.parse import quote, urlencode
 from uuid import UUID
@@ -68,6 +68,7 @@ from app.services.order_service import (
     update_order_header,
 )
 from app.services.product_service import catalog_for_customer
+from app.timezones import local_today, request_tz, to_local, tz_label
 
 router = APIRouter(prefix="/app/orders", tags=["orders"], dependencies=[Depends(verify_csrf)])
 
@@ -191,6 +192,7 @@ async def orders_index(
         stale_quote_days=_stale_quote_days(request),
         offset=offset,
         limit=PAGE_SIZE,
+        tz=request_tz(request),
     )
     total_pages = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
 
@@ -262,7 +264,7 @@ async def orders_index(
             "page_qs": _query_without(request, "page"),
             "sort_qs": _query_without(request, "page", "sort"),
             "queue_labels": _queue_labels(request),
-            "today": date.today(),
+            "today": local_today(request_tz(request)),
             "page": page,
             "total_pages": total_pages,
             "total": total,
@@ -316,12 +318,14 @@ def _parse_iso_date(raw: str | None) -> date | None:
         return None
 
 
-def _fmt_datetime(value: datetime | None) -> str:
+def _fmt_datetime(value: datetime | None, tz: tzinfo | None = None) -> str:
     if value is None:
         return ""
-    # ISO 8601 without microseconds, timezone-aware values are emitted
-    # in their native offset (typically UTC — the DB stores timestamptz).
-    return value.replace(microsecond=0).isoformat()
+    # ISO 8601 without microseconds, in the tenant's zone and carrying
+    # its offset (``2026-03-03T00:30:00+01:00``) so a spreadsheet user
+    # reads local time and a machine can still recover the instant. The
+    # header names the zone too (E2 / LOGIC-16).
+    return to_local(value, tz).replace(microsecond=0).isoformat()
 
 
 def _fmt_date(value: date | None) -> str:
@@ -377,6 +381,9 @@ async def orders_export_csv(
 
     date_from = _parse_iso_date(from_raw)
     date_to = _parse_iso_date(to_raw)
+    # ``from`` / ``to`` are calendar days in the tenant's zone, and the
+    # timestamp columns are written in that zone too.
+    tz = request_tz(request)
 
     stmt = build_orders_query(
         actor=_actor(principal),
@@ -386,6 +393,7 @@ async def orders_export_csv(
         date_from=date_from,
         date_to=date_to,
         q=q,
+        tz=tz,
     )
 
     # Resolve customer names lazily with a per-request cache — the list
@@ -403,12 +411,13 @@ async def orders_export_csv(
         customer_names[cid] = name
         return name
 
+    zone = tz_label(tz)
     header = [
         _t(request, "Order number"),
         _t(request, "Status"),
         _t(request, "Customer"),
-        _t(request, "Created at"),
-        _t(request, "Submitted at"),
+        f"{_t(request, 'Created at')} ({zone})",
+        f"{_t(request, 'Submitted at')} ({zone})",
         _t(request, "Promised delivery at"),
         _t(request, "Quoted total"),
         _t(request, "Currency"),
@@ -450,8 +459,8 @@ async def orders_export_csv(
                         order.number,
                         order.status.value,
                         await _customer_name(order.customer_id),
-                        _fmt_datetime(order.created_at),
-                        _fmt_datetime(order.submitted_at),
+                        _fmt_datetime(order.created_at, tz),
+                        _fmt_datetime(order.submitted_at, tz),
                         _fmt_date(order.promised_delivery_at),
                         _fmt_decimal(order.quoted_total),
                         order.currency,
@@ -466,7 +475,7 @@ async def orders_export_csv(
                 break
             offset += CSV_BATCH_SIZE
 
-    filename = f"orders-{date.today().isoformat()}.csv"
+    filename = f"orders-{local_today(tz).isoformat()}.csv"
     return StreamingResponse(
         _row_iter(),
         media_type="text/csv; charset=utf-8",
@@ -492,7 +501,7 @@ async def orders_new_form(
             "tenant": _tenant(request),
             "customers": customers,
             "form": {},
-            "today_iso": date.today().isoformat(),
+            "today_iso": local_today(request_tz(request)).isoformat(),
             "error": None,
             "notice": None,
         },
@@ -613,7 +622,7 @@ async def _rerender_form(
             "tenant": _tenant(request),
             "customers": customers,
             "form": form,
-            "today_iso": date.today().isoformat(),
+            "today_iso": local_today(request_tz(request)).isoformat(),
             "error": error,
             "notice": None,
         },
@@ -812,7 +821,7 @@ async def orders_detail(
             "product_q": product_q,
             "product_limit": PRODUCT_PICKER_LIMIT,
             "last_prices": last_prices,
-            "is_overdue": is_overdue(order),
+            "is_overdue": is_overdue(order, today=local_today(request_tz(request))),
             # Past the agreement — a deleted drawing there is evidence lost.
             "is_agreed": current_rank is not None and current_rank >= (confirmed_rank or 0),
             "can_reorder": principal.is_staff or perms.can_add_items,
