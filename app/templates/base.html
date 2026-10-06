@@ -33,7 +33,11 @@
         .animate-spin { animation: spin 1s linear infinite; }
     </style>
 </head>
-<body class="flex min-h-full flex-col bg-gray-50 text-gray-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+{# Public demo (P3-13): app.js shows every form the demo guard would
+   refuse as disabled, with a short note, instead of letting a visitor
+   fill one in and bounce. Patterns come from app.demo.guard. #}
+<body class="flex min-h-full flex-col bg-gray-50 text-gray-900 antialiased dark:bg-slate-950 dark:text-slate-100"
+      {%- if public_demo and request.state.public_demo_locked %} data-demo-locked='{{ request.state.public_demo_locked|tojson }}' data-demo-locked-note="{{ _('Turned off in the public demo.') }}"{% endif %}>
     <header class="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-slate-800 dark:bg-slate-900/95 dark:supports-[backdrop-filter]:bg-slate-900/80">
         <div class="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
             <a href="/" aria-label="Assoluto — {{ _('Home') }}"
@@ -139,7 +143,9 @@
 
     <footer class="border-t border-gray-100 bg-white dark:border-slate-800 dark:bg-slate-900">
         <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 text-xs text-gray-400 sm:px-6 dark:text-slate-500">
-            <span>Assoluto v{{ app_version }}</span>
+            {# No version number in the footer (P3-17): "v0.1.0" read as
+               "unfinished". Staff can still hover for the build id. #}
+            <span{% if principal is defined and principal and principal.is_staff %} title="{{ _('Build') }} {{ asset_version|string|truncate(12, True, '') }}"{% endif %}>Assoluto</span>
             {% block footer_extra %}{% endblock %}
         </div>
     </footer>

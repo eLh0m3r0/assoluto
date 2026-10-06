@@ -1,0 +1,127 @@
+{#
+    Human labels for audit events — ONE mapping shared by the dashboard
+    activity feed and the audit log (demo review P2-5). Import with
+        {% from "_audit_labels.html" import activity_verbs, status_labels %}
+    (top-level ``set``s are exported; ``_()`` resolves per locale because
+    every locale has its own Environment, so the imported module is
+    translated once per language).
+
+    Keys are the raw codes stored in ``audit_events``; values are English
+    msgids run through ``_()``. A code missing here falls back to the raw
+    code on screen — add new audit actions here when you add them.
+#}
+{% set activity_icons = {
+    'order.status_changed': '→',
+    'order.assigned': '@',
+    'order.updated': '*',
+    'order.duplicated': '+',
+    'attachment.upload': '+',
+    'attachment.deleted': '−',
+    'order.item_added': '+',
+    'order.item_updated': '*',
+    'order.item_removed': '−',
+    'order.comment_added': '"',
+    'customer.created': '+',
+    'customer.updated': '*',
+    'customer.deleted': '−',
+    'product.created': '+',
+    'product.updated': '*',
+    'user.invited': '+',
+    'user.password_changed': '*',
+} %}
+{# Short verb phrases: "<actor> <verb> <entity>" (UX-09). #}
+{% set activity_verbs = {
+    'order.status_changed': _('changed status of'),
+    'order.assigned': _('changed who is responsible for'),
+    'order.updated': _('edited order'),
+    'order.duplicated': _('created a repeat order'),
+    'attachment.upload': _('uploaded a file to'),
+    'attachment.deleted': _('deleted a file from'),
+    'user.role_changed': _('changed the role of'),
+    'user.disabled': _('deactivated user'),
+    'user.reactivated': _('reactivated user'),
+    'user.profile_updated': _('updated the profile of'),
+    'tenant.settings_updated': _('updated settings of'),
+    'tenant.data_exported': _('exported data of'),
+    'tenant.deactivated_for_billing': _('deactivated for billing'),
+    'contact.password_changed': _('changed password for'),
+    'contact.invite_expired': _('invitation expired for'),
+    'customer_contact.invited': _('invited a contact of'),
+    'asset.movement_added': _('recorded a stock movement of'),
+    'user.gdpr_erased': _('erased personal data of'),
+    'contact.gdpr_erased': _('erased personal data of'),
+    'auth.login': _('signed in to'),
+    'auth.password_reset': _('reset the password of'),
+    'platform.support_access_granted': _('granted support access to'),
+    'platform.support_access_revoked': _('revoked support access to'),
+    'platform.support_access_session_started': _('started a support session in'),
+    'billing.plan_changed': _('changed the plan of'),
+    'billing.subscription_canceled': _('cancelled the subscription of'),
+    'billing.subscription_expired': _('subscription expired for'),
+    'billing.subscription_edited_by_platform_admin': _('changed the subscription of'),
+    'order.item_added': _('added item to'),
+    'order.item_updated': _('updated item on'),
+    'order.item_removed': _('removed item from'),
+    'order.comment_added': _('commented on'),
+    'customer.created': _('created client'),
+    'customer.updated': _('updated client'),
+    'customer.deleted': _('deleted client'),
+    'customer.archived': _('archived client'),
+    'customer.unarchived': _('restored client'),
+    'product.created': _('created product'),
+    'product.updated': _('updated product'),
+    'user.invited': _('invited user'),
+    'user.password_changed': _('changed password for'),
+} %}
+{# Same msgids as ``app.models.enums.STATUS_LABELS`` (tested). #}
+{% set status_labels = {
+    'draft': _('Draft'),
+    'submitted': _('Submitted'),
+    'quoted': _('Quoted'),
+    'confirmed': _('Confirmed'),
+    'in_production': _('In production'),
+    'ready': _('Ready'),
+    'delivered': _('Delivered'),
+    'closed': _('Closed'),
+    'cancelled': _('Cancelled'),
+} %}
+{% set entity_type_labels = {
+    'order': _('Order'),
+    'customer': _('Client'),
+    'product': _('Product'),
+    'user': _('User'),
+    'asset': _('Asset'),
+    'tenant': _('Settings'),
+    'contact': _('Contact'),
+    'customer_contact': _('Contact'),
+    'attachment': _('Attachment'),
+    'subscription': _('Subscription'),
+} %}
+{# Who did it: ``audit_events.actor_type``. #}
+{% set actor_type_labels = {
+    'user': _('Supplier team'),
+    'contact': _('Client contact'),
+    'system': _('System'),
+} %}
+{# Field names that appear in before/after diffs. Unknown keys stay raw. #}
+{% set field_labels = {
+    'status': _('Status'),
+    'title': _('Title'),
+    'notes': _('Notes'),
+    'order_id': _('Order'),
+    'source_order_id': _('Order'),
+    'reference_order_id': _('Order'),
+    'promised_delivery_at': _('Promised delivery'),
+    'requested_delivery_at': _('Requested delivery'),
+    'description': _('Description'),
+    'quantity': _('Quantity'),
+    'unit': _('Unit'),
+    'unit_price': _('Unit price'),
+    'name': _('Name'),
+    'email': _('Email'),
+    'role': _('Role'),
+    'sku': _('SKU'),
+    'timezone': _('Time zone'),
+    'default_locale': _('Default email language'),
+    'price_note': _('Price note on order PDFs'),
+} %}

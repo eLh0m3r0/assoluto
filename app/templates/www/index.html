@@ -36,14 +36,24 @@
             {{ _("Your clients upload drawings, confirm quotes and follow production status on their own — and see the material they keep at your shop. You stop picking up the phone.") }}
         </p>
 
-        <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div class="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
             <a href="/platform/signup"
-               class="group inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-brand-600 to-brand-500 px-6 py-3.5 text-sm font-semibold text-white shadow-md ring-1 ring-inset ring-white/10 transition hover:shadow-lg hover:brightness-105">
+               class="group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-brand-600 to-brand-500 px-6 py-3.5 text-sm font-semibold text-white shadow-md ring-1 ring-inset ring-white/10 transition hover:shadow-lg hover:brightness-105 sm:w-auto">
                 {% if early_access_offer.active %}{{ _("Start free") }}{% else %}{{ _("Try free for 30 days") }}{% endif %}
                 <svg aria-hidden="true" class="h-4 w-4 transition group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
             </a>
+            {% if public_demo_url %}
+                {# E3 / P2-14: the public demo, right under the primary CTA —
+                   full width on a phone, where the old pill sat ~800 px down.
+                   Hidden when PUBLIC_DEMO_TENANT is empty. #}
+                <a href="{{ public_demo_url }}" data-testid="public-demo-link"
+                   class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-emerald-300 bg-emerald-50 px-6 py-3.5 text-sm font-semibold text-emerald-800 shadow-sm transition hover:bg-emerald-100 hover:shadow-md sm:w-auto dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20">
+                    {{ _("Try the live demo — no sign-up") }}
+                    <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </a>
+            {% endif %}
             <a href="/contact"
-               class="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-3.5 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-800">
+               class="inline-flex w-full items-center sm:w-auto justify-center gap-2 rounded-lg bg-white px-6 py-3.5 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-800">
                 <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                 {{ _("Request a 15-min demo") }}
             </a>
@@ -54,16 +64,6 @@
         </p>
 
         {{ plans.early_access_banner() }}
-        {% if public_demo_url %}
-        {# E3: public demo, no sign-up. Hidden when PUBLIC_DEMO_TENANT is empty. #}
-        <p class="mt-4 text-center">
-            <a href="{{ public_demo_url }}" data-testid="public-demo-link"
-               class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-800 shadow-sm transition hover:shadow-md dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
-                {{ _("Try the live demo — no sign-up") }}
-                <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-            </a>
-        </p>
-        {% endif %}
 
         {# Hero visual — screenshot mock of the orders list. Pure SVG/HTML. #}
         <div class="mt-14 sm:mt-16">

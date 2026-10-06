@@ -270,12 +270,23 @@ _BLOCKED: list[tuple[frozenset[str], re.Pattern[str], str, str]] = [
     # Tenant settings and the whole-portal ZIP export.
     (_WRITE, re.compile(r"^/app/admin/tenant-settings/?$"), "settings", "/app"),
     (_READ, re.compile(r"^/app/admin/export/?$"), "export", "/app"),
-    # Platform layer (billing, identity GDPR, tenant switching): not part of the demo.
-    (_WRITE, re.compile(r"^/platform/"), "other", "/app"),
+    # Platform layer (billing, identity GDPR, tenant switching): not part of
+    # the demo — not even to look at (P1-2: "Billing" used to open the
+    # platform sign-in page inside the demo).
+    (_ANY, re.compile(r"^/platform(/|$)"), "other", "/app"),
 ]  # fmt: skip
 
 _UPLOAD_PATH = re.compile(r"^/app/orders/([0-9a-fA-F-]{36})/attachments/?$")
 _TO_CHOOSER = frozenset({"/", "/auth/login", "/auth/login/"})
+
+
+#: Path patterns of every blocked form submission (POST), for the page
+#: script that shows those forms disabled up front (P3-13) instead of
+#: letting the visitor fill one in only to be refused. Kept to the
+#: regex subset JavaScript reads the same way (anchors, groups, classes).
+LOCKED_FORM_PATTERNS: tuple[str, ...] = tuple(
+    pattern.pattern for methods, pattern, _kind, _fallback in _BLOCKED if "POST" in methods
+)
 
 
 def blocked_rule(method: str, path: str) -> tuple[str, str] | None:
@@ -293,8 +304,15 @@ def _header(scope: Scope, name: bytes) -> str:
     return ""
 
 
-def _back_to(scope: Scope, current_path: str, fallback: str) -> str:
-    """Same-origin path of the Referer (minus old flashes), else ``fallback``."""
+def _back_to(scope: Scope, current_path: str, fallback: str, method: str = "GET") -> str:
+    """Same-origin path of the Referer (minus old flashes), else ``fallback``.
+
+    A blocked *write* may go back to the very page that posted it (the
+    settings form posting to itself) as long as reading that page is not
+    blocked too — otherwise "Save" on the settings page used to bounce the
+    visitor to the dashboard (P3-13). A blocked read never returns to
+    itself, which would loop.
+    """
     from app.routers.public import _safe_next_path
 
     referer = _header(scope, b"referer")
@@ -302,7 +320,10 @@ def _back_to(scope: Scope, current_path: str, fallback: str) -> str:
     if referer:
         parts = urlsplit(referer)
         host = _header(scope, b"host")
-        if (not parts.netloc or parts.netloc == host) and parts.path != current_path:
+        same_page_ok = parts.path != current_path or (
+            method in _WRITE and blocked_rule("GET", parts.path) is None
+        )
+        if (not parts.netloc or parts.netloc == host) and same_page_ok:
             candidate = parts.path + (f"?{parts.query}" if parts.query else "")
             if _safe_next_path(candidate) == candidate:
                 target = candidate
@@ -362,6 +383,7 @@ class PublicDemoMiddleware:
         state = scope.setdefault("state", {})
         state["public_demo"] = True
         state["public_demo_signup_url"] = public_demo_signup_url(self.settings)
+        state["public_demo_locked"] = list(LOCKED_FORM_PATTERNS)
         path = scope.get("path", "")
         method = scope.get("method", "GET").upper()
 
@@ -396,7 +418,7 @@ class PublicDemoMiddleware:
         if rule is not None:
             kind, fallback = rule
             log.info("public_demo.blocked", method=method, path=path, kind=kind)
-            target = _with_param(_back_to(scope, path, fallback), "demo_blocked", kind)
+            target = _with_param(_back_to(scope, path, fallback, method), "demo_blocked", kind)
             await _redirect(scope, receive, send, target)
             return
 

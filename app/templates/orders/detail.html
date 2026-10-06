@@ -81,6 +81,41 @@
     {% endif %}
 {% endmacro %}
 
+{# Human file-type label for an attachment (P3-7): "PDF", "PNG" rather
+   than the raw "application/pdf". Falls back to the file extension. #}
+{% macro file_type(att) -%}
+    {%- set _ct = (att.content_type or '')|lower -%}
+    {%- set _known = {
+        'application/pdf': 'PDF',
+        'image/png': 'PNG',
+        'image/jpeg': 'JPEG',
+        'image/webp': 'WebP',
+        'image/gif': 'GIF',
+        'image/tiff': 'TIFF',
+        'image/svg+xml': 'SVG',
+        'text/plain': 'TXT',
+        'text/csv': 'CSV',
+        'application/zip': 'ZIP',
+        'application/msword': 'DOC',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+        'application/vnd.ms-excel': 'XLS',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLSX',
+        'image/vnd.dxf': 'DXF',
+        'application/dxf': 'DXF',
+        'image/vnd.dwg': 'DWG',
+        'application/acad': 'DWG',
+        'model/step': 'STEP',
+        'application/step': 'STEP',
+    } -%}
+    {%- if _ct in _known -%}
+        {{- _known[_ct] -}}
+    {%- elif att.filename and '.' in att.filename -%}
+        {{- att.filename.rsplit('.', 1)[1]|upper|truncate(6, True, '') -}}
+    {%- else -%}
+        {{- _('File') -}}
+    {%- endif -%}
+{%- endmacro %}
+
 {% block content %}
     <div class="mb-6">
         {% with items=[(_('Dashboard'), '/app'), (_('Orders'), '/app/orders'), (order.number, None)] %}
@@ -248,11 +283,25 @@
        Sits above the items (UX-23): on a 15-line order the primary action
        used to be a long scroll away. #}
     {% set pipeline = status_pipeline %}
+    {% if public_demo and not principal.is_staff and order.status.value == 'quoted' and pipeline.primary %}
+        <div class="mb-4 flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-900/20 dark:text-emerald-100"
+             data-demo-quote-hint>
+            <svg aria-hidden="true" class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+            </svg>
+            <div>
+                <p class="font-semibold">{{ _('This is where you confirm the quote') }}</p>
+                <p class="mt-0.5">{{ _('Check the items and the price, then press the button below. This is a demo: nothing is ordered and no e-mail is sent.') }}</p>
+            </div>
+        </div>
+    {% endif %}
     <section id="order-status" class="mb-8 rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
             <h2 class="font-semibold text-slate-900 dark:text-slate-100">{{ _('Order status') }}</h2>
-            {% if pipeline.has_actions %}
-                <p class="text-xs text-slate-500 dark:text-slate-400">
+            {# P2-6: "click any step" describes the staff stepper; a client
+               only ever gets the one primary button below. #}
+            {% if pipeline.has_actions and principal.is_staff %}
+                <p class="text-xs text-slate-500 dark:text-slate-400" data-staff-hint>
                     {{ _('Click any step to move the order there.') }}
                 </p>
             {% endif %}
@@ -263,7 +312,11 @@
                 <svg aria-hidden="true" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l4-4m0 4l-4-4m10 2a8 8 0 11-16 0 8 8 0 0116 0z"/>
                 </svg>
-                <span>{{ _('This order is cancelled. Pick a step below to reopen it.') }}</span>
+                {% if principal.is_staff %}
+                    <span>{{ _('This order is cancelled. Pick a step below to reopen it.') }}</span>
+                {% else %}
+                    <span data-cancelled-note>{{ _('This order was cancelled.') }}</span>
+                {% endif %}
             </div>
         {% endif %}
 
@@ -362,7 +415,7 @@
             <details class="mt-4 rounded-lg border border-slate-200 px-4 py-3 text-sm dark:border-slate-800">
                 <summary class="cursor-pointer font-medium text-slate-700 dark:text-slate-200">{{ _('Change status with a note') }}</summary>
                 <form method="post" action="/app/orders/{{ order.id }}/status"
-                      class="mt-3 grid gap-3 sm:grid-cols-[auto_1fr_auto_auto] sm:items-end"
+                      class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-[auto_1fr_auto_auto] sm:items-end"
                       data-confirm="{{ _('Change the order status?') }}">
                     {{ csrf_input() }}
                     <label class="flex flex-col text-xs text-slate-500 dark:text-slate-400">
@@ -426,7 +479,7 @@
                         <th class="px-4 py-2 text-left">#</th>
                         <th class="px-4 py-2 text-left">{{ _('Description') }}</th>
                         <th class="px-4 py-2 text-right">{{ _('Quantity') }}</th>
-                        <th class="px-4 py-2 text-right">{{ _('Price/unit') }}</th>
+                        <th class="px-4 py-2 text-right">{{ _('Price per unit') }}</th>
                         <th class="px-4 py-2 text-right">{{ _('Total') }}</th>
                         {% if can_edit_items %}
                             <th class="px-4 py-2"></th>
@@ -469,14 +522,14 @@
             {% endif %}
             <form method="post" action="/app/orders/{{ order.id }}/items"
                   id="add-item-form"
-                  class="grid gap-3 border-t border-gray-200 bg-gray-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/40 sm:grid-cols-6">
+                  class="grid grid-cols-1 gap-3 border-t border-gray-200 bg-gray-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/40 sm:grid-cols-6">
                 {{ csrf_input() }}
 
                 {# Product picker — shown only when catalog is enabled #}
                 {% if perms.can_use_catalog and product_choices %}
                     <select name="product_id" id="add-item-product" data-product-picker
                             aria-label="{{ _('Product') }}"
-                            class="sm:col-span-3 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                            class="w-full min-w-0 sm:col-span-3 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                         <option value="">— {{ _('custom item (free-text)') }} —</option>
                         {% for p in product_choices %}
                             {# Price memory (IDEA-6, staff only): pre-fill what
@@ -492,7 +545,7 @@
                         {% endfor %}
                     </select>
                 {% else %}
-                    <span class="sm:col-span-3"></span>
+                    <span class="hidden sm:col-span-3 sm:block"></span>
                 {% endif %}
 
                 <input type="number" step="0.001" min="0.001" name="quantity" required placeholder="{{ _('Quantity') }}"
@@ -504,11 +557,11 @@
 
                 {# Price field — only for staff OR contacts with can_set_prices #}
                 {% if principal.is_staff or perms.can_set_prices %}
-                    <input type="number" step="0.01" min="0" name="unit_price" id="add-item-price" placeholder="{{ _('Price/unit') }}"
-                           aria-label="{{ _('Price/unit') }}"
+                    <input type="number" step="0.01" min="0" name="unit_price" id="add-item-price" placeholder="{{ _('Price per unit') }}"
+                           aria-label="{{ _('Price per unit') }}"
                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500">
                 {% else %}
-                    <span></span>
+                    <span class="hidden sm:block"></span>
                 {% endif %}
 
                 <input type="text" name="description" id="add-item-description" placeholder="{{ _('Item description') }}"
@@ -532,11 +585,16 @@
         {% if attachments %}
             <ul class="divide-y divide-slate-100 dark:divide-slate-800">
                 {% for att in attachments %}
-                    <li class="flex items-center justify-between px-5 py-3 text-sm">
-                        <div class="flex items-center gap-3">
+                    <li class="flex items-center justify-between gap-3 px-5 py-3 text-sm">
+                        <div class="flex min-w-0 items-center gap-3">
                             {% if att.thumbnail_key %}
-                                <img src="/app/attachments/{{ att.id }}/thumbnail"
-                                     alt="" class="h-12 w-12 rounded border border-slate-200 object-cover dark:border-slate-700">
+                                <a href="/app/attachments/{{ att.id }}/download"
+                                   title="{{ _('Open') }} {{ att.filename }}"
+                                   class="shrink-0 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
+                                    <img src="/app/attachments/{{ att.id }}/thumbnail"
+                                         alt="{{ att.filename }}" loading="lazy"
+                                         class="h-24 w-24 rounded border border-slate-200 bg-white object-contain transition hover:border-brand-400 dark:border-slate-700">
+                                </a>
                             {% else %}
                                 {# 3-letter typography badge for non-image attachments.
                                    The CS / EN labels live in the catalog so the
@@ -547,17 +605,17 @@
                                     'document': _('DOC'),
                                     'other': _('OST'),
                                 } %}
-                                <span class="flex h-12 w-12 items-center justify-center rounded border border-slate-200 bg-slate-50 text-xs text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500">
+                                <span class="flex h-24 w-24 shrink-0 items-center justify-center rounded border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500">
                                     {{ _kind_short.get(att.kind.value, att.kind.value[:3]|upper) }}
                                 </span>
                             {% endif %}
-                            <div>
+                            <div class="min-w-0">
                                 <a href="/app/attachments/{{ att.id }}/download"
-                                   class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-500 dark:hover:text-brand-500/80">
+                                   class="break-all font-medium text-brand-600 hover:text-brand-700 dark:text-brand-500 dark:hover:text-brand-500/80">
                                     {{ att.filename }}
                                 </a>
                                 <div class="text-xs text-slate-500 dark:text-slate-400">
-                                    {{ (att.size_bytes / 1024)|round(1) }} KB · {{ att.content_type }}
+                                    {{ file_type(att) }} · {{ (att.size_bytes / 1024)|round(1) }} KB
                                     {% if att.order_item_id %}
                                         {% for it in items %}
                                             {% if it.id == att.order_item_id %}
@@ -593,12 +651,12 @@
         {% if can_edit_items and perms.can_upload_files %}
             <form method="post" action="/app/orders/{{ order.id }}/attachments"
                   enctype="multipart/form-data"
-                  class="grid gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/40 sm:grid-cols-[1fr_1fr_auto]">
+                  class="grid grid-cols-1 gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/40 sm:grid-cols-[1fr_1fr_auto]">
                 {{ csrf_input() }}
                 <input type="file" name="file" required
-                       class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                       class="w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                 <select name="order_item_id"
-                        class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                        class="w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                     <option value="">— {{ _('to the whole order') }} —</option>
                     {% for item in items %}
                         <option value="{{ item.id }}">

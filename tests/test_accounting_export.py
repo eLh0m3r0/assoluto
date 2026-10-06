@@ -205,6 +205,15 @@ def test_parse_statuses_defaults_skip_draft_and_cancelled() -> None:
     assert parse_statuses([""]) == DEFAULT_STATUSES
     assert OrderStatus.DRAFT not in DEFAULT_STATUSES
     assert OrderStatus.CANCELLED not in DEFAULT_STATUSES
+    # P3-12: only confirmed and later by default; the rest is opt-in.
+    assert DEFAULT_STATUSES == (
+        OrderStatus.CONFIRMED,
+        OrderStatus.IN_PRODUCTION,
+        OrderStatus.READY,
+        OrderStatus.DELIVERED,
+        OrderStatus.CLOSED,
+    )
+    assert parse_statuses(["submitted", "quoted"]) == (OrderStatus.SUBMITTED, OrderStatus.QUOTED)
     assert parse_statuses(["draft", "bogus", "draft"]) == (OrderStatus.DRAFT,)
 
 
@@ -508,6 +517,48 @@ async def test_admin_downloads_pohoda_xml(
     assert row.findtext("ord:code", namespaces=NS) == "BR-1"
     assert row.findtext("ord:text", namespaces=NS) == "Bracket"
     assert row.findtext("ord:homeCurrency/typ:unitPrice", namespaces=NS) == "150"
+
+
+@pg
+async def test_unconfirmed_orders_are_opt_in(
+    tenant_client: AsyncClient, owner_engine, demo_tenant
+) -> None:
+    """P3-12: a request waiting for a price or an open quote is not a
+    received order — left out by default, exported when ticked."""
+    ids = await _seed(owner_engine, demo_tenant.id)
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as s, s.begin():
+        for number, status in (
+            ("2026-000005", OrderStatus.SUBMITTED),
+            ("2026-000006", OrderStatus.QUOTED),
+            ("2026-000007", OrderStatus.READY),
+        ):
+            s.add(
+                Order(
+                    id=uuid4(),
+                    tenant_id=demo_tenant.id,
+                    customer_id=ids["acme_id"],
+                    number=number,
+                    title=f"Zakázka {number}",
+                    status=status,
+                    created_at=datetime(2026, 9, 25, 10, tzinfo=UTC),
+                )
+            )
+    await _login(tenant_client, "admin@4mex.cz", "adminpass")
+
+    default = await tenant_client.get("/app/admin/exports/pohoda.xml")
+    assert _numbers(default.content) == ["2026-000001", "2026-000004", "2026-000007"]
+    money = await tenant_client.get("/app/admin/exports/money-s3.xml")
+    assert b"2026-000005" not in money.content and b"2026-000006" not in money.content
+
+    picked = await tenant_client.get("/app/admin/exports/pohoda.xml?status=submitted&status=quoted")
+    assert sorted(_numbers(picked.content)) == ["2026-000005", "2026-000006"]
+
+    import re
+
+    page = (await tenant_client.get("/app/admin/exports")).text
+    checked = set(re.findall(r'name="status" value="(\w+)"\s+checked', page))
+    assert checked == {"confirmed", "in_production", "ready", "delivered", "closed"}
 
 
 @pg

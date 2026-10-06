@@ -112,10 +112,13 @@ HOME_CURRENCY = "CZK"
 VAT_RATES: tuple[str, ...] = ("none", "high", "low")
 DEFAULT_VAT_RATE = "none"
 
-#: Statuses exported when the caller does not choose any. A draft is not
-#: an order yet and a cancelled order must not reach the books.
+#: Statuses exported when the caller does not choose any: confirmed and
+#: later (CONFIRMED, IN_PRODUCTION, READY, DELIVERED, CLOSED). A draft, a
+#: request still waiting for a price and an unaccepted quote are not
+#: received orders yet, and a cancelled order must not reach the books
+#: (demo review P3-12). Each can still be ticked on the export page.
 DEFAULT_EXCLUDED_STATUSES: frozenset[OrderStatus] = frozenset(
-    {OrderStatus.DRAFT, OrderStatus.CANCELLED}
+    {OrderStatus.DRAFT, OrderStatus.SUBMITTED, OrderStatus.QUOTED, OrderStatus.CANCELLED}
 )
 DEFAULT_STATUSES: tuple[OrderStatus, ...] = tuple(
     s for s in OrderStatus if s not in DEFAULT_EXCLUDED_STATUSES
@@ -657,7 +660,7 @@ async def load_orders_for_export(
 def parse_statuses(raw: Iterable[str]) -> tuple[OrderStatus, ...]:
     """Parse status query values; unknown values are dropped.
 
-    No valid value → the default set (everything but DRAFT/CANCELLED).
+    No valid value → the default set (confirmed and later).
     """
     picked: list[OrderStatus] = []
     for value in raw:

@@ -2,8 +2,8 @@
 
 Covers:
 * ``on_time_rate`` bucketing (on-time / late / pending-overdue).
-* ``pending`` counts separately from ``late`` — pending does not poison
-  the on-time ratio.
+* ``pending`` (overdue, undelivered) counts separately from ``late`` but
+  is a missed promise in the on-time ratio.
 * ``heatmap_data`` shape and tenant scoping via RLS.
 
 All tests seed orders with the owner role (bypasses RLS), then exercise
@@ -134,8 +134,10 @@ async def test_on_time_rate_buckets_three_orders(owner_engine, demo_tenant) -> N
     assert abs(result["rate"] - (2 / 3)) < 1e-9
 
 
-async def test_pending_does_not_inflate_late_or_rate(owner_engine, demo_tenant) -> None:
-    """Pending = promised-past-but-not-delivered. Counted separately."""
+async def test_overdue_is_a_missed_promise_not_a_late_delivery(owner_engine, demo_tenant) -> None:
+    """Pending = promised-past-but-not-delivered: not ``late`` (nothing was
+    delivered), but a broken promise, so it is in the rate's denominator —
+    the same rule the heatmap uses (demo review P1-1)."""
     customer = await _seed_customer(owner_engine, demo_tenant.id)
     today = date.today()
 
@@ -185,12 +187,13 @@ async def test_pending_does_not_inflate_late_or_rate(owner_engine, demo_tenant) 
     finally:
         await engine.dispose()
 
-    # rate over delivered only = 1/1 = 1.0, pending counted separately.
+    # The future-promised order is not due; date_to past today is clamped.
     assert result["on_time"] == 1
     assert result["late"] == 0
-    assert result["total"] == 1
     assert result["pending"] == 1
-    assert result["rate"] == pytest.approx(1.0)
+    assert result["delivered"] == 1
+    assert result["total"] == 2
+    assert result["rate"] == pytest.approx(0.5)
 
 
 async def test_heatmap_data_shape_and_tenant_scoped(owner_engine, demo_tenant) -> None:

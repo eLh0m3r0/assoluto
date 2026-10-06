@@ -23,6 +23,8 @@ from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 from typing import Any
 
+from babel import Locale, UnknownLocaleError
+from babel.numbers import format_decimal, format_percent
 from fastapi import Request
 from jinja2 import Environment, FileSystemLoader, pass_context, select_autoescape
 from jinja2_fragments import render_block
@@ -112,11 +114,90 @@ def _money_major_filter(value: Any, currency: str = "CZK") -> str:
     return f"{value_str} {symbol}"
 
 
+def _babel_locale(locale: str | None) -> Locale:
+    """Babel ``Locale`` for number / plural rules; English when unknown."""
+    try:
+        return Locale.parse((locale or "en").replace("-", "_"))
+    except (UnknownLocaleError, ValueError, TypeError):
+        return Locale.parse("en")
+
+
+def _plural_pick(forms: str | dict[str, str], n: int, loc: Locale) -> str:
+    """Pick the CLDR plural form of ``forms`` for ``n`` (``other`` fallback)."""
+    if isinstance(forms, str):
+        return forms
+    return forms.get(loc.plural_form(n), forms["other"])
+
+
+def _to_decimal(value: Any) -> Decimal | None:
+    """``Decimal`` for a finite number (or numeric string), else ``None``."""
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        dec = value if isinstance(value, Decimal) else Decimal(str(value))
+    except (TypeError, ValueError, ArithmeticError):
+        return None
+    return dec if dec.is_finite() else None
+
+
+def _qty_filter_for_locale(locale: str) -> Any:
+    """Quantity for display, in the page's number format (demo review P2-2).
+
+    No trailing zeros, the locale's decimal and grouping separators::
+
+        cs: Decimal('24.500') -> '24,5'    Decimal('1200') -> '1 200' (NBSP)
+        de: '24,5'                         '1.200'
+        en: '24.5'                         '1,200'
+
+    For ``<input type="number" value=…>`` use ``qty_input`` instead — a
+    browser drops a value with a decimal comma or a group separator.
+    """
+    loc = _babel_locale(locale)
+
+    def _filter(value: Any) -> str:
+        if value is None:
+            return ""
+        dec = _to_decimal(value)
+        if dec is None:
+            return str(value)
+        # Quantities are NUMERIC(12, 3): three decimals never round anything.
+        return format_decimal(dec, format="#,##0.###", locale=loc)
+
+    return _filter
+
+
+def _percent_filter_for_locale(locale: str) -> Any:
+    """A ratio in ``[0, 1]`` as a localised percentage (demo review P2-2).
+
+    ``decimals`` is the *maximum* number of decimals; trailing zeros go::
+
+        cs: 1.0 -> '100 %'   0.953 -> '95,3 %'   (NBSP before %)
+        de: '100 %'          '95,3 %'
+        en: '100%'           '95.3%'
+
+    ``None`` / non-numeric input renders as an en dash.
+    """
+    loc = _babel_locale(locale)
+
+    def _filter(value: Any, decimals: int = 1) -> str:
+        ratio = _to_decimal(value)
+        if ratio is None:
+            return "\u2013"
+        step = Decimal(1).scaleb(-max(0, int(decimals)))
+        pct = (ratio * 100).quantize(step, rounding=ROUND_HALF_UP).normalize()
+        return format_percent(pct / 100, locale=loc, decimal_quantization=False)
+
+    return _filter
+
+
 # Locale-aware timeago strings. The filter chooses the right map based on
 # the Environment locale (set when the per-locale Environment is built).
 # Czech form is short to keep the dashboard activity widget compact; the
 # leading "před " is dropped because the unit suffixes are unambiguous.
-_TIMEAGO_STRINGS: dict[str, dict[str, str]] = {
+#
+# A value is either one string or a dict keyed by CLDR plural category
+# (``one`` / ``few`` / ``many`` / ``other``) — see :func:`_plural_pick`.
+_TIMEAGO_STRINGS: dict[str, dict[str, str | dict[str, str]]] = {
     "en": {
         "just_now": "just now",
         "min": "{n}m ago",
@@ -130,7 +211,8 @@ _TIMEAGO_STRINGS: dict[str, dict[str, str]] = {
         "just_now": "právě teď",
         "min": "před {n} min",
         "hour": "před {n} h",
-        "day": "před {n} dny",
+        # Czech instrumental: "před 1 dnem", "před 2 dny", "před 5 dny".
+        "day": {"one": "před {n} dnem", "other": "před {n} dny"},
         "week": "před {n} týd.",
         "month": "před {n} měs.",
         "year": "před {n} r.",
@@ -155,12 +237,17 @@ def _timeago_filter_for_locale(locale: str) -> Any:
         právě teď    (< 60 s)
         před 5 min   (< 1 h)
         před 2 h     (< 24 h)
+        před 1 dnem  (1 d — Czech plural via CLDR rules)
         před 3 dny   (< 14 d)
         před 2 týd.  (< 60 d)
         před 4 měs.  (< 365 d)
         před 2 r.    (else)
     """
     strings = _TIMEAGO_STRINGS.get(locale, _TIMEAGO_STRINGS["en"])
+    loc = _babel_locale(locale if locale in _TIMEAGO_STRINGS else "en")
+
+    def _fmt(key: str, n: int) -> str:
+        return _plural_pick(strings[key], n, loc).format(n=n)
 
     def _filter(value: Any) -> str:
         if value is None:
@@ -174,21 +261,21 @@ def _timeago_filter_for_locale(locale: str) -> Any:
         if seconds < 0:
             seconds = 0
         if seconds < 60:
-            return strings["just_now"]
+            return _fmt("just_now", 0)
         minutes = seconds // 60
         if minutes < 60:
-            return strings["min"].format(n=minutes)
+            return _fmt("min", minutes)
         hours = minutes // 60
         if hours < 24:
-            return strings["hour"].format(n=hours)
+            return _fmt("hour", hours)
         days = hours // 24
         if days < 14:
-            return strings["day"].format(n=days)
+            return _fmt("day", days)
         if days < 60:
-            return strings["week"].format(n=days // 7)
+            return _fmt("week", days // 7)
         if days < 365:
-            return strings["month"].format(n=days // 30)
-        return strings["year"].format(n=days // 365)
+            return _fmt("month", days // 30)
+        return _fmt("year", days // 365)
 
     return _filter
 
@@ -232,8 +319,11 @@ def _pretty_json_filter(value: Any) -> str:
     return json.dumps(value, indent=2, ensure_ascii=False, default=str, sort_keys=True)
 
 
-def _qty_filter(value: Any) -> str:
-    """Render a Decimal/number without trailing zeros.
+def _qty_input_filter(value: Any) -> str:
+    """A quantity in machine format for ``<input type="number">`` values.
+
+    Dot decimal separator, no grouping, no trailing zeros — whatever the
+    page locale (for display use the locale-aware ``qty`` filter).
 
     Examples:
         Decimal('75.000') -> '75'
@@ -279,7 +369,11 @@ def _new_environment(locale: str | None = None) -> Environment:
     # guarantees that — the per-locale cache returns the same instance
     # forever, and nobody outside this module holds a reference.
     env.install_gettext_translations(translations, newstyle=True)  # type: ignore[attr-defined]
-    env.filters["qty"] = _qty_filter
+    # ``qty`` / ``percent`` / ``timeago`` are locale-bound — each per-locale
+    # Environment gets its own closure (``None`` = the English identity).
+    env.filters["qty"] = _qty_filter_for_locale(locale or "en")
+    env.filters["qty_input"] = _qty_input_filter
+    env.filters["percent"] = _percent_filter_for_locale(locale or "en")
     env.filters["pretty_json"] = _pretty_json_filter
     env.filters["money"] = _money_filter
     env.filters["money_major"] = _money_major_filter

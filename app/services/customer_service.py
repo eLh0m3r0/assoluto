@@ -14,6 +14,7 @@ from app.models.enums import OrderStatus
 from app.models.order import Order
 from app.services import audit_service
 from app.services.audit_service import SYSTEM_ACTOR, ActorInfo, diff_from_models
+from app.services.order_service import OPEN_ORDER_STATUSES
 
 
 async def list_customers(db: AsyncSession) -> list[Customer]:
@@ -25,16 +26,9 @@ async def list_customers(db: AsyncSession) -> list[Customer]:
 
 
 # Statuses that count as "open" for the engagement-metrics badge on
-# the customer list. CLOSED / CANCELLED / DELIVERED don't count —
-# those are terminal or near-terminal from the tenant's POV.
-_OPEN_ORDER_STATUSES: tuple[OrderStatus, ...] = (
-    OrderStatus.DRAFT,
-    OrderStatus.SUBMITTED,
-    OrderStatus.QUOTED,
-    OrderStatus.CONFIRMED,
-    OrderStatus.IN_PRODUCTION,
-    OrderStatus.READY,
-)
+# the customer list — the same definition as the dashboard's "Open
+# orders" card (no DRAFT, nothing finished), so the badges add up to it.
+_OPEN_ORDER_STATUSES: tuple[OrderStatus, ...] = OPEN_ORDER_STATUSES
 
 
 @dataclass(frozen=True)

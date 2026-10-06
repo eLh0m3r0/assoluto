@@ -200,8 +200,8 @@ def _pdf_fixture(tz: str | None):
 @pytest.mark.parametrize(
     ("tz", "created", "submitted", "zones"),
     [
-        (None, "2026-03-03 00:30", "2026-10-25 02:30", ("CET", "CEST")),
-        ("America/New_York", "2026-03-02 18:30", "2026-10-24 21:30", ("EST", "EDT")),
+        (None, "03.03.2026 00:30", "25.10.2026 02:30", ("CET", "CEST")),
+        ("America/New_York", "02.03.2026 18:30", "24.10.2026 21:30", ("EST", "EDT")),
     ],
 )
 def test_pdf_prints_local_times_and_zone_in_footer(tz, created, submitted, zones) -> None:
@@ -214,7 +214,7 @@ def test_pdf_prints_local_times_and_zone_in_footer(tz, created, submitted, zones
     assert created in body
     assert submitted in body
     assert "UTC" not in body
-    footer = re.search(r"Generated — \d{4}-\d{2}-\d{2} \d{2}:\d{2} ([A-Z]+)", body)
+    footer = re.search(r"Generated — \d{2}\.\d{2}\.\d{4} \d{2}:\d{2} ([A-Z]+)", body)
     assert footer is not None, body
     assert footer.group(1) in zones
 
@@ -415,8 +415,8 @@ async def test_csv_is_local_with_zone_in_header_and_local_date_filters(
     assert header[4].endswith("(Europe/Prague)")
     row = next(line for line in lines if line.startswith("2026-000001"))
     cols = row.split(";")
-    assert cols[3] == "2026-03-03T00:30:00+01:00"
-    assert cols[4] == "2026-03-03T00:30:00+01:00"
+    assert cols[3] == "03.03.2026 00:30"  # cs: day-first, local
+    assert cols[4] == "03.03.2026 00:30"
 
     # 3 March (local) = [2 Mar 23:00 UTC, 3 Mar 23:00 UTC): only the early order.
     one_day = (await tenant_client.get("/app/orders.csv?from=2026-03-03&to=2026-03-03")).text
@@ -436,7 +436,7 @@ async def test_csv_is_local_with_zone_in_header_and_local_date_filters(
     ny = (await tenant_client.get("/app/orders.csv?from=2026-03-02&to=2026-03-02")).text
     assert "2026-000001" in ny
     assert "(America/New_York)" in ny.split("\r\n", 1)[0]
-    assert "2026-03-02T18:30:00-05:00" in ny
+    assert "02.03.2026 18:30" in ny
 
 
 @postgres_only
@@ -463,7 +463,8 @@ async def test_audit_log_filter_and_display_are_local(
     await _login(tenant_client)
     hit = (await tenant_client.get("/app/admin/audit?from=2026-03-03&to=2026-03-03")).text
     assert "tz-probe-event" in hit
-    assert "2026-03-03 00:30 CET" in hit
+    assert "03.03.2026 00:30" in hit
+    assert "03.03.2026 00:30 CET" in hit  # zone in the title tooltip
     miss = (await tenant_client.get("/app/admin/audit?from=2026-03-02&to=2026-03-02")).text
     assert "tz-probe-event" not in miss
 

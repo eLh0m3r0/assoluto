@@ -179,7 +179,8 @@ async def test_status_filter_narrows_rows(
     data_lines = [ln for ln in body.splitlines() if ln.strip()]
     # 1 header + 2 quoted orders (one per customer).
     assert len(data_lines) == 3
-    assert "quoted" in body
+    # The status column is a label in the UI language ("Naceněno" / "Quoted").
+    assert all(ln.split(";")[1] not in ("draft", "quoted") for ln in data_lines[1:])
     # Drafts must not leak through the filter.
     assert "ACME draft" not in body
     assert "Other draft" not in body

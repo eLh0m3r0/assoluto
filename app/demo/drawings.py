@@ -1,13 +1,14 @@
 """Fictional sample drawings for the demo tenant, rendered at seed time.
 
-Two or three small A4 PDFs that *look* like a job shop's drawings — frame,
-title block, a part outline with holes and dimensions — so the order
-detail page shows real thumbnails and the download works. Every sheet
-carries a large "UKÁZKA / SAMPLE" watermark and "Fiktivní výkres" in the
-title block: nobody can mistake it for a real customer's drawing.
+Small A4 PDFs that *look* like a job shop's drawings — frame, title
+block, a part outline with holes and dimensions — plus a couple of PNG
+"3D previews", so the order detail page shows real thumbnails and the
+download works. Every sheet and every preview carries a large
+"UKÁZKA / SAMPLE" watermark and "Fiktivní výkres" in the title block:
+nobody can mistake it for a real customer's drawing.
 
-Pure function of its input (``invariant=1``), no I/O: the seed uploads
-the bytes to S3 itself.
+Pure functions of their input (``invariant=1``, no timestamps), no I/O:
+the seed uploads the bytes to S3 itself.
 """
 
 # Czech drawing notes use the multiplication sign and en dash on purpose.
@@ -31,8 +32,20 @@ class SampleDrawing:
     material: str
     client: str
     scale: str
-    shape: Literal["bracket", "cover", "cabinet"]
+    shape: Literal["bracket", "cover", "cabinet", "flange", "plate", "frame"]
     notes: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class SamplePreview:
+    """A shaded isometric "3D preview" PNG of a part (what a client exports
+    from CAD next to the drawing)."""
+
+    filename: str
+    number: str
+    title: str
+    client: str
+    shape: Literal["bracket", "cover"]
 
 
 def render_drawing_pdf(drawing: SampleDrawing) -> bytes:
@@ -55,7 +68,15 @@ def render_drawing_pdf(drawing: SampleDrawing) -> bytes:
     c.rect(margin, margin, width - 2 * margin, height - 2 * margin)
 
     _title_block(c, drawing, width, margin, regular, bold)
-    {"bracket": _bracket, "cover": _cover, "cabinet": _cabinet}[drawing.shape](c, regular)
+    shapes = {
+        "bracket": _bracket,
+        "cover": _cover,
+        "cabinet": _cabinet,
+        "flange": _flange,
+        "plate": _plate,
+        "frame": _frame,
+    }
+    shapes[drawing.shape](c, regular)
     _notes(c, drawing, margin, regular, bold)
     _watermark(c, width, height, bold)
 
@@ -206,6 +227,85 @@ def _cabinet(c, regular) -> None:
     c.drawString(ox, oy + h + 8, "Čelo · zámek ø18 · 2 závěsy")
 
 
+def _flange(c, regular) -> None:
+    """Turned flange: front view (bolt circle, bore) + half section."""
+    k = 1.6
+    cx, cy = 210, 330
+    r_out, r_bc, r_bore, r_hole = 60 * k, 45 * k, 15 * k, 4.5 * k
+    c.setLineWidth(1.2)
+    c.circle(cx, cy, r_out)
+    c.circle(cx, cy, r_bore)
+    c.setLineWidth(0.25)
+    c.setDash(6, 2)
+    c.circle(cx, cy, r_bc)
+    c.setDash()
+    _centre_mark(c, cx, cy, r_out)
+    import math
+
+    c.setLineWidth(0.9)
+    for i in range(6):
+        a = math.radians(30 + i * 60)
+        hx, hy = cx + r_bc * math.cos(a), cy + r_bc * math.sin(a)
+        c.circle(hx, hy, r_hole)
+    _dim_h(c, cx - r_out, cx + r_out, cy - r_out - 24, "ø120", regular)
+    c.setFont(regular, 8)
+    c.drawString(cx + r_out - 10, cy + r_out + 4, "6× ø9 na ø90")
+    c.drawString(cx - 18, cy - 8, "ø30 H7")
+    # section: hub + flange
+    sx, sy = 400, cy - r_out
+    c.setLineWidth(1.2)
+    c.rect(sx, sy, 12 * k, 2 * r_out)
+    c.rect(sx + 12 * k, cy - 25 * k, 18 * k, 50 * k)
+    c.setLineWidth(0.3)
+    for i in range(0, int(2 * r_out), 8):
+        c.line(sx, sy + i, sx + 12 * k, sy + min(i + 12 * k, 2 * r_out))
+    _dim_h(c, sx, sx + 30 * k, sy - 24, "30", regular)
+    c.drawString(sx, sy + 2 * r_out + 6, "Řez A–A · Ra 1,6 na ø30")
+
+
+def _plate(c, regular) -> None:
+    """Clamping / mounting plate: hole pattern, pocket + side view."""
+    k = 0.9
+    ox, oy = 80, 170
+    w, h = 400 * k, 300 * k
+    c.setLineWidth(1.2)
+    c.rect(ox, oy, w, h)
+    c.setLineWidth(0.9)
+    c.roundRect(ox + 120 * k, oy + 90 * k, 160 * k, 120 * k, 10 * k)
+    for hx in (40, 140, 260, 360):
+        for hy in (40, 260):
+            cx, cy = ox + hx * k, oy + hy * k
+            c.circle(cx, cy, 5 * k)
+            _centre_mark(c, cx, cy, 5 * k)
+    _dim_h(c, ox, ox + w, oy - 22, "400", regular)
+    _dim_v(c, ox - 22, oy, oy + h, "300", regular)
+    c.setFont(regular, 8)
+    c.drawString(ox + 4, oy + h + 8, "8× M10 – 20 hl. · kapsa 160×120 hl. 8, R10")
+    sx = ox + w + 50
+    c.setLineWidth(1.2)
+    c.rect(sx, oy, 30 * k, h)
+    _dim_h(c, sx, sx + 30 * k, oy - 22, "30", regular)
+    c.drawString(sx - 10, oy + h + 8, "rovinnost 0,02")
+
+
+def _frame(c, regular) -> None:
+    """Welded frame from square tube: front view + base plates."""
+    k = 0.42
+    ox, oy = 90, 160
+    w, h, t = 800 * k, 600 * k, 40 * k
+    c.setLineWidth(1.2)
+    c.rect(ox, oy, w, h)
+    c.rect(ox + t, oy + t, w - 2 * t, h - 2 * t)
+    c.setLineWidth(0.9)
+    c.rect(ox + t, oy + h / 2 - t / 2, w - 2 * t, t)  # cross member
+    for px in (ox - 20 * k, ox + w - 100 * k):
+        c.rect(px, oy - 8 * k, 120 * k, 8 * k)  # base plates t = 8
+    _dim_h(c, ox, ox + w, oy - 30, "800", regular)
+    _dim_v(c, ox - 26, oy, oy + h, "600", regular)
+    c.setFont(regular, 8)
+    c.drawString(ox, oy + h + 8, "Jäkl 40×40×3 · svary a5 po obvodu · patky P8 120×120, 4× ø14")
+
+
 def _notes(c, d: SampleDrawing, margin: float, regular, bold) -> None:
     lines = (
         *d.notes,
@@ -232,3 +332,104 @@ def _watermark(c, width: float, height: float, bold) -> None:
     c.setFont(bold, 18)
     c.drawCentredString(0, -36, "Fiktivní výkres · Fictional drawing · Assoluto demo")
     c.restoreState()
+
+
+# ------------------------------------------------------------ PNG preview
+
+
+def render_preview_png(preview: SamplePreview) -> bytes:
+    """Return the PNG bytes of a shaded isometric preview of the part."""
+    import math
+
+    from PIL import Image, ImageDraw, ImageFont
+
+    from app.services.pdf_service import FONTS_DIR
+
+    width, height = 1200, 800
+    img = Image.new("RGB", (width, height), (246, 247, 249))
+    draw = ImageDraw.Draw(img)
+
+    def font(size: int, bold: bool = False):
+        name = "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf"
+        try:
+            return ImageFont.truetype(str(FONTS_DIR / name), size)
+        except OSError:  # pragma: no cover - fonts ship with the repo
+            return ImageFont.load_default()
+
+    cos30, sin30 = math.cos(math.radians(30)), 0.5
+    scale, cx, cy = (
+        (1.85, width / 2, height / 2 + 10)
+        if preview.shape == "cover"
+        else (
+            3.6,
+            width / 2 + 20,
+            height / 2 + 90,
+        )
+    )
+
+    def p(x: float, y: float, z: float) -> tuple[float, float]:
+        return (cx + (x - y) * cos30 * scale, cy + ((x + y) * sin30 - z) * scale)
+
+    def box(x0, x1, y0, y1, z0, z1, base=(176, 184, 196)) -> None:
+        top = [p(x0, y0, z1), p(x1, y0, z1), p(x1, y1, z1), p(x0, y1, z1)]
+        side_x = [p(x1, y0, z0), p(x1, y1, z0), p(x1, y1, z1), p(x1, y0, z1)]
+        side_y = [p(x0, y1, z0), p(x1, y1, z0), p(x1, y1, z1), p(x0, y1, z1)]
+        outline = (60, 66, 78)
+        draw.polygon(side_x, fill=tuple(int(v * 0.78) for v in base), outline=outline)
+        draw.polygon(side_y, fill=tuple(int(v * 0.62) for v in base), outline=outline)
+        draw.polygon(top, fill=base, outline=outline)
+
+    def hole(x: float, y: float, z: float, r: float) -> None:
+        pts = [
+            p(x + r * math.cos(a / 12 * math.pi), y + r * math.sin(a / 12 * math.pi), z)
+            for a in range(24)
+        ]
+        draw.polygon(pts, fill=(70, 76, 88))
+
+    if preview.shape == "cover":
+        box(-150, 150, -90, 90, 0, 15, base=(64, 112, 170))  # RAL 5010-ish
+        for i in range(6):
+            x = -90 + i * 32
+            draw.polygon(
+                [p(x, -20, 15), p(x + 6, -20, 15), p(x + 6, 20, 15), p(x, 20, 15)],
+                fill=(28, 44, 70),
+            )
+        for hx, hy in ((-135, -75), (135, -75), (-135, 75), (135, 75)):
+            hole(hx, hy, 15, 3.5)
+    else:  # bracket: base plate + bent flange, 3 mm sheet
+        box(-60, 60, -40, 40, 0, 3)
+        for hx, hy in ((-45, -28), (45, -28), (15, 0), (45, 28)):
+            hole(hx, hy, 3, 4.5)
+        box(-60, -57, -40, 40, 3, 33)
+
+    draw.text(
+        (40, 32), f"{preview.number} – {preview.title}", font=font(30, True), fill=(30, 34, 42)
+    )
+    draw.text((40, 74), f"3D náhled · {preview.client}", font=font(20), fill=(90, 96, 108))
+    draw.text(
+        (40, height - 48),
+        "Fiktivní model – pouze pro demo · Assoluto",
+        font=font(18),
+        fill=(90, 96, 108),
+    )
+
+    # Watermark on its own layer, rotated, then blended in.
+    mark = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    mdraw = ImageDraw.Draw(mark)
+    big = font(96, True)
+    box_w = mdraw.textlength(WATERMARK, font=big)
+    mdraw.text(((width - box_w) / 2, height / 2 - 70), WATERMARK, font=big, fill=(210, 31, 31, 60))
+    small = font(26, True)
+    line = "Fiktivní výkres · Fictional drawing · Assoluto demo"
+    mdraw.text(
+        ((width - mdraw.textlength(line, font=small)) / 2, height / 2 + 50),
+        line,
+        font=small,
+        fill=(210, 31, 31, 60),
+    )
+    mark = mark.rotate(20, resample=Image.Resampling.BICUBIC)
+    img = Image.alpha_composite(img.convert("RGBA"), mark).convert("RGB")
+
+    out = BytesIO()
+    img.save(out, format="PNG", optimize=True)
+    return out.getvalue()

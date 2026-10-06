@@ -32,6 +32,9 @@ from app.services.notification_prefs import (
     parse_form,
     prefs_for_user,
 )
+from app.services.price_note import MAX_LENGTH as PRICE_NOTE_MAX_LENGTH
+from app.services.price_note import SETTINGS_KEY as PRICE_NOTE_SETTINGS_KEY
+from app.services.price_note import normalize_price_note, tenant_price_note
 from app.tasks.email_tasks import send_staff_invitation
 from app.timezones import (
     CURATED_TIMEZONES,
@@ -877,6 +880,7 @@ def _render_tenant_settings(
     *,
     locale_code: str,
     timezone_name: str,
+    price_note: str = "",
     notice: str | None = None,
     error: str | None = None,
 ) -> HTMLResponse:
@@ -888,6 +892,8 @@ def _render_tenant_settings(
             "tenant": _tenant(request),
             "tenant_default_locale": locale_code,
             "tenant_timezone": timezone_name,
+            "price_note": price_note,
+            "price_note_max_length": PRICE_NOTE_MAX_LENGTH,
             "curated_timezones": CURATED_TIMEZONES,
             "other_timezones": [z for z in timezone_choices() if z not in CURATED_TIMEZONES],
             "notice": notice,
@@ -918,6 +924,7 @@ async def tenant_settings_form(
         principal,
         locale_code=current_locale,
         timezone_name=tenant_timezone_name(tenant),
+        price_note=tenant_price_note(tenant),
         notice=_t(request, "Saved.") if saved else None,
     )
 
@@ -927,6 +934,7 @@ async def tenant_settings_update(
     request: Request,
     default_locale: str = Form(...),
     timezone: str | None = Form(None),
+    price_note: str | None = Form(None),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -953,7 +961,24 @@ async def tenant_settings_update(
                 principal,
                 locale_code=code,
                 timezone_name=tenant_timezone_name(tenant),
+                price_note=normalize_price_note(price_note),
                 error=_t(request, "Unknown time zone. Pick one from the list."),
+            )
+
+    # ``price_note`` absent (an older form) = leave it alone, like the zone.
+    # Present-but-empty clears it; FastAPI turns an empty optional form
+    # field into ``None``, so ask the (cached) form whether it was sent.
+    note: str | None = None
+    if price_note is not None or "price_note" in await request.form():
+        note = normalize_price_note(price_note)
+        if len(note) > PRICE_NOTE_MAX_LENGTH:
+            return _render_tenant_settings(
+                request,
+                principal,
+                locale_code=code,
+                timezone_name=tz_name or tenant_timezone_name(tenant),
+                price_note=note,
+                error=_t(request, "The price note is too long."),
             )
 
     # Re-load the row under the current session so SQLAlchemy emits
@@ -973,6 +998,15 @@ async def tenant_settings_update(
         if tz_before != tz_name:
             before[TIMEZONE_SETTINGS_KEY] = tz_before
             after[TIMEZONE_SETTINGS_KEY] = tz_name
+    if note is not None:
+        note_before = current.get(PRICE_NOTE_SETTINGS_KEY) or ""
+        if note:
+            current[PRICE_NOTE_SETTINGS_KEY] = note
+        else:
+            current.pop(PRICE_NOTE_SETTINGS_KEY, None)
+        if note_before != note:
+            before[PRICE_NOTE_SETTINGS_KEY] = note_before
+            after[PRICE_NOTE_SETTINGS_KEY] = note
     row.settings = current
     await db.flush()
     if after:
@@ -1059,6 +1093,7 @@ async def audit_index(
         tz=request_tz(request),
     )
     total_pages = max(1, (total + AUDIT_PAGE_SIZE - 1) // AUDIT_PAGE_SIZE)
+    order_numbers = await _audit_order_numbers(db, events)
 
     html = _templates(request).render(
         request,
@@ -1077,10 +1112,54 @@ async def audit_index(
                 "to": to or "",
                 "q": q or "",
             },
+            "date_from": date_from,
+            "date_to": date_to,
             "entity_choices": AUDIT_ENTITY_CHOICES,
+            "order_numbers": order_numbers,
+            # Raw JSON of a change ("technical details") is for admins.
+            "show_technical": principal.role == UserRole.TENANT_ADMIN.value,
         },
     )
     return HTMLResponse(html)
+
+
+def _audit_order_refs(diff: object) -> set[UUID]:
+    """Order ids referenced by an event diff (``order_id``,
+    ``source_order_id``, … in ``before`` / ``after``)."""
+    found: set[UUID] = set()
+    if not isinstance(diff, dict):
+        return found
+    for side in (diff.get("before"), diff.get("after")):
+        if not isinstance(side, dict):
+            continue
+        for key, value in side.items():
+            if not (isinstance(key, str) and key.endswith("order_id")):
+                continue
+            try:
+                found.add(UUID(str(value)))
+            except ValueError:
+                continue
+    return found
+
+
+async def _audit_order_numbers(db: AsyncSession, events: list) -> dict[str, str]:
+    """``{order_id: order number}`` for every order a page of events names.
+
+    The log shows "2026-000021" (a link) instead of a UUID (P2-5). One
+    query per page; RLS keeps it to the tenant's own orders. An order
+    that no longer exists keeps its raw id.
+    """
+    from app.models.order import Order
+
+    ids: set[UUID] = set()
+    for ev in events:
+        ids |= _audit_order_refs(getattr(ev, "diff", None))
+        if getattr(ev, "entity_type", None) == "order" and getattr(ev, "entity_id", None):
+            ids.add(ev.entity_id)
+    if not ids:
+        return {}
+    rows = await db.execute(select(Order.id, Order.number).where(Order.id.in_(ids)))
+    return {str(oid): number for oid, number in rows.tuples().all()}
 
 
 # ----------------------------------------------------------------- SLA
@@ -1089,17 +1168,16 @@ async def audit_index(
 _SLA_TIMEFRAMES = {"30": 30, "90": 90, "365": 365}
 
 
-def _heatmap_grid(cells: list[dict]) -> dict:
+def _heatmap_grid(cells: list[dict], weeks: list[date]) -> dict:
     """Pivot the flat cell list from ``sla_service.heatmap_data`` into a
-    grid suitable for rendering."""
-    weeks: list = []
-    seen_weeks: set = set()
+    grid suitable for rendering.
+
+    ``weeks`` is the full, continuous column axis
+    (``sla_service.heatmap_weeks``) — a week without due orders is still
+    a column, so the axis reads like a calendar.
+    """
     rows_by_customer: dict[UUID, dict] = {}
     for cell in cells:
-        ws = cell["week_start"]
-        if ws not in seen_weeks:
-            seen_weeks.add(ws)
-            weeks.append(ws)
         cid = cell["customer_id"]
         row = rows_by_customer.get(cid)
         if row is None:
@@ -1110,16 +1188,15 @@ def _heatmap_grid(cells: list[dict]) -> dict:
             }
             rows_by_customer[cid] = row
         total = cell["total"]
-        ratio = (cell["on_time"] / total) if total > 0 else None
-        row["cells"][ws] = {
+        row["cells"][cell["week_start"]] = {
             "on_time": cell["on_time"],
             "late": cell["late"],
+            "overdue": cell.get("overdue", 0),
             "total": total,
-            "ratio": ratio,
+            "ratio": (cell["on_time"] / total) if total > 0 else None,
         }
-    weeks.sort()
     rows = sorted(rows_by_customer.values(), key=lambda r: r["customer_name"].lower())
-    return {"weeks": weeks, "rows": rows}
+    return {"weeks": list(weeks), "rows": rows}
 
 
 @router.get("/sla", response_class=HTMLResponse)
@@ -1129,18 +1206,24 @@ async def sla_dashboard(
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    """On-time delivery summary + per-customer weekly heatmap."""
+    """On-time delivery summary + per-customer weekly heatmap.
+
+    Cards and heatmap share one window and one definition (see
+    ``sla_service``): the heatmap cells add up to the cards.
+    """
     days = _SLA_TIMEFRAMES.get(timeframe, 90)
     timeframe_value = timeframe if timeframe in _SLA_TIMEFRAMES else "90"
 
     # Promised / delivered dates are tenant-local days; so is "today".
-    today = local_today(request_tz(request))
+    tz = request_tz(request)
+    today = local_today(tz)
     date_from = today - timedelta(days=days)
 
-    summary = await sla_service.on_time_rate(db, date_from=date_from, date_to=today, today=today)
-    heatmap_weeks = max(8, min(52, (days // 7) + 1))
-    cells = await sla_service.heatmap_data(db, weeks=heatmap_weeks, today=today)
-    grid = _heatmap_grid(cells)
+    summary = await sla_service.on_time_rate(
+        db, date_from=date_from, date_to=today, today=today, tz=tz
+    )
+    cells = await sla_service.heatmap_data(db, date_from=date_from, today=today, tz=tz)
+    grid = _heatmap_grid(cells, sla_service.heatmap_weeks(date_from, today))
 
     html = _templates(request).render(
         request,
@@ -1149,7 +1232,6 @@ async def sla_dashboard(
             "principal": principal,
             "tenant": _tenant(request),
             "summary": summary,
-            "rate_pct": round(summary["rate"] * 100, 1),
             "grid": grid,
             "timeframe": timeframe_value,
             "timeframes": list(_SLA_TIMEFRAMES.keys()),

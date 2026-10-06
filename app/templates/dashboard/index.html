@@ -14,6 +14,65 @@
         </p>
     </div>
 
+    {% if demo_start and (demo_start.quote or demo_start.overdue or demo_start.material) %}
+        {# Public demo only (P2-14): the dashboard opens on drafts and a long
+           status list — point a first-time visitor at the three things
+           worth seeing. Dismissible; app.js remembers it per browser. #}
+        <section data-dismissible="demo-start" data-demo-start
+                 class="mb-6 rounded-xl border border-brand-200 bg-brand-50 p-5 dark:border-brand-500/30 dark:bg-brand-500/10"
+                 aria-labelledby="demo-start-heading">
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <h2 id="demo-start-heading" class="font-semibold text-slate-900 dark:text-slate-100">{{ _('Where to start') }}</h2>
+                    <p class="mt-0.5 text-sm text-slate-600 dark:text-slate-300">{{ _('A few places that show what the portal does for a job shop.') }}</p>
+                </div>
+                <button type="button" data-dismiss
+                        class="rounded-md px-2 py-1 text-xs font-medium text-slate-500 hover:bg-white hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                        aria-label="{{ _('Hide this tip') }}">
+                    {{ _('Hide this tip') }}
+                </button>
+            </div>
+            <ul class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {% if demo_start.quote %}
+                    <li>
+                        <a href="/app/orders/{{ demo_start.quote.id }}" data-start="quote"
+                           class="block h-full rounded-lg border border-slate-200 bg-white p-4 hover:border-brand-400 hover:shadow dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-500/60">
+                            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ _('A quote with a drawing') }}</p>
+                            <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400"><span class="font-mono">{{ demo_start.quote.number }}</span> · {{ demo_start.quote.title }}</p>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if demo_start.overdue %}
+                    <li>
+                        <a href="/app/orders/{{ demo_start.overdue.id }}" data-start="overdue"
+                           class="block h-full rounded-lg border border-slate-200 bg-white p-4 hover:border-brand-400 hover:shadow dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-500/60">
+                            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ _('An overdue order') }}</p>
+                            <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400"><span class="font-mono">{{ demo_start.overdue.number }}</span> · {{ demo_start.overdue.title }}</p>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if demo_start.material %}
+                    <li>
+                        <a href="/app/assets/{{ demo_start.material.id }}" data-start="material"
+                           class="block h-full rounded-lg border border-slate-200 bg-white p-4 hover:border-brand-400 hover:shadow dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-500/60">
+                            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ _('Material the client keeps at your shop') }}</p>
+                            <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ demo_start.material.name }}</p>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if principal.role == "tenant_admin" %}
+                    <li>
+                        <a href="{{ demo_start.exports_url }}" data-start="exports"
+                           class="block h-full rounded-lg border border-slate-200 bg-white p-4 hover:border-brand-400 hover:shadow dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-500/60">
+                            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ _('Export to POHODA') }}</p>
+                            <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ _('Accounting export') }}</p>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </section>
+    {% endif %}
+
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {% if principal.is_staff %}
             <a href="/app/customers"
@@ -38,6 +97,11 @@
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-slate-400">{{ _('Open orders') }}</p>
                     <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-slate-100">{{ stats.open_orders }}</p>
+                    {% if stats.drafts %}
+                        <p class="mt-0.5 text-xs text-gray-500 dark:text-slate-400" data-drafts-count="{{ stats.drafts }}">
+                            {{ ngettext('+ %(num)d draft not yet submitted', '+ %(num)d drafts not yet submitted', stats.drafts) }}
+                        </p>
+                    {% endif %}
                 </div>
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600 transition group-hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300 dark:group-hover:bg-amber-900/50">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -92,91 +156,10 @@
         own customer's orders. The empty state keeps the widget present
         on fresh tenants so the UI doesn't jump.
 
-        Action strings: we keep a lookup dict from ``action`` code to a
-        short English verb phrase, then run each phrase through ``_()``
-        so Czech (and any future locale) can translate normally. Keeping
-        the verbs English-keyed matches the rest of the codebase — the
-        `.po` catalog translates English strings, not opaque keys.
+        Labels (action verbs, statuses, entity types) come from the
+        shared ``_audit_labels.html`` — the audit log uses the same map.
     #}
-    {% set activity_icons = {
-        'order.status_changed': '→',
-        'order.assigned': '@',
-        'order.updated': '*',
-        'order.duplicated': '+',
-        'attachment.upload': '+',
-        'attachment.deleted': '−',
-        'order.item_added': '+',
-        'order.item_updated': '*',
-        'order.item_removed': '−',
-        'order.comment_added': '"',
-        'customer.created': '+',
-        'customer.updated': '*',
-        'customer.deleted': '−',
-        'product.created': '+',
-        'product.updated': '*',
-        'user.invited': '+',
-        'user.password_changed': '*',
-    } %}
-    {# Every action the feed can show gets a human verb (UX-09); the
-       raw code only appears for something added later and forgotten. #}
-    {% set activity_verbs = {
-        'order.status_changed': _('changed status of'),
-        'order.assigned': _('changed who is responsible for'),
-        'order.updated': _('edited order'),
-        'order.duplicated': _('created a repeat order'),
-        'attachment.upload': _('uploaded a file to'),
-        'attachment.deleted': _('deleted a file from'),
-        'user.role_changed': _('changed the role of'),
-        'user.disabled': _('deactivated user'),
-        'user.reactivated': _('reactivated user'),
-        'user.profile_updated': _('updated the profile of'),
-        'tenant.settings_updated': _('updated settings of'),
-        'tenant.data_exported': _('exported data of'),
-        'contact.password_changed': _('changed password for'),
-        'asset.movement_added': _('recorded a stock movement of'),
-        'user.gdpr_erased': _('erased personal data of'),
-        'contact.gdpr_erased': _('erased personal data of'),
-        'auth.password_reset': _('reset the password of'),
-        'platform.support_access_granted': _('granted support access to'),
-        'platform.support_access_revoked': _('revoked support access to'),
-        'platform.support_access_session_started': _('started a support session in'),
-        'billing.subscription_canceled': _('cancelled the subscription of'),
-        'billing.subscription_edited_by_platform_admin': _('changed the subscription of'),
-        'order.item_added': _('added item to'),
-        'order.item_updated': _('updated item on'),
-        'order.item_removed': _('removed item from'),
-        'order.comment_added': _('commented on'),
-        'customer.created': _('created client'),
-        'customer.updated': _('updated client'),
-        'customer.deleted': _('deleted client'),
-        'product.created': _('created product'),
-        'product.updated': _('updated product'),
-        'user.invited': _('invited user'),
-        'user.password_changed': _('changed password for'),
-    } %}
-    {% set status_labels = {
-        'draft': _('Draft'),
-        'submitted': _('Submitted'),
-        'quoted': _('Quoted'),
-        'confirmed': _('Confirmed'),
-        'in_production': _('In production'),
-        'ready': _('Ready'),
-        'delivered': _('Delivered'),
-        'closed': _('Closed'),
-        'cancelled': _('Cancelled'),
-    } %}
-    {% set entity_type_labels = {
-        'order': _('Order'),
-        'customer': _('Client'),
-        'product': _('Product'),
-        'user': _('User'),
-        'asset': _('Asset'),
-        'tenant': _('Settings'),
-        'contact': _('Contact'),
-        'customer_contact': _('Contact'),
-        'attachment': _('Attachment'),
-        'subscription': _('Subscription'),
-    } %}
+    {% from "_audit_labels.html" import activity_icons, activity_verbs, status_labels, entity_type_labels %}
     <section class="mt-8 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3 dark:border-slate-800">
             <h2 class="font-semibold text-slate-900 dark:text-slate-100">{{ _('Recent activity') }}</h2>
@@ -200,7 +183,14 @@
                                 <span class="text-slate-500 dark:text-slate-400">
                                     {{ activity_verbs.get(event.action, event.action) }}
                                 </span>
-                                {% if event.entity_type == 'order' and event.entity_id %}
+                                {% set _upload_order = activity_orders.get(((event.diff or {}).get('after') or {}).get('order_id')|string) if activity_orders and event.action == 'attachment.upload' else None %}
+                                {% if _upload_order %}
+                                    {# P3-8: "uploaded a file to 2026-000021 (drawing.pdf)" —
+                                       the order is what the reader needs, the file name
+                                       follows in muted text. #}
+                                    <a href="/app/orders/{{ _upload_order.id }}" class="font-medium text-slate-900 hover:underline dark:text-slate-100" data-activity-order>{{ _upload_order.number }}</a>
+                                    <span class="text-slate-500 dark:text-slate-400">({{ event.entity_label }})</span>
+                                {% elif event.entity_type == 'order' and event.entity_id %}
                                     <a href="/app/orders/{{ event.entity_id }}" class="font-medium text-slate-900 hover:underline dark:text-slate-100">{{ event.entity_label }}</a>
                                 {% else %}
                                     <span class="font-medium text-slate-900 dark:text-slate-100">{{ event.entity_label }}</span>

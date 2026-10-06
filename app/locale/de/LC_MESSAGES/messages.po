@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: assoluto VERSION\n"
 "Report-Msgid-Bugs-To: team@assoluto.eu\n"
-"POT-Creation-Date: 2026-10-06 13:48+0200\n"
+"POT-Creation-Date: 2026-10-06 15:12+0200\n"
 "PO-Revision-Date: 2026-04-26 11:15+0200\n"
 "Last-Translator: Assoluto Team <team@assoluto.eu>\n"
 "Language: de\n"
@@ -22,58 +22,58 @@ msgstr ""
 msgid "All statuses"
 msgstr "Alle Status"
 
-#: app/i18n_messages.py:35 app/templates/dashboard/index.html:158
+#: app/i18n_messages.py:35 app/templates/_audit_labels.html:78
 #: app/templates/orders/_status_badge.html:14
-#: app/templates/orders/detail.html:701
+#: app/templates/orders/detail.html:759
 msgid "Draft"
 msgstr "Entwurf"
 
-#: app/i18n_messages.py:36 app/services/pdf_service.py:304
-#: app/templates/dashboard/index.html:159
+#: app/i18n_messages.py:36 app/services/pdf_service.py:323
+#: app/templates/_audit_labels.html:79
 #: app/templates/orders/_status_badge.html:15
-#: app/templates/orders/detail.html:702
+#: app/templates/orders/detail.html:760
 msgid "Submitted"
 msgstr "Gesendet"
 
-#: app/i18n_messages.py:37 app/templates/dashboard/index.html:160
+#: app/i18n_messages.py:37 app/templates/_audit_labels.html:80
 #: app/templates/orders/_status_badge.html:16
-#: app/templates/orders/detail.html:703
+#: app/templates/orders/detail.html:761
 msgid "Quoted"
 msgstr "Angeboten"
 
-#: app/i18n_messages.py:38 app/templates/dashboard/index.html:161
+#: app/i18n_messages.py:38 app/templates/_audit_labels.html:81
 #: app/templates/orders/_status_badge.html:17
-#: app/templates/orders/detail.html:704
+#: app/templates/orders/detail.html:762
 msgid "Confirmed"
 msgstr "Bestätigt"
 
-#: app/i18n_messages.py:39 app/templates/dashboard/index.html:162
+#: app/i18n_messages.py:39 app/templates/_audit_labels.html:82
 #: app/templates/orders/_status_badge.html:18
-#: app/templates/orders/detail.html:705
+#: app/templates/orders/detail.html:763
 msgid "In production"
 msgstr "In Produktion"
 
-#: app/i18n_messages.py:40 app/templates/dashboard/index.html:163
+#: app/i18n_messages.py:40 app/templates/_audit_labels.html:83
 #: app/templates/orders/_status_badge.html:19
-#: app/templates/orders/detail.html:706
+#: app/templates/orders/detail.html:764
 msgid "Ready"
 msgstr "Fertig"
 
-#: app/i18n_messages.py:41 app/templates/dashboard/index.html:164
+#: app/i18n_messages.py:41 app/templates/_audit_labels.html:84
 #: app/templates/orders/_status_badge.html:20
-#: app/templates/orders/detail.html:707
+#: app/templates/orders/detail.html:765
 msgid "Delivered"
 msgstr "Geliefert"
 
-#: app/i18n_messages.py:42 app/templates/dashboard/index.html:165
+#: app/i18n_messages.py:42 app/templates/_audit_labels.html:85
 #: app/templates/orders/_status_badge.html:21
-#: app/templates/orders/detail.html:708
+#: app/templates/orders/detail.html:766
 msgid "Closed"
 msgstr "Abgeschlossen"
 
-#: app/i18n_messages.py:43 app/templates/dashboard/index.html:166
+#: app/i18n_messages.py:43 app/templates/_audit_labels.html:86
 #: app/templates/orders/_status_badge.html:22
-#: app/templates/orders/detail.html:709
+#: app/templates/orders/detail.html:767
 msgid "Cancelled"
 msgstr "Storniert"
 
@@ -129,24 +129,26 @@ msgstr "Stornieren"
 msgid "All entities"
 msgstr "Alle Entitäten"
 
-#: app/i18n_messages.py:66 app/services/pdf_service.py:263
-#: app/services/pdf_service.py:288 app/templates/_palette_results.html:34
-#: app/templates/dashboard/index.html:169
+#: app/i18n_messages.py:66 app/services/pdf_service.py:279
+#: app/services/pdf_service.py:304 app/templates/_audit_labels.html:89
+#: app/templates/_audit_labels.html:111 app/templates/_audit_labels.html:112
+#: app/templates/_audit_labels.html:113 app/templates/_palette_results.html:34
+#: app/templates/assets/detail.html:52
 msgid "Order"
 msgstr "Auftrag"
 
-#: app/i18n_messages.py:67 app/routers/orders.py:418
-#: app/services/pdf_service.py:325 app/templates/admin/sla.html:119
-#: app/templates/demo/enter.html:45
+#: app/i18n_messages.py:67 app/routers/orders.py:461
+#: app/services/pdf_service.py:344 app/templates/admin/sla.html:122
+#: app/templates/demo/enter.html:46
 msgid "Customer"
 msgstr "Kunde"
 
-#: app/i18n_messages.py:68 app/templates/_palette_results.html:76
-#: app/templates/dashboard/index.html:171 app/templates/orders/detail.html:478
+#: app/i18n_messages.py:68 app/templates/_audit_labels.html:91
+#: app/templates/_palette_results.html:76 app/templates/orders/detail.html:531
 msgid "Product"
 msgstr "Produkt"
 
-#: app/i18n_messages.py:69 app/templates/dashboard/index.html:172
+#: app/i18n_messages.py:69 app/templates/_audit_labels.html:92
 msgid "User"
 msgstr "Benutzer"
 
@@ -172,7 +174,7 @@ msgstr "Aufträge diesen Monat"
 msgid "MB of storage"
 msgstr "MB Speicher"
 
-#: app/demo/guard.py:207 app/demo/guard.py:414
+#: app/demo/guard.py:207 app/demo/guard.py:436
 msgid "The public demo accepts files up to 2 MB."
 msgstr "Die öffentliche Demo akzeptiert Dateien bis 2 MB."
 
@@ -190,7 +192,7 @@ msgstr ""
 "Die öffentliche Demo akzeptiert höchstens 20 neue Dateien pro Tag. Bitte "
 "versuchen Sie es morgen erneut."
 
-#: app/demo/router.py:136
+#: app/demo/router.py:138
 msgid "The demo is being refreshed. Please try again in a minute."
 msgstr ""
 "Die Demo wird gerade aktualisiert. Bitte versuchen Sie es in einer Minute"
@@ -599,8 +601,9 @@ msgstr ""
 "zugewiesen."
 
 #: app/email/templates/order_assigned.html:12
-#: app/email/templates/order_assigned.txt:5 app/routers/orders.py:417
-#: app/services/pdf_service.py:298 app/templates/orders/list.html:119
+#: app/email/templates/order_assigned.txt:5 app/routers/orders.py:460
+#: app/services/pdf_service.py:317 app/templates/_audit_labels.html:108
+#: app/templates/orders/list.html:119
 #: app/templates/platform/admin/dashboard.html:66
 #: app/templates/platform/admin/tenant_edit.html:59
 #: app/templates/platform/billing/dashboard.html:318
@@ -629,6 +632,7 @@ msgstr "Dieser Auftrag wurde Ihnen zugewiesen."
 #: app/email/templates/order_comment.txt:8
 #: app/email/templates/order_created.txt:7
 #: app/email/templates/order_submitted.txt:5
+#: app/templates/orders/detail.html:592
 msgid "Open"
 msgstr "Öffnen"
 
@@ -717,7 +721,7 @@ msgid "New order %(order_number)s has been created for you"
 msgstr "Für Sie wurde der Auftrag %(order_number)s angelegt"
 
 #: app/email/templates/order_created.html:3
-#: app/templates/dashboard/index.html:282 app/templates/orders/form.html:3
+#: app/templates/dashboard/index.html:272 app/templates/orders/form.html:3
 #: app/templates/orders/form.html:6 app/templates/orders/form.html:9
 #: app/templates/orders/list.html:28 app/templates/www/_hero_mock.html:53
 msgid "New order"
@@ -801,14 +805,14 @@ msgstr "Status geändert zu <strong>%(status_label)s</strong>."
 #: app/email/templates/order_status_changed.html:20
 #: app/email/templates/order_status_changed.txt:6
 #: app/email/templates/quote_reminder.html:9
-#: app/email/templates/quote_reminder.txt:6 app/routers/orders.py:422
-#: app/templates/orders/detail.html:199
+#: app/email/templates/quote_reminder.txt:6 app/routers/orders.py:465
+#: app/templates/orders/detail.html:234
 msgid "Quoted total"
 msgstr "Angebotspreis"
 
 #: app/email/templates/order_status_changed.html:23
 #: app/email/templates/order_status_changed.txt:10
-#: app/templates/assets/detail.html:49 app/templates/assets/detail.html:89
+#: app/templates/assets/detail.html:53 app/templates/assets/detail.html:104
 #: app/templates/orders/edit.html:74 app/templates/orders/form.html:52
 msgid "Note"
 msgstr "Notiz"
@@ -979,8 +983,8 @@ msgstr ""
 "Nutzung sinkt oder der Plan erhöht wird."
 
 #: app/email/templates/plan_limit_reached.html:28
-#: app/email/templates/plan_limit_reached.txt:14 app/templates/app_base.html:73
-#: app/templates/app_base.html:90
+#: app/email/templates/plan_limit_reached.txt:14 app/templates/app_base.html:75
+#: app/templates/app_base.html:92
 msgid "Open billing"
 msgstr "Abrechnung öffnen"
 
@@ -1302,7 +1306,7 @@ msgstr ""
 "Plan:"
 
 #: app/email/templates/trial_ending.html:49
-#: app/email/templates/trial_ending.txt:24 app/templates/app_base.html:54
+#: app/email/templates/trial_ending.txt:24 app/templates/app_base.html:56
 msgid "Choose a plan"
 msgstr "Plan wählen"
 
@@ -1603,7 +1607,7 @@ msgstr ""
 "gleich noch einmal."
 
 #: app/platform/routers/gdpr.py:164 app/routers/me.py:282
-#: app/routers/tenant_admin.py:821
+#: app/routers/tenant_admin.py:824
 msgid "Password does not match — deletion cancelled."
 msgstr "Passwort stimmt nicht überein — Löschung abgebrochen."
 
@@ -1645,7 +1649,7 @@ msgstr ""
 #: app/platform/routers/platform_admin.py:529
 #: app/platform/routers/platform_admin.py:765 app/routers/customers.py:352
 #: app/routers/customers.py:471 app/routers/products.py:393
-#: app/routers/tenant_admin.py:460
+#: app/routers/tenant_admin.py:463
 msgid "Changes saved."
 msgstr "Änderungen gespeichert."
 
@@ -1800,8 +1804,8 @@ msgstr "Die Menge ist zu groß."
 msgid "Quantity must be greater than zero."
 msgstr "Die Menge muss größer als null sein."
 
-#: app/routers/_amounts.py:22 app/routers/assets.py:242
-#: app/routers/assets.py:244 app/routers/assets.py:272
+#: app/routers/_amounts.py:22 app/routers/assets.py:261
+#: app/routers/assets.py:263 app/routers/assets.py:291
 msgid "Enter a valid quantity."
 msgstr "Geben Sie eine gültige Menge ein."
 
@@ -1821,15 +1825,15 @@ msgstr "Geben Sie einen gültigen Preis ein."
 msgid "An asset with this code already exists for this client."
 msgstr "Ein Asset mit diesem Code existiert bereits bei diesem Kunden."
 
-#: app/routers/assets.py:251 app/routers/assets.py:270
+#: app/routers/assets.py:270 app/routers/assets.py:289
 msgid "That order does not belong to this client."
 msgstr "Dieser Auftrag gehört nicht zu diesem Kunden."
 
-#: app/routers/assets.py:266
+#: app/routers/assets.py:285
 msgid "Not enough stock for this movement."
 msgstr "Nicht genügend Bestand für diese Bewegung."
 
-#: app/routers/assets.py:274
+#: app/routers/assets.py:293
 msgid "Movement recorded."
 msgstr "Bewegung erfasst."
 
@@ -1876,7 +1880,7 @@ msgstr ""
 "einzuladen."
 
 #: app/routers/customers.py:457 app/routers/me.py:128
-#: app/routers/tenant_admin.py:393 app/routers/tenant_admin.py:622
+#: app/routers/tenant_admin.py:396 app/routers/tenant_admin.py:625
 msgid "Name cannot be empty."
 msgstr "Der Name darf nicht leer sein."
 
@@ -1894,13 +1898,13 @@ msgstr ""
 "Dieser Kontakt hat bereits ein Passwort; verwenden Sie stattdessen das "
 "Zurücksetzen des Passworts."
 
-#: app/routers/customers.py:561 app/routers/tenant_admin.py:516
+#: app/routers/customers.py:561 app/routers/tenant_admin.py:519
 msgid "Too many invitations sent recently. Try again later."
 msgstr ""
 "Zu viele Einladungen in letzter Zeit gesendet. Versuchen Sie es später "
 "erneut."
 
-#: app/routers/customers.py:586 app/routers/tenant_admin.py:549
+#: app/routers/customers.py:586 app/routers/tenant_admin.py:552
 msgid "Invitation resent."
 msgstr "Einladung erneut gesendet."
 
@@ -1912,45 +1916,48 @@ msgstr "Kunde archiviert. Seine Kontakte können sich nicht mehr anmelden."
 msgid "Client restored. Its contacts can sign in again."
 msgstr "Kunde wiederhergestellt. Seine Kontakte können sich wieder anmelden."
 
-#: app/routers/dashboard.py:94 app/routers/orders.py:133
+#: app/routers/dashboard.py:92 app/routers/orders.py:135
 msgid "Submitted, waiting for a quote"
 msgstr "Gesendet, wartet auf ein Angebot"
 
-#: app/routers/dashboard.py:95 app/routers/orders.py:134
+#: app/routers/dashboard.py:93 app/routers/orders.py:136
 msgid "Confirmed without a promised date"
 msgstr "Bestätigt ohne zugesagten Liefertermin"
 
-#: app/routers/dashboard.py:96 app/routers/orders.py:135
-#: app/templates/orders/detail.html:242 app/templates/orders/list.html:186
+#: app/routers/dashboard.py:94 app/routers/orders.py:137
+#: app/templates/orders/detail.html:277 app/templates/orders/list.html:177
+#: app/templates/orders/list.html:207
 msgid "Overdue"
 msgstr "Überfällig"
 
-#: app/routers/dashboard.py:97 app/routers/orders.py:136
+#: app/routers/dashboard.py:95 app/routers/orders.py:138
 msgid "Quotes waiting for the client"
 msgstr "Angebote, die auf den Kunden warten"
 
-#: app/routers/dashboard.py:100
+#: app/routers/dashboard.py:102
 msgid "Price them and send the quote."
 msgstr "Bepreisen Sie die Positionen und senden Sie das Angebot."
 
-#: app/routers/dashboard.py:101
+#: app/routers/dashboard.py:103
 msgid "Promise the client a delivery date."
 msgstr "Sagen Sie dem Kunden einen Liefertermin zu."
 
-#: app/routers/dashboard.py:102
+#: app/routers/dashboard.py:104
 msgid "The promised date has passed."
 msgstr "Der zugesagte Liefertermin ist überschritten."
 
-#: app/routers/dashboard.py:103
+#: app/routers/dashboard.py:106
 #, python-brace-format
-msgid "Older than {days} days — follow up."
-msgstr "Älter als {days} Tage — nachfassen."
+msgid "Older than {days} day — follow up."
+msgid_plural "Older than {days} days — follow up."
+msgstr[0] "Älter als {days} Tag — nachfassen."
+msgstr[1] "Älter als {days} Tage — nachfassen."
 
-#: app/routers/dashboard.py:135
+#: app/routers/dashboard.py:139
 msgid "Quotes waiting for your confirmation"
 msgstr "Angebote, die auf Ihre Bestätigung warten"
 
-#: app/routers/dashboard.py:136
+#: app/routers/dashboard.py:140
 msgid "Review the price and confirm the order."
 msgstr "Prüfen Sie den Preis und bestätigen Sie den Auftrag."
 
@@ -1968,7 +1975,7 @@ msgstr ""
 msgid "No orders match the selected filters."
 msgstr "Keine Aufträge entsprechen den gewählten Filtern."
 
-#: app/routers/me.py:95 app/routers/tenant_admin.py:602
+#: app/routers/me.py:95 app/routers/tenant_admin.py:605
 msgid "Profile saved."
 msgstr "Profil gespeichert."
 
@@ -1976,72 +1983,72 @@ msgstr "Profil gespeichert."
 msgid "Password changed. Sign in again with your new password."
 msgstr "Passwort geändert. Bitte melden Sie sich mit dem neuen Passwort erneut an."
 
-#: app/routers/me.py:169 app/routers/tenant_admin.py:659
+#: app/routers/me.py:169 app/routers/tenant_admin.py:662
 msgid "Notification settings saved."
 msgstr "Benachrichtigungseinstellungen gespeichert."
 
-#: app/routers/me.py:188 app/routers/tenant_admin.py:678
+#: app/routers/me.py:188 app/routers/tenant_admin.py:681
 msgid "New passwords do not match."
 msgstr "Die neuen Passwörter stimmen nicht überein."
 
-#: app/routers/orders.py:416
+#: app/routers/orders.py:459
 msgid "Order number"
 msgstr "Auftragsnummer"
 
-#: app/routers/orders.py:419
+#: app/routers/orders.py:462
 msgid "Created at"
 msgstr "Erstellt am"
 
-#: app/routers/orders.py:420
+#: app/routers/orders.py:463
 msgid "Submitted at"
 msgstr "Gesendet am"
 
-#: app/routers/orders.py:421
+#: app/routers/orders.py:464
 msgid "Promised delivery at"
 msgstr "Zugesagter Liefertermin"
 
-#: app/routers/orders.py:423
+#: app/routers/orders.py:466
 msgid "Currency"
 msgstr "Währung"
 
-#: app/routers/orders.py:424 app/services/pdf_service.py:350
-#: app/templates/orders/detail.html:417
+#: app/routers/orders.py:467 app/services/pdf_service.py:369
+#: app/templates/orders/detail.html:470
 msgid "Items"
 msgstr "Positionen"
 
-#: app/routers/orders.py:538 app/routers/orders.py:1871
+#: app/routers/orders.py:579 app/routers/orders.py:1917
 msgid "Choose a client."
 msgstr "Wählen Sie einen Kunden."
 
-#: app/routers/orders.py:604
+#: app/routers/orders.py:645
 msgid "Order created."
 msgstr "Auftrag angelegt."
 
-#: app/routers/orders.py:926
+#: app/routers/orders.py:974
 msgid "This order has no items yet. Continue anyway?"
 msgstr "Dieser Auftrag hat noch keine Positionen. Trotzdem fortfahren?"
 
-#: app/routers/orders.py:927
+#: app/routers/orders.py:975
 msgid "Some items have no price yet. Continue anyway?"
 msgstr "Einige Positionen haben noch keinen Preis. Trotzdem fortfahren?"
 
-#: app/routers/orders.py:932
+#: app/routers/orders.py:980
 msgid "Cancel this order?"
 msgstr "Diesen Auftrag wirklich stornieren?"
 
-#: app/routers/orders.py:941
+#: app/routers/orders.py:989
 #, python-brace-format
 msgid "This jumps straight to {target} and skips {skipped}. Continue?"
 msgstr ""
 "Damit springen Sie direkt zu {target} und überspringen: {skipped}. "
 "Fortfahren?"
 
-#: app/routers/orders.py:949
+#: app/routers/orders.py:997
 #, python-brace-format
 msgid "This moves the order back to {target}. Continue?"
 msgstr "Damit wird der Auftrag zurück auf {target} gesetzt. Fortfahren?"
 
-#: app/routers/orders.py:1008
+#: app/routers/orders.py:1056
 msgid ""
 "The supplier has not priced every item yet, so the quote cannot be "
 "confirmed."
@@ -2049,131 +2056,131 @@ msgstr ""
 "Der Lieferant hat noch nicht alle Positionen bepreist, daher kann das "
 "Angebot nicht bestätigt werden."
 
-#: app/routers/orders.py:1149
+#: app/routers/orders.py:1195
 msgid "That product is not available for this order."
 msgstr "Dieses Produkt ist für diesen Auftrag nicht verfügbar."
 
-#: app/routers/orders.py:1165
+#: app/routers/orders.py:1211
 msgid "Enter an item description."
 msgstr "Geben Sie eine Positionsbeschreibung ein."
 
-#: app/routers/orders.py:1187
+#: app/routers/orders.py:1233
 msgid "Item added."
 msgstr "Position hinzugefügt."
 
-#: app/routers/orders.py:1299
+#: app/routers/orders.py:1345
 msgid "This order can no longer be edited."
 msgstr "Dieser Auftrag kann nicht mehr bearbeitet werden."
 
-#: app/routers/orders.py:1375
+#: app/routers/orders.py:1421
 msgid "Item deleted."
 msgstr "Position gelöscht."
 
-#: app/routers/orders.py:1439
+#: app/routers/orders.py:1485
 msgid "Unknown status"
 msgstr "Unbekannter Status"
 
-#: app/routers/orders.py:1460
+#: app/routers/orders.py:1506
 msgid "Select at least one order."
 msgstr "Wählen Sie mindestens einen Auftrag aus."
 
-#: app/routers/orders.py:1467
+#: app/routers/orders.py:1513
 #, python-brace-format
 msgid "Select at most {count} orders at once."
 msgstr "Wählen Sie höchstens {count} Aufträge auf einmal."
 
-#: app/routers/orders.py:1482 app/routers/orders.py:1559
-#: app/routers/orders.py:1652 app/routers/orders.py:1728
+#: app/routers/orders.py:1528 app/routers/orders.py:1605
+#: app/routers/orders.py:1698 app/routers/orders.py:1774
 msgid "Customer not notified by e-mail."
 msgstr "Kunde nicht per E-Mail benachrichtigt."
 
-#: app/routers/orders.py:1561
+#: app/routers/orders.py:1607
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr "{count} Aufträge übergeben."
 
-#: app/routers/orders.py:1563
+#: app/routers/orders.py:1609
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr "{ok} übergeben, {failed} fehlgeschlagen."
 
-#: app/routers/orders.py:1588
+#: app/routers/orders.py:1634
 msgid "Add at least one item before sending or confirming the quote."
 msgstr ""
 "Fügen Sie mindestens eine Position hinzu, bevor Sie das Angebot senden "
 "oder bestätigen."
 
-#: app/routers/orders.py:1589
+#: app/routers/orders.py:1635
 msgid "Every item needs a price before the quote can be sent or confirmed."
 msgstr ""
 "Jede Position braucht einen Preis, bevor das Angebot gesendet oder "
 "bestätigt werden kann."
 
-#: app/routers/orders.py:1626 app/routers/orders.py:1657
+#: app/routers/orders.py:1672 app/routers/orders.py:1703
 msgid "The quote has changed. Please review it and confirm again."
 msgstr ""
 "Das Angebot hat sich geändert. Bitte prüfen Sie es und bestätigen Sie "
 "erneut."
 
-#: app/routers/orders.py:1634 app/routers/orders.py:1862
+#: app/routers/orders.py:1680 app/routers/orders.py:1908
 msgid "Enter a valid date."
 msgstr "Geben Sie ein gültiges Datum ein."
 
-#: app/routers/orders.py:1650
+#: app/routers/orders.py:1696
 msgid "Sent although some items had no price."
 msgstr "Gesendet, obwohl einige Positionen keinen Preis hatten."
 
-#: app/routers/orders.py:1663
+#: app/routers/orders.py:1709
 msgid "Add at least one item before submitting the order."
 msgstr "Fügen Sie mindestens eine Position hinzu, bevor Sie den Auftrag senden."
 
-#: app/routers/orders.py:1726
+#: app/routers/orders.py:1772
 #, python-brace-format
 msgid "Status changed to {status}."
 msgstr "Status geändert zu {status}."
 
-#: app/routers/orders.py:1893 app/templates/orders/edit.html:36
+#: app/routers/orders.py:1939 app/templates/orders/edit.html:36
 #: app/templates/orders/edit.html:46
 msgid "The client can only be changed before the order is quoted."
 msgstr "Der Kunde kann nur geändert werden, bevor ein Angebot erstellt wurde."
 
-#: app/routers/orders.py:1902
+#: app/routers/orders.py:1948
 msgid "Fill in the name and choose an existing client."
 msgstr "Geben Sie den Namen ein und wählen Sie einen bestehenden Kunden."
 
-#: app/routers/orders.py:1905
+#: app/routers/orders.py:1951
 msgid "Order updated."
 msgstr "Auftrag aktualisiert."
 
-#: app/routers/orders.py:1905
+#: app/routers/orders.py:1951
 msgid "No changes."
 msgstr "Keine Änderungen."
 
-#: app/routers/orders.py:1940
+#: app/routers/orders.py:1986
 msgid "Adding items is disabled for your account."
 msgstr "Das Hinzufügen von Positionen ist für Ihr Konto deaktiviert."
 
-#: app/routers/orders.py:1955
+#: app/routers/orders.py:2001
 #, python-brace-format
 msgid "New draft created from order {number}. Check the items and prices."
 msgstr ""
 "Neuer Entwurf aus Auftrag {number} erstellt. Prüfen Sie Positionen und "
 "Preise."
 
-#: app/routers/orders.py:2025
+#: app/routers/orders.py:2071
 msgid "Comment added."
 msgstr "Kommentar hinzugefügt."
 
-#: app/routers/orders.py:2069
+#: app/routers/orders.py:2115
 msgid "That person can no longer be assigned work."
 msgstr "Dieser Person können keine Aufträge mehr zugewiesen werden."
 
-#: app/routers/orders.py:2102
+#: app/routers/orders.py:2148
 #, python-brace-format
 msgid "Assigned to {name}."
 msgstr "Zugewiesen an {name}."
 
-#: app/routers/orders.py:2104
+#: app/routers/orders.py:2150
 msgid "Assignment updated."
 msgstr "Zuweisung aktualisiert."
 
@@ -2198,11 +2205,11 @@ msgstr "Die Einladung ist ungültig oder abgelaufen."
 msgid "The invitation belongs to a different tenant."
 msgstr "Die Einladung gehört zu einem anderen Mandanten."
 
-#: app/routers/tenant_admin.py:104
+#: app/routers/tenant_admin.py:107
 msgid "This account was erased (GDPR) and cannot be reactivated."
 msgstr "Dieses Konto wurde gelöscht (DSGVO) und kann nicht reaktiviert werden."
 
-#: app/routers/tenant_admin.py:109
+#: app/routers/tenant_admin.py:112
 #, python-brace-format
 msgid ""
 "Your plan allows {limit} — reactivating would exceed it. Disable someone "
@@ -2212,47 +2219,51 @@ msgstr ""
 "Deaktivieren Sie zuerst jemand anderen oder wechseln Sie zu einem "
 "größeren Plan."
 
-#: app/routers/tenant_admin.py:215
+#: app/routers/tenant_admin.py:218
 msgid "A user with this email already exists."
 msgstr "Ein Benutzer mit dieser E-Mail-Adresse existiert bereits."
 
-#: app/routers/tenant_admin.py:284
+#: app/routers/tenant_admin.py:287
 msgid "Cannot disable the last administrator — promote someone else first."
 msgstr ""
 "Der letzte Administrator kann nicht deaktiviert werden — befördern Sie "
 "zuerst jemand anderen."
 
-#: app/routers/tenant_admin.py:303
+#: app/routers/tenant_admin.py:306
 msgid "User disabled."
 msgstr "Benutzer deaktiviert."
 
-#: app/routers/tenant_admin.py:336
+#: app/routers/tenant_admin.py:339
 msgid "User reactivated."
 msgstr "Benutzer reaktiviert."
 
-#: app/routers/tenant_admin.py:426
+#: app/routers/tenant_admin.py:429
 msgid "Cannot demote the last administrator — promote someone else first."
 msgstr ""
 "Der letzte Administrator kann nicht herabgestuft werden — befördern Sie "
 "zuerst jemand anderen."
 
-#: app/routers/tenant_admin.py:502
+#: app/routers/tenant_admin.py:505
 msgid "This user already has a password; use a password reset instead."
 msgstr ""
 "Dieser Benutzer hat bereits ein Passwort; verwenden Sie stattdessen das "
 "Zurücksetzen des Passworts."
 
-#: app/routers/tenant_admin.py:837
+#: app/routers/tenant_admin.py:840
 msgid "You're the last administrator — promote someone else first."
 msgstr "Sie sind der letzte Administrator — befördern Sie zuerst jemand anderen."
 
-#: app/routers/tenant_admin.py:921
+#: app/routers/tenant_admin.py:928
 msgid "Saved."
 msgstr "Gespeichert."
 
-#: app/routers/tenant_admin.py:956
+#: app/routers/tenant_admin.py:965
 msgid "Unknown time zone. Pick one from the list."
 msgstr "Unbekannte Zeitzone. Wählen Sie eine aus der Liste."
+
+#: app/routers/tenant_admin.py:981
+msgid "The price note is too long."
+msgstr "Der Preishinweis ist zu lang."
 
 #: app/routers/www.py:219
 #, python-brace-format
@@ -2264,33 +2275,34 @@ msgstr "Der Name darf maximal {n} Zeichen lang sein."
 msgid "Message may be at most {n} characters."
 msgstr "Die Nachricht darf maximal {n} Zeichen lang sein."
 
-#: app/services/pdf_service.py:300 app/templates/orders/list.html:135
+#: app/services/pdf_service.py:319 app/templates/orders/list.html:135
 #: app/templates/platform/admin/dashboard.html:65
 #: app/templates/platform/admin/funnel.html:64
 msgid "Created"
 msgstr "Erstellt"
 
-#: app/services/pdf_service.py:306 app/templates/orders/detail.html:235
-#: app/templates/orders/detail.html:317 app/templates/orders/detail.html:384
-#: app/templates/orders/edit.html:62
+#: app/services/pdf_service.py:325 app/templates/_audit_labels.html:114
+#: app/templates/orders/detail.html:270 app/templates/orders/detail.html:370
+#: app/templates/orders/detail.html:437 app/templates/orders/edit.html:62
 msgid "Promised delivery"
 msgstr "Zugesagter Termin"
 
-#: app/services/pdf_service.py:342
+#: app/services/pdf_service.py:361
 msgid "Company ID"
 msgstr "Firmennummer"
 
-#: app/services/pdf_service.py:344
+#: app/services/pdf_service.py:363
 msgid "Tax ID"
 msgstr "USt-IdNr."
 
-#: app/services/pdf_service.py:353
+#: app/services/pdf_service.py:372 app/templates/_audit_labels.html:123
 msgid "SKU"
 msgstr "Artikelnr."
 
-#: app/services/pdf_service.py:354 app/templates/assets/form.html:41
-#: app/templates/assets/list.html:24 app/templates/orders/edit.html:17
-#: app/templates/orders/form.html:17 app/templates/orders/list.html:115
+#: app/services/pdf_service.py:373 app/templates/_audit_labels.html:120
+#: app/templates/assets/form.html:41 app/templates/assets/list.html:24
+#: app/templates/orders/edit.html:17 app/templates/orders/form.html:17
+#: app/templates/orders/list.html:115
 #: app/templates/platform/admin/dashboard.html:64
 #: app/templates/platform/admin/tenants.html:21
 #: app/templates/products/form.html:38 app/templates/products/list.html:21
@@ -2298,41 +2310,304 @@ msgstr "Artikelnr."
 msgid "Name"
 msgstr "Name"
 
-#: app/services/pdf_service.py:355 app/templates/assets/detail.html:48
-#: app/templates/assets/detail.html:87 app/templates/orders/_item_row.html:51
-#: app/templates/orders/detail.html:428 app/templates/orders/detail.html:498
-#: app/templates/orders/detail.html:499
+#: app/services/pdf_service.py:374 app/templates/_audit_labels.html:117
+#: app/templates/assets/detail.html:51 app/templates/assets/detail.html:102
+#: app/templates/orders/_item_row.html:56 app/templates/orders/detail.html:481
+#: app/templates/orders/detail.html:551 app/templates/orders/detail.html:552
 msgid "Quantity"
 msgstr "Menge"
 
-#: app/services/pdf_service.py:356
+#: app/services/pdf_service.py:375 app/templates/_audit_labels.html:119
 msgid "Unit price"
 msgstr "Einzelpreis"
 
-#: app/services/pdf_service.py:357
+#: app/services/pdf_service.py:376
 msgid "Line total"
 msgstr "Gesamt"
 
-#: app/services/pdf_service.py:429
+#: app/services/pdf_service.py:442
 msgid "Subtotal"
 msgstr "Zwischensumme"
 
-#: app/services/pdf_service.py:445 app/templates/orders/detail.html:186
+#: app/services/pdf_service.py:459 app/templates/orders/detail.html:221
 msgid "Confirmed total"
 msgstr "Bestätigter Gesamtbetrag"
 
-#: app/services/pdf_service.py:472
+#: app/services/pdf_service.py:495
 msgid "Generated"
 msgstr "Erstellt"
 
-#: app/services/pdf_service.py:477
+#: app/services/pdf_service.py:500
 msgid "This document is for informational purposes only."
 msgstr "Dieses Dokument dient nur zu Informationszwecken."
 
-#: app/services/pdf_service.py:486 app/templates/admin/audit.html:136
-#: app/templates/orders/list.html:243
+#: app/services/pdf_service.py:509 app/templates/admin/audit.html:179
+#: app/templates/orders/list.html:264
 msgid "Page"
 msgstr "Seite"
+
+#: app/templates/_audit_labels.html:34
+msgid "changed status of"
+msgstr "Status geändert für"
+
+#: app/templates/_audit_labels.html:35
+msgid "changed who is responsible for"
+msgstr "Zuständigkeit geändert für"
+
+#: app/templates/_audit_labels.html:36
+msgid "edited order"
+msgstr "Auftrag bearbeitet"
+
+#: app/templates/_audit_labels.html:37
+msgid "created a repeat order"
+msgstr "Folgeauftrag erstellt"
+
+#: app/templates/_audit_labels.html:38
+msgid "uploaded a file to"
+msgstr "Datei hochgeladen zu"
+
+#: app/templates/_audit_labels.html:39
+msgid "deleted a file from"
+msgstr "Datei gelöscht aus"
+
+#: app/templates/_audit_labels.html:40
+msgid "changed the role of"
+msgstr "Rolle geändert für"
+
+#: app/templates/_audit_labels.html:41
+msgid "deactivated user"
+msgstr "Benutzer deaktiviert"
+
+#: app/templates/_audit_labels.html:42
+msgid "reactivated user"
+msgstr "Benutzer reaktiviert"
+
+#: app/templates/_audit_labels.html:43
+msgid "updated the profile of"
+msgstr "Profil aktualisiert für"
+
+#: app/templates/_audit_labels.html:44
+msgid "updated settings of"
+msgstr "Einstellungen aktualisiert für"
+
+#: app/templates/_audit_labels.html:45
+msgid "exported data of"
+msgstr "Daten exportiert für"
+
+#: app/templates/_audit_labels.html:46
+msgid "deactivated for billing"
+msgstr "wegen Abrechnung deaktiviert"
+
+#: app/templates/_audit_labels.html:47 app/templates/_audit_labels.html:74
+msgid "changed password for"
+msgstr "hat Passwort geändert für"
+
+#: app/templates/_audit_labels.html:48
+msgid "invitation expired for"
+msgstr "Einladung abgelaufen für"
+
+#: app/templates/_audit_labels.html:49
+msgid "invited a contact of"
+msgstr "hat einen Kontakt eingeladen bei"
+
+#: app/templates/_audit_labels.html:50
+msgid "recorded a stock movement of"
+msgstr "Lagerbewegung erfasst für"
+
+#: app/templates/_audit_labels.html:51 app/templates/_audit_labels.html:52
+msgid "erased personal data of"
+msgstr "Personenbezogene Daten gelöscht für"
+
+#: app/templates/_audit_labels.html:53
+msgid "signed in to"
+msgstr "hat sich angemeldet bei"
+
+#: app/templates/_audit_labels.html:54
+msgid "reset the password of"
+msgstr "Passwort zurückgesetzt für"
+
+#: app/templates/_audit_labels.html:55
+msgid "granted support access to"
+msgstr "Support-Zugang gewährt für"
+
+#: app/templates/_audit_labels.html:56
+msgid "revoked support access to"
+msgstr "Support-Zugang widerrufen für"
+
+#: app/templates/_audit_labels.html:57
+msgid "started a support session in"
+msgstr "Support-Sitzung gestartet in"
+
+#: app/templates/_audit_labels.html:58
+msgid "changed the plan of"
+msgstr "hat den Tarif geändert von"
+
+#: app/templates/_audit_labels.html:59
+msgid "cancelled the subscription of"
+msgstr "Abonnement gekündigt für"
+
+#: app/templates/_audit_labels.html:60
+msgid "subscription expired for"
+msgstr "Abonnement abgelaufen für"
+
+#: app/templates/_audit_labels.html:61
+msgid "changed the subscription of"
+msgstr "Abonnement geändert für"
+
+#: app/templates/_audit_labels.html:62
+msgid "added item to"
+msgstr "Position hinzugefügt zu"
+
+#: app/templates/_audit_labels.html:63
+msgid "updated item on"
+msgstr "Position aktualisiert in"
+
+#: app/templates/_audit_labels.html:64
+msgid "removed item from"
+msgstr "Position entfernt aus"
+
+#: app/templates/_audit_labels.html:65
+msgid "commented on"
+msgstr "kommentierte"
+
+#: app/templates/_audit_labels.html:66
+msgid "created client"
+msgstr "hat Kunden angelegt"
+
+#: app/templates/_audit_labels.html:67
+msgid "updated client"
+msgstr "hat Kunden aktualisiert"
+
+#: app/templates/_audit_labels.html:68
+msgid "deleted client"
+msgstr "hat Kunden gelöscht"
+
+#: app/templates/_audit_labels.html:69
+msgid "archived client"
+msgstr "hat Kunden archiviert"
+
+#: app/templates/_audit_labels.html:70
+msgid "restored client"
+msgstr "hat Kunden wiederhergestellt"
+
+#: app/templates/_audit_labels.html:71
+msgid "created product"
+msgstr "hat Produkt angelegt"
+
+#: app/templates/_audit_labels.html:72
+msgid "updated product"
+msgstr "hat Produkt aktualisiert"
+
+#: app/templates/_audit_labels.html:73
+msgid "invited user"
+msgstr "hat Benutzer eingeladen"
+
+#: app/templates/_audit_labels.html:90 app/templates/_palette_results.html:55
+#: app/templates/admin/exports.html:54 app/templates/assets/detail.html:16
+#: app/templates/assets/form.html:17 app/templates/assets/list.html:26
+#: app/templates/orders/detail.html:160 app/templates/orders/detail.html:686
+#: app/templates/orders/edit.html:24 app/templates/orders/form.html:25
+#: app/templates/orders/list.html:117 app/templates/products/form.html:55
+#: app/templates/products/list.html:22 app/templates/www/_hero_mock.html:73
+msgid "Client"
+msgstr "Kunde"
+
+#: app/templates/_audit_labels.html:93
+msgid "Asset"
+msgstr "Asset"
+
+#: app/templates/_audit_labels.html:94
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: app/templates/_audit_labels.html:95 app/templates/_audit_labels.html:96
+#: app/templates/www/contact.html:3 app/templates/www/contact.html:14
+#: app/templates/www/www_base.html:80
+msgid "Contact"
+msgstr "Kontakt"
+
+#: app/templates/_audit_labels.html:97
+msgid "Attachment"
+msgstr "Anhang"
+
+#: app/templates/_audit_labels.html:98
+#: app/templates/platform/admin/subscription_edit.html:3
+#: app/templates/platform/admin/subscription_edit.html:7
+#: app/templates/platform/admin/subscription_edit.html:11
+#: app/templates/platform/admin/tenants.html:102
+#: app/templates/platform/billing/dashboard.html:3
+msgid "Subscription"
+msgstr "Abonnement"
+
+#: app/templates/_audit_labels.html:102 app/templates/orders/detail.html:685
+msgid "Supplier team"
+msgstr "Lieferantenteam"
+
+#: app/templates/_audit_labels.html:103
+msgid "Client contact"
+msgstr "Kundenkontakt"
+
+#: app/templates/_audit_labels.html:104 app/templates/admin/audit.html:114
+#: app/templates/dashboard/index.html:182 app/templates/orders/detail.html:687
+msgid "System"
+msgstr "System"
+
+#: app/templates/_audit_labels.html:109
+msgid "Title"
+msgstr "Bezeichnung"
+
+#: app/templates/_audit_labels.html:110 app/templates/customers/detail.html:95
+#: app/templates/customers/form.html:43
+msgid "Notes"
+msgstr "Notizen"
+
+#: app/templates/_audit_labels.html:115 app/templates/orders/detail.html:262
+msgid "Requested delivery"
+msgstr "Wunschtermin"
+
+#: app/templates/_audit_labels.html:116 app/templates/assets/detail.html:34
+#: app/templates/assets/form.html:51 app/templates/orders/detail.html:480
+#: app/templates/products/detail.html:49 app/templates/products/form.html:43
+msgid "Description"
+msgstr "Beschreibung"
+
+#: app/templates/_audit_labels.html:118 app/templates/assets/form.html:35
+#: app/templates/products/form.html:32 app/templates/products/list.html:24
+msgid "Unit"
+msgstr "Einheit"
+
+#: app/templates/_audit_labels.html:121 app/templates/admin/profile.html:26
+#: app/templates/admin/user_edit.html:25 app/templates/admin/users.html:22
+#: app/templates/auth/login.html:25
+#: app/templates/auth/password_reset_request.html:18
+#: app/templates/me/profile.html:26 app/templates/me/team.html:49
+#: app/templates/platform/check_email.html:34
+#: app/templates/platform/login.html:18
+#: app/templates/platform/password_reset_request.html:18
+#: app/templates/www/contact.html:32 app/templates/www/contact.html:112
+msgid "Email"
+msgstr "E-Mail"
+
+#: app/templates/_audit_labels.html:122 app/templates/admin/user_edit.html:40
+#: app/templates/admin/users.html:23 app/templates/customers/detail.html:187
+#: app/templates/customers/detail.html:254
+msgid "Role"
+msgstr "Rolle"
+
+#: app/templates/_audit_labels.html:124
+#: app/templates/admin/tenant_settings.html:36
+msgid "Time zone"
+msgstr "Zeitzone"
+
+#: app/templates/_audit_labels.html:125
+#: app/templates/admin/tenant_settings.html:21
+msgid "Default email language"
+msgstr "Standard-E-Mail-Sprache"
+
+#: app/templates/_audit_labels.html:126
+#: app/templates/admin/tenant_settings.html:55
+msgid "Price note on order PDFs"
+msgstr "Preishinweis in Auftrags-PDFs"
 
 #: app/templates/_breadcrumbs.html:4
 #: app/templates/platform/admin/_header.html:53
@@ -2482,8 +2757,8 @@ msgstr ""
 "Beteiligt heißt: Sie haben den Auftrag angelegt, kommentiert oder eine "
 "Datei dazu hochgeladen."
 
-#: app/templates/_palette.html:14 app/templates/admin/audit.html:25
-#: app/templates/orders/detail.html:463
+#: app/templates/_palette.html:14 app/templates/admin/audit.html:45
+#: app/templates/orders/detail.html:516
 msgid "Search"
 msgstr "Suchen"
 
@@ -2500,9 +2775,9 @@ msgid "Nothing found for"
 msgstr "Nichts gefunden für"
 
 #: app/templates/_palette_results.html:22
-#: app/templates/_palette_results.html:23 app/templates/app_base.html:104
+#: app/templates/_palette_results.html:23 app/templates/app_base.html:106
 #: app/templates/customers/detail.html:59
-#: app/templates/dashboard/index.html:282 app/templates/orders/detail.html:86
+#: app/templates/dashboard/index.html:272 app/templates/orders/detail.html:121
 #: app/templates/orders/edit.html:6 app/templates/orders/form.html:6
 #: app/templates/orders/list.html:3 app/templates/orders/list.html:7
 #: app/templates/www/_hero_mock.html:30 app/templates/www/_hero_mock.html:50
@@ -2510,65 +2785,55 @@ msgid "Orders"
 msgstr "Aufträge"
 
 #: app/templates/_palette_results.html:43
-#: app/templates/_palette_results.html:44 app/templates/app_base.html:107
+#: app/templates/_palette_results.html:44 app/templates/app_base.html:109
 #: app/templates/customers/detail.html:8 app/templates/customers/form.html:9
 #: app/templates/customers/form.html:13 app/templates/customers/list.html:3
-#: app/templates/customers/list.html:7 app/templates/dashboard/index.html:23
+#: app/templates/customers/list.html:7 app/templates/dashboard/index.html:82
 #: app/templates/www/_hero_mock.html:34
 msgid "Clients"
 msgstr "Kunden"
 
-#: app/templates/_palette_results.html:55 app/templates/admin/exports.html:54
-#: app/templates/assets/detail.html:14 app/templates/assets/form.html:17
-#: app/templates/assets/list.html:26 app/templates/dashboard/index.html:170
-#: app/templates/orders/detail.html:125 app/templates/orders/detail.html:628
-#: app/templates/orders/edit.html:24 app/templates/orders/form.html:25
-#: app/templates/orders/list.html:117 app/templates/products/form.html:55
-#: app/templates/products/list.html:22 app/templates/www/_hero_mock.html:73
-msgid "Client"
-msgstr "Kunde"
-
 #: app/templates/_palette_results.html:64
-#: app/templates/_palette_results.html:65 app/templates/app_base.html:108
+#: app/templates/_palette_results.html:65 app/templates/app_base.html:110
 #: app/templates/products/detail.html:8 app/templates/products/form.html:9
 #: app/templates/products/form.html:13 app/templates/products/list.html:3
 #: app/templates/www/_hero_mock.html:38
 msgid "Catalog"
 msgstr "Katalog"
 
-#: app/templates/app_base.html:28
+#: app/templates/app_base.html:30
 msgid "Free early access"
 msgstr "Kostenloser Early Access"
 
-#: app/templates/app_base.html:30 app/templates/app_base.html:50
+#: app/templates/app_base.html:32 app/templates/app_base.html:52
 msgid "ends on"
 msgstr "endet am"
 
-#: app/templates/app_base.html:31 app/templates/app_base.html:49
+#: app/templates/app_base.html:33 app/templates/app_base.html:51
 msgid "Days left:"
 msgstr "Verbleibende Tage:"
 
-#: app/templates/app_base.html:32
+#: app/templates/app_base.html:34
 msgid "After that the portal continues on a paid plan; your data stays."
 msgstr ""
 "Danach läuft das Portal mit einem kostenpflichtigen Plan weiter; Ihre "
 "Daten bleiben erhalten."
 
-#: app/templates/app_base.html:36
+#: app/templates/app_base.html:38
 msgid "Details"
 msgstr "Details"
 
-#: app/templates/app_base.html:47
+#: app/templates/app_base.html:49
 #: app/templates/platform/billing/dashboard.html:95
 msgid "Free trial"
 msgstr "Kostenlose Testphase"
 
-#: app/templates/app_base.html:62
+#: app/templates/app_base.html:64
 #: app/templates/platform/billing/dashboard.html:97
 msgid "Payment overdue"
 msgstr "Zahlung überfällig"
 
-#: app/templates/app_base.html:64
+#: app/templates/app_base.html:66
 msgid ""
 "Your most recent invoice failed. Stripe is retrying — please check your "
 "payment method to avoid losing access."
@@ -2576,7 +2841,7 @@ msgstr ""
 "Die letzte Abrechnung ist fehlgeschlagen. Stripe versucht es erneut — "
 "prüfen Sie bitte Ihre Zahlungsmethode, damit der Zugang erhalten bleibt."
 
-#: app/templates/app_base.html:66
+#: app/templates/app_base.html:68
 msgid ""
 "There is a problem with this portal's subscription payment. Your "
 "administrator has been notified."
@@ -2584,34 +2849,34 @@ msgstr ""
 "Bei der Abonnementzahlung dieses Portals ist ein Problem aufgetreten. Ihr"
 " Administrator wurde benachrichtigt."
 
-#: app/templates/app_base.html:69
+#: app/templates/app_base.html:71
 msgid "Access ends on"
 msgstr "Der Zugang endet am"
 
-#: app/templates/app_base.html:81
+#: app/templates/app_base.html:83
 msgid "Subscription ended"
 msgstr "Abonnement beendet"
 
-#: app/templates/app_base.html:83
+#: app/templates/app_base.html:85
 msgid "Access to this portal ends on"
 msgstr "Der Zugang zu diesem Portal endet am"
 
-#: app/templates/app_base.html:86
+#: app/templates/app_base.html:88
 msgid "Export your data before then, or contact us within 30 days to recover it."
 msgstr ""
 "Exportieren Sie Ihre Daten vorher, oder kontaktieren Sie uns innerhalb "
 "von 30 Tagen, um sie wiederherzustellen."
 
-#: app/templates/admin/audit.html:7 app/templates/admin/exports.html:7
+#: app/templates/admin/audit.html:27 app/templates/admin/exports.html:7
 #: app/templates/admin/profile.html:8 app/templates/admin/sla.html:7
 #: app/templates/admin/tenant_settings.html:7
 #: app/templates/admin/user_edit.html:8 app/templates/admin/users.html:7
-#: app/templates/app_base.html:103 app/templates/assets/detail.html:6
+#: app/templates/app_base.html:105 app/templates/assets/detail.html:8
 #: app/templates/assets/form.html:6 app/templates/customers/detail.html:8
 #: app/templates/customers/form.html:9 app/templates/customers/form.html:13
 #: app/templates/dashboard/index.html:3 app/templates/dashboard/index.html:7
 #: app/templates/me/profile.html:8 app/templates/me/team.html:7
-#: app/templates/orders/detail.html:86 app/templates/orders/edit.html:6
+#: app/templates/orders/detail.html:121 app/templates/orders/edit.html:6
 #: app/templates/orders/form.html:6
 #: app/templates/platform/admin/_header.html:21
 #: app/templates/platform/admin/dashboard.html:3
@@ -2623,63 +2888,64 @@ msgstr ""
 msgid "Dashboard"
 msgstr "Übersicht"
 
-#: app/templates/app_base.html:105 app/templates/assets/detail.html:6
+#: app/templates/app_base.html:107 app/templates/assets/detail.html:8
 #: app/templates/assets/form.html:6 app/templates/assets/list.html:3
 msgid "Assets"
 msgstr "Assets"
 
-#: app/templates/app_base.html:109
+#: app/templates/app_base.html:111
 msgid "SLA"
 msgstr "SLA"
 
-#: app/templates/app_base.html:115
+#: app/templates/app_base.html:117
 msgid "Admin"
 msgstr "Admin"
 
 #: app/templates/admin/user_edit.html:8 app/templates/admin/users.html:3
-#: app/templates/app_base.html:121
+#: app/templates/app_base.html:123
 msgid "Team"
 msgstr "Team"
 
-#: app/templates/app_base.html:122
+#: app/templates/app_base.html:124
 msgid "Audit"
 msgstr "Audit"
 
 #: app/templates/admin/tenant_settings.html:3
 #: app/templates/admin/tenant_settings.html:7
-#: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:123
+#: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:125
 msgid "Portal settings"
 msgstr "Portal-Einstellungen"
 
 #: app/templates/admin/exports.html:3 app/templates/admin/exports.html:7
-#: app/templates/admin/exports.html:11 app/templates/app_base.html:124
+#: app/templates/admin/exports.html:11 app/templates/app_base.html:126
+#: app/templates/dashboard/index.html:68
 msgid "Accounting export"
 msgstr "Buchhaltungsexport"
 
-#: app/templates/app_base.html:126
+#: app/templates/app_base.html:128
 msgid "Billing"
 msgstr "Abrechnung"
 
-#: app/templates/app_base.html:143
+#: app/templates/app_base.html:145
 msgid "Switch portal"
 msgstr "Portal wechseln"
 
-#: app/templates/app_base.html:144
+#: app/templates/app_base.html:146
 msgid "Switch"
 msgstr "Wechseln"
 
 #: app/templates/admin/profile.html:4 app/templates/admin/profile.html:9
-#: app/templates/app_base.html:167 app/templates/app_base.html:171
+#: app/templates/app_base.html:169 app/templates/app_base.html:173
 #: app/templates/me/profile.html:4 app/templates/me/profile.html:9
 msgid "Profile"
 msgstr "Profil"
 
-#: app/templates/app_base.html:175 app/templates/me/team.html:3
+#: app/templates/app_base.html:177 app/templates/me/team.html:3
 #: app/templates/me/team.html:8
 msgid "My team"
 msgstr "Mein Team"
 
-#: app/templates/app_base.html:182 app/templates/platform/admin/_header.html:14
+#: app/templates/app_base.html:184 app/templates/platform/admin/_header.html:14
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:10
 #: app/templates/platform/admin/funnel.html:3
@@ -2688,35 +2954,43 @@ msgstr "Mein Team"
 msgid "Platform admin"
 msgstr "Platform Admin"
 
-#: app/templates/app_base.html:192 app/templates/platform/admin/_header.html:46
+#: app/templates/app_base.html:194 app/templates/platform/admin/_header.html:46
 #: app/templates/platform/select_tenant.html:18
 msgid "Sign out"
 msgstr "Abmelden"
 
-#: app/templates/base.html:39
+#: app/templates/base.html:40
+msgid "Turned off in the public demo."
+msgstr "In der öffentlichen Demo deaktiviert."
+
+#: app/templates/base.html:43
 msgid "Home"
 msgstr "Startseite"
 
-#: app/templates/base.html:48
+#: app/templates/base.html:52
 msgid "Toggle menu"
 msgstr "Menü öffnen"
 
-#: app/templates/base.html:65 app/templates/base.html:66
-#: app/templates/base.html:83
+#: app/templates/base.html:69 app/templates/base.html:70
+#: app/templates/base.html:87
 msgid "Toggle theme"
 msgstr "Design wechseln"
 
-#: app/templates/base.html:67
+#: app/templates/base.html:71
 msgid "Theme: system"
 msgstr "Design: System"
 
-#: app/templates/base.html:68
+#: app/templates/base.html:72
 msgid "Theme: light"
 msgstr "Design: Hell"
 
-#: app/templates/base.html:69
+#: app/templates/base.html:73
 msgid "Theme: dark"
 msgstr "Design: Dunkel"
+
+#: app/templates/base.html:148
+msgid "Build"
+msgstr "Build"
 
 #: app/templates/index.html:3 app/templates/index.html:17
 msgid "Customer portal"
@@ -2726,7 +3000,7 @@ msgstr "Kundenportal"
 #: app/templates/auth/login.html:41 app/templates/index.html:8
 #: app/templates/index.html:25 app/templates/platform/login.html:3
 #: app/templates/platform/login.html:31 app/templates/platform/signup.html:149
-#: app/templates/www/www_base.html:83
+#: app/templates/www/www_base.html:91
 msgid "Sign in"
 msgstr "Anmelden"
 
@@ -2738,70 +3012,78 @@ msgstr ""
 "Ihre Aufträge, Zeichnungen und der Fertigungsstatus an einem Ort. Melden "
 "Sie sich mit dem Konto aus Ihrer Einladungs-E-Mail an."
 
-#: app/templates/admin/audit.html:3 app/templates/admin/audit.html:8
-#: app/templates/dashboard/index.html:185
+#: app/templates/admin/audit.html:3 app/templates/admin/audit.html:28
+#: app/templates/dashboard/index.html:168
 msgid "Audit log"
 msgstr "Audit-Log"
 
-#: app/templates/admin/audit.html:10
+#: app/templates/admin/audit.html:17
+msgid "yes"
+msgstr "ja"
+
+#: app/templates/admin/audit.html:19
+msgid "no"
+msgstr "nein"
+
+#: app/templates/admin/audit.html:30
 msgid "Complete and immutable record of every tracked action in this portal."
 msgstr ""
 "Vollständiges und unveränderliches Protokoll aller Aktionen in diesem "
 "Portal."
 
-#: app/templates/admin/audit.html:22
+#: app/templates/admin/audit.html:42
 msgid "Filtered by"
 msgstr "Gefiltert nach"
 
-#: app/templates/admin/audit.html:30 app/templates/admin/audit.html:76
+#: app/templates/admin/audit.html:50 app/templates/admin/audit.html:96
 msgid "Entity"
 msgstr "Entität"
 
-#: app/templates/admin/audit.html:40 app/templates/orders/list.html:275
+#: app/templates/admin/audit.html:60 app/templates/orders/list.html:296
 msgid "Clear filters"
 msgstr "Filter löschen"
 
-#: app/templates/admin/audit.html:48
+#: app/templates/admin/audit.html:68
 msgid "Search action, entity, actor…"
 msgstr "Aktion, Entität, Autor suchen…"
 
-#: app/templates/admin/audit.html:64 app/templates/orders/list.html:85
+#: app/templates/admin/audit.html:84 app/templates/orders/list.html:85
 msgid "Filter"
 msgstr "Filtern"
 
-#: app/templates/admin/audit.html:73
+#: app/templates/admin/audit.html:93
 msgid "When"
 msgstr "Wann"
 
-#: app/templates/admin/audit.html:74
+#: app/templates/admin/audit.html:94
 msgid "Actor"
 msgstr "Autor"
 
-#: app/templates/admin/audit.html:75
+#: app/templates/admin/audit.html:95
 msgid "Action"
 msgstr "Aktion"
 
-#: app/templates/admin/audit.html:77
+#: app/templates/admin/audit.html:97
 msgid "Change"
 msgstr "Änderung"
 
-#: app/templates/admin/audit.html:115 app/templates/admin/audit.html:118
-msgid "Show details"
-msgstr "Details anzeigen"
+#: app/templates/admin/audit.html:163
+msgid "Technical details"
+msgstr "Technische Details"
 
-#: app/templates/admin/audit.html:136 app/templates/orders/list.html:244
+#: app/templates/admin/audit.html:179 app/templates/orders/list.html:265
 msgid "records"
 msgstr "Einträge"
 
-#: app/templates/admin/audit.html:142 app/templates/orders/list.html:250
+#: app/templates/admin/audit.html:185 app/templates/orders/list.html:271
 msgid "Previous"
 msgstr "Zurück"
 
-#: app/templates/admin/audit.html:146 app/templates/orders/list.html:256
+#: app/templates/admin/audit.html:189 app/templates/orders/list.html:277
 msgid "Next"
 msgstr "Weiter"
 
-#: app/templates/admin/audit.html:153
+#: app/templates/admin/audit.html:196
 msgid "No audit events match the current filters."
 msgstr "Keine Ereignisse entsprechen den aktiven Filtern."
 
@@ -2824,10 +3106,15 @@ msgid "Order statuses"
 msgstr "Auftragsstatus"
 
 #: app/templates/admin/exports.html:36
-msgid "Drafts and cancelled orders are left out unless you tick them."
+msgid ""
+"By default only confirmed and later orders are exported. Drafts, unpriced"
+" requests, open quotes and cancelled orders are left out unless you tick "
+"them."
 msgstr ""
-"Entwürfe und stornierte Aufträge werden ausgelassen, sofern Sie sie nicht"
-" ankreuzen."
+"Standardmäßig werden nur bestätigte und weiter fortgeschrittene Aufträge "
+"exportiert. Entwürfe, noch nicht kalkulierte Anfragen, offene Angebote "
+"und stornierte Aufträge bleiben außen vor, sofern Sie sie nicht "
+"ankreuzen."
 
 #: app/templates/admin/exports.html:42
 msgid "Created from"
@@ -2902,17 +3189,6 @@ msgstr "Konto"
 #: app/templates/me/profile.html:20 app/templates/me/team.html:52
 msgid "Full name"
 msgstr "Name"
-
-#: app/templates/admin/profile.html:26 app/templates/admin/user_edit.html:25
-#: app/templates/admin/users.html:22 app/templates/auth/login.html:25
-#: app/templates/auth/password_reset_request.html:18
-#: app/templates/me/profile.html:26 app/templates/me/team.html:49
-#: app/templates/platform/check_email.html:34
-#: app/templates/platform/login.html:18
-#: app/templates/platform/password_reset_request.html:18
-#: app/templates/www/contact.html:32 app/templates/www/contact.html:112
-msgid "Email"
-msgstr "E-Mail"
 
 #: app/templates/admin/profile.html:28 app/templates/admin/user_edit.html:28
 #: app/templates/me/profile.html:28
@@ -3055,104 +3331,104 @@ msgstr "SLA-Verfolgung"
 msgid "On-time delivery across dates"
 msgstr "Pünktliche Lieferung im Zeitverlauf"
 
-#: app/templates/admin/sla.html:17
+#: app/templates/admin/sla.html:13
+msgid ""
+"An order counts from its promised delivery date on. Open orders that are "
+"not due yet are left out."
+msgstr ""
+"Ein Auftrag zählt ab seinem zugesagten Liefertermin. Offene Aufträge, die"
+" noch nicht fällig sind, bleiben außen vor."
+
+#: app/templates/admin/sla.html:20
 msgid "Timeframe"
 msgstr "Zeitraum"
 
-#: app/templates/admin/sla.html:21
+#: app/templates/admin/sla.html:24
 msgid "Last 30 days"
 msgstr "Letzte 30 Tage"
 
-#: app/templates/admin/sla.html:22
+#: app/templates/admin/sla.html:25
 msgid "Last 90 days"
 msgstr "Letzte 90 Tage"
 
-#: app/templates/admin/sla.html:23
+#: app/templates/admin/sla.html:26
 msgid "Last 365 days"
 msgstr "Letzte 365 Tage"
 
-#: app/templates/admin/sla.html:29 app/templates/orders/detail.html:391
+#: app/templates/admin/sla.html:32 app/templates/orders/detail.html:444
 msgid "Apply"
 msgstr "Anwenden"
 
-#: app/templates/admin/sla.html:37
+#: app/templates/admin/sla.html:40
 msgid "On-time rate"
 msgstr "Pünktlichkeitsquote"
 
-#: app/templates/admin/sla.html:52
-msgid "of delivered orders met the promised date"
-msgstr "der gelieferten Aufträge haben den zugesagten Termin eingehalten"
+#: app/templates/admin/sla.html:55
+msgid "of orders due in this period met the promised date"
+msgstr "der in diesem Zeitraum fälligen Aufträge hielten den zugesagten Termin ein"
 
-#: app/templates/admin/sla.html:58
+#: app/templates/admin/sla.html:61
 msgid "Delivered (total)"
 msgstr "Geliefert (gesamt)"
 
-#: app/templates/admin/sla.html:62
+#: app/templates/admin/sla.html:65
 msgid "orders with recorded delivery"
 msgstr "Aufträge mit erfasster Lieferung"
 
-#: app/templates/admin/sla.html:68
+#: app/templates/admin/sla.html:71 app/templates/admin/sla.html:154
 msgid "Late"
 msgstr "Verspätet"
 
-#: app/templates/admin/sla.html:72
+#: app/templates/admin/sla.html:75
 msgid "delivered past the promised date"
 msgstr "geliefert nach dem zugesagten Termin"
 
-#: app/templates/admin/sla.html:78
+#: app/templates/admin/sla.html:81 app/templates/admin/sla.html:154
 msgid "Pending (overdue)"
 msgstr "Ausstehend (überfällig)"
 
-#: app/templates/admin/sla.html:82
+#: app/templates/admin/sla.html:85
 msgid "promised date passed, not yet delivered"
 msgstr "zugesagter Termin überschritten, noch nicht geliefert"
 
-#: app/templates/admin/sla.html:91
+#: app/templates/admin/sla.html:94
 msgid "Weekly on-time heatmap"
 msgstr "Wöchentliche Pünktlichkeits-Heatmap"
 
-#: app/templates/admin/sla.html:96
+#: app/templates/admin/sla.html:99
 #, python-format
 msgid "&ge;90%% on time"
 msgstr "≥90 %% pünktlich"
 
-#: app/templates/admin/sla.html:100
+#: app/templates/admin/sla.html:103
 #, python-format
 msgid "50-90%%"
 msgstr "50–90 %%"
 
-#: app/templates/admin/sla.html:104
+#: app/templates/admin/sla.html:107
 #, python-format
 msgid "&lt;50%%"
 msgstr "<50 %%"
 
-#: app/templates/admin/sla.html:108
+#: app/templates/admin/sla.html:111
 msgid "no orders"
 msgstr "keine Aufträge"
 
-#: app/templates/admin/sla.html:123 app/templates/platform/admin/funnel.html:19
+#: app/templates/admin/sla.html:126 app/templates/platform/admin/funnel.html:19
 msgid "Week of"
 msgstr "Woche"
 
-#: app/templates/admin/sla.html:139
+#: app/templates/admin/sla.html:142
 msgid "No orders"
 msgstr "Keine Aufträge"
 
-#: app/templates/admin/sla.html:151
+#: app/templates/admin/sla.html:154
 msgid "On time"
 msgstr "Pünktlich"
 
-#: app/templates/admin/sla.html:151
-msgid "late"
-msgstr "verspätet"
-
-#: app/templates/admin/sla.html:163
+#: app/templates/admin/sla.html:166
 msgid "No orders with a promised delivery date yet."
 msgstr "Bisher keine Aufträge mit zugesagtem Liefertermin."
-
-#: app/templates/admin/tenant_settings.html:21
-msgid "Default email language"
-msgstr "Standard-E-Mail-Sprache"
 
 #: app/templates/admin/tenant_settings.html:30
 msgid ""
@@ -3161,10 +3437,6 @@ msgid ""
 msgstr ""
 "Wird für alle Benachrichtigungs-E-Mails verwendet, sofern ein Kunde oder "
 "einzelner Benutzer keine eigene Einstellung hat."
-
-#: app/templates/admin/tenant_settings.html:36
-msgid "Time zone"
-msgstr "Zeitzone"
 
 #: app/templates/admin/tenant_settings.html:49
 msgid ""
@@ -3175,7 +3447,19 @@ msgstr ""
 "Zeitzone angezeigt. Datumsangaben wie Liefertermine werden nicht "
 "verschoben."
 
-#: app/templates/admin/tenant_settings.html:56
+#: app/templates/admin/tenant_settings.html:58
+msgid "e.g. Prices are exclusive of VAT."
+msgstr "z. B. Alle Preise verstehen sich zzgl. MwSt."
+
+#: app/templates/admin/tenant_settings.html:61
+msgid ""
+"Printed at the bottom of every order PDF, for example whether prices "
+"include VAT. Leave empty to print nothing."
+msgstr ""
+"Wird unten auf jedes Auftrags-PDF gedruckt, z. B. ob die Preise die MwSt."
+" enthalten. Leer lassen, um nichts zu drucken."
+
+#: app/templates/admin/tenant_settings.html:68
 #: app/templates/admin/user_edit.html:83
 #: app/templates/platform/admin/subscription_edit.html:149
 #: app/templates/platform/admin/tenant_edit.html:77
@@ -3186,12 +3470,6 @@ msgstr "Änderungen speichern"
 #: app/templates/admin/user_edit.html:11
 msgid "Edit user"
 msgstr "Benutzer bearbeiten"
-
-#: app/templates/admin/user_edit.html:40 app/templates/admin/users.html:23
-#: app/templates/customers/detail.html:187
-#: app/templates/customers/detail.html:254
-msgid "Role"
-msgstr "Rolle"
 
 #: app/templates/admin/user_edit.html:43 app/templates/admin/users.html:34
 #: app/templates/admin/users.html:108 app/templates/www/imprint.html:14
@@ -3261,7 +3539,7 @@ msgid "active"
 msgstr "aktiv"
 
 #: app/templates/admin/users.html:55 app/templates/customers/detail.html:28
-#: app/templates/customers/form.html:9 app/templates/orders/detail.html:237
+#: app/templates/customers/form.html:9 app/templates/orders/detail.html:272
 #: app/templates/platform/admin/tenant_edit.html:10
 #: app/templates/platform/admin/tenants.html:98
 #: app/templates/products/detail.html:27 app/templates/products/form.html:9
@@ -3317,58 +3595,52 @@ msgstr "Vorname Nachname"
 msgid "Send invitation"
 msgstr "Einladung senden"
 
-#: app/templates/assets/detail.html:22
+#: app/templates/assets/detail.html:24
 msgid "Current stock"
 msgstr "Aktueller Bestand"
 
-#: app/templates/assets/detail.html:28 app/templates/assets/form.html:46
+#: app/templates/assets/detail.html:30 app/templates/assets/form.html:46
 #: app/templates/assets/list.html:29 app/templates/www/_subprocessors.html:57
 msgid "Location"
 msgstr "Standort"
 
-#: app/templates/assets/detail.html:32 app/templates/assets/form.html:51
-#: app/templates/orders/detail.html:427 app/templates/products/detail.html:49
-#: app/templates/products/form.html:43
-msgid "Description"
-msgstr "Beschreibung"
-
-#: app/templates/assets/detail.html:40
+#: app/templates/assets/detail.html:42
 msgid "Movements"
 msgstr "Bewegungen"
 
-#: app/templates/assets/detail.html:46
+#: app/templates/assets/detail.html:49
 msgid "Date"
 msgstr "Datum"
 
-#: app/templates/assets/detail.html:47
+#: app/templates/assets/detail.html:50
 msgid "Type"
 msgstr "Typ"
 
-#: app/templates/assets/detail.html:59 app/templates/assets/detail.html:82
+#: app/templates/assets/detail.html:63 app/templates/assets/detail.html:97
 msgid "Receipt"
 msgstr "Eingang"
 
-#: app/templates/assets/detail.html:60 app/templates/assets/detail.html:83
+#: app/templates/assets/detail.html:64 app/templates/assets/detail.html:98
 msgid "Issue"
 msgstr "Ausgabe"
 
-#: app/templates/assets/detail.html:61 app/templates/assets/detail.html:84
+#: app/templates/assets/detail.html:65 app/templates/assets/detail.html:99
 msgid "Consumption"
 msgstr "Verbrauch"
 
-#: app/templates/assets/detail.html:62 app/templates/assets/detail.html:85
+#: app/templates/assets/detail.html:66 app/templates/assets/detail.html:100
 msgid "Correction"
 msgstr "Korrektur"
 
-#: app/templates/assets/detail.html:74
+#: app/templates/assets/detail.html:89
 msgid "No movements."
 msgstr "Keine Bewegungen."
 
-#: app/templates/assets/detail.html:92
+#: app/templates/assets/detail.html:107
 msgid "order"
 msgstr "Auftrag"
 
-#: app/templates/assets/detail.html:99
+#: app/templates/assets/detail.html:114
 msgid "Add movement"
 msgstr "Bewegung hinzufügen"
 
@@ -3385,13 +3657,8 @@ msgstr "Kunde auswählen"
 msgid "Code"
 msgstr "Code"
 
-#: app/templates/assets/form.html:35 app/templates/products/form.html:32
-#: app/templates/products/list.html:24
-msgid "Unit"
-msgstr "Einheit"
-
 #: app/templates/assets/form.html:60 app/templates/customers/detail.html:197
-#: app/templates/customers/form.html:113 app/templates/orders/detail.html:168
+#: app/templates/customers/form.html:113 app/templates/orders/detail.html:203
 #: app/templates/orders/edit.html:83 app/templates/products/form.html:73
 msgid "Save"
 msgstr "Speichern"
@@ -3561,10 +3828,6 @@ msgstr "Alle Aufträge dieses Kunden"
 msgid "No orders for this client yet."
 msgstr "Für diesen Kunden gibt es noch keine Aufträge."
 
-#: app/templates/customers/detail.html:95 app/templates/customers/form.html:43
-msgid "Notes"
-msgstr "Notizen"
-
 #: app/templates/customers/detail.html:101 app/templates/customers/form.html:67
 msgid "Client order permissions"
 msgstr "Kunden-Bestellrechte"
@@ -3595,11 +3858,11 @@ msgstr "Kontakte"
 msgid "Client admin"
 msgstr "Kunden-Admin"
 
-#: app/templates/customers/detail.html:157 app/templates/customers/list.html:59
+#: app/templates/customers/detail.html:157 app/templates/customers/list.html:60
 msgid "Last sign-in"
 msgstr "Letzte Anmeldung"
 
-#: app/templates/customers/detail.html:159 app/templates/customers/list.html:63
+#: app/templates/customers/detail.html:159 app/templates/customers/list.html:64
 msgid "Never signed in"
 msgstr "Nie angemeldet"
 
@@ -3682,39 +3945,37 @@ msgstr ""
 "ihrer laufenden Aufträge mit Terminen. Jeder Kontakt kann das in seinem "
 "Profil abschalten."
 
-#: app/templates/customers/list.html:34
-msgid "contacts"
-msgstr "Kontakte"
+#: app/templates/customers/list.html:35
+#, python-format
+msgid "%(num)d contact"
+msgid_plural "%(num)d contacts"
+msgstr[0] "%(num)d Kontakt"
+msgstr[1] "%(num)d Kontakte"
 
-#: app/templates/customers/list.html:34
-msgid "contact"
-msgstr "Kontakt"
-
-#: app/templates/customers/list.html:38
+#: app/templates/customers/list.html:39
 msgid "no contacts"
 msgstr "keine Kontakte"
 
-#: app/templates/customers/list.html:51
-msgid "open orders"
-msgstr "offene Aufträge"
+#: app/templates/customers/list.html:52
+#, python-format
+msgid "%(num)d open order"
+msgid_plural "%(num)d open orders"
+msgstr[0] "%(num)d offener Auftrag"
+msgstr[1] "%(num)d offene Aufträge"
 
-#: app/templates/customers/list.html:51
-msgid "open order"
-msgstr "offener Auftrag"
-
-#: app/templates/customers/list.html:53
+#: app/templates/customers/list.html:54
 msgid "no open orders"
 msgstr "keine offenen Aufträge"
 
-#: app/templates/customers/list.html:80
+#: app/templates/customers/list.html:81
 msgid "No clients yet."
 msgstr "Bisher keine Kunden."
 
-#: app/templates/customers/list.html:83
+#: app/templates/customers/list.html:84
 msgid "Add the first client"
 msgstr "Ersten Kunden anlegen"
 
-#: app/templates/customers/list.html:91
+#: app/templates/customers/list.html:92
 msgid "Archived clients"
 msgstr "Archivierte Kunden"
 
@@ -3726,205 +3987,85 @@ msgstr "Übersicht"
 msgid "Welcome,"
 msgstr "Willkommen,"
 
-#: app/templates/dashboard/index.html:39
+#: app/templates/dashboard/index.html:26
+msgid "Where to start"
+msgstr "Wo Sie anfangen"
+
+#: app/templates/dashboard/index.html:27
+msgid "A few places that show what the portal does for a job shop."
+msgstr ""
+"Ein paar Stellen, die zeigen, was das Portal einem Fertigungsbetrieb "
+"bringt."
+
+#: app/templates/dashboard/index.html:31 app/templates/dashboard/index.html:32
+msgid "Hide this tip"
+msgstr "Tipp ausblenden"
+
+#: app/templates/dashboard/index.html:40
+msgid "A quote with a drawing"
+msgstr "Ein Angebot mit Zeichnung"
+
+#: app/templates/dashboard/index.html:49
+msgid "An overdue order"
+msgstr "Ein überfälliger Auftrag"
+
+#: app/templates/dashboard/index.html:58
+msgid "Material the client keeps at your shop"
+msgstr "Material, das der Kunde bei Ihnen lagert"
+
+#: app/templates/dashboard/index.html:67 app/templates/orders/list.html:23
+msgid "Export to POHODA"
+msgstr "Export nach POHODA"
+
+#: app/templates/dashboard/index.html:98
 msgid "Open orders"
 msgstr "Offene Aufträge"
 
-#: app/templates/dashboard/index.html:55
+#: app/templates/dashboard/index.html:102
+#, python-format
+msgid "+ %(num)d draft not yet submitted"
+msgid_plural "+ %(num)d drafts not yet submitted"
+msgstr[0] "+ %(num)d Entwurf, noch nicht gesendet"
+msgstr[1] "+ %(num)d Entwürfe, noch nicht gesendet"
+
+#: app/templates/dashboard/index.html:119
 msgid "Active client assets"
 msgstr "Aktive Kunden-Assets"
 
-#: app/templates/dashboard/index.html:55
+#: app/templates/dashboard/index.html:119
 msgid "My assets"
 msgstr "Mein Material"
 
-#: app/templates/dashboard/index.html:72
+#: app/templates/dashboard/index.html:136
 msgid "Needs action"
 msgstr "Handlungsbedarf"
 
-#: app/templates/dashboard/index.html:123
-msgid "changed status of"
-msgstr "Status geändert für"
-
-#: app/templates/dashboard/index.html:124
-msgid "changed who is responsible for"
-msgstr "Zuständigkeit geändert für"
-
-#: app/templates/dashboard/index.html:125
-msgid "edited order"
-msgstr "Auftrag bearbeitet"
-
-#: app/templates/dashboard/index.html:126
-msgid "created a repeat order"
-msgstr "Folgeauftrag erstellt"
-
-#: app/templates/dashboard/index.html:127
-msgid "uploaded a file to"
-msgstr "Datei hochgeladen zu"
-
-#: app/templates/dashboard/index.html:128
-msgid "deleted a file from"
-msgstr "Datei gelöscht aus"
-
-#: app/templates/dashboard/index.html:129
-msgid "changed the role of"
-msgstr "Rolle geändert für"
-
-#: app/templates/dashboard/index.html:130
-msgid "deactivated user"
-msgstr "Benutzer deaktiviert"
-
-#: app/templates/dashboard/index.html:131
-msgid "reactivated user"
-msgstr "Benutzer reaktiviert"
-
-#: app/templates/dashboard/index.html:132
-msgid "updated the profile of"
-msgstr "Profil aktualisiert für"
-
-#: app/templates/dashboard/index.html:133
-msgid "updated settings of"
-msgstr "Einstellungen aktualisiert für"
-
-#: app/templates/dashboard/index.html:134
-msgid "exported data of"
-msgstr "Daten exportiert für"
-
-#: app/templates/dashboard/index.html:135
-#: app/templates/dashboard/index.html:155
-msgid "changed password for"
-msgstr "hat Passwort geändert für"
-
-#: app/templates/dashboard/index.html:136
-msgid "recorded a stock movement of"
-msgstr "Lagerbewegung erfasst für"
-
-#: app/templates/dashboard/index.html:137
-#: app/templates/dashboard/index.html:138
-msgid "erased personal data of"
-msgstr "Personenbezogene Daten gelöscht für"
-
-#: app/templates/dashboard/index.html:139
-msgid "reset the password of"
-msgstr "Passwort zurückgesetzt für"
-
-#: app/templates/dashboard/index.html:140
-msgid "granted support access to"
-msgstr "Support-Zugang gewährt für"
-
-#: app/templates/dashboard/index.html:141
-msgid "revoked support access to"
-msgstr "Support-Zugang widerrufen für"
-
-#: app/templates/dashboard/index.html:142
-msgid "started a support session in"
-msgstr "Support-Sitzung gestartet in"
-
-#: app/templates/dashboard/index.html:143
-msgid "cancelled the subscription of"
-msgstr "Abonnement gekündigt für"
-
-#: app/templates/dashboard/index.html:144
-msgid "changed the subscription of"
-msgstr "Abonnement geändert für"
-
-#: app/templates/dashboard/index.html:145
-msgid "added item to"
-msgstr "Position hinzugefügt zu"
-
-#: app/templates/dashboard/index.html:146
-msgid "updated item on"
-msgstr "Position aktualisiert in"
-
-#: app/templates/dashboard/index.html:147
-msgid "removed item from"
-msgstr "Position entfernt aus"
-
-#: app/templates/dashboard/index.html:148
-msgid "commented on"
-msgstr "kommentierte"
-
-#: app/templates/dashboard/index.html:149
-msgid "created client"
-msgstr "hat Kunden angelegt"
-
-#: app/templates/dashboard/index.html:150
-msgid "updated client"
-msgstr "hat Kunden aktualisiert"
-
-#: app/templates/dashboard/index.html:151
-msgid "deleted client"
-msgstr "hat Kunden gelöscht"
-
-#: app/templates/dashboard/index.html:152
-msgid "created product"
-msgstr "hat Produkt angelegt"
-
-#: app/templates/dashboard/index.html:153
-msgid "updated product"
-msgstr "hat Produkt aktualisiert"
-
-#: app/templates/dashboard/index.html:154
-msgid "invited user"
-msgstr "hat Benutzer eingeladen"
-
-#: app/templates/dashboard/index.html:173
-msgid "Asset"
-msgstr "Asset"
-
-#: app/templates/dashboard/index.html:174
-msgid "Settings"
-msgstr "Einstellungen"
-
-#: app/templates/dashboard/index.html:175
-#: app/templates/dashboard/index.html:176 app/templates/www/contact.html:3
-#: app/templates/www/contact.html:14 app/templates/www/www_base.html:80
-msgid "Contact"
-msgstr "Kontakt"
-
-#: app/templates/dashboard/index.html:177
-msgid "Attachment"
-msgstr "Anhang"
-
-#: app/templates/dashboard/index.html:178
-#: app/templates/platform/admin/subscription_edit.html:3
-#: app/templates/platform/admin/subscription_edit.html:7
-#: app/templates/platform/admin/subscription_edit.html:11
-#: app/templates/platform/admin/tenants.html:102
-#: app/templates/platform/billing/dashboard.html:3
-msgid "Subscription"
-msgstr "Abonnement"
-
-#: app/templates/dashboard/index.html:182
+#: app/templates/dashboard/index.html:165
 msgid "Recent activity"
 msgstr "Letzte Aktivität"
 
-#: app/templates/dashboard/index.html:199 app/templates/orders/detail.html:629
-msgid "System"
-msgstr "System"
-
-#: app/templates/dashboard/index.html:233
+#: app/templates/dashboard/index.html:223
 msgid "No activity yet — actions will show up here as they happen."
 msgstr "Noch keine Aktivität — Aktionen erscheinen hier, sobald sie stattfinden."
 
-#: app/templates/dashboard/index.html:241
+#: app/templates/dashboard/index.html:231
 msgid "Recent orders"
 msgstr "Letzte Aufträge"
 
-#: app/templates/dashboard/index.html:243
+#: app/templates/dashboard/index.html:233
 #: app/templates/platform/admin/funnel.html:69
 msgid "All orders"
 msgstr "Alle Aufträge"
 
-#: app/templates/dashboard/index.html:280
+#: app/templates/dashboard/index.html:270
 msgid "Start a new order in"
 msgstr "Neuen Auftrag starten in"
 
-#: app/templates/dashboard/index.html:289
+#: app/templates/dashboard/index.html:279
 msgid "Start by adding your first client"
 msgstr "Beginnen Sie mit dem Anlegen des ersten Kunden"
 
-#: app/templates/dashboard/index.html:291
+#: app/templates/dashboard/index.html:281
 msgid ""
 "A client is a company whose contacts will place orders through the "
 "portal. Then add products to the catalog or track their assets at your "
@@ -3934,39 +4075,39 @@ msgstr ""
 "erteilen. Anschließend können Sie Produkte zum Katalog hinzufügen oder "
 "Material verwalten, das er bei Ihnen lagert."
 
-#: app/templates/dashboard/index.html:298
+#: app/templates/dashboard/index.html:288
 msgid "Add a client"
 msgstr "Kunde hinzufügen"
 
-#: app/templates/dashboard/index.html:299
+#: app/templates/dashboard/index.html:289
 msgid "A company you deliver to"
 msgstr "Ein Unternehmen, das Sie beliefern"
 
-#: app/templates/dashboard/index.html:306
+#: app/templates/dashboard/index.html:296
 msgid "Create a product"
 msgstr "Produkt anlegen"
 
-#: app/templates/dashboard/index.html:307
+#: app/templates/dashboard/index.html:297
 msgid "An item from your catalog"
 msgstr "Eine Position aus Ihrem Katalog"
 
-#: app/templates/dashboard/index.html:314 app/templates/me/team.html:43
+#: app/templates/dashboard/index.html:304 app/templates/me/team.html:43
 msgid "Invite a colleague"
 msgstr "Kollegen einladen"
 
-#: app/templates/dashboard/index.html:315
+#: app/templates/dashboard/index.html:305
 msgid "Staff / admin role"
 msgstr "Team / Admin-Rolle"
 
-#: app/templates/demo/enter.html:6
+#: app/templates/demo/enter.html:7 app/templates/www/www_base.html:87
 msgid "Live demo"
 msgstr "Live-Demo"
 
-#: app/templates/demo/enter.html:14
+#: app/templates/demo/enter.html:15
 msgid "Try Assoluto — live demo"
 msgstr "Assoluto ausprobieren — Live-Demo"
 
-#: app/templates/demo/enter.html:16
+#: app/templates/demo/enter.html:17
 msgid ""
 "A fictional sheet-metal and CNC job shop with six clients, real-looking "
 "orders, quotes, drawings and client material. No sign-up, no password."
@@ -3975,19 +4116,19 @@ msgstr ""
 "realistisch wirkenden Aufträgen, Angeboten, Zeichnungen und "
 "Kundenmaterial. Ohne Registrierung, ohne Passwort."
 
-#: app/templates/demo/enter.html:24
+#: app/templates/demo/enter.html:25
 msgid "Continue where you left off"
 msgstr "Dort weitermachen, wo Sie aufgehört haben"
 
-#: app/templates/demo/enter.html:32
+#: app/templates/demo/enter.html:33
 msgid "Supplier"
 msgstr "Lieferant"
 
-#: app/templates/demo/enter.html:33
+#: app/templates/demo/enter.html:34
 msgid "See it as the supplier"
 msgstr "Aus Sicht des Lieferanten"
 
-#: app/templates/demo/enter.html:35
+#: app/templates/demo/enter.html:36
 msgid ""
 "You run the shop: incoming orders from all clients, quotes, the "
 "production pipeline, client material in stock, exports for your "
@@ -3997,15 +4138,15 @@ msgstr ""
 "Produktions-Pipeline, Kundenmaterial auf Lager, Exporte für Ihre "
 "Buchhaltungssoftware."
 
-#: app/templates/demo/enter.html:38
+#: app/templates/demo/enter.html:39
 msgid "Enter as the supplier"
 msgstr "Als Lieferant einsteigen"
 
-#: app/templates/demo/enter.html:46
+#: app/templates/demo/enter.html:47
 msgid "See it as the customer"
 msgstr "Aus Sicht des Kunden"
 
-#: app/templates/demo/enter.html:48
+#: app/templates/demo/enter.html:49
 msgid ""
 "You buy from the shop: place an order, upload a drawing, confirm a quote,"
 " follow production and see the material you keep there."
@@ -4014,11 +4155,11 @@ msgstr ""
 "Angebot bestätigen, Produktion verfolgen und das Material sehen, das Sie "
 "dort lagern."
 
-#: app/templates/demo/enter.html:51
+#: app/templates/demo/enter.html:52
 msgid "Enter as the customer"
 msgstr "Als Kunde einsteigen"
 
-#: app/templates/demo/enter.html:57
+#: app/templates/demo/enter.html:58
 msgid ""
 "All companies, people and data are fictional. No e-mails are sent from "
 "the demo, and everything is reset every night."
@@ -4152,28 +4293,28 @@ msgstr ""
 "und sieht dieselben Aufträge wie Sie. Um jemanden zu entfernen, wenden "
 "Sie sich an Ihren Lieferanten."
 
-#: app/templates/orders/_item_row.html:34 app/templates/orders/detail.html:378
+#: app/templates/orders/_item_row.html:39 app/templates/orders/detail.html:431
 msgid "Note (optional)"
 msgstr "Notiz (optional)"
 
-#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:429
-#: app/templates/orders/detail.html:507 app/templates/orders/detail.html:508
-msgid "Price/unit"
-msgstr "Preis/Stk."
+#: app/templates/orders/_item_row.html:67 app/templates/orders/detail.html:482
+#: app/templates/orders/detail.html:560 app/templates/orders/detail.html:561
+msgid "Price per unit"
+msgstr "Preis/Einh."
 
-#: app/templates/orders/_item_row.html:88
+#: app/templates/orders/_item_row.html:93
 msgid "Saving…"
 msgstr "Speichert…"
 
-#: app/templates/orders/_item_row.html:92
+#: app/templates/orders/_item_row.html:97
 msgid "Saved"
 msgstr "Gespeichert"
 
-#: app/templates/orders/_item_row.html:99
+#: app/templates/orders/_item_row.html:104
 msgid "Delete this item?"
 msgstr "Diese Position löschen?"
 
-#: app/templates/orders/_item_row.html:103 app/templates/orders/detail.html:582
+#: app/templates/orders/_item_row.html:108 app/templates/orders/detail.html:640
 #: app/templates/products/detail.html:34
 msgid "Delete"
 msgstr "Löschen"
@@ -4182,178 +4323,195 @@ msgstr "Löschen"
 msgid "Move order to"
 msgstr "Auftrag verschieben nach"
 
-#: app/templates/orders/detail.html:100 app/templates/orders/edit.html:3
+#: app/templates/orders/detail.html:115
+msgid "File"
+msgstr "Datei"
+
+#: app/templates/orders/detail.html:135 app/templates/orders/edit.html:3
 #: app/templates/orders/edit.html:6 app/templates/orders/edit.html:9
 msgid "Edit order"
 msgstr "Auftrag bearbeiten"
 
-#: app/templates/orders/detail.html:107
+#: app/templates/orders/detail.html:142
 msgid "Create a new draft order with the same items?"
 msgstr "Einen neuen Auftragsentwurf mit denselben Positionen erstellen?"
 
-#: app/templates/orders/detail.html:111
+#: app/templates/orders/detail.html:146
 msgid "Order again"
 msgstr "Erneut bestellen"
 
-#: app/templates/orders/detail.html:120
+#: app/templates/orders/detail.html:155
 msgid "PDF"
 msgstr "PDF"
 
-#: app/templates/orders/detail.html:143 app/templates/orders/list.html:121
+#: app/templates/orders/detail.html:178 app/templates/orders/list.html:121
 msgid "Responsible"
 msgstr "Zuständig"
 
-#: app/templates/orders/detail.html:148 app/templates/orders/list.html:70
-#: app/templates/orders/list.html:173
+#: app/templates/orders/detail.html:183 app/templates/orders/list.html:70
+#: app/templates/orders/list.html:196
 msgid "Unassigned"
 msgstr "Nicht zugewiesen"
 
-#: app/templates/orders/detail.html:155
+#: app/templates/orders/detail.html:190
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: app/templates/orders/detail.html:155
+#: app/templates/orders/detail.html:190
 msgid "inactive"
 msgstr "inaktiv"
 
-#: app/templates/orders/detail.html:172
+#: app/templates/orders/detail.html:207
 msgid "Gets the notifications for this order."
 msgstr "Erhält die Benachrichtigungen zu diesem Auftrag."
 
-#: app/templates/orders/detail.html:191
+#: app/templates/orders/detail.html:226
 msgid "Confirmed on"
 msgstr "Bestätigt am"
 
-#: app/templates/orders/detail.html:195 app/templates/orders/detail.html:204
+#: app/templates/orders/detail.html:230 app/templates/orders/detail.html:239
 msgid "Current total"
 msgstr "Aktueller Gesamtbetrag"
 
-#: app/templates/orders/detail.html:218
+#: app/templates/orders/detail.html:253
 msgid "Running sum of priced items — not quoted yet."
 msgstr "Laufende Summe der bepreisten Positionen — noch nicht angeboten."
 
-#: app/templates/orders/detail.html:223
+#: app/templates/orders/detail.html:258
 msgid "Some items have no price yet."
 msgstr "Einige Positionen haben noch keinen Preis."
 
-#: app/templates/orders/detail.html:227
-msgid "Requested delivery"
-msgstr "Wunschtermin"
+#: app/templates/orders/detail.html:293
+msgid "This is where you confirm the quote"
+msgstr "Hier bestätigen Sie das Angebot"
 
-#: app/templates/orders/detail.html:253 app/templates/orders/detail.html:274
+#: app/templates/orders/detail.html:294
+msgid ""
+"Check the items and the price, then press the button below. This is a "
+"demo: nothing is ordered and no e-mail is sent."
+msgstr ""
+"Prüfen Sie Positionen und Preis und klicken Sie dann unten auf die "
+"Schaltfläche. Dies ist eine Demo: Es wird nichts bestellt und keine "
+"E-Mail versendet."
+
+#: app/templates/orders/detail.html:300 app/templates/orders/detail.html:327
 msgid "Order status"
 msgstr "Auftragsstatus"
 
-#: app/templates/orders/detail.html:256
+#: app/templates/orders/detail.html:305
 msgid "Click any step to move the order there."
 msgstr ""
 "Klicken Sie auf einen beliebigen Schritt, um den Auftrag dorthin zu "
 "verschieben."
 
-#: app/templates/orders/detail.html:266
+#: app/templates/orders/detail.html:316
 msgid "This order is cancelled. Pick a step below to reopen it."
 msgstr ""
 "Dieser Auftrag ist storniert. Wählen Sie unten einen Schritt, um ihn "
 "wieder zu öffnen."
 
-#: app/templates/orders/detail.html:308
+#: app/templates/orders/detail.html:318
+msgid "This order was cancelled."
+msgstr "Dieser Auftrag wurde storniert."
+
+#: app/templates/orders/detail.html:361
 msgid "You are confirming"
 msgstr "Sie bestätigen"
 
-#: app/templates/orders/detail.html:339
+#: app/templates/orders/detail.html:392
 msgid "Reopen as draft"
 msgstr "Als Entwurf wieder öffnen"
 
-#: app/templates/orders/detail.html:363
+#: app/templates/orders/detail.html:416
 msgid "Change status with a note"
 msgstr "Status mit Notiz ändern"
 
-#: app/templates/orders/detail.html:366
+#: app/templates/orders/detail.html:419
 msgid "Change the order status?"
 msgstr "Auftragsstatus ändern?"
 
-#: app/templates/orders/detail.html:369
+#: app/templates/orders/detail.html:422
 msgid "New status"
 msgstr "Neuer Status"
 
-#: app/templates/orders/detail.html:380
+#: app/templates/orders/detail.html:433
 msgid "Reason, shown to the client in the email"
 msgstr "Begründung, wird dem Kunden in der E-Mail angezeigt"
 
-#: app/templates/orders/detail.html:401 app/templates/orders/list.html:223
+#: app/templates/orders/detail.html:454 app/templates/orders/list.html:244
 msgid "Notify the customer by e-mail"
 msgstr "Kunden per E-Mail benachrichtigen"
 
-#: app/templates/orders/detail.html:406
+#: app/templates/orders/detail.html:459
 msgid "Send the quote even though some items have no price"
 msgstr "Angebot senden, obwohl einige Positionen keinen Preis haben"
 
-#: app/templates/orders/detail.html:430 app/templates/orders/list.html:123
+#: app/templates/orders/detail.html:483 app/templates/orders/list.html:123
 #: app/templates/www/_hero_mock.html:75
 msgid "Total"
 msgstr "Gesamt"
 
-#: app/templates/orders/detail.html:448
+#: app/templates/orders/detail.html:501
 msgid "No items."
 msgstr "Keine Positionen."
 
-#: app/templates/orders/detail.html:458
+#: app/templates/orders/detail.html:511
 msgid "Search the catalog"
 msgstr "Katalog durchsuchen"
 
-#: app/templates/orders/detail.html:460
+#: app/templates/orders/detail.html:513
 msgid "SKU or name…"
 msgstr "SKU oder Name…"
 
-#: app/templates/orders/detail.html:466
+#: app/templates/orders/detail.html:519
 msgid "Showing"
 msgstr "Angezeigt:"
 
-#: app/templates/orders/detail.html:480
+#: app/templates/orders/detail.html:533
 msgid "custom item (free-text)"
 msgstr "individuelle Position (Freitext)"
 
-#: app/templates/orders/detail.html:490
+#: app/templates/orders/detail.html:543
 msgid "last price"
 msgstr "letzter Preis"
 
-#: app/templates/orders/detail.html:501 app/templates/orders/detail.html:502
+#: app/templates/orders/detail.html:554 app/templates/orders/detail.html:555
 msgid "unit"
 msgstr "Einh."
 
-#: app/templates/orders/detail.html:514 app/templates/orders/detail.html:515
+#: app/templates/orders/detail.html:567 app/templates/orders/detail.html:568
 msgid "Item description"
 msgstr "Positionsbeschreibung"
 
-#: app/templates/orders/detail.html:520
+#: app/templates/orders/detail.html:573
 msgid "Add item"
 msgstr "Position hinzufügen"
 
-#: app/templates/orders/detail.html:530
+#: app/templates/orders/detail.html:583
 msgid "Attachments"
 msgstr "Anhänge"
 
-#: app/templates/orders/detail.html:545
+#: app/templates/orders/detail.html:603
 msgid "IMG"
 msgstr "FOTO"
 
-#: app/templates/orders/detail.html:546
+#: app/templates/orders/detail.html:604
 msgid "DWG"
 msgstr "ZEICH"
 
-#: app/templates/orders/detail.html:547
+#: app/templates/orders/detail.html:605
 msgid "DOC"
 msgstr "DOK"
 
-#: app/templates/orders/detail.html:548
+#: app/templates/orders/detail.html:606
 msgid "OST"
 msgstr "SONST"
 
-#: app/templates/orders/detail.html:564
+#: app/templates/orders/detail.html:622
 msgid "item"
 msgstr "Position"
 
-#: app/templates/orders/detail.html:579
+#: app/templates/orders/detail.html:637
 #, python-format
 msgid ""
 "This order is already confirmed. Delete the file %(name)s anyway? The "
@@ -4362,52 +4520,48 @@ msgstr ""
 "Dieser Auftrag ist bereits bestätigt. Die Datei %(name)s trotzdem "
 "löschen? Die Löschung wird im Audit-Log protokolliert."
 
-#: app/templates/orders/detail.html:579
+#: app/templates/orders/detail.html:637
 #, python-format
 msgid "Delete the file %(name)s?"
 msgstr "Datei %(name)s löschen?"
 
-#: app/templates/orders/detail.html:590
+#: app/templates/orders/detail.html:648
 msgid "No attachments."
 msgstr "Keine Anhänge."
 
-#: app/templates/orders/detail.html:602
+#: app/templates/orders/detail.html:660
 msgid "to the whole order"
 msgstr "zum gesamten Auftrag"
 
-#: app/templates/orders/detail.html:611
+#: app/templates/orders/detail.html:669
 msgid "Upload"
 msgstr "Hochladen"
 
-#: app/templates/orders/detail.html:620
+#: app/templates/orders/detail.html:678
 msgid "Comments"
 msgstr "Kommentare"
 
-#: app/templates/orders/detail.html:627
-msgid "Supplier team"
-msgstr "Lieferantenteam"
-
-#: app/templates/orders/detail.html:637
+#: app/templates/orders/detail.html:695
 msgid "internal"
 msgstr "intern"
 
-#: app/templates/orders/detail.html:642
+#: app/templates/orders/detail.html:700
 msgid "No comments."
 msgstr "Keine Kommentare."
 
-#: app/templates/orders/detail.html:648 app/templates/orders/detail.html:649
+#: app/templates/orders/detail.html:706 app/templates/orders/detail.html:707
 msgid "Write a comment…"
 msgstr "Kommentar schreiben…"
 
-#: app/templates/orders/detail.html:655
+#: app/templates/orders/detail.html:713
 msgid "Internal (staff only)"
 msgstr "Intern (nur für das Team)"
 
-#: app/templates/orders/detail.html:662
+#: app/templates/orders/detail.html:720
 msgid "Add a comment"
 msgstr "Kommentar hinzufügen"
 
-#: app/templates/orders/detail.html:671
+#: app/templates/orders/detail.html:729
 msgid "Status history"
 msgstr "Statusverlauf"
 
@@ -4427,15 +4581,11 @@ msgstr "Entwurf erstellen"
 
 #: app/templates/orders/list.html:21
 msgid ""
-"Download the listed orders as XML for POHODA (drafts and cancelled orders"
-" are skipped unless filtered)"
+"Download the listed orders as XML for POHODA (only confirmed and later "
+"orders unless you filter by status)"
 msgstr ""
-"Die aufgelisteten Aufträge als XML für POHODA herunterladen (Entwürfe und"
-" stornierte Aufträge werden übersprungen, sofern nicht gefiltert)"
-
-#: app/templates/orders/list.html:23
-msgid "Export to POHODA"
-msgstr "Export nach POHODA"
+"Die aufgelisteten Aufträge als XML für POHODA herunterladen (nur "
+"bestätigte und weitere, sofern Sie nicht nach Status filtern)"
 
 #: app/templates/orders/list.html:38
 msgid "Work queue"
@@ -4476,43 +4626,43 @@ msgstr "Alle auf der Seite auswählen"
 msgid "Number"
 msgstr "Nummer"
 
-#: app/templates/orders/list.html:131
+#: app/templates/orders/list.html:131 app/templates/orders/list.html:177
 msgid "Due"
 msgstr "Termin"
 
-#: app/templates/orders/list.html:146
+#: app/templates/orders/list.html:148
 msgid "Select order"
 msgstr "Auftrag auswählen"
 
-#: app/templates/orders/list.html:209
+#: app/templates/orders/list.html:230
 msgid "selected"
 msgstr "ausgewählt"
 
-#: app/templates/orders/list.html:211 app/templates/orders/list.html:214
+#: app/templates/orders/list.html:232 app/templates/orders/list.html:235
 msgid "Set status to…"
 msgstr "Status setzen auf…"
 
-#: app/templates/orders/list.html:227
+#: app/templates/orders/list.html:248
 msgid "Apply to selected"
 msgstr "Auf ausgewählte anwenden"
 
-#: app/templates/orders/list.html:231
+#: app/templates/orders/list.html:252
 msgid "Clear selection"
 msgstr "Auswahl löschen"
 
-#: app/templates/orders/list.html:243
+#: app/templates/orders/list.html:264
 msgid "of"
 msgstr "von"
 
-#: app/templates/orders/list.html:272
+#: app/templates/orders/list.html:293
 msgid "No orders match the filter."
 msgstr "Keine Aufträge entsprechen dem Filter."
 
-#: app/templates/orders/list.html:278
+#: app/templates/orders/list.html:299
 msgid "No orders yet."
 msgstr "Bisher keine Aufträge."
 
-#: app/templates/orders/list.html:281
+#: app/templates/orders/list.html:302
 msgid "Create the first order"
 msgstr "Ersten Auftrag erstellen"
 
@@ -5976,13 +6126,13 @@ msgid "we reply within 1 working day."
 msgstr "wir antworten binnen 1 Arbeitstag."
 
 #: app/templates/www/_plans.html:174 app/templates/www/imprint.html:3
-#: app/templates/www/imprint.html:7 app/templates/www/www_base.html:100
+#: app/templates/www/imprint.html:7 app/templates/www/www_base.html:108
 msgid "Imprint"
 msgstr "Impressum"
 
 #: app/templates/www/_plans.html:176 app/templates/www/imprint.html:53
 #: app/templates/www/security.html:3 app/templates/www/security.html:29
-#: app/templates/www/www_base.html:102
+#: app/templates/www/www_base.html:110
 msgid "Security"
 msgstr "Sicherheit"
 
@@ -6135,7 +6285,7 @@ msgstr ""
 "Mit dem Absenden stimmen Sie der Verarbeitung Ihrer Daten zum Zweck der "
 "Antwort zu (einmalig, kein Newsletter)."
 
-#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:98
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:106
 msgid "Cookies"
 msgstr "Cookies"
 
@@ -7537,17 +7687,17 @@ msgstr ""
 msgid "Try free for 30 days"
 msgstr "30 Tage kostenlos testen"
 
-#: app/templates/www/index.html:48
+#: app/templates/www/index.html:51 app/templates/www/pricing.html:27
+msgid "Try the live demo — no sign-up"
+msgstr "Live-Demo ausprobieren — ohne Registrierung"
+
+#: app/templates/www/index.html:58
 msgid "Request a 15-min demo"
 msgstr "15-Minuten-Demo anfragen"
 
-#: app/templates/www/index.html:53
+#: app/templates/www/index.html:63
 msgid "No credit card · Cancel anytime · Up and running in 30 minutes"
 msgstr "Keine Kreditkarte · Jederzeit kündbar · In 30 Minuten einsatzbereit"
-
-#: app/templates/www/index.html:62 app/templates/www/pricing.html:27
-msgid "Try the live demo — no sign-up"
-msgstr "Live-Demo ausprobieren — ohne Registrierung"
 
 #: app/templates/www/index.html:82
 msgid "The situation today"
@@ -9654,19 +9804,19 @@ msgstr ""
 "Eine Mitteilung gilt am Tag nach dem Versand als zugestellt, sofern der "
 "Absender keinen automatischen Unzustellbarkeits-Report erhält."
 
-#: app/templates/www/www_base.html:86
+#: app/templates/www/www_base.html:94
 msgid "Try free"
 msgstr "Kostenlos testen"
 
-#: app/templates/www/www_base.html:92
+#: app/templates/www/www_base.html:100
 msgid "Terms"
 msgstr "Bedingungen"
 
-#: app/templates/www/www_base.html:94
+#: app/templates/www/www_base.html:102
 msgid "Privacy"
 msgstr "Datenschutz"
 
-#: app/templates/www/www_base.html:96
+#: app/templates/www/www_base.html:104
 msgid "Processing agreement"
 msgstr "Auftragsverarbeitung"
 
@@ -10355,4 +10505,28 @@ msgstr "Auftragsverarbeitung"
 #~ msgstr ""
 #~ "Die Datenbank wird täglich gesichert; "
 #~ "die Backups werden 14 Tage aufbewahrt."
+
+#~ msgid "Show details"
+#~ msgstr "Details anzeigen"
+
+#~ msgid "Drafts and cancelled orders are left out unless you tick them."
+#~ msgstr ""
+#~ "Entwürfe und stornierte Aufträge werden "
+#~ "ausgelassen, sofern Sie sie nicht "
+#~ "ankreuzen."
+
+#~ msgid "late"
+#~ msgstr "verspätet"
+
+#~ msgid "contacts"
+#~ msgstr "Kontakte"
+
+#~ msgid "contact"
+#~ msgstr "Kontakt"
+
+#~ msgid "open orders"
+#~ msgstr "offene Aufträge"
+
+#~ msgid "open order"
+#~ msgstr "offener Auftrag"
 

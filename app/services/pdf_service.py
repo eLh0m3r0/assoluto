@@ -21,11 +21,13 @@ document still generates. Don't rely on that path for real users.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from datetime import UTC, datetime, tzinfo
 from decimal import ROUND_HALF_UP, Decimal
 from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING
+from uuid import UUID
 from xml.sax.saxutils import escape as _xml_escape
 
 import reportlab.rl_config
@@ -51,6 +53,7 @@ from reportlab.platypus import (
 # Czech documents ("Unit price", "Subtotal", the footer).
 from app.i18n import gettext as _t
 from app.models.enums import OrderStatus
+from app.services.price_note import tenant_price_note
 from app.timezones import format_local, tenant_tz
 
 if TYPE_CHECKING:  # pragma: no cover - type hints only
@@ -208,16 +211,23 @@ def _format_qty(value: Decimal | float | int | None) -> str:
     return as_str
 
 
+#: Same day-first formats as the web UI (``localdate`` / ``localtime``
+#: filters), so the PDF and the page a customer compares it with agree
+#: (demo review P2-3).
+DATE_FORMAT = "%d.%m.%Y"
+DATETIME_FORMAT = "%d.%m.%Y %H:%M"
+
+
 def _format_date(value) -> str:
     if value is None:
         return ""
     # Accept both date and datetime.
     if hasattr(value, "strftime"):
-        return value.strftime("%Y-%m-%d")
+        return value.strftime(DATE_FORMAT)
     return str(value)
 
 
-def _format_datetime(value, tz: tzinfo | None = None, fmt: str = "%Y-%m-%d %H:%M") -> str:
+def _format_datetime(value, tz: tzinfo | None = None, fmt: str = DATETIME_FORMAT) -> str:
     """A stored UTC instant as wall-clock time in the tenant's zone ``tz``."""
     if value is None:
         return ""
@@ -238,6 +248,7 @@ def render_order_pdf(
     tenant: Tenant | None,
     *,
     locale: str = "cs",
+    skus: Mapping[UUID, str] | None = None,
 ) -> bytes:
     """Render a single order to PDF and return the raw bytes.
 
@@ -247,6 +258,11 @@ def render_order_pdf(
 
     ``locale`` is the resolved request locale; defaults to ``cs`` so the
     function is safe to call from contexts that don't yet have one.
+
+    ``skus`` maps ``product_id`` → the catalog product's SKU for the
+    "SKU" column; a free-text line (or a product no longer in the map)
+    prints an empty cell. The tenant's price note
+    (:mod:`app.services.price_note`) is printed under the totals.
     """
     font, font_bold = _register_fonts()
     # Every timestamp on the document is the tenant's local time (E2).
@@ -289,6 +305,9 @@ def render_order_pdf(
             h2,
         )
     )
+    # The order's own name, the line a person recognises it by (P2-3).
+    if (order.title or "").strip():
+        story.append(Paragraph(_esc(order.title.strip()), normal))
     story.append(Spacer(1, 10))
 
     # ------------------------------------------------ Meta block
@@ -368,20 +387,14 @@ def render_order_pdf(
         if line_total is not None and Decimal(line_total).is_finite():
             subtotal += Decimal(line_total)
 
-        # SKU: free-text items have no product_id; leave blank.
-        sku = ""
-        # ``OrderItem`` has no denormalised SKU column, so we simply omit
-        # it unless the description happens to start with the pattern
-        # ``"<sku> — <name>"`` (which is the convention for product-picked
-        # items set in orders.py:add_item).
-        desc = item.description or ""
-        name = desc
-        if " — " in desc:
-            maybe_sku, rest = desc.split(" — ", 1)
-            # Heuristic: SKUs are short, no spaces.
-            if maybe_sku and " " not in maybe_sku and len(maybe_sku) <= 40:
-                sku = maybe_sku
-                name = rest
+        # SKU from the linked catalog product (P2-3); free-text lines have
+        # no product and print an empty cell. A description that repeats
+        # the SKU as a "<sku> — " prefix is not printed twice.
+        product_id = getattr(item, "product_id", None)
+        sku = (skus or {}).get(product_id, "") if product_id is not None else ""
+        name = item.description or ""
+        if sku and name.startswith(f"{sku} — "):
+            name = name[len(sku) + 3 :]
 
         qty_str = f"{_format_qty(item.quantity)} {item.unit or ''}".strip()
         data.append(
@@ -435,7 +448,8 @@ def render_order_pdf(
     # shows up as a visible difference rather than silently rewriting
     # what the customer accepted. Nothing is printed about VAT: no tenant
     # setting records whether prices are net or gross, and guessing would
-    # put a false statement on a commercial document.
+    # put a false statement on a commercial document — the tenant's own
+    # price note (below the totals) is where that sentence belongs.
     confirmed_total = getattr(order, "confirmed_total", None)
     confirmed_at = getattr(order, "confirmed_at", None)
     if confirmed_at is not None and confirmed_total is not None:
@@ -461,6 +475,15 @@ def render_order_pdf(
     )
     story.append(totals_table)
 
+    # ------------------------------------------------ Price note
+    # The tenant's own sentence about the price basis (VAT, payment
+    # terms). Printed only when set: the portal does not know whether the
+    # supplier is a VAT payer and must not guess on a commercial document.
+    price_note = tenant_price_note(tenant)
+    if price_note:
+        story.append(Spacer(1, 10))
+        story.append(Paragraph(_esc(price_note).replace("\n", "<br/>"), normal))
+
     # ------------------------------------------------ Build (with footer)
 
     def _on_page(canvas, _doc) -> None:
@@ -472,7 +495,7 @@ def render_order_pdf(
             _t(locale, "Generated"),
             # Zone abbreviation (CET / CEST) — a printed page has no
             # other way to say which clock it was generated by.
-            _format_datetime(datetime.now(UTC), tz, "%Y-%m-%d %H:%M %Z"),
+            _format_datetime(datetime.now(UTC), tz, f"{DATETIME_FORMAT} %Z"),
             _t(
                 locale,
                 "This document is for informational purposes only.",

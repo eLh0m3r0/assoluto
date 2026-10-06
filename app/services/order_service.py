@@ -13,7 +13,7 @@ from datetime import UTC, date, datetime, timedelta, tzinfo
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import Select, and_, func, select
+from sqlalchemy import Select, and_, case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.customer import Customer
@@ -200,6 +200,18 @@ DONE_STATUSES: frozenset[OrderStatus] = frozenset(
     {OrderStatus.DELIVERED, OrderStatus.CLOSED, OrderStatus.CANCELLED}
 )
 
+#: "Open orders" as counted on the dashboard and the client list: sent to
+#: the supplier and not finished yet. A DRAFT is left out — it may be a
+#: client's basket that was never submitted, so counting it inflated the
+#: number with work nobody has asked for (demo review P3-14).
+OPEN_ORDER_STATUSES: tuple[OrderStatus, ...] = (
+    OrderStatus.SUBMITTED,
+    OrderStatus.QUOTED,
+    OrderStatus.CONFIRMED,
+    OrderStatus.IN_PRODUCTION,
+    OrderStatus.READY,
+)
+
 #: Named "needs action" queues (IDEA-1). Each is a predicate on
 #: ``orders`` shared by the dashboard counters and the filtered list the
 #: counter links to, so the two can never disagree.
@@ -239,14 +251,20 @@ def build_orders_query(
 
     ``queue`` names one of the "needs action" work queues
     (:data:`WORK_QUEUES`, staff only); ``sort`` is ``"due"`` / ``"-due"``
-    for promised-date order (undated orders last) or ``None`` for
+    for promised-date order (unfinished orders first, then delivered /
+    closed / cancelled; undated orders last in each group) or ``None`` for
     newest first.
 
     Returns the base ``Select``; callers add ``.limit()`` / ``.offset()``.
     """
     if sort in ("due", "-due"):
         due = Order.promised_delivery_at
+        # Work still to do first, finished / cancelled orders last — a
+        # "by due date" list that opened on last summer's delivered orders
+        # answered nobody's question (demo review P3-10).
+        done_last = case((Order.status.in_(tuple(DONE_STATUSES)), 1), else_=0)
         stmt = select(Order).order_by(
+            done_last.asc(),
             (due.asc() if sort == "due" else due.desc()).nulls_last(),
             Order.created_at.desc(),
         )
