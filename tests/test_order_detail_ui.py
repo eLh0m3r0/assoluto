@@ -236,9 +236,12 @@ async def test_attachment_row_shows_a_file_type_and_a_large_thumbnail(
     body = (await tenant_client.get(f"/app/orders/{seed['order'].id}")).text
 
     assert "application/pdf" not in body
-    assert "PDF · 46.2 KB" in body
-    assert "PNG · 46.2 KB" in body
-    assert "STP · 46.2 KB" in body  # unknown type: the extension
+    # N7: the size is localised (Czech page: decimal comma, "kB").
+    sizes = body.replace(chr(0xA0), " ")
+    assert "KB" not in sizes
+    assert "PDF · 46,2 kB" in sizes
+    assert "PNG · 46,2 kB" in sizes
+    assert "STP · 46,2 kB" in sizes  # unknown type: the extension
     # 96 px thumbnail that opens the file.
     thumb = re.search(r'<a href="(/app/attachments/[^"]+/download)"[^>]*>\s*<img', body)
     assert thumb is not None
