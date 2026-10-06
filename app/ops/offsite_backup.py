@@ -12,9 +12,16 @@ dump into ``upload`` and then calls ``sync-attachments``::
 
 The backup bucket lives in a different Hetzner location from the primary
 bucket and the VPS (``BACKUP_S3_ENDPOINT_URL``), has versioning enabled,
-and is append-only from here: nothing in this module deletes objects, so a
-wiped primary bucket or a wiped ``/backups`` directory cannot propagate.
-Retention is the bucket's lifecycle rule, not this code.
+and is append-only from the backup path: ``upload`` and ``sync-attachments``
+never delete, so a wiped primary bucket or a wiped ``/backups`` directory
+cannot propagate. Retention of dumps is the bucket's lifecycle rule.
+
+The single exception is :func:`purge_tenant_copies`, called only by the
+retention job (``app.tasks.retention``) when a tenant deactivated more than
+30 days ago is purged: the Terms and the DPA promise that its data is then
+deleted, and copies of its drawings in this bucket are part of that data.
+It removes every *version* under exactly ``attachments/<storage_prefix>``,
+so the versioned bucket keeps no hidden copy either.
 
 Before this existed the nightly dumps sat on the same disk as the database
 and the customers' drawings had no backup at all (audit 2026-10-03 BE-01).
@@ -39,17 +46,16 @@ class BackupTarget:
     bucket: str
 
 
-def _clients_from_settings() -> tuple[Any, str, BackupTarget]:
-    """Primary S3 client + bucket, and the backup target, from settings."""
+def backup_target_from_settings() -> BackupTarget | None:
+    """The backup target, or ``None`` when off-site backup is not configured."""
     import boto3
     from botocore.config import Config
 
     from app.config import get_settings
-    from app.storage.s3 import get_s3_client
 
     settings = get_settings()
     if not settings.backup_s3_bucket or not settings.backup_s3_endpoint_url:
-        raise SystemExit("BACKUP_S3_BUCKET / BACKUP_S3_ENDPOINT_URL are not set")
+        return None
     backup_client = boto3.client(
         "s3",
         endpoint_url=settings.backup_s3_endpoint_url,
@@ -59,11 +65,18 @@ def _clients_from_settings() -> tuple[Any, str, BackupTarget]:
         region_name=settings.backup_s3_region,
         config=Config(s3={"addressing_style": "virtual"}, retries={"max_attempts": 5}),
     )
-    return (
-        get_s3_client(),
-        settings.s3_bucket,
-        BackupTarget(client=backup_client, bucket=settings.backup_s3_bucket),
-    )
+    return BackupTarget(client=backup_client, bucket=settings.backup_s3_bucket)
+
+
+def _clients_from_settings() -> tuple[Any, str, BackupTarget]:
+    """Primary S3 client + bucket, and the backup target, from settings."""
+    from app.config import get_settings
+    from app.storage.s3 import get_s3_client
+
+    target = backup_target_from_settings()
+    if target is None:
+        raise SystemExit("BACKUP_S3_BUCKET / BACKUP_S3_ENDPOINT_URL are not set")
+    return get_s3_client(), get_settings().s3_bucket, target
 
 
 def upload_dump(
@@ -110,6 +123,34 @@ def sync_attachments(
         target.client.upload_fileobj(body, target.bucket, dest)
         copied += 1
     return copied, present
+
+
+def purge_tenant_copies(target: BackupTarget, storage_prefix: str, *, enforce: bool) -> int:
+    """Delete every version of every backup copy under one tenant's prefix.
+
+    Only ``attachments/<storage_prefix>/`` is touched — never ``pg/`` (the
+    encrypted dumps age out by lifecycle rule) and never another tenant.
+    In dry-run (``enforce=False``) nothing is deleted. Returns the number
+    of object versions and delete markers found.
+    """
+    prefix = (storage_prefix or "").strip("/")
+    if not prefix:
+        raise ValueError("refusing to purge the whole attachments/ tree")
+    full_prefix = f"{ATTACHMENTS_PREFIX}{prefix}/"
+    found: list[dict[str, str]] = []
+    paginator = target.client.get_paginator("list_object_versions")
+    for page in paginator.paginate(Bucket=target.bucket, Prefix=full_prefix):
+        for entry in page.get("Versions", []) + page.get("DeleteMarkers", []):
+            found.append({"Key": entry["Key"], "VersionId": entry["VersionId"]})
+    if enforce:
+        for start in range(0, len(found), 1000):
+            resp = target.client.delete_objects(
+                Bucket=target.bucket,
+                Delete={"Objects": found[start : start + 1000], "Quiet": True},
+            )
+            if resp.get("Errors"):
+                raise RuntimeError(f"backup purge failed for {len(resp['Errors'])} object(s)")
+    return len(found)
 
 
 def latest_dump_age_hours(target: BackupTarget, *, now: datetime | None = None) -> float | None:

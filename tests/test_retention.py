@@ -193,6 +193,93 @@ async def test_fresh_orphans_are_left_alone(owner_engine, world) -> None:
     assert world["orphan"] in _keys()
 
 
+@pytest.fixture
+def backup_bucket(mock_s3, monkeypatch):
+    """A versioned moto bucket standing in for the off-site backup target,
+    pre-filled the way ``sync-attachments`` would leave it."""
+    import boto3
+
+    from app.ops import offsite_backup
+
+    client = boto3.client("s3", region_name="eu-central-1")
+    client.create_bucket(
+        Bucket="backups", CreateBucketConfiguration={"LocationConstraint": "eu-central-1"}
+    )
+    client.put_bucket_versioning(Bucket="backups", VersioningConfiguration={"Status": "Enabled"})
+    target = offsite_backup.BackupTarget(client=client, bucket="backups")
+    monkeypatch.setattr(offsite_backup, "backup_target_from_settings", lambda: target)
+    return target
+
+
+def _backup_keys(target) -> set[str]:
+    resp = target.client.list_object_versions(Bucket=target.bucket)
+    return {e["Key"] for e in resp.get("Versions", []) + resp.get("DeleteMarkers", [])}
+
+
+async def test_purge_also_deletes_backup_copies_of_the_purged_tenant(
+    owner_engine, world, backup_bucket
+) -> None:
+    """Terms §4 / DPA: 30 days after deactivation the data is permanently
+    deleted — including the drawings' copies in the off-site bucket."""
+    for tenant in ("gone", "recent", "active"):
+        backup_bucket.client.put_object(
+            Bucket="backups", Key=f"attachments/{world[tenant]['key']}", Body=b"pdf"
+        )
+    backup_bucket.client.put_object(Bucket="backups", Key="pg/portal-1.sql.gz.gpg", Body=b"d")
+
+    dry = await enforce_retention(now=NOW + timedelta(days=8))
+    assert dry["tenant_backup_versions"] == 1
+    assert f"attachments/{world['gone']['key']}" in _backup_keys(backup_bucket)
+
+    stats = await enforce_retention(now=NOW + timedelta(days=8), enforce=True)
+    assert stats["tenant_backup_versions"] == 1
+    assert _backup_keys(backup_bucket) == {
+        f"attachments/{world['recent']['key']}",
+        f"attachments/{world['active']['key']}",
+        "pg/portal-1.sql.gz.gpg",
+    }
+
+
+async def test_failed_backup_purge_leaves_tenant_unmarked_for_retry(
+    owner_engine, world, backup_bucket, monkeypatch
+) -> None:
+    from app.ops import offsite_backup
+
+    def _boom(*_a, **_k):
+        raise RuntimeError("backup bucket unreachable")
+
+    monkeypatch.setattr(offsite_backup, "purge_tenant_copies", _boom)
+    stats = await enforce_retention(now=NOW + timedelta(days=8), enforce=True)
+    assert stats["tenants"] == ["gone"]
+    gone_id = world["gone"]["id"]
+    # DB rows are gone, but without the purge mark the next run retries.
+    assert (
+        await _count(owner_engine, "SELECT count(*) FROM orders WHERE tenant_id = :t", t=gone_id)
+        == 0
+    )
+    assert (
+        await _count(
+            owner_engine,
+            "SELECT count(*) FROM tenants WHERE id = :t AND settings ? '_purged_at'",
+            t=gone_id,
+        )
+        == 0
+    )
+
+    monkeypatch.undo()
+    monkeypatch.setattr(offsite_backup, "backup_target_from_settings", lambda: backup_bucket)
+    again = await enforce_retention(now=NOW + timedelta(days=8), enforce=True)
+    assert again["tenants"] == ["gone"]
+    assert (
+        await _count(
+            owner_engine,
+            "SELECT count(*) FROM tenants WHERE id = :t AND settings ? '_purged_at'",
+            t=gone_id,
+        )
+        == 1
+    )
+
+
 async def test_deactivation_trigger_stamps_and_clears(owner_engine, wipe_db) -> None:
     tid = uuid4()
     async with owner_engine.begin() as conn:

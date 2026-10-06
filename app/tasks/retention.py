@@ -9,10 +9,14 @@ Nothing enforced either. This daily job does, in three phases:
    trigger from migration 1010). Every tenant-scoped business row is
    deleted (orders and everything under them, customers, contacts,
    products, assets, users, memberships, audit events, queued mail) and
-   every S3 object under the tenant's ``storage_prefix``. The tenant row
-   itself, its subscription and its invoices are **kept**: invoices are
-   accounting records with their own statutory retention. The row is
-   marked ``settings._purged_at`` so later runs skip it.
+   every S3 object under the tenant's ``storage_prefix`` — in the primary
+   bucket and, when off-site backup is configured, every version of the
+   tenant's file copies in the backup bucket (the encrypted DB dumps age
+   out by the bucket's lifecycle rule). The tenant row itself, its
+   subscription and its invoices are **kept**: invoices are accounting
+   records with their own statutory retention. The row is marked
+   ``settings._purged_at`` so later runs skip it — only once the backup
+   copies are gone too, so a failed backup purge is retried next run.
 2. **Audit events** older than :data:`AUDIT_RETENTION` (3 years).
 3. **Orphaned S3 objects** — attachment / thumbnail objects that no
    ``order_attachments`` row references and that are older than
@@ -75,6 +79,26 @@ def _owner_engine():
     return create_async_engine(get_settings().database_owner_url, future=True)
 
 
+async def _purge_backup_copies(storage_prefix: str, enforce: bool) -> int:
+    """Count (dry-run) or delete one tenant's file copies in the backup bucket.
+
+    Returns 0 when off-site backup is not configured. Raises on failure so
+    the caller can leave the tenant unmarked and retry on the next run.
+    """
+    from functools import partial
+
+    import anyio
+
+    from app.ops import offsite_backup
+
+    target = offsite_backup.backup_target_from_settings()
+    if target is None:
+        return 0
+    return await anyio.to_thread.run_sync(
+        partial(offsite_backup.purge_tenant_copies, target, storage_prefix, enforce=enforce)
+    )
+
+
 async def _purge_tenants(engine, now: datetime, enforce: bool, stats: dict[str, Any]) -> None:
     from app.storage import s3 as s3_storage
 
@@ -109,14 +133,6 @@ async def _purge_tenants(engine, now: datetime, enforce: bool, stats: dict[str, 
                             {"tid": tenant_id},
                         )
                     ).scalar_one()
-            if enforce:
-                await conn.execute(
-                    text(
-                        "UPDATE tenants SET settings = COALESCE(settings, '{}'::jsonb) "
-                        "|| jsonb_build_object('_purged_at', CAST(:ts AS text)) WHERE id = :tid"
-                    ),
-                    {"ts": now.isoformat(), "tid": tenant_id},
-                )
 
         prefix = (storage_prefix or "").rstrip("/") + "/"
         objects: list[str] = []
@@ -134,6 +150,34 @@ async def _purge_tenants(engine, now: datetime, enforce: bool, stats: dict[str, 
                     error_class=type(exc).__name__,
                 )
 
+        # Copies of the tenant's drawings in the off-site backup bucket are
+        # part of "the data is permanently deleted" (Terms §4, DPA). Unlike
+        # the primary bucket there is no orphan sweep there, so a failure
+        # leaves the tenant unmarked and the whole purge is retried — the
+        # DB and primary-bucket steps above are idempotent.
+        backup_ok = True
+        backup_versions = 0
+        if prefix != "/":
+            try:
+                backup_versions = await _purge_backup_copies(prefix, enforce)
+            except Exception as exc:
+                backup_ok = False
+                log.warning(
+                    "retention.tenant_backup_failed",
+                    tenant=slug,
+                    error_class=type(exc).__name__,
+                )
+
+        if enforce and backup_ok:
+            async with engine.begin() as conn:
+                await conn.execute(
+                    text(
+                        "UPDATE tenants SET settings = COALESCE(settings, '{}'::jsonb) "
+                        "|| jsonb_build_object('_purged_at', CAST(:ts AS text)) WHERE id = :tid"
+                    ),
+                    {"ts": now.isoformat(), "tid": tenant_id},
+                )
+
         log.info(
             "retention.tenant.deleted" if enforce else "retention.tenant.would_delete",
             tenant=slug,
@@ -141,11 +185,13 @@ async def _purge_tenants(engine, now: datetime, enforce: bool, stats: dict[str, 
             deactivated_at=deactivated_at.isoformat() if deactivated_at else None,
             rows=sum(counts.values()),
             s3_objects=len(objects),
+            backup_object_versions=backup_versions,
             **{f"rows_{k}": v for k, v in counts.items() if v},
         )
         stats["tenants"].append(slug)
         stats["tenant_rows"] += sum(counts.values())
         stats["tenant_objects"] += len(objects)
+        stats["tenant_backup_versions"] += backup_versions
 
 
 async def _purge_audit(engine, now: datetime, enforce: bool, stats: dict[str, Any]) -> None:
@@ -223,6 +269,7 @@ async def enforce_retention(
         "tenants": [],
         "tenant_rows": 0,
         "tenant_objects": 0,
+        "tenant_backup_versions": 0,
         "audit_events": 0,
         "orphan_objects": 0,
     }
