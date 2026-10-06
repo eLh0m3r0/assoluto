@@ -1376,6 +1376,35 @@ async def orders_delete_item(
     return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)
 
 
+# ------------------------------------------------- "notify the customer" opt-out
+
+#: Staff moves that never e-mail the customer anyway: SUBMITTED notifies
+#: the supplier's own staff, and back to DRAFT is an internal correction
+#: (LOGIC-22). The "Notify the customer" opt-out is moot for these, so
+#: nothing is recorded about it.
+_NO_CUSTOMER_MAIL_TARGETS = frozenset({OrderStatus.SUBMITTED, OrderStatus.DRAFT})
+
+
+def _customer_mail_suppressed(
+    principal: Principal, target: OrderStatus, notify_customer: list[str]
+) -> bool:
+    """Did a staff member untick "Notify the customer by e-mail"?
+
+    The forms render a hidden ``notify_customer=0`` before the checkbox
+    (``value=1``, checked by default), so the field is present either
+    way. An absent field — the stepper's one-click buttons, a contact's
+    own action, a scripted POST — keeps today's behaviour: notify.
+
+    This is a sender-side choice per action. It can only take the
+    customer side *out* of a mail; it never adds recipients, and the
+    consent rules in ``notification_service`` (CLAUDE.md §19) still
+    decide who is mailed when it is left on.
+    """
+    if not principal.is_staff or target in _NO_CUSTOMER_MAIL_TARGETS:
+        return False
+    return bool(notify_customer) and "1" not in notify_customer
+
+
 # ----------------------------------------------------------- bulk transition
 
 
@@ -1389,6 +1418,7 @@ async def orders_bulk_transition(
     background_tasks: BackgroundTasks,
     order_ids: list[str] = Form(default=[]),
     to_status: str = Form(...),
+    notify_customer: list[str] = Form(default=[]),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -1441,12 +1471,15 @@ async def orders_bulk_transition(
     # submitted IDs explicitly so we never act on anything not requested.
     orders = list((await db.execute(select(Order).where(Order.id.in_(parsed_ids)))).scalars().all())
 
+    silenced = _customer_mail_suppressed(principal, target, notify_customer)
     result = await bulk_transition(
         db,
         orders=orders,
         to_status=target,
         actor=_actor(principal),
         audit_actor=actor_from_principal(principal),
+        notify_customer=not silenced,
+        not_notified_note=_t(request, "Customer not notified by e-mail."),
     )
 
     # Build notification payloads while the session is still open — RLS
@@ -1486,6 +1519,10 @@ async def orders_bulk_transition(
             # Back to draft is an internal correction (LOGIC-22) — same
             # rule as the single-order route: the customer is not mailed.
             continue
+        elif silenced:
+            # "Notify the customer" unticked: this route only ever mails
+            # the customer side, so there is nobody left to tell.
+            continue
         else:
             notifications.extend(
                 await build_order_status_changed(
@@ -1519,10 +1556,12 @@ async def orders_bulk_transition(
     ok = len(result.succeeded)
     failed = len(result.errors)
     # Flash summary — localised, but the numeric template is shared.
+    quiet = " " + _t(request, "Customer not notified by e-mail.") if silenced and ok else ""
     if failed == 0:
-        notice = _t(request, "{count} orders transitioned.").format(count=ok)
+        notice = _t(request, "{count} orders transitioned.").format(count=ok) + quiet
         return RedirectResponse(url=f"/app/orders?notice={notice}", status_code=303)
     summary = _t(request, "{ok} transitioned, {failed} failed.").format(ok=ok, failed=failed)
+    summary += quiet
     # Treat partial failure as a notice (not error) so successful rows
     # still get positive confirmation; the "failed" count tells the staff
     # member to inspect those orders individually.
@@ -1560,6 +1599,7 @@ async def orders_transition(
     promised_delivery_at: str = Form(""),
     expected_total: str | None = Form(None),
     allow_incomplete: str = Form(""),
+    notify_customer: list[str] = Form(default=[]),
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -1594,6 +1634,7 @@ async def orders_transition(
             return _order_redirect(order.id, error=_t(request, "Enter a valid date."))
 
     clean_note = note.strip()[:1000] if principal.is_staff else ""
+    silenced = _customer_mail_suppressed(principal, target, notify_customer)
 
     try:
         await transition_order(
@@ -1607,6 +1648,8 @@ async def orders_transition(
             allow_incomplete=principal.is_staff and bool(allow_incomplete),
             promised_delivery_at=promised,
             incomplete_note=_t(request, "Sent although some items had no price."),
+            notify_customer=not silenced,
+            not_notified_note=_t(request, "Customer not notified by e-mail."),
         )
     except QuoteChanged:
         return _order_redirect(
@@ -1648,6 +1691,11 @@ async def orders_transition(
         # (LOGIC-22): the customer was told "Draft" for every mis-click
         # fix, which reads as "your order was thrown away".
         notifications = []
+    elif silenced:
+        # "Notify the customer by e-mail" unticked (LOGIC-22). A staff
+        # move to any status but SUBMITTED mails only the customer side,
+        # so suppressing it leaves the staff notifications untouched.
+        notifications = []
     else:
         notifications = await build_order_status_changed(
             db,
@@ -1676,6 +1724,8 @@ async def orders_transition(
     # which produced "Status changed to Start production."
     status_label = _t(request, STATUS_LABELS.get(target, target.value))
     notice_msg = _t(request, "Status changed to {status}.").format(status=status_label)
+    if silenced:
+        notice_msg += " " + _t(request, "Customer not notified by e-mail.")
     return _order_redirect(order.id, notice=notice_msg)
 
 
@@ -1689,6 +1739,7 @@ async def orders_transition_with_note(
     promised_delivery_at: str = Form(""),
     expected_total: str | None = Form(None),
     allow_incomplete: str = Form(""),
+    notify_customer: list[str] = Form(default=[]),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -1707,6 +1758,7 @@ async def orders_transition_with_note(
         promised_delivery_at=promised_delivery_at,
         expected_total=expected_total,
         allow_incomplete=allow_incomplete,
+        notify_customer=notify_customer,
         principal=principal,
         db=db,
     )

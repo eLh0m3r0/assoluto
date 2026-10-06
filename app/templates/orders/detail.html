@@ -391,6 +391,15 @@
                         {{ _('Apply') }}
                     </button>
                     <input type="hidden" name="expected_total" value="{{ pipeline.expected_total }}">
+                    {# Sender-side opt-out (LOGIC-22). The hidden "0" makes an
+                       unticked box arrive as an explicit "no"; a POST without
+                       the field (stepper buttons) still notifies. Moves to
+                       Submitted / back to Draft never mail the customer. #}
+                    <input type="hidden" name="notify_customer" value="0">
+                    <label class="flex items-center gap-2 text-xs text-slate-600 sm:col-span-4 dark:text-slate-300">
+                        <input type="checkbox" name="notify_customer" value="1" checked>
+                        {{ _('Notify the customer by e-mail') }}
+                    </label>
                     {% if pipeline.has_quote_problems %}
                         <label class="flex items-center gap-2 text-xs text-slate-600 sm:col-span-4 dark:text-slate-300">
                             <input type="checkbox" name="allow_incomplete" value="1">
