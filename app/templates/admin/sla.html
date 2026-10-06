@@ -7,7 +7,10 @@
         <a href="/app" class="text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">&larr; {{ _('Dashboard') }}</a>
         <h1 class="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('SLA tracking') }}</h1>
         <p class="text-sm text-slate-500 dark:text-slate-400">
-            {{ _('On-time delivery across dates') }}: {{ date_from.isoformat() }} — {{ date_to.isoformat() }}.
+            {{ _('On-time delivery across dates') }}: {{ date_from|localdate }} — {{ date_to|localdate }}.
+        </p>
+        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            {{ _('An order counts from its promised delivery date on. Open orders that are not due yet are left out.') }}
         </p>
     </div>
 
@@ -38,18 +41,18 @@
             </div>
             <div class="mt-1 text-3xl font-bold
                 {% if summary.total == 0 %}text-slate-400 dark:text-slate-500
-                {% elif rate_pct >= 90 %}text-emerald-600 dark:text-emerald-400
-                {% elif rate_pct >= 50 %}text-amber-600 dark:text-amber-400
+                {% elif summary.rate >= 0.9 %}text-emerald-600 dark:text-emerald-400
+                {% elif summary.rate >= 0.5 %}text-amber-600 dark:text-amber-400
                 {% else %}text-red-600 dark:text-red-400
                 {% endif %}">
                 {% if summary.total == 0 %}
                     &ndash;
                 {% else %}
-                    {{ rate_pct }}%
+                    {{ summary.rate|percent }}
                 {% endif %}
             </div>
             <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                {{ _('of delivered orders met the promised date') }}
+                {{ _('of orders due in this period met the promised date') }}
             </div>
         </div>
 
@@ -57,7 +60,7 @@
             <div class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 {{ _('Delivered (total)') }}
             </div>
-            <div class="mt-1 text-3xl font-bold text-slate-900 dark:text-slate-100">{{ summary.total }}</div>
+            <div class="mt-1 text-3xl font-bold text-slate-900 dark:text-slate-100">{{ summary.delivered }}</div>
             <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 {{ _('orders with recorded delivery') }}
             </div>
@@ -120,7 +123,7 @@
                             </th>
                             {% for week in grid.weeks %}
                                 <th class="px-1 py-1 text-center font-normal text-slate-500 dark:text-slate-400"
-                                    title="{{ _('Week of') }} {{ week.isoformat() }}">
+                                    title="{{ _('Week of') }} {{ week|localdate }}">
                                     {{ week.strftime('%d.%m') }}
                                 </th>
                             {% endfor %}
@@ -148,7 +151,7 @@
                                             {% set bg = 'bg-red-500' %}
                                         {% endif %}
                                         <td class="h-6 w-8 rounded text-center text-[10px] font-semibold text-white {{ bg }}"
-                                            title="{{ _('On time') }}: {{ cell.on_time }} / {{ cell.total }} ({{ cell.late }} {{ _('late') }})">
+                                            title="{{ _('On time') }}: {{ cell.on_time }} / {{ cell.total }} · {{ _('Late') }}: {{ cell.late }} · {{ _('Pending (overdue)') }}: {{ cell.overdue }}">
                                             {{ cell.total }}
                                         </td>
                                     {% endif %}

@@ -244,7 +244,8 @@ async def test_sla_excludes_cancelled_and_draft_to_closed_jumps(
 ) -> None:
     seed = await _seed(owner_engine, demo_tenant.id)
     await _login(tenant_client, "staff@4mex.cz", "staffpass")
-    promised = date.today() + timedelta(days=5)
+    # Due today: the SLA report judges an order from its promised day on.
+    promised = date.today()
 
     delivered = await _new_order(tenant_client, seed["acme"].id, "Delivered")
     await _add(tenant_client, delivered)

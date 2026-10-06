@@ -1089,17 +1089,16 @@ async def audit_index(
 _SLA_TIMEFRAMES = {"30": 30, "90": 90, "365": 365}
 
 
-def _heatmap_grid(cells: list[dict]) -> dict:
+def _heatmap_grid(cells: list[dict], weeks: list[date]) -> dict:
     """Pivot the flat cell list from ``sla_service.heatmap_data`` into a
-    grid suitable for rendering."""
-    weeks: list = []
-    seen_weeks: set = set()
+    grid suitable for rendering.
+
+    ``weeks`` is the full, continuous column axis
+    (``sla_service.heatmap_weeks``) — a week without due orders is still
+    a column, so the axis reads like a calendar.
+    """
     rows_by_customer: dict[UUID, dict] = {}
     for cell in cells:
-        ws = cell["week_start"]
-        if ws not in seen_weeks:
-            seen_weeks.add(ws)
-            weeks.append(ws)
         cid = cell["customer_id"]
         row = rows_by_customer.get(cid)
         if row is None:
@@ -1110,16 +1109,15 @@ def _heatmap_grid(cells: list[dict]) -> dict:
             }
             rows_by_customer[cid] = row
         total = cell["total"]
-        ratio = (cell["on_time"] / total) if total > 0 else None
-        row["cells"][ws] = {
+        row["cells"][cell["week_start"]] = {
             "on_time": cell["on_time"],
             "late": cell["late"],
+            "overdue": cell.get("overdue", 0),
             "total": total,
-            "ratio": ratio,
+            "ratio": (cell["on_time"] / total) if total > 0 else None,
         }
-    weeks.sort()
     rows = sorted(rows_by_customer.values(), key=lambda r: r["customer_name"].lower())
-    return {"weeks": weeks, "rows": rows}
+    return {"weeks": list(weeks), "rows": rows}
 
 
 @router.get("/sla", response_class=HTMLResponse)
@@ -1129,18 +1127,24 @@ async def sla_dashboard(
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    """On-time delivery summary + per-customer weekly heatmap."""
+    """On-time delivery summary + per-customer weekly heatmap.
+
+    Cards and heatmap share one window and one definition (see
+    ``sla_service``): the heatmap cells add up to the cards.
+    """
     days = _SLA_TIMEFRAMES.get(timeframe, 90)
     timeframe_value = timeframe if timeframe in _SLA_TIMEFRAMES else "90"
 
     # Promised / delivered dates are tenant-local days; so is "today".
-    today = local_today(request_tz(request))
+    tz = request_tz(request)
+    today = local_today(tz)
     date_from = today - timedelta(days=days)
 
-    summary = await sla_service.on_time_rate(db, date_from=date_from, date_to=today, today=today)
-    heatmap_weeks = max(8, min(52, (days // 7) + 1))
-    cells = await sla_service.heatmap_data(db, weeks=heatmap_weeks, today=today)
-    grid = _heatmap_grid(cells)
+    summary = await sla_service.on_time_rate(
+        db, date_from=date_from, date_to=today, today=today, tz=tz
+    )
+    cells = await sla_service.heatmap_data(db, date_from=date_from, today=today, tz=tz)
+    grid = _heatmap_grid(cells, sla_service.heatmap_weeks(date_from, today))
 
     html = _templates(request).render(
         request,
@@ -1149,7 +1153,6 @@ async def sla_dashboard(
             "principal": principal,
             "tenant": _tenant(request),
             "summary": summary,
-            "rate_pct": round(summary["rate"] * 100, 1),
             "grid": grid,
             "timeframe": timeframe_value,
             "timeframes": list(_SLA_TIMEFRAMES.keys()),
