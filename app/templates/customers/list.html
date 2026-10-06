@@ -25,13 +25,14 @@
                         <div class="mt-1.5 flex flex-wrap gap-2 text-xs">
                             {# Contacts badge. 0 = dashed grey hint; >0 = solid slate. #}
                             {% if s.contacts_active %}
-                                <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                <span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                                     <svg aria-hidden="true" class="h-3 w-3" fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="2">
                                         <circle cx="7" cy="7" r="3"/>
                                         <circle cx="14" cy="8" r="2"/>
                                         <path stroke-linecap="round" d="M1 18c1-3 3-4.5 6-4.5s5 1.5 6 4.5"/>
                                     </svg>
-                                    {{ s.contacts_active }}&nbsp;{{ _('contacts') if s.contacts_active != 1 else _('contact') }}
+                                    {# ngettext: Czech has three forms (1 kontakt / 3 kontakty / 5 kontaktů). #}
+                                    {{ ngettext('%(num)d contact', '%(num)d contacts', s.contacts_active) }}
                                 </span>
                             {% else %}
                                 <span class="inline-flex items-center gap-1 rounded-full border border-dashed border-slate-300 px-2 py-0.5 text-slate-500 dark:border-slate-700 dark:text-slate-500">
@@ -46,9 +47,9 @@
                             {% else %}
                                 {% set order_colour = "border border-dashed border-slate-300 text-slate-500 dark:border-slate-700 dark:text-slate-500" %}
                             {% endif %}
-                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium {{ order_colour }}">
+                            <span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 font-medium {{ order_colour }}">
                                 {% if s.orders_open %}
-                                    {{ s.orders_open }}&nbsp;{{ _('open orders') if s.orders_open != 1 else _('open order') }}
+                                    {{ ngettext('%(num)d open order', '%(num)d open orders', s.orders_open) }}
                                 {% else %}
                                     {{ _('no open orders') }}
                                 {% endif %}

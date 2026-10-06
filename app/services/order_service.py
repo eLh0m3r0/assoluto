@@ -200,6 +200,18 @@ DONE_STATUSES: frozenset[OrderStatus] = frozenset(
     {OrderStatus.DELIVERED, OrderStatus.CLOSED, OrderStatus.CANCELLED}
 )
 
+#: "Open orders" as counted on the dashboard and the client list: sent to
+#: the supplier and not finished yet. A DRAFT is left out — it may be a
+#: client's basket that was never submitted, so counting it inflated the
+#: number with work nobody has asked for (demo review P3-14).
+OPEN_ORDER_STATUSES: tuple[OrderStatus, ...] = (
+    OrderStatus.SUBMITTED,
+    OrderStatus.QUOTED,
+    OrderStatus.CONFIRMED,
+    OrderStatus.IN_PRODUCTION,
+    OrderStatus.READY,
+)
+
 #: Named "needs action" queues (IDEA-1). Each is a predicate on
 #: ``orders`` shared by the dashboard counters and the filtered list the
 #: counter links to, so the two can never disagree.

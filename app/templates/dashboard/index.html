@@ -38,6 +38,11 @@
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-slate-400">{{ _('Open orders') }}</p>
                     <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-slate-100">{{ stats.open_orders }}</p>
+                    {% if stats.drafts %}
+                        <p class="mt-0.5 text-xs text-gray-500 dark:text-slate-400" data-drafts-count="{{ stats.drafts }}">
+                            {{ ngettext('+ %(num)d draft not yet submitted', '+ %(num)d drafts not yet submitted', stats.drafts) }}
+                        </p>
+                    {% endif %}
                 </div>
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600 transition group-hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300 dark:group-hover:bg-amber-900/50">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
