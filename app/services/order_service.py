@@ -957,6 +957,8 @@ async def transition_order(
     allow_incomplete: bool = False,
     promised_delivery_at: date | None = None,
     incomplete_note: str = "sent with unpriced items",
+    notify_customer: bool = True,
+    not_notified_note: str = "customer not notified by e-mail",
 ) -> Order:
     """Move the order to `to_status` after validating the move.
 
@@ -987,6 +989,13 @@ async def transition_order(
     Landing on CONFIRMED snapshots ``confirmed_total`` / ``confirmed_at``
     / ``confirmed_by_*``; ``promised_delivery_at`` (staff only) is stored
     when given (IDEA-4).
+
+    ``notify_customer=False`` (staff only, LOGIC-22) records that the
+    sender chose not to e-mail the customer about this move:
+    ``not_notified_note`` is appended to the history note and the audit
+    entry carries ``notify_customer: false``. Suppressing the mail itself
+    is the caller's job — this function sends nothing. Callers pass it
+    only for a move that would otherwise have mailed the customer.
     """
     # SELECT ... FOR UPDATE on this order only; serialises concurrent
     # transitions without touching readers elsewhere.
@@ -1010,6 +1019,11 @@ async def transition_order(
 
     if promised_delivery_at is not None and actor.type != "user":
         raise ForbiddenActor("only staff can promise a delivery date")
+
+    if not notify_customer and actor.type != "user":
+        # A sender-side choice for the supplier's staff; a contact's own
+        # move is never "silenced" (it mails the staff side anyway).
+        raise ForbiddenActor("only staff can skip the customer e-mail")
 
     if (
         to_status == OrderStatus.SUBMITTED
@@ -1066,7 +1080,10 @@ async def transition_order(
 
     await _backfill_milestones(db, order, to_status=to_status, now=now, actor=actor)
 
-    history_note = "; ".join(part for part in ((note or "").strip(), override_note) if part)
+    silent_note = None if notify_customer else not_notified_note
+    history_note = "; ".join(
+        part for part in ((note or "").strip(), override_note, silent_note) if part
+    )
 
     db.add(
         OrderStatusHistory(
@@ -1097,6 +1114,8 @@ async def transition_order(
         after["promised_delivery_at"] = promised_delivery_at.isoformat()
     if history_note:
         after["note"] = history_note
+    if not notify_customer:
+        after["notify_customer"] = False
 
     await audit_service.record(
         db,
@@ -1134,6 +1153,8 @@ async def bulk_transition(
     to_status: OrderStatus,
     actor: ActorRef,
     audit_actor: ActorInfo | None = None,
+    notify_customer: bool = True,
+    not_notified_note: str = "customer not notified by e-mail",
 ) -> BulkResult:
     """Move multiple orders to ``to_status`` in a single pass.
 
@@ -1147,6 +1168,9 @@ async def bulk_transition(
     a bulk change was attributed to ``system`` in the audit log, so the
     one operation most likely to need an explanation — "who moved
     twenty orders to Delivered?" — was the one it could not answer.
+
+    ``notify_customer`` / ``not_notified_note`` are forwarded unchanged
+    (see :func:`transition_order`).
     """
     result = BulkResult()
     for order in orders:
@@ -1157,6 +1181,8 @@ async def bulk_transition(
                 to_status=to_status,
                 actor=actor,
                 audit_actor=audit_actor,
+                notify_customer=notify_customer,
+                not_notified_note=not_notified_note,
             )
         except (ForbiddenTransition, ForbiddenActor, OrderAccessDenied, OrderError) as exc:
             result.errors[order.id] = str(exc) or exc.__class__.__name__
