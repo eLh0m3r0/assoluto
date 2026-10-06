@@ -615,7 +615,7 @@
                                     {{ att.filename }}
                                 </a>
                                 <div class="text-xs text-slate-500 dark:text-slate-400">
-                                    {{ file_type(att) }} · {{ (att.size_bytes / 1024)|round(1) }} KB
+                                    {{ file_type(att) }} · {{ att.size_bytes|filesize }}
                                     {% if att.order_item_id %}
                                         {% for it in items %}
                                             {% if it.id == att.order_item_id %}
