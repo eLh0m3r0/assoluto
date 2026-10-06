@@ -67,14 +67,40 @@ async def first_material(db: AsyncSession) -> Asset | None:
     return (await db.execute(stmt)).scalars().first()
 
 
-async def start_here_links(db: AsyncSession, *, today: date) -> dict[str, Any]:
+async def start_here_links(
+    db: AsyncSession, *, today: date, tenant_id: UUID | None = None
+) -> dict[str, Any]:
     """Rows for the supplier dashboard's "Where to start" card.
 
-    Missing rows come back as ``None``; the template skips them.
+    The seed names its showcase rows (:func:`app.demo.seed.find_showcase`);
+    those win when they still exist in the expected state. The shape-based
+    lookups above are the fallback for a showcase a visitor renamed, moved
+    on or deleted today. Missing rows come back as ``None``; the template
+    skips them.
     """
+    quote = overdue = material = None
+    if tenant_id is not None:
+        from app.demo.seed import find_showcase
+
+        showcase = await find_showcase(db, tenant_id)
+        if showcase.flagship_order is not None:
+            row = await db.get(Order, showcase.flagship_order.id)
+            quote = row if row is not None and row.status == OrderStatus.QUOTED else None
+        if showcase.overdue_order is not None:
+            row = await db.get(Order, showcase.overdue_order.id)
+            late = (
+                row is not None
+                and row.status == OrderStatus.IN_PRODUCTION
+                and row.promised_delivery_at is not None
+                and row.promised_delivery_at < today
+            )
+            overdue = row if late else None
+        if showcase.material is not None:
+            asset = await db.get(Asset, showcase.material.id)
+            material = asset if asset is not None and asset.is_active else None
     return {
-        "quote": await flagship_quote(db),
-        "overdue": await overdue_order(db, today=today),
-        "material": await first_material(db),
+        "quote": quote or await flagship_quote(db),
+        "overdue": overdue or await overdue_order(db, today=today),
+        "material": material or await first_material(db),
         "exports_url": EXPORTS_URL,
     }

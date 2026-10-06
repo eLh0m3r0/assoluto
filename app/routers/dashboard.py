@@ -180,7 +180,9 @@ async def dashboard_index(
     if principal.is_staff and getattr(request.state, "public_demo", False):
         from app.demo.landing import start_here_links
 
-        demo_start = await start_here_links(db, today=local_today(request_tz(request)))
+        demo_start = await start_here_links(
+            db, today=local_today(request_tz(request)), tenant_id=principal.tenant_id
+        )
 
     html = _templates(request).render(
         request,
