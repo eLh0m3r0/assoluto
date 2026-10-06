@@ -491,7 +491,7 @@ async def test_no_mail_leaves_the_demo(demo_client, owner_engine, demo) -> None:
     # As the customer: submit an order (staff would be told).
     demo_client.cookies.delete("sme_portal_session")
     await _enter(demo_client, "customer")
-    draft = await _order_id(owner_engine, DEMO, "Výztuhy rámu – rozpracováno")
+    draft = await _order_id(owner_engine, DEMO, "Výztuhy rámu RS-02")
     resp = await demo_client.post(
         f"/app/orders/{draft}/transitions/submitted", follow_redirects=False
     )
@@ -691,21 +691,26 @@ async def test_uploads_elsewhere_are_not_capped(settings, demo, owner_engine, mo
 async def test_seed_with_files_attaches_watermarked_drawings(
     settings, owner_engine, wipe_db, mock_s3
 ) -> None:
+    from app.demo.seed import ORDERS, Upload
+
     result = await seed_demo(slug=DEMO, password=PASSWORD, engine=owner_engine)
-    assert result.attachments == 3
+    expected = sum(isinstance(e, Upload) for o in ORDERS for e in o.timeline)
+    assert expected >= 10  # drawings on a good share of the orders, not three
+    assert result.attachments == expected
     async with owner_engine.connect() as conn:
         rows = (
             await conn.execute(
                 text(
                     "SELECT a.filename, a.storage_key, a.thumbnail_key, a.content_type, "
-                    "a.created_at, o.created_at AS order_created "
+                    "a.created_at, a.order_id, o.created_at AS order_created "
                     "FROM order_attachments a JOIN orders o ON o.id = a.order_id "
                     "WHERE a.tenant_id = :t"
                 ),
                 {"t": result.tenant_id},
             )
         ).all()
-    assert len(rows) == 3
+    assert len(rows) == expected
+    assert len({r.order_id for r in rows}) >= 8
     async with owner_engine.connect() as conn:
         recent_uploads = (
             await conn.execute(
@@ -720,10 +725,11 @@ async def test_seed_with_files_attaches_watermarked_drawings(
     from app.storage import s3 as s3_storage
 
     for row in rows:
-        assert row.content_type == "application/pdf"
+        assert row.content_type in ("application/pdf", "image/png")
         assert row.storage_key.startswith(f"tenants/{DEMO}/")
         data = s3_storage.download_bytes(row.storage_key)
-        assert data.startswith(b"%PDF-") and len(data) < 200_000
+        magic = b"%PDF-" if row.content_type == "application/pdf" else b"\x89PNG"
+        assert data.startswith(magic) and len(data) < 200_000
         assert row.created_at > row.order_created  # uploaded with the order, not "today"
         import shutil
 
@@ -844,7 +850,7 @@ async def test_reset_job_restores_the_seed_and_removes_visitor_files(
     second = await reset_public_demo(engine=owner_engine)  # idempotent
     assert first is not None and second is not None
     assert first["orders"] == second["orders"] == seeded.orders
-    assert first["attachments"] == second["attachments"] == 3
+    assert first["attachments"] == second["attachments"] == seeded.attachments
 
     async with owner_engine.connect() as conn:
         tid = (
@@ -877,7 +883,7 @@ async def test_reset_job_restores_the_seed_and_removes_visitor_files(
         ).scalar_one()
     assert len(orders) == seeded.orders
     assert "Návštěvník – testovací" not in orders
-    assert attachments == 3
+    assert attachments == seeded.attachments
     stored = set(_keys(f"tenants/{DEMO}/"))
     assert stored == db_keys  # nothing left over: visitor files and old drawings are gone
     assert not (stored & visitor_keys)
