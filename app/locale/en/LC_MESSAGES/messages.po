@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-10-04 13:02+0200\n"
+"POT-Creation-Date: 2026-10-06 13:48+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -24,56 +24,56 @@ msgstr ""
 
 #: app/i18n_messages.py:35 app/templates/dashboard/index.html:158
 #: app/templates/orders/_status_badge.html:14
-#: app/templates/orders/detail.html:692
+#: app/templates/orders/detail.html:701
 msgid "Draft"
 msgstr "Draft"
 
-#: app/i18n_messages.py:36 app/services/pdf_service.py:259
+#: app/i18n_messages.py:36 app/services/pdf_service.py:304
 #: app/templates/dashboard/index.html:159
 #: app/templates/orders/_status_badge.html:15
-#: app/templates/orders/detail.html:693
+#: app/templates/orders/detail.html:702
 msgid "Submitted"
 msgstr "Submitted"
 
 #: app/i18n_messages.py:37 app/templates/dashboard/index.html:160
 #: app/templates/orders/_status_badge.html:16
-#: app/templates/orders/detail.html:694
+#: app/templates/orders/detail.html:703
 msgid "Quoted"
 msgstr "Quoted"
 
 #: app/i18n_messages.py:38 app/templates/dashboard/index.html:161
 #: app/templates/orders/_status_badge.html:17
-#: app/templates/orders/detail.html:695
+#: app/templates/orders/detail.html:704
 msgid "Confirmed"
 msgstr "Confirmed"
 
 #: app/i18n_messages.py:39 app/templates/dashboard/index.html:162
 #: app/templates/orders/_status_badge.html:18
-#: app/templates/orders/detail.html:696
+#: app/templates/orders/detail.html:705
 msgid "In production"
 msgstr "In production"
 
 #: app/i18n_messages.py:40 app/templates/dashboard/index.html:163
 #: app/templates/orders/_status_badge.html:19
-#: app/templates/orders/detail.html:697
+#: app/templates/orders/detail.html:706
 msgid "Ready"
 msgstr "Ready"
 
 #: app/i18n_messages.py:41 app/templates/dashboard/index.html:164
 #: app/templates/orders/_status_badge.html:20
-#: app/templates/orders/detail.html:698
+#: app/templates/orders/detail.html:707
 msgid "Delivered"
 msgstr "Delivered"
 
 #: app/i18n_messages.py:42 app/templates/dashboard/index.html:165
 #: app/templates/orders/_status_badge.html:21
-#: app/templates/orders/detail.html:699
+#: app/templates/orders/detail.html:708
 msgid "Closed"
 msgstr "Closed"
 
 #: app/i18n_messages.py:43 app/templates/dashboard/index.html:166
 #: app/templates/orders/_status_badge.html:22
-#: app/templates/orders/detail.html:700
+#: app/templates/orders/detail.html:709
 msgid "Cancelled"
 msgstr "Cancelled"
 
@@ -129,19 +129,20 @@ msgstr ""
 msgid "All entities"
 msgstr ""
 
-#: app/i18n_messages.py:66 app/services/pdf_service.py:218
-#: app/services/pdf_service.py:243 app/templates/_palette_results.html:34
+#: app/i18n_messages.py:66 app/services/pdf_service.py:263
+#: app/services/pdf_service.py:288 app/templates/_palette_results.html:34
 #: app/templates/dashboard/index.html:169
 msgid "Order"
 msgstr ""
 
-#: app/i18n_messages.py:67 app/routers/orders.py:409
-#: app/services/pdf_service.py:280 app/templates/admin/sla.html:119
+#: app/i18n_messages.py:67 app/routers/orders.py:418
+#: app/services/pdf_service.py:325 app/templates/admin/sla.html:119
+#: app/templates/demo/enter.html:45
 msgid "Customer"
 msgstr ""
 
 #: app/i18n_messages.py:68 app/templates/_palette_results.html:76
-#: app/templates/dashboard/index.html:171 app/templates/orders/detail.html:469
+#: app/templates/dashboard/index.html:171 app/templates/orders/detail.html:478
 msgid "Product"
 msgstr ""
 
@@ -154,21 +155,39 @@ msgid "Customer contact"
 msgstr ""
 
 #: app/email/templates/plan_limit_reached.html:13
-#: app/email/templates/plan_limit_reached.txt:5 app/main.py:561
+#: app/email/templates/plan_limit_reached.txt:5 app/main.py:571
 msgid "staff users"
 msgstr ""
 
 #: app/email/templates/plan_limit_reached.html:12
-#: app/email/templates/plan_limit_reached.txt:4 app/main.py:562
+#: app/email/templates/plan_limit_reached.txt:4 app/main.py:572
 msgid "client contacts"
 msgstr ""
 
-#: app/main.py:563
+#: app/main.py:573
 msgid "orders this month"
 msgstr ""
 
-#: app/main.py:564
+#: app/main.py:574
 msgid "MB of storage"
+msgstr ""
+
+#: app/demo/guard.py:207 app/demo/guard.py:414
+msgid "The public demo accepts files up to 2 MB."
+msgstr ""
+
+#: app/demo/guard.py:212
+msgid "The public demo accepts only images (PNG, JPEG, WebP) and PDF files."
+msgstr ""
+
+#: app/demo/guard.py:231
+msgid ""
+"The public demo accepts at most 20 new files a day. Please try again "
+"tomorrow."
+msgstr ""
+
+#: app/demo/router.py:136
+msgid "The demo is being refreshed. Please try again in a minute."
 msgstr ""
 
 #: app/email/templates/_layout.html:32
@@ -213,8 +232,10 @@ msgstr ""
 #: app/email/templates/plan_limit_reached.txt:8
 #: app/email/templates/trial_day1.html:14 app/email/templates/trial_day1.txt:3
 #: app/email/templates/trial_day7.html:14 app/email/templates/trial_day7.txt:3
-#: app/email/templates/trial_ending.html:14
-#: app/email/templates/trial_ending.txt:3
+#: app/email/templates/trial_ending.html:18
+#: app/email/templates/trial_ending.html:42
+#: app/email/templates/trial_ending.txt:4
+#: app/email/templates/trial_ending.txt:20
 #, python-format
 msgid "Hello %(full_name)s,"
 msgstr ""
@@ -506,11 +527,11 @@ msgid ""
 msgstr ""
 
 #: app/email/templates/order_assigned.html:12
-#: app/email/templates/order_assigned.txt:5 app/routers/orders.py:408
-#: app/services/pdf_service.py:253 app/templates/orders/list.html:119
-#: app/templates/platform/admin/dashboard.html:53
+#: app/email/templates/order_assigned.txt:5 app/routers/orders.py:417
+#: app/services/pdf_service.py:298 app/templates/orders/list.html:119
+#: app/templates/platform/admin/dashboard.html:66
 #: app/templates/platform/admin/tenant_edit.html:59
-#: app/templates/platform/billing/dashboard.html:298
+#: app/templates/platform/billing/dashboard.html:318
 #: app/templates/www/_hero_mock.html:74
 msgid "Status"
 msgstr ""
@@ -698,7 +719,7 @@ msgstr ""
 #: app/email/templates/order_status_changed.html:20
 #: app/email/templates/order_status_changed.txt:6
 #: app/email/templates/quote_reminder.html:9
-#: app/email/templates/quote_reminder.txt:6 app/routers/orders.py:413
+#: app/email/templates/quote_reminder.txt:6 app/routers/orders.py:422
 #: app/templates/orders/detail.html:199
 msgid "Quoted total"
 msgstr ""
@@ -853,8 +874,8 @@ msgid ""
 msgstr ""
 
 #: app/email/templates/plan_limit_reached.html:28
-#: app/email/templates/plan_limit_reached.txt:14 app/templates/app_base.html:52
-#: app/templates/app_base.html:69
+#: app/email/templates/plan_limit_reached.txt:14 app/templates/app_base.html:73
+#: app/templates/app_base.html:90
 msgid "Open billing"
 msgstr ""
 
@@ -1045,16 +1066,67 @@ msgid ""
 msgstr ""
 
 #: app/email/templates/trial_ending.html:6
-#: app/email/templates/trial_ending.html:13
-#: app/email/templates/trial_ending.txt:1
+#: app/email/templates/trial_ending.html:17
+#: app/email/templates/trial_ending.txt:2
+msgid "Free early access is ending"
+msgstr ""
+
+#: app/email/templates/trial_ending.html:6
+#: app/email/templates/trial_ending.html:41
+#: app/email/templates/trial_ending.txt:18
 msgid "Your trial is ending"
 msgstr ""
 
-#: app/email/templates/trial_ending.html:10
+#: app/email/templates/trial_ending.html:14
+msgid "Reply to this email to keep your portal running — your data stays."
+msgstr ""
+
+#: app/email/templates/trial_ending.html:20
+#, python-format
+msgid ""
+"free early access to Assoluto for <strong>%(tenant_name)s</strong> ends "
+"on <strong>%(trial_end_date)s</strong>."
+msgstr ""
+
+#: app/email/templates/trial_ending.html:23
+#: app/email/templates/trial_ending.txt:8
+msgid ""
+"After that the portal continues at 1 490 CZK per month (Starter) or 2 990"
+" CZK per month (Pro), invoiced. Your orders, clients and drawings stay "
+"where they are."
+msgstr ""
+
+#: app/email/templates/trial_ending.html:26
+#: app/email/templates/trial_ending.txt:10
+msgid ""
+"The first 10 workshops that start paying keep the founding price for "
+"good: 490 CZK per month for Starter, 1 490 CZK per month for Pro."
+msgstr ""
+
+#: app/email/templates/trial_ending.html:28
+#: app/email/templates/trial_ending.txt:12
+msgid ""
+"Want to continue? Just reply to this email and we will send you an "
+"invoice."
+msgstr ""
+
+#: app/email/templates/trial_ending.html:30
+#: app/email/templates/trial_ending.txt:14
+msgid "Your plan and billing"
+msgstr ""
+
+#: app/email/templates/trial_ending.html:33
+#: app/email/templates/trial_ending.txt:16
+msgid ""
+"If you decide not to continue, your data stays exportable for 3 days "
+"after early access ends, and we can erase everything on request (GDPR)."
+msgstr ""
+
+#: app/email/templates/trial_ending.html:38
 msgid "Pick a plan to keep your portal running — takes two minutes."
 msgstr ""
 
-#: app/email/templates/trial_ending.html:16
+#: app/email/templates/trial_ending.html:44
 #, python-format
 msgid ""
 "the 30-day trial for <strong>%(tenant_name)s</strong> ends on "
@@ -1062,31 +1134,45 @@ msgid ""
 "clients' access) running without interruption, pick a plan before then:"
 msgstr ""
 
-#: app/email/templates/trial_ending.html:21
-#: app/email/templates/trial_ending.txt:7 app/templates/app_base.html:33
+#: app/email/templates/trial_ending.html:49
+#: app/email/templates/trial_ending.txt:24 app/templates/app_base.html:54
 msgid "Choose a plan"
 msgstr ""
 
-#: app/email/templates/trial_ending.html:25
-#: app/email/templates/trial_ending.txt:9
+#: app/email/templates/trial_ending.html:53
+#: app/email/templates/trial_ending.txt:26
 msgid ""
 "Prefer annual invoicing by bank transfer? Just reply to this email — "
 "typically two months free for the year."
 msgstr ""
 
-#: app/email/templates/trial_ending.html:28
-#: app/email/templates/trial_ending.txt:11
+#: app/email/templates/trial_ending.html:56
+#: app/email/templates/trial_ending.txt:28
 msgid ""
 "If you decide not to continue, your data stays exportable for 3 days "
 "after the trial ends, and we can erase everything on request (GDPR)."
 msgstr ""
 
 #: app/email/templates/trial_ending.subject.txt:1
+#: app/email/templates/trial_ending14.subject.txt:1
+#, python-format
+msgid "Free early access to Assoluto ends on %(trial_end_date)s"
+msgstr ""
+
+#: app/email/templates/trial_ending.subject.txt:1
+#: app/email/templates/trial_ending14.subject.txt:1
 #, python-format
 msgid "Your Assoluto trial ends in %(days_left)s days"
 msgstr ""
 
-#: app/email/templates/trial_ending.txt:5
+#: app/email/templates/trial_ending.txt:6
+#, python-format
+msgid ""
+"free early access to Assoluto for %(tenant_name)s ends on "
+"%(trial_end_date)s."
+msgstr ""
+
+#: app/email/templates/trial_ending.txt:22
 #, python-format
 msgid ""
 "the 30-day trial for %(tenant_name)s ends on %(trial_end_date)s. To keep "
@@ -1201,7 +1287,7 @@ msgstr ""
 msgid "Password is too weak."
 msgstr ""
 
-#: app/platform/validation.py:242 app/routers/www.py:230
+#: app/platform/validation.py:242 app/routers/www.py:233
 msgid "Email address is not valid."
 msgstr ""
 
@@ -1223,99 +1309,99 @@ msgstr ""
 msgid "Subscription updated."
 msgstr ""
 
-#: app/platform/routers/billing.py:457
+#: app/platform/routers/billing.py:473
 #, python-brace-format
 msgid "This plan is arranged individually — write to {email}."
 msgstr ""
 
-#: app/platform/routers/billing.py:470
+#: app/platform/routers/billing.py:486
 #, python-brace-format
 msgid "This portal is suspended. Please write to {email}."
 msgstr ""
 
-#: app/platform/routers/billing.py:487
+#: app/platform/routers/billing.py:503
 msgid ""
 "Your last payment did not go through. Please update your payment method "
 "under “Manage subscription” first."
 msgstr ""
 
-#: app/platform/routers/billing.py:494
+#: app/platform/routers/billing.py:510
 msgid "You are already on this plan."
 msgstr ""
 
-#: app/platform/routers/billing.py:509
+#: app/platform/routers/billing.py:525
 #, python-brace-format
 msgid "The plan change did not go through. Please try again or write to {email}."
 msgstr ""
 
-#: app/platform/routers/billing.py:518
+#: app/platform/routers/billing.py:534
 #, python-brace-format
 msgid ""
 "Plan changed to {plan}. The price difference is settled pro rata on your "
 "next invoice."
 msgstr ""
 
-#: app/platform/routers/billing.py:576
+#: app/platform/routers/billing.py:592
 msgid "Your payment is being confirmed. Refresh this page in a minute."
 msgstr ""
 
-#: app/platform/routers/billing.py:592
+#: app/platform/routers/billing.py:608
 #, python-brace-format
 msgid ""
 "Online payment could not be started. Please try again in a moment or "
 "write to {email}."
 msgstr ""
 
-#: app/platform/routers/billing.py:660
+#: app/platform/routers/billing.py:676
 msgid "No active subscription to cancel."
 msgstr ""
 
-#: app/platform/routers/billing.py:675
+#: app/platform/routers/billing.py:691
 #, python-brace-format
 msgid "The cancellation did not go through. Please try again or write to {email}."
 msgstr ""
 
-#: app/platform/routers/billing.py:686
+#: app/platform/routers/billing.py:702
 #, python-brace-format
 msgid "The subscription is already canceled. Access ends on {date}."
 msgstr ""
 
-#: app/platform/routers/billing.py:690
+#: app/platform/routers/billing.py:706
 msgid "The subscription is already canceled."
 msgstr ""
 
-#: app/platform/routers/billing.py:694
+#: app/platform/routers/billing.py:710
 #, python-brace-format
 msgid ""
 "Subscription canceled — you keep full access until {date}, then you have "
 "3 days to export your data before access ends."
 msgstr ""
 
-#: app/platform/routers/billing.py:700
+#: app/platform/routers/billing.py:716
 msgid ""
 "Subscription canceled — you keep full access until the end of the current"
 " billing period, then you have 3 days to export your data."
 msgstr ""
 
-#: app/platform/routers/billing.py:706
+#: app/platform/routers/billing.py:722
 #, python-brace-format
 msgid ""
 "Subscription canceled — please export your data by {date}. After that, "
 "contact {email} within 30 days for manual recovery."
 msgstr ""
 
-#: app/platform/routers/billing.py:711
+#: app/platform/routers/billing.py:727
 msgid "Subscription canceled."
 msgstr ""
 
-#: app/platform/routers/billing.py:940
+#: app/platform/routers/billing.py:956
 msgid ""
 "The Stripe portal is not reachable right now. Please try again in a "
 "moment."
 msgstr ""
 
-#: app/platform/routers/gdpr.py:164 app/routers/me.py:281
-#: app/routers/tenant_admin.py:812
+#: app/platform/routers/gdpr.py:164 app/routers/me.py:282
+#: app/routers/tenant_admin.py:821
 msgid "Password does not match — deletion cancelled."
 msgstr ""
 
@@ -1323,25 +1409,25 @@ msgstr ""
 msgid "You're the last administrator of a portal — promote someone else first."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:151
+#: app/platform/routers/platform_admin.py:162
 #, python-format
 msgid "A tenant with slug '%(slug)s' already exists."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:174
+#: app/platform/routers/platform_admin.py:185
 #, python-format
 msgid "Tenant '%(slug)s' created."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:402
+#: app/platform/routers/platform_admin.py:442
 msgid "Tenant deactivated."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:418
+#: app/platform/routers/platform_admin.py:458
 msgid "Tenant reactivated."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:426
+#: app/platform/routers/platform_admin.py:466
 #, python-brace-format
 msgid ""
 "Note: the subscription is “{status}” — unless you extend it in the "
@@ -1349,62 +1435,62 @@ msgid ""
 "again."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:489
-#: app/platform/routers/platform_admin.py:714 app/routers/customers.py:352
+#: app/platform/routers/platform_admin.py:529
+#: app/platform/routers/platform_admin.py:765 app/routers/customers.py:352
 #: app/routers/customers.py:471 app/routers/products.py:393
-#: app/routers/tenant_admin.py:451
+#: app/routers/tenant_admin.py:460
 msgid "Changes saved."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:607
+#: app/platform/routers/platform_admin.py:653
 msgid "Invalid action: the number of days must be 1 to 3650."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:609
+#: app/platform/routers/platform_admin.py:655
 msgid "Unknown action."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:627
+#: app/platform/routers/platform_admin.py:673
 msgid "Trial started (Starter, 30 days)."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:630
+#: app/platform/routers/platform_admin.py:676
 msgid "Tenant has no subscription. Click Start trial."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:637
+#: app/platform/routers/platform_admin.py:683
 msgid ""
 "The subscription is managed by Stripe. Make changes in the Stripe "
 "dashboard — saving here would be overwritten by the next webhook."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:680
+#: app/platform/routers/platform_admin.py:731
 msgid "“Mark as active” needs a “paid until” date in the future."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:690
+#: app/platform/routers/platform_admin.py:741
 msgid "The tenant already has a subscription."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:721
+#: app/platform/routers/platform_admin.py:772
 msgid "The tenant was reactivated."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:724
+#: app/platform/routers/platform_admin.py:775
 msgid ""
 "The tenant stays suspended by the operator — reactivate it in the tenant "
 "list if intended."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:802
+#: app/platform/routers/platform_admin.py:853
 msgid "Support access granted."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:827
+#: app/platform/routers/platform_admin.py:878
 msgid "No support access to revoke."
 msgstr ""
 
-#: app/platform/routers/platform_admin.py:848
+#: app/platform/routers/platform_admin.py:899
 msgid "Support access revoked."
 msgstr ""
 
@@ -1527,23 +1613,23 @@ msgstr ""
 msgid "Movement recorded."
 msgstr ""
 
-#: app/routers/attachments.py:169
+#: app/routers/attachments.py:185
 msgid "The file could not be stored. Please try again."
 msgstr ""
 
-#: app/routers/attachments.py:212
+#: app/routers/attachments.py:228
 msgid "Attachment uploaded."
 msgstr ""
 
-#: app/routers/attachments.py:304
+#: app/routers/attachments.py:320
 msgid "You can only delete files you uploaded yourself."
 msgstr ""
 
-#: app/routers/attachments.py:326
+#: app/routers/attachments.py:342
 msgid "Attachment deleted."
 msgstr ""
 
-#: app/routers/customer_team.py:106 app/routers/www.py:213
+#: app/routers/customer_team.py:106 app/routers/www.py:216
 msgid "Please fill in all fields."
 msgstr ""
 
@@ -1568,7 +1654,7 @@ msgid "This client is archived. Unarchive it to invite contacts."
 msgstr ""
 
 #: app/routers/customers.py:457 app/routers/me.py:128
-#: app/routers/tenant_admin.py:384 app/routers/tenant_admin.py:613
+#: app/routers/tenant_admin.py:393 app/routers/tenant_admin.py:622
 msgid "Name cannot be empty."
 msgstr ""
 
@@ -1584,11 +1670,11 @@ msgstr ""
 msgid "This contact already has a password; use a password reset instead."
 msgstr ""
 
-#: app/routers/customers.py:561 app/routers/tenant_admin.py:507
+#: app/routers/customers.py:561 app/routers/tenant_admin.py:516
 msgid "Too many invitations sent recently. Try again later."
 msgstr ""
 
-#: app/routers/customers.py:586 app/routers/tenant_admin.py:540
+#: app/routers/customers.py:586 app/routers/tenant_admin.py:549
 msgid "Invitation resent."
 msgstr ""
 
@@ -1600,61 +1686,61 @@ msgstr ""
 msgid "Client restored. Its contacts can sign in again."
 msgstr ""
 
-#: app/routers/dashboard.py:91 app/routers/orders.py:132
+#: app/routers/dashboard.py:94 app/routers/orders.py:133
 msgid "Submitted, waiting for a quote"
 msgstr ""
 
-#: app/routers/dashboard.py:92 app/routers/orders.py:133
+#: app/routers/dashboard.py:95 app/routers/orders.py:134
 msgid "Confirmed without a promised date"
 msgstr ""
 
-#: app/routers/dashboard.py:93 app/routers/orders.py:134
+#: app/routers/dashboard.py:96 app/routers/orders.py:135
 #: app/templates/orders/detail.html:242 app/templates/orders/list.html:186
 msgid "Overdue"
 msgstr ""
 
-#: app/routers/dashboard.py:94 app/routers/orders.py:135
+#: app/routers/dashboard.py:97 app/routers/orders.py:136
 msgid "Quotes waiting for the client"
 msgstr ""
 
-#: app/routers/dashboard.py:97
+#: app/routers/dashboard.py:100
 msgid "Price them and send the quote."
 msgstr ""
 
-#: app/routers/dashboard.py:98
+#: app/routers/dashboard.py:101
 msgid "Promise the client a delivery date."
 msgstr ""
 
-#: app/routers/dashboard.py:99
+#: app/routers/dashboard.py:102
 msgid "The promised date has passed."
 msgstr ""
 
-#: app/routers/dashboard.py:100
+#: app/routers/dashboard.py:103
 #, python-brace-format
 msgid "Older than {days} days — follow up."
 msgstr ""
 
-#: app/routers/dashboard.py:132
+#: app/routers/dashboard.py:135
 msgid "Quotes waiting for your confirmation"
 msgstr ""
 
-#: app/routers/dashboard.py:133
+#: app/routers/dashboard.py:136
 msgid "Review the price and confirm the order."
 msgstr ""
 
-#: app/routers/exports.py:184
+#: app/routers/exports.py:185
 msgid "Unknown VAT rate."
 msgstr ""
 
-#: app/routers/exports.py:193
+#: app/routers/exports.py:196
 msgid "Too many orders for one file. Narrow the period and export in parts."
 msgstr ""
 
-#: app/routers/exports.py:196 app/routers/exports.py:219
+#: app/routers/exports.py:199 app/routers/exports.py:223
 msgid "No orders match the selected filters."
 msgstr ""
 
-#: app/routers/me.py:95 app/routers/tenant_admin.py:593
+#: app/routers/me.py:95 app/routers/tenant_admin.py:602
 msgid "Profile saved."
 msgstr ""
 
@@ -1662,187 +1748,192 @@ msgstr ""
 msgid "Password changed. Sign in again with your new password."
 msgstr ""
 
-#: app/routers/me.py:169 app/routers/tenant_admin.py:650
+#: app/routers/me.py:169 app/routers/tenant_admin.py:659
 msgid "Notification settings saved."
 msgstr ""
 
-#: app/routers/me.py:188 app/routers/tenant_admin.py:669
+#: app/routers/me.py:188 app/routers/tenant_admin.py:678
 msgid "New passwords do not match."
 msgstr ""
 
-#: app/routers/orders.py:407
+#: app/routers/orders.py:416
 msgid "Order number"
 msgstr ""
 
-#: app/routers/orders.py:410
+#: app/routers/orders.py:419
 msgid "Created at"
 msgstr ""
 
-#: app/routers/orders.py:411
+#: app/routers/orders.py:420
 msgid "Submitted at"
 msgstr ""
 
-#: app/routers/orders.py:412
+#: app/routers/orders.py:421
 msgid "Promised delivery at"
 msgstr ""
 
-#: app/routers/orders.py:414
+#: app/routers/orders.py:423
 msgid "Currency"
 msgstr ""
 
-#: app/routers/orders.py:415 app/services/pdf_service.py:305
-#: app/templates/orders/detail.html:408
+#: app/routers/orders.py:424 app/services/pdf_service.py:350
+#: app/templates/orders/detail.html:417
 msgid "Items"
 msgstr ""
 
-#: app/routers/orders.py:529 app/routers/orders.py:1810
+#: app/routers/orders.py:538 app/routers/orders.py:1871
 msgid "Choose a client."
 msgstr ""
 
-#: app/routers/orders.py:595
+#: app/routers/orders.py:604
 msgid "Order created."
 msgstr ""
 
-#: app/routers/orders.py:917
+#: app/routers/orders.py:926
 msgid "This order has no items yet. Continue anyway?"
 msgstr ""
 
-#: app/routers/orders.py:918
+#: app/routers/orders.py:927
 msgid "Some items have no price yet. Continue anyway?"
 msgstr ""
 
-#: app/routers/orders.py:923
+#: app/routers/orders.py:932
 msgid "Cancel this order?"
 msgstr ""
 
-#: app/routers/orders.py:932
+#: app/routers/orders.py:941
 #, python-brace-format
 msgid "This jumps straight to {target} and skips {skipped}. Continue?"
 msgstr ""
 
-#: app/routers/orders.py:940
+#: app/routers/orders.py:949
 #, python-brace-format
 msgid "This moves the order back to {target}. Continue?"
 msgstr ""
 
-#: app/routers/orders.py:999
+#: app/routers/orders.py:1008
 msgid ""
 "The supplier has not priced every item yet, so the quote cannot be "
 "confirmed."
 msgstr ""
 
-#: app/routers/orders.py:1140
+#: app/routers/orders.py:1149
 msgid "That product is not available for this order."
 msgstr ""
 
-#: app/routers/orders.py:1156
+#: app/routers/orders.py:1165
 msgid "Enter an item description."
 msgstr ""
 
-#: app/routers/orders.py:1178
+#: app/routers/orders.py:1187
 msgid "Item added."
 msgstr ""
 
-#: app/routers/orders.py:1290
+#: app/routers/orders.py:1299
 msgid "This order can no longer be edited."
 msgstr ""
 
-#: app/routers/orders.py:1366
+#: app/routers/orders.py:1375
 msgid "Item deleted."
 msgstr ""
 
-#: app/routers/orders.py:1400
+#: app/routers/orders.py:1439
 msgid "Unknown status"
 msgstr ""
 
-#: app/routers/orders.py:1421
+#: app/routers/orders.py:1460
 msgid "Select at least one order."
 msgstr ""
 
-#: app/routers/orders.py:1428
+#: app/routers/orders.py:1467
 #, python-brace-format
 msgid "Select at most {count} orders at once."
 msgstr ""
 
-#: app/routers/orders.py:1514
+#: app/routers/orders.py:1482 app/routers/orders.py:1559
+#: app/routers/orders.py:1652 app/routers/orders.py:1728
+msgid "Customer not notified by e-mail."
+msgstr ""
+
+#: app/routers/orders.py:1561
 #, python-brace-format
 msgid "{count} orders transitioned."
 msgstr ""
 
-#: app/routers/orders.py:1516
+#: app/routers/orders.py:1563
 #, python-brace-format
 msgid "{ok} transitioned, {failed} failed."
 msgstr ""
 
-#: app/routers/orders.py:1540
+#: app/routers/orders.py:1588
 msgid "Add at least one item before sending or confirming the quote."
 msgstr ""
 
-#: app/routers/orders.py:1541
+#: app/routers/orders.py:1589
 msgid "Every item needs a price before the quote can be sent or confirmed."
 msgstr ""
 
-#: app/routers/orders.py:1577 app/routers/orders.py:1605
+#: app/routers/orders.py:1626 app/routers/orders.py:1657
 msgid "The quote has changed. Please review it and confirm again."
 msgstr ""
 
-#: app/routers/orders.py:1585 app/routers/orders.py:1801
+#: app/routers/orders.py:1634 app/routers/orders.py:1862
 msgid "Enter a valid date."
 msgstr ""
 
-#: app/routers/orders.py:1600
+#: app/routers/orders.py:1650
 msgid "Sent although some items had no price."
 msgstr ""
 
-#: app/routers/orders.py:1611
+#: app/routers/orders.py:1663
 msgid "Add at least one item before submitting the order."
 msgstr ""
 
-#: app/routers/orders.py:1669
+#: app/routers/orders.py:1726
 #, python-brace-format
 msgid "Status changed to {status}."
 msgstr ""
 
-#: app/routers/orders.py:1832 app/templates/orders/edit.html:36
+#: app/routers/orders.py:1893 app/templates/orders/edit.html:36
 #: app/templates/orders/edit.html:46
 msgid "The client can only be changed before the order is quoted."
 msgstr ""
 
-#: app/routers/orders.py:1841
+#: app/routers/orders.py:1902
 msgid "Fill in the name and choose an existing client."
 msgstr ""
 
-#: app/routers/orders.py:1844
+#: app/routers/orders.py:1905
 msgid "Order updated."
 msgstr ""
 
-#: app/routers/orders.py:1844
+#: app/routers/orders.py:1905
 msgid "No changes."
 msgstr ""
 
-#: app/routers/orders.py:1879
+#: app/routers/orders.py:1940
 msgid "Adding items is disabled for your account."
 msgstr ""
 
-#: app/routers/orders.py:1894
+#: app/routers/orders.py:1955
 #, python-brace-format
 msgid "New draft created from order {number}. Check the items and prices."
 msgstr ""
 
-#: app/routers/orders.py:1964
+#: app/routers/orders.py:2025
 msgid "Comment added."
 msgstr ""
 
-#: app/routers/orders.py:2008
+#: app/routers/orders.py:2069
 msgid "That person can no longer be assigned work."
 msgstr ""
 
-#: app/routers/orders.py:2041
+#: app/routers/orders.py:2102
 #, python-brace-format
 msgid "Assigned to {name}."
 msgstr ""
 
-#: app/routers/orders.py:2043
+#: app/routers/orders.py:2104
 msgid "Assignment updated."
 msgstr ""
 
@@ -1867,132 +1958,178 @@ msgstr ""
 msgid "The invitation belongs to a different tenant."
 msgstr ""
 
-#: app/routers/tenant_admin.py:95
+#: app/routers/tenant_admin.py:104
 msgid "This account was erased (GDPR) and cannot be reactivated."
 msgstr ""
 
-#: app/routers/tenant_admin.py:100
+#: app/routers/tenant_admin.py:109
 #, python-brace-format
 msgid ""
 "Your plan allows {limit} — reactivating would exceed it. Disable someone "
 "else first or upgrade the plan."
 msgstr ""
 
-#: app/routers/tenant_admin.py:206
+#: app/routers/tenant_admin.py:215
 msgid "A user with this email already exists."
 msgstr ""
 
-#: app/routers/tenant_admin.py:275
+#: app/routers/tenant_admin.py:284
 msgid "Cannot disable the last administrator — promote someone else first."
 msgstr ""
 
-#: app/routers/tenant_admin.py:294
+#: app/routers/tenant_admin.py:303
 msgid "User disabled."
 msgstr ""
 
-#: app/routers/tenant_admin.py:327
+#: app/routers/tenant_admin.py:336
 msgid "User reactivated."
 msgstr ""
 
-#: app/routers/tenant_admin.py:417
+#: app/routers/tenant_admin.py:426
 msgid "Cannot demote the last administrator — promote someone else first."
 msgstr ""
 
-#: app/routers/tenant_admin.py:493
+#: app/routers/tenant_admin.py:502
 msgid "This user already has a password; use a password reset instead."
 msgstr ""
 
-#: app/routers/tenant_admin.py:828
+#: app/routers/tenant_admin.py:837
 msgid "You're the last administrator — promote someone else first."
 msgstr ""
 
-#: app/routers/tenant_admin.py:888
+#: app/routers/tenant_admin.py:921
 msgid "Saved."
 msgstr ""
 
-#: app/routers/www.py:216
+#: app/routers/tenant_admin.py:956
+msgid "Unknown time zone. Pick one from the list."
+msgstr ""
+
+#: app/routers/www.py:219
 #, python-brace-format
 msgid "Name may be at most {n} characters."
 msgstr ""
 
-#: app/routers/www.py:220
+#: app/routers/www.py:223
 #, python-brace-format
 msgid "Message may be at most {n} characters."
 msgstr ""
 
-#: app/services/pdf_service.py:255 app/templates/orders/list.html:135
-#: app/templates/platform/admin/dashboard.html:52
+#: app/services/pdf_service.py:300 app/templates/orders/list.html:135
+#: app/templates/platform/admin/dashboard.html:65
 #: app/templates/platform/admin/funnel.html:64
 msgid "Created"
 msgstr ""
 
-#: app/services/pdf_service.py:261 app/templates/orders/detail.html:235
+#: app/services/pdf_service.py:306 app/templates/orders/detail.html:235
 #: app/templates/orders/detail.html:317 app/templates/orders/detail.html:384
 #: app/templates/orders/edit.html:62
 msgid "Promised delivery"
 msgstr ""
 
-#: app/services/pdf_service.py:297
+#: app/services/pdf_service.py:342
 msgid "Company ID"
 msgstr ""
 
-#: app/services/pdf_service.py:299
+#: app/services/pdf_service.py:344
 msgid "Tax ID"
 msgstr ""
 
-#: app/services/pdf_service.py:308
+#: app/services/pdf_service.py:353
 msgid "SKU"
 msgstr ""
 
-#: app/services/pdf_service.py:309 app/templates/assets/form.html:41
+#: app/services/pdf_service.py:354 app/templates/assets/form.html:41
 #: app/templates/assets/list.html:24 app/templates/orders/edit.html:17
 #: app/templates/orders/form.html:17 app/templates/orders/list.html:115
-#: app/templates/platform/admin/dashboard.html:51
+#: app/templates/platform/admin/dashboard.html:64
 #: app/templates/platform/admin/tenants.html:21
 #: app/templates/products/form.html:38 app/templates/products/list.html:21
 #: app/templates/www/_hero_mock.html:72 app/templates/www/cookies.html:32
 msgid "Name"
 msgstr ""
 
-#: app/services/pdf_service.py:310 app/templates/assets/detail.html:48
+#: app/services/pdf_service.py:355 app/templates/assets/detail.html:48
 #: app/templates/assets/detail.html:87 app/templates/orders/_item_row.html:51
-#: app/templates/orders/detail.html:419 app/templates/orders/detail.html:489
-#: app/templates/orders/detail.html:490
+#: app/templates/orders/detail.html:428 app/templates/orders/detail.html:498
+#: app/templates/orders/detail.html:499
 msgid "Quantity"
 msgstr ""
 
-#: app/services/pdf_service.py:311
+#: app/services/pdf_service.py:356
 msgid "Unit price"
 msgstr ""
 
-#: app/services/pdf_service.py:312
+#: app/services/pdf_service.py:357
 msgid "Line total"
 msgstr ""
 
-#: app/services/pdf_service.py:380
+#: app/services/pdf_service.py:429
 msgid "Subtotal"
 msgstr ""
 
-#: app/services/pdf_service.py:396 app/templates/orders/detail.html:186
+#: app/services/pdf_service.py:445 app/templates/orders/detail.html:186
 msgid "Confirmed total"
 msgstr ""
 
-#: app/services/pdf_service.py:423
+#: app/services/pdf_service.py:472
 msgid "Generated"
 msgstr ""
 
-#: app/services/pdf_service.py:426
+#: app/services/pdf_service.py:477
 msgid "This document is for informational purposes only."
 msgstr ""
 
-#: app/services/pdf_service.py:435 app/templates/admin/audit.html:136
-#: app/templates/orders/list.html:237
+#: app/services/pdf_service.py:486 app/templates/admin/audit.html:136
+#: app/templates/orders/list.html:243
 msgid "Page"
 msgstr ""
 
 #: app/templates/_breadcrumbs.html:4
 #: app/templates/platform/admin/_header.html:53
 msgid "Breadcrumb"
+msgstr ""
+
+#: app/templates/_demo_banner.html:7
+msgid "Public demo"
+msgstr ""
+
+#: app/templates/_demo_banner.html:8
+msgid ""
+"This is a public demo with fictional data. Anything you change is reset "
+"every night."
+msgstr ""
+
+#: app/templates/_demo_banner.html:10
+msgid "Create your own portal"
+msgstr ""
+
+#: app/templates/_demo_banner.html:16
+msgid ""
+"Passwords, e-mail addresses and user accounts cannot be changed in the "
+"public demo."
+msgstr ""
+
+#: app/templates/_demo_banner.html:18
+msgid "Invitations are turned off in the public demo — it never sends e-mail."
+msgstr ""
+
+#: app/templates/_demo_banner.html:20
+msgid "Portal settings are read-only in the public demo."
+msgstr ""
+
+#: app/templates/_demo_banner.html:22
+msgid ""
+"Personal-data and full-portal exports are turned off in the public demo. "
+"Order PDFs and accounting exports work."
+msgstr ""
+
+#: app/templates/_demo_banner.html:24
+msgid "Archiving clients is turned off in the public demo."
+msgstr ""
+
+#: app/templates/_demo_banner.html:26
+msgid "This action is turned off in the public demo."
 msgstr ""
 
 #: app/templates/_notification_prefs.html:16
@@ -2082,7 +2219,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/_palette.html:14 app/templates/admin/audit.html:25
-#: app/templates/orders/detail.html:454
+#: app/templates/orders/detail.html:463
 msgid "Search"
 msgstr ""
 
@@ -2099,7 +2236,7 @@ msgid "Nothing found for"
 msgstr ""
 
 #: app/templates/_palette_results.html:22
-#: app/templates/_palette_results.html:23 app/templates/app_base.html:83
+#: app/templates/_palette_results.html:23 app/templates/app_base.html:104
 #: app/templates/customers/detail.html:59
 #: app/templates/dashboard/index.html:282 app/templates/orders/detail.html:86
 #: app/templates/orders/edit.html:6 app/templates/orders/form.html:6
@@ -2109,7 +2246,7 @@ msgid "Orders"
 msgstr "Orders"
 
 #: app/templates/_palette_results.html:43
-#: app/templates/_palette_results.html:44 app/templates/app_base.html:86
+#: app/templates/_palette_results.html:44 app/templates/app_base.html:107
 #: app/templates/customers/detail.html:8 app/templates/customers/form.html:9
 #: app/templates/customers/form.html:13 app/templates/customers/list.html:3
 #: app/templates/customers/list.html:7 app/templates/dashboard/index.html:23
@@ -2120,7 +2257,7 @@ msgstr "Clients"
 #: app/templates/_palette_results.html:55 app/templates/admin/exports.html:54
 #: app/templates/assets/detail.html:14 app/templates/assets/form.html:17
 #: app/templates/assets/list.html:26 app/templates/dashboard/index.html:170
-#: app/templates/orders/detail.html:125 app/templates/orders/detail.html:619
+#: app/templates/orders/detail.html:125 app/templates/orders/detail.html:628
 #: app/templates/orders/edit.html:24 app/templates/orders/form.html:25
 #: app/templates/orders/list.html:117 app/templates/products/form.html:55
 #: app/templates/products/list.html:22 app/templates/www/_hero_mock.html:73
@@ -2128,56 +2265,68 @@ msgid "Client"
 msgstr ""
 
 #: app/templates/_palette_results.html:64
-#: app/templates/_palette_results.html:65 app/templates/app_base.html:87
+#: app/templates/_palette_results.html:65 app/templates/app_base.html:108
 #: app/templates/products/detail.html:8 app/templates/products/form.html:9
 #: app/templates/products/form.html:13 app/templates/products/list.html:3
 #: app/templates/www/_hero_mock.html:38
 msgid "Catalog"
 msgstr "Catalog"
 
-#: app/templates/app_base.html:26
+#: app/templates/app_base.html:28
+msgid "Free early access"
+msgstr ""
+
+#: app/templates/app_base.html:30 app/templates/app_base.html:50
+msgid "ends on"
+msgstr ""
+
+#: app/templates/app_base.html:31 app/templates/app_base.html:49
+msgid "Days left:"
+msgstr ""
+
+#: app/templates/app_base.html:32
+msgid "After that the portal continues on a paid plan; your data stays."
+msgstr ""
+
+#: app/templates/app_base.html:36
+msgid "Details"
+msgstr ""
+
+#: app/templates/app_base.html:47
 #: app/templates/platform/billing/dashboard.html:95
 msgid "Free trial"
 msgstr ""
 
-#: app/templates/app_base.html:28
-msgid "Days left:"
-msgstr ""
-
-#: app/templates/app_base.html:29
-msgid "ends on"
-msgstr ""
-
-#: app/templates/app_base.html:41
+#: app/templates/app_base.html:62
 #: app/templates/platform/billing/dashboard.html:97
 msgid "Payment overdue"
 msgstr ""
 
-#: app/templates/app_base.html:43
+#: app/templates/app_base.html:64
 msgid ""
 "Your most recent invoice failed. Stripe is retrying — please check your "
 "payment method to avoid losing access."
 msgstr ""
 
-#: app/templates/app_base.html:45
+#: app/templates/app_base.html:66
 msgid ""
 "There is a problem with this portal's subscription payment. Your "
 "administrator has been notified."
 msgstr ""
 
-#: app/templates/app_base.html:48
+#: app/templates/app_base.html:69
 msgid "Access ends on"
 msgstr ""
 
-#: app/templates/app_base.html:60
+#: app/templates/app_base.html:81
 msgid "Subscription ended"
 msgstr ""
 
-#: app/templates/app_base.html:62
+#: app/templates/app_base.html:83
 msgid "Access to this portal ends on"
 msgstr ""
 
-#: app/templates/app_base.html:65
+#: app/templates/app_base.html:86
 msgid "Export your data before then, or contact us within 30 days to recover it."
 msgstr ""
 
@@ -2185,7 +2334,7 @@ msgstr ""
 #: app/templates/admin/profile.html:8 app/templates/admin/sla.html:7
 #: app/templates/admin/tenant_settings.html:7
 #: app/templates/admin/user_edit.html:8 app/templates/admin/users.html:7
-#: app/templates/app_base.html:82 app/templates/assets/detail.html:6
+#: app/templates/app_base.html:103 app/templates/assets/detail.html:6
 #: app/templates/assets/form.html:6 app/templates/customers/detail.html:8
 #: app/templates/customers/form.html:9 app/templates/customers/form.html:13
 #: app/templates/dashboard/index.html:3 app/templates/dashboard/index.html:7
@@ -2202,63 +2351,63 @@ msgstr ""
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: app/templates/app_base.html:84 app/templates/assets/detail.html:6
+#: app/templates/app_base.html:105 app/templates/assets/detail.html:6
 #: app/templates/assets/form.html:6 app/templates/assets/list.html:3
 msgid "Assets"
 msgstr "Assets"
 
-#: app/templates/app_base.html:88
+#: app/templates/app_base.html:109
 msgid "SLA"
 msgstr ""
 
-#: app/templates/app_base.html:94
+#: app/templates/app_base.html:115
 msgid "Admin"
 msgstr ""
 
 #: app/templates/admin/user_edit.html:8 app/templates/admin/users.html:3
-#: app/templates/app_base.html:100
+#: app/templates/app_base.html:121
 msgid "Team"
 msgstr "Team"
 
-#: app/templates/app_base.html:101
+#: app/templates/app_base.html:122
 msgid "Audit"
 msgstr ""
 
 #: app/templates/admin/tenant_settings.html:3
 #: app/templates/admin/tenant_settings.html:7
-#: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:102
+#: app/templates/admin/tenant_settings.html:11 app/templates/app_base.html:123
 msgid "Portal settings"
 msgstr ""
 
 #: app/templates/admin/exports.html:3 app/templates/admin/exports.html:7
-#: app/templates/admin/exports.html:11 app/templates/app_base.html:103
+#: app/templates/admin/exports.html:11 app/templates/app_base.html:124
 msgid "Accounting export"
 msgstr ""
 
-#: app/templates/app_base.html:105
+#: app/templates/app_base.html:126
 msgid "Billing"
 msgstr ""
 
-#: app/templates/app_base.html:122
+#: app/templates/app_base.html:143
 msgid "Switch portal"
 msgstr ""
 
-#: app/templates/app_base.html:123
+#: app/templates/app_base.html:144
 msgid "Switch"
 msgstr ""
 
 #: app/templates/admin/profile.html:4 app/templates/admin/profile.html:9
-#: app/templates/app_base.html:146 app/templates/app_base.html:150
+#: app/templates/app_base.html:167 app/templates/app_base.html:171
 #: app/templates/me/profile.html:4 app/templates/me/profile.html:9
 msgid "Profile"
 msgstr ""
 
-#: app/templates/app_base.html:154 app/templates/me/team.html:3
+#: app/templates/app_base.html:175 app/templates/me/team.html:3
 #: app/templates/me/team.html:8
 msgid "My team"
 msgstr ""
 
-#: app/templates/app_base.html:161 app/templates/platform/admin/_header.html:14
+#: app/templates/app_base.html:182 app/templates/platform/admin/_header.html:14
 #: app/templates/platform/admin/dashboard.html:3
 #: app/templates/platform/admin/dashboard.html:10
 #: app/templates/platform/admin/funnel.html:3
@@ -2267,7 +2416,7 @@ msgstr ""
 msgid "Platform admin"
 msgstr ""
 
-#: app/templates/app_base.html:171 app/templates/platform/admin/_header.html:46
+#: app/templates/app_base.html:192 app/templates/platform/admin/_header.html:46
 #: app/templates/platform/select_tenant.html:18
 msgid "Sign out"
 msgstr "Sign out"
@@ -2332,7 +2481,7 @@ msgstr ""
 msgid "Entity"
 msgstr ""
 
-#: app/templates/admin/audit.html:40 app/templates/orders/list.html:269
+#: app/templates/admin/audit.html:40 app/templates/orders/list.html:275
 msgid "Clear filters"
 msgstr ""
 
@@ -2364,15 +2513,15 @@ msgstr ""
 msgid "Show details"
 msgstr ""
 
-#: app/templates/admin/audit.html:136 app/templates/orders/list.html:238
+#: app/templates/admin/audit.html:136 app/templates/orders/list.html:244
 msgid "records"
 msgstr ""
 
-#: app/templates/admin/audit.html:142 app/templates/orders/list.html:244
+#: app/templates/admin/audit.html:142 app/templates/orders/list.html:250
 msgid "Previous"
 msgstr ""
 
-#: app/templates/admin/audit.html:146 app/templates/orders/list.html:250
+#: app/templates/admin/audit.html:146 app/templates/orders/list.html:256
 msgid "Next"
 msgstr ""
 
@@ -2714,9 +2863,19 @@ msgid ""
 "their own preference."
 msgstr ""
 
-#: app/templates/admin/tenant_settings.html:37
+#: app/templates/admin/tenant_settings.html:36
+msgid "Time zone"
+msgstr ""
+
+#: app/templates/admin/tenant_settings.html:49
+msgid ""
+"Times in the portal, order PDFs and exports are shown in this time zone. "
+"Dates such as delivery dates are not shifted."
+msgstr ""
+
+#: app/templates/admin/tenant_settings.html:56
 #: app/templates/admin/user_edit.html:83
-#: app/templates/platform/admin/subscription_edit.html:143
+#: app/templates/platform/admin/subscription_edit.html:149
 #: app/templates/platform/admin/tenant_edit.html:77
 msgid "Save changes"
 msgstr ""
@@ -2765,7 +2924,7 @@ msgid "State"
 msgstr ""
 
 #: app/templates/admin/users.html:38 app/templates/customers/detail.html:204
-#: app/templates/me/team.html:30 app/templates/platform/admin/dashboard.html:66
+#: app/templates/me/team.html:30 app/templates/platform/admin/dashboard.html:79
 #: app/templates/platform/admin/tenant_edit.html:64
 #: app/templates/platform/admin/tenants.html:75
 msgid "disabled"
@@ -2788,7 +2947,7 @@ msgid "pending invite"
 msgstr ""
 
 #: app/templates/admin/users.html:47 app/templates/customers/detail.html:206
-#: app/templates/me/team.html:32 app/templates/platform/admin/dashboard.html:64
+#: app/templates/me/team.html:32 app/templates/platform/admin/dashboard.html:77
 #: app/templates/platform/admin/tenant_edit.html:62
 #: app/templates/platform/admin/tenants.html:50
 #: app/templates/platform/admin/tenants.html:73
@@ -2857,12 +3016,12 @@ msgid "Current stock"
 msgstr ""
 
 #: app/templates/assets/detail.html:28 app/templates/assets/form.html:46
-#: app/templates/assets/list.html:29 app/templates/www/privacy.html:76
+#: app/templates/assets/list.html:29 app/templates/www/_subprocessors.html:57
 msgid "Location"
 msgstr ""
 
 #: app/templates/assets/detail.html:32 app/templates/assets/form.html:51
-#: app/templates/orders/detail.html:418 app/templates/products/detail.html:49
+#: app/templates/orders/detail.html:427 app/templates/products/detail.html:49
 #: app/templates/products/form.html:43
 msgid "Description"
 msgstr ""
@@ -3414,7 +3573,7 @@ msgstr ""
 msgid "Recent activity"
 msgstr ""
 
-#: app/templates/dashboard/index.html:199 app/templates/orders/detail.html:620
+#: app/templates/dashboard/index.html:199 app/templates/orders/detail.html:629
 msgid "System"
 msgstr ""
 
@@ -3468,6 +3627,63 @@ msgstr ""
 
 #: app/templates/dashboard/index.html:315
 msgid "Staff / admin role"
+msgstr ""
+
+#: app/templates/demo/enter.html:6
+msgid "Live demo"
+msgstr ""
+
+#: app/templates/demo/enter.html:14
+msgid "Try Assoluto — live demo"
+msgstr ""
+
+#: app/templates/demo/enter.html:16
+msgid ""
+"A fictional sheet-metal and CNC job shop with six clients, real-looking "
+"orders, quotes, drawings and client material. No sign-up, no password."
+msgstr ""
+
+#: app/templates/demo/enter.html:24
+msgid "Continue where you left off"
+msgstr ""
+
+#: app/templates/demo/enter.html:32
+msgid "Supplier"
+msgstr ""
+
+#: app/templates/demo/enter.html:33
+msgid "See it as the supplier"
+msgstr ""
+
+#: app/templates/demo/enter.html:35
+msgid ""
+"You run the shop: incoming orders from all clients, quotes, the "
+"production pipeline, client material in stock, exports for your "
+"accounting software."
+msgstr ""
+
+#: app/templates/demo/enter.html:38
+msgid "Enter as the supplier"
+msgstr ""
+
+#: app/templates/demo/enter.html:46
+msgid "See it as the customer"
+msgstr ""
+
+#: app/templates/demo/enter.html:48
+msgid ""
+"You buy from the shop: place an order, upload a drawing, confirm a quote,"
+" follow production and see the material you keep there."
+msgstr ""
+
+#: app/templates/demo/enter.html:51
+msgid "Enter as the customer"
+msgstr ""
+
+#: app/templates/demo/enter.html:57
+msgid ""
+"All companies, people and data are fictional. No e-mails are sent from "
+"the demo, and everything is reset every night."
 msgstr ""
 
 #: app/templates/errors/403.html:2 app/templates/errors/403.html:7
@@ -3581,8 +3797,8 @@ msgstr ""
 msgid "Note (optional)"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:420
-#: app/templates/orders/detail.html:498 app/templates/orders/detail.html:499
+#: app/templates/orders/_item_row.html:62 app/templates/orders/detail.html:429
+#: app/templates/orders/detail.html:507 app/templates/orders/detail.html:508
 msgid "Price/unit"
 msgstr ""
 
@@ -3598,7 +3814,7 @@ msgstr ""
 msgid "Delete this item?"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:103 app/templates/orders/detail.html:573
+#: app/templates/orders/_item_row.html:103 app/templates/orders/detail.html:582
 #: app/templates/products/detail.html:34
 msgid "Delete"
 msgstr ""
@@ -3701,128 +3917,132 @@ msgstr ""
 msgid "Reason, shown to the client in the email"
 msgstr ""
 
-#: app/templates/orders/detail.html:397
+#: app/templates/orders/detail.html:401 app/templates/orders/list.html:223
+msgid "Notify the customer by e-mail"
+msgstr ""
+
+#: app/templates/orders/detail.html:406
 msgid "Send the quote even though some items have no price"
 msgstr ""
 
-#: app/templates/orders/detail.html:421 app/templates/orders/list.html:123
+#: app/templates/orders/detail.html:430 app/templates/orders/list.html:123
 #: app/templates/www/_hero_mock.html:75
 msgid "Total"
 msgstr ""
 
-#: app/templates/orders/detail.html:439
+#: app/templates/orders/detail.html:448
 msgid "No items."
 msgstr ""
 
-#: app/templates/orders/detail.html:449
+#: app/templates/orders/detail.html:458
 msgid "Search the catalog"
 msgstr ""
 
-#: app/templates/orders/detail.html:451
+#: app/templates/orders/detail.html:460
 msgid "SKU or name…"
 msgstr ""
 
-#: app/templates/orders/detail.html:457
+#: app/templates/orders/detail.html:466
 msgid "Showing"
 msgstr ""
 
-#: app/templates/orders/detail.html:471
+#: app/templates/orders/detail.html:480
 msgid "custom item (free-text)"
 msgstr ""
 
-#: app/templates/orders/detail.html:481
+#: app/templates/orders/detail.html:490
 msgid "last price"
 msgstr ""
 
-#: app/templates/orders/detail.html:492 app/templates/orders/detail.html:493
+#: app/templates/orders/detail.html:501 app/templates/orders/detail.html:502
 msgid "unit"
 msgstr ""
 
-#: app/templates/orders/detail.html:505 app/templates/orders/detail.html:506
+#: app/templates/orders/detail.html:514 app/templates/orders/detail.html:515
 msgid "Item description"
 msgstr ""
 
-#: app/templates/orders/detail.html:511
+#: app/templates/orders/detail.html:520
 msgid "Add item"
 msgstr ""
 
-#: app/templates/orders/detail.html:521
+#: app/templates/orders/detail.html:530
 msgid "Attachments"
 msgstr ""
 
-#: app/templates/orders/detail.html:536
+#: app/templates/orders/detail.html:545
 msgid "IMG"
 msgstr ""
 
-#: app/templates/orders/detail.html:537
+#: app/templates/orders/detail.html:546
 msgid "DWG"
 msgstr ""
 
-#: app/templates/orders/detail.html:538
+#: app/templates/orders/detail.html:547
 msgid "DOC"
 msgstr ""
 
-#: app/templates/orders/detail.html:539
+#: app/templates/orders/detail.html:548
 msgid "OST"
 msgstr ""
 
-#: app/templates/orders/detail.html:555
+#: app/templates/orders/detail.html:564
 msgid "item"
 msgstr ""
 
-#: app/templates/orders/detail.html:570
+#: app/templates/orders/detail.html:579
 #, python-format
 msgid ""
 "This order is already confirmed. Delete the file %(name)s anyway? The "
 "deletion is recorded in the audit log."
 msgstr ""
 
-#: app/templates/orders/detail.html:570
+#: app/templates/orders/detail.html:579
 #, python-format
 msgid "Delete the file %(name)s?"
 msgstr ""
 
-#: app/templates/orders/detail.html:581
+#: app/templates/orders/detail.html:590
 msgid "No attachments."
 msgstr ""
 
-#: app/templates/orders/detail.html:593
+#: app/templates/orders/detail.html:602
 msgid "to the whole order"
 msgstr ""
 
-#: app/templates/orders/detail.html:602
+#: app/templates/orders/detail.html:611
 msgid "Upload"
 msgstr ""
 
-#: app/templates/orders/detail.html:611
+#: app/templates/orders/detail.html:620
 msgid "Comments"
 msgstr ""
 
-#: app/templates/orders/detail.html:618
+#: app/templates/orders/detail.html:627
 msgid "Supplier team"
 msgstr ""
 
-#: app/templates/orders/detail.html:628
+#: app/templates/orders/detail.html:637
 msgid "internal"
 msgstr ""
 
-#: app/templates/orders/detail.html:633
+#: app/templates/orders/detail.html:642
 msgid "No comments."
 msgstr ""
 
-#: app/templates/orders/detail.html:639 app/templates/orders/detail.html:640
+#: app/templates/orders/detail.html:648 app/templates/orders/detail.html:649
 msgid "Write a comment…"
 msgstr ""
 
-#: app/templates/orders/detail.html:646
+#: app/templates/orders/detail.html:655
 msgid "Internal (staff only)"
 msgstr ""
 
-#: app/templates/orders/detail.html:653
+#: app/templates/orders/detail.html:662
 msgid "Add a comment"
 msgstr ""
 
-#: app/templates/orders/detail.html:662
+#: app/templates/orders/detail.html:671
 msgid "Status history"
 msgstr ""
 
@@ -3880,7 +4100,7 @@ msgid "Select all on page"
 msgstr ""
 
 #: app/templates/orders/list.html:114
-#: app/templates/platform/billing/dashboard.html:296
+#: app/templates/platform/billing/dashboard.html:316
 #: app/templates/www/_hero_mock.html:71
 msgid "Number"
 msgstr ""
@@ -3901,27 +4121,27 @@ msgstr ""
 msgid "Set status to…"
 msgstr ""
 
-#: app/templates/orders/list.html:221
+#: app/templates/orders/list.html:227
 msgid "Apply to selected"
 msgstr ""
 
-#: app/templates/orders/list.html:225
+#: app/templates/orders/list.html:231
 msgid "Clear selection"
 msgstr ""
 
-#: app/templates/orders/list.html:237
+#: app/templates/orders/list.html:243
 msgid "of"
 msgstr ""
 
-#: app/templates/orders/list.html:266
+#: app/templates/orders/list.html:272
 msgid "No orders match the filter."
 msgstr ""
 
-#: app/templates/orders/list.html:272
+#: app/templates/orders/list.html:278
 msgid "No orders yet."
 msgstr ""
 
-#: app/templates/orders/list.html:275
+#: app/templates/orders/list.html:281
 msgid "Create the first order"
 msgstr ""
 
@@ -4052,6 +4272,17 @@ msgstr "Create portal"
 msgid "Create your portal"
 msgstr "Create your portal"
 
+#: app/templates/platform/signup.html:16 app/templates/www/_plans.html:21
+#: app/templates/www/_plans.html:26 app/templates/www/index.html:7
+#: app/templates/www/index.html:403 app/templates/www/pricing.html:4
+#: app/templates/www/www_base.html:10
+msgid "Early access: free until"
+msgstr ""
+
+#: app/templates/platform/signup.html:16
+msgid "No credit card required."
+msgstr ""
+
 #: app/templates/platform/signup.html:16
 msgid "30-day free trial. No credit card required."
 msgstr ""
@@ -4059,6 +4290,10 @@ msgstr ""
 #: app/templates/platform/billing/dashboard.html:33
 #: app/templates/platform/signup.html:20
 msgid "Plan:"
+msgstr ""
+
+#: app/templates/platform/signup.html:22
+msgid "Free until"
 msgstr ""
 
 #: app/templates/platform/signup.html:22
@@ -4112,6 +4347,17 @@ msgstr "Email verification"
 #: app/templates/platform/verify_email.html:12
 msgid "Email successfully verified"
 msgstr "Email successfully verified"
+
+#: app/templates/platform/billing/dashboard.html:107
+#: app/templates/platform/billing/dashboard.html:133
+#: app/templates/platform/verify_email.html:21 app/templates/www/index.html:425
+#: app/templates/www/www_base.html:62
+msgid "Free early access until"
+msgstr ""
+
+#: app/templates/platform/verify_email.html:21
+msgid "no card needed. Plan:"
+msgstr ""
 
 #: app/templates/platform/verify_email.html:21
 msgid "Your free 30-day trial is running — no card needed. Plan:"
@@ -4201,11 +4447,27 @@ msgstr ""
 msgid "30-day revenue"
 msgstr ""
 
-#: app/templates/platform/admin/dashboard.html:44
+#: app/templates/platform/admin/dashboard.html:47
+msgid "Early access"
+msgstr ""
+
+#: app/templates/platform/admin/dashboard.html:49
+msgid "free until"
+msgstr ""
+
+#: app/templates/platform/admin/dashboard.html:51
+msgid "ended on"
+msgstr ""
+
+#: app/templates/platform/admin/dashboard.html:53
+msgid "Tenants covered:"
+msgstr ""
+
+#: app/templates/platform/admin/dashboard.html:57
 msgid "Recent signups"
 msgstr ""
 
-#: app/templates/platform/admin/dashboard.html:50
+#: app/templates/platform/admin/dashboard.html:63
 #: app/templates/platform/admin/funnel.html:63
 #: app/templates/platform/admin/tenant_edit.html:17
 #: app/templates/platform/admin/tenants.html:20
@@ -4213,7 +4475,7 @@ msgstr ""
 msgid "Slug"
 msgstr ""
 
-#: app/templates/platform/admin/dashboard.html:76
+#: app/templates/platform/admin/dashboard.html:89
 msgid "No signups yet."
 msgstr ""
 
@@ -4340,15 +4602,19 @@ msgstr ""
 msgid "Empty = no trial."
 msgstr ""
 
-#: app/templates/platform/admin/subscription_edit.html:129
+#: app/templates/platform/admin/subscription_edit.html:130
+msgid "Early access: the trial actually ends on"
+msgstr ""
+
+#: app/templates/platform/admin/subscription_edit.html:135
 msgid "Period ends at"
 msgstr ""
 
-#: app/templates/platform/admin/subscription_edit.html:133
+#: app/templates/platform/admin/subscription_edit.html:139
 msgid "Empty = no period anchor."
 msgstr ""
 
-#: app/templates/platform/admin/subscription_edit.html:139
+#: app/templates/platform/admin/subscription_edit.html:145
 msgid "Back to tenants"
 msgstr ""
 
@@ -4419,6 +4685,10 @@ msgstr ""
 
 #: app/templates/platform/admin/tenants.html:56
 msgid "demo"
+msgstr ""
+
+#: app/templates/platform/admin/tenants.html:64
+msgid "early access"
 msgstr ""
 
 #: app/templates/platform/admin/tenants.html:64
@@ -4514,7 +4784,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:37
-#: app/templates/www/_plans.html:153
+#: app/templates/www/_plans.html:172
 msgid "Write to"
 msgstr ""
 
@@ -4561,7 +4831,7 @@ msgid "You can revert the cancellation in the Stripe Portal below."
 msgstr ""
 
 #: app/templates/platform/billing/dashboard.html:88
-#: app/templates/platform/billing/dashboard.html:230
+#: app/templates/platform/billing/dashboard.html:250
 msgid "Current plan"
 msgstr ""
 
@@ -4597,164 +4867,190 @@ msgstr ""
 msgid "Status:"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:107
+#: app/templates/platform/billing/dashboard.html:109
 msgid "Trial until"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:109
+#: app/templates/platform/billing/dashboard.html:111
 msgid "Access until"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:111
+#: app/templates/platform/billing/dashboard.html:113
 msgid "Next billing"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:114
+#: app/templates/platform/billing/dashboard.html:116
 msgid "No active subscription"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:122
+#: app/templates/platform/billing/dashboard.html:124
 msgid "Demo mode (Stripe not configured)"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:132
-#: app/templates/platform/billing/dashboard.html:226
+#: app/templates/platform/billing/dashboard.html:136
+msgid "Your plan:"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:137
+msgid "after early access"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:137
+#: app/templates/platform/billing/dashboard.html:230
+msgid "/month"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:137
+msgid "invoiced."
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:139
+msgid "Nothing is charged until then and your data stays."
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:142
+msgid "Want to secure the founding price?"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:144
+#: app/templates/www/contact.html:16 app/templates/www/contact.html:85
+msgid "Write to us"
+msgstr ""
+
+#: app/templates/platform/billing/dashboard.html:152
+#: app/templates/platform/billing/dashboard.html:246
 msgid "Continue on"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:136
+#: app/templates/platform/billing/dashboard.html:156
 msgid ""
 "Online card payment is being set up. Until then we invoice by bank "
 "transfer."
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:142
+#: app/templates/platform/billing/dashboard.html:162
 msgid ""
 "Online card payment is being set up. Until then we invoice by bank "
 "transfer — write to"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:154
+#: app/templates/platform/billing/dashboard.html:174
 msgid "Manage subscription (Stripe Portal)"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:157
+#: app/templates/platform/billing/dashboard.html:177
 msgid "Payment card, billing details, invoices and cancellation."
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:165
+#: app/templates/platform/billing/dashboard.html:185
 msgid "Your usage"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:191
+#: app/templates/platform/billing/dashboard.html:211
 msgid "Staff users"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:192
+#: app/templates/platform/billing/dashboard.html:212
 msgid "Client contacts"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:193
+#: app/templates/platform/billing/dashboard.html:213
 msgid "Orders (monthly)"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:194
+#: app/templates/platform/billing/dashboard.html:214
 msgid "Storage (MB)"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:199
+#: app/templates/platform/billing/dashboard.html:219
 msgid "Switch plan"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:207
+#: app/templates/platform/billing/dashboard.html:227
 msgid "Price on request"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:210
-msgid "/month"
-msgstr ""
-
-#: app/templates/platform/billing/dashboard.html:212
-#: app/templates/www/_plans.html:101
+#: app/templates/platform/billing/dashboard.html:232
+#: app/templates/www/_plans.html:120
 msgid "Free"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:216
+#: app/templates/platform/billing/dashboard.html:236
 msgid "Users:"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:217
+#: app/templates/platform/billing/dashboard.html:237
 msgid "Contacts:"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:218
+#: app/templates/platform/billing/dashboard.html:238
 msgid "Orders/month:"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:219
+#: app/templates/platform/billing/dashboard.html:239
 msgid "Storage:"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:232
-#: app/templates/www/_plans.html:91
+#: app/templates/platform/billing/dashboard.html:252
+#: app/templates/www/_plans.html:110
 msgid "Contact us"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:245
+#: app/templates/platform/billing/dashboard.html:265
 msgid "Upgrade to "
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:249
+#: app/templates/platform/billing/dashboard.html:269
 msgid "Downgrade to "
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:253
+#: app/templates/platform/billing/dashboard.html:273
 msgid "Try "
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:273
-#: app/templates/platform/billing/dashboard.html:283
+#: app/templates/platform/billing/dashboard.html:293
+#: app/templates/platform/billing/dashboard.html:303
 msgid "Cancel subscription"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:275
+#: app/templates/platform/billing/dashboard.html:295
 msgid ""
 "End your paid subscription. You keep full access until the end of the "
 "current billing period, then have 3 days to export your data before "
 "access ends. For later recovery, contact team@assoluto.eu within 30 days."
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:279
+#: app/templates/platform/billing/dashboard.html:299
 msgid ""
 "Cancel your subscription? You keep full access until the current billing "
 "period ends, then have 3 days to export data before access ends."
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:291
+#: app/templates/platform/billing/dashboard.html:311
 msgid "Invoices"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:297
+#: app/templates/platform/billing/dashboard.html:317
 msgid "Amount"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:299
+#: app/templates/platform/billing/dashboard.html:319
 msgid "Paid"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:318
+#: app/templates/platform/billing/dashboard.html:338
 msgid "Czech tax-compliant invoice (daňový doklad)"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:319
+#: app/templates/platform/billing/dashboard.html:339
 msgid "Doklad"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:325
+#: app/templates/platform/billing/dashboard.html:345
 msgid "Stripe-hosted receipt"
 msgstr ""
 
-#: app/templates/platform/billing/dashboard.html:337
+#: app/templates/platform/billing/dashboard.html:357
 msgid "No invoices yet."
 msgstr ""
 
@@ -4829,7 +5125,7 @@ msgstr ""
 msgid "New product"
 msgstr ""
 
-#: app/templates/products/list.html:8 app/templates/www/pricing.html:64
+#: app/templates/products/list.html:8 app/templates/www/pricing.html:76
 msgid "Product catalog"
 msgstr ""
 
@@ -4999,193 +5295,261 @@ msgid ""
 "email us — we action requests within 48 hours."
 msgstr ""
 
-#: app/templates/www/_plans.html:24 app/templates/www/_plans.html:32
-msgid "CZK / month"
+#: app/templates/www/_plans.html:18 app/templates/www/features.html:227
+#: app/templates/www/index.html:42 app/templates/www/index.html:407
+msgid "Start free"
 msgstr ""
 
-#: app/templates/www/_plans.html:26 app/templates/www/_plans.html:30
-msgid "per month"
-msgstr ""
-
-#: app/templates/www/_plans.html:35
-msgid "Annually:"
-msgstr ""
-
-#: app/templates/www/_plans.html:35
-msgid "2 months free, invoiced"
-msgstr ""
-
-#: app/templates/www/_plans.html:42
-msgid "Small workshop, up to 3 people in the office"
-msgstr ""
-
-#: app/templates/www/_plans.html:45
-msgid "3 staff users"
-msgstr ""
-
-#: app/templates/www/_plans.html:46 app/templates/www/_plans.html:64
-msgid "Unlimited client contacts"
-msgstr ""
-
-#: app/templates/www/_plans.html:47 app/templates/www/_plans.html:65
-msgid "Unlimited orders"
-msgstr ""
-
-#: app/templates/www/_plans.html:48
-msgid "10 GB for drawings and attachments"
-msgstr ""
-
-#: app/templates/www/_plans.html:49 app/templates/www/_plans.html:67
-msgid "Email support, reply within 1 working day"
-msgstr ""
-
-#: app/templates/www/_plans.html:52 app/templates/www/_plans.html:70
-#: app/templates/www/features.html:227
+#: app/templates/www/_plans.html:18 app/templates/www/features.html:227
 msgid "Start 30-day trial"
 msgstr ""
 
-#: app/templates/www/_plans.html:60
+#: app/templates/www/_plans.html:21
+msgid "No card. Cancel any time."
+msgstr ""
+
+#: app/templates/www/_plans.html:21
+msgid "30 days free. No card. Cancel any time."
+msgstr ""
+
+#: app/templates/www/_plans.html:27
+msgid "Then 1 490 CZK / month, your data stays."
+msgstr ""
+
+#: app/templates/www/_plans.html:28
+msgid "The first 10 workshops keep the founding price of 490 CZK for good."
+msgstr ""
+
+#: app/templates/www/_plans.html:43 app/templates/www/_plans.html:51
+msgid "CZK / month"
+msgstr ""
+
+#: app/templates/www/_plans.html:45 app/templates/www/_plans.html:49
+msgid "per month"
+msgstr ""
+
+#: app/templates/www/_plans.html:54
+msgid "Annually:"
+msgstr ""
+
+#: app/templates/www/_plans.html:54
+msgid "2 months free, invoiced"
+msgstr ""
+
+#: app/templates/www/_plans.html:61
+msgid "Small workshop, up to 3 people in the office"
+msgstr ""
+
+#: app/templates/www/_plans.html:64
+msgid "3 staff users"
+msgstr ""
+
+#: app/templates/www/_plans.html:65 app/templates/www/_plans.html:83
+msgid "Unlimited client contacts"
+msgstr ""
+
+#: app/templates/www/_plans.html:66 app/templates/www/_plans.html:84
+msgid "Unlimited orders"
+msgstr ""
+
+#: app/templates/www/_plans.html:67
+msgid "10 GB for drawings and attachments"
+msgstr ""
+
+#: app/templates/www/_plans.html:68 app/templates/www/_plans.html:86
+msgid "Email support, reply within 1 working day"
+msgstr ""
+
+#: app/templates/www/_plans.html:79
 msgid "Growing manufacturer, up to 10 people in the office"
 msgstr ""
 
-#: app/templates/www/_plans.html:63
+#: app/templates/www/_plans.html:82
 msgid "10 staff users"
 msgstr ""
 
-#: app/templates/www/_plans.html:66
+#: app/templates/www/_plans.html:85
 msgid "50 GB for drawings and attachments"
 msgstr ""
 
-#: app/templates/www/_plans.html:78
+#: app/templates/www/_plans.html:97
 msgid "More than 10 people in the office, special requirements"
 msgstr ""
 
-#: app/templates/www/_plans.html:80
+#: app/templates/www/_plans.html:99
 msgid "Talk to us"
 msgstr ""
 
-#: app/templates/www/_plans.html:82
+#: app/templates/www/_plans.html:101
 msgid "We reply within 1 working day"
 msgstr ""
 
-#: app/templates/www/_plans.html:84
+#: app/templates/www/_plans.html:103
 msgid "Limits on users and storage by agreement"
 msgstr ""
 
-#: app/templates/www/_plans.html:85
+#: app/templates/www/_plans.html:104
 msgid "Invoice and bank transfer"
 msgstr ""
 
-#: app/templates/www/_plans.html:86
+#: app/templates/www/_plans.html:105
 msgid "Written SLA by agreement"
 msgstr ""
 
-#: app/templates/www/_plans.html:87
+#: app/templates/www/_plans.html:106
 msgid "Custom domain on request"
 msgstr ""
 
-#: app/templates/www/_plans.html:88
+#: app/templates/www/_plans.html:107
 msgid "Installation on your own server possible"
 msgstr ""
 
-#: app/templates/www/_plans.html:99
+#: app/templates/www/_plans.html:118
 msgid "Self-hosted, AGPL-3.0"
 msgstr ""
 
-#: app/templates/www/_plans.html:103
+#: app/templates/www/_plans.html:122
 msgid "Run it yourself, forever"
 msgstr ""
 
-#: app/templates/www/_plans.html:105
+#: app/templates/www/_plans.html:124
 msgid "No user limits"
 msgstr ""
 
-#: app/templates/www/_plans.html:106
+#: app/templates/www/_plans.html:125
 msgid "Your own Postgres + S3"
 msgstr ""
 
-#: app/templates/www/_plans.html:107
+#: app/templates/www/_plans.html:126
 msgid "Auditable open source"
 msgstr ""
 
-#: app/templates/www/_plans.html:108
+#: app/templates/www/_plans.html:127
 msgid "GitHub issues + community"
 msgstr ""
 
-#: app/templates/www/_plans.html:111
+#: app/templates/www/_plans.html:130
 msgid "Installation guide"
 msgstr ""
 
-#: app/templates/www/_plans.html:121
+#: app/templates/www/_plans.html:140
 msgid "Founding customers programme"
 msgstr ""
 
-#: app/templates/www/_plans.html:122
+#: app/templates/www/_plans.html:141
 msgid "We are looking for the first 10 workshops"
 msgstr ""
 
-#: app/templates/www/_plans.html:124
+#: app/templates/www/_plans.html:143
 msgid ""
 "Assoluto is new and we would rather say so than invent references. The "
 "first 10 workshops that start paying get:"
 msgstr ""
 
-#: app/templates/www/_plans.html:127
+#: app/templates/www/_plans.html:146
 msgid ""
 "the original price for good: 490 CZK / month for Starter, 1 490 CZK / "
 "month for Pro,"
 msgstr ""
 
-#: app/templates/www/_plans.html:128
+#: app/templates/www/_plans.html:147
 msgid "onboarding free of charge — we set the portal up together with you."
 msgstr ""
 
-#: app/templates/www/_plans.html:131
+#: app/templates/www/_plans.html:150
 msgid ""
 "In return we ask for a named reference: your company name and a sentence "
 "or two about how the portal works for you, published here."
 msgstr ""
 
-#: app/templates/www/_plans.html:134
+#: app/templates/www/_plans.html:153
 msgid "I'm interested — write to us"
 msgstr ""
 
-#: app/templates/www/_plans.html:147
+#: app/templates/www/_plans.html:166
 msgid "Who is behind Assoluto"
 msgstr ""
 
-#: app/templates/www/_plans.html:149
+#: app/templates/www/_plans.html:168
 msgid "Assoluto is operated by"
 msgstr ""
 
-#: app/templates/www/_plans.html:150 app/templates/www/privacy.html:21
-#: app/templates/www/terms.html:21
+#: app/templates/www/_plans.html:169 app/templates/www/dpa.html:75
+#: app/templates/www/privacy.html:24 app/templates/www/terms.html:24
 msgid "Company ID (IČO)"
 msgstr ""
 
-#: app/templates/www/_plans.html:154
+#: app/templates/www/_plans.html:173
 msgid "we reply within 1 working day."
 msgstr ""
 
-#: app/templates/www/_plans.html:155 app/templates/www/imprint.html:3
-#: app/templates/www/imprint.html:7 app/templates/www/www_base.html:98
+#: app/templates/www/_plans.html:174 app/templates/www/imprint.html:3
+#: app/templates/www/imprint.html:7 app/templates/www/www_base.html:100
 msgid "Imprint"
 msgstr ""
 
-#: app/templates/www/_plans.html:157 app/templates/www/imprint.html:53
+#: app/templates/www/_plans.html:176 app/templates/www/imprint.html:53
 #: app/templates/www/security.html:3 app/templates/www/security.html:29
-#: app/templates/www/www_base.html:100
+#: app/templates/www/www_base.html:102
 msgid "Security"
+msgstr ""
+
+#: app/templates/www/_subprocessors.html:21
+msgid ""
+"Application hosting and database (VPS); Object Storage for uploaded "
+"files; database backups"
+msgstr ""
+
+#: app/templates/www/_subprocessors.html:22
+msgid "All Customer data, including drawings and other uploaded files"
+msgstr ""
+
+#: app/templates/www/_subprocessors.html:28
+msgid "Transactional email delivery"
+msgstr ""
+
+#: app/templates/www/_subprocessors.html:29
+msgid "Recipient email, name, message body"
+msgstr ""
+
+#: app/templates/www/_subprocessors.html:35
+msgid "Subscription billing, card processing, dunning"
+msgstr ""
+
+#: app/templates/www/_subprocessors.html:36
+msgid ""
+"Billing email, company name, tax IDs, card data (held by Stripe, never by"
+" us)"
+msgstr ""
+
+#: app/templates/www/_subprocessors.html:37
+msgid "IE (EU); some processing in US under SCCs"
+msgstr ""
+
+#: app/templates/www/_subprocessors.html:42
+msgid "DNS hosting and domain registrar"
+msgstr ""
+
+#: app/templates/www/_subprocessors.html:43
+msgid "Public DNS records only — no personal data"
+msgstr ""
+
+#: app/templates/www/_subprocessors.html:54
+msgid "Subprocessor"
+msgstr ""
+
+#: app/templates/www/_subprocessors.html:55 app/templates/www/cookies.html:33
+msgid "Purpose"
+msgstr ""
+
+#: app/templates/www/_subprocessors.html:56
+msgid "Data categories"
 msgstr ""
 
 #: app/templates/www/contact.html:4
 msgid ""
 "Email, demo, Enterprise plan, bug reports. Czech support, reply within "
 "one working day."
-msgstr ""
-
-#: app/templates/www/contact.html:16 app/templates/www/contact.html:85
-msgid "Write to us"
 msgstr ""
 
 #: app/templates/www/contact.html:19
@@ -5220,8 +5584,8 @@ msgstr ""
 msgid "GPG key on request. We reply within 1 working day."
 msgstr ""
 
-#: app/templates/www/contact.html:66 app/templates/www/index.html:305
-#: app/templates/www/pricing.html:69
+#: app/templates/www/contact.html:66 app/templates/www/index.html:317
+#: app/templates/www/pricing.html:81
 msgid "Czech support"
 msgstr ""
 
@@ -5261,16 +5625,15 @@ msgid ""
 "replying (one-off, no newsletter)."
 msgstr ""
 
-#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:96
+#: app/templates/www/cookies.html:3 app/templates/www/www_base.html:98
 msgid "Cookies"
 msgstr ""
 
-#: app/templates/www/cookies.html:7 app/templates/www/privacy.html:165
+#: app/templates/www/cookies.html:7 app/templates/www/privacy.html:133
 msgid "Cookies policy"
 msgstr ""
 
-#: app/templates/www/cookies.html:9 app/templates/www/privacy.html:9
-#: app/templates/www/terms.html:9
+#: app/templates/www/cookies.html:9
 msgid "Version 1.1 · effective from October 4, 2026"
 msgstr ""
 
@@ -5302,10 +5665,6 @@ msgstr ""
 
 #: app/templates/www/cookies.html:27
 msgid "2. Cookies we set"
-msgstr ""
-
-#: app/templates/www/cookies.html:33 app/templates/www/privacy.html:74
-msgid "Purpose"
 msgstr ""
 
 #: app/templates/www/cookies.html:34
@@ -5386,6 +5745,647 @@ msgstr ""
 msgid "Questions about this cookies policy? Write to"
 msgstr ""
 
+#: app/templates/www/dpa.html:27 app/templates/www/dpa.html:54
+#: app/templates/www/privacy.html:33 app/templates/www/security.html:101
+msgid "Data Processing Agreement"
+msgstr ""
+
+#: app/templates/www/dpa.html:28
+msgid ""
+"Data Processing Agreement under Article 28 GDPR between the Assoluto "
+"operator (processor) and its customers (controllers): instructions, "
+"security measures, subprocessors, breach notification, deletion."
+msgstr ""
+
+#: app/templates/www/dpa.html:55
+msgid "under Article 28 of Regulation (EU) 2016/679 (GDPR)"
+msgstr ""
+
+#: app/templates/www/dpa.html:57
+msgid "Version 1.0 · effective from October 6, 2026"
+msgstr ""
+
+#: app/templates/www/dpa.html:62
+msgid "Print or save as PDF"
+msgstr ""
+
+#: app/templates/www/dpa.html:66
+msgid ""
+"The Czech version of this Agreement is binding; other language versions "
+"are translations for convenience."
+msgstr ""
+
+#: app/templates/www/dpa.html:72
+msgid "1. Parties and scope"
+msgstr ""
+
+#: app/templates/www/dpa.html:74
+msgid "Processor:"
+msgstr ""
+
+#: app/templates/www/dpa.html:76 app/templates/www/privacy.html:26
+#: app/templates/www/terms.html:26
+msgid "with registered office at"
+msgstr ""
+
+#: app/templates/www/dpa.html:77 app/templates/www/privacy.html:27
+#: app/templates/www/terms.html:28
+msgid "Contact:"
+msgstr ""
+
+#: app/templates/www/dpa.html:79
+msgid "the \"Processor\""
+msgstr ""
+
+#: app/templates/www/dpa.html:82
+msgid "Controller:"
+msgstr ""
+
+#: app/templates/www/dpa.html:83
+msgid ""
+"the Customer — the entrepreneur who uses the Hosted Service at "
+"assoluto.eu under the Terms of Service (the \"Controller\")."
+msgstr ""
+
+#: app/templates/www/dpa.html:86
+msgid ""
+"This Agreement implements Article 28(3) GDPR. It supplements the Terms of"
+" Service and forms part of the contract for the Hosted Service; it "
+"applies to every Customer from the effective date of this version, or "
+"from the creation of the account if later. Terms not defined here have "
+"the meaning given to them in the Terms of Service and in the GDPR."
+msgstr ""
+
+#: app/templates/www/dpa.html:89
+msgid ""
+"This Agreement does not apply to Self-Hosted installations, where the "
+"Customer runs the software on its own infrastructure and the Provider "
+"processes no personal data on its behalf."
+msgstr ""
+
+#: app/templates/www/dpa.html:92
+msgid ""
+"On request, the Processor will provide a copy of this Agreement signed on"
+" its behalf. Write to"
+msgstr ""
+
+#: app/templates/www/dpa.html:98
+msgid "2. Subject matter and duration"
+msgstr ""
+
+#: app/templates/www/dpa.html:100
+msgid ""
+"Subject matter: processing of personal data that the Controller, its "
+"users and its customer contacts enter into the Hosted Service (the "
+"\"Personal Data\"), solely in order to provide the Hosted Service to the "
+"Controller."
+msgstr ""
+
+#: app/templates/www/dpa.html:103
+msgid ""
+"Duration: for the term of the contract for the Hosted Service and, after "
+"it ends, until the Personal Data is deleted under Section 12."
+msgstr ""
+
+#: app/templates/www/dpa.html:108
+msgid "3. Nature and purpose of processing"
+msgstr ""
+
+#: app/templates/www/dpa.html:110
+msgid ""
+"Nature of processing: storage and hosting, organisation, retrieval and "
+"display to authorised users, transmission (including e-mail "
+"notifications), backup, export and deletion."
+msgstr ""
+
+#: app/templates/www/dpa.html:113
+msgid ""
+"Purpose: operating the Controller's customer portal — orders and their "
+"items, drawings and other attachments, comments, order status and "
+"notifications, records of customer-owned material, and communication "
+"between the Controller and its clients."
+msgstr ""
+
+#: app/templates/www/dpa.html:116
+msgid ""
+"The Processor does not use the Personal Data for its own purposes, does "
+"not sell it and does not use it for marketing or profiling."
+msgstr ""
+
+#: app/templates/www/dpa.html:121
+msgid "4. Categories of data subjects"
+msgstr ""
+
+#: app/templates/www/dpa.html:123
+msgid ""
+"the Controller's staff users — employees and other persons the Controller"
+" invites to the portal;"
+msgstr ""
+
+#: app/templates/www/dpa.html:124
+msgid ""
+"the Controller's customer contacts — persons at the Controller's clients "
+"who are invited to the portal;"
+msgstr ""
+
+#: app/templates/www/dpa.html:125
+msgid ""
+"other persons whose data appears in order content or attachments, for "
+"example a name in a drawing's title block or a delivery contact."
+msgstr ""
+
+#: app/templates/www/dpa.html:130
+msgid "5. Categories of personal data"
+msgstr ""
+
+#: app/templates/www/dpa.html:132
+msgid ""
+"identification and contact data: name, work e-mail address, phone number "
+"(if entered), role, and the company the person belongs to;"
+msgstr ""
+
+#: app/templates/www/dpa.html:133
+msgid ""
+"client company records, which contain personal data where the client is a"
+" sole trader: name, company ID, tax ID, billing address;"
+msgstr ""
+
+#: app/templates/www/dpa.html:134
+msgid ""
+"account data: password hash (Argon2id), language, notification "
+"preferences, time of last sign-in;"
+msgstr ""
+
+#: app/templates/www/dpa.html:135
+msgid ""
+"order content: orders, items, quantities, prices, dates, comments, status"
+" history and records of customer-owned material;"
+msgstr ""
+
+#: app/templates/www/dpa.html:136
+msgid "drawings and other uploaded files, including their names and metadata;"
+msgstr ""
+
+#: app/templates/www/dpa.html:137
+msgid ""
+"records of actions in the portal (audit trail) and technical logs (IP "
+"address, browser identification) used for security."
+msgstr ""
+
+#: app/templates/www/dpa.html:140
+msgid ""
+"The Service is not intended for special categories of personal data "
+"(Article 9 GDPR) or data relating to criminal convictions (Article 10 "
+"GDPR), and the Controller will not upload such data."
+msgstr ""
+
+#: app/templates/www/dpa.html:145
+msgid "6. Instructions of the Controller"
+msgstr ""
+
+#: app/templates/www/dpa.html:147
+msgid ""
+"The Processor processes the Personal Data only on documented instructions"
+" from the Controller. The instructions are given by this Agreement, by "
+"the Terms of Service and by the Controller's configuration and use of the"
+" Hosted Service, including actions taken by its users. Further "
+"instructions can be given in writing by e-mail."
+msgstr ""
+
+#: app/templates/www/dpa.html:150
+msgid ""
+"This also applies to transfers of Personal Data to a third country or an "
+"international organisation. The Processor and the subprocessors listed in"
+" Annex 2 process the Personal Data in the European Union."
+msgstr ""
+
+#: app/templates/www/dpa.html:153
+msgid ""
+"If Union or Member State law requires the Processor to process the "
+"Personal Data otherwise, the Processor will inform the Controller of that"
+" legal requirement before processing, unless that law prohibits such "
+"information on important grounds of public interest."
+msgstr ""
+
+#: app/templates/www/dpa.html:156
+msgid ""
+"The Processor will immediately inform the Controller if, in its opinion, "
+"an instruction infringes the GDPR or other Union or Member State data "
+"protection provisions."
+msgstr ""
+
+#: app/templates/www/dpa.html:161
+msgid "7. Confidentiality"
+msgstr ""
+
+#: app/templates/www/dpa.html:163
+msgid ""
+"The Processor ensures that persons authorised to process the Personal "
+"Data have committed themselves to confidentiality or are under an "
+"appropriate statutory obligation of confidentiality."
+msgstr ""
+
+#: app/templates/www/dpa.html:166
+msgid ""
+"The Processor's operator account cannot browse the Controller's portal. "
+"Where support requires access, it is granted to that one portal only, and"
+" the grant and its revocation are recorded in the portal's audit log, "
+"which the Controller's administrators can view."
+msgstr ""
+
+#: app/templates/www/dpa.html:171
+msgid "8. Security of processing"
+msgstr ""
+
+#: app/templates/www/dpa.html:173
+msgid ""
+"The Processor implements the technical and organisational measures listed"
+" in Annex 1 (Article 32 GDPR). It may replace them with measures that "
+"provide at least the same level of protection; Annex 1 is then updated "
+"accordingly."
+msgstr ""
+
+#: app/templates/www/dpa.html:178
+msgid "9. Subprocessors"
+msgstr ""
+
+#: app/templates/www/dpa.html:180
+msgid ""
+"The Controller gives the Processor general written authorisation to "
+"engage the subprocessors listed in Annex 2."
+msgstr ""
+
+#: app/templates/www/dpa.html:183
+msgid ""
+"The Processor will inform the Controller of any intended addition or "
+"replacement of a subprocessor at least 30 days in advance, by updating "
+"this page and the Privacy Policy and by e-mail to the Controller's "
+"administrators. The Controller may object; if the parties do not reach "
+"agreement, the Controller may terminate the subscription before the "
+"change takes effect."
+msgstr ""
+
+#: app/templates/www/dpa.html:186
+msgid ""
+"The Processor imposes on each subprocessor, by contract, data protection "
+"obligations that provide at least the same level of protection as this "
+"Agreement, and remains fully liable to the Controller for the performance"
+" of the subprocessor's obligations."
+msgstr ""
+
+#: app/templates/www/dpa.html:189
+msgid ""
+"Other service providers named in the Privacy Policy (payment processing, "
+"DNS) do not process the Personal Data on the Controller's behalf and are "
+"not subprocessors under this Agreement."
+msgstr ""
+
+#: app/templates/www/dpa.html:194
+msgid "10. Assistance to the Controller"
+msgstr ""
+
+#: app/templates/www/dpa.html:196
+msgid ""
+"Data subject requests. Taking into account the nature of the processing, "
+"the Processor assists the Controller in responding to requests from data "
+"subjects under Chapter III GDPR, primarily through functions of the "
+"Service:"
+msgstr ""
+
+#: app/templates/www/dpa.html:199
+msgid ""
+"every staff user and customer contact can download their personal data "
+"(JSON) and delete their account from their own profile — the account is "
+"anonymised, while orders and their history are kept;"
+msgstr ""
+
+#: app/templates/www/dpa.html:200
+msgid ""
+"administrators can export all data of the portal at any time as a ZIP "
+"archive (business records as CSV plus all uploaded files);"
+msgstr ""
+
+#: app/templates/www/dpa.html:201
+msgid ""
+"administrators can correct or deactivate staff users, client companies "
+"and customer contacts."
+msgstr ""
+
+#: app/templates/www/dpa.html:204
+msgid ""
+"If a request cannot be handled with these functions, the Processor will "
+"assist on the Controller's request sent by e-mail. If a data subject "
+"contacts the Processor directly about the Personal Data, the Processor "
+"will forward the request to the Controller without undue delay and will "
+"not respond to it on its own unless the Controller instructs it to."
+msgstr ""
+
+#: app/templates/www/dpa.html:207
+msgid ""
+"Other obligations. The Processor assists the Controller in ensuring "
+"compliance with Articles 32 to 36 GDPR (security, breach notification, "
+"data protection impact assessment and prior consultation), taking into "
+"account the nature of processing and the information available to the "
+"Processor."
+msgstr ""
+
+#: app/templates/www/dpa.html:212
+msgid "11. Personal data breach"
+msgstr ""
+
+#: app/templates/www/dpa.html:214
+msgid ""
+"The Processor will notify the Controller of a personal data breach "
+"affecting the Personal Data without undue delay after becoming aware of "
+"it, and in any case within 48 hours, by e-mail to the Controller's "
+"billing e-mail address of record and to its administrators."
+msgstr ""
+
+#: app/templates/www/dpa.html:217
+msgid ""
+"The notification will describe, as far as known at the time, the nature "
+"of the breach, the categories and approximate number of data subjects and"
+" records concerned, the likely consequences and the measures taken or "
+"proposed. Information that is not yet available will be provided in "
+"phases without further undue delay."
+msgstr ""
+
+#: app/templates/www/dpa.html:220
+msgid ""
+"The Processor documents every breach and takes measures to contain it and"
+" to mitigate its possible adverse effects. Notifying the supervisory "
+"authority and the data subjects remains the Controller's responsibility; "
+"the Processor provides the information the Controller needs for it."
+msgstr ""
+
+#: app/templates/www/dpa.html:225
+msgid "12. Return and deletion at the end of the service"
+msgstr ""
+
+#: app/templates/www/dpa.html:227
+msgid ""
+"Return. Until the account is deactivated — including the 3-day export "
+"period after cancellation under the Terms of Service — the Controller can"
+" download all data of the portal as a ZIP archive."
+msgstr ""
+
+#: app/templates/www/dpa.html:230
+msgid ""
+"Deletion. After deactivation the data is kept for 30 days, during which "
+"the Controller may request manual recovery. After 30 days an automated "
+"daily job permanently deletes the Personal Data from the database and the"
+" file storage, including the copies of uploaded files in the backup "
+"storage."
+msgstr ""
+
+#: app/templates/www/dpa.html:233
+msgid ""
+"Database backups are not altered; they are deleted automatically when "
+"their retention period in Annex 1 expires. Until then they are used only "
+"to restore the Service after an incident."
+msgstr ""
+
+#: app/templates/www/dpa.html:236
+msgid ""
+"Accounting records about the Customer (such as invoices for the Service) "
+"are kept for the period required by Czech accounting law; they are not "
+"Personal Data processed on the Controller's behalf. On request, the "
+"Processor will confirm the deletion in writing."
+msgstr ""
+
+#: app/templates/www/dpa.html:241
+msgid "13. Information and audits"
+msgstr ""
+
+#: app/templates/www/dpa.html:243
+msgid ""
+"The Processor makes available to the Controller all information necessary"
+" to demonstrate compliance with Article 28 GDPR — in particular this "
+"Agreement, Annex 1, the security overview at"
+msgstr ""
+
+#: app/templates/www/dpa.html:245
+msgid "and, on request, further documentation."
+msgstr ""
+
+#: app/templates/www/dpa.html:248
+msgid ""
+"The source code of the Service is public (AGPL-3.0), so the Controller or"
+" an auditor it mandates can verify how the software processes data."
+msgstr ""
+
+#: app/templates/www/dpa.html:251
+msgid ""
+"The Processor allows for and contributes to audits, including "
+"inspections, conducted by the Controller or another auditor mandated by "
+"it. An audit beyond the documentation must be announced at least 30 days "
+"in advance, may take place at most once per calendar year unless prompted"
+" by a personal data breach or required by a supervisory authority, must "
+"not disrupt the Service or expose data of other customers, and the "
+"auditor must be bound by confidentiality. Each party bears its own costs "
+"of the audit."
+msgstr ""
+
+#: app/templates/www/dpa.html:256
+msgid "14. Liability"
+msgstr ""
+
+#: app/templates/www/dpa.html:258
+msgid ""
+"Between the parties, liability under this Agreement is governed by the "
+"Terms of Service, including the limitation of liability in their Section "
+"10. Nothing in this Agreement limits the rights of data subjects under "
+"Article 82 GDPR."
+msgstr ""
+
+#: app/templates/www/dpa.html:263
+msgid "15. Final provisions"
+msgstr ""
+
+#: app/templates/www/dpa.html:265
+msgid ""
+"In matters of personal data protection this Agreement prevails over the "
+"Terms of Service."
+msgstr ""
+
+#: app/templates/www/dpa.html:268
+msgid ""
+"The Processor may amend this Agreement in the same way as the Terms of "
+"Service, with at least 30 days' prior notice; a change required by law or"
+" by a supervisory authority may take effect sooner. The version number "
+"and effective date at the top of this page identify the current version."
+msgstr ""
+
+#: app/templates/www/dpa.html:271
+msgid ""
+"This Agreement is governed by the law of the Czech Republic; jurisdiction"
+" follows the Terms of Service."
+msgstr ""
+
+#: app/templates/www/dpa.html:276
+msgid "Annex 1 — Technical and organisational measures"
+msgstr ""
+
+#: app/templates/www/dpa.html:278
+msgid "Separation of customers"
+msgstr ""
+
+#: app/templates/www/dpa.html:280
+msgid ""
+"Each supplier's portal is a separate tenant. PostgreSQL Row-Level "
+"Security filters every query by tenant inside the database, and the "
+"application connects with a database role that cannot switch these "
+"policies off."
+msgstr ""
+
+#: app/templates/www/dpa.html:281
+msgid ""
+"Each customer contact sees only the orders, drawings and material of "
+"their own company."
+msgstr ""
+
+#: app/templates/www/dpa.html:284
+msgid "Access control and sign-in"
+msgstr ""
+
+#: app/templates/www/dpa.html:286 app/templates/www/security.html:70
+msgid "Passwords are stored only as Argon2id hashes — never in readable form."
+msgstr ""
+
+#: app/templates/www/dpa.html:287 app/templates/www/security.html:71
+msgid ""
+"Sign-in, signup, password reset and the contact form are rate-limited "
+"against brute force."
+msgstr ""
+
+#: app/templates/www/dpa.html:288 app/templates/www/security.html:72
+msgid "Password-reset and invitation links work only once."
+msgstr ""
+
+#: app/templates/www/dpa.html:289 app/templates/www/security.html:73
+msgid "Changing a password signs out every existing session."
+msgstr ""
+
+#: app/templates/www/dpa.html:290 app/templates/www/security.html:74
+msgid ""
+"Session cookies are HttpOnly and SameSite=Lax, and sent only over HTTPS "
+"in production."
+msgstr ""
+
+#: app/templates/www/dpa.html:291 app/templates/www/security.html:75
+msgid "Every form is protected against cross-site request forgery (CSRF)."
+msgstr ""
+
+#: app/templates/www/dpa.html:292
+msgid ""
+"Access to the production server and storage is limited to the Processor; "
+"support access to a portal requires an explicit grant recorded in that "
+"portal's audit log."
+msgstr ""
+
+#: app/templates/www/dpa.html:295
+msgid "Transmission and hosting"
+msgstr ""
+
+#: app/templates/www/dpa.html:297 app/templates/www/security.html:80
+msgid ""
+"All traffic is encrypted with HTTPS (HSTS enabled); pages are served with"
+" a strict Content-Security-Policy."
+msgstr ""
+
+#: app/templates/www/dpa.html:298 app/templates/www/security.html:79
+msgid ""
+"The application, the database and uploaded files are hosted by Hetzner "
+"Online GmbH in Germany (EU) — a server for the application and database, "
+"Hetzner Object Storage for drawings and attachments."
+msgstr ""
+
+#: app/templates/www/dpa.html:301
+msgid "Backups and recovery"
+msgstr ""
+
+#: app/templates/www/dpa.html:303
+msgid ""
+"The database is dumped daily and the dump is encrypted (GPG) as it is "
+"written; the private key needed to decrypt it is not kept on the server."
+msgstr ""
+
+#: app/templates/www/dpa.html:304
+msgid ""
+"Encrypted dumps and copies of uploaded files are kept in a separate, "
+"private, versioned storage bucket in a different Hetzner location in "
+"Germany than the server and the primary file storage."
+msgstr ""
+
+#: app/templates/www/dpa.html:305
+msgid ""
+"Retention: encrypted daily dumps 14 days on the server and 180 days in "
+"the backup location; database copies taken before each software "
+"deployment — the latest 10, on the server only."
+msgstr ""
+
+#: app/templates/www/dpa.html:306
+msgid ""
+"A backup copy of an uploaded file is deleted at the latest 180 days after"
+" the file was deleted from the portal; all copies of a deleted portal are"
+" removed when the portal's data is purged."
+msgstr ""
+
+#: app/templates/www/dpa.html:307
+msgid ""
+"Restoring from the off-site backup has been tested, and an automated "
+"check reports a failure when the newest off-site copy is older than 30 "
+"hours."
+msgstr ""
+
+#: app/templates/www/dpa.html:310
+msgid "Accountability and data lifecycle"
+msgstr ""
+
+#: app/templates/www/dpa.html:312
+msgid ""
+"Administrative actions inside a portal are recorded in an audit trail "
+"that the portal's administrators can view."
+msgstr ""
+
+#: app/templates/www/dpa.html:313
+msgid "Audit trail records of an active portal are kept for 3 years."
+msgstr ""
+
+#: app/templates/www/dpa.html:314
+msgid ""
+"Data of a portal deactivated more than 30 days ago is permanently deleted"
+" by an automated daily job — from the database, the file storage and the "
+"file copies in the backup location."
+msgstr ""
+
+#: app/templates/www/dpa.html:315
+msgid ""
+"Self-service export and erasure for every user; whole-portal ZIP export "
+"for administrators (Section 10)."
+msgstr ""
+
+#: app/templates/www/dpa.html:316 app/templates/www/security.html:94
+msgid "The source code is open (AGPL-3.0), so anyone can check how it works."
+msgstr ""
+
+#: app/templates/www/dpa.html:321
+msgid "Annex 2 — Subprocessors"
+msgstr ""
+
+#: app/templates/www/dpa.html:323
+msgid ""
+"The Controller authorises the following subprocessors (Section 9). The "
+"same list, together with providers that do not process the Personal Data,"
+" is published in the"
+msgstr ""
+
+#: app/templates/www/dpa.html:324 app/templates/www/imprint.html:51
+#: app/templates/www/privacy.html:3 app/templates/www/privacy.html:9
+#: app/templates/www/security.html:99 app/templates/www/terms.html:127
+msgid "Privacy Policy"
+msgstr "Privacy Policy"
+
 #: app/templates/www/features.html:3 app/templates/www/features.html:11
 #: app/templates/www/www_base.html:71
 msgid "Features"
@@ -5409,7 +6409,7 @@ msgid ""
 "production status and the material your clients keep at your shop."
 msgstr ""
 
-#: app/templates/www/features.html:27 app/templates/www/index.html:178
+#: app/templates/www/features.html:27 app/templates/www/index.html:190
 msgid "Orders with a clear workflow"
 msgstr ""
 
@@ -5455,32 +6455,32 @@ msgstr ""
 msgid "CLOSED"
 msgstr ""
 
-#: app/templates/www/features.html:66 app/templates/www/index.html:132
+#: app/templates/www/features.html:66 app/templates/www/index.html:144
 msgid "Item"
 msgstr ""
 
-#: app/templates/www/features.html:67 app/templates/www/index.html:132
+#: app/templates/www/features.html:67 app/templates/www/index.html:144
 msgid "In"
 msgstr ""
 
-#: app/templates/www/features.html:68 app/templates/www/index.html:132
+#: app/templates/www/features.html:68 app/templates/www/index.html:144
 msgid "Out"
 msgstr ""
 
-#: app/templates/www/features.html:69 app/templates/www/index.html:132
+#: app/templates/www/features.html:69 app/templates/www/index.html:144
 msgid "Balance"
 msgstr ""
 
-#: app/templates/www/features.html:73 app/templates/www/index.html:136
+#: app/templates/www/features.html:73 app/templates/www/index.html:148
 msgid "Steel sheet 2 mm"
 msgstr ""
 
-#: app/templates/www/features.html:79 app/templates/www/index.html:142
+#: app/templates/www/features.html:79 app/templates/www/index.html:154
 msgid "Fixture F-04"
 msgstr ""
 
 #: app/templates/www/features.html:82 app/templates/www/features.html:88
-#: app/templates/www/index.html:145
+#: app/templates/www/index.html:157
 msgid "pc"
 msgstr ""
 
@@ -5521,7 +6521,7 @@ msgid ""
 "see only their own files."
 msgstr ""
 
-#: app/templates/www/features.html:142 app/templates/www/index.html:199
+#: app/templates/www/features.html:142 app/templates/www/index.html:211
 msgid "Product catalog that knows your clients"
 msgstr ""
 
@@ -5562,11 +6562,11 @@ msgstr ""
 msgid "per drawing · quoted on request"
 msgstr ""
 
-#: app/templates/www/features.html:185 app/templates/www/index.html:213
+#: app/templates/www/features.html:185 app/templates/www/index.html:225
 msgid "Every client sees only their own"
 msgstr ""
 
-#: app/templates/www/features.html:186 app/templates/www/index.html:214
+#: app/templates/www/features.html:186 app/templates/www/index.html:226
 msgid ""
 "Data is separated by the database itself, not just by the application: a "
 "client can never open another client's orders. Data stays in the EU."
@@ -5647,12 +6647,6 @@ msgstr ""
 msgid "Terms of Service"
 msgstr "Terms of Service"
 
-#: app/templates/www/imprint.html:51 app/templates/www/privacy.html:3
-#: app/templates/www/privacy.html:7 app/templates/www/security.html:99
-#: app/templates/www/terms.html:109
-msgid "Privacy Policy"
-msgstr "Privacy Policy"
-
 #: app/templates/www/imprint.html:52
 msgid "Cookies Policy"
 msgstr ""
@@ -5661,7 +6655,19 @@ msgstr ""
 msgid "The customer portal for make-to-order manufacturers"
 msgstr ""
 
-#: app/templates/www/index.html:5 app/templates/www/www_base.html:10
+#: app/templates/www/index.html:7 app/templates/www/www_base.html:10
+msgid ""
+"The customer portal for make-to-order manufacturers. Next to your "
+"accounting software, not instead of it. Clients upload drawings, confirm "
+"quotes and follow production status on their own."
+msgstr ""
+
+#: app/templates/www/index.html:7 app/templates/www/pricing.html:4
+#: app/templates/www/www_base.html:10
+msgid "no card."
+msgstr ""
+
+#: app/templates/www/index.html:7 app/templates/www/www_base.html:10
 msgid ""
 "The customer portal for make-to-order manufacturers. Next to your "
 "accounting software, not instead of it. Clients upload drawings, confirm "
@@ -5687,7 +6693,7 @@ msgid ""
 "picking up the phone."
 msgstr ""
 
-#: app/templates/www/index.html:42 app/templates/www/index.html:395
+#: app/templates/www/index.html:42 app/templates/www/index.html:407
 msgid "Try free for 30 days"
 msgstr ""
 
@@ -5699,61 +6705,65 @@ msgstr ""
 msgid "No credit card · Cancel anytime · Up and running in 30 minutes"
 msgstr ""
 
-#: app/templates/www/index.html:70
+#: app/templates/www/index.html:62 app/templates/www/pricing.html:27
+msgid "Try the live demo — no sign-up"
+msgstr ""
+
+#: app/templates/www/index.html:82
 msgid "The situation today"
 msgstr ""
 
-#: app/templates/www/index.html:72
+#: app/templates/www/index.html:84
 msgid "You run a workshop, not an email client."
 msgstr ""
 
-#: app/templates/www/index.html:75
+#: app/templates/www/index.html:87
 msgid ""
 "Five calls before lunch asking \"where's my order?\" — and three "
 "different drawing versions in Outlook. It adds up fast."
 msgstr ""
 
-#: app/templates/www/index.html:85
+#: app/templates/www/index.html:97
 msgid "Phones that won't stop"
 msgstr ""
 
-#: app/templates/www/index.html:87
+#: app/templates/www/index.html:99
 msgid ""
 "\"Every day twenty people call me asking where their order is. Then I "
 "have to walk to the shop floor and ask the foreman.\""
 msgstr ""
 
-#: app/templates/www/index.html:95
+#: app/templates/www/index.html:107
 msgid "Outlook as a drawing vault"
 msgstr ""
 
-#: app/templates/www/index.html:97
+#: app/templates/www/index.html:109
 msgid ""
 "\"I keep searching Outlook for which version of the drawing the client "
 "sent last week. And sometimes we make parts from the wrong revision.\""
 msgstr ""
 
-#: app/templates/www/index.html:105
+#: app/templates/www/index.html:117
 msgid "Excel only Jana updates"
 msgstr ""
 
-#: app/templates/www/index.html:107
+#: app/templates/www/index.html:119
 msgid ""
 "\"We have a spreadsheet, but only Jana keeps it current. When she's sick,"
 " nobody knows anything.\""
 msgstr ""
 
-#: app/templates/www/index.html:118 app/templates/www/pricing.html:63
+#: app/templates/www/index.html:130 app/templates/www/pricing.html:75
 msgid "Customer-owned material"
 msgstr ""
 
-#: app/templates/www/index.html:120
+#: app/templates/www/index.html:132
 msgid ""
 "Your client's sheet metal, blanks and fixtures — on record, not in "
 "someone's head"
 msgstr ""
 
-#: app/templates/www/index.html:123
+#: app/templates/www/index.html:135
 msgid ""
 "Many workshops machine, cut or paint material the client supplied. "
 "Assoluto records every receipt, issue and consumption per client and "
@@ -5761,270 +6771,279 @@ msgid ""
 "portal — read-only."
 msgstr ""
 
-#: app/templates/www/index.html:126
+#: app/templates/www/index.html:138
 msgid "How material tracking works"
 msgstr ""
 
-#: app/templates/www/index.html:156
+#: app/templates/www/index.html:168
 msgid "Everything that matters"
 msgstr ""
 
-#: app/templates/www/index.html:158
+#: app/templates/www/index.html:170
 msgid "Built specifically for manufacturing SMEs"
 msgstr ""
 
-#: app/templates/www/index.html:161
+#: app/templates/www/index.html:173
 msgid ""
 "Not a generic CRM. Not an oversized ERP. A portal built around drawings, "
 "quotes and production status."
 msgstr ""
 
-#: app/templates/www/index.html:179
+#: app/templates/www/index.html:191
 msgid ""
 "Clear steps from request to delivery. Every status change is recorded — "
 "who, when and with what note. No more guessing."
 msgstr ""
 
-#: app/templates/www/index.html:185
+#: app/templates/www/index.html:197
 msgid "Drawings and CAD attached to orders"
 msgstr ""
 
-#: app/templates/www/index.html:186
+#: app/templates/www/index.html:198
 msgid ""
 "PDF, PNG, DWG, DXF, STEP. Direct upload, previews for PDFs and images. "
 "Every drawing attached to its order."
 msgstr ""
 
-#: app/templates/www/index.html:192
+#: app/templates/www/index.html:204
 msgid "Status tracking in real time"
 msgstr ""
 
-#: app/templates/www/index.html:193
+#: app/templates/www/index.html:205
 msgid ""
 "The client sees on their own: DRAFT · SUBMITTED · QUOTED · CONFIRMED · IN"
 " PRODUCTION · READY · DELIVERED · CLOSED. Most \"where's my order?\" "
 "calls go away on their own."
 msgstr ""
 
-#: app/templates/www/index.html:200
+#: app/templates/www/index.html:212
 msgid ""
 "A shared catalog plus items and prices per client. In the order form the "
 "client types, picks, and price and unit fill in."
 msgstr ""
 
-#: app/templates/www/index.html:206
+#: app/templates/www/index.html:218
 msgid "Email notifications that make sense"
 msgstr ""
 
-#: app/templates/www/index.html:207
+#: app/templates/www/index.html:219
 msgid ""
 "Client comments, status changes, new drawings. Each user sets what they "
 "want to be notified about. No more inbox overload."
 msgstr ""
 
-#: app/templates/www/index.html:221
+#: app/templates/www/index.html:233
 msgid "See all features"
 msgstr ""
 
-#: app/templates/www/index.html:232
+#: app/templates/www/index.html:244
 msgid "How it works"
 msgstr ""
 
-#: app/templates/www/index.html:234
+#: app/templates/www/index.html:246
 msgid "Three steps, thirty minutes. No \"implementation project\"."
 msgstr ""
 
-#: app/templates/www/index.html:242
+#: app/templates/www/index.html:254
 msgid "Sign up, choose a subdomain"
 msgstr ""
 
-#: app/templates/www/index.html:245
+#: app/templates/www/index.html:257
 msgid ""
 "Email, password, company name. You'll get your own address — e.g. "
 "yourfirm.assoluto.eu — in 30 seconds."
 msgstr ""
 
-#: app/templates/www/index.html:251
+#: app/templates/www/index.html:263
 msgid "Invite your first clients"
 msgstr ""
 
-#: app/templates/www/index.html:254
+#: app/templates/www/index.html:266
 msgid ""
 "Click, enter their email, the invite goes out. They see only their own "
 "orders and drawings. Nothing else."
 msgstr ""
 
-#: app/templates/www/index.html:260
+#: app/templates/www/index.html:272
 msgid "Orders run on their own"
 msgstr ""
 
-#: app/templates/www/index.html:263
+#: app/templates/www/index.html:275
 msgid ""
 "Client uploads a drawing, you quote, they confirm. The shop floor updates"
 " the status and the client sees it — fewer calls and emails asking where "
 "things are."
 msgstr ""
 
-#: app/templates/www/index.html:274
+#: app/templates/www/index.html:286
 msgid "Why Assoluto"
 msgstr ""
 
-#: app/templates/www/index.html:276
+#: app/templates/www/index.html:288
 msgid "Halfway between Excel and a 600K CZK ERP"
 msgstr ""
 
-#: app/templates/www/index.html:279
+#: app/templates/www/index.html:291
 msgid ""
 "You outgrew the spreadsheet. You don't want a year-long ERP "
 "implementation. Here's what's in between."
 msgstr ""
 
-#: app/templates/www/index.html:288
+#: app/templates/www/index.html:300
 msgid "Excel / email"
 msgstr ""
 
-#: app/templates/www/index.html:290
+#: app/templates/www/index.html:302
 msgid "Big ERP"
 msgstr ""
 
-#: app/templates/www/index.html:302
+#: app/templates/www/index.html:314
 msgid "Setup"
 msgstr ""
 
-#: app/templates/www/index.html:302
+#: app/templates/www/index.html:314
 msgid "0 CZK, 10 years of habits"
 msgstr ""
 
-#: app/templates/www/index.html:302
+#: app/templates/www/index.html:314
 msgid "30 minutes, zero training"
 msgstr ""
 
-#: app/templates/www/index.html:302
+#: app/templates/www/index.html:314
 msgid "3–9 months, 200–800K CZK"
 msgstr ""
 
-#: app/templates/www/index.html:303
+#: app/templates/www/index.html:315
 msgid "Monthly cost"
 msgstr ""
 
-#: app/templates/www/index.html:303
+#: app/templates/www/index.html:315
 msgid "The cost of your patience"
 msgstr ""
 
-#: app/templates/www/index.html:303
+#: app/templates/www/index.html:315
 msgid "1 490 – 2 990 CZK"
 msgstr ""
 
-#: app/templates/www/index.html:303
+#: app/templates/www/index.html:315
 msgid "5 – 25K CZK / user"
 msgstr ""
 
-#: app/templates/www/index.html:304
+#: app/templates/www/index.html:316
 msgid "Client sees order status"
 msgstr ""
 
-#: app/templates/www/index.html:304
+#: app/templates/www/index.html:316
 msgid "often only via a separate B2B module"
 msgstr ""
 
-#: app/templates/www/index.html:305
+#: app/templates/www/index.html:317
 msgid "billable by the hour"
 msgstr ""
 
-#: app/templates/www/index.html:306
+#: app/templates/www/index.html:318
 msgid "Audit trail"
 msgstr ""
 
-#: app/templates/www/index.html:307 app/templates/www/pricing.html:68
+#: app/templates/www/index.html:319 app/templates/www/pricing.html:80
 msgid "Data in the EU"
 msgstr ""
 
-#: app/templates/www/index.html:307
+#: app/templates/www/index.html:319
 msgid "your laptop"
 msgstr ""
 
-#: app/templates/www/index.html:307
+#: app/templates/www/index.html:319
 msgid "Hetzner DE"
 msgstr ""
 
-#: app/templates/www/index.html:307
+#: app/templates/www/index.html:319
 msgid "depends on the vendor"
 msgstr ""
 
-#: app/templates/www/index.html:308
+#: app/templates/www/index.html:320
 msgid "Can be cancelled"
 msgstr ""
 
-#: app/templates/www/index.html:308
+#: app/templates/www/index.html:320
 msgid "at any time"
 msgstr ""
 
-#: app/templates/www/index.html:308
+#: app/templates/www/index.html:320
 msgid "12–36 month contracts"
 msgstr ""
 
-#: app/templates/www/index.html:319 app/templates/www/pricing.html:3
+#: app/templates/www/index.html:331 app/templates/www/pricing.html:3
 #: app/templates/www/pricing.html:13 app/templates/www/www_base.html:74
 msgid "Pricing"
 msgstr ""
 
-#: app/templates/www/index.html:321
+#: app/templates/www/index.html:333
 msgid "An honest price list. No sales call required."
 msgstr ""
 
-#: app/templates/www/index.html:324 app/templates/www/pricing.html:18
-msgid "30 days free. No card. Cancel any time."
-msgstr ""
-
-#: app/templates/www/index.html:335 app/templates/www/pricing.html:20
+#: app/templates/www/index.html:347 app/templates/www/pricing.html:20
 msgid ""
 "We are not VAT-registered, so the listed price is the final price — no "
 "VAT is added."
 msgstr ""
 
-#: app/templates/www/index.html:339
+#: app/templates/www/index.html:351
 msgid "Need more?"
 msgstr ""
 
-#: app/templates/www/index.html:340
+#: app/templates/www/index.html:352
 msgid "Enterprise plan and full price list →"
 msgstr ""
 
-#: app/templates/www/index.html:360
+#: app/templates/www/index.html:372
 msgid "Frequently asked questions"
 msgstr ""
 
-#: app/templates/www/index.html:362
+#: app/templates/www/index.html:374
 msgid "Things people actually want to know"
 msgstr ""
 
-#: app/templates/www/index.html:388
+#: app/templates/www/index.html:400
 msgid "Ready to stop picking up the phone?"
 msgstr ""
 
-#: app/templates/www/index.html:391
+#: app/templates/www/index.html:403
+msgid "No card. No \"quick call with sales\". Just sign up and try it."
+msgstr ""
+
+#: app/templates/www/index.html:403
 msgid ""
 "30 days free. No card. No \"quick call with sales\". Just sign up and try"
 " it."
 msgstr ""
 
-#: app/templates/www/index.html:399
+#: app/templates/www/index.html:411
 msgid "Or write to us"
 msgstr ""
 
-#: app/templates/www/index.html:403
+#: app/templates/www/index.html:415
 msgid "Up and running in 30 minutes · Data in the EU (Hetzner DE) · Czech support"
 msgstr ""
 
-#: app/templates/www/index.html:418 app/templates/www/www_base.html:56
+#: app/templates/www/index.html:425 app/templates/www/www_base.html:62
+msgid "no credit card required"
+msgstr ""
+
+#: app/templates/www/index.html:427 app/templates/www/www_base.html:62
+msgid "30-day free trial, no credit card required"
+msgstr ""
+
+#: app/templates/www/index.html:436 app/templates/www/www_base.html:56
 msgid ""
 "The customer portal for make-to-order manufacturers — orders, drawings, "
 "production status, customer-owned material."
 msgstr ""
 
-#: app/templates/www/index.html:426 app/templates/www/index.html:433
-#: app/templates/www/www_base.html:62
-msgid "30-day free trial, no credit card required"
+#: app/templates/www/pricing.html:4
+msgid ""
+"Pricing: Starter 1 490 CZK / month, Pro 2 990 CZK / month, unlimited "
+"client contacts and orders, free self-hosted Community edition."
 msgstr ""
 
 #: app/templates/www/pricing.html:4
@@ -6044,164 +7063,172 @@ msgid ""
 " never metered."
 msgstr ""
 
-#: app/templates/www/pricing.html:39
+#: app/templates/www/pricing.html:51
 msgid "Annual billing: 2 months free"
 msgstr ""
 
-#: app/templates/www/pricing.html:40
+#: app/templates/www/pricing.html:52
 msgid ""
 "Pay for 10 months, use 12: Starter 14 900 CZK / 590 € a year, Pro 29 900 "
 "CZK / 1 190 € a year. Annual plans are invoiced and paid by bank transfer"
 " — write to team@assoluto.eu."
 msgstr ""
 
-#: app/templates/www/pricing.html:52
+#: app/templates/www/pricing.html:64
 msgid "What's included in every plan"
 msgstr ""
 
-#: app/templates/www/pricing.html:60
+#: app/templates/www/pricing.html:72
 msgid "Orders and quotes"
 msgstr ""
 
-#: app/templates/www/pricing.html:60
+#: app/templates/www/pricing.html:72
 msgid ""
 "the full status pipeline, comments and internal notes, email "
 "notifications."
 msgstr ""
 
-#: app/templates/www/pricing.html:61
+#: app/templates/www/pricing.html:73
 msgid "Drawings and attachments"
 msgstr ""
 
-#: app/templates/www/pricing.html:61
+#: app/templates/www/pricing.html:73
 msgid "PDF, DWG, DXF, STEP, STL and images up to 50 MB per file."
 msgstr ""
 
-#: app/templates/www/pricing.html:62
+#: app/templates/www/pricing.html:74
 msgid "Promised delivery date"
 msgstr ""
 
-#: app/templates/www/pricing.html:62
+#: app/templates/www/pricing.html:74
 msgid "per order, with an on-time delivery report."
 msgstr ""
 
-#: app/templates/www/pricing.html:63
+#: app/templates/www/pricing.html:75
 msgid "receipts, issues and balance per client."
 msgstr ""
 
-#: app/templates/www/pricing.html:64
+#: app/templates/www/pricing.html:76
 msgid "shared items plus items and prices per client."
 msgstr ""
 
-#: app/templates/www/pricing.html:65
+#: app/templates/www/pricing.html:77
 msgid "CSV and PDF export"
 msgstr ""
 
-#: app/templates/www/pricing.html:65
+#: app/templates/www/pricing.html:77
 msgid "your data is yours. Leave any time."
 msgstr ""
 
-#: app/templates/www/pricing.html:67
+#: app/templates/www/pricing.html:79
 msgid "Export of orders to Pohoda (XML)"
 msgstr ""
 
-#: app/templates/www/pricing.html:67
+#: app/templates/www/pricing.html:79
 msgid "hand finished orders over to your accounting."
 msgstr ""
 
-#: app/templates/www/pricing.html:68
+#: app/templates/www/pricing.html:80
 msgid "Hetzner, Germany. Daily database backups."
 msgstr ""
 
-#: app/templates/www/pricing.html:69
+#: app/templates/www/pricing.html:81
 msgid "real people, not a chatbot. Reply within 1 working day."
 msgstr ""
 
-#: app/templates/www/pricing.html:70
+#: app/templates/www/pricing.html:82
 msgid "GDPR-ready"
 msgstr ""
 
-#: app/templates/www/pricing.html:70
+#: app/templates/www/pricing.html:82
 msgid "subprocessor list, DPA on request."
 msgstr ""
 
-#: app/templates/www/pricing.html:74
+#: app/templates/www/pricing.html:86
 msgid "Uptime monitoring"
 msgstr ""
 
-#: app/templates/www/pricing.html:74
+#: app/templates/www/pricing.html:86
 msgid "public status page"
 msgstr ""
 
-#: app/templates/www/pricing.html:82
+#: app/templates/www/pricing.html:94
 msgid "Pricing FAQ"
 msgstr ""
 
-#: app/templates/www/pricing.html:94
+#: app/templates/www/pricing.html:106
 msgid "What counts as a staff user?"
 msgstr ""
 
-#: app/templates/www/pricing.html:94
+#: app/templates/www/pricing.html:106
 msgid ""
 "Anyone in your own company who logs in to manage orders — office, "
 "foreman, owner. Your clients' contacts are not staff users and are "
 "unlimited on every plan."
 msgstr ""
 
-#: app/templates/www/pricing.html:95
+#: app/templates/www/pricing.html:108 app/templates/www/pricing.html:110
 msgid "Is a card required for the trial?"
 msgstr ""
 
-#: app/templates/www/pricing.html:95
+#: app/templates/www/pricing.html:108
+msgid "No. Sign up with just an email. Early access is free until"
+msgstr ""
+
+#: app/templates/www/pricing.html:108
+msgid "To continue after that, write to us — or let it lapse, nothing is charged."
+msgstr ""
+
+#: app/templates/www/pricing.html:110
 msgid ""
 "No. Sign up with just an email. When the 30 days are over, pick a plan to"
 " continue — or let the trial lapse, nothing is charged."
 msgstr ""
 
-#: app/templates/www/pricing.html:96
+#: app/templates/www/pricing.html:112
 msgid "What do I need to enter at first paid checkout?"
 msgstr ""
 
-#: app/templates/www/pricing.html:96
+#: app/templates/www/pricing.html:112
 msgid ""
 "Billing name, IČO (8 digits) and billing address. We need these to issue "
 "your invoice. We are not VAT-registered, so no VAT is charged and you "
 "receive an ordinary invoice. You enter these once — we keep them on file."
 msgstr ""
 
-#: app/templates/www/pricing.html:98 app/templates/www/pricing.html:100
+#: app/templates/www/pricing.html:114 app/templates/www/pricing.html:116
 msgid "How does billing actually work?"
 msgstr ""
 
-#: app/templates/www/pricing.html:98
+#: app/templates/www/pricing.html:114
 msgid ""
 "Monthly plan: card via Stripe; the invoice is available to download in "
 "your account. Annual plan: invoiced and paid by bank transfer, 2 months "
 "free."
 msgstr ""
 
-#: app/templates/www/pricing.html:100
+#: app/templates/www/pricing.html:116
 msgid ""
 "Online card payment is being set up. Until then we invoice by bank "
 "transfer — monthly or annually (annual = 2 months free). Write to "
 "team@assoluto.eu before your trial ends and we will send the invoice."
 msgstr ""
 
-#: app/templates/www/pricing.html:102
+#: app/templates/www/pricing.html:118
 msgid "Can I change plans later?"
 msgstr ""
 
-#: app/templates/www/pricing.html:102
+#: app/templates/www/pricing.html:118
 msgid ""
 "Yes. Write to team@assoluto.eu and we will switch your plan within 1 "
 "working day."
 msgstr ""
 
-#: app/templates/www/pricing.html:103
+#: app/templates/www/pricing.html:119
 msgid "What happens when I cancel?"
 msgstr ""
 
-#: app/templates/www/pricing.html:103
+#: app/templates/www/pricing.html:119
 msgid ""
 "You keep full access until the end of the current billing period, then "
 "have 3 days to export your data (CSV + attachments as ZIP). After that, "
@@ -6210,11 +7237,11 @@ msgid ""
 "within 48 hours."
 msgstr ""
 
-#: app/templates/www/pricing.html:104
+#: app/templates/www/pricing.html:120
 msgid "Can I get a refund?"
 msgstr ""
 
-#: app/templates/www/pricing.html:104
+#: app/templates/www/pricing.html:120
 msgid ""
 "Monthly plans are not refunded mid-period — when you cancel, you keep "
 "full access until the end of the period you already paid for. Annual "
@@ -6222,62 +7249,68 @@ msgid ""
 "months, by agreement via team@assoluto.eu."
 msgstr ""
 
-#: app/templates/www/pricing.html:105
+#: app/templates/www/pricing.html:121
 msgid "Does the self-hosted Community version cost anything?"
 msgstr ""
 
-#: app/templates/www/pricing.html:105
+#: app/templates/www/pricing.html:121
 msgid ""
 "No. It's AGPL-3.0 open source. You pay only for your own VPS and S3. No "
 "restrictions on users or features — only you need to run updates "
 "yourself."
 msgstr ""
 
-#: app/templates/www/pricing.html:106
+#: app/templates/www/pricing.html:122
 msgid "Do you have a discount for schools / associations / non-profits?"
 msgstr ""
 
-#: app/templates/www/pricing.html:106
+#: app/templates/www/pricing.html:122
 msgid ""
 "Yes. Write to us at team@assoluto.eu with a description of the use — half"
 " price is typical, free access for small organisations."
 msgstr ""
 
-#: app/templates/www/privacy.html:12
+#: app/templates/www/privacy.html:11 app/templates/www/terms.html:9
+msgid "Version 1.2 · effective from October 6, 2026"
+msgstr ""
+
+#: app/templates/www/privacy.html:14
+msgid ""
+"Changes in 1.2: backup retention (14 days on the server, 180 days off-"
+"site) and audit-trail deletion stated precisely; breach-notification "
+"deadlines aligned with the Data Processing Agreement."
+msgstr ""
+
+#: app/templates/www/privacy.html:15
 msgid ""
 "Changes in 1.1: the subprocessor table now correctly states that uploaded"
 " files are stored in Hetzner Object Storage in Germany (no new "
 "subprocessor was added); wording on backups and invoices corrected."
 msgstr ""
 
-#: app/templates/www/privacy.html:18
+#: app/templates/www/privacy.html:21
 msgid "1. Who is the data controller"
 msgstr ""
 
-#: app/templates/www/privacy.html:20
+#: app/templates/www/privacy.html:23
 msgid ""
 "The data controller for personal data processed when you visit "
 "assoluto.eu and when you operate a Hosted Service account is"
 msgstr ""
 
-#: app/templates/www/privacy.html:23 app/templates/www/terms.html:23
-msgid "with registered office at"
-msgstr ""
-
-#: app/templates/www/privacy.html:24 app/templates/www/terms.html:25
-msgid "Contact:"
-msgstr ""
-
-#: app/templates/www/privacy.html:28
+#: app/templates/www/privacy.html:31
 msgid ""
 "For personal data that you (the Customer) upload about your own end "
 "clients into the portal — order data, contact records, drawings — the "
 "Provider acts as a data processor under Article 28 GDPR; the Customer "
-"remains the controller of that data. A standard DPA is available on "
-"request at the same address."
+"remains the controller of that data."
 msgstr ""
 
-#: app/templates/www/privacy.html:31
+#: app/templates/www/privacy.html:32
+msgid "The terms of that processing are set out in the"
+msgstr ""
+
+#: app/templates/www/privacy.html:36
 msgid ""
 "The Provider has not designated a Data Protection Officer because the "
 "size and nature of processing falls below the GDPR Article 37 threshold. "
@@ -6285,36 +7318,36 @@ msgid ""
 "email above."
 msgstr ""
 
-#: app/templates/www/privacy.html:36
+#: app/templates/www/privacy.html:41
 msgid "2. What personal data we process and on what legal basis"
 msgstr ""
 
-#: app/templates/www/privacy.html:38
+#: app/templates/www/privacy.html:43
 msgid ""
 "We process the following categories of personal data, on the legal bases "
 "set out next to each category:"
 msgstr ""
 
-#: app/templates/www/privacy.html:41
+#: app/templates/www/privacy.html:46
 msgid ""
 "Account identification (full name, work email, role, company name, IČO, "
 "DIČ if provided) — Article 6(1)(b) GDPR, performance of the contract."
 msgstr ""
 
-#: app/templates/www/privacy.html:42
+#: app/templates/www/privacy.html:47
 msgid ""
 "Login credentials (password stored only as an Argon2id hash; we never see"
 " your plaintext password) — Article 6(1)(b) GDPR."
 msgstr ""
 
-#: app/templates/www/privacy.html:43
+#: app/templates/www/privacy.html:48
 msgid ""
 "Content you create in the portal (orders, attachments, comments, customer"
 " records, products) — Article 6(1)(b) GDPR. For end-client personal data "
 "inside this content we act as a processor on your instructions."
 msgstr ""
 
-#: app/templates/www/privacy.html:44
+#: app/templates/www/privacy.html:49
 msgid ""
 "Billing data (invoice details such as billing name, IČO and address, "
 "payment status, invoice history) — Article 6(1)(b) GDPR for the contract;"
@@ -6322,125 +7355,77 @@ msgid ""
 "records."
 msgstr ""
 
-#: app/templates/www/privacy.html:45
+#: app/templates/www/privacy.html:50
 msgid ""
 "Technical/security logs (IP address, User-Agent, request path, login "
 "success/failure, CSRF token activity) — Article 6(1)(f) GDPR, legitimate "
 "interest in operating a secure service."
 msgstr ""
 
-#: app/templates/www/privacy.html:46
+#: app/templates/www/privacy.html:51
 msgid ""
 "Audit-trail records of administrative actions inside your tenant — "
 "Article 6(1)(b) and (f) GDPR."
 msgstr ""
 
-#: app/templates/www/privacy.html:49
+#: app/templates/www/privacy.html:54
 msgid ""
 "We do not process any special-category (sensitive) personal data and we "
 "ask that you do not upload such data into the portal."
 msgstr ""
 
-#: app/templates/www/privacy.html:54
+#: app/templates/www/privacy.html:59
 msgid "3. Why we process the data (purposes)"
 msgstr ""
 
-#: app/templates/www/privacy.html:56
+#: app/templates/www/privacy.html:61
 msgid ""
 "Operating the Service you ordered — letting you log in, see your orders, "
 "send notifications, generate invoices."
 msgstr ""
 
-#: app/templates/www/privacy.html:57
+#: app/templates/www/privacy.html:62
 msgid "Issuing invoices and meeting Czech accounting and tax obligations."
 msgstr ""
 
-#: app/templates/www/privacy.html:58
+#: app/templates/www/privacy.html:63
 msgid ""
 "Detecting and responding to abuse — brute-force login attempts, spam, "
 "attempts to access other tenants' data."
 msgstr ""
 
-#: app/templates/www/privacy.html:59
+#: app/templates/www/privacy.html:64
 msgid ""
 "Sending operational emails (welcome, password reset, order notifications,"
 " subscription notifications)."
 msgstr ""
 
-#: app/templates/www/privacy.html:60
+#: app/templates/www/privacy.html:65
 msgid ""
 "Improving the Service based on aggregated usage patterns; we do not "
 "perform automated decision-making with legal effects (no profiling, no "
 "algorithmic eligibility decisions)."
 msgstr ""
 
-#: app/templates/www/privacy.html:65
+#: app/templates/www/privacy.html:70
 msgid "4. Where data is stored and our subprocessors"
 msgstr ""
 
-#: app/templates/www/privacy.html:67
+#: app/templates/www/privacy.html:72
 msgid ""
 "We rely on the following subprocessors. Each receives only the data they "
 "need to deliver their part of the Service; none have permission to use "
 "your data for marketing or to share it onward."
 msgstr ""
 
-#: app/templates/www/privacy.html:73
-msgid "Subprocessor"
-msgstr ""
-
-#: app/templates/www/privacy.html:75
-msgid "Data categories"
-msgstr ""
-
-#: app/templates/www/privacy.html:82
-msgid ""
-"Application hosting and database (VPS); Object Storage for uploaded "
-"files; database backups"
-msgstr ""
-
-#: app/templates/www/privacy.html:83
-msgid "All Customer data, including drawings and other uploaded files"
-msgstr ""
-
-#: app/templates/www/privacy.html:88
-msgid "Transactional email delivery"
-msgstr ""
-
-#: app/templates/www/privacy.html:89
-msgid "Recipient email, name, message body"
-msgstr ""
-
-#: app/templates/www/privacy.html:94
-msgid "Subscription billing, card processing, dunning"
-msgstr ""
-
-#: app/templates/www/privacy.html:95
-msgid ""
-"Billing email, company name, tax IDs, card data (held by Stripe, never by"
-" us)"
-msgstr ""
-
-#: app/templates/www/privacy.html:96
-msgid "IE (EU); some processing in US under SCCs"
-msgstr ""
-
-#: app/templates/www/privacy.html:100
-msgid "DNS hosting and domain registrar"
-msgstr ""
-
-#: app/templates/www/privacy.html:101
-msgid "Public DNS records only — no personal data"
-msgstr ""
-
-#: app/templates/www/privacy.html:108
+#: app/templates/www/privacy.html:76
 msgid ""
 "Stripe transfers some processing to its US affiliates under Standard "
 "Contractual Clauses (SCCs) approved by the European Commission. We rely "
 "on Stripe's published transfer impact assessment."
 msgstr ""
 
-#: app/templates/www/privacy.html:111
+#: app/templates/www/privacy.html:79
 msgid ""
 "Subprocessor changes are disclosed at least 30 days in advance by "
 "updating this page and emailing active tenant administrators. The "
@@ -6448,90 +7433,94 @@ msgid ""
 " before the change takes effect."
 msgstr ""
 
-#: app/templates/www/privacy.html:116
+#: app/templates/www/privacy.html:84
 msgid "5. How long we retain data"
 msgstr ""
 
-#: app/templates/www/privacy.html:118
+#: app/templates/www/privacy.html:86
 msgid "Active account data — for the duration of the active subscription."
 msgstr ""
 
-#: app/templates/www/privacy.html:119
+#: app/templates/www/privacy.html:87
 msgid ""
 "After subscription cancellation — full access continues until the end of "
 "the paid period plus a 3-day data-export grace period; afterwards the "
 "account is deactivated."
 msgstr ""
 
-#: app/templates/www/privacy.html:120
+#: app/templates/www/privacy.html:88
 msgid ""
 "Manual recovery on request — data remains recoverable on written request "
 "for 30 days after deactivation. After that, it is permanently deleted."
 msgstr ""
 
-#: app/templates/www/privacy.html:121
-msgid "Database backups — 14 days rolling, then automatically purged."
+#: app/templates/www/privacy.html:89
+msgid ""
+"Database backups — encrypted daily copies, kept 14 days on the server and"
+" 180 days in a second Hetzner location, then automatically purged. Backup"
+" copies of uploaded files are removed at the latest 180 days after the "
+"file is deleted."
 msgstr ""
 
-#: app/templates/www/privacy.html:122
+#: app/templates/www/privacy.html:90
 msgid ""
 "Authentication and security logs (last_login timestamps, failed login "
 "attempts, IP) — 90 days."
 msgstr ""
 
-#: app/templates/www/privacy.html:123
+#: app/templates/www/privacy.html:91
 msgid ""
 "Audit trail of admin actions inside the tenant — for the lifetime of the "
-"tenant; after deletion, retained for up to 3 years for evidentiary "
-"purposes in case of dispute."
+"tenant, at most 3 years per record; deleted together with the tenant's "
+"other data 30 days after the tenant is deactivated."
 msgstr ""
 
-#: app/templates/www/privacy.html:124
+#: app/templates/www/privacy.html:92
 msgid ""
 "Billing records and tax documents — 10 years from the end of the "
 "accounting period, as required by Czech Act 563/1991 Coll. on Accounting."
 msgstr ""
 
-#: app/templates/www/privacy.html:125
+#: app/templates/www/privacy.html:93
 msgid "Application request and error logs — 14 days."
 msgstr ""
 
-#: app/templates/www/privacy.html:128
+#: app/templates/www/privacy.html:96
 msgid ""
 "Where the law mandates a longer retention (such as billing records), we "
 "retain only what the law requires and isolate it from the operational "
 "dataset where possible."
 msgstr ""
 
-#: app/templates/www/privacy.html:133
+#: app/templates/www/privacy.html:101
 msgid "6. Recipients and data sharing"
 msgstr ""
 
-#: app/templates/www/privacy.html:135
+#: app/templates/www/privacy.html:103
 msgid "We do not sell or rent your personal data. We share data only:"
 msgstr ""
 
-#: app/templates/www/privacy.html:138
+#: app/templates/www/privacy.html:106
 msgid ""
 "with the subprocessors listed in Section 4, strictly for the purposes set"
 " out there;"
 msgstr ""
 
-#: app/templates/www/privacy.html:139
+#: app/templates/www/privacy.html:107
 msgid "with public authorities when required by law or by an enforceable order;"
 msgstr ""
 
-#: app/templates/www/privacy.html:140
+#: app/templates/www/privacy.html:108
 msgid ""
 "with our professional advisors (accountant, tax advisor) under "
 "confidentiality, for billing and accounting purposes only."
 msgstr ""
 
-#: app/templates/www/privacy.html:145
+#: app/templates/www/privacy.html:113
 msgid "7. Your rights"
 msgstr ""
 
-#: app/templates/www/privacy.html:147
+#: app/templates/www/privacy.html:115
 msgid ""
 "Under GDPR Articles 15–22 you have the right to: access your personal "
 "data, rectify inaccurate data, request erasure, restrict processing, "
@@ -6541,32 +7530,32 @@ msgid ""
 "application's admin profile section."
 msgstr ""
 
-#: app/templates/www/privacy.html:150
+#: app/templates/www/privacy.html:118
 msgid "To exercise any other right, write to"
 msgstr ""
 
-#: app/templates/www/privacy.html:152
+#: app/templates/www/privacy.html:120
 msgid ""
 "We respond within 30 days of verifying your identity. The response is "
 "free of charge unless the request is manifestly unfounded or excessive "
 "(Article 12(5) GDPR)."
 msgstr ""
 
-#: app/templates/www/privacy.html:155
+#: app/templates/www/privacy.html:123
 msgid ""
 "If you believe your rights have been infringed you may lodge a complaint "
 "with the Czech Office for Personal Data Protection"
 msgstr ""
 
-#: app/templates/www/privacy.html:157
+#: app/templates/www/privacy.html:125
 msgid "Pplk. Sochora 27, 170 00 Prague 7, Czech Republic."
 msgstr ""
 
-#: app/templates/www/privacy.html:162
+#: app/templates/www/privacy.html:130
 msgid "8. Cookies and similar technologies"
 msgstr ""
 
-#: app/templates/www/privacy.html:164
+#: app/templates/www/privacy.html:132
 msgid ""
 "The portal uses only strictly-necessary cookies (login session, CSRF "
 "protection, language preference); your light/dark theme choice stays in "
@@ -6574,26 +7563,28 @@ msgid ""
 "cookies, and we do not track you across sites. Full inventory:"
 msgstr ""
 
-#: app/templates/www/privacy.html:170
+#: app/templates/www/privacy.html:138
 msgid "9. Data security"
 msgstr ""
 
-#: app/templates/www/privacy.html:172
+#: app/templates/www/privacy.html:140
 msgid ""
 "We apply the technical and organisational measures appropriate to the "
 "risk: TLS 1.2+ for all traffic, Argon2id password hashing, per-tenant "
 "database isolation enforced at the row level (Postgres RLS), daily "
 "database backups, principle-of-least-privilege access by the Provider, no"
 " plaintext storage of credentials or payment cards. Security incidents "
-"affecting your data will be reported to you and (where required) to the "
-"supervisory authority within 72 hours under Article 33 GDPR."
+"affecting data in your portal will be reported to you without undue delay"
+" and within 48 hours (see the Data Processing Agreement); where we are "
+"the controller, we notify the supervisory authority within 72 hours under"
+" Article 33 GDPR."
 msgstr ""
 
-#: app/templates/www/privacy.html:177
+#: app/templates/www/privacy.html:145
 msgid "10. Changes to this Privacy Policy"
 msgstr ""
 
-#: app/templates/www/privacy.html:179
+#: app/templates/www/privacy.html:147
 msgid ""
 "Material changes — new subprocessors, expanded data categories, longer "
 "retention — are announced at least 30 days in advance by updating this "
@@ -6641,53 +7632,15 @@ msgstr ""
 msgid "Accounts and sign-in"
 msgstr ""
 
-#: app/templates/www/security.html:70
-msgid "Passwords are stored only as Argon2id hashes — never in readable form."
-msgstr ""
-
-#: app/templates/www/security.html:71
-msgid ""
-"Sign-in, signup, password reset and the contact form are rate-limited "
-"against brute force."
-msgstr ""
-
-#: app/templates/www/security.html:72
-msgid "Password-reset and invitation links work only once."
-msgstr ""
-
-#: app/templates/www/security.html:73
-msgid "Changing a password signs out every existing session."
-msgstr ""
-
-#: app/templates/www/security.html:74
-msgid ""
-"Session cookies are HttpOnly and SameSite=Lax, and sent only over HTTPS "
-"in production."
-msgstr ""
-
-#: app/templates/www/security.html:75
-msgid "Every form is protected against cross-site request forgery (CSRF)."
-msgstr ""
-
 #: app/templates/www/security.html:78
 msgid "Hosting and backups"
 msgstr ""
 
-#: app/templates/www/security.html:79
-msgid ""
-"The application, the database and uploaded files are hosted by Hetzner "
-"Online GmbH in Germany (EU) — a server for the application and database, "
-"Hetzner Object Storage for drawings and attachments."
-msgstr ""
-
-#: app/templates/www/security.html:80
-msgid ""
-"All traffic is encrypted with HTTPS (HSTS enabled); pages are served with"
-" a strict Content-Security-Policy."
-msgstr ""
-
 #: app/templates/www/security.html:81
-msgid "The database is backed up daily; backups are kept for 14 days."
+msgid ""
+"The database is backed up daily and encrypted; copies are kept 14 days on"
+" the server and 180 days in a second Hetzner location. Uploaded files are"
+" copied there too."
 msgstr ""
 
 #: app/templates/www/security.html:82
@@ -6731,27 +7684,23 @@ msgid ""
 "from their profile (GDPR Art. 15, 17 and 20)."
 msgstr ""
 
-#: app/templates/www/security.html:94
-msgid "The source code is open (AGPL-3.0), so anyone can check how it works."
-msgstr ""
-
 #: app/templates/www/security.html:98
 msgid "The full list of subprocessors and retention periods is in the"
 msgstr ""
 
 #: app/templates/www/security.html:100
-msgid "A data processing agreement (DPA) is available on request."
+msgid "Our processing of your clients' data is governed by the"
 msgstr ""
 
-#: app/templates/www/security.html:104
+#: app/templates/www/security.html:105
 msgid "Found a vulnerability?"
 msgstr ""
 
-#: app/templates/www/security.html:106
+#: app/templates/www/security.html:107
 msgid "Please write to"
 msgstr ""
 
-#: app/templates/www/security.html:108
+#: app/templates/www/security.html:109
 msgid "— we reply within 1 working day. Machine-readable contact:"
 msgstr ""
 
@@ -6916,24 +7865,30 @@ msgstr ""
 
 #: app/templates/www/terms.html:12
 msgid ""
+"Changes in 1.2: new early access clause in section 4 — the Hosted Service"
+" is free until the date stated there; what happens afterwards."
+msgstr ""
+
+#: app/templates/www/terms.html:15
+msgid ""
 "Changes in 1.1: the free trial runs on the plan selected at signup; "
 "payment by bank transfer against an invoice; the availability section no "
 "longer states an uptime target."
 msgstr ""
 
-#: app/templates/www/terms.html:18
+#: app/templates/www/terms.html:21
 msgid "1. Who provides the Service"
 msgstr ""
 
-#: app/templates/www/terms.html:20
+#: app/templates/www/terms.html:23
 msgid "The Assoluto service (the \"Service\") is provided by"
 msgstr ""
 
-#: app/templates/www/terms.html:24
+#: app/templates/www/terms.html:27
 msgid "hereinafter the \"Provider\""
 msgstr ""
 
-#: app/templates/www/terms.html:29
+#: app/templates/www/terms.html:32
 msgid ""
 "These Terms govern the relationship between the Provider and the legal or"
 " natural person using the Service in the course of their business (the "
@@ -6942,11 +7897,11 @@ msgid ""
 "the Czech Civil Code do not apply."
 msgstr ""
 
-#: app/templates/www/terms.html:34
+#: app/templates/www/terms.html:37
 msgid "2. What the Service does"
 msgstr ""
 
-#: app/templates/www/terms.html:36
+#: app/templates/www/terms.html:39
 msgid ""
 "The Service is a multi-tenant cloud application — a customer portal — "
 "that lets a manufacturing or trading SME run its order workflow online: "
@@ -6956,7 +7911,7 @@ msgid ""
 "delivery."
 msgstr ""
 
-#: app/templates/www/terms.html:39
+#: app/templates/www/terms.html:42
 msgid ""
 "The Service is offered as a hosted SaaS at assoluto.eu (hereinafter "
 "\"Hosted Service\") and, separately, as open-source software released "
@@ -6967,18 +7922,18 @@ msgid ""
 "that license."
 msgstr ""
 
-#: app/templates/www/terms.html:44
+#: app/templates/www/terms.html:47
 msgid "3. Account, registration, access"
 msgstr ""
 
-#: app/templates/www/terms.html:46
+#: app/templates/www/terms.html:49
 msgid ""
 "The Hosted Service is accessed via an account created by the Customer at "
 "assoluto.eu/platform/signup. The Customer warrants that the registration "
 "data is correct and complete and undertakes to keep it up to date."
 msgstr ""
 
-#: app/templates/www/terms.html:49
+#: app/templates/www/terms.html:52
 msgid ""
 "The Customer is responsible for protecting login credentials. Any action "
 "performed under the Customer's account is deemed to have been performed "
@@ -6986,7 +7941,7 @@ msgid ""
 "delay if they suspect their credentials have been compromised."
 msgstr ""
 
-#: app/templates/www/terms.html:52
+#: app/templates/www/terms.html:55
 msgid ""
 "The Customer may invite further users (employees) and Customer Contacts "
 "(their own clients). The Customer is responsible for these invitees' use "
@@ -6994,11 +7949,11 @@ msgid ""
 " obtain from them."
 msgstr ""
 
-#: app/templates/www/terms.html:57
+#: app/templates/www/terms.html:60
 msgid "4. Free trial, plans, payment, cancellation"
 msgstr ""
 
-#: app/templates/www/terms.html:59
+#: app/templates/www/terms.html:62
 msgid ""
 "A new account starts a 30-day free trial of the plan selected at signup. "
 "No payment card is required to start the trial. After the trial expires "
@@ -7007,7 +7962,41 @@ msgid ""
 "export and is then deactivated."
 msgstr ""
 
-#: app/templates/www/terms.html:62
+#: app/templates/www/terms.html:69
+msgid "Early access."
+msgstr ""
+
+#: app/templates/www/terms.html:70
+msgid "Until the end of"
+msgstr ""
+
+#: app/templates/www/terms.html:70
+msgid ""
+"(Prague time) the Hosted Service is free of charge for every account, "
+"whatever the plan selected at signup and whenever the account was created"
+" (\"Early Access\"). A free trial never ends before Early Access ends. No"
+" payment card is required."
+msgstr ""
+
+#: app/templates/www/terms.html:73
+msgid ""
+"The Provider reminds the Customer by email 14 days and 3 days before "
+"Early Access ends. After it ends, continued use of the Hosted Service "
+"requires a paid plan at the prices published at assoluto.eu/pricing, "
+"invoiced by the Provider. The Customer Content stays in the account when "
+"the Customer continues on a paid plan. If the Customer does not continue,"
+" the 3-day grace period for data export applies and the account is then "
+"deactivated, as for an expired trial."
+msgstr ""
+
+#: app/templates/www/terms.html:76
+msgid ""
+"Either party may end the use of the Hosted Service during Early Access at"
+" any time by written notice (email is sufficient). The 3-day grace period"
+" for data export then applies."
+msgstr ""
+
+#: app/templates/www/terms.html:80
 msgid ""
 "Plan prices, limits, and the list of paid plans are published at "
 "assoluto.eu/pricing and form part of these Terms. Monthly subscriptions "
@@ -7018,7 +8007,7 @@ msgid ""
 "issued without VAT."
 msgstr ""
 
-#: app/templates/www/terms.html:65
+#: app/templates/www/terms.html:83
 msgid ""
 "The Customer may cancel the subscription at any time from the billing "
 "dashboard. The cancellation takes effect at the end of the current "
@@ -7031,7 +8020,7 @@ msgid ""
 "Policy)."
 msgstr ""
 
-#: app/templates/www/terms.html:68
+#: app/templates/www/terms.html:86
 msgid ""
 "Fees already paid for the current billing period are non-refundable; the "
 "Customer retains access for the remainder of the paid period. For annual "
@@ -7039,7 +8028,7 @@ msgid ""
 "rata upon written request, by mutual agreement."
 msgstr ""
 
-#: app/templates/www/terms.html:71
+#: app/templates/www/terms.html:89
 msgid ""
 "The Provider may unilaterally adjust prices and plan limits with at least"
 " 30 days' prior notice sent to the Customer's billing email. If the "
@@ -7048,11 +8037,11 @@ msgid ""
 "constitutes acceptance."
 msgstr ""
 
-#: app/templates/www/terms.html:76
+#: app/templates/www/terms.html:94
 msgid "5. Customer content and intellectual property"
 msgstr ""
 
-#: app/templates/www/terms.html:78
+#: app/templates/www/terms.html:96
 msgid ""
 "The Customer retains ownership of all content they upload to the Service "
 "(orders, comments, attachments, drawings, customer data — \"Customer "
@@ -7063,7 +8052,7 @@ msgid ""
 "Content."
 msgstr ""
 
-#: app/templates/www/terms.html:81
+#: app/templates/www/terms.html:99
 msgid ""
 "The Customer warrants that they have the right to upload and use the "
 "Customer Content (including the right to upload personal data of their "
@@ -7071,7 +8060,7 @@ msgid ""
 " on the Provider's role as a processor for that data)."
 msgstr ""
 
-#: app/templates/www/terms.html:84
+#: app/templates/www/terms.html:102
 msgid ""
 "The Service software (with the exception of code released under AGPL-3.0 "
 "in the public source repository), the Assoluto trademark and brand assets"
@@ -7080,63 +8069,63 @@ msgid ""
 "domain (see the NOTICE file in the source repository)."
 msgstr ""
 
-#: app/templates/www/terms.html:89
+#: app/templates/www/terms.html:107
 msgid "6. Acceptable use"
 msgstr ""
 
-#: app/templates/www/terms.html:91
+#: app/templates/www/terms.html:109
 msgid "The Customer agrees not to:"
 msgstr ""
 
-#: app/templates/www/terms.html:94
+#: app/templates/www/terms.html:112
 msgid ""
 "upload content that violates Czech or EU law (in particular: illegal, "
 "defamatory, infringing, or fraudulent content);"
 msgstr ""
 
-#: app/templates/www/terms.html:95
+#: app/templates/www/terms.html:113
 msgid ""
 "use the Service to send unsolicited bulk communications (spam) or to "
 "phish their own clients;"
 msgstr ""
 
-#: app/templates/www/terms.html:96
+#: app/templates/www/terms.html:114
 msgid ""
 "attempt to interfere with the Service's operation, bypass security or "
 "rate-limit measures, or access data belonging to other tenants;"
 msgstr ""
 
-#: app/templates/www/terms.html:97
+#: app/templates/www/terms.html:115
 msgid ""
 "reverse-engineer the Hosted Service infrastructure (this clause does not "
 "restrict any right granted by the AGPL-3.0 license to the open-source "
 "code);"
 msgstr ""
 
-#: app/templates/www/terms.html:98
+#: app/templates/www/terms.html:116
 msgid ""
 "use the Service for cryptocurrency mining or any computation unrelated to"
 " the order portal use case."
 msgstr ""
 
-#: app/templates/www/terms.html:101
+#: app/templates/www/terms.html:119
 msgid ""
 "Material breach of acceptable use is grounds for the Provider to suspend "
 "the account; see Section 9."
 msgstr ""
 
-#: app/templates/www/terms.html:106
+#: app/templates/www/terms.html:124
 msgid "7. Personal data"
 msgstr ""
 
-#: app/templates/www/terms.html:108
+#: app/templates/www/terms.html:126
 msgid ""
 "The Provider processes the Customer's personal data and acts as a data "
 "processor for end-client personal data uploaded by the Customer. The full"
 " processing notice and the list of subprocessors is set out in the"
 msgstr ""
 
-#: app/templates/www/terms.html:110
+#: app/templates/www/terms.html:128
 msgid ""
 "which forms an integral part of these Terms. Customers requiring a "
 "separate written Data Processing Agreement (DPA) under Article 28 GDPR "
@@ -7144,11 +8133,15 @@ msgid ""
 "available at no cost."
 msgstr ""
 
-#: app/templates/www/terms.html:115
+#: app/templates/www/terms.html:131
+msgid "The Provider's standard Data Processing Agreement is published at"
+msgstr ""
+
+#: app/templates/www/terms.html:137
 msgid "8. Service availability, no formal SLA on Starter/Pro"
 msgstr ""
 
-#: app/templates/www/terms.html:117
+#: app/templates/www/terms.html:139
 msgid ""
 "The Provider operates the Hosted Service with reasonable care, with daily"
 " database backups retained for 14 days. The Starter and Pro plans do not "
@@ -7159,7 +8152,7 @@ msgid ""
 "negotiated written SLA — contact team@assoluto.eu."
 msgstr ""
 
-#: app/templates/www/terms.html:120
+#: app/templates/www/terms.html:142
 msgid ""
 "The Provider performs upgrades during low-traffic windows where possible."
 " Brief service interruptions during deployment (typically under 60 "
@@ -7167,18 +8160,18 @@ msgid ""
 "considered an outage."
 msgstr ""
 
-#: app/templates/www/terms.html:123
+#: app/templates/www/terms.html:145
 msgid ""
 "The Customer is responsible for maintaining their own data exports as a "
 "safeguard against any data loss. The CSV / ZIP export endpoints are "
 "available at any time during the active subscription."
 msgstr ""
 
-#: app/templates/www/terms.html:128
+#: app/templates/www/terms.html:150
 msgid "9. Suspension and termination by the Provider"
 msgstr ""
 
-#: app/templates/www/terms.html:130
+#: app/templates/www/terms.html:152
 msgid ""
 "The Provider may, with prior notice sent to the Customer's billing email "
 "and a remedy period of at least 7 days where reasonably possible, suspend"
@@ -7190,18 +8183,18 @@ msgid ""
 "data export endpoints will remain available throughout)."
 msgstr ""
 
-#: app/templates/www/terms.html:133
+#: app/templates/www/terms.html:155
 msgid ""
 "Suspension for non-payment may take effect without prior notice if Stripe"
 " reports a payment failure and the situation has not been remedied within"
 " Stripe's standard dunning window (typically 21 days)."
 msgstr ""
 
-#: app/templates/www/terms.html:138
+#: app/templates/www/terms.html:160
 msgid "10. Warranties and limitation of liability"
 msgstr ""
 
-#: app/templates/www/terms.html:140
+#: app/templates/www/terms.html:162
 msgid ""
 "The Service is provided \"as available\". Beyond what is required by "
 "mandatory provisions of Czech law, the Provider gives no warranties of "
@@ -7209,7 +8202,7 @@ msgid ""
 "merchantability or fitness for a particular purpose."
 msgstr ""
 
-#: app/templates/www/terms.html:143
+#: app/templates/www/terms.html:165
 msgid ""
 "To the maximum extent permitted by law, the Provider's aggregate "
 "liability to the Customer for any cause arising out of or relating to the"
@@ -7222,18 +8215,18 @@ msgid ""
 "advised of the possibility of such damages."
 msgstr ""
 
-#: app/templates/www/terms.html:146
+#: app/templates/www/terms.html:168
 msgid ""
 "Nothing in these Terms limits liability for damage caused intentionally "
 "or by gross negligence, or for any other liability that cannot be limited"
 " under Czech law."
 msgstr ""
 
-#: app/templates/www/terms.html:151
+#: app/templates/www/terms.html:173
 msgid "11. Force majeure"
 msgstr ""
 
-#: app/templates/www/terms.html:153
+#: app/templates/www/terms.html:175
 msgid ""
 "Neither party is liable for non-performance caused by force majeure — "
 "events outside its reasonable control, including without limitation "
@@ -7243,11 +8236,11 @@ msgid ""
 "Czech Republic or Germany."
 msgstr ""
 
-#: app/templates/www/terms.html:158
+#: app/templates/www/terms.html:180
 msgid "12. Modifications to these Terms"
 msgstr ""
 
-#: app/templates/www/terms.html:160
+#: app/templates/www/terms.html:182
 msgid ""
 "The Provider may amend these Terms with at least 30 days' prior notice "
 "sent to the Customer's billing email and posted on this page. The version"
@@ -7257,18 +8250,18 @@ msgid ""
 " effective date constitutes acceptance of the new Terms."
 msgstr ""
 
-#: app/templates/www/terms.html:163
+#: app/templates/www/terms.html:185
 msgid ""
 "Material changes — pricing, scope of the Service, or the limitation of "
 "liability in Section 10 — will be highlighted in the notice email rather "
 "than buried in a long changelog."
 msgstr ""
 
-#: app/templates/www/terms.html:168
+#: app/templates/www/terms.html:190
 msgid "13. Governing law and jurisdiction"
 msgstr ""
 
-#: app/templates/www/terms.html:170
+#: app/templates/www/terms.html:192
 msgid ""
 "These Terms and any dispute arising out of or in connection with them are"
 " governed by the law of the Czech Republic, without regard to conflict-"
@@ -7278,18 +8271,18 @@ msgid ""
 "Decin)."
 msgstr ""
 
-#: app/templates/www/terms.html:173
+#: app/templates/www/terms.html:195
 msgid ""
 "The parties will attempt to resolve any dispute amicably first by direct "
 "negotiation; failing that, the parties may agree to non-binding mediation"
 " before initiating court proceedings."
 msgstr ""
 
-#: app/templates/www/terms.html:178
+#: app/templates/www/terms.html:200
 msgid "14. Severability and entire agreement"
 msgstr ""
 
-#: app/templates/www/terms.html:180
+#: app/templates/www/terms.html:202
 msgid ""
 "If any provision of these Terms is held to be invalid or unenforceable by"
 " a competent court, the remaining provisions remain in full force and "
@@ -7297,7 +8290,7 @@ msgid ""
 "closest to the original intention while being valid."
 msgstr ""
 
-#: app/templates/www/terms.html:183
+#: app/templates/www/terms.html:205
 msgid ""
 "These Terms, together with the Privacy Policy, the Cookies policy, and "
 "the published pricing page, form the entire agreement between the "
@@ -7305,18 +8298,18 @@ msgid ""
 "earlier proposals, negotiations, or marketing material."
 msgstr ""
 
-#: app/templates/www/terms.html:188
+#: app/templates/www/terms.html:210
 msgid "15. Contact and notices"
 msgstr ""
 
-#: app/templates/www/terms.html:190
+#: app/templates/www/terms.html:212
 msgid ""
 "All notices under these Terms (including cancellation, modification "
 "notices, breach notices, DPA requests) are sent in writing by email — to "
 "the Customer's billing email of record, and to the Provider at"
 msgstr ""
 
-#: app/templates/www/terms.html:192
+#: app/templates/www/terms.html:214
 msgid ""
 "A notice is deemed delivered the day after it is sent, unless the sender "
 "receives an automatic non-delivery report."
@@ -7332,6 +8325,10 @@ msgstr ""
 
 #: app/templates/www/www_base.html:94
 msgid "Privacy"
+msgstr ""
+
+#: app/templates/www/www_base.html:96
+msgid "Processing agreement"
 msgstr ""
 
 #~ msgid "No assets recorded for this client yet."
@@ -9218,5 +10215,51 @@ msgstr ""
 #~ "— all in one place. Replace emails"
 #~ " and Excel. 30 days free, no "
 #~ "card."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "For personal data that you (the "
+#~ "Customer) upload about your own end "
+#~ "clients into the portal — order "
+#~ "data, contact records, drawings — the"
+#~ " Provider acts as a data processor"
+#~ " under Article 28 GDPR; the Customer"
+#~ " remains the controller of that data."
+#~ " A standard DPA is available on "
+#~ "request at the same address."
+#~ msgstr ""
+
+#~ msgid "Database backups — 14 days rolling, then automatically purged."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Audit trail of admin actions inside "
+#~ "the tenant — for the lifetime of"
+#~ " the tenant; after deletion, retained "
+#~ "for up to 3 years for evidentiary"
+#~ " purposes in case of dispute."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "We apply the technical and "
+#~ "organisational measures appropriate to the "
+#~ "risk: TLS 1.2+ for all traffic, "
+#~ "Argon2id password hashing, per-tenant "
+#~ "database isolation enforced at the row"
+#~ " level (Postgres RLS), daily database "
+#~ "backups, principle-of-least-privilege "
+#~ "access by the Provider, no plaintext "
+#~ "storage of credentials or payment cards."
+#~ " Security incidents affecting your data "
+#~ "will be reported to you and (where"
+#~ " required) to the supervisory authority "
+#~ "within 72 hours under Article 33 "
+#~ "GDPR."
+#~ msgstr ""
+
+#~ msgid "The database is backed up daily; backups are kept for 14 days."
+#~ msgstr ""
+
+#~ msgid "A data processing agreement (DPA) is available on request."
 #~ msgstr ""
 
