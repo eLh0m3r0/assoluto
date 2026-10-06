@@ -13,9 +13,17 @@ attachment** (customers' drawings) to a versioned bucket in a different
 Hetzner location from the VPS and the primary bucket.
 
 The off-site copy runs `python -m app.ops.offsite_backup` inside the web
-container (boto3 + S3 keys live there; the host has no rclone). It never
-deletes: a wiped primary bucket or `/backups` directory cannot propagate.
-Retention off-site = bucket lifecycle/versioning, not the script.
+container (boto3 + S3 keys live there; the host has no rclone). The
+backup path never deletes: a wiped primary bucket or `/backups` directory
+cannot propagate. Retention off-site = bucket lifecycle/versioning, not the
+script — with one targeted exception: when the retention job
+(`app.tasks.retention`, `RETENTION_ENFORCE=true`) purges a tenant
+deactivated more than 30 days ago, it also deletes **every version** under
+`attachments/<that tenant's storage_prefix>/` in the backup bucket (Terms
+§4 and the DPA promise permanent deletion). Nothing else in the bucket is
+touched; the tenant is marked purged only after this step succeeds, so a
+failure is retried on the next daily run. The backup S3 key therefore
+needs `ListBucketVersions` + `DeleteObjectVersion` on the bucket.
 `/healthz/backups` answers 503 when the newest off-site dump is older
 than `BACKUP_MAX_AGE_HOURS` (30 h); the uptime workflow probes it.
 
@@ -31,7 +39,7 @@ Each production deploy additionally takes a plain pre-migration dump in
 | Primary bucket | `assoluto` @ `nbg1` |
 | GPG key | `Assoluto Backups <backups@assoluto.eu>`, fpr `84CFB7EB56DC2BB92D9450FDAA1026BE816A9384` — public key in `deploy`'s keyring on the VPS; **private key only with the operator** |
 | Env (`/etc/assoluto/env`) | `BACKUP_GPG_RECIPIENT`, `BACKUP_S3_BUCKET`, `BACKUP_S3_ENDPOINT_URL`, `BACKUP_S3_REGION` |
-| Lifecycle | `pg/` objects expire after 180 days, noncurrent versions after 30; `attachments/` never expire |
+| Lifecycle | `pg/` objects expire after 180 days, noncurrent versions after 30; `attachments/` never expire (except a purged tenant's prefix, deleted by the retention job) |
 | Cron | `0 3 * * * cd /opt/assoluto && PORTAL_BACKUP_DIR=/home/deploy/backups PORTAL_KEEP_DAYS=14 ./scripts/backup.sh >> /home/deploy/assoluto-backup.log 2>&1` |
 
 `backup.sh` reads the `BACKUP_*` keys from `/etc/assoluto/env` itself

@@ -45,6 +45,15 @@
     target.setAttribute("aria-expanded", open ? "true" : "false");
   });
 
+  // -------- print button --------
+  // ``data-print`` buttons (e.g. "Print or save as PDF" on /dpa) open the
+  // browser's print dialog; CSP forbids an inline ``onclick``.
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest("[data-print]")) return;
+    event.preventDefault();
+    window.print();
+  });
+
   // -------- clickable table rows --------
   // Rows in list tables carry ``data-href`` instead of an inline onclick
   // (CSP ``script-src 'self'`` forbids inline handlers). A middle-click

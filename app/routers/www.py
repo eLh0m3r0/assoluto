@@ -286,6 +286,24 @@ async def privacy(request: Request, settings: Settings = Depends(get_settings)) 
     return HTMLResponse(html)
 
 
+@router.get("/dpa", response_class=HTMLResponse)
+async def dpa(request: Request, settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """Data Processing Agreement (GDPR Art. 28) between the operator
+    (processor) and each Hosted Service customer (controller).
+
+    Names the operator as a party, so like the other legal pages it 404s
+    until the operator identity is configured. Subprocessors come from
+    ``www/_subprocessors.html`` — the same list /privacy renders.
+    """
+    _require_operator_identity(settings)
+    html = _templates(request).render(
+        request,
+        "www/dpa.html",
+        {"principal": None, **_operator_context(settings)},
+    )
+    return HTMLResponse(html)
+
+
 @router.get("/cookies", response_class=HTMLResponse)
 async def cookies_policy(
     request: Request, settings: Settings = Depends(get_settings)
@@ -337,7 +355,7 @@ async def robots_txt(request: Request) -> PlainTextResponse:
 async def sitemap_xml(request: Request) -> Response:
     """Sitemap of public marketing pages.
 
-    Legal pages (``/terms``, ``/privacy``, ``/cookies``, ``/imprint``) are
+    Legal pages (``/terms``, ``/privacy``, ``/dpa``, ``/cookies``, ``/imprint``) are
     only listed when the operator identity is configured — otherwise they
     404 and would poison the sitemap.
     """
@@ -357,6 +375,7 @@ async def sitemap_xml(request: Request) -> Response:
         pages += [
             ("/terms", "0.3"),
             ("/privacy", "0.3"),
+            ("/dpa", "0.3"),
             ("/cookies", "0.3"),
             ("/imprint", "0.3"),
         ]
