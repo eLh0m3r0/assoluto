@@ -20,6 +20,7 @@ from app.i18n import t as _t
 from app.models.customer import Customer
 from app.models.enums import STATUS_LABELS, OrderStatus
 from app.models.order import Order, OrderItem
+from app.models.product import Product
 from app.routers._amounts import amount_error_message
 from app.security.csrf import verify_csrf
 from app.services.attachment_service import list_for_order as list_attachments
@@ -660,10 +661,17 @@ async def orders_pdf(
     tenant = _tenant(request)
     locale = getattr(request.state, "locale", None) or "cs"
 
+    # SKU column: the linked catalog product's code (demo review P2-3).
+    product_ids = {i.product_id for i in items if i.product_id is not None}
+    skus: dict[UUID, str] = {}
+    if product_ids:
+        rows = await db.execute(select(Product.id, Product.sku).where(Product.id.in_(product_ids)))
+        skus = dict(rows.tuples().all())
+
     # Local import so reportlab is only loaded when PDFs are actually served.
     from app.services.pdf_service import render_order_pdf
 
-    pdf_bytes = render_order_pdf(order, items, customer, tenant, locale=locale)
+    pdf_bytes = render_order_pdf(order, items, customer, tenant, locale=locale, skus=skus)
 
     from io import BytesIO
 
@@ -1060,8 +1068,6 @@ async def _resolve_catalog_product(db: AsyncSession, *, product_id: UUID, order:
     row wins: that is the special price the supplier agreed with them.
     """
     from sqlalchemy import or_
-
-    from app.models.product import Product
 
     product = (
         await db.execute(

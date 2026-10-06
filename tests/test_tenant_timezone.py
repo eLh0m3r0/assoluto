@@ -200,8 +200,8 @@ def _pdf_fixture(tz: str | None):
 @pytest.mark.parametrize(
     ("tz", "created", "submitted", "zones"),
     [
-        (None, "2026-03-03 00:30", "2026-10-25 02:30", ("CET", "CEST")),
-        ("America/New_York", "2026-03-02 18:30", "2026-10-24 21:30", ("EST", "EDT")),
+        (None, "03.03.2026 00:30", "25.10.2026 02:30", ("CET", "CEST")),
+        ("America/New_York", "02.03.2026 18:30", "24.10.2026 21:30", ("EST", "EDT")),
     ],
 )
 def test_pdf_prints_local_times_and_zone_in_footer(tz, created, submitted, zones) -> None:
@@ -214,7 +214,7 @@ def test_pdf_prints_local_times_and_zone_in_footer(tz, created, submitted, zones
     assert created in body
     assert submitted in body
     assert "UTC" not in body
-    footer = re.search(r"Generated — \d{4}-\d{2}-\d{2} \d{2}:\d{2} ([A-Z]+)", body)
+    footer = re.search(r"Generated — \d{2}\.\d{2}\.\d{4} \d{2}:\d{2} ([A-Z]+)", body)
     assert footer is not None, body
     assert footer.group(1) in zones
 

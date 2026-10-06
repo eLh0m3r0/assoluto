@@ -32,6 +32,9 @@ from app.services.notification_prefs import (
     parse_form,
     prefs_for_user,
 )
+from app.services.price_note import MAX_LENGTH as PRICE_NOTE_MAX_LENGTH
+from app.services.price_note import SETTINGS_KEY as PRICE_NOTE_SETTINGS_KEY
+from app.services.price_note import normalize_price_note, tenant_price_note
 from app.tasks.email_tasks import send_staff_invitation
 from app.timezones import (
     CURATED_TIMEZONES,
@@ -877,6 +880,7 @@ def _render_tenant_settings(
     *,
     locale_code: str,
     timezone_name: str,
+    price_note: str = "",
     notice: str | None = None,
     error: str | None = None,
 ) -> HTMLResponse:
@@ -888,6 +892,8 @@ def _render_tenant_settings(
             "tenant": _tenant(request),
             "tenant_default_locale": locale_code,
             "tenant_timezone": timezone_name,
+            "price_note": price_note,
+            "price_note_max_length": PRICE_NOTE_MAX_LENGTH,
             "curated_timezones": CURATED_TIMEZONES,
             "other_timezones": [z for z in timezone_choices() if z not in CURATED_TIMEZONES],
             "notice": notice,
@@ -918,6 +924,7 @@ async def tenant_settings_form(
         principal,
         locale_code=current_locale,
         timezone_name=tenant_timezone_name(tenant),
+        price_note=tenant_price_note(tenant),
         notice=_t(request, "Saved.") if saved else None,
     )
 
@@ -927,6 +934,7 @@ async def tenant_settings_update(
     request: Request,
     default_locale: str = Form(...),
     timezone: str | None = Form(None),
+    price_note: str | None = Form(None),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -953,7 +961,24 @@ async def tenant_settings_update(
                 principal,
                 locale_code=code,
                 timezone_name=tenant_timezone_name(tenant),
+                price_note=normalize_price_note(price_note),
                 error=_t(request, "Unknown time zone. Pick one from the list."),
+            )
+
+    # ``price_note`` absent (an older form) = leave it alone, like the zone.
+    # Present-but-empty clears it; FastAPI turns an empty optional form
+    # field into ``None``, so ask the (cached) form whether it was sent.
+    note: str | None = None
+    if price_note is not None or "price_note" in await request.form():
+        note = normalize_price_note(price_note)
+        if len(note) > PRICE_NOTE_MAX_LENGTH:
+            return _render_tenant_settings(
+                request,
+                principal,
+                locale_code=code,
+                timezone_name=tz_name or tenant_timezone_name(tenant),
+                price_note=note,
+                error=_t(request, "The price note is too long."),
             )
 
     # Re-load the row under the current session so SQLAlchemy emits
@@ -973,6 +998,15 @@ async def tenant_settings_update(
         if tz_before != tz_name:
             before[TIMEZONE_SETTINGS_KEY] = tz_before
             after[TIMEZONE_SETTINGS_KEY] = tz_name
+    if note is not None:
+        note_before = current.get(PRICE_NOTE_SETTINGS_KEY) or ""
+        if note:
+            current[PRICE_NOTE_SETTINGS_KEY] = note
+        else:
+            current.pop(PRICE_NOTE_SETTINGS_KEY, None)
+        if note_before != note:
+            before[PRICE_NOTE_SETTINGS_KEY] = note_before
+            after[PRICE_NOTE_SETTINGS_KEY] = note
     row.settings = current
     await db.flush()
     if after:
