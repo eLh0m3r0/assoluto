@@ -122,6 +122,22 @@ async def upload_attachment(
             detail=f"file exceeds max size of {settings.max_upload_size_bytes} bytes",
         )
 
+    # Public demo (E3): images / PDF only, 2 MB, 20 new files a day.
+    # No-op on every other tenant.
+    from app.demo.guard import demo_upload_refusal
+
+    refusal = await demo_upload_refusal(
+        request,
+        db,
+        content_type=file.content_type or "",
+        size_bytes=size_bytes,
+        fileobj=file.file,
+    )
+    if refusal is not None:
+        return RedirectResponse(
+            url=f"/app/orders/{order.id}?error={quote(refusal)}", status_code=303
+        )
+
     item_uuid: UUID | None = None
     if order_item_id:
         try:

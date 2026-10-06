@@ -12,9 +12,19 @@ dump into ``upload`` and then calls ``sync-attachments``::
 
 The backup bucket lives in a different Hetzner location from the primary
 bucket and the VPS (``BACKUP_S3_ENDPOINT_URL``), has versioning enabled,
-and is append-only from here: nothing in this module deletes objects, so a
-wiped primary bucket or a wiped ``/backups`` directory cannot propagate.
-Retention is the bucket's lifecycle rule, not this code.
+and is append-only from the backup path: ``upload`` and ``sync-attachments``
+never delete, so a wiped primary bucket or a wiped ``/backups`` directory
+cannot propagate. Retention of dumps is the bucket's lifecycle rule.
+
+Two exceptions, both promised by the privacy policy and the DPA.
+:func:`expire_deleted_attachment_copies` (run after every sync) removes
+the backup copy of a single file 180 days after it was deleted from the
+primary bucket. :func:`purge_tenant_copies` is called only by the
+retention job (``app.tasks.retention``) when a tenant deactivated more than
+30 days ago is purged: the Terms and the DPA promise that its data is then
+deleted, and copies of its drawings in this bucket are part of that data.
+It removes every *version* under exactly ``attachments/<storage_prefix>``,
+so the versioned bucket keeps no hidden copy either.
 
 Before this existed the nightly dumps sat on the same disk as the database
 and the customers' drawings had no backup at all (audit 2026-10-03 BE-01).
@@ -23,10 +33,11 @@ and the customers' drawings had no backup at all (audit 2026-10-03 BE-01).
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any, BinaryIO
 
 DB_PREFIX = "pg/"
@@ -39,17 +50,16 @@ class BackupTarget:
     bucket: str
 
 
-def _clients_from_settings() -> tuple[Any, str, BackupTarget]:
-    """Primary S3 client + bucket, and the backup target, from settings."""
+def backup_target_from_settings() -> BackupTarget | None:
+    """The backup target, or ``None`` when off-site backup is not configured."""
     import boto3
     from botocore.config import Config
 
     from app.config import get_settings
-    from app.storage.s3 import get_s3_client
 
     settings = get_settings()
     if not settings.backup_s3_bucket or not settings.backup_s3_endpoint_url:
-        raise SystemExit("BACKUP_S3_BUCKET / BACKUP_S3_ENDPOINT_URL are not set")
+        return None
     backup_client = boto3.client(
         "s3",
         endpoint_url=settings.backup_s3_endpoint_url,
@@ -59,11 +69,18 @@ def _clients_from_settings() -> tuple[Any, str, BackupTarget]:
         region_name=settings.backup_s3_region,
         config=Config(s3={"addressing_style": "virtual"}, retries={"max_attempts": 5}),
     )
-    return (
-        get_s3_client(),
-        settings.s3_bucket,
-        BackupTarget(client=backup_client, bucket=settings.backup_s3_bucket),
-    )
+    return BackupTarget(client=backup_client, bucket=settings.backup_s3_bucket)
+
+
+def _clients_from_settings() -> tuple[Any, str, BackupTarget]:
+    """Primary S3 client + bucket, and the backup target, from settings."""
+    from app.config import get_settings
+    from app.storage.s3 import get_s3_client
+
+    target = backup_target_from_settings()
+    if target is None:
+        raise SystemExit("BACKUP_S3_BUCKET / BACKUP_S3_ENDPOINT_URL are not set")
+    return get_s3_client(), get_settings().s3_bucket, target
 
 
 def upload_dump(
@@ -110,6 +127,98 @@ def sync_attachments(
         target.client.upload_fileobj(body, target.bucket, dest)
         copied += 1
     return copied, present
+
+
+def purge_tenant_copies(target: BackupTarget, storage_prefix: str, *, enforce: bool) -> int:
+    """Delete every version of every backup copy under one tenant's prefix.
+
+    Only ``attachments/<storage_prefix>/`` is touched — never ``pg/`` (the
+    encrypted dumps age out by lifecycle rule) and never another tenant.
+    In dry-run (``enforce=False``) nothing is deleted. Returns the number
+    of object versions and delete markers found.
+    """
+    prefix = (storage_prefix or "").strip("/")
+    if not prefix:
+        raise ValueError("refusing to purge the whole attachments/ tree")
+    full_prefix = f"{ATTACHMENTS_PREFIX}{prefix}/"
+    found: list[dict[str, str]] = []
+    paginator = target.client.get_paginator("list_object_versions")
+    for page in paginator.paginate(Bucket=target.bucket, Prefix=full_prefix):
+        for entry in page.get("Versions", []) + page.get("DeleteMarkers", []):
+            found.append({"Key": entry["Key"], "VersionId": entry["VersionId"]})
+    if enforce:
+        for start in range(0, len(found), 1000):
+            resp = target.client.delete_objects(
+                Bucket=target.bucket,
+                Delete={"Objects": found[start : start + 1000], "Quiet": True},
+            )
+            if resp.get("Errors"):
+                raise RuntimeError(f"backup purge failed for {len(resp['Errors'])} object(s)")
+    return len(found)
+
+
+MISSING_MANIFEST_KEY = "meta/missing-attachments.json"
+DELETED_FILE_GRACE_DAYS = 180
+
+
+def _delete_all_versions(target: BackupTarget, key: str) -> None:
+    """Remove every version of ``key`` — a plain delete on a versioned
+    bucket only adds a delete marker and keeps the data."""
+    paginator = target.client.get_paginator("list_object_versions")
+    for page in paginator.paginate(Bucket=target.bucket, Prefix=key):
+        for v in page.get("Versions", []) + page.get("DeleteMarkers", []):
+            if v["Key"] == key:
+                target.client.delete_object(Bucket=target.bucket, Key=key, VersionId=v["VersionId"])
+
+
+def expire_deleted_attachment_copies(
+    source_client: Any,
+    source_bucket: str,
+    target: BackupTarget,
+    *,
+    now: datetime | None = None,
+    grace_days: int = DELETED_FILE_GRACE_DAYS,
+) -> tuple[int, int]:
+    """Purge backup copies of files deleted from the primary bucket > ``grace_days`` ago.
+
+    The backup stays append-only day to day — a wiped primary bucket must
+    not propagate — but a file a customer deleted cannot be kept forever
+    (privacy policy / DPA: removed at the latest 180 days after deletion).
+    When a copy is first seen without its primary object, the date goes into
+    a small manifest; only copies missing for longer than the grace period
+    are deleted, with all their versions. An empty primary listing is
+    treated as a fault (wrong bucket, outage) and changes nothing.
+    Returns ``(tracked_missing, purged)``.
+    """
+    current = now or datetime.now(UTC)
+    source = _list(source_client, source_bucket)
+    if not source:
+        return 0, 0
+    backup = _list(target.client, target.bucket, ATTACHMENTS_PREFIX)
+    try:
+        raw = target.client.get_object(Bucket=target.bucket, Key=MISSING_MANIFEST_KEY)[
+            "Body"
+        ].read()
+        manifest: dict[str, str] = json.loads(raw)
+    except target.client.exceptions.NoSuchKey:
+        manifest = {}
+    missing = {k for k in backup if k[len(ATTACHMENTS_PREFIX) :] not in source}
+    manifest = {k: v for k, v in manifest.items() if k in missing}
+    for key in missing:
+        manifest.setdefault(key, current.isoformat())
+    purged = 0
+    for key, since in list(manifest.items()):
+        if current - datetime.fromisoformat(since) > timedelta(days=grace_days):
+            _delete_all_versions(target, key)
+            del manifest[key]
+            purged += 1
+    target.client.put_object(
+        Bucket=target.bucket,
+        Key=MISSING_MANIFEST_KEY,
+        Body=json.dumps(manifest, sort_keys=True).encode(),
+        ContentType="application/json",
+    )
+    return len(manifest), purged
 
 
 def latest_dump_age_hours(target: BackupTarget, *, now: datetime | None = None) -> float | None:
@@ -171,6 +280,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "sync-attachments":
         copied, present = sync_attachments(source_client, source_bucket, target)
         print(f"[offsite] attachments: {copied} copied, {present} already present")
+        tracked, purged = expire_deleted_attachment_copies(source_client, source_bucket, target)
+        print(f"[offsite] deleted files: {tracked} awaiting expiry, {purged} purged")
         return 0
     if args.cmd == "fetch":
         fetch_key: str | None = latest_dump_key(target) if args.latest else args.key

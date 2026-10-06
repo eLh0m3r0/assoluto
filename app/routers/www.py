@@ -22,6 +22,7 @@ from app.i18n import t as _t
 from app.security.contact_filter import is_disposable_email, looks_like_bot_local_part
 from app.security.csrf import verify_csrf
 from app.security.rate_limit import limit as rate_limit
+from app.urls import public_demo_url
 
 # Cap the contact-form message to keep the transactional email sender
 # happy (most providers start scoring messages above ~64 KB as spam)
@@ -64,6 +65,8 @@ def marketing_context(settings: Settings) -> dict:
         **_operator_context(settings),
         "operator_identity_complete": settings.operator_identity_complete,
         "stripe_enabled": settings.stripe_enabled,
+        # "Try the live demo — no sign-up" (E3); empty hides the button.
+        "public_demo_url": public_demo_url(settings),
     }
 
 
@@ -286,6 +289,24 @@ async def privacy(request: Request, settings: Settings = Depends(get_settings)) 
     return HTMLResponse(html)
 
 
+@router.get("/dpa", response_class=HTMLResponse)
+async def dpa(request: Request, settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """Data Processing Agreement (GDPR Art. 28) between the operator
+    (processor) and each Hosted Service customer (controller).
+
+    Names the operator as a party, so like the other legal pages it 404s
+    until the operator identity is configured. Subprocessors come from
+    ``www/_subprocessors.html`` — the same list /privacy renders.
+    """
+    _require_operator_identity(settings)
+    html = _templates(request).render(
+        request,
+        "www/dpa.html",
+        {"principal": None, **_operator_context(settings)},
+    )
+    return HTMLResponse(html)
+
+
 @router.get("/cookies", response_class=HTMLResponse)
 async def cookies_policy(
     request: Request, settings: Settings = Depends(get_settings)
@@ -337,7 +358,7 @@ async def robots_txt(request: Request) -> PlainTextResponse:
 async def sitemap_xml(request: Request) -> Response:
     """Sitemap of public marketing pages.
 
-    Legal pages (``/terms``, ``/privacy``, ``/cookies``, ``/imprint``) are
+    Legal pages (``/terms``, ``/privacy``, ``/dpa``, ``/cookies``, ``/imprint``) are
     only listed when the operator identity is configured — otherwise they
     404 and would poison the sitemap.
     """
@@ -357,6 +378,7 @@ async def sitemap_xml(request: Request) -> Response:
         pages += [
             ("/terms", "0.3"),
             ("/privacy", "0.3"),
+            ("/dpa", "0.3"),
             ("/cookies", "0.3"),
             ("/imprint", "0.3"),
         ]

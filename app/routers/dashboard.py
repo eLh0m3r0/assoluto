@@ -26,6 +26,7 @@ from app.services.order_service import (
     list_orders_for_principal,
     work_queue_counts,
 )
+from app.timezones import local_today, request_tz
 
 router = APIRouter(prefix="/app", tags=["dashboard"], dependencies=[Depends(verify_csrf)])
 
@@ -86,7 +87,9 @@ async def dashboard_index(
     if principal.is_staff:
         settings = request.app.state.settings
         stale_days = int(getattr(settings, "quote_reminder_days", 0) or DEFAULT_STALE_QUOTE_DAYS)
-        counts = await work_queue_counts(db, stale_quote_days=stale_days)
+        counts = await work_queue_counts(
+            db, stale_quote_days=stale_days, today=local_today(request_tz(request))
+        )
         labels = {
             "awaiting_quote": _t(request, "Submitted, waiting for a quote"),
             "no_promise": _t(request, "Confirmed without a promised date"),

@@ -300,7 +300,7 @@ async def test_privacy_names_hetzner_storage_not_backblaze(www) -> None:
     assert "Backblaze" not in html
     assert "Object Storage for uploaded files" in html
     assert "encrypted backups" not in html
-    assert "Version 1.1" in html
+    assert "Version 1.2" in html
 
 
 async def test_cookies_page_lists_exactly_the_cookies_the_app_sets(www) -> None:
@@ -329,7 +329,9 @@ async def test_terms_trial_runs_on_selected_plan_and_no_uptime_target(www) -> No
     assert "trial of the Starter plan" not in html
     assert "99.9" not in html
     assert "tax document" not in html
-    assert "Version 1.1" in html
+    # 1.2 (E1 early access) keeps the 1.1 changelog line below it.
+    assert "Version 1.2" in html
+    assert "Changes in 1.1" in html
 
 
 async def test_imprint_drops_dead_odr_link(www) -> None:

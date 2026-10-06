@@ -18,6 +18,11 @@ os.environ.setdefault("APP_SECRET_KEY", "test-secret-key")
 os.environ.setdefault("LOG_LEVEL", "WARNING")
 # /readyz probes S3 in production; unit tests opt in explicitly.
 os.environ.setdefault("READYZ_CHECK_S3", "false")
+# Early access (E1) is date-driven and ON by default until 2027-01-31.
+# The suite tests the regular trial rules unless a test switches early
+# access on explicitly (tests/test_early_access.py) — otherwise results
+# would depend on today's date.
+os.environ.setdefault("EARLY_ACCESS_UNTIL", "")
 
 from app.config import Settings, get_settings
 from app.main import create_app
@@ -73,10 +78,13 @@ def _reset_app_caches() -> None:
     when it is later disposed, so we must rebuild it every test.
     """
     from app.db import session as db_session
+    from app.demo import guard as demo_guard
 
     get_settings.cache_clear()
     db_session.get_engine.cache_clear()
     db_session.get_sessionmaker.cache_clear()
+    # Resolved public-demo tenant ids outlive a test's wiped DB otherwise.
+    demo_guard.reset_cache()
 
 
 @pytest.fixture

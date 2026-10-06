@@ -13,13 +13,13 @@
         {% set preselected_plan = form.plan if form.plan else request.query_params.get('plan', '') %}
         {% set shown_plan = preselected_plan if preselected_plan in ('starter', 'pro') else 'starter' %}
         <p class="mb-6 text-sm text-slate-500 dark:text-slate-400">
-            {{ _("30-day free trial. No credit card required.") }}
+            {% if early_access_offer.active %}{{ _("Early access: free until") }} {{ early_access_offer.until_label }}. {{ _("No credit card required.") }}{% else %}{{ _("30-day free trial. No credit card required.") }}{% endif %}
         </p>
         {# UX-27: show which plan the trial starts on. #}
         <div class="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-brand-200 bg-brand-50/60 px-3 py-2 text-sm text-slate-700 dark:border-brand-500/30 dark:bg-brand-500/10 dark:text-slate-200" data-selected-plan="{{ shown_plan }}">
             <span>{{ _("Plan:") }} <strong class="text-slate-900 dark:text-slate-100">{{ 'Pro' if shown_plan == 'pro' else 'Starter' }}</strong></span>
             <span aria-hidden="true" class="text-slate-400">·</span>
-            <span>{{ _("30 days free") }}</span>
+            <span>{% if early_access_offer.active %}{{ _("Free until") }} {{ early_access_offer.until_label }}{% else %}{{ _("30 days free") }}{% endif %}</span>
             <span aria-hidden="true" class="text-slate-400">·</span>
             <a href="/pricing" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">{{ _("change") }}</a>
         </div>

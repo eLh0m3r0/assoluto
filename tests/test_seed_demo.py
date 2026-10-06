@@ -1,4 +1,4 @@
-"""scripts/seed_demo.py — the sales-demo tenant (market.md §5)."""
+"""app/demo/seed.py (scripts/seed_demo.py wrapper) — the sales-demo tenant (market.md §5)."""
 
 from __future__ import annotations
 
@@ -8,9 +8,9 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
+from app.demo.seed import DemoSeedRefused, seed_demo
 from app.models.enums import OrderStatus
 from app.models.tenant import Tenant
-from scripts.seed_demo import DemoSeedRefused, seed_demo
 
 pytestmark = pytest.mark.postgres
 
@@ -22,8 +22,12 @@ async def _count(conn, table: str, tid) -> int:
 
 
 async def test_seed_demo_is_complete_and_idempotent(owner_engine, wipe_db) -> None:
-    first = await seed_demo(slug="demo-test", password="Demo-heslo-1", engine=owner_engine)
-    second = await seed_demo(slug="demo-test", password="Demo-heslo-1", engine=owner_engine)
+    first = await seed_demo(
+        slug="demo-test", password="Demo-heslo-1", engine=owner_engine, files=False
+    )
+    second = await seed_demo(
+        slug="demo-test", password="Demo-heslo-1", engine=owner_engine, files=False
+    )
     assert first.tenant_id == second.tenant_id  # same tenant reused, not duplicated
 
     async with owner_engine.connect() as conn:
@@ -104,7 +108,9 @@ async def test_seed_demo_logins_work(owner_engine, wipe_db, settings) -> None:
     from app.main import create_app
     from tests.conftest import CsrfAwareClient
 
-    result = await seed_demo(slug="demo-login", password="Demo-heslo-1", engine=owner_engine)
+    result = await seed_demo(
+        slug="demo-login", password="Demo-heslo-1", engine=owner_engine, files=False
+    )
     app = create_app(settings)
     async with CsrfAwareClient(
         transport=ASGITransport(app=app),
@@ -135,7 +141,7 @@ async def test_seed_demo_refuses_foreign_tenant(owner_engine, wipe_db) -> None:
             )
         )
     with pytest.raises(DemoSeedRefused):
-        await seed_demo(slug="real-shop", engine=owner_engine)
+        await seed_demo(slug="real-shop", engine=owner_engine, files=False)
 
 
 async def test_seed_demo_has_no_future_timestamps_and_snapshots_confirmations(
@@ -146,7 +152,7 @@ async def test_seed_demo_has_no_future_timestamps_and_snapshots_confirmations(
     LOGIC-2 snapshot the detail page and the PDF now show."""
     from sqlalchemy import text
 
-    await seed_demo(slug="demo-time", password="Demo-heslo-1", engine=owner_engine)
+    await seed_demo(slug="demo-time", password="Demo-heslo-1", engine=owner_engine, files=False)
     async with owner_engine.connect() as conn:
         future = (
             await conn.execute(

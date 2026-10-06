@@ -78,7 +78,7 @@
         {{ sec_block(_("Hosting and backups"), [
             _("The application, the database and uploaded files are hosted by Hetzner Online GmbH in Germany (EU) — a server for the application and database, Hetzner Object Storage for drawings and attachments."),
             _("All traffic is encrypted with HTTPS (HSTS enabled); pages are served with a strict Content-Security-Policy."),
-            _("The database is backed up daily; backups are kept for 14 days."),
+            _("The database is backed up daily and encrypted; copies are kept 14 days on the server and 180 days in a second Hetzner location. Uploaded files are copied there too."),
             _("Emails are delivered through Brevo (France, EU). Card payments, when enabled, are processed by Stripe — we never see card numbers."),
         ]) }}
 
@@ -97,7 +97,8 @@
         <p class="text-sm text-slate-600 dark:text-slate-300">
             {{ _("The full list of subprocessors and retention periods is in the") }}
             <a href="/privacy" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">{{ _("Privacy Policy") }}</a>.
-            {{ _("A data processing agreement (DPA) is available on request.") }}
+            {{ _("Our processing of your clients' data is governed by the") }}
+            <a href="/dpa" class="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">{{ _("Data Processing Agreement") }}</a>.
         </p>
 
         <article class="rounded-2xl border border-amber-200 bg-amber-50/60 p-6 text-sm dark:border-amber-500/20 dark:bg-amber-500/10" id="report">

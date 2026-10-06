@@ -189,7 +189,7 @@
                                 {% endif %}
                             </td>
                             <td class="px-4 py-3 text-slate-500 dark:text-slate-400">
-                                {{ order.created_at.strftime("%d.%m.%Y") }}
+                                {{ order.created_at|localdate }}
                             </td>
                         </tr>
                     {% endfor %}
@@ -216,6 +216,12 @@
                             <option value="{{ value }}">{{ _(label) }}</option>
                         {% endfor %}
                     </select>
+                    {# Same opt-out as the order detail (LOGIC-22). #}
+                    <input type="hidden" name="notify_customer" value="0">
+                    <label class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                        <input type="checkbox" name="notify_customer" value="1" checked>
+                        {{ _('Notify the customer by e-mail') }}
+                    </label>
                     <button type="submit"
                             class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
                         {{ _('Apply to selected') }}

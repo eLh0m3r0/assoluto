@@ -157,6 +157,23 @@ def _killswitch_engaged(kind: str, to: str, subject: str) -> bool:
     return True
 
 
+def _suppressed_for_public_demo(kind: str, to: str, tenant_id: Any = None) -> bool:
+    """True (and logged at info) when the mail belongs to the public demo.
+
+    The public demo tenant (``PUBLIC_DEMO_TENANT``, E3) never sends mail:
+    its addresses are fictional and anyone on the internet can trigger
+    its notifications. Matched by the request flag that
+    ``app.demo.guard`` sets, or by ``tenant_id`` for mail built outside a
+    request (periodic jobs). See :func:`app.demo.guard.mail_suppressed`.
+    """
+    from app.demo.guard import mail_suppressed
+
+    if not mail_suppressed(tenant_id):
+        return False
+    log.info("email.suppressed_public_demo", kind=kind, to=to)
+    return True
+
+
 def _safe_send(
     sender: EmailSender,
     kind: str,
@@ -164,6 +181,7 @@ def _safe_send(
     subject: str,
     html: str,
     text: str,
+    tenant_id: Any = None,
 ) -> None:
     """Send one pre-rendered email, retrying briefly on transient failures.
 
@@ -179,6 +197,8 @@ def _safe_send(
     table can't be written.
     """
     if _killswitch_engaged(kind, to, subject):
+        return
+    if _suppressed_for_public_demo(kind, to, tenant_id):
         return
 
     last_exc, attempts = _send_with_retries(sender, kind, to, subject, html, text, _MAX_ATTEMPTS)
@@ -201,6 +221,7 @@ def _render_and_send(
     to: str,
     context: dict,
     locale: str | None,
+    tenant_id: Any = None,
 ) -> None:
     """Persist ``template`` for ``to`` in the outbox and send it.
 
@@ -214,6 +235,8 @@ def _render_and_send(
 
     if _killswitch_engaged(kind, to, template):
         return
+    if _suppressed_for_public_demo(kind, to, tenant_id):
+        return
     if get_settings().email_outbox_enabled:
         from app.email.outbox import deliver_via_outbox
 
@@ -225,10 +248,11 @@ def _render_and_send(
             context=context,
             locale=locale,
             max_tries=_MAX_ATTEMPTS,
+            tenant_id=tenant_id,
         ):
             return
     rendered = render_email(template, context, locale=locale)
-    _safe_send(sender, kind, to, rendered.subject, rendered.html, rendered.text)
+    _safe_send(sender, kind, to, rendered.subject, rendered.html, rendered.text, tenant_id)
 
 
 def send_invitation(
@@ -354,6 +378,7 @@ def send_order_notification(sender: EmailSender, notification: Any) -> None:
         notification.recipient.email,
         notification.context(),
         notification.recipient.locale,
+        getattr(notification, "tenant_id", None),
     )
 
 
@@ -392,14 +417,16 @@ def send_trial_nurture(
     trial_end_date: str = "",
     days_left: int = 0,
     pending_contacts: list[dict] | None = None,
+    early_access: bool = False,
     locale: str | None = None,
 ) -> None:
     """Send one trial-nurture or activation email.
 
-    ``stage`` is one of ``day1`` / ``day7`` / ``ending`` (the
-    ``trial_<stage>`` triples) or ``invite`` / ``no_login`` (the
+    ``stage`` is one of ``day1`` / ``day7`` / ``ending14`` / ``ending``
+    (the ``trial_<stage>`` triples) or ``invite`` / ``no_login`` (the
     behaviour-based ``activation_*`` triples) — see
-    :data:`NURTURE_TEMPLATES`. Scheduled by
+    :data:`NURTURE_TEMPLATES`. ``early_access`` switches the ending
+    mails to the "free early access ends on …" copy (E1). Scheduled by
     ``app.tasks.periodic.send_trial_nurture_emails``.
     """
     template = NURTURE_TEMPLATES.get(stage, f"trial_{stage}")
@@ -417,6 +444,7 @@ def send_trial_nurture(
             "trial_end_date": trial_end_date,
             "days_left": days_left,
             "pending_contacts": pending_contacts or [],
+            "early_access": early_access,
         },
         locale,
     )
@@ -456,6 +484,7 @@ def send_contact_erased_notice(
 NURTURE_TEMPLATES: dict[str, str] = {
     "day1": "trial_day1",
     "day7": "trial_day7",
+    "ending14": "trial_ending14",
     "ending": "trial_ending",
     "invite": "activation_invite_customer",
     "no_login": "activation_contact_no_login",

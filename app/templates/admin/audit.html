@@ -81,7 +81,7 @@
                     {% for ev in events %}
                         <tr>
                             <td class="px-4 py-3 align-top whitespace-nowrap text-slate-600 dark:text-slate-300">
-                                {{ ev.occurred_at.strftime('%Y-%m-%d %H:%M') }}
+                                {{ ev.occurred_at|localtime('%Y-%m-%d %H:%M %Z') }}
                             </td>
                             <td class="px-4 py-3 align-top text-slate-700 dark:text-slate-300">
                                 <div>{{ ev.actor_label }}</div>

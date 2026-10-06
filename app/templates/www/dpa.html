@@ -1,0 +1,331 @@
+{% extends "www/www_base.html" %}
+
+{#
+  Data Processing Agreement (GDPR Art. 28(3)(a)–(h)).
+
+  Every factual statement maps to code or a documented operational fact —
+  same rule as www/security.html. Sources:
+    isolation    migrations/versions/0003_enable_rls.py, app/deps.py
+    sign-in      app/security/passwords.py, rate_limit.py, session.py, csrf.py
+    support      CLAUDE.md §6 (support access = audited TenantMembership grant)
+    backups      scripts/backup.sh, app/ops/offsite_backup.py, docs/BACKUP_RESTORE.md
+                 (GPG dumps; 14 days on server, 180 days off-site in a second
+                 Hetzner location; pre-deploy dumps: newest 10; restore tested
+                 2026-10-04; /healthz/backups 30 h)
+    deletion     app/tasks/retention.py (30 days after deactivation, incl. the
+                 file copies in the backup bucket; audit log 3 years)
+    export       /app/admin/export (ZIP), /app/admin/profile/export + /delete,
+                 /app/me/profile/export + /delete
+    liability    terms.html §10
+  Subprocessors: www/_subprocessors.html (shared with /privacy).
+  Do NOT add certifications, encryption-at-rest or anything not implemented.
+  Bump the version line when the substance changes.
+#}
+
+{% import "www/_subprocessors.html" as subprocessors with context %}
+
+{% block title %}{{ _("Data Processing Agreement") }} · Assoluto{% endblock %}
+{% block meta_description %}{{ _("Data Processing Agreement under Article 28 GDPR between the Assoluto operator (processor) and its customers (controllers): instructions, security measures, subprocessors, breach notification, deletion.") }}{% endblock %}
+
+{% block head_extra %}
+    {{ super() }}
+    <style>
+        @media print {
+            @page { margin: 18mm 16mm; }
+            html, body { background: #fff !important; }
+            body > header, body > footer, [data-print], .dpa-no-print { display: none !important; }
+            main { max-width: none !important; padding: 0 !important; }
+            .dpa-doc, .dpa-doc * { color: #000 !important; background: transparent !important; border-color: #999 !important; }
+            .dpa-doc { font-size: 10.5pt; max-width: none !important; padding: 0 !important; }
+            .dpa-doc h1 { font-size: 18pt; }
+            .dpa-doc h2 { font-size: 12.5pt; break-after: avoid; page-break-after: avoid; }
+            .dpa-doc section, .dpa-doc tr { break-inside: avoid; page-break-inside: avoid; }
+            .dpa-doc a { text-decoration: none; }
+            .dpa-doc .dpa-annex { break-before: page; page-break-before: always; }
+            .dpa-doc .overflow-x-auto { overflow: visible !important; }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<article class="dpa-doc mx-auto max-w-3xl pb-16 text-slate-700 dark:text-slate-300">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ _("Data Processing Agreement") }}</h1>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{{ _("under Article 28 of Regulation (EU) 2016/679 (GDPR)") }}</p>
+            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400" data-dpa-version="1.0">
+                {{ _("Version 1.0 · effective from October 6, 2026") }}
+            </p>
+        </div>
+        <button type="button" data-print
+                class="rounded-md px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-inset ring-slate-200 transition hover:bg-slate-50 dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-800">
+            {{ _("Print or save as PDF") }}
+        </button>
+    </div>
+    <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">
+        {{ _("The Czech version of this Agreement is binding; other language versions are translations for convenience.") }}
+    </p>
+
+    <div class="mt-8 space-y-6 text-sm leading-relaxed">
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("1. Parties and scope") }}</h2>
+            <p class="mt-2">
+                <strong>{{ _("Processor:") }}</strong>
+                {{ operator_name }}, {{ _("Company ID (IČO)") }} {{ operator_ico }},
+                {{ _("with registered office at") }} {{ operator_address }}.
+                {{ _("Contact:") }}
+                <a href="mailto:{{ operator_email }}" class="text-brand-600 hover:text-brand-700">{{ operator_email }}</a>
+                ({{ _("the \"Processor\"") }}).
+            </p>
+            <p class="mt-2">
+                <strong>{{ _("Controller:") }}</strong>
+                {{ _("the Customer — the entrepreneur who uses the Hosted Service at assoluto.eu under the Terms of Service (the \"Controller\").") }}
+            </p>
+            <p class="mt-2">
+                {{ _("This Agreement implements Article 28(3) GDPR. It supplements the Terms of Service and forms part of the contract for the Hosted Service; it applies to every Customer from the effective date of this version, or from the creation of the account if later. Terms not defined here have the meaning given to them in the Terms of Service and in the GDPR.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("This Agreement does not apply to Self-Hosted installations, where the Customer runs the software on its own infrastructure and the Provider processes no personal data on its behalf.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("On request, the Processor will provide a copy of this Agreement signed on its behalf. Write to") }}
+                <a href="mailto:{{ operator_email }}" class="text-brand-600 hover:text-brand-700">{{ operator_email }}</a>.
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("2. Subject matter and duration") }}</h2>
+            <p class="mt-2">
+                {{ _("Subject matter: processing of personal data that the Controller, its users and its customer contacts enter into the Hosted Service (the \"Personal Data\"), solely in order to provide the Hosted Service to the Controller.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("Duration: for the term of the contract for the Hosted Service and, after it ends, until the Personal Data is deleted under Section 12.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("3. Nature and purpose of processing") }}</h2>
+            <p class="mt-2">
+                {{ _("Nature of processing: storage and hosting, organisation, retrieval and display to authorised users, transmission (including e-mail notifications), backup, export and deletion.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("Purpose: operating the Controller's customer portal — orders and their items, drawings and other attachments, comments, order status and notifications, records of customer-owned material, and communication between the Controller and its clients.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Processor does not use the Personal Data for its own purposes, does not sell it and does not use it for marketing or profiling.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("4. Categories of data subjects") }}</h2>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("the Controller's staff users — employees and other persons the Controller invites to the portal;") }}</li>
+                <li>{{ _("the Controller's customer contacts — persons at the Controller's clients who are invited to the portal;") }}</li>
+                <li>{{ _("other persons whose data appears in order content or attachments, for example a name in a drawing's title block or a delivery contact.") }}</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("5. Categories of personal data") }}</h2>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("identification and contact data: name, work e-mail address, phone number (if entered), role, and the company the person belongs to;") }}</li>
+                <li>{{ _("client company records, which contain personal data where the client is a sole trader: name, company ID, tax ID, billing address;") }}</li>
+                <li>{{ _("account data: password hash (Argon2id), language, notification preferences, time of last sign-in;") }}</li>
+                <li>{{ _("order content: orders, items, quantities, prices, dates, comments, status history and records of customer-owned material;") }}</li>
+                <li>{{ _("drawings and other uploaded files, including their names and metadata;") }}</li>
+                <li>{{ _("records of actions in the portal (audit trail) and technical logs (IP address, browser identification) used for security.") }}</li>
+            </ul>
+            <p class="mt-2">
+                {{ _("The Service is not intended for special categories of personal data (Article 9 GDPR) or data relating to criminal convictions (Article 10 GDPR), and the Controller will not upload such data.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("6. Instructions of the Controller") }}</h2>
+            <p class="mt-2">
+                {{ _("The Processor processes the Personal Data only on documented instructions from the Controller. The instructions are given by this Agreement, by the Terms of Service and by the Controller's configuration and use of the Hosted Service, including actions taken by its users. Further instructions can be given in writing by e-mail.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("This also applies to transfers of Personal Data to a third country or an international organisation. The Processor and the subprocessors listed in Annex 2 process the Personal Data in the European Union.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("If Union or Member State law requires the Processor to process the Personal Data otherwise, the Processor will inform the Controller of that legal requirement before processing, unless that law prohibits such information on important grounds of public interest.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Processor will immediately inform the Controller if, in its opinion, an instruction infringes the GDPR or other Union or Member State data protection provisions.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("7. Confidentiality") }}</h2>
+            <p class="mt-2">
+                {{ _("The Processor ensures that persons authorised to process the Personal Data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Processor's operator account cannot browse the Controller's portal. Where support requires access, it is granted to that one portal only, and the grant and its revocation are recorded in the portal's audit log, which the Controller's administrators can view.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("8. Security of processing") }}</h2>
+            <p class="mt-2">
+                {{ _("The Processor implements the technical and organisational measures listed in Annex 1 (Article 32 GDPR). It may replace them with measures that provide at least the same level of protection; Annex 1 is then updated accordingly.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("9. Subprocessors") }}</h2>
+            <p class="mt-2">
+                {{ _("The Controller gives the Processor general written authorisation to engage the subprocessors listed in Annex 2.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Processor will inform the Controller of any intended addition or replacement of a subprocessor at least 30 days in advance, by updating this page and the Privacy Policy and by e-mail to the Controller's administrators. The Controller may object; if the parties do not reach agreement, the Controller may terminate the subscription before the change takes effect.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Processor imposes on each subprocessor, by contract, data protection obligations that provide at least the same level of protection as this Agreement, and remains fully liable to the Controller for the performance of the subprocessor's obligations.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("Other service providers named in the Privacy Policy (payment processing, DNS) do not process the Personal Data on the Controller's behalf and are not subprocessors under this Agreement.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("10. Assistance to the Controller") }}</h2>
+            <p class="mt-2">
+                {{ _("Data subject requests. Taking into account the nature of the processing, the Processor assists the Controller in responding to requests from data subjects under Chapter III GDPR, primarily through functions of the Service:") }}
+            </p>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("every staff user and customer contact can download their personal data (JSON) and delete their account from their own profile — the account is anonymised, while orders and their history are kept;") }}</li>
+                <li>{{ _("administrators can export all data of the portal at any time as a ZIP archive (business records as CSV plus all uploaded files);") }}</li>
+                <li>{{ _("administrators can correct or deactivate staff users, client companies and customer contacts.") }}</li>
+            </ul>
+            <p class="mt-2">
+                {{ _("If a request cannot be handled with these functions, the Processor will assist on the Controller's request sent by e-mail. If a data subject contacts the Processor directly about the Personal Data, the Processor will forward the request to the Controller without undue delay and will not respond to it on its own unless the Controller instructs it to.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("Other obligations. The Processor assists the Controller in ensuring compliance with Articles 32 to 36 GDPR (security, breach notification, data protection impact assessment and prior consultation), taking into account the nature of processing and the information available to the Processor.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("11. Personal data breach") }}</h2>
+            <p class="mt-2">
+                {{ _("The Processor will notify the Controller of a personal data breach affecting the Personal Data without undue delay after becoming aware of it, and in any case within 48 hours, by e-mail to the Controller's billing e-mail address of record and to its administrators.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The notification will describe, as far as known at the time, the nature of the breach, the categories and approximate number of data subjects and records concerned, the likely consequences and the measures taken or proposed. Information that is not yet available will be provided in phases without further undue delay.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Processor documents every breach and takes measures to contain it and to mitigate its possible adverse effects. Notifying the supervisory authority and the data subjects remains the Controller's responsibility; the Processor provides the information the Controller needs for it.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("12. Return and deletion at the end of the service") }}</h2>
+            <p class="mt-2">
+                {{ _("Return. Until the account is deactivated — including the 3-day export period after cancellation under the Terms of Service — the Controller can download all data of the portal as a ZIP archive.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("Deletion. After deactivation the data is kept for 30 days, during which the Controller may request manual recovery. After 30 days an automated daily job permanently deletes the Personal Data from the database and the file storage, including the copies of uploaded files in the backup storage.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("Database backups are not altered; they are deleted automatically when their retention period in Annex 1 expires. Until then they are used only to restore the Service after an incident.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("Accounting records about the Customer (such as invoices for the Service) are kept for the period required by Czech accounting law; they are not Personal Data processed on the Controller's behalf. On request, the Processor will confirm the deletion in writing.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("13. Information and audits") }}</h2>
+            <p class="mt-2">
+                {{ _("The Processor makes available to the Controller all information necessary to demonstrate compliance with Article 28 GDPR — in particular this Agreement, Annex 1, the security overview at") }}
+                <a href="/security" class="text-brand-600 hover:text-brand-700">assoluto.eu/security</a>
+                {{ _("and, on request, further documentation.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The source code of the Service is public (AGPL-3.0), so the Controller or an auditor it mandates can verify how the software processes data.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Processor allows for and contributes to audits, including inspections, conducted by the Controller or another auditor mandated by it. An audit beyond the documentation must be announced at least 30 days in advance, may take place at most once per calendar year unless prompted by a personal data breach or required by a supervisory authority, must not disrupt the Service or expose data of other customers, and the auditor must be bound by confidentiality. Each party bears its own costs of the audit.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("14. Liability") }}</h2>
+            <p class="mt-2">
+                {{ _("Between the parties, liability under this Agreement is governed by the Terms of Service, including the limitation of liability in their Section 10. Nothing in this Agreement limits the rights of data subjects under Article 82 GDPR.") }}
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("15. Final provisions") }}</h2>
+            <p class="mt-2">
+                {{ _("In matters of personal data protection this Agreement prevails over the Terms of Service.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("The Processor may amend this Agreement in the same way as the Terms of Service, with at least 30 days' prior notice; a change required by law or by a supervisory authority may take effect sooner. The version number and effective date at the top of this page identify the current version.") }}
+            </p>
+            <p class="mt-2">
+                {{ _("This Agreement is governed by the law of the Czech Republic; jurisdiction follows the Terms of Service.") }}
+            </p>
+        </section>
+
+        <section class="dpa-annex border-t border-slate-200 pt-6 dark:border-slate-800">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Annex 1 — Technical and organisational measures") }}</h2>
+
+            <h3 class="mt-4 font-semibold text-slate-900 dark:text-slate-100">{{ _("Separation of customers") }}</h3>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("Each supplier's portal is a separate tenant. PostgreSQL Row-Level Security filters every query by tenant inside the database, and the application connects with a database role that cannot switch these policies off.") }}</li>
+                <li>{{ _("Each customer contact sees only the orders, drawings and material of their own company.") }}</li>
+            </ul>
+
+            <h3 class="mt-4 font-semibold text-slate-900 dark:text-slate-100">{{ _("Access control and sign-in") }}</h3>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("Passwords are stored only as Argon2id hashes — never in readable form.") }}</li>
+                <li>{{ _("Sign-in, signup, password reset and the contact form are rate-limited against brute force.") }}</li>
+                <li>{{ _("Password-reset and invitation links work only once.") }}</li>
+                <li>{{ _("Changing a password signs out every existing session.") }}</li>
+                <li>{{ _("Session cookies are HttpOnly and SameSite=Lax, and sent only over HTTPS in production.") }}</li>
+                <li>{{ _("Every form is protected against cross-site request forgery (CSRF).") }}</li>
+                <li>{{ _("Access to the production server and storage is limited to the Processor; support access to a portal requires an explicit grant recorded in that portal's audit log.") }}</li>
+            </ul>
+
+            <h3 class="mt-4 font-semibold text-slate-900 dark:text-slate-100">{{ _("Transmission and hosting") }}</h3>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("All traffic is encrypted with HTTPS (HSTS enabled); pages are served with a strict Content-Security-Policy.") }}</li>
+                <li>{{ _("The application, the database and uploaded files are hosted by Hetzner Online GmbH in Germany (EU) — a server for the application and database, Hetzner Object Storage for drawings and attachments.") }}</li>
+            </ul>
+
+            <h3 class="mt-4 font-semibold text-slate-900 dark:text-slate-100">{{ _("Backups and recovery") }}</h3>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("The database is dumped daily and the dump is encrypted (GPG) as it is written; the private key needed to decrypt it is not kept on the server.") }}</li>
+                <li>{{ _("Encrypted dumps and copies of uploaded files are kept in a separate, private, versioned storage bucket in a different Hetzner location in Germany than the server and the primary file storage.") }}</li>
+                <li>{{ _("Retention: encrypted daily dumps 14 days on the server and 180 days in the backup location; database copies taken before each software deployment — the latest 10, on the server only.") }}</li>
+                <li>{{ _("A backup copy of an uploaded file is deleted at the latest 180 days after the file was deleted from the portal; all copies of a deleted portal are removed when the portal's data is purged.") }}</li>
+                <li>{{ _("Restoring from the off-site backup has been tested, and an automated check reports a failure when the newest off-site copy is older than 30 hours.") }}</li>
+            </ul>
+
+            <h3 class="mt-4 font-semibold text-slate-900 dark:text-slate-100">{{ _("Accountability and data lifecycle") }}</h3>
+            <ul class="mt-2 list-disc space-y-1 pl-6">
+                <li>{{ _("Administrative actions inside a portal are recorded in an audit trail that the portal's administrators can view.") }}</li>
+                <li>{{ _("Audit trail records of an active portal are kept for 3 years.") }}</li>
+                <li>{{ _("Data of a portal deactivated more than 30 days ago is permanently deleted by an automated daily job — from the database, the file storage and the file copies in the backup location.") }}</li>
+                <li>{{ _("Self-service export and erasure for every user; whole-portal ZIP export for administrators (Section 10).") }}</li>
+                <li>{{ _("The source code is open (AGPL-3.0), so anyone can check how it works.") }}</li>
+            </ul>
+        </section>
+
+        <section class="border-t border-slate-200 pt-6 dark:border-slate-800">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Annex 2 — Subprocessors") }}</h2>
+            <p class="mt-2">
+                {{ _("The Controller authorises the following subprocessors (Section 9). The same list, together with providers that do not process the Personal Data, is published in the") }}
+                <a href="/privacy" class="text-brand-600 hover:text-brand-700">{{ _("Privacy Policy") }}</a>.
+            </p>
+            {{ subprocessors.table(customer_data_only=true) }}
+        </section>
+
+    </div>
+</article>
+{% endblock %}

@@ -41,6 +41,19 @@
         </div>
     </div>
 
+    {# E1: early-access end date and the trials it currently covers. #}
+    {% if early_access.until %}
+        <div class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-slate-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-slate-100" data-early-access="dashboard">
+            <span class="font-semibold">{{ _("Early access") }}:</span>
+            {% if early_access.active %}
+                {{ _("free until") }} {{ early_access.until|localdate }}
+            {% else %}
+                {{ _("ended on") }} {{ early_access.until|localdate }}
+            {% endif %}
+            · {{ _("Tenants covered:") }} <strong>{{ early_access_tenants }}</strong>
+        </div>
+    {% endif %}
+
     <h2 class="mt-10 text-lg font-semibold text-slate-900 dark:text-slate-100">{{ _("Recent signups") }}</h2>
     {% if recent_signups %}
         <div class="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:bg-slate-900 dark:border-slate-800">
@@ -58,7 +71,7 @@
                         <tr>
                             <td class="px-4 py-2 font-mono text-xs text-slate-700 dark:text-slate-300">{{ t.slug }}</td>
                             <td class="px-4 py-2 text-slate-900 dark:text-slate-100">{{ t.name }}</td>
-                            <td class="px-4 py-2 text-slate-600 dark:text-slate-300">{{ t.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
+                            <td class="px-4 py-2 text-slate-600 dark:text-slate-300">{{ t.created_at|localtime }}</td>
                             <td class="px-4 py-2">
                                 {% if t.is_active %}
                                     <span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">{{ _("active") }}</span>

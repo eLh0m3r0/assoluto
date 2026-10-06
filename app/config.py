@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from datetime import date
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -63,6 +64,13 @@ class Settings(BaseSettings):
     default_locale: str = Field(default="cs", alias="DEFAULT_LOCALE")
     # Comma-separated list of supported locale codes.
     supported_locales: str = Field(default="cs,en,de", alias="SUPPORTED_LOCALES")
+    # IANA time zone used to display timestamps when a tenant has not
+    # picked its own (``tenants.settings["timezone"]``) and on pages that
+    # have no tenant at all (platform admin, billing). Everything is
+    # stored in UTC; this only affects rendering, date filters and the
+    # "today" used for date stamps. Invalid names fall back to
+    # Europe/Prague. See ``app.timezones``.
+    default_timezone: str = Field(default="Europe/Prague", alias="DEFAULT_TIMEZONE")
 
     # --- Platform (hosted SaaS layer) ---------------------------------------
     # When enabled, the `app.platform` package registers extra routes for
@@ -88,8 +96,9 @@ class Settings(BaseSettings):
     # grants a plan for free (audit 2026-10-03, BIZ-01 / D2). Set to
     # true only on a hosted staging/demo box that has no real customers.
     billing_demo_mode_allowed: bool | None = Field(default=None, alias="BILLING_DEMO_MODE_ALLOWED")
-    # Trial-nurture email cadence (day-1 onboarding, day-7 check-in,
-    # trial-ending reminder 5 days before trial_ends_at). Off by default
+    # Trial-nurture email cadence (day-1 onboarding, day-7 check-in).
+    # The trial-ending reminders (14 and 3 days before the effective
+    # trial end) do not wait for this flag. Off by default
     # so the copy can be reviewed before any tenant receives it; flip to
     # true in /etc/assoluto/env once approved. Requires FEATURE_PLATFORM.
     trial_nurture_enabled: bool = Field(default=False, alias="TRIAL_NURTURE_ENABLED")
@@ -99,6 +108,14 @@ class Settings(BaseSettings):
     # if invited contacts never signed in). Same copy-approval rule as
     # TRIAL_NURTURE_ENABLED: off by default. Requires FEATURE_PLATFORM.
     activation_nudges_enabled: bool = Field(default=False, alias="ACTIVATION_NUDGES_ENABLED")
+    # Early access (CEO decision E1): every hosted signup is free until
+    # the END of this day (Europe/Prague). Existing trials are not
+    # rewritten — their effective end is max(trial_ends_at, this date),
+    # see app.services.early_access. Drives the expiry job, the 14- and
+    # 3-day reminders, the billing page, the in-app banner and the
+    # marketing banner; after the date everything flips back to the
+    # 30-day trial by itself. ISO date; empty string = feature off.
+    early_access_until: date | None = Field(default=date(2027, 1, 31), alias="EARLY_ACCESS_UNTIL")
     # "Powered by Assoluto" footer in customer-contact emails and in the
     # customer portal (MKT-9). Base URL of the marketing site the footer
     # links to; ``?ref=portal&t=<tenant slug>`` is appended. Empty = derive
@@ -107,6 +124,17 @@ class Settings(BaseSettings):
     # it on a hosted deployment. A single tenant can opt out with
     # ``tenants.settings["hide_powered_by"] = true`` (white-label).
     powered_by_url: str = Field(default="", alias="POWERED_BY_URL")
+
+    # --- Public demo (E3) --------------------------------------------------
+    # Slug of the tenant that anyone may enter without signing up, via
+    # ``https://<slug>.<apex>/demo`` (staff or customer view). Empty = off.
+    # Only a tenant created by ``app.demo.seed`` (marker
+    # ``tenants.settings.demo_seed``) can be public; any other tenant with
+    # this slug is refused. While on, that tenant sends no e-mail at all,
+    # account / invitation / settings changes are blocked, uploads are
+    # capped, and the data is re-seeded every night (02:30 Europe/Prague).
+    # See app/demo/ and docs/OPERATOR_PLAYBOOK.md §9.
+    public_demo_tenant: str = Field(default="", alias="PUBLIC_DEMO_TENANT")
 
     # --- Orders -----------------------------------------------------------
     # Days an order may sit in QUOTED before the customer contacts get one
@@ -140,7 +168,8 @@ class Settings(BaseSettings):
     # can tell, per Identity, which revision they accepted. Bump when
     # you publish a new version of ``terms.html`` / ``privacy.html``.
     # Format is free but convention is ``YYYY.MM`` or semver.
-    legal_doc_version: str = Field(default="2026.05", alias="LEGAL_DOC_VERSION")
+    # 2026.10 = Terms 1.2 + Privacy 1.2 + DPA 1.0 (early access, retention).
+    legal_doc_version: str = Field(default="2026.10", alias="LEGAL_DOC_VERSION")
     platform_operator_email: str = Field(
         default="team@assoluto.eu", alias="PLATFORM_OPERATOR_EMAIL"
     )
@@ -258,6 +287,13 @@ class Settings(BaseSettings):
         default="INFO", alias="LOG_LEVEL"
     )
     log_json: bool = Field(default=False, alias="LOG_JSON")
+
+    @field_validator("early_access_until", mode="before")
+    @classmethod
+    def _empty_early_access_is_off(cls, value: object) -> object:
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
 
     @property
     def max_upload_size_bytes(self) -> int:

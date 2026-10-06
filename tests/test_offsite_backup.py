@@ -129,3 +129,113 @@ def test_fetch_refuses_keys_outside_pg(s3):
     _, target = s3
     with pytest.raises(ValueError):
         ob.fetch_dump(target, "attachments/t1/a.pdf", io.BytesIO())
+
+
+# ---------- retention purge of a deleted tenant's copies ---------------------
+
+
+def _versions(target, prefix: str = "") -> list[tuple[str, str]]:
+    resp = target.client.list_object_versions(Bucket=target.bucket, Prefix=prefix)
+    entries = resp.get("Versions", []) + resp.get("DeleteMarkers", [])
+    return sorted((e["Key"], e["VersionId"]) for e in entries)
+
+
+def test_purge_tenant_copies_removes_every_version_of_that_tenant_only(s3):
+    """Retention purge (Terms §4, DPA): a purged tenant's drawings must not
+    linger as current objects, old versions or delete markers in the
+    versioned backup bucket — other tenants and the dumps are untouched."""
+    _, target = s3
+    target.client.put_bucket_versioning(
+        Bucket="backups", VersioningConfiguration={"Status": "Enabled"}
+    )
+    put = target.client.put_object
+    put(Bucket="backups", Key="attachments/tenants/gone/a.pdf", Body=b"v1")
+    put(Bucket="backups", Key="attachments/tenants/gone/a.pdf", Body=b"v2")
+    put(Bucket="backups", Key="attachments/tenants/gone/b.pdf", Body=b"b")
+    target.client.delete_object(Bucket="backups", Key="attachments/tenants/gone/b.pdf")
+    put(Bucket="backups", Key="attachments/tenants/gone-too/keep.pdf", Body=b"k")
+    put(Bucket="backups", Key="attachments/tenants/alive/keep.pdf", Body=b"k")
+    put(Bucket="backups", Key="pg/portal-1.sql.gz.gpg", Body=b"d")
+
+    # Dry run: 2 + 1 versions + 1 delete marker found, nothing deleted.
+    before = _versions(target)
+    assert ob.purge_tenant_copies(target, "tenants/gone/", enforce=False) == 4
+    assert _versions(target) == before
+
+    assert ob.purge_tenant_copies(target, "tenants/gone/", enforce=True) == 4
+    assert _versions(target, "attachments/tenants/gone/") == []
+    assert {key for key, _ in _versions(target)} == {
+        "attachments/tenants/gone-too/keep.pdf",
+        "attachments/tenants/alive/keep.pdf",
+        "pg/portal-1.sql.gz.gpg",
+    }
+    # Idempotent.
+    assert ob.purge_tenant_copies(target, "tenants/gone", enforce=True) == 0
+
+
+@pytest.mark.parametrize("prefix", ["", "/", "//"])
+def test_purge_tenant_copies_refuses_an_empty_prefix(s3, prefix):
+    _, target = s3
+    target.client.put_object(Bucket="backups", Key="attachments/t/a.pdf", Body=b"a")
+    with pytest.raises(ValueError):
+        ob.purge_tenant_copies(target, prefix, enforce=True)
+    assert _versions(target) != []
+
+
+def test_backup_target_is_none_when_not_configured(settings):
+    settings.backup_s3_bucket = ""
+    assert ob.backup_target_from_settings() is None
+
+
+# ---------- copies of deleted files expire after 180 days ---------------------
+
+
+@pytest.fixture
+def versioned(s3):
+    primary, target = s3
+    target.client.put_bucket_versioning(
+        Bucket="backups", VersioningConfiguration={"Status": "Enabled"}
+    )
+    primary.put_object(Bucket="primary", Key="t1/keep.pdf", Body=b"keep")
+    primary.put_object(Bucket="primary", Key="t1/gone.pdf", Body=b"gone")
+    ob.sync_attachments(primary, "primary", target)
+    primary.delete_object(Bucket="primary", Key="t1/gone.pdf")
+    return primary, target
+
+
+def _key_versions(target, key):
+    page = target.client.list_object_versions(Bucket="backups", Prefix=key)
+    return [v for v in page.get("Versions", []) + page.get("DeleteMarkers", []) if v["Key"] == key]
+
+
+def test_deleted_file_copy_is_kept_during_grace_then_purged_with_all_versions(versioned):
+    primary, target = versioned
+    t0 = datetime(2026, 10, 6, tzinfo=UTC)
+    assert ob.expire_deleted_attachment_copies(primary, "primary", target, now=t0) == (1, 0)
+    later = t0 + timedelta(days=179)
+    assert ob.expire_deleted_attachment_copies(primary, "primary", target, now=later) == (1, 0)
+    assert _key_versions(target, "attachments/t1/gone.pdf")
+    expired = t0 + timedelta(days=181)
+    assert ob.expire_deleted_attachment_copies(primary, "primary", target, now=expired) == (0, 1)
+    assert _key_versions(target, "attachments/t1/gone.pdf") == []
+    assert _key_versions(target, "attachments/t1/keep.pdf")
+
+
+def test_file_that_reappears_leaves_the_manifest(versioned):
+    primary, target = versioned
+    t0 = datetime(2026, 10, 6, tzinfo=UTC)
+    ob.expire_deleted_attachment_copies(primary, "primary", target, now=t0)
+    primary.put_object(Bucket="primary", Key="t1/gone.pdf", Body=b"gone")
+    assert ob.expire_deleted_attachment_copies(primary, "primary", target, now=t0) == (0, 0)
+    far = t0 + timedelta(days=400)
+    assert ob.expire_deleted_attachment_copies(primary, "primary", target, now=far) == (0, 0)
+    assert _key_versions(target, "attachments/t1/gone.pdf")
+
+
+def test_empty_primary_listing_changes_nothing(versioned):
+    primary, target = versioned
+    primary.delete_object(Bucket="primary", Key="t1/keep.pdf")
+    far = datetime(2030, 1, 1, tzinfo=UTC)
+    assert ob.expire_deleted_attachment_copies(primary, "primary", target, now=far) == (0, 0)
+    assert _key_versions(target, "attachments/t1/keep.pdf")
+    assert _key_versions(target, "attachments/t1/gone.pdf")

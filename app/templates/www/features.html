@@ -224,7 +224,7 @@
         <h2 class="text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ _("See it in your own data") }}</h2>
         <p class="mt-3 text-brand-100">{{ _("Sign up, invite one client, run one order through. 30 minutes, no card.") }}</p>
         <a href="/platform/signup" class="mt-6 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3.5 text-sm font-semibold text-slate-900 shadow-lg transition hover:bg-slate-100">
-            {{ _("Start 30-day trial") }}
+            {% if early_access_offer.active %}{{ _("Start free") }}{% else %}{{ _("Start 30-day trial") }}{% endif %}
             <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
         </a>
     </div>

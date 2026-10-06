@@ -218,8 +218,8 @@
                                 {% endif %}
                             </p>
                             <p class="text-xs text-slate-400 dark:text-slate-500">
-                                <time datetime="{{ event.occurred_at.isoformat() }}"
-                                      title="{{ event.occurred_at.strftime('%Y-%m-%d %H:%M') }}">
+                                <time datetime="{{ event.occurred_at|localtime('iso') }}"
+                                      title="{{ event.occurred_at|localtime('%d.%m.%Y %H:%M %Z') }}">
                                     {{ event.occurred_at|timeago }}
                                 </time>
                                 · <span>{{ entity_type_labels.get(event.entity_type, event.entity_type) }}</span>
@@ -256,11 +256,11 @@
                                 {% if principal.is_staff and customer_by_id.get(order.customer_id) %}
                                     <div class="truncate text-xs text-slate-500 dark:text-slate-400">
                                         {{ customer_by_id[order.customer_id].name }}
-                                        · {{ order.created_at.strftime("%d.%m.%Y") }}
+                                        · {{ order.created_at|localdate }}
                                     </div>
                                 {% else %}
                                     <div class="truncate text-xs text-slate-500 dark:text-slate-400">
-                                        {{ order.created_at.strftime("%d.%m.%Y") }}
+                                        {{ order.created_at|localdate }}
                                     </div>
                                 {% endif %}
                             </div>

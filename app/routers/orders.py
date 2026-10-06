@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 import io
 from collections.abc import AsyncIterator
-from datetime import date, datetime
+from datetime import date, datetime, tzinfo
 from decimal import Decimal
 from urllib.parse import quote, urlencode
 from uuid import UUID
@@ -68,6 +68,7 @@ from app.services.order_service import (
     update_order_header,
 )
 from app.services.product_service import catalog_for_customer
+from app.timezones import local_today, request_tz, to_local, tz_label
 
 router = APIRouter(prefix="/app/orders", tags=["orders"], dependencies=[Depends(verify_csrf)])
 
@@ -191,6 +192,7 @@ async def orders_index(
         stale_quote_days=_stale_quote_days(request),
         offset=offset,
         limit=PAGE_SIZE,
+        tz=request_tz(request),
     )
     total_pages = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
 
@@ -262,7 +264,7 @@ async def orders_index(
             "page_qs": _query_without(request, "page"),
             "sort_qs": _query_without(request, "page", "sort"),
             "queue_labels": _queue_labels(request),
-            "today": date.today(),
+            "today": local_today(request_tz(request)),
             "page": page,
             "total_pages": total_pages,
             "total": total,
@@ -316,12 +318,14 @@ def _parse_iso_date(raw: str | None) -> date | None:
         return None
 
 
-def _fmt_datetime(value: datetime | None) -> str:
+def _fmt_datetime(value: datetime | None, tz: tzinfo | None = None) -> str:
     if value is None:
         return ""
-    # ISO 8601 without microseconds, timezone-aware values are emitted
-    # in their native offset (typically UTC — the DB stores timestamptz).
-    return value.replace(microsecond=0).isoformat()
+    # ISO 8601 without microseconds, in the tenant's zone and carrying
+    # its offset (``2026-03-03T00:30:00+01:00``) so a spreadsheet user
+    # reads local time and a machine can still recover the instant. The
+    # header names the zone too (E2 / LOGIC-16).
+    return to_local(value, tz).replace(microsecond=0).isoformat()
 
 
 def _fmt_date(value: date | None) -> str:
@@ -377,6 +381,9 @@ async def orders_export_csv(
 
     date_from = _parse_iso_date(from_raw)
     date_to = _parse_iso_date(to_raw)
+    # ``from`` / ``to`` are calendar days in the tenant's zone, and the
+    # timestamp columns are written in that zone too.
+    tz = request_tz(request)
 
     stmt = build_orders_query(
         actor=_actor(principal),
@@ -386,6 +393,7 @@ async def orders_export_csv(
         date_from=date_from,
         date_to=date_to,
         q=q,
+        tz=tz,
     )
 
     # Resolve customer names lazily with a per-request cache — the list
@@ -403,12 +411,13 @@ async def orders_export_csv(
         customer_names[cid] = name
         return name
 
+    zone = tz_label(tz)
     header = [
         _t(request, "Order number"),
         _t(request, "Status"),
         _t(request, "Customer"),
-        _t(request, "Created at"),
-        _t(request, "Submitted at"),
+        f"{_t(request, 'Created at')} ({zone})",
+        f"{_t(request, 'Submitted at')} ({zone})",
         _t(request, "Promised delivery at"),
         _t(request, "Quoted total"),
         _t(request, "Currency"),
@@ -450,8 +459,8 @@ async def orders_export_csv(
                         order.number,
                         order.status.value,
                         await _customer_name(order.customer_id),
-                        _fmt_datetime(order.created_at),
-                        _fmt_datetime(order.submitted_at),
+                        _fmt_datetime(order.created_at, tz),
+                        _fmt_datetime(order.submitted_at, tz),
                         _fmt_date(order.promised_delivery_at),
                         _fmt_decimal(order.quoted_total),
                         order.currency,
@@ -466,7 +475,7 @@ async def orders_export_csv(
                 break
             offset += CSV_BATCH_SIZE
 
-    filename = f"orders-{date.today().isoformat()}.csv"
+    filename = f"orders-{local_today(tz).isoformat()}.csv"
     return StreamingResponse(
         _row_iter(),
         media_type="text/csv; charset=utf-8",
@@ -492,7 +501,7 @@ async def orders_new_form(
             "tenant": _tenant(request),
             "customers": customers,
             "form": {},
-            "today_iso": date.today().isoformat(),
+            "today_iso": local_today(request_tz(request)).isoformat(),
             "error": None,
             "notice": None,
         },
@@ -613,7 +622,7 @@ async def _rerender_form(
             "tenant": _tenant(request),
             "customers": customers,
             "form": form,
-            "today_iso": date.today().isoformat(),
+            "today_iso": local_today(request_tz(request)).isoformat(),
             "error": error,
             "notice": None,
         },
@@ -812,7 +821,7 @@ async def orders_detail(
             "product_q": product_q,
             "product_limit": PRODUCT_PICKER_LIMIT,
             "last_prices": last_prices,
-            "is_overdue": is_overdue(order),
+            "is_overdue": is_overdue(order, today=local_today(request_tz(request))),
             # Past the agreement — a deleted drawing there is evidence lost.
             "is_agreed": current_rank is not None and current_rank >= (confirmed_rank or 0),
             "can_reorder": principal.is_staff or perms.can_add_items,
@@ -1367,6 +1376,35 @@ async def orders_delete_item(
     return RedirectResponse(url=f"/app/orders/{order.id}?notice={notice}", status_code=303)
 
 
+# ------------------------------------------------- "notify the customer" opt-out
+
+#: Staff moves that never e-mail the customer anyway: SUBMITTED notifies
+#: the supplier's own staff, and back to DRAFT is an internal correction
+#: (LOGIC-22). The "Notify the customer" opt-out is moot for these, so
+#: nothing is recorded about it.
+_NO_CUSTOMER_MAIL_TARGETS = frozenset({OrderStatus.SUBMITTED, OrderStatus.DRAFT})
+
+
+def _customer_mail_suppressed(
+    principal: Principal, target: OrderStatus, notify_customer: list[str]
+) -> bool:
+    """Did a staff member untick "Notify the customer by e-mail"?
+
+    The forms render a hidden ``notify_customer=0`` before the checkbox
+    (``value=1``, checked by default), so the field is present either
+    way. An absent field — the stepper's one-click buttons, a contact's
+    own action, a scripted POST — keeps today's behaviour: notify.
+
+    This is a sender-side choice per action. It can only take the
+    customer side *out* of a mail; it never adds recipients, and the
+    consent rules in ``notification_service`` (CLAUDE.md §19) still
+    decide who is mailed when it is left on.
+    """
+    if not principal.is_staff or target in _NO_CUSTOMER_MAIL_TARGETS:
+        return False
+    return bool(notify_customer) and "1" not in notify_customer
+
+
 # ----------------------------------------------------------- bulk transition
 
 
@@ -1380,6 +1418,7 @@ async def orders_bulk_transition(
     background_tasks: BackgroundTasks,
     order_ids: list[str] = Form(default=[]),
     to_status: str = Form(...),
+    notify_customer: list[str] = Form(default=[]),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -1432,12 +1471,15 @@ async def orders_bulk_transition(
     # submitted IDs explicitly so we never act on anything not requested.
     orders = list((await db.execute(select(Order).where(Order.id.in_(parsed_ids)))).scalars().all())
 
+    silenced = _customer_mail_suppressed(principal, target, notify_customer)
     result = await bulk_transition(
         db,
         orders=orders,
         to_status=target,
         actor=_actor(principal),
         audit_actor=actor_from_principal(principal),
+        notify_customer=not silenced,
+        not_notified_note=_t(request, "Customer not notified by e-mail."),
     )
 
     # Build notification payloads while the session is still open — RLS
@@ -1477,6 +1519,10 @@ async def orders_bulk_transition(
             # Back to draft is an internal correction (LOGIC-22) — same
             # rule as the single-order route: the customer is not mailed.
             continue
+        elif silenced:
+            # "Notify the customer" unticked: this route only ever mails
+            # the customer side, so there is nobody left to tell.
+            continue
         else:
             notifications.extend(
                 await build_order_status_changed(
@@ -1510,10 +1556,12 @@ async def orders_bulk_transition(
     ok = len(result.succeeded)
     failed = len(result.errors)
     # Flash summary — localised, but the numeric template is shared.
+    quiet = " " + _t(request, "Customer not notified by e-mail.") if silenced and ok else ""
     if failed == 0:
-        notice = _t(request, "{count} orders transitioned.").format(count=ok)
+        notice = _t(request, "{count} orders transitioned.").format(count=ok) + quiet
         return RedirectResponse(url=f"/app/orders?notice={notice}", status_code=303)
     summary = _t(request, "{ok} transitioned, {failed} failed.").format(ok=ok, failed=failed)
+    summary += quiet
     # Treat partial failure as a notice (not error) so successful rows
     # still get positive confirmation; the "failed" count tells the staff
     # member to inspect those orders individually.
@@ -1551,6 +1599,7 @@ async def orders_transition(
     promised_delivery_at: str = Form(""),
     expected_total: str | None = Form(None),
     allow_incomplete: str = Form(""),
+    notify_customer: list[str] = Form(default=[]),
     principal: Principal = Depends(require_login),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -1585,6 +1634,7 @@ async def orders_transition(
             return _order_redirect(order.id, error=_t(request, "Enter a valid date."))
 
     clean_note = note.strip()[:1000] if principal.is_staff else ""
+    silenced = _customer_mail_suppressed(principal, target, notify_customer)
 
     try:
         await transition_order(
@@ -1598,6 +1648,8 @@ async def orders_transition(
             allow_incomplete=principal.is_staff and bool(allow_incomplete),
             promised_delivery_at=promised,
             incomplete_note=_t(request, "Sent although some items had no price."),
+            notify_customer=not silenced,
+            not_notified_note=_t(request, "Customer not notified by e-mail."),
         )
     except QuoteChanged:
         return _order_redirect(
@@ -1639,6 +1691,11 @@ async def orders_transition(
         # (LOGIC-22): the customer was told "Draft" for every mis-click
         # fix, which reads as "your order was thrown away".
         notifications = []
+    elif silenced:
+        # "Notify the customer by e-mail" unticked (LOGIC-22). A staff
+        # move to any status but SUBMITTED mails only the customer side,
+        # so suppressing it leaves the staff notifications untouched.
+        notifications = []
     else:
         notifications = await build_order_status_changed(
             db,
@@ -1667,6 +1724,8 @@ async def orders_transition(
     # which produced "Status changed to Start production."
     status_label = _t(request, STATUS_LABELS.get(target, target.value))
     notice_msg = _t(request, "Status changed to {status}.").format(status=status_label)
+    if silenced:
+        notice_msg += " " + _t(request, "Customer not notified by e-mail.")
     return _order_redirect(order.id, notice=notice_msg)
 
 
@@ -1680,6 +1739,7 @@ async def orders_transition_with_note(
     promised_delivery_at: str = Form(""),
     expected_total: str | None = Form(None),
     allow_incomplete: str = Form(""),
+    notify_customer: list[str] = Form(default=[]),
     principal: Principal = Depends(require_tenant_staff),
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -1698,6 +1758,7 @@ async def orders_transition_with_note(
         promised_delivery_at=promised_delivery_at,
         expected_total=expected_total,
         allow_incomplete=allow_incomplete,
+        notify_customer=notify_customer,
         principal=principal,
         db=db,
     )

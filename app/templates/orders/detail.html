@@ -188,7 +188,7 @@
                     {{ order.confirmed_total | money_major(order.currency) }}
                 </div>
                 <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    {{ _('Confirmed on') }} {{ order.confirmed_at.strftime("%d.%m.%Y %H:%M") }}
+                    {{ _('Confirmed on') }} {{ order.confirmed_at|localtime }}
                 </div>
                 {% if order.quoted_total is not none and order.confirmed_total is not none and order.quoted_total != order.confirmed_total %}
                     <div class="mt-1 text-xs text-amber-700 dark:text-amber-300">
@@ -391,6 +391,15 @@
                         {{ _('Apply') }}
                     </button>
                     <input type="hidden" name="expected_total" value="{{ pipeline.expected_total }}">
+                    {# Sender-side opt-out (LOGIC-22). The hidden "0" makes an
+                       unticked box arrive as an explicit "no"; a POST without
+                       the field (stepper buttons) still notifies. Moves to
+                       Submitted / back to Draft never mail the customer. #}
+                    <input type="hidden" name="notify_customer" value="0">
+                    <label class="flex items-center gap-2 text-xs text-slate-600 sm:col-span-4 dark:text-slate-300">
+                        <input type="checkbox" name="notify_customer" value="1" checked>
+                        {{ _('Notify the customer by e-mail') }}
+                    </label>
                     {% if pipeline.has_quote_problems %}
                         <label class="flex items-center gap-2 text-xs text-slate-600 sm:col-span-4 dark:text-slate-300">
                             <input type="checkbox" name="allow_incomplete" value="1">
@@ -478,7 +487,7 @@
                                     data-name="{{ p.sku }} — {{ p.name }}"
                                     data-unit="{{ p.unit }}"
                                     data-price="{{ '%.2f'|format(_price) if _price is not none else '' }}">
-                                {{ p.sku }} — {{ p.name }}{% if _last %} · {{ _('last price') }} {{ _last[0] | money_major(order.currency) }} ({{ _last[1].strftime("%d.%m.%Y") }}){% endif %}
+                                {{ p.sku }} — {{ p.name }}{% if _last %} · {{ _('last price') }} {{ _last[0] | money_major(order.currency) }} ({{ _last[1]|localdate }}){% endif %}
                             </option>
                         {% endfor %}
                     </select>
@@ -624,7 +633,7 @@
                     <div class="flex flex-wrap items-baseline gap-x-2 text-xs text-slate-500 dark:text-slate-400">
                         <span class="font-semibold text-slate-800 dark:text-slate-200">{{ author_name }}</span>
                         <span>·</span>
-                        <span>{{ comment.created_at.strftime("%d.%m.%Y %H:%M") }}</span>
+                        <span>{{ comment.created_at|localtime }}</span>
                         {% if comment.is_internal %}<span>·</span><span class="text-amber-700 dark:text-amber-300">{{ _('internal') }}</span>{% endif %}
                     </div>
                     <div class="mt-1 whitespace-pre-wrap text-sm text-slate-800 dark:text-slate-200">{{ comment.body }}</div>
@@ -705,7 +714,7 @@
                         {% endif %}
                     </div>
                     <div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                        {{ entry.created_at.strftime("%d.%m.%Y %H:%M") }}
+                        {{ entry.created_at|localtime }}
                         {% if entry.note %}· {{ entry.note }}{% endif %}
                     </div>
                 </li>

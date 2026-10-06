@@ -19,6 +19,12 @@ from app.logging import get_logger
 from app.models.customer import CustomerContact
 from app.models.enums import OrderStatus
 from app.models.order import Order, OrderComment, OrderStatusHistory
+from app.services.early_access import (
+    COVERED_BY_EARLY_ACCESS_SQL,
+    EARLY_ACCESS_TZ,
+    EFFECTIVE_TRIAL_END_SQL,
+    early_access_ends_at,
+)
 
 log = get_logger("app.tasks.periodic")
 
@@ -283,7 +289,10 @@ async def expire_demo_trials(now: datetime | None = None) -> int:
     same thing via webhook. This job covers every subscription Stripe
     does not manage:
 
-    * ``trialing`` / ``demo`` rows past ``trial_ends_at``;
+    * ``trialing`` / ``demo`` rows past their *effective* trial end —
+      ``max(trial_ends_at, early-access end)`` (E1, see
+      :mod:`app.services.early_access`), so nobody is cut off before
+      ``EARLY_ACCESS_UNTIL``;
     * manually invoiced ``active`` rows past their ``current_period_end``
       (LOGIC-18) — only rows written by the new subscription editor,
       which stamps ``status_changed_at`` and requires an explicit
@@ -298,6 +307,7 @@ async def expire_demo_trials(now: datetime | None = None) -> int:
     ``enforce_canceled_subscriptions`` deactivates them.
     """
     current = now or datetime.now(UTC)
+    early_access_end = early_access_ends_at(get_settings().early_access_until)
 
     engine = _owner_engine()
     try:
@@ -317,26 +327,33 @@ async def expire_demo_trials(now: datetime | None = None) -> int:
                 # enforce_canceled_subscriptions has a clear grace anchor.
                 # COALESCE protects the rare row where the field was already
                 # set further out (e.g. operator extended trial manually).
+                # A trial that ran on early access gets the early-access
+                # end as its anchor (GREATEST ignores the NULL for every
+                # other row) — otherwise the 3-day export window would be
+                # measured from a trial date months in the past.
                 result = await conn.execute(
                     text(
-                        "UPDATE platform_subscriptions "
+                        "UPDATE platform_subscriptions AS s "
                         "SET status = 'canceled', "
                         "    status_changed_at = :now, "
-                        "    canceled_at = COALESCE(canceled_at, :now), "
-                        "    current_period_end = COALESCE(current_period_end, trial_ends_at) "
-                        "WHERE stripe_subscription_id IS NULL "
+                        "    canceled_at = COALESCE(s.canceled_at, :now), "
+                        "    current_period_end = GREATEST("
+                        "      COALESCE(s.current_period_end, s.trial_ends_at), "
+                        f"      CASE WHEN {COVERED_BY_EARLY_ACCESS_SQL} "
+                        "           THEN CAST(:early_access_end AS timestamptz) END) "
+                        "WHERE s.stripe_subscription_id IS NULL "
                         "  AND ( "
-                        "    (status IN ('trialing', 'demo') "
-                        "     AND trial_ends_at IS NOT NULL "
-                        "     AND trial_ends_at < :now) "
-                        "    OR (status = 'active' "
-                        "     AND status_changed_at IS NOT NULL "
-                        "     AND current_period_end IS NOT NULL "
-                        "     AND current_period_end < :now) "
+                        "    (s.status IN ('trialing', 'demo') "
+                        "     AND s.trial_ends_at IS NOT NULL "
+                        f"     AND {EFFECTIVE_TRIAL_END_SQL} < :now) "
+                        "    OR (s.status = 'active' "
+                        "     AND s.status_changed_at IS NOT NULL "
+                        "     AND s.current_period_end IS NOT NULL "
+                        "     AND s.current_period_end < :now) "
                         "  ) "
-                        "RETURNING id, tenant_id"
+                        "RETURNING s.id, s.tenant_id"
                     ),
-                    {"now": current},
+                    {"now": current, "early_access_end": early_access_end},
                 )
                 expired_rows = result.all()
                 for sub_id, tenant_id in expired_rows:
@@ -555,7 +572,16 @@ async def enforce_canceled_subscriptions(now: datetime | None = None) -> int:
 # silently skipped.
 TRIAL_NURTURE_LOCK_ID = 42_008
 NURTURE_WINDOW_DAYS = 3
-TRIAL_ENDING_LEAD_DAYS = 5
+# Trial-ending reminders (E1): one 14 days before the *effective* trial
+# end (stage ``ending14``), one 3 days before (stage ``ending``). Counted
+# in Prague calendar days, so "14 days" is the date two weeks earlier
+# whatever hour the job runs.
+TRIAL_ENDING_LEAD_DAYS = 3
+TRIAL_ENDING_EARLY_LEAD_DAYS = 14
+#: Inside the nurture marker: {"ending14": "<effective end iso>", ...} —
+#: the end date each ending reminder was sent for, so a later end
+#: (early access, an operator extension) earns its own reminders.
+ENDING_FOR_KEY = "_ending_for"
 # Marker key inside tenants.settings: {"day1": "<iso>", ...}. Underscore
 # prefix = machine-managed, mirrors the "_gdpr_erased_at" convention.
 NURTURE_SENT_KEY = "_trial_nurture_sent"
@@ -590,6 +616,31 @@ def _tenant_portal_url(base_url: str, slug: str) -> str:
     return f"{parts.scheme}://{slug}.{parts.netloc}"
 
 
+def _calendar_days_left(now: datetime, end: datetime) -> int:
+    """Whole calendar days from ``now`` to ``end`` in Europe/Prague."""
+    return (end.astimezone(EARLY_ACCESS_TZ).date() - now.astimezone(EARLY_ACCESS_TZ).date()).days
+
+
+def _ending_already_sent(already_sent: dict, stage: str, trial_ends_at: datetime) -> bool:
+    """Was the ``stage`` reminder already sent for THIS end date?
+
+    Markers written since E1 record the end date they were sent for. An
+    older marker (no end date) counts only when it was sent inside this
+    end's reminder period — a reminder for a 30-day trial end that early
+    access has since pushed out must not swallow the new reminders.
+    """
+    if stage not in already_sent:
+        return False
+    sent_for = (already_sent.get(ENDING_FOR_KEY) or {}).get(stage)
+    try:
+        if sent_for is not None:
+            return datetime.fromisoformat(sent_for) == trial_ends_at
+        sent_at = datetime.fromisoformat(already_sent[stage])
+    except (TypeError, ValueError):
+        return True  # unreadable marker — never risk a double send
+    return sent_at >= trial_ends_at - timedelta(days=TRIAL_ENDING_EARLY_LEAD_DAYS + 1)
+
+
 def _due_nurture_stage(
     now: datetime,
     created_at: datetime,
@@ -603,25 +654,32 @@ def _due_nurture_stage(
 ) -> tuple[str, int] | None:
     """Return the most urgent unsent stage whose window covers ``now``.
 
-    Priority: ending > day7 > no_login > invite > day1 (at most one email
-    per tenant per run, so overlapping windows can't double-send).
+    Priority: ending > ending14 > day7 > no_login > invite > day1 (at
+    most one email per tenant per run, so overlapping windows can't
+    double-send).
 
-    ``trial_stages`` / ``activation_stages`` mirror the two copy-approval
-    flags (``TRIAL_NURTURE_ENABLED`` / ``ACTIVATION_NUDGES_ENABLED``); a
-    stage family whose flag is off is never due. ``ending_stage`` is
-    separate on purpose (LOGIC-4): the trial-ending reminder does not wait
-    for copy approval — a trial must never end silently — and is off only
-    for Stripe-linked trials, which convert automatically.
+    ``trial_ends_at`` is the *effective* trial end (early access
+    included). ``trial_stages`` / ``activation_stages`` mirror the two
+    copy-approval flags (``TRIAL_NURTURE_ENABLED`` /
+    ``ACTIVATION_NUDGES_ENABLED``); a stage family whose flag is off is
+    never due. ``ending_stage`` is separate on purpose (LOGIC-4): the
+    trial-ending reminders do not wait for copy approval — a trial must
+    never end silently — and are off only for Stripe-linked trials,
+    which convert automatically.
     """
     window = timedelta(days=NURTURE_WINDOW_DAYS)
     state = activation or TenantActivationState()
-    if (
-        ending_stage
-        and trial_ends_at is not None
-        and "ending" not in already_sent
-        and trial_ends_at - timedelta(days=TRIAL_ENDING_LEAD_DAYS) <= now < trial_ends_at
-    ):
-        return "ending", max(0, (trial_ends_at - now).days)
+    if ending_stage and trial_ends_at is not None and now < trial_ends_at:
+        days_left = max(0, _calendar_days_left(now, trial_ends_at))
+        if days_left <= TRIAL_ENDING_LEAD_DAYS:
+            if not _ending_already_sent(already_sent, "ending", trial_ends_at):
+                return "ending", days_left
+        elif days_left <= TRIAL_ENDING_EARLY_LEAD_DAYS and not any(
+            # A pre-E1 "ending" mail (5-day lead) already covered this end.
+            _ending_already_sent(already_sent, stage, trial_ends_at)
+            for stage in ("ending14", "ending")
+        ):
+            return "ending14", days_left
     if trial_ends_at is not None and now >= trial_ends_at:
         return None  # trial over — expiry job owns it from here
 
@@ -723,8 +781,13 @@ async def send_trial_nurture_emails(now: datetime | None = None, sender=None) ->
 # Tenants with no member identity at all (created by scripts/create_tenant
 # before the platform layer existed) have nobody to verify and stay
 # eligible.
+# The trial end is the *effective* one (E1, SQL twin of
+# app.services.early_access) — bind ``:early_access_end``.
 _NURTURE_TENANTS_SQL = text(
-    "SELECT s.tenant_id, s.created_at, s.trial_ends_at, s.stripe_subscription_id "
+    "SELECT s.tenant_id, s.created_at, "
+    f"  {EFFECTIVE_TRIAL_END_SQL} AS trial_ends_at, "
+    "   s.stripe_subscription_id, "
+    f"  {COVERED_BY_EARLY_ACCESS_SQL} AS early_access "
     "FROM platform_subscriptions s "
     "JOIN tenants t ON t.id = s.tenant_id "
     "WHERE s.status IN ('trialing', 'demo') "
@@ -804,11 +867,16 @@ async def _run_trial_nurture(
     from app.tasks.email_tasks import send_trial_nurture
 
     async with engine.connect() as conn:
-        rows = (await conn.execute(_NURTURE_TENANTS_SQL)).all()
+        rows = (
+            await conn.execute(
+                _NURTURE_TENANTS_SQL,
+                {"early_access_end": early_access_ends_at(settings.early_access_until)},
+            )
+        ).all()
 
     sent = 0
     sm = async_sessionmaker(engine, expire_on_commit=False)
-    for tenant_id, created_at, trial_ends_at, stripe_sub_id in rows:
+    for tenant_id, created_at, trial_ends_at, stripe_sub_id, early_access in rows:
         async with sm() as session, session.begin():
             tenant = (
                 await session.execute(select(Tenant).where(Tenant.id == tenant_id))
@@ -856,7 +924,11 @@ async def _run_trial_nurture(
             billing_url = (
                 settings.app_base_url.rstrip("/") + f"/platform/billing?tenant={tenant.slug}"
             )
-            trial_end_date = trial_ends_at.strftime("%d.%m.%Y") if trial_ends_at is not None else ""
+            trial_end_date = (
+                trial_ends_at.astimezone(EARLY_ACCESS_TZ).strftime("%d.%m.%Y")
+                if trial_ends_at is not None
+                else ""
+            )
             pending = [
                 {**p, "url": f"{portal_url}/app/customers/{p['customer_id']}"}
                 for p in activation.pending
@@ -874,11 +946,17 @@ async def _run_trial_nurture(
                     trial_end_date=trial_end_date,
                     days_left=days_left,
                     pending_contacts=pending,
+                    early_access=bool(early_access),
                     locale=locale,
                 )
                 sent += 1
 
             already[stage] = current.isoformat()
+            if stage in ("ending", "ending14") and trial_ends_at is not None:
+                already[ENDING_FOR_KEY] = {
+                    **(already.get(ENDING_FOR_KEY) or {}),
+                    stage: trial_ends_at.isoformat(),
+                }
             tenant.settings = {**(tenant.settings or {}), NURTURE_SENT_KEY: already}
             log.info(
                 "periodic.trial_nurture.sent",

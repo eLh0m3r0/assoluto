@@ -354,11 +354,20 @@ async def billing_dashboard(
     # BIZ-02: a trialist (or a lapsed tenant) without a Stripe
     # subscription needs a primary button to keep the plan they are on —
     # the dashboard used to show only the words "Current plan".
+    # E1: a trial covered by early access is free until that date — the
+    # page states it calmly instead of pushing a payment button.
+    from app.platform.billing.early_access import covered_by_early_access, effective_trial_end
+    from app.services.early_access import format_until
+
+    early_access = covered_by_early_access(subscription, settings)
+    trial_until = effective_trial_end(subscription, settings)
+
     continue_plan = None
     if (
         subscription is not None
         and current_plan is not None
         and not live_stripe_sub
+        and not early_access
         and subscription.status in _CONTINUE_STATUSES
         and current_plan.code not in NON_CHECKOUT_PLAN_CODES
     ):
@@ -384,6 +393,13 @@ async def billing_dashboard(
             "tenant_qs": ctx.tenant_qs,
             "subscription": subscription,
             "current_plan": current_plan,
+            "early_access": early_access,
+            "early_access_label": (
+                format_until(settings.early_access_until, getattr(request.state, "locale", None))
+                if early_access and settings.early_access_until
+                else ""
+            ),
+            "trial_until": trial_until,
             "plans": plans,
             "invoices": invoices,
             "usage": usage,

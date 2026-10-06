@@ -50,6 +50,7 @@ deployments can ignore them.
 |---|---|---|---|---|
 | `FEATURE_PLATFORM` | bool | `false` | no | Enable the `app/platform/` package: global Identity, tenant switcher, platform admin, self-signup, billing |
 | `PLATFORM_COOKIE_DOMAIN` | string | *(empty)* | if platform on | Parent domain for the cross-subdomain platform session cookie, e.g. `.portal.example.com`. Leave empty for single-host dev |
+| `EARLY_ACCESS_UNTIL` | ISO date | `2027-01-31` | no | Early access (E1): hosted access is free until the **end of this day, Europe/Prague**. A trial's effective end is `max(trial_ends_at, this date)` (local trials only — not canceled, paid, Stripe-managed or operator-suspended); new signups store it as their trial end. Drives the expiry job, the 14/3-day "ending" reminders, the billing page, the in-app banner, the marketing banner / "Start free" CTAs and the Terms clause; everything flips back to the 30-day trial after the date. Empty = off |
 
 ## Billing (Stripe)
 

@@ -18,7 +18,7 @@
                    used to be the primary button and led straight to
                    billing details + Stripe Checkout). #}
                 <p class="mt-4 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-100">
-                    {{ _("Your free 30-day trial is running — no card needed. Plan:") }}
+                    {% if early_access_offer.active %}{{ _("Free early access until") }} {{ early_access_offer.until_label }} — {{ _("no card needed. Plan:") }}{% else %}{{ _("Your free 30-day trial is running — no card needed. Plan:") }}{% endif %}
                     <strong>{{ selected_plan|capitalize }}</strong>
                 </p>
                 <a href="/platform/select-tenant"

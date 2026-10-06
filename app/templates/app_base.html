@@ -17,8 +17,29 @@
     {% set sub_status = sub_info.status if sub_info else None %}
     {% set is_admin = principal and principal.role == "tenant_admin" %}
     {% if principal and principal.is_staff and sub_info %}
-        {% set cut_date = sub_info.access_ends_at.strftime("%d.%m.%Y") if sub_info.access_ends_at else None %}
-        {% if sub_status == 'trialing' and is_admin and not sub_info.stripe_managed and sub_info.trial_days_left is not none %}
+        {% set cut_date = sub_info.access_ends_at|localdate if sub_info.access_ends_at else None %}
+        {% if sub_status == 'trialing' and is_admin and not sub_info.stripe_managed and sub_info.trial_days_left is not none and sub_info.early_access %}
+            {# E1: free early access — no countdown pressure. One calm info
+               line in the last 14 days (deps sets early_access_banner),
+               nothing before that. #}
+            {% if sub_info.early_access_banner %}
+                <div role="status" class="border-b border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300" data-banner="early-access">
+                    <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-sm sm:px-6">
+                        <span class="font-semibold">{{ _("Free early access") }}</span>
+                        <span>
+                            {{ _("ends on") }} {{ sub_info.trial_ends_at|localdate }}
+                            · {{ _("Days left:") }} {{ sub_info.trial_days_left }}
+                            · {{ _("After that the portal continues on a paid plan; your data stays.") }}
+                        </span>
+                        {% if feature_platform %}
+                            <a href="/platform/billing" class="ml-auto text-xs font-medium text-brand-600 underline underline-offset-2 hover:text-brand-700 dark:text-brand-400">
+                                {{ _("Details") }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% elif sub_status == 'trialing' and is_admin and not sub_info.stripe_managed and sub_info.trial_days_left is not none %}
             {# LOGIC-4: in-app trial countdown; amber in the last week. #}
             {% set urgent = sub_info.trial_days_left <= 7 %}
             <div role="status" class="border-b {% if urgent %}border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-500/30 dark:bg-amber-900/20 dark:text-amber-100{% else %}border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300{% endif %}">
@@ -26,7 +47,7 @@
                     <span class="font-semibold">{{ _("Free trial") }}</span>
                     <span>
                         {{ _("Days left:") }} {{ sub_info.trial_days_left }}
-                        · {{ _("ends on") }} {{ sub_info.trial_ends_at.strftime("%d.%m.%Y") }}
+                        · {{ _("ends on") }} {{ sub_info.trial_ends_at|localdate }}
                     </span>
                     {% if feature_platform %}
                         <a href="/platform/billing" class="ml-auto rounded-md {% if urgent %}bg-amber-600 hover:bg-amber-700 text-white{% else %}bg-brand-600 hover:bg-brand-700 text-white{% endif %} px-3 py-1 text-xs font-medium">

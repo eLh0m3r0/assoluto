@@ -18,7 +18,7 @@ everything inside their tenant.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta, tzinfo
 from decimal import Decimal
 from typing import Any, Literal
 from uuid import UUID
@@ -28,6 +28,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.audit_event import AuditEvent
 from app.models.order import Order
+from app.timezones import local_day_start
 
 # ---------------------------------------------------------------------------
 # Actor resolution
@@ -263,8 +264,12 @@ async def list_events(
     exclude_actions: list[str] | None = None,
     limit: int = 50,
     offset: int = 0,
+    tz: tzinfo | None = None,
 ) -> tuple[list[AuditEvent], int]:
     """Return ``(events, total_count)`` matching the filters.
+
+    ``date_from`` / ``date_to`` are inclusive calendar days in the
+    tenant's zone ``tz`` (default ``DEFAULT_TIMEZONE``).
 
     Results are newest-first. The tenant gate is RLS — every query on
     ``db`` is already scoped by the session's ``app.tenant_id``. Layered
@@ -282,11 +287,9 @@ async def list_events(
     if actor_id is not None:
         stmt = stmt.where(AuditEvent.actor_id == actor_id)
     if date_from is not None:
-        stmt = stmt.where(AuditEvent.occurred_at >= date_from)
+        stmt = stmt.where(AuditEvent.occurred_at >= local_day_start(date_from, tz))
     if date_to is not None:
-        from datetime import timedelta
-
-        stmt = stmt.where(AuditEvent.occurred_at < date_to + timedelta(days=1))
+        stmt = stmt.where(AuditEvent.occurred_at < local_day_start(date_to + timedelta(days=1), tz))
     if q:
         pattern = f"%{q.strip()}%"
         stmt = stmt.where(

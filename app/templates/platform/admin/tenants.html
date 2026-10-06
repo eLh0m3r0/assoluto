@@ -59,11 +59,11 @@
                                 {% endif %}
                             </td>
                             <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">
-                                {% if sub and sub.status == "trialing" and sub.trial_ends_at %}
-                                    {{ sub.trial_ends_at.strftime("%d.%m.%Y") }}
-                                    <span class="text-slate-400 dark:text-slate-500">({{ _("trial") }})</span>
+                                {% if sub and sub.status == "trialing" and sub_row.trial_until %}
+                                    {{ sub_row.trial_until|localdate }}
+                                    <span class="text-slate-400 dark:text-slate-500">({% if sub_row.early_access %}{{ _("early access") }}{% else %}{{ _("trial") }}{% endif %})</span>
                                 {% elif sub and sub.current_period_end %}
-                                    {{ sub.current_period_end.strftime("%d.%m.%Y") }}
+                                    {{ sub.current_period_end|localdate }}
                                 {% else %}
                                     <span class="text-slate-400 dark:text-slate-500">—</span>
                                 {% endif %}
