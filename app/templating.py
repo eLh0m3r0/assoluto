@@ -24,13 +24,14 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import Request
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader, pass_context, select_autoescape
 from jinja2_fragments import render_block
 from markupsafe import Markup
 
 from app import __version__
 from app.config import Settings
 from app.i18n import get_translations, identity_translations
+from app.timezones import format_local, request_tz, to_local
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 
@@ -191,6 +192,32 @@ def _timeago_filter_for_locale(locale: str) -> Any:
     return _filter
 
 
+@pass_context
+def _localtime_filter(ctx: Any, value: Any, fmt: str = "%d.%m.%Y %H:%M") -> str:
+    """Render a UTC instant in the request's display zone (E2 / LOGIC-16).
+
+    The zone comes from ``display_tz`` in the render context, which
+    :meth:`Templates._base_context` fills from ``request.state.tz`` (the
+    tenant's zone) or the ``DEFAULT_TIMEZONE`` on tenant-less pages.
+    ``fmt="iso"`` gives an ISO 8601 string with the local offset — for
+    ``<time datetime="…">`` attributes. ``%Z`` prints ``CET`` / ``CEST``.
+    Plain dates pass through unconverted; ``None`` renders as ``""``.
+    """
+    tz = ctx.get("display_tz") if ctx is not None else None
+    if fmt == "iso":
+        if not isinstance(value, datetime):
+            return value.isoformat() if hasattr(value, "isoformat") else ""
+        return to_local(value, tz).replace(microsecond=0).isoformat()
+    return format_local(value, tz, fmt)
+
+
+@pass_context
+def _localdate_filter(ctx: Any, value: Any, fmt: str = "%d.%m.%Y") -> str:
+    """Calendar day of a UTC instant in the display zone (see ``localtime``)."""
+    tz = ctx.get("display_tz") if ctx is not None else None
+    return format_local(value, tz, fmt)
+
+
 def _pretty_json_filter(value: Any) -> str:
     """Human-readable JSON for on-page display (audit-log diff detail).
 
@@ -255,6 +282,8 @@ def _new_environment(locale: str | None = None) -> Environment:
     env.filters["pretty_json"] = _pretty_json_filter
     env.filters["money"] = _money_filter
     env.filters["money_major"] = _money_major_filter
+    env.filters["localtime"] = _localtime_filter
+    env.filters["localdate"] = _localdate_filter
     # Filter is locale-bound — pass the requested locale through (default
     # to "en" identity catalog when locale is None at module-build time).
     env.filters["timeago"] = _timeago_filter_for_locale(locale or "en")
@@ -364,6 +393,8 @@ class Templates:
             "csrf_token": csrf_value,
             "csrf_input": csrf_input,
             "locale": locale,
+            # Display zone for the ``localtime`` / ``localdate`` filters.
+            "display_tz": request_tz(request),
             "feature_platform": self.settings.feature_platform,
             "has_platform_session": has_platform_session,
             "is_platform_admin": is_platform_admin,

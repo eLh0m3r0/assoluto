@@ -229,11 +229,10 @@ async def profile_export(
 ) -> Response:
     """GDPR Art. 20 portability — every piece of personal data we hold
     about this customer contact, as a single JSON download."""
-    from datetime import date
-
     from fastapi.responses import JSONResponse
 
     from app.services.gdpr_service import export_for_contact
+    from app.timezones import local_today, request_tz
 
     redirect = _ensure_contact_or_redirect(principal)
     if redirect is not None:
@@ -242,7 +241,9 @@ async def profile_export(
         await db.execute(select(CustomerContact).where(CustomerContact.id == principal.id))
     ).scalar_one()
     payload = await export_for_contact(db, contact=contact)
-    filename = f"assoluto-export-{contact.email}-{date.today().isoformat()}.json"
+    filename = (
+        f"assoluto-export-{contact.email}-{local_today(request_tz(request)).isoformat()}.json"
+    )
     return JSONResponse(
         payload,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},

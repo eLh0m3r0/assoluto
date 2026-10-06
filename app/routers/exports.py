@@ -45,6 +45,7 @@ from app.services.accounting_export import (
 )
 from app.services.customer_service import list_customers
 from app.services.order_service import UNASSIGNED, ActorRef
+from app.timezones import request_tz
 
 router = APIRouter(
     prefix="/app/admin/exports", tags=["exports"], dependencies=[Depends(verify_csrf)]
@@ -186,7 +187,9 @@ async def _export(
     filters = _filters_from_request(request, principal)
     actor = ActorRef(type=principal.type, id=principal.id, customer_id=principal.customer_id)
     try:
-        orders = await load_orders_for_export(db, actor=actor, filters=filters)
+        orders = await load_orders_for_export(
+            db, actor=actor, filters=filters, tz=request_tz(request)
+        )
     except TooManyOrders:
         return _back_to_page(
             request,
@@ -195,7 +198,8 @@ async def _export(
     if not orders:
         return _back_to_page(request, _t(request, "No orders match the selected filters."))
 
-    now = datetime.now()
+    # Local wall-clock time for the file name and the import note.
+    now = datetime.now(request_tz(request))
     # ``ico`` absent → tenant's billing IČO; present but blank → omit on
     # purpose (the program then imports into the open accounting unit).
     target_ico = (_tenant_ico(tenant) if ico is None else ico.strip()) or None

@@ -63,6 +63,13 @@ class Settings(BaseSettings):
     default_locale: str = Field(default="cs", alias="DEFAULT_LOCALE")
     # Comma-separated list of supported locale codes.
     supported_locales: str = Field(default="cs,en,de", alias="SUPPORTED_LOCALES")
+    # IANA time zone used to display timestamps when a tenant has not
+    # picked its own (``tenants.settings["timezone"]``) and on pages that
+    # have no tenant at all (platform admin, billing). Everything is
+    # stored in UTC; this only affects rendering, date filters and the
+    # "today" used for date stamps. Invalid names fall back to
+    # Europe/Prague. See ``app.timezones``.
+    default_timezone: str = Field(default="Europe/Prague", alias="DEFAULT_TIMEZONE")
 
     # --- Platform (hosted SaaS layer) ---------------------------------------
     # When enabled, the `app.platform` package registers extra routes for

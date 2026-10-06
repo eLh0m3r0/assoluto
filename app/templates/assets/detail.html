@@ -53,7 +53,7 @@
                     {% for m in movements %}
                         <tr>
                             <td class="px-4 py-2 text-slate-600 dark:text-slate-300">
-                                {{ m.occurred_at.strftime("%d.%m.%Y %H:%M") }}
+                                {{ m.occurred_at|localtime }}
                             </td>
                             <td class="px-4 py-2 text-slate-900 dark:text-slate-100">
                                 {% if m.type.value == "receive" %}{{ _('Receipt') }}

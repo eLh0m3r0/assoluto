@@ -41,6 +41,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.customer import Customer
 from app.models.enums import OrderStatus
 from app.models.order import Order, OrderStatusHistory
+from app.timezones import local_today
 
 #: Orders that count at all. A cancelled order was never going to be
 #: delivered; counting it made the report read "late" for work the
@@ -75,14 +76,18 @@ async def on_time_rate(
     *,
     date_from: date,
     date_to: date,
+    today: date | None = None,
 ) -> dict:
     """Aggregate on-time / late / pending counts for the window.
 
     Returns a dict with ``total`` (delivered in-window), ``on_time``,
     ``late``, ``pending`` (overdue undelivered), and ``rate`` (float in
     ``[0, 1]`` — 0.0 when there are no delivered orders in the window).
+
+    ``today`` is the tenant-local day (default: today in
+    ``DEFAULT_TIMEZONE``) — promised dates are local calendar days.
     """
-    today = date.today()
+    today = today or local_today(None)
 
     in_window = and_(
         Order.promised_delivery_at.is_not(None),
@@ -134,6 +139,7 @@ async def heatmap_data(
     db: AsyncSession,
     *,
     weeks: int = 12,
+    today: date | None = None,
 ) -> list[dict]:
     """Per-customer by-week aggregation for the heatmap view.
 
@@ -145,7 +151,7 @@ async def heatmap_data(
     The list is sorted by (customer_name, week_start) so the router can
     pivot it into a grid without re-sorting.
     """
-    today = date.today()
+    today = today or local_today(None)
     start_week = _iso_week_start(today) - timedelta(weeks=weeks - 1)
 
     # date_trunc('week', ...) returns the Monday at 00:00 — perfect for

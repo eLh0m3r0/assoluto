@@ -74,7 +74,7 @@
                                     {{ order.title }}
                                 </div>
                                 <div class="text-xs text-slate-500 dark:text-slate-400">
-                                    {{ order.created_at.strftime("%d.%m.%Y") }}
+                                    {{ order.created_at|localdate }}
                                     {% if order.promised_delivery_at %} · {{ _('Promised') }} {{ order.promised_delivery_at.strftime("%d.%m.%Y") }}{% endif %}
                                 </div>
                             </div>
@@ -154,7 +154,7 @@
                                     <div class="text-xs text-slate-500 dark:text-slate-400">
                                         {{ contact.email }} ·
                                         {% if contact.last_login_at %}
-                                            {{ _('Last sign-in') }} <time datetime="{{ contact.last_login_at.isoformat() }}" title="{{ contact.last_login_at.strftime('%d.%m.%Y %H:%M') }}">{{ contact.last_login_at|timeago }}</time>
+                                            {{ _('Last sign-in') }} <time datetime="{{ contact.last_login_at|localtime('iso') }}" title="{{ contact.last_login_at|localtime('%d.%m.%Y %H:%M %Z') }}">{{ contact.last_login_at|timeago }}</time>
                                         {% else %}
                                             {{ _('Never signed in') }}
                                         {% endif %}

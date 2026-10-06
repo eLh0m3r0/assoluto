@@ -44,6 +44,7 @@ from reportlab.platypus import (
 )
 
 from app.services.pdf_service import _register_fonts
+from app.timezones import default_tz, local_date
 
 if TYPE_CHECKING:  # pragma: no cover
     from app.config import Settings
@@ -265,8 +266,11 @@ def render_invoice_pdf(
     story.append(Paragraph(f"{L['doc_number']}: <b>{invoice_number}</b>", base))
 
     # Dates. DUZP for SaaS = paid_at (or issue_at if not paid yet).
-    issue_date = (invoice.paid_at or invoice.created_at or datetime.now(UTC)).date()
-    duzp = invoice.paid_at.date() if invoice.paid_at else issue_date
+    # Calendar days in the operator's zone (DEFAULT_TIMEZONE), not UTC:
+    # a payment at 00:30 Prague time on the 1st is taxed on the 1st.
+    zone = default_tz()
+    issue_date = local_date(invoice.paid_at or invoice.created_at or datetime.now(UTC), zone)
+    duzp = local_date(invoice.paid_at, zone) if invoice.paid_at else issue_date
     story.append(Paragraph(f"{L['issue_date']}: {issue_date.isoformat()}", base))
     story.append(Paragraph(f"{L['duzp']}: {duzp.isoformat()}", base))
     story.append(Spacer(1, 6))
@@ -340,7 +344,7 @@ def render_invoice_pdf(
 
     period_label = ""
     if invoice.paid_at:
-        period_label = f" ({invoice.paid_at.date().isoformat()})"
+        period_label = f" ({local_date(invoice.paid_at, zone).isoformat()})"
 
     item_rows: list[list[str]] = [
         [L["col_description"], L["col_base"], L["col_rate"], L["col_vat"], L["col_total"]],
@@ -407,7 +411,7 @@ def render_invoice_pdf(
 
     # ---------- Payment / legal note ----------
     paid_line = (
-        L["paid_via_stripe"].format(date=invoice.paid_at.date().isoformat())
+        L["paid_via_stripe"].format(date=local_date(invoice.paid_at, zone).isoformat())
         if invoice.paid_at
         else L["not_yet_paid"]
     )

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta, tzinfo
 from decimal import Decimal
 from uuid import UUID
 
@@ -24,6 +24,7 @@ from app.models.user import User
 from app.services import audit_service
 from app.services.audit_service import SYSTEM_ACTOR, ActorInfo
 from app.services.money import MONEY_MAX, AmountError, check_money, check_quantity, line_total
+from app.timezones import local_date, local_day_start, local_today, tenant_tz, tenant_tz_by_id
 
 
 class OrderError(Exception):
@@ -218,6 +219,7 @@ def build_orders_query(
     sort: str | None = None,
     today: date | None = None,
     stale_quote_days: int = DEFAULT_STALE_QUOTE_DAYS,
+    tz: tzinfo | None = None,
 ) -> Select:
     """Build the base `SELECT orders` query shared by list + CSV export.
 
@@ -225,9 +227,11 @@ def build_orders_query(
     customer contacts are constrained to their own customer's orders;
     the ``customer_id`` filter is applied only when the actor is staff.
 
-    ``date_from`` / ``date_to`` are **inclusive** bounds compared against
-    ``Order.created_at`` (truncated to a calendar date on the caller side
-    by passing a ``date`` value). A ``None`` bound means "unbounded".
+    ``date_from`` / ``date_to`` are **inclusive** calendar days in the
+    tenant's zone ``tz`` (default: ``DEFAULT_TIMEZONE``), compared against
+    ``Order.created_at`` as the UTC instants where those local days begin
+    and end — an order placed at 00:30 Prague time on 3 March belongs to
+    3 March, not to the 2 March of its UTC stamp. ``None`` = unbounded.
 
     ``assigned_to`` takes a user id, the :data:`UNASSIGNED` sentinel, or
     ``None`` for no filter. Staff-only, like ``customer_id`` — a contact
@@ -255,13 +259,11 @@ def build_orders_query(
     if status is not None:
         stmt = stmt.where(Order.status == status)
     if date_from is not None:
-        stmt = stmt.where(Order.created_at >= date_from)
+        stmt = stmt.where(Order.created_at >= local_day_start(date_from, tz))
     if date_to is not None:
         # Inclusive upper bound — match anything strictly before the
-        # start of the next day so full-day ranges behave as expected.
-        from datetime import timedelta
-
-        stmt = stmt.where(Order.created_at < date_to + timedelta(days=1))
+        # start of the next local day so full-day ranges behave.
+        stmt = stmt.where(Order.created_at < local_day_start(date_to + timedelta(days=1), tz))
     if q:
         pattern = f"%{q.strip()}%"
         stmt = stmt.where((Order.number.ilike(pattern)) | (Order.title.ilike(pattern)))
@@ -272,15 +274,19 @@ def build_orders_query(
             stmt = stmt.where(Order.assigned_to_user_id == assigned_to)
     if queue in WORK_QUEUES and actor.type != "contact":
         stmt = stmt.where(
-            queue_predicate(queue, today=today or date.today(), stale_quote_days=stale_quote_days)
+            queue_predicate(
+                queue, today=today or local_today(tz), stale_quote_days=stale_quote_days
+            )
         )
     return stmt
 
 
 def queue_predicate(queue: str, *, today: date, stale_quote_days: int = DEFAULT_STALE_QUOTE_DAYS):
-    """SQL predicate for one of :data:`WORK_QUEUES`."""
-    from datetime import timedelta
+    """SQL predicate for one of :data:`WORK_QUEUES`.
 
+    ``today`` is the tenant-local calendar day (``promised_delivery_at``
+    is a local date, so "overdue" must compare against a local today).
+    """
     if queue == "awaiting_quote":
         return Order.status == OrderStatus.SUBMITTED
     if queue == "no_promise":
@@ -305,10 +311,14 @@ def queue_predicate(queue: str, *, today: date, stale_quote_days: int = DEFAULT_
 
 
 def is_overdue(order: Order, today: date | None = None) -> bool:
-    """True when the promised date has passed and the order is not done."""
+    """True when the promised date has passed and the order is not done.
+
+    ``today`` should be the tenant-local day; default: today in
+    ``DEFAULT_TIMEZONE``.
+    """
     if order.promised_delivery_at is None or order.status in DONE_STATUSES:
         return False
-    return order.promised_delivery_at < (today or date.today())
+    return order.promised_delivery_at < (today or local_today(None))
 
 
 async def work_queue_counts(
@@ -317,8 +327,11 @@ async def work_queue_counts(
     today: date | None = None,
     stale_quote_days: int = DEFAULT_STALE_QUOTE_DAYS,
 ) -> dict[str, int]:
-    """Counts for every staff work queue, in one round trip (IDEA-1)."""
-    when = today or date.today()
+    """Counts for every staff work queue, in one round trip (IDEA-1).
+
+    ``today`` is the tenant-local day; default: today in ``DEFAULT_TIMEZONE``.
+    """
+    when = today or local_today(None)
     columns = [
         func.count()
         .filter(queue_predicate(name, today=when, stale_quote_days=stale_quote_days))
@@ -342,6 +355,7 @@ async def list_orders_for_principal(
     stale_quote_days: int = DEFAULT_STALE_QUOTE_DAYS,
     offset: int = 0,
     limit: int = 20,
+    tz: tzinfo | None = None,
 ) -> tuple[list[Order], int]:
     """Return (orders, total_count) visible to the actor, newest first.
 
@@ -357,6 +371,7 @@ async def list_orders_for_principal(
         queue=queue,
         sort=sort,
         stale_quote_days=stale_quote_days,
+        tz=tz,
     )
     # Count(*) over the same filter set — re-run build_orders_query as a
     # subquery so the WHERE clauses stay in sync automatically.
@@ -422,13 +437,16 @@ async def _next_order_number(db: AsyncSession, *, tenant_id: UUID) -> str:
     inserts, seed scripts, or data imports), we derive the next sequence
     from the actual MAX(number) in the orders table for this tenant/year.
     A FOR UPDATE lock on the tenant row serialises concurrent creations.
-    """
-    now = datetime.now(UTC)
-    year = now.year
-    prefix = f"{year}-"
 
+    The year is the tenant-local one: an order placed at 00:30 on
+    1 January in Prague is numbered with the new year, not the old one.
+    """
     # Lock the tenant row to serialise concurrent order creation.
-    await db.execute(select(Tenant).where(Tenant.id == tenant_id).with_for_update())
+    tenant = (
+        await db.execute(select(Tenant).where(Tenant.id == tenant_id).with_for_update())
+    ).scalar_one_or_none()
+    year = local_today(tenant_tz(tenant)).year
+    prefix = f"{year}-"
 
     # Find the highest existing number for this year.
     max_number = (
@@ -895,7 +913,7 @@ async def _backfill_milestones(
     ):
         _stamp_confirmation(order, actor=actor, now=now)
     if dst >= _PIPELINE_RANK[OrderStatus.DELIVERED] and order.delivered_at is None:
-        order.delivered_at = now.date()
+        order.delivered_at = local_date(now, await tenant_tz_by_id(db, order.tenant_id))
     if dst >= _PIPELINE_RANK[OrderStatus.CLOSED] and order.closed_at is None:
         order.closed_at = now
 
@@ -1058,7 +1076,8 @@ async def transition_order(
     if to_status == OrderStatus.DELIVERED and order.delivered_at is None:
         # Stamp only once — if staff toggle DELIVERED off and back on, we
         # keep the original delivery date so SLA numbers remain stable.
-        order.delivered_at = date.today()
+        # The calendar day is the tenant's, not the server's (LOGIC-16).
+        order.delivered_at = local_date(now, await tenant_tz_by_id(db, order.tenant_id))
     if to_status == OrderStatus.CLOSED:
         order.closed_at = now
     if to_status == OrderStatus.CANCELLED:
