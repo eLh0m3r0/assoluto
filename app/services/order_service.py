@@ -13,7 +13,7 @@ from datetime import UTC, date, datetime, timedelta, tzinfo
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import Select, and_, func, select
+from sqlalchemy import Select, and_, case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.customer import Customer
@@ -251,14 +251,20 @@ def build_orders_query(
 
     ``queue`` names one of the "needs action" work queues
     (:data:`WORK_QUEUES`, staff only); ``sort`` is ``"due"`` / ``"-due"``
-    for promised-date order (undated orders last) or ``None`` for
+    for promised-date order (unfinished orders first, then delivered /
+    closed / cancelled; undated orders last in each group) or ``None`` for
     newest first.
 
     Returns the base ``Select``; callers add ``.limit()`` / ``.offset()``.
     """
     if sort in ("due", "-due"):
         due = Order.promised_delivery_at
+        # Work still to do first, finished / cancelled orders last — a
+        # "by due date" list that opened on last summer's delivered orders
+        # answered nobody's question (demo review P3-10).
+        done_last = case((Order.status.in_(tuple(DONE_STATUSES)), 1), else_=0)
         stmt = select(Order).order_by(
+            done_last.asc(),
             (due.asc() if sort == "due" else due.desc()).nulls_last(),
             Order.created_at.desc(),
         )
