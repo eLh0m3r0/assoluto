@@ -3,6 +3,26 @@
 {% block title %}Assoluto — {{ _('Audit log') }} · {{ tenant.name }}{% endblock %}
 
 {% block content %}
+    {% from "_audit_labels.html" import activity_verbs, status_labels, entity_type_labels, actor_type_labels, field_labels %}
+    {# One value of a before/after diff, made readable: statuses by their
+       label, order ids as the order number (a link), booleans as words. #}
+    {% macro diff_value(key, value) -%}
+        {%- if value is none or value == '' -%}
+            <span class="text-slate-400 dark:text-slate-500">—</span>
+        {%- elif key.endswith('order_id') and order_numbers.get(value|string) -%}
+            <a href="/app/orders/{{ value }}" class="font-medium text-blue-600 hover:underline dark:text-blue-400">{{ order_numbers[value|string] }}</a>
+        {%- elif key == 'status' or key.endswith('_status') -%}
+            {{ status_labels.get(value, value) }}
+        {%- elif value is sameas true -%}
+            {{ _('yes') }}
+        {%- elif value is sameas false -%}
+            {{ _('no') }}
+        {%- elif value is mapping or (value is iterable and value is not string) -%}
+            <code class="text-[11px]">{{ value|tojson|truncate(60) }}</code>
+        {%- else -%}
+            {{ value|string|truncate(60) }}
+        {%- endif -%}
+    {%- endmacro %}
     <div class="mb-6">
         <a href="/app" class="text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">&larr; {{ _('Dashboard') }}</a>
         <h1 class="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ _('Audit log') }}</h1>
@@ -27,12 +47,12 @@
             {% endif %}
             {% if filters.entity_type %}
                 <span class="rounded-full bg-slate-100 px-2 py-0.5 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                    {{ _('Entity') }}: {{ filters.entity_type }}
+                    {{ _('Entity') }}: {{ entity_type_labels.get(filters.entity_type, filters.entity_type) }}
                 </span>
             {% endif %}
             {% if filters['from'] or filters.to %}
                 <span class="rounded-full bg-slate-100 px-2 py-0.5 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                    {{ filters['from'] or '…' }} → {{ filters.to or '…' }}
+                    {{ (date_from|localdate) if date_from else '…' }} → {{ (date_to|localdate) if date_to else '…' }}
                 </span>
             {% endif %}
             <a href="/app/admin/audit"
@@ -79,49 +99,72 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     {% for ev in events %}
+                        {% set before = (ev.diff.get('before') if ev.diff is mapping else none) or {} %}
+                        {% set after = (ev.diff.get('after') if ev.diff is mapping else none) or {} %}
+                        {% set keys = [] %}
+                        {% for k in (before.keys() | list) + (after.keys() | list) %}
+                            {% if k not in keys %}{{ keys.append(k) or '' }}{% endif %}
+                        {% endfor %}
                         <tr>
                             <td class="px-4 py-3 align-top whitespace-nowrap text-slate-600 dark:text-slate-300">
-                                {{ ev.occurred_at|localtime('%Y-%m-%d %H:%M %Z') }}
+                                <time datetime="{{ ev.occurred_at|localtime('iso') }}"
+                                      title="{{ ev.occurred_at|localtime('%d.%m.%Y %H:%M %Z') }}">{{ ev.occurred_at|localtime('%d.%m.%Y %H:%M') }}</time>
                             </td>
                             <td class="px-4 py-3 align-top text-slate-700 dark:text-slate-300">
-                                <div>{{ ev.actor_label }}</div>
-                                <div class="text-xs text-slate-400 dark:text-slate-500">{{ ev.actor_type }}</div>
+                                <div>{{ ev.actor_label if ev.actor_type != 'system' else _('System') }}</div>
+                                <div class="text-xs text-slate-400 dark:text-slate-500">{{ actor_type_labels.get(ev.actor_type, ev.actor_type) }}</div>
+                            </td>
+                            <td class="px-4 py-3 align-top text-slate-800 dark:text-slate-200">
+                                {% set verb = activity_verbs.get(ev.action) %}
+                                {% if verb %}
+                                    {{ verb[:1]|upper }}{{ verb[1:] }}
+                                {% else %}
+                                    <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-800 dark:bg-slate-800 dark:text-slate-200">{{ ev.action }}</code>
+                                {% endif %}
                             </td>
                             <td class="px-4 py-3 align-top">
-                                <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-800 dark:bg-slate-800 dark:text-slate-200">{{ ev.action }}</code>
-                            </td>
-                            <td class="px-4 py-3 align-top">
-                                <div class="text-slate-900 dark:text-slate-100">{{ ev.entity_label }}</div>
-                                <div class="text-xs text-slate-400 dark:text-slate-500">{{ ev.entity_type }}</div>
+                                <div class="text-slate-900 dark:text-slate-100">
+                                    {% if ev.entity_type == 'order' and ev.entity_id %}
+                                        <a href="/app/orders/{{ ev.entity_id }}" class="font-medium hover:underline">{{ ev.entity_label or order_numbers.get(ev.entity_id|string, '') }}</a>
+                                    {% else %}
+                                        {{ ev.entity_label }}
+                                    {% endif %}
+                                </div>
+                                <div class="text-xs text-slate-400 dark:text-slate-500">{{ entity_type_labels.get(ev.entity_type, ev.entity_type) }}</div>
                             </td>
                             <td class="px-4 py-3 align-top text-xs text-slate-600 dark:text-slate-400">
-                                {% if ev.diff %}
-                                    <details>
-                                        <summary class="cursor-pointer text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
-                                            {% set after = ev.diff.get('after') or {} %}
-                                            {% set before = ev.diff.get('before') or {} %}
-                                            {% if after or before %}
-                                                {% set keys = (after.keys() | list) + (before.keys() | list) %}
-                                                {% set summary_key = keys[0] if keys else '' %}
-                                                {% if summary_key %}
-                                                    {# .get(key, '—') only covers a MISSING key — a key
-                                                       present with value None rendered literal "None"
-                                                       (audit F-UX-A-001). Check `is none` explicitly. #}
-                                                    {% set _b = before.get(summary_key) %}
-                                                    {% set _a = after.get(summary_key) %}
-                                                    {{ summary_key }}: {{ ('—' if _b is none else _b)|string|truncate(40) }}
-                                                    → {{ ('—' if _a is none else _a)|string|truncate(40) }}
-                                                {% else %}
-                                                    {{ _('Show details') }}
-                                                {% endif %}
-                                            {% else %}
-                                                {{ _('Show details') }}
-                                            {% endif %}
-                                        </summary>
-                                        <pre class="mt-2 whitespace-pre-wrap break-words rounded bg-slate-50 p-2 text-[11px] leading-snug text-slate-700 dark:bg-slate-800 dark:text-slate-300">{{ ev.diff|pretty_json }}</pre>
-                                    </details>
-                                {% else %}
+                                {% if keys %}
+                                    {# Readable diff: field — before → after. #}
+                                    <dl class="space-y-0.5" data-audit-diff>
+                                        {% for k in keys[:4] %}
+                                            <div class="flex flex-wrap gap-x-1">
+                                                <dt class="text-slate-500 dark:text-slate-400">{{ field_labels.get(k, k) }}:</dt>
+                                                <dd class="text-slate-700 dark:text-slate-300">
+                                                    {% if k in before and k in after %}
+                                                        {{ diff_value(k, before[k]) }} <span aria-hidden="true">→</span> {{ diff_value(k, after[k]) }}
+                                                    {% elif k in after %}
+                                                        {{ diff_value(k, after[k]) }}
+                                                    {% else %}
+                                                        {{ diff_value(k, before[k]) }} <span aria-hidden="true">→</span> <span class="text-slate-400 dark:text-slate-500">—</span>
+                                                    {% endif %}
+                                                </dd>
+                                            </div>
+                                        {% endfor %}
+                                        {% if keys|length > 4 %}
+                                            <div class="text-slate-400 dark:text-slate-500">+ {{ keys|length - 4 }}</div>
+                                        {% endif %}
+                                    </dl>
+                                {% elif not ev.diff %}
                                     <span class="text-slate-400 dark:text-slate-500">—</span>
+                                {% endif %}
+                                {% if show_technical and ev.diff %}
+                                    <details class="mt-1">
+                                        <summary class="cursor-pointer text-slate-400 hover:text-slate-900 dark:text-slate-500 dark:hover:text-slate-100">
+                                            {{ _('Technical details') }}
+                                        </summary>
+                                        <div class="mt-1 text-[11px] text-slate-500 dark:text-slate-400"><code>{{ ev.action }}</code> · <code>{{ ev.entity_type }}</code>{% if ev.entity_id %} · <code>{{ ev.entity_id }}</code>{% endif %}</div>
+                                        <pre class="mt-1 whitespace-pre-wrap break-words rounded bg-slate-50 p-2 text-[11px] leading-snug text-slate-700 dark:bg-slate-800 dark:text-slate-300">{{ ev.diff|pretty_json }}</pre>
+                                    </details>
                                 {% endif %}
                             </td>
                         </tr>

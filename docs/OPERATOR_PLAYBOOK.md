@@ -294,6 +294,20 @@ Fields consumed by the invoice PDF under `tenants.settings`:
 No schema change needed — `settings` is free-form JSONB already used
 by `default_locale`.
 
+### Price note on the tenant's own order PDFs
+
+The order PDFs a tenant hands to *its* clients
+(`/app/orders/{id}.pdf`) say nothing about VAT by default: the portal
+cannot know whether the supplier is a VAT payer or whether its prices
+are net or gross, and a guess would be a false statement on a commercial
+document. The tenant admin writes the sentence that is true for them in
+**Administration → Portal settings → "Price note on order PDFs"** (e.g.
+"Ceny jsou uvedeny bez DPH." or "Nejsme plátci DPH."). It is printed
+under the totals of every order PDF; empty = nothing printed (the
+default). Stored as `tenants.settings.price_note` (max 500 characters,
+up to 4 lines); changes are audited as `tenant.settings_updated`.
+Nothing for the operator to configure.
+
 ---
 
 ## 5. Managing plans after launch
