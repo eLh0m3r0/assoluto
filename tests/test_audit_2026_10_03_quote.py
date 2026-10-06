@@ -353,5 +353,6 @@ async def test_item_delete_asks_for_confirmation(tenant_client, owner_engine, de
 
 
 def test_pdf_money_rounds_half_up() -> None:
-    assert format_money(Decimal("0.125")) == "0.13"
+    assert format_money(Decimal("0.125"), locale="en") == "0.13"
+    assert format_money(Decimal("0.125"), "CZK") == "0,13\u00a0Kč"
     assert format_money(Decimal("NaN")) == ""

@@ -43,7 +43,7 @@ from reportlab.platypus import (
     TableStyle,
 )
 
-from app.services.pdf_service import _register_fonts
+from app.services.pdf_service import _register_fonts, format_money
 
 if TYPE_CHECKING:  # pragma: no cover
     from app.config import Settings
@@ -78,15 +78,6 @@ def _esc(value: object) -> str:
 # engine open a socket or read a local file.
 reportlab.rl_config.trustedSchemes = []
 reportlab.rl_config.trustedHosts = []
-
-
-def _dot_amount(amount: Decimal) -> str:
-    """Format an amount with Czech convention: comma decimal + space
-    thousand-separator (``1 234,56``)."""
-    q = amount.quantize(Decimal("0.01"))
-    whole, _, frac = f"{q:.2f}".partition(".")
-    whole_grouped = f"{int(whole):,}".replace(",", " ")  # noqa: RUF001
-    return f"{whole_grouped},{frac}"
 
 
 # Per-locale label set for the invoice PDF. CS is the source of truth
@@ -227,11 +218,15 @@ def render_invoice_pdf(
     Dodavatel/Lieferant, etc.). Defaults to the tenant's
     ``settings["default_locale"]`` and finally to ``"cs"``. IČO, DIČ,
     DUZP and the document framing remain Czech regardless of locale —
-    they are Czech regulatory artifacts, not generic words.
+    they are Czech regulatory artifacts, not generic words. Amounts are
+    formatted for the same locale (``1 490,00 Kč`` / ``CZK 1,490.00``).
     """
     if locale is None:
         locale = (tenant.settings or {}).get("default_locale") or "cs"
     L = _labels_for(locale)
+    # Amounts follow the same language as the labels (E4), so a locale
+    # without a label set falls back to Czech formatting too.
+    money_locale = locale if locale in _INVOICE_LABELS else "cs"
     regular, bold = _register_fonts()
     buf = BytesIO()
     doc = SimpleDocTemplate(
@@ -346,10 +341,10 @@ def render_invoice_pdf(
         [L["col_description"], L["col_base"], L["col_rate"], L["col_vat"], L["col_total"]],
         [
             f"{L['subscription_line']}{period_label}",
-            f"{_dot_amount(base_amount)} {currency}",
+            format_money(base_amount, currency, locale=money_locale),
             f"{int(CZ_VAT_STANDARD * 100)}%" if supplier_is_vat else "—",
-            f"{_dot_amount(vat_amount)} {currency}" if supplier_is_vat else "—",
-            f"{_dot_amount(gross)} {currency}",
+            format_money(vat_amount, currency, locale=money_locale) if supplier_is_vat else "—",
+            format_money(gross, currency, locale=money_locale),
         ],
     ]
     items_table = Table(
@@ -358,6 +353,10 @@ def render_invoice_pdf(
         style=TableStyle(
             [
                 ("FONTNAME", (0, 0), (-1, 0), bold),
+                # Plain-string cells default to Helvetica, which has no
+                # "ř/ě/č": the line read "P■edplatné … m■síc" and, with
+                # locale money, "1 490,00 K■".
+                ("FONTNAME", (0, 1), (-1, -1), regular),
                 ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f1f5f9")),
                 ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#334155")),
                 ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
@@ -376,14 +375,18 @@ def render_invoice_pdf(
     # ---------- Summary ----------
     summary_rows = []
     if supplier_is_vat:
-        summary_rows.append([L["vat_base"], f"{_dot_amount(base_amount)} {currency}"])
+        summary_rows.append(
+            [L["vat_base"], format_money(base_amount, currency, locale=money_locale)]
+        )
         summary_rows.append(
             [
                 f"{L['vat_label']} {int(CZ_VAT_STANDARD * 100)}%",
-                f"{_dot_amount(vat_amount)} {currency}",
+                format_money(vat_amount, currency, locale=money_locale),
             ]
         )
-    summary_rows.append([f"<b>{L['total_due']}</b>", f"<b>{_dot_amount(gross)} {currency}</b>"])
+    summary_rows.append(
+        [f"<b>{L['total_due']}</b>", f"<b>{format_money(gross, currency, locale=money_locale)}</b>"]
+    )
     summary_data = [
         [Paragraph(label, base), Paragraph(value, base)] for label, value in summary_rows
     ]

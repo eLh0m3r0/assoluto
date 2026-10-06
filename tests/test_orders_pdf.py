@@ -35,8 +35,10 @@ from app.services.pdf_service import format_money, render_order_pdf
 
 def test_format_money_handles_none_and_currency() -> None:
     assert format_money(None) == ""
-    assert format_money(Decimal("1234.5")) == "1234.50"
-    assert format_money(Decimal("1234.5"), "CZK") == "1234.50 CZK"
+    # Default locale is Czech (the document language of record); the
+    # gaps are U+00A0. Per-locale cases: tests/test_pdf_money_locale.py.
+    assert format_money(Decimal("1234.5")) == "1\u00a0234,50"
+    assert format_money(Decimal("1234.5"), "CZK") == "1\u00a0234,50\u00a0Kč"
 
 
 def test_render_order_pdf_returns_valid_pdf_bytes() -> None:

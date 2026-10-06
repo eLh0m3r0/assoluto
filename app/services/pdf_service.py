@@ -20,6 +20,7 @@ document still generates. Don't rely on that path for real users.
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, datetime
 from decimal import ROUND_HALF_UP, Decimal
 from io import BytesIO
@@ -28,6 +29,8 @@ from typing import TYPE_CHECKING
 from xml.sax.saxutils import escape as _xml_escape
 
 import reportlab.rl_config
+from babel import Locale, UnknownLocaleError
+from babel.numbers import format_currency, format_decimal
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -136,24 +139,62 @@ _STATUS_LABELS: dict[OrderStatus, str] = {
 }
 
 
-def format_money(value: Decimal | float | int | None, currency: str | None = None) -> str:
-    """Format a monetary value with 2 decimals and optional currency suffix.
+# CLDR "currencySpacing": an alphabetic currency code that touches a
+# digit gets a no-break space between them ("CZK 12,345.50"). Babel does
+# not implement that rule and prints "CZK12,345.50" for ``en``; symbols
+# such as ``$`` / ``€`` are left alone, as CLDR prescribes.
+_CURRENCY_SPACING = re.compile(r"(?<=[^\W\d_])(?=\d)|(?<=\d)(?=[^\W\d_])")
+_NBSP = "\u00a0"
 
-    Returns an empty string for ``None``. Used by ``render_order_pdf`` for
-    every price cell and total; also handy for other PDF variants that may
-    share this module later.
+
+def _babel_locale(locale: str | None) -> Locale:
+    """Parse ``locale`` for number formatting, falling back to Czech."""
+    try:
+        return Locale.parse((locale or "cs").replace("-", "_"))
+    except (UnknownLocaleError, ValueError, TypeError):
+        return Locale.parse("cs")
+
+
+def format_money(
+    value: Decimal | float | int | None,
+    currency: str | None = None,
+    *,
+    locale: str | None = "cs",
+) -> str:
+    """Format a monetary value per ``locale`` with exactly 2 decimals.
+
+    ``cs`` → ``12 345,50 Kč``, ``de`` → ``12.345,50 CZK``,
+    ``en`` → ``CZK 12,345.50`` (the gaps are U+00A0 no-break spaces, so
+    an amount never wraps inside a narrow PDF cell; DejaVuSans has the
+    glyph). Without ``currency`` only the number is printed. Unknown
+    locales fall back to Czech, the document's legal language.
+
+    Returns an empty string for ``None`` and non-finite values. Used by
+    ``render_order_pdf`` for every price cell and total, and by
+    ``invoice_pdf_service``.
     """
     if value is None:
         return ""
     dec = Decimal(value)
     if not dec.is_finite():
         return ""
-    # Half-up, matching the stored line totals (LOGIC-17). An f-string
-    # ``:.2f`` rounds half-even: 0.125 printed as 0.12.
-    amount = f"{dec.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP):.2f}"
-    if currency:
-        return f"{amount} {currency}"
-    return amount
+    # Half-up, matching the stored line totals (LOGIC-17). Babel (like an
+    # f-string ``:.2f``) rounds half-even: 0.125 would print as 0.12. We
+    # round first, then let Babel only lay out an already-exact value.
+    amount = dec.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    loc = _babel_locale(locale)
+    if not currency:
+        return format_decimal(amount, format="#,##0.00", locale=loc)
+    text = format_currency(
+        amount,
+        currency.upper(),
+        locale=loc,
+        # Always two decimals, whatever CLDR says about the currency's
+        # minor unit (the order columns are NUMERIC(…, 2)).
+        currency_digits=False,
+        decimal_quantization=False,
+    )
+    return _CURRENCY_SPACING.sub(_NBSP, text)
 
 
 def _format_qty(value: Decimal | float | int | None) -> str:
@@ -344,14 +385,18 @@ def render_order_pdf(
                 Paragraph(_esc(sku), normal),
                 Paragraph(_esc(name), normal),
                 Paragraph(_esc(qty_str), normal),
-                Paragraph(format_money(item.unit_price, order.currency), normal),
-                Paragraph(format_money(line_total, order.currency), normal),
+                Paragraph(format_money(item.unit_price, order.currency, locale=locale), normal),
+                Paragraph(format_money(line_total, order.currency, locale=locale), normal),
             ]
         )
 
     items_table = Table(
         data,
-        colWidths=[25 * mm, 75 * mm, 25 * mm, 25 * mm, 25 * mm],
+        # Money columns are sized so a locale-formatted amount up to
+        # 99 999 999,99 fits on one line: the no-break spaces keep it from
+        # wrapping between digit groups, so a too-narrow cell would chop
+        # the number itself in two.
+        colWidths=[22 * mm, 50 * mm, 25 * mm, 39 * mm, 39 * mm],
         repeatRows=1,
     )
     items_table.setStyle(
@@ -378,7 +423,7 @@ def render_order_pdf(
     totals_rows = [
         [
             Paragraph(f"<b>{_t(locale, 'Subtotal')}</b>", th),
-            Paragraph(format_money(total_value, order.currency), th),
+            Paragraph(format_money(total_value, order.currency, locale=locale), th),
         ],
     ]
     # The agreed amount, once there is one (LOGIC-2/17). It is the
@@ -397,10 +442,10 @@ def render_order_pdf(
                     f"({_esc(_format_datetime(confirmed_at))})",
                     th,
                 ),
-                Paragraph(format_money(confirmed_total, order.currency), th),
+                Paragraph(format_money(confirmed_total, order.currency, locale=locale), th),
             ]
         )
-    totals_table = Table(totals_rows, colWidths=[140 * mm, 35 * mm])
+    totals_table = Table(totals_rows, colWidths=[130 * mm, 45 * mm])
     totals_table.setStyle(
         TableStyle(
             [
