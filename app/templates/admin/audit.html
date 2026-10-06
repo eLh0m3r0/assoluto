@@ -4,6 +4,8 @@
 
 {% block content %}
     {% from "_audit_labels.html" import activity_verbs, status_labels, entity_type_labels, actor_type_labels, field_labels %}
+    {# Diff keys never shown above the toggle (see the row's comment). #}
+    {% set hidden_diff_keys = ['content_type', 'is_internal'] %}
     {# One value of a before/after diff, made readable: statuses by their
        label, order ids as the order number (a link), booleans as words. #}
     {% macro diff_value(key, value) -%}
@@ -11,6 +13,8 @@
             <span class="text-slate-400 dark:text-slate-500">—</span>
         {%- elif key.endswith('order_id') and order_numbers.get(value|string) -%}
             <a href="/app/orders/{{ value }}" class="font-medium text-blue-600 hover:underline dark:text-blue-400">{{ order_numbers[value|string] }}</a>
+        {%- elif key == 'size_bytes' -%}
+            {{ value|filesize }}
         {%- elif key == 'status' or key.endswith('_status') -%}
             {{ status_labels.get(value, value) }}
         {%- elif value is sameas true -%}
@@ -101,9 +105,17 @@
                     {% for ev in events %}
                         {% set before = (ev.diff.get('before') if ev.diff is mapping else none) or {} %}
                         {% set after = (ev.diff.get('after') if ev.diff is mapping else none) or {} %}
+                        {# Human fields only (P2-5): ids are noise unless they
+                           are an order we can name and link; ``body`` and
+                           ``is_internal`` render as one comment line; the
+                           MIME type repeats the filename. Everything stays
+                           raw behind "Technical details". #}
                         {% set keys = [] %}
                         {% for k in (before.keys() | list) + (after.keys() | list) %}
-                            {% if k not in keys %}{{ keys.append(k) or '' }}{% endif %}
+                            {% set v = after.get(k) if k in after else before.get(k) %}
+                            {% set is_id = k == 'id' or k.endswith('_id') %}
+                            {% set named_order = k.endswith('order_id') and order_numbers.get(v|string) %}
+                            {% if k not in keys and k not in hidden_diff_keys and (not is_id or named_order) %}{{ keys.append(k) or '' }}{% endif %}
                         {% endfor %}
                         <tr>
                             <td class="px-4 py-3 align-top whitespace-nowrap text-slate-600 dark:text-slate-300">
@@ -140,7 +152,14 @@
                                             <div class="flex flex-wrap gap-x-1">
                                                 <dt class="text-slate-500 dark:text-slate-400">{{ field_labels.get(k, k) }}:</dt>
                                                 <dd class="text-slate-700 dark:text-slate-300">
-                                                    {% if k in before and k in after %}
+                                                    {% if k == 'body' %}
+                                                        {# A comment: an excerpt, flagged when it was a staff-only note. #}
+                                                        {% set text = after.get('body') if 'body' in after else before.get('body') %}
+                                                        <span data-audit-comment>“{{ (text or '')|string|truncate(80, false, '…') }}”</span>
+                                                        {% if (after.get('is_internal') if 'is_internal' in after else before.get('is_internal')) is sameas true %}
+                                                            <span class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-800 dark:bg-amber-900/40 dark:text-amber-200" data-audit-internal>{{ _('internal') }}</span>
+                                                        {% endif %}
+                                                    {% elif k in before and k in after %}
                                                         {{ diff_value(k, before[k]) }} <span aria-hidden="true">→</span> {{ diff_value(k, after[k]) }}
                                                     {% elif k in after %}
                                                         {{ diff_value(k, after[k]) }}

@@ -51,8 +51,15 @@
                     {{ summary.rate|percent }}
                 {% endif %}
             </div>
-            <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                {{ _('of orders due in this period met the promised date') }}
+            {# One whole sentence with the number in it (N6): a caption
+               after the big figure forced the verb to agree with the
+               percentage ("zakázek … dodržel"), which Czech cannot do. #}
+            <div class="mt-1 text-xs text-slate-500 dark:text-slate-400" data-sla-sentence>
+                {% if summary.total == 0 %}
+                    {{ _('No orders') }}
+                {% else %}
+                    {{ _('%(pct)s of orders due in this period met the promised date', pct=summary.rate|percent) }}
+                {% endif %}
             </div>
         </div>
 

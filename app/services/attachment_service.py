@@ -181,6 +181,26 @@ async def get_attachment(db: AsyncSession, attachment_id: UUID) -> OrderAttachme
     ).scalar_one_or_none()
 
 
+async def keys_still_unreferenced(db: AsyncSession, keys: list[str]) -> list[str]:
+    """``keys`` minus those another attachment row still stores or thumbnails.
+
+    Call after deleting a row and before removing its objects: a file can
+    back more than one row (the public demo's re-armed quote reuses the
+    seed's drawings), and deleting it would break the other one.
+    """
+    if not keys:
+        return []
+    used = (
+        await db.execute(
+            select(OrderAttachment.storage_key, OrderAttachment.thumbnail_key).where(
+                (OrderAttachment.storage_key.in_(keys)) | (OrderAttachment.thumbnail_key.in_(keys))
+            )
+        )
+    ).all()
+    referenced = {k for row in used for k in row if k}
+    return [k for k in keys if k not in referenced]
+
+
 async def delete_attachment(
     db: AsyncSession,
     attachment: OrderAttachment,

@@ -229,3 +229,89 @@ async def test_price_note_setting_round_trip_and_pdf_route(
             await session.execute(select(Tenant).where(Tenant.id == demo_tenant.id))
         ).scalar_one()
         assert "price_note" not in tenant.settings
+
+
+# ------------------------------------------- round 2: SKU, quantity, header
+
+
+def _catalogue_items(order: Order, tenant: Tenant) -> tuple[list[OrderItem], dict]:
+    """One line per demo-seed SKU, plus a decimal m2 line."""
+    from app.demo.seed import PRODUCTS
+
+    items, skus = [], {}
+    for pos, (sku, (name, unit, price, _client)) in enumerate(PRODUCTS.items()):
+        pid = uuid4()
+        skus[pid] = sku
+        items.append(
+            OrderItem(
+                id=uuid4(),
+                tenant_id=tenant.id,
+                order_id=order.id,
+                position=pos,
+                product_id=pid,
+                description=name,
+                quantity=Decimal("2"),
+                unit=unit,
+                unit_price=Decimal(price),
+                line_total=Decimal(price) * 2,
+            )
+        )
+    items.append(
+        OrderItem(
+            id=uuid4(),
+            tenant_id=tenant.id,
+            order_id=order.id,
+            position=len(items),
+            description="Lakování",
+            quantity=Decimal("37.500"),
+            unit="m2",
+            unit_price=Decimal("260"),
+            line_total=Decimal("9750.00"),
+        )
+    )
+    return items, skus
+
+
+@needs_pdftotext
+def test_every_seed_sku_prints_whole() -> None:
+    """P2-3: "LIS-MATIC / E" — the code column split SKUs mid-word."""
+    from app.demo.seed import PRODUCTS
+
+    order, _items, customer, tenant, _ = _fixture()
+    items, skus = _catalogue_items(order, tenant)
+    text = _text(render_order_pdf(order, items, customer, tenant, locale="cs", skus=skus))
+    first_cells = [ln.split()[0] for ln in text.splitlines() if ln.strip()]
+    for sku in PRODUCTS:
+        assert sku in first_cells, sku
+
+
+def test_a_long_sku_wraps_only_at_hyphens() -> None:
+    from reportlab.lib.units import mm
+
+    from app.services.pdf_service import _register_fonts, _sku_lines
+
+    font, _bold = _register_fonts()
+    lines = _sku_lines("VERY-LONG-SKU-CODE-12345", font, 15 * mm)
+    assert "".join(lines) == "VERY-LONG-SKU-CODE-12345"
+    assert all(line.endswith("-") for line in lines[:-1])
+    assert len(lines) > 1
+    assert _sku_lines("KONTROLA", font, 15 * mm) == ["KONTROLA"]
+
+
+@needs_pdftotext
+@pytest.mark.parametrize(
+    ("locale", "qty", "header"),
+    [("cs", "37,5 m²", "Cena/j."), ("en", "37.5 m²", "Price per unit"), ("de", "37,5 m²", None)],
+)
+def test_quantities_and_price_header_match_the_ui(locale: str, qty: str, header) -> None:
+    """P2-3: quantities in the document's number format with m² like the
+    UI, and the price column is per unit, not "Cena/ks"."""
+    order, _items, customer, tenant, _ = _fixture()
+    items, skus = _catalogue_items(order, tenant)
+    text = _text(render_order_pdf(order, items, customer, tenant, locale=locale, skus=skus))
+    flat = text.replace(chr(0xA0), " ")
+    assert qty in flat
+    assert "37.500" not in flat and "m2" not in flat
+    assert "Cena/ks" not in flat and "Unit price" not in flat
+    if header:
+        assert header in flat

@@ -462,13 +462,21 @@ anyone can enter from the website without signing up**. The seed creates
 **"CNC Dílna Vzorová s.r.o."** with 3 staff users, 6 fictional clients
 (Strojírna Ukázková, Kovovýroba Vzorová, …) and 11 contacts (some only
 invited, so the "last sign-in" column and the activation nudges have
-something to show), a 21-item priced catalogue in CZK, 27 orders covering
-every status (line items, comments incl. one internal note, requested +
-promised dates, one order in production past its promised date, quotes
-waiting for the client), client-owned material with receive / consume /
-return movements, and **three fictional drawings** (PDF rendered at seed
-time with a large "UKÁZKA / SAMPLE" watermark, thumbnails included)
-attached to orders.
+something to show), a priced catalogue in CZK, 29 orders covering
+every status (line items, comments incl. internal notes, requested +
+promised dates, one order in production past its promised date, three
+quotes waiting for the customer persona), client-owned material with
+receive / consume / return movements, and fictional drawings (PDF
+rendered at seed time with a large "UKÁZKA / SAMPLE" watermark,
+thumbnails included) attached to most orders. The order PDFs carry the
+price note "Ceny jsou uvedeny bez DPH." (`tenants.settings.price_note`).
+
+The public demo is shared, so its customer persona must always have a
+quote to confirm: when a visitor enters as the customer and every one of
+the persona's quotes has been confirmed, `POST /demo/enter` re-creates
+one from the seed's templates (flagship first) with a fresh order number
+and the already stored drawings, then lands on it. Only the public demo
+tenant does this; the nightly reset removes the extra orders.
 
 All names are fictional, every email ends in `.example.com`, no IČO/DIČ
 is set. Prices are illustrative.

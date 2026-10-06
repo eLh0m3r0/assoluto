@@ -201,14 +201,74 @@ def format_money(
     return _CURRENCY_SPACING.sub(_NBSP, text)
 
 
-def _format_qty(value: Decimal | float | int | None) -> str:
-    """Format a quantity. Strips trailing zeros so ``1.000`` → ``1``."""
+def _format_qty(value: Decimal | float | int | None, locale: str | None = "cs") -> str:
+    """A quantity in the document's number format, like the UI's ``qty``
+    filter: no trailing zeros, the locale's separators (``cs`` →
+    ``37,5`` / ``1 200``, ``en`` → ``37.5`` / ``1,200``)."""
     if value is None:
         return ""
-    d = Decimal(value).normalize()
-    # ``normalize()`` returns scientific form for large ints; quantize back.
-    as_str = format(d, "f")
-    return as_str
+    dec = Decimal(value)
+    if not dec.is_finite():
+        return ""
+    # Quantities are NUMERIC(12, 3): three decimals never round anything.
+    text = format_decimal(dec, format="#,##0.###", locale=_babel_locale(locale))
+    return text.replace(chr(0x202F), _NBSP)  # a narrow NBSP from CLDR -> NBSP
+
+
+#: Same prettifying as the UI's ``_units.html`` macro: stored units stay
+#: as typed ("m2"), only the rendering gets the superscript.
+_PRETTY_UNITS = {
+    "m2": "m²",
+    "m3": "m³",
+    "cm2": "cm²",
+    "cm3": "cm³",
+    "mm2": "mm²",
+    "mm3": "mm³",
+    "dm2": "dm²",
+    "dm3": "dm³",
+    "km2": "km²",
+}
+
+
+def pretty_unit(value: str | None) -> str:
+    """``m2`` → ``m²`` (case-insensitive); anything else unchanged."""
+    raw = (value or "").strip()
+    return _PRETTY_UNITS.get(raw.lower(), raw)
+
+
+#: The SKU cell's font size: a catalogue code is a reference, not content.
+_SKU_FONT_SIZE = 8
+
+
+def _sku_lines(sku: str, font: str, width: float) -> list[str]:
+    """``sku`` split into lines that fit ``width`` — only after a hyphen.
+
+    ReportLab breaks a long word anywhere ("LIS-MATIC / E", demo review
+    P2-3); a code must stay readable, so it wraps at its own hyphens and
+    a segment without one is never split.
+    """
+    parts = re.findall(r"[^-]+-?|-", sku)
+    lines: list[str] = []
+    for part in parts:
+        if lines and pdfmetrics.stringWidth(lines[-1] + part, font, _SKU_FONT_SIZE) <= width:
+            lines[-1] += part
+        else:
+            lines.append(part)
+    return lines or [""]
+
+
+def _sku_paragraph(sku: str, style: ParagraphStyle, width: float) -> Paragraph:
+    """The SKU cell: hyphen-wrapped lines, the font shrunk (not the code
+    split) when a hyphen-free segment is still wider than the cell."""
+    lines = _sku_lines(sku, style.fontName, width)
+    widest = max(pdfmetrics.stringWidth(line, style.fontName, _SKU_FONT_SIZE) for line in lines)
+    size = float(_SKU_FONT_SIZE)
+    if widest > width:
+        size = max(5.5, size * width / widest)
+    cell_style = ParagraphStyle(
+        "sku", parent=style, fontSize=size, leading=size * 1.25, splitLongWords=0
+    )
+    return Paragraph("<br/>".join(_esc(line) for line in lines), cell_style)
 
 
 #: Same day-first formats as the web UI (``localdate`` / ``localtime``
@@ -368,11 +428,22 @@ def render_order_pdf(
     # ------------------------------------------------ Items table
     story.append(Paragraph(_t(locale, "Items"), h2))
 
+    # Money columns are sized so a locale-formatted amount up to
+    # 99 999 999,99 fits on one line: the no-break spaces keep it from
+    # wrapping between digit groups, so a too-narrow cell would chop the
+    # number itself in two. The SKU column fits the usual job-shop code
+    # ("MAT-1.4301-2") on one line at 8 pt and wraps longer ones only at
+    # a hyphen (demo review P2-3).
+    col_widths = [27 * mm, 45 * mm, 25 * mm, 39 * mm, 39 * mm]
+    cell_padding = 6  # ReportLab's default LEFT/RIGHTPADDING
+    sku_width = col_widths[0] - 2 * cell_padding
     header = [
         Paragraph(_t(locale, "SKU"), th),
         Paragraph(_t(locale, "Name"), th),
         Paragraph(_t(locale, "Quantity"), th),
-        Paragraph(_t(locale, "Unit price"), th),
+        # "Cena/j." — the price is per the line's unit (ks, m, kg, hod),
+        # not "per piece" (P3-6, as in the web UI).
+        Paragraph(_t(locale, "Price per unit"), th),
         Paragraph(_t(locale, "Line total"), th),
     ]
     data: list[list] = [header]
@@ -396,10 +467,10 @@ def render_order_pdf(
         if sku and name.startswith(f"{sku} — "):
             name = name[len(sku) + 3 :]
 
-        qty_str = f"{_format_qty(item.quantity)} {item.unit or ''}".strip()
+        qty_str = f"{_format_qty(item.quantity, locale)} {pretty_unit(item.unit)}".strip()
         data.append(
             [
-                Paragraph(_esc(sku), normal),
+                _sku_paragraph(sku, normal, sku_width),
                 Paragraph(_esc(name), normal),
                 Paragraph(_esc(qty_str), normal),
                 Paragraph(format_money(item.unit_price, order.currency, locale=locale), normal),
@@ -407,15 +478,7 @@ def render_order_pdf(
             ]
         )
 
-    items_table = Table(
-        data,
-        # Money columns are sized so a locale-formatted amount up to
-        # 99 999 999,99 fits on one line: the no-break spaces keep it from
-        # wrapping between digit groups, so a too-narrow cell would chop
-        # the number itself in two.
-        colWidths=[22 * mm, 50 * mm, 25 * mm, 39 * mm, 39 * mm],
-        repeatRows=1,
-    )
+    items_table = Table(data, colWidths=col_widths, repeatRows=1)
     items_table.setStyle(
         TableStyle(
             [
