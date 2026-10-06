@@ -14,6 +14,7 @@ times; the rest seed a tenant and check what a visitor actually sees.
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, date, datetime, time, timedelta
 from decimal import Decimal
 from uuid import uuid4
@@ -125,10 +126,20 @@ def test_specs_tell_a_consistent_story() -> None:
         assert not any(w in o.title.lower() for w in ("zrušeno", "rozpracováno", "minulá dávka"))
         if o.status == OrderStatus.CANCELLED:
             assert o.steps[-1].note, o.title
-            assert any(
-                isinstance(e, demo_seed.Comment) and e.anchor == OrderStatus.CANCELLED
-                for e in o.timeline
-            ), o.title
+            # N3: the client asks for the cancellation *before* the shop
+            # carries it out — never a request posted after the fact.
+            cancel_at = o.timeline.index(o.steps[-1])
+            asked = [
+                e
+                for e in o.timeline[:cancel_at]
+                if isinstance(e, demo_seed.Comment) and e.by in contact_keys[o.client]
+            ]
+            assert asked and "storn" in asked[-1].body, o.title
+            assert not [
+                e
+                for e in o.timeline[cancel_at:]
+                if isinstance(e, demo_seed.Comment) and e.by in contact_keys[o.client]
+            ], o.title
         # P2-8: the client submits and confirms, the planner quotes, the
         # foreman runs the shop floor.
         for step in o.steps:
@@ -144,7 +155,7 @@ def test_specs_tell_a_consistent_story() -> None:
     with_files = [
         o for o in demo_seed.ORDERS if any(isinstance(e, demo_seed.Upload) for e in o.timeline)
     ]
-    assert 8 <= len(with_files) <= 14
+    assert 8 <= len(with_files) <= 16
     titles = {o.title for o in demo_seed.ORDERS}
     assert {demo_seed.FLAGSHIP_ORDER_TITLE, demo_seed.OVERDUE_ORDER_TITLE} <= titles
     # P3-2: people have names, not job titles.
@@ -497,3 +508,91 @@ async def test_showcase_lookup_and_material(owner_engine, wipe_db) -> None:
     assert all(3 <= n <= 5 for n in per_asset.values()), per_asset
     assert sum(m.order_created is not None for m in moves) >= 12
     assert any(m.type == "consume" and m.status == "in_production" for m in moves)
+
+
+# ------------------------------------------------------- round 2 (N1-N9)
+
+
+def test_next_working_day_is_said_the_way_people_say_it() -> None:
+    """N4: "zítra" only when the next working day is tomorrow."""
+    phrase = demo_seed.next_working_day_phrase
+    assert phrase(date(2026, 10, 5)) == "zítra"  # Monday
+    assert phrase(date(2026, 10, 2)) == "v pondělí"  # Friday
+    assert phrase(date(2026, 9, 25)) == "v úterý"  # Friday before St Wenceslas (Mon 28. 9.)
+    assert phrase(date(2026, 10, 27)) == "ve čtvrtek"  # Tuesday before 28. 10. (Wed)
+    assert phrase(date(2026, 4, 2)) == "v úterý"  # Thursday before Easter
+
+
+def test_persona_has_three_open_quotes_with_drawings() -> None:
+    """N1: the shared demo's customer persona has more than one quote to confirm."""
+    quotes = demo_seed.persona_quote_templates()
+    assert len(quotes) == 3
+    assert quotes[0].title == demo_seed.FLAGSHIP_ORDER_TITLE
+    for spec in quotes:
+        assert spec.client == demo_seed.PERSONA_CLIENT
+        assert any(isinstance(e, demo_seed.Upload) for e in spec.timeline), spec.title
+        assert spec.promised is not None and spec.requested is not None
+    # The flagship is the newest quote, so the persona lands on it first.
+    quoted_wd = {
+        s.title: next(e.wd for e in s.steps if e.status == OrderStatus.QUOTED) for s in quotes
+    }
+    assert min(quoted_wd, key=lambda t: quoted_wd[t]) == demo_seed.FLAGSHIP_ORDER_TITLE
+    created_wd = {s.title: s.timeline[0].wd for s in quotes}
+    assert min(created_wd, key=lambda t: created_wd[t]) == demo_seed.FLAGSHIP_ORDER_TITLE
+
+
+@pytest.mark.parametrize(
+    "now",
+    [
+        _prague(2026, 10, 6, 2, 30),  # Tuesday: the anchor is Monday
+        _prague(2026, 10, 5, 2, 30),  # Monday: the anchor is Friday
+        _prague(2026, 9, 29, 2, 30),  # after a public holiday
+    ],
+)
+def test_comment_dates_agree_with_the_calendar(now: datetime) -> None:
+    """N4 / N9: relative words and confirmation deadlines match the dates.
+
+    No "zítra" said on a Friday; an open quote's comments only name dates
+    after the anchor day (a deadline that has already passed would make
+    the quote look stale); no "within N working days" left to arithmetic.
+    """
+    clock = demo_seed.DemoClock(now)
+    for p in demo_seed.plan_orders(clock):
+        for event, at in zip(p.spec.timeline, p.times, strict=True):
+            if not isinstance(event, demo_seed.Comment):
+                continue
+            said_on = at.astimezone(PRAGUE).date()
+            body = demo_seed._render_text(event.body, p, clock, said_on=said_on)
+            if "zítra" in body:
+                assert demo_seed.shift_working_days(said_on, 1) == said_on + timedelta(days=1)
+            assert not re.search(r"do \d+ pracovních dnů", body), body
+            if p.spec.status == OrderStatus.QUOTED:
+                for d, m in re.findall(r"\b(\d{1,2})\. (\d{1,2})\.", body):
+                    year = clock.anchor.year + (int(m) < clock.anchor.month - 6)
+                    assert date(year, int(m), int(d)) > clock.anchor, (p.spec.title, body)
+
+
+@pytest.mark.postgres
+async def test_last_working_day_is_busy(owner_engine, wipe_db) -> None:
+    """N2: on the anchor day a quote went out, an order became ready, a new
+    enquiry arrived and people commented — "Recent activity" is not idle."""
+    result, now = await _seeded(owner_engine)
+    anchor = demo_seed.anchor_day(now)
+    async with owner_engine.connect() as conn:
+        rows = await _rows(
+            conn,
+            "SELECT action, diff FROM audit_events WHERE tenant_id = :t "
+            "AND (occurred_at AT TIME ZONE 'Europe/Prague')::date = :d",
+            result.tenant_id,
+            d=anchor,
+        )
+        tenant_settings = (
+            await conn.execute(
+                text("SELECT settings FROM tenants WHERE id = :t"), {"t": result.tenant_id}
+            )
+        ).scalar_one()
+    statuses = {r.diff["after"]["status"] for r in rows if r.action == "order.status_changed"}
+    assert {"quoted", "ready", "submitted"} <= statuses
+    assert sum(r.action == "order.comment_added" for r in rows) >= 3
+    # P2-3: the demo shop's PDFs say what the prices are.
+    assert tenant_settings["price_note"] == demo_seed.DEMO_PRICE_NOTE

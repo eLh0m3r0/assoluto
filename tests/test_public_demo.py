@@ -693,6 +693,68 @@ async def test_uploads_elsewhere_are_not_capped(settings, demo, owner_engine, mo
 # ------------------------------------------------------------------ reset
 
 
+async def test_rearmed_quote_shows_the_stored_drawings(
+    settings, owner_engine, wipe_db, mock_s3
+) -> None:
+    """N1: a re-armed quote reuses the seed's stored drawings, and deleting
+    the file from one order does not pull it from under the other."""
+    from app.storage import s3 as s3_storage
+
+    result = await seed_demo(slug=DEMO, password=PASSWORD, engine=owner_engine)
+    settings.public_demo_tenant = DEMO
+    async with owner_engine.begin() as conn:
+        await conn.execute(
+            text(
+                "UPDATE orders SET status = 'confirmed' WHERE tenant_id = :t AND status = 'quoted'"
+            ),
+            {"t": result.tenant_id},
+        )
+    async with await _client(settings, DEMO) as client:
+        resp = await client.post("/demo/enter", data={"role": "customer"})
+        new_id = resp.headers["location"].rsplit("/", 1)[1]
+        async with owner_engine.connect() as conn:
+            rows = (
+                await conn.execute(
+                    text(
+                        "SELECT a.id, a.order_id, a.filename, a.storage_key, a.thumbnail_key "
+                        "FROM order_attachments a WHERE a.storage_key IN (SELECT storage_key "
+                        "FROM order_attachments WHERE order_id = :o)"
+                    ),
+                    {"o": new_id},
+                )
+            ).all()
+            recent_uploads = (
+                await conn.execute(
+                    text(
+                        "SELECT count(*) FROM audit_events WHERE tenant_id = :t "
+                        "AND action = 'attachment.upload' "
+                        "AND occurred_at >= now() - interval '1 day'"
+                    ),
+                    {"t": result.tenant_id},
+                )
+            ).scalar_one()
+        mine = [r for r in rows if str(r.order_id) == new_id]
+        assert {r.filename for r in mine} == {
+            "K-07_kryt_prevodovky_rev-C.pdf",
+            "K-07_kryt_3D-nahled.png",
+        }
+        assert len(rows) == 2 * len(mine)  # each file backs the seeded row too
+        assert recent_uploads == 0  # the visitors' daily upload cap is untouched
+        page = await client.get(f"/app/orders/{new_id}")
+        assert "K-07_kryt_prevodovky_rev-C.pdf" in page.text
+
+        # Staff delete the drawing from the original order: the object stays.
+        await _enter(client, "staff")
+        original = next(r for r in rows if str(r.order_id) != new_id)
+        deleted = await client.post(f"/app/attachments/{original.id}/delete")
+        assert deleted.status_code == 303
+        assert s3_storage.download_bytes(original.storage_key)[:1] in (b"%", b"\x89")
+        # … and deleting the last row that uses it does remove it.
+        last = next(r for r in mine if r.storage_key == original.storage_key)
+        assert (await client.post(f"/app/attachments/{last.id}/delete")).status_code == 303
+        assert original.storage_key not in _keys(f"tenants/{DEMO}/")
+
+
 async def test_seed_with_files_attaches_watermarked_drawings(
     settings, owner_engine, wipe_db, mock_s3
 ) -> None:

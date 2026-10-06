@@ -212,7 +212,25 @@ async def test_customer_lands_on_the_flagship_quote(demo_client, owner_engine) -
     assert f"/app/orders/{flagship}/transitions/confirmed" in page.text
 
 
-async def test_customer_without_a_quote_lands_on_the_dashboard(demo_client, owner_engine) -> None:
+async def test_quote_editor_and_header_polish(demo_client, owner_engine) -> None:
+    """N5: on a phone each item row stacks (labelled quantity / price /
+    total) instead of hiding them behind a horizontal scroll. N8: the
+    header shows the whole name from ``md`` up. N10: the nav says
+    "Customer material", not "Assets"."""
+    await _enter(demo_client, "staff")
+    flagship = await _flagship_for_contact(owner_engine)
+    page = (
+        await demo_client.get(f"/app/orders/{flagship}", headers={"Accept-Language": "en"})
+    ).text
+    assert page.count("data-line-total") == 4  # one per line of the flagship
+    assert 'class="item-row max-sm:flex max-sm:flex-wrap' in page
+    assert "max-sm:hidden" in page  # the table header row, phones only
+    assert 'truncate md:max-w-none" data-user-name' in page
+    assert ">Customer material</a>" in page
+    assert ">Assets</a>" not in page
+
+
+async def _confirm_all_quotes(owner_engine) -> None:
     async with owner_engine.begin() as conn:
         await conn.execute(
             text(
@@ -221,7 +239,142 @@ async def test_customer_without_a_quote_lands_on_the_dashboard(demo_client, owne
             ),
             {"slug": DEMO},
         )
-    assert await _enter(demo_client, "customer") == "/app"
+
+
+async def test_customer_has_several_quotes_to_confirm(demo_client, owner_engine) -> None:
+    """N1: confirming the flagship leaves the next visitor another quote."""
+    first = await _enter(demo_client, "customer")
+    flagship_id = first.rsplit("/", 1)[1]
+    async with owner_engine.begin() as conn:
+        await conn.execute(
+            text("UPDATE orders SET status = 'confirmed' WHERE id = :o"), {"o": flagship_id}
+        )
+    second = await _enter(demo_client, "customer")
+    assert second.startswith("/app/orders/") and second != first
+    assert await _scalar(owner_engine, "SELECT count(*) FROM orders") == 29  # nothing re-armed
+
+
+async def test_customer_quote_is_rearmed_when_all_are_confirmed(demo_client, owner_engine) -> None:
+    """N1: once every quote is confirmed, entering re-arms a fresh one."""
+    from app.demo import seed as demo_seed
+
+    await _confirm_all_quotes(owner_engine)
+    before = await _scalar(owner_engine, "SELECT max(number) FROM orders")
+    location = await _enter(demo_client, "customer")
+    new_id = await _flagship_for_contact(owner_engine)
+    assert new_id is not None, "a fresh quote should exist"
+    assert location == f"/app/orders/{new_id}"
+
+    async with owner_engine.connect() as conn:
+        order = (
+            await conn.execute(text("SELECT * FROM orders WHERE id = :o"), {"o": new_id})
+        ).one()
+        items = (
+            await conn.execute(
+                text("SELECT count(*) FROM order_items WHERE order_id = :o"), {"o": new_id}
+            )
+        ).scalar_one()
+        history = [
+            r[0]
+            for r in (
+                await conn.execute(
+                    text(
+                        "SELECT to_status FROM order_status_history WHERE order_id = :o "
+                        "ORDER BY created_at"
+                    ),
+                    {"o": new_id},
+                )
+            ).all()
+        ]
+        comments = (
+            await conn.execute(
+                text("SELECT count(*) FROM order_comments WHERE order_id = :o"), {"o": new_id}
+            )
+        ).scalar_one()
+    flagship = next(o for o in demo_seed.ORDERS if o.title == demo_seed.FLAGSHIP_ORDER_TITLE)
+    assert order.title == demo_seed.FLAGSHIP_ORDER_TITLE  # the flagship goes first
+    assert order.number > before  # the app's own allocator
+    assert order.status == "quoted" and order.quoted_total and order.promised_delivery_at
+    assert order.assigned_to_user_id is not None
+    assert items == len(flagship.items)
+    assert history == ["draft", "submitted", "quoted"]
+    assert comments == sum(isinstance(e, demo_seed.Comment) for e in flagship.timeline)
+
+    page = await demo_client.get(location)
+    assert page.status_code == 200
+    assert f"/app/orders/{new_id}/transitions/confirmed" in page.text
+
+    # Idempotent: a second visitor lands on the same quote.
+    assert await _enter(demo_client, "customer") == location
+    assert (
+        await _scalar(
+            owner_engine,
+            "SELECT count(*) FROM orders o JOIN tenants t ON t.id = o.tenant_id "
+            "WHERE t.slug = :slug AND o.status = 'quoted' AND o.title = :title",
+            title=demo_seed.FLAGSHIP_ORDER_TITLE,
+        )
+        == 1
+    )
+
+    # Confirm that one too: the next template is re-armed, not the flagship again.
+    await _confirm_all_quotes(owner_engine)
+    await _enter(demo_client, "customer")
+    rearmed = await _scalar(
+        owner_engine,
+        "SELECT o.title FROM orders o JOIN tenants t ON t.id = o.tenant_id "
+        "WHERE t.slug = :slug AND o.status = 'quoted'",
+    )
+    assert rearmed in {t.title for t in demo_seed.persona_quote_templates()}
+    assert rearmed != demo_seed.FLAGSHIP_ORDER_TITLE
+
+
+async def test_rearm_is_race_safe(demo, owner_engine) -> None:
+    """Two visitors entering at once get one quote, not two."""
+    import asyncio
+
+    from sqlalchemy.ext.asyncio import async_sessionmaker
+
+    from app.demo.seed import ensure_open_quote
+
+    await _confirm_all_quotes(owner_engine)
+    customer_id = await _scalar(
+        owner_engine,
+        "SELECT c.customer_id FROM customer_contacts c JOIN tenants t ON t.id = c.tenant_id "
+        "WHERE t.slug = :slug AND c.email = :email",
+        email=DEMO_CONTACT_EMAIL,
+    )
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+
+    async def enter() -> object:
+        async with sm() as session, session.begin():
+            return await ensure_open_quote(
+                session, tenant_id=demo.tenant_id, customer_id=customer_id
+            )
+
+    results = await asyncio.gather(enter(), enter(), enter())
+    assert sum(r is not None for r in results) == 1
+    quoted = await _scalar(
+        owner_engine,
+        "SELECT count(*) FROM orders WHERE tenant_id = :t AND status = 'quoted' "
+        "AND customer_id = :c",
+        t=demo.tenant_id,
+        c=customer_id,
+    )
+    assert quoted == 1
+
+
+async def test_rearm_never_touches_another_tenant(settings, demo, owner_engine) -> None:
+    """Only the public demo re-arms: another seeded tenant's /demo is a 404
+    and its orders stay exactly as they were."""
+    other = await seed_demo(slug=OTHER, password=PASSWORD, engine=owner_engine, files=False)
+    async with owner_engine.begin() as conn:
+        await conn.execute(text("UPDATE orders SET status = 'confirmed' WHERE status = 'quoted'"))
+    count = "SELECT count(*) FROM orders WHERE tenant_id = :t"
+    before = await _scalar(owner_engine, count, t=other.tenant_id)
+    async with await _client(settings, OTHER) as client:
+        resp = await client.post("/demo/enter", data={"role": "customer"})
+        assert resp.status_code == 404
+    assert await _scalar(owner_engine, count, t=other.tenant_id) == before
 
 
 async def test_supplier_dashboard_says_where_to_start(demo_client, owner_engine) -> None:

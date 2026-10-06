@@ -80,6 +80,23 @@ def test_timeago_czech_day_plural(days, expected) -> None:
     assert _render("cs", "{{ v|timeago }}", v=moment) == expected
 
 
+@pytest.mark.parametrize(
+    ("locale", "value", "expected"),
+    [
+        ("cs", 46490, "45,4 kB"),  # demo review N7: was "45.4 KB" in Czech
+        ("de", 46490, "45,4 kB"),
+        ("en", 46490, "45.4 kB"),
+        ("cs", 2048, "2 kB"),
+        ("cs", 512, "512 B"),
+        ("cs", 1_572_864, "1,5 MB"),
+        ("cs", None, ""),
+        ("cs", "x", ""),
+    ],
+)
+def test_filesize_is_localised(locale, value, expected) -> None:
+    assert _render(locale, "{{ v|filesize }}", v=value).replace(NBSP, " ") == expected
+
+
 def test_timeago_other_locales_unchanged() -> None:
     moment = datetime.now(UTC) - timedelta(days=1, minutes=5)
     assert _render("en", "{{ v|timeago }}", v=moment) == "1d ago"

@@ -162,3 +162,99 @@ async def test_dashboard_feed_uses_the_shared_labels(
     assert "changed status of" in body
     assert "uploaded a file to" in body
     assert "order.status_changed" not in body
+
+
+async def _seed_comment_and_upload(owner_engine, tenant_id, order_id) -> dict:
+    comment_id, attachment_id = uuid4(), uuid4()
+    when = datetime(2026, 10, 2, 9, 0, tzinfo=UTC)
+    sm = async_sessionmaker(owner_engine, expire_on_commit=False)
+    async with sm() as session, session.begin():
+        session.add_all(
+            [
+                AuditEvent(
+                    id=uuid4(),
+                    tenant_id=tenant_id,
+                    occurred_at=when,
+                    actor_type="user",
+                    actor_id=uuid4(),
+                    actor_label="Owner",
+                    action="order.comment_added",
+                    entity_type="order",
+                    entity_id=order_id,
+                    entity_label="2026-000021",
+                    diff={
+                        "before": None,
+                        "after": {
+                            "comment_id": str(comment_id),
+                            "is_internal": True,
+                            "body": "Lakovna má RAL 5010 skladem, kooperace 3 pracovní dny.",
+                        },
+                    },
+                ),
+                AuditEvent(
+                    id=uuid4(),
+                    tenant_id=tenant_id,
+                    occurred_at=when,
+                    actor_type="user",
+                    actor_id=uuid4(),
+                    actor_label="Owner",
+                    action="attachment.upload",
+                    entity_type="attachment",
+                    entity_id=attachment_id,
+                    entity_label="K-07.pdf",
+                    diff={
+                        "after": {
+                            "order_id": str(order_id),
+                            "size_bytes": 46490,
+                            "content_type": "application/pdf",
+                        }
+                    },
+                ),
+            ]
+        )
+    return {"comment_id": str(comment_id)}
+
+
+def _human_part(body: str) -> str:
+    """The audit table without the admin's "Technical details" blocks."""
+    import re
+
+    return re.sub(r"<details.*?</details>", "", body, flags=re.S)
+
+
+@pytest.mark.postgres
+@pytest.mark.parametrize(
+    ("lang", "comment", "internal", "size"),
+    [
+        ("en", "Comment", "internal", "45.4 kB"),
+        ("cs", "Comment", "interní", "45,4 kB"),
+        ("de", "Comment", None, "45,4 kB"),
+    ],
+)
+async def test_comment_rows_read_as_comments(
+    tenant_client, owner_engine, demo_tenant, lang, comment, internal, size
+) -> None:
+    """P2-5 leftover: no raw ``body:`` / ``comment_id: <uuid>`` /
+    ``is_internal: no`` above the toggle — an excerpt and an "internal"
+    badge; the ids stay in the admin's technical details."""
+    from tests.test_orders_item_autosave import _login
+
+    ids = await _seed(owner_engine, demo_tenant.id)
+    extra = await _seed_comment_and_upload(owner_engine, demo_tenant.id, ids["order_id"])
+    await _login(tenant_client, "staff@4mex.cz", "staffpass")
+    body = (await tenant_client.get("/app/admin/audit", headers={"Accept-Language": lang})).text
+    human = _human_part(body)
+    assert "Lakovna má RAL 5010 skladem" in human
+    assert "data-audit-internal" in human
+    if internal:
+        assert internal in human
+    for raw in ("comment_id", "is_internal", "body:", "content_type", "size_bytes"):
+        assert raw not in human, raw
+    assert extra["comment_id"] not in human
+    assert size in human.replace(chr(0xA0), " ")
+    # The order id still turns into the linked order number.
+    assert ">2026-000021</a>" in human
+    # Admin: the raw ids are one click away.
+    assert extra["comment_id"] in body
+    if lang == "en":
+        assert f"{comment}:" in human

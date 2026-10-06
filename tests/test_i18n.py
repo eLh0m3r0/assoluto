@@ -10,7 +10,7 @@ from app.i18n import COOKIE_NAME, gettext, negotiate_locale, supported_locale_li
 def test_gettext_translates_to_czech() -> None:
     # Ships with a compiled cs catalog; these msgids are in the nav.
     assert gettext("cs", "Orders") == "Zakázky"
-    assert gettext("cs", "Assets") == "Materiál zákazníka"
+    assert gettext("cs", "Customer material") == "Materiál zákazníka"
     assert gettext("cs", "Clients") == "Zákazníci"
     assert gettext("cs", "Draft") == "Koncept"
     assert gettext("cs", "Delivered") == "Dodáno"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sme-client-portal 0.1.0\n"
 "Report-Msgid-Bugs-To: opensource@4mex.cz\n"
-"POT-Creation-Date: 2026-10-06 15:12+0200\n"
+"POT-Creation-Date: 2026-10-06 17:00+0200\n"
 "PO-Revision-Date: 2026-04-16 11:10+0000\n"
 "Last-Translator: 4MEX <opensource@4mex.cz>\n"
 "Language: en\n"
@@ -24,56 +24,56 @@ msgstr ""
 
 #: app/i18n_messages.py:35 app/templates/_audit_labels.html:78
 #: app/templates/orders/_status_badge.html:14
-#: app/templates/orders/detail.html:759
+#: app/templates/orders/detail.html:762
 msgid "Draft"
 msgstr "Draft"
 
-#: app/i18n_messages.py:36 app/services/pdf_service.py:323
+#: app/i18n_messages.py:36 app/services/pdf_service.py:383
 #: app/templates/_audit_labels.html:79
 #: app/templates/orders/_status_badge.html:15
-#: app/templates/orders/detail.html:760
+#: app/templates/orders/detail.html:763
 msgid "Submitted"
 msgstr "Submitted"
 
 #: app/i18n_messages.py:37 app/templates/_audit_labels.html:80
 #: app/templates/orders/_status_badge.html:16
-#: app/templates/orders/detail.html:761
+#: app/templates/orders/detail.html:764
 msgid "Quoted"
 msgstr "Quoted"
 
 #: app/i18n_messages.py:38 app/templates/_audit_labels.html:81
 #: app/templates/orders/_status_badge.html:17
-#: app/templates/orders/detail.html:762
+#: app/templates/orders/detail.html:765
 msgid "Confirmed"
 msgstr "Confirmed"
 
 #: app/i18n_messages.py:39 app/templates/_audit_labels.html:82
 #: app/templates/orders/_status_badge.html:18
-#: app/templates/orders/detail.html:763
+#: app/templates/orders/detail.html:766
 msgid "In production"
 msgstr "In production"
 
 #: app/i18n_messages.py:40 app/templates/_audit_labels.html:83
 #: app/templates/orders/_status_badge.html:19
-#: app/templates/orders/detail.html:764
+#: app/templates/orders/detail.html:767
 msgid "Ready"
 msgstr "Ready"
 
 #: app/i18n_messages.py:41 app/templates/_audit_labels.html:84
 #: app/templates/orders/_status_badge.html:20
-#: app/templates/orders/detail.html:765
+#: app/templates/orders/detail.html:768
 msgid "Delivered"
 msgstr "Delivered"
 
 #: app/i18n_messages.py:42 app/templates/_audit_labels.html:85
 #: app/templates/orders/_status_badge.html:21
-#: app/templates/orders/detail.html:766
+#: app/templates/orders/detail.html:769
 msgid "Closed"
 msgstr "Closed"
 
 #: app/i18n_messages.py:43 app/templates/_audit_labels.html:86
 #: app/templates/orders/_status_badge.html:22
-#: app/templates/orders/detail.html:767
+#: app/templates/orders/detail.html:770
 msgid "Cancelled"
 msgstr "Cancelled"
 
@@ -129,8 +129,8 @@ msgstr ""
 msgid "All entities"
 msgstr ""
 
-#: app/i18n_messages.py:66 app/services/pdf_service.py:279
-#: app/services/pdf_service.py:304 app/templates/_audit_labels.html:89
+#: app/i18n_messages.py:66 app/services/pdf_service.py:339
+#: app/services/pdf_service.py:364 app/templates/_audit_labels.html:89
 #: app/templates/_audit_labels.html:111 app/templates/_audit_labels.html:112
 #: app/templates/_audit_labels.html:113 app/templates/_palette_results.html:34
 #: app/templates/assets/detail.html:52
@@ -138,13 +138,13 @@ msgid "Order"
 msgstr ""
 
 #: app/i18n_messages.py:67 app/routers/orders.py:461
-#: app/services/pdf_service.py:344 app/templates/admin/sla.html:122
+#: app/services/pdf_service.py:404 app/templates/admin/sla.html:129
 #: app/templates/demo/enter.html:46
 msgid "Customer"
 msgstr ""
 
 #: app/i18n_messages.py:68 app/templates/_audit_labels.html:91
-#: app/templates/_palette_results.html:76 app/templates/orders/detail.html:531
+#: app/templates/_palette_results.html:76 app/templates/orders/detail.html:534
 msgid "Product"
 msgstr ""
 
@@ -530,7 +530,7 @@ msgstr ""
 
 #: app/email/templates/order_assigned.html:12
 #: app/email/templates/order_assigned.txt:5 app/routers/orders.py:460
-#: app/services/pdf_service.py:317 app/templates/_audit_labels.html:108
+#: app/services/pdf_service.py:377 app/templates/_audit_labels.html:108
 #: app/templates/orders/list.html:119
 #: app/templates/platform/admin/dashboard.html:66
 #: app/templates/platform/admin/tenant_edit.html:59
@@ -560,7 +560,7 @@ msgstr ""
 #: app/email/templates/order_comment.txt:8
 #: app/email/templates/order_created.txt:7
 #: app/email/templates/order_submitted.txt:5
-#: app/templates/orders/detail.html:592
+#: app/templates/orders/detail.html:595
 msgid "Open"
 msgstr ""
 
@@ -730,8 +730,9 @@ msgstr ""
 
 #: app/email/templates/order_status_changed.html:23
 #: app/email/templates/order_status_changed.txt:10
-#: app/templates/assets/detail.html:53 app/templates/assets/detail.html:104
-#: app/templates/orders/edit.html:74 app/templates/orders/form.html:52
+#: app/templates/_audit_labels.html:128 app/templates/assets/detail.html:53
+#: app/templates/assets/detail.html:104 app/templates/orders/edit.html:74
+#: app/templates/orders/form.html:52
 msgid "Note"
 msgstr ""
 
@@ -1617,19 +1618,19 @@ msgstr ""
 msgid "Movement recorded."
 msgstr ""
 
-#: app/routers/attachments.py:185
+#: app/routers/attachments.py:186
 msgid "The file could not be stored. Please try again."
 msgstr ""
 
-#: app/routers/attachments.py:228
+#: app/routers/attachments.py:229
 msgid "Attachment uploaded."
 msgstr ""
 
-#: app/routers/attachments.py:320
+#: app/routers/attachments.py:321
 msgid "You can only delete files you uploaded yourself."
 msgstr ""
 
-#: app/routers/attachments.py:342
+#: app/routers/attachments.py:348
 msgid "Attachment deleted."
 msgstr ""
 
@@ -1783,7 +1784,7 @@ msgstr ""
 msgid "Currency"
 msgstr ""
 
-#: app/routers/orders.py:467 app/services/pdf_service.py:369
+#: app/routers/orders.py:467 app/services/pdf_service.py:429
 #: app/templates/orders/detail.html:470
 msgid "Items"
 msgstr ""
@@ -2026,31 +2027,31 @@ msgstr ""
 msgid "Message may be at most {n} characters."
 msgstr ""
 
-#: app/services/pdf_service.py:319 app/templates/orders/list.html:135
+#: app/services/pdf_service.py:379 app/templates/orders/list.html:135
 #: app/templates/platform/admin/dashboard.html:65
 #: app/templates/platform/admin/funnel.html:64
 msgid "Created"
 msgstr ""
 
-#: app/services/pdf_service.py:325 app/templates/_audit_labels.html:114
+#: app/services/pdf_service.py:385 app/templates/_audit_labels.html:114
 #: app/templates/orders/detail.html:270 app/templates/orders/detail.html:370
 #: app/templates/orders/detail.html:437 app/templates/orders/edit.html:62
 msgid "Promised delivery"
 msgstr ""
 
-#: app/services/pdf_service.py:361
+#: app/services/pdf_service.py:421
 msgid "Company ID"
 msgstr ""
 
-#: app/services/pdf_service.py:363
+#: app/services/pdf_service.py:423
 msgid "Tax ID"
 msgstr ""
 
-#: app/services/pdf_service.py:372 app/templates/_audit_labels.html:123
+#: app/services/pdf_service.py:441 app/templates/_audit_labels.html:123
 msgid "SKU"
 msgstr ""
 
-#: app/services/pdf_service.py:373 app/templates/_audit_labels.html:120
+#: app/services/pdf_service.py:442 app/templates/_audit_labels.html:120
 #: app/templates/assets/form.html:41 app/templates/assets/list.html:24
 #: app/templates/orders/edit.html:17 app/templates/orders/form.html:17
 #: app/templates/orders/list.html:115
@@ -2061,38 +2062,41 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: app/services/pdf_service.py:374 app/templates/_audit_labels.html:117
+#: app/services/pdf_service.py:443 app/templates/_audit_labels.html:117
 #: app/templates/assets/detail.html:51 app/templates/assets/detail.html:102
-#: app/templates/orders/_item_row.html:56 app/templates/orders/detail.html:481
-#: app/templates/orders/detail.html:551 app/templates/orders/detail.html:552
+#: app/templates/orders/_item_row.html:52
+#: app/templates/orders/_item_row.html:57 app/templates/orders/detail.html:484
+#: app/templates/orders/detail.html:554 app/templates/orders/detail.html:555
 msgid "Quantity"
 msgstr ""
 
-#: app/services/pdf_service.py:375 app/templates/_audit_labels.html:119
-msgid "Unit price"
+#: app/services/pdf_service.py:446 app/templates/orders/_item_row.html:64
+#: app/templates/orders/_item_row.html:69 app/templates/orders/detail.html:485
+#: app/templates/orders/detail.html:563 app/templates/orders/detail.html:564
+msgid "Price per unit"
 msgstr ""
 
-#: app/services/pdf_service.py:376
+#: app/services/pdf_service.py:447
 msgid "Line total"
 msgstr ""
 
-#: app/services/pdf_service.py:442
+#: app/services/pdf_service.py:505
 msgid "Subtotal"
 msgstr ""
 
-#: app/services/pdf_service.py:459 app/templates/orders/detail.html:221
+#: app/services/pdf_service.py:522 app/templates/orders/detail.html:221
 msgid "Confirmed total"
 msgstr ""
 
-#: app/services/pdf_service.py:495
+#: app/services/pdf_service.py:558
 msgid "Generated"
 msgstr ""
 
-#: app/services/pdf_service.py:500
+#: app/services/pdf_service.py:563
 msgid "This document is for informational purposes only."
 msgstr ""
 
-#: app/services/pdf_service.py:509 app/templates/admin/audit.html:179
+#: app/services/pdf_service.py:572 app/templates/admin/audit.html:198
 #: app/templates/orders/list.html:264
 msgid "Page"
 msgstr ""
@@ -2256,7 +2260,7 @@ msgstr ""
 #: app/templates/_audit_labels.html:90 app/templates/_palette_results.html:55
 #: app/templates/admin/exports.html:54 app/templates/assets/detail.html:16
 #: app/templates/assets/form.html:17 app/templates/assets/list.html:26
-#: app/templates/orders/detail.html:160 app/templates/orders/detail.html:686
+#: app/templates/orders/detail.html:160 app/templates/orders/detail.html:689
 #: app/templates/orders/edit.html:24 app/templates/orders/form.html:25
 #: app/templates/orders/list.html:117 app/templates/products/form.html:55
 #: app/templates/products/list.html:22 app/templates/www/_hero_mock.html:73
@@ -2290,7 +2294,7 @@ msgstr ""
 msgid "Subscription"
 msgstr ""
 
-#: app/templates/_audit_labels.html:102 app/templates/orders/detail.html:685
+#: app/templates/_audit_labels.html:102 app/templates/orders/detail.html:688
 msgid "Supplier team"
 msgstr ""
 
@@ -2298,8 +2302,8 @@ msgstr ""
 msgid "Client contact"
 msgstr ""
 
-#: app/templates/_audit_labels.html:104 app/templates/admin/audit.html:114
-#: app/templates/dashboard/index.html:182 app/templates/orders/detail.html:687
+#: app/templates/_audit_labels.html:104 app/templates/admin/audit.html:126
+#: app/templates/dashboard/index.html:182 app/templates/orders/detail.html:690
 msgid "System"
 msgstr ""
 
@@ -2317,7 +2321,7 @@ msgid "Requested delivery"
 msgstr ""
 
 #: app/templates/_audit_labels.html:116 app/templates/assets/detail.html:34
-#: app/templates/assets/form.html:51 app/templates/orders/detail.html:480
+#: app/templates/assets/form.html:51 app/templates/orders/detail.html:483
 #: app/templates/products/detail.html:49 app/templates/products/form.html:43
 msgid "Description"
 msgstr ""
@@ -2325,6 +2329,10 @@ msgstr ""
 #: app/templates/_audit_labels.html:118 app/templates/assets/form.html:35
 #: app/templates/products/form.html:32 app/templates/products/list.html:24
 msgid "Unit"
+msgstr ""
+
+#: app/templates/_audit_labels.html:119
+msgid "Unit price"
 msgstr ""
 
 #: app/templates/_audit_labels.html:121 app/templates/admin/profile.html:26
@@ -2358,6 +2366,18 @@ msgstr ""
 #: app/templates/_audit_labels.html:126
 #: app/templates/admin/tenant_settings.html:55
 msgid "Price note on order PDFs"
+msgstr ""
+
+#: app/templates/_audit_labels.html:127
+msgid "Comment"
+msgstr ""
+
+#: app/templates/_audit_labels.html:129 app/templates/orders/detail.html:115
+msgid "File"
+msgstr ""
+
+#: app/templates/_audit_labels.html:130
+msgid "Size"
 msgstr ""
 
 #: app/templates/_breadcrumbs.html:4
@@ -2493,8 +2513,8 @@ msgid ""
 " to it."
 msgstr ""
 
-#: app/templates/_palette.html:14 app/templates/admin/audit.html:45
-#: app/templates/orders/detail.html:516
+#: app/templates/_palette.html:14 app/templates/admin/audit.html:49
+#: app/templates/orders/detail.html:519
 msgid "Search"
 msgstr ""
 
@@ -2595,7 +2615,7 @@ msgstr ""
 msgid "Export your data before then, or contact us within 30 days to recover it."
 msgstr ""
 
-#: app/templates/admin/audit.html:27 app/templates/admin/exports.html:7
+#: app/templates/admin/audit.html:31 app/templates/admin/exports.html:7
 #: app/templates/admin/profile.html:8 app/templates/admin/sla.html:7
 #: app/templates/admin/tenant_settings.html:7
 #: app/templates/admin/user_edit.html:8 app/templates/admin/users.html:7
@@ -2618,8 +2638,8 @@ msgstr "Dashboard"
 
 #: app/templates/app_base.html:107 app/templates/assets/detail.html:8
 #: app/templates/assets/form.html:6 app/templates/assets/list.html:3
-msgid "Assets"
-msgstr "Assets"
+msgid "Customer material"
+msgstr ""
 
 #: app/templates/app_base.html:111
 msgid "SLA"
@@ -2738,76 +2758,80 @@ msgid ""
 "the account from your invitation email."
 msgstr ""
 
-#: app/templates/admin/audit.html:3 app/templates/admin/audit.html:28
+#: app/templates/admin/audit.html:3 app/templates/admin/audit.html:32
 #: app/templates/dashboard/index.html:168
 msgid "Audit log"
 msgstr ""
 
-#: app/templates/admin/audit.html:17
+#: app/templates/admin/audit.html:21
 msgid "yes"
 msgstr ""
 
-#: app/templates/admin/audit.html:19
+#: app/templates/admin/audit.html:23
 msgid "no"
 msgstr ""
 
-#: app/templates/admin/audit.html:30
+#: app/templates/admin/audit.html:34
 msgid "Complete and immutable record of every tracked action in this portal."
 msgstr ""
 
-#: app/templates/admin/audit.html:42
+#: app/templates/admin/audit.html:46
 msgid "Filtered by"
 msgstr ""
 
-#: app/templates/admin/audit.html:50 app/templates/admin/audit.html:96
+#: app/templates/admin/audit.html:54 app/templates/admin/audit.html:100
 msgid "Entity"
 msgstr ""
 
-#: app/templates/admin/audit.html:60 app/templates/orders/list.html:296
+#: app/templates/admin/audit.html:64 app/templates/orders/list.html:296
 msgid "Clear filters"
 msgstr ""
 
-#: app/templates/admin/audit.html:68
+#: app/templates/admin/audit.html:72
 msgid "Search action, entity, actor…"
 msgstr ""
 
-#: app/templates/admin/audit.html:84 app/templates/orders/list.html:85
+#: app/templates/admin/audit.html:88 app/templates/orders/list.html:85
 msgid "Filter"
 msgstr ""
 
-#: app/templates/admin/audit.html:93
+#: app/templates/admin/audit.html:97
 msgid "When"
 msgstr ""
 
-#: app/templates/admin/audit.html:94
+#: app/templates/admin/audit.html:98
 msgid "Actor"
 msgstr ""
 
-#: app/templates/admin/audit.html:95
+#: app/templates/admin/audit.html:99
 msgid "Action"
 msgstr ""
 
-#: app/templates/admin/audit.html:97
+#: app/templates/admin/audit.html:101
 msgid "Change"
 msgstr ""
 
-#: app/templates/admin/audit.html:163
+#: app/templates/admin/audit.html:160 app/templates/orders/detail.html:698
+msgid "internal"
+msgstr ""
+
+#: app/templates/admin/audit.html:182
 msgid "Technical details"
 msgstr ""
 
-#: app/templates/admin/audit.html:179 app/templates/orders/list.html:265
+#: app/templates/admin/audit.html:198 app/templates/orders/list.html:265
 msgid "records"
 msgstr ""
 
-#: app/templates/admin/audit.html:185 app/templates/orders/list.html:271
+#: app/templates/admin/audit.html:204 app/templates/orders/list.html:271
 msgid "Previous"
 msgstr ""
 
-#: app/templates/admin/audit.html:189 app/templates/orders/list.html:277
+#: app/templates/admin/audit.html:208 app/templates/orders/list.html:277
 msgid "Next"
 msgstr ""
 
-#: app/templates/admin/audit.html:196
+#: app/templates/admin/audit.html:215
 msgid "No audit events match the current filters."
 msgstr ""
 
@@ -3062,70 +3086,71 @@ msgstr ""
 msgid "On-time rate"
 msgstr ""
 
-#: app/templates/admin/sla.html:55
-msgid "of orders due in this period met the promised date"
+#: app/templates/admin/sla.html:59 app/templates/admin/sla.html:149
+msgid "No orders"
 msgstr ""
 
 #: app/templates/admin/sla.html:61
+#, python-format
+msgid "%(pct)s of orders due in this period met the promised date"
+msgstr ""
+
+#: app/templates/admin/sla.html:68
 msgid "Delivered (total)"
 msgstr ""
 
-#: app/templates/admin/sla.html:65
+#: app/templates/admin/sla.html:72
 msgid "orders with recorded delivery"
 msgstr ""
 
-#: app/templates/admin/sla.html:71 app/templates/admin/sla.html:154
+#: app/templates/admin/sla.html:78 app/templates/admin/sla.html:161
 msgid "Late"
 msgstr ""
 
-#: app/templates/admin/sla.html:75
+#: app/templates/admin/sla.html:82
 msgid "delivered past the promised date"
 msgstr ""
 
-#: app/templates/admin/sla.html:81 app/templates/admin/sla.html:154
+#: app/templates/admin/sla.html:88 app/templates/admin/sla.html:161
 msgid "Pending (overdue)"
 msgstr ""
 
-#: app/templates/admin/sla.html:85
+#: app/templates/admin/sla.html:92
 msgid "promised date passed, not yet delivered"
 msgstr ""
 
-#: app/templates/admin/sla.html:94
+#: app/templates/admin/sla.html:101
 msgid "Weekly on-time heatmap"
 msgstr ""
 
-#: app/templates/admin/sla.html:99
+#: app/templates/admin/sla.html:106
 #, python-format
 msgid "&ge;90%% on time"
 msgstr ""
 
-#: app/templates/admin/sla.html:103
+#: app/templates/admin/sla.html:110
 #, python-format
 msgid "50-90%%"
 msgstr ""
 
-#: app/templates/admin/sla.html:107
+#: app/templates/admin/sla.html:114
 #, python-format
 msgid "&lt;50%%"
 msgstr ""
 
-#: app/templates/admin/sla.html:111
+#: app/templates/admin/sla.html:118
 msgid "no orders"
 msgstr ""
 
-#: app/templates/admin/sla.html:126 app/templates/platform/admin/funnel.html:19
+#: app/templates/admin/sla.html:133 app/templates/platform/admin/funnel.html:19
 msgid "Week of"
 msgstr ""
 
-#: app/templates/admin/sla.html:142
-msgid "No orders"
-msgstr ""
-
-#: app/templates/admin/sla.html:154
+#: app/templates/admin/sla.html:161
 msgid "On time"
 msgstr ""
 
-#: app/templates/admin/sla.html:166
+#: app/templates/admin/sla.html:173
 msgid "No orders with a promised delivery date yet."
 msgstr ""
 
@@ -3930,34 +3955,30 @@ msgstr ""
 msgid "Note (optional)"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:67 app/templates/orders/detail.html:482
-#: app/templates/orders/detail.html:560 app/templates/orders/detail.html:561
-msgid "Price per unit"
+#: app/templates/orders/_item_row.html:77 app/templates/orders/detail.html:486
+#: app/templates/orders/list.html:123 app/templates/www/_hero_mock.html:75
+msgid "Total"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:93
+#: app/templates/orders/_item_row.html:96
 msgid "Saving…"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:97
+#: app/templates/orders/_item_row.html:100
 msgid "Saved"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:104
+#: app/templates/orders/_item_row.html:107
 msgid "Delete this item?"
 msgstr ""
 
-#: app/templates/orders/_item_row.html:108 app/templates/orders/detail.html:640
+#: app/templates/orders/_item_row.html:111 app/templates/orders/detail.html:643
 #: app/templates/products/detail.html:34
 msgid "Delete"
 msgstr ""
 
 #: app/templates/orders/detail.html:52
 msgid "Move order to"
-msgstr ""
-
-#: app/templates/orders/detail.html:115
-msgid "File"
 msgstr ""
 
 #: app/templates/orders/detail.html:135 app/templates/orders/edit.html:3
@@ -4072,120 +4093,111 @@ msgstr ""
 msgid "Send the quote even though some items have no price"
 msgstr ""
 
-#: app/templates/orders/detail.html:483 app/templates/orders/list.html:123
-#: app/templates/www/_hero_mock.html:75
-msgid "Total"
-msgstr ""
-
-#: app/templates/orders/detail.html:501
+#: app/templates/orders/detail.html:504
 msgid "No items."
 msgstr ""
 
-#: app/templates/orders/detail.html:511
+#: app/templates/orders/detail.html:514
 msgid "Search the catalog"
 msgstr ""
 
-#: app/templates/orders/detail.html:513
+#: app/templates/orders/detail.html:516
 msgid "SKU or name…"
 msgstr ""
 
-#: app/templates/orders/detail.html:519
+#: app/templates/orders/detail.html:522
 msgid "Showing"
 msgstr ""
 
-#: app/templates/orders/detail.html:533
+#: app/templates/orders/detail.html:536
 msgid "custom item (free-text)"
 msgstr ""
 
-#: app/templates/orders/detail.html:543
+#: app/templates/orders/detail.html:546
 msgid "last price"
 msgstr ""
 
-#: app/templates/orders/detail.html:554 app/templates/orders/detail.html:555
+#: app/templates/orders/detail.html:557 app/templates/orders/detail.html:558
 msgid "unit"
 msgstr ""
 
-#: app/templates/orders/detail.html:567 app/templates/orders/detail.html:568
+#: app/templates/orders/detail.html:570 app/templates/orders/detail.html:571
 msgid "Item description"
 msgstr ""
 
-#: app/templates/orders/detail.html:573
+#: app/templates/orders/detail.html:576
 msgid "Add item"
 msgstr ""
 
-#: app/templates/orders/detail.html:583
+#: app/templates/orders/detail.html:586
 msgid "Attachments"
 msgstr ""
 
-#: app/templates/orders/detail.html:603
+#: app/templates/orders/detail.html:606
 msgid "IMG"
 msgstr ""
 
-#: app/templates/orders/detail.html:604
+#: app/templates/orders/detail.html:607
 msgid "DWG"
 msgstr ""
 
-#: app/templates/orders/detail.html:605
+#: app/templates/orders/detail.html:608
 msgid "DOC"
 msgstr ""
 
-#: app/templates/orders/detail.html:606
+#: app/templates/orders/detail.html:609
 msgid "OST"
 msgstr ""
 
-#: app/templates/orders/detail.html:622
+#: app/templates/orders/detail.html:625
 msgid "item"
 msgstr ""
 
-#: app/templates/orders/detail.html:637
+#: app/templates/orders/detail.html:640
 #, python-format
 msgid ""
 "This order is already confirmed. Delete the file %(name)s anyway? The "
 "deletion is recorded in the audit log."
 msgstr ""
 
-#: app/templates/orders/detail.html:637
+#: app/templates/orders/detail.html:640
 #, python-format
 msgid "Delete the file %(name)s?"
 msgstr ""
 
-#: app/templates/orders/detail.html:648
+#: app/templates/orders/detail.html:651
 msgid "No attachments."
 msgstr ""
 
-#: app/templates/orders/detail.html:660
+#: app/templates/orders/detail.html:663
 msgid "to the whole order"
 msgstr ""
 
-#: app/templates/orders/detail.html:669
+#: app/templates/orders/detail.html:672
 msgid "Upload"
 msgstr ""
 
-#: app/templates/orders/detail.html:678
+#: app/templates/orders/detail.html:681
 msgid "Comments"
 msgstr ""
 
-#: app/templates/orders/detail.html:695
-msgid "internal"
-msgstr ""
-
-#: app/templates/orders/detail.html:700
+#: app/templates/orders/detail.html:703
 msgid "No comments."
 msgstr ""
 
-#: app/templates/orders/detail.html:706 app/templates/orders/detail.html:707
+#: app/templates/orders/detail.html:709 app/templates/orders/detail.html:710
 msgid "Write a comment…"
 msgstr ""
 
-#: app/templates/orders/detail.html:713
+#: app/templates/orders/detail.html:716
 msgid "Internal (staff only)"
 msgstr ""
 
-#: app/templates/orders/detail.html:720
+#: app/templates/orders/detail.html:723
 msgid "Add a comment"
 msgstr ""
 
-#: app/templates/orders/detail.html:729
+#: app/templates/orders/detail.html:732
 msgid "Status history"
 msgstr ""
 
@@ -10436,5 +10448,11 @@ msgstr ""
 #~ "Download the listed orders as XML "
 #~ "for POHODA (drafts and cancelled orders"
 #~ " are skipped unless filtered)"
+#~ msgstr ""
+
+#~ msgid "Assets"
+#~ msgstr "Assets"
+
+#~ msgid "of orders due in this period met the promised date"
 #~ msgstr ""
 

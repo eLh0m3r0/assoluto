@@ -34,6 +34,7 @@ from app.services.attachment_service import (
     create_attachment_row,
     delete_attachment,
     get_attachment,
+    keys_still_unreferenced,
 )
 from app.services.audit_service import actor_from_principal
 from app.services.order_service import (
@@ -332,10 +333,15 @@ async def delete_attachment_route(
     await delete_attachment(
         db, attachment, order=order, audit_actor=actor_from_principal(principal)
     )
+    # A stored file may back more than one row (the public demo re-arms
+    # a quote with rows pointing at the seed's drawings): keep any object
+    # another attachment still uses.
+    storage_keys = await keys_still_unreferenced(db, storage_keys)
     await db.commit()
 
     try:
-        await s3_storage.delete_objects_async(storage_keys)
+        if storage_keys:
+            await s3_storage.delete_objects_async(storage_keys)
     except Exception:
         log.warning("attachment.s3_delete_failed", attachment_id=str(attachment_id))
 

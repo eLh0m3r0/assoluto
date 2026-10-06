@@ -253,3 +253,10 @@ async def test_sla_page_renders_one_definition(tenant_client, owner_engine, demo
     # ISO dates are gone from the page header.
     assert (today - timedelta(days=30)).isoformat() not in body
     assert (today - timedelta(days=30)).strftime("%d.%m.%Y") in body
+    # N6: the rate is one sentence with the number in it, so Czech can
+    # make the verb agree ("0 % zakázek … dodrželo …").
+    en = (
+        await tenant_client.get("/app/admin/sla?timeframe=30", headers={"Accept-Language": "en"})
+    ).text
+    assert "0% of orders due in this period met the promised date" in en
+    assert ">\n                    of orders due" not in en

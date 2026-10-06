@@ -5,7 +5,7 @@
 {% from "_units.html" import unit %}
 
 {% block content %}
-    {% with items=[(_('Dashboard'), '/app'), (_('Assets'), '/app/assets'), (asset.code, None)] %}
+    {% with items=[(_('Dashboard'), '/app'), (_('Customer material'), '/app/assets'), (asset.code, None)] %}
         {% include "_breadcrumbs.html" %}
     {% endwith %}
     <div class="mb-6">

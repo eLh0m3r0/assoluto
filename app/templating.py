@@ -25,6 +25,7 @@ from typing import Any
 
 from babel import Locale, UnknownLocaleError
 from babel.numbers import format_decimal, format_percent
+from babel.units import format_unit
 from fastapi import Request
 from jinja2 import Environment, FileSystemLoader, pass_context, select_autoescape
 from jinja2_fragments import render_block
@@ -162,6 +163,32 @@ def _qty_filter_for_locale(locale: str) -> Any:
             return str(value)
         # Quantities are NUMERIC(12, 3): three decimals never round anything.
         return format_decimal(dec, format="#,##0.###", locale=loc)
+
+    return _filter
+
+
+def _filesize_filter_for_locale(locale: str) -> Any:
+    """A byte count as a short, localised size (demo review N7)::
+
+        cs: 46490 -> '45,4 kB'   de: '45,4 kB'   en: '45.4 kB'
+
+    Binary steps (1 kB = 1024 B), like the size the page showed before,
+    one decimal at most. ``None`` / non-numeric input renders as ``''``.
+    """
+    loc = _babel_locale(locale)
+
+    def _filter(value: Any) -> str:
+        size = _to_decimal(value)
+        if size is None or size < 0:
+            return ""
+        if size < 1024:
+            unit, amount = "digital-byte", size
+        elif size < 1024 * 1024:
+            unit, amount = "digital-kilobyte", size / 1024
+        else:
+            unit, amount = "digital-megabyte", size / (1024 * 1024)
+        amount = amount.quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+        return format_unit(amount, unit, length="short", format="#,##0.#", locale=loc)
 
     return _filter
 
@@ -374,6 +401,7 @@ def _new_environment(locale: str | None = None) -> Environment:
     env.filters["qty"] = _qty_filter_for_locale(locale or "en")
     env.filters["qty_input"] = _qty_input_filter
     env.filters["percent"] = _percent_filter_for_locale(locale or "en")
+    env.filters["filesize"] = _filesize_filter_for_locale(locale or "en")
     env.filters["pretty_json"] = _pretty_json_filter
     env.filters["money"] = _money_filter
     env.filters["money_major"] = _money_major_filter

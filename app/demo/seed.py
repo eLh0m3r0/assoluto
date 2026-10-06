@@ -3,7 +3,7 @@
 Built for showing the product to prospects (MSV Brno and similar) and for
 the public demo (``PUBLIC_DEMO_TENANT``, re-seeded nightly by
 :mod:`app.tasks.demo_reset`): six clients, their contacts, a priced
-catalogue, 27 orders spread over every status with line items, comments,
+catalogue, 29 orders spread over every status with line items, comments,
 requested and promised dates (one in production past its promised date,
 quotes waiting for the client's confirmation), client-owned material with
 receive / consume / return movements tied to the orders that used it, and
@@ -20,10 +20,15 @@ two minutes — see the 2026-10-06 demo review):
 * Each order is a timeline of status steps, comments and uploads. Every
   comment names the status it is about (``Comment.anchor``) and comes
   after it; dates quoted in a comment are rendered from the order's own
-  requested / promised dates, so they never contradict them.
-* Clients submit and confirm their orders and cancel their own; the
-  planner quotes, the foreman starts production and marks it ready,
-  dispatch delivers, the owner closes.
+  requested / promised dates, so they never contradict them, and
+  "tomorrow" is rendered from the day it is said ("v pondělí" on a
+  Friday). Confirmation deadlines are dates, never "within N days".
+* Clients submit and confirm their orders and ask for a cancellation in
+  a comment, which the planner then carries out; the planner quotes, the
+  foreman starts production and marks it ready, dispatch delivers, the
+  owner closes.
+* The last working day is busy: a quote sent, an order made ready, a new
+  enquiry and a few comments, so "Recent activity" reads "yesterday".
 * Prices are illustrative CZK excl. VAT at Czech job-shop levels; a
   finish (paint, zinc) is either part of the item name or a separate
   line, never both.
@@ -62,17 +67,18 @@ import argparse
 import asyncio
 import random
 import secrets
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, time, timedelta
 from decimal import Decimal
-from functools import lru_cache
+from functools import lru_cache, partial
 from itertools import pairwise
 from typing import Any
 from uuid import UUID, uuid4
 from zoneinfo import ZoneInfo
 
 import anyio
-from sqlalchemy import select, text
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -104,12 +110,15 @@ from app.models.product import Product
 from app.models.tenant import Tenant
 from app.models.user import User
 from app.security.passwords import hash_password
+from app.services.price_note import SETTINGS_KEY as PRICE_NOTE_KEY
 
 log = get_logger("app.demo.seed")
 
 DOMAIN = "example.com"
 
 TENANT_NAME = "CNC Dílna Vzorová s.r.o."
+#: Printed under the totals of every order PDF (``tenants.settings``).
+DEMO_PRICE_NOTE = "Ceny jsou uvedeny bez DPH."
 
 #: The two logins the public demo hands out (``POST /demo/enter``):
 #: the shop's admin and the admin contact of its first client.
@@ -393,6 +402,28 @@ FILES: dict[str, SampleDrawing | SamplePreview] = {
         scale="1:1",
         shape="bracket",
     ),
+    "kd200": SampleDrawing(
+        filename="KD-200_kotevni_deska_rev-A.pdf",
+        number="KD-200",
+        title="Kotevní deska KD-200",
+        revision="A",
+        material="S235JR, plech t = 6 mm",
+        client=_UK,
+        scale="1:2",
+        shape="plate",
+        notes=("4× otvor ø14", "Povrch: bez úpravy, naolejovat"),
+    ),
+    "ok22": SampleDrawing(
+        filename="OK-22_kryt_retezu_rev-B.pdf",
+        number="OK-22",
+        title="Ochranný kryt řetězu OK-22",
+        revision="B",
+        material="S235JR, plech t = 3 mm",
+        client=_UK,
+        scale="1:5",
+        shape="cover",
+        notes=("Povrch: práškový lak RAL 2004",),
+    ),
     "ud400": SampleDrawing(
         filename="UD-400_upinaci_deska_rev-B.pdf",
         number="UD-400",
@@ -618,13 +649,20 @@ ORDERS: list[OrderSpec] = [
                 internal=True,
             ),
             S(_Q, 41, "planner"),
-            S(_CAN, 38, "nakup", note="Stojany nakonec kupujeme hotové."),
+            # N3: the client asks first, the shop cancels on their request.
             C(
-                _CAN,
+                _Q,
                 38,
                 "nakup",
                 "Stojany nakonec kupujeme hotové od dodavatele regálů, poptávku prosím "
                 "stornujte. Jäkl si vyzvedneme při příští dodávce.",
+            ),
+            S(_CAN, 38, "planner", note="Na žádost zákazníka – stojany kupují hotové."),
+            C(
+                _CAN,
+                38,
+                "planner",
+                "Stornováno. Jäkl máme připravený k vyzvednutí na rampě 1.",
             ),
         ),
         requested=-30,
@@ -673,7 +711,7 @@ ORDERS: list[OrderSpec] = [
             S(_IP, 4, "foreman"),
             C(
                 _IP,
-                1,
+                0,
                 "foreman",
                 "Laser hotový, všech 200 ks jde na ohraňování. Expedice {promised} platí.",
             ),
@@ -740,18 +778,89 @@ ORDERS: list[OrderSpec] = [
                 "Lakovna má RAL 5010 jemnou strukturu skladem, kooperace 3 pracovní dny.",
                 internal=True,
             ),
-            S(_Q, 1, "planner"),
+            S(_Q, 0, "planner"),
             C(
                 _Q,
-                1,
+                0,
                 "planner",
                 "Nabídka podle výkresu rev. C je v položkách, lakování a zalisování matic "
-                "zvlášť. Při potvrzení do 2 pracovních dnů garantujeme dodání {promised}, "
-                "tedy den před vaším termínem.",
+                "zvlášť. Při potvrzení do {d:+2} garantujeme dodání {promised}, "
+                "tedy ještě před vaším termínem {requested}",
             ),
         ),
         requested=12,
         promised=11,
+    ),
+    # Two more open quotes for the customer persona (N1): the public demo
+    # is shared, and one visitor confirming the flagship must not leave
+    # the next one with nothing to confirm. Quoted before the flagship,
+    # so the flagship stays the newest quote.
+    OrderSpec(
+        "ukazkova",
+        "Kotevní desky KD-200 – 60 ks",
+        (
+            Item(
+                "LAS-S235-6",
+                "60",
+                "Laserové řezání – deska 200×200 se 4 otvory ø14, ocel 6 mm (60 ks × 1,0 m)",
+            ),
+            Item("MAT-S235-6", "114", "Plech S235JR 6 mm – materiál (60 ks × 1,9 kg)"),
+            Item("ODJEHL", "60"),
+        ),
+        (
+            S(_D, 6, "konstrukce"),
+            U("kd200", 6, "konstrukce"),
+            S(_SUB, 6, "nakup"),
+            C(
+                _SUB,
+                6,
+                "nakup",
+                "Kotevní desky pro stojany nové linky podle výkresu. Plech 6 mm prosím "
+                "z vašeho materiálu, u vás máme uložený jen plech 3 mm.",
+            ),
+            S(_Q, 2, "planner"),
+            C(
+                _Q,
+                2,
+                "planner",
+                "Desky řežeme z našeho plechu S235JR 6 mm, materiál je v nabídce na "
+                "samostatném řádku. Při potvrzení do {d:+2} dodáme {promised}",
+            ),
+            C(_Q, 1, "konstrukce", "Díky, ještě čekáme na schválení od vedoucího projektu."),
+        ),
+        requested=10,
+        promised=8,
+    ),
+    OrderSpec(
+        "ukazkova",
+        "Ochranné kryty řetězu OK-22 – 30 ks",
+        (
+            Item("LAS-S235-3", "72", "Laserové řezání – kryt OK-22, ocel 3 mm (30 ks × 2,4 m)"),
+            Item("OHYB", "120", "Ohraňování (30 ks × 4 ohyby)"),
+            Item("LAK-PRASK", "13.5", "Práškové lakování RAL 2004 (30 ks × 0,45 m²)"),
+        ),
+        (
+            S(_D, 9, "nakup"),
+            U("ok22", 9, "konstrukce"),
+            S(_SUB, 9, "nakup"),
+            C(
+                _SUB,
+                9,
+                "nakup",
+                "Kryty prosím z našeho plechu S235 3 mm, který u vás leží v regálu A1. "
+                "Lak RAL 2004, signální oranžová.",
+            ),
+            S(_Q, 4, "planner"),
+            C(
+                _Q,
+                4,
+                "planner",
+                "Materiál bereme z vašeho plechu, v ceně je jen práce a lakování. "
+                "Termín {promised} držíme při potvrzení do {d:+1}",
+            ),
+        ),
+        requested=10,
+        promised=9,
     ),
     OrderSpec(
         "ukazkova",
@@ -769,8 +878,14 @@ ORDERS: list[OrderSpec] = [
                 _SUB,
                 1,
                 "konstrukce",
-                "Jäkl 40×40×3 vám přivezeme zítra. Jde o prototyp, po odzkoušení "
+                "Jäkl 40×40×3 vám přivezeme {next}. Jde o prototyp, po odzkoušení "
                 "objednáme sérii 10 ks.",
+            ),
+            C(
+                _SUB,
+                0,
+                "planner",
+                "Jäkl převzat (4 tyče po 6 m). Nabídku na prototyp pošleme do {d:+1}",
             ),
         ),
         requested=9,
@@ -793,14 +908,14 @@ ORDERS: list[OrderSpec] = [
             S(_D, 31, "zasobovani"),
             S(_SUB, 31, "zasobovani"),
             S(_Q, 30, "planner"),
-            S(_CAN, 27, "zasobovani", note="Projekt u koncového zákazníka odložen."),
             C(
-                _CAN,
+                _Q,
                 27,
                 "zasobovani",
                 "Koncový zákazník projekt odložil, nabídku prosím stornujte. Kulatinu ø60 "
                 "si u vás nechte, použijeme ji na příruby.",
             ),
+            S(_CAN, 27, "planner", note="Na žádost zákazníka – projekt odložen."),
         ),
         requested=-20,
         promised=-20,
@@ -824,7 +939,7 @@ ORDERS: list[OrderSpec] = [
                 _IP,
                 3,
                 "foreman",
-                "Frézka stojí – vadné ložisko vřetene, servis přijede zítra. "
+                "Frézka stojí – vadné ložisko vřetene, servis přijede {next}. "
                 "Dvě desky jsou hotové.",
                 internal=True,
             ),
@@ -860,10 +975,10 @@ ORDERS: list[OrderSpec] = [
             S(_Q, 14, "planner"),
             S(_CON, 13, "zasobovani"),
             S(_IP, 8, "foreman"),
-            S(_RDY, 2, "foreman"),
+            S(_RDY, 0, "foreman"),
             C(
                 _RDY,
-                2,
+                0,
                 "planner",
                 "Hotovo, 30 ks připraveno k odběru na rampě 2. Měřicí protokol posíláme "
                 "s dodacím listem.",
@@ -931,7 +1046,7 @@ ORDERS: list[OrderSpec] = [
                 10,
                 "planner",
                 "Omlouváme se, ohraňovací lis čeká na náhradní díl. Kryty dodáme {delivered}, "
-                "o dva dny později.",
+                "o dva pracovní dny později.",
             ),
             S(_RDY, 8, "foreman"),
             S(_DEL, 7, "planner"),
@@ -964,7 +1079,7 @@ ORDERS: list[OrderSpec] = [
                 _IP,
                 2,
                 "planner",
-                "Díly jsou nařezané a ohnuté, zítra odjíždějí do zinkovny. Zinkování trvá "
+                "Díly jsou nařezané a ohnuté, {next} odjíždějí do zinkovny. Zinkování trvá "
                 "zhruba 4 pracovní dny, termín {promised} držíme.",
             ),
         ),
@@ -991,7 +1106,7 @@ ORDERS: list[OrderSpec] = [
                 5,
                 "planner",
                 "Nabídka platí 30 dní. Lakujeme v RAL 6011 podle vašeho standardu; "
-                "při potvrzení do 5 pracovních dnů stihneme {promised} i s lakováním.",
+                "při potvrzení do {d:+2} stihneme {promised} i s lakováním.",
             ),
             C(_Q, 2, "objednavky", "Čekáme na schválení rozpočtu, ozveme se během pár dní."),
         ),
@@ -1001,8 +1116,22 @@ ORDERS: list[OrderSpec] = [
     OrderSpec(
         "prikladna",
         "Náhradní díly na jarní sezónu",
-        (Item("PR-DRZAK-H", "30"),),
-        (S(_D, 1, "objednavky"),),
+        (
+            Item("PR-DRZAK-H", "60"),
+            Item("ZINEK", "37", "Žárové zinkování (kooperace) – 60 ks × 0,62 kg"),
+        ),
+        (
+            S(_D, 1, "objednavky"),
+            S(_SUB, 0, "objednavky"),
+            C(
+                _SUB,
+                0,
+                "objednavky",
+                "Prosíme o nacenění 60 držáků H-4 na jarní servis, zinkované jako minule. "
+                "Pásovinu máme ještě u vás na skladě.",
+            ),
+        ),
+        requested=15,
     ),
     # ---------------------------------------------------------- Elektro Fiktivní
     OrderSpec(
@@ -1516,7 +1645,32 @@ def plan_orders(clock: DemoClock) -> list[PlannedOrder]:
     return planned
 
 
-def _render_text(body: str, p: PlannedOrder, clock: DemoClock) -> str:
+#: "on <weekday>" in Czech, Monday first — with the preposition's
+#: vocalised form before "s" / "č" (ve středu, ve čtvrtek).
+_CZ_ON_WEEKDAY = ("v pondělí", "v úterý", "ve středu", "ve čtvrtek", "v pátek")
+
+
+def next_working_day_phrase(said_on: date) -> str:
+    """How a Czech speaker says "the next working day" on ``said_on`` (N4).
+
+    "zítra" only when that day really is tomorrow; on a Friday (or before
+    a public holiday) it is the weekday: "v pondělí", "ve středu"…
+    """
+    nxt = shift_working_days(said_on, 1)
+    if nxt == said_on + timedelta(days=1):
+        return "zítra"
+    return _CZ_ON_WEEKDAY[nxt.weekday()]
+
+
+def _render_text(body: str, p: PlannedOrder, clock: DemoClock, said_on: date | None = None) -> str:
+    """Fill a comment's placeholders from the order's own dates.
+
+    ``{requested}`` / ``{promised}`` / ``{delivered}`` are the order's
+    dates, ``{d:+N}`` the anchor day shifted by N working days, and
+    ``{next}`` the next working day as said on ``said_on`` (the day the
+    comment is written): "zítra", or "v pondělí" on a Friday.
+    """
+
     def cz(d: date | None) -> str:
         return _cz_date(d) if d else ""
 
@@ -1526,6 +1680,7 @@ def _render_text(body: str, p: PlannedOrder, clock: DemoClock) -> str:
             "promised": cz(p.promised),
             "delivered": cz(p.delivered),
             "d": _WorkdayDate(clock.anchor),
+            "next": next_working_day_phrase(said_on or clock.anchor),
         }
     )
 
@@ -1697,6 +1852,206 @@ async def _upload_files(tenant: Tenant, uploads: list[_PendingUpload]) -> list[O
     return rows
 
 
+@dataclass
+class _BuiltOrder:
+    """One order's rows, built from its plan; nothing added to a session yet."""
+
+    order: Order
+    rows: list[Any]  # items, status history, comments — after ``order`` is flushed
+    audit: list[AuditEvent]
+    uploads: list[_PendingUpload]
+    acted: list[tuple[User | CustomerContact, datetime]]
+
+
+def _build_order(
+    p: PlannedOrder,
+    *,
+    tenant_id: UUID,
+    customer_id: UUID,
+    actor: Callable[[str], User | CustomerContact],
+    product: Callable[[str], Product | None],
+    clock: DemoClock,
+) -> _BuiltOrder:
+    """The order of plan ``p`` with its lines, history, comments and audit
+    trail — shaped like the rows the app writes. Shared by the seed and by
+    :func:`ensure_open_quote`."""
+    spec = p.spec
+    order_id = uuid4()
+    lines: list[OrderItem] = []
+    total = Decimal("0")
+    for pos, item in enumerate(spec.items):
+        item_product = product(item.sku) if item.sku else None
+        quantity = Decimal(item.qty)
+        catalogue = PRODUCTS.get(item.sku) if item.sku else None
+        default_price = (
+            item_product.default_price
+            if item_product is not None
+            else (Decimal(catalogue[2]) if catalogue else None)
+        )
+        unit_price = Decimal(item.price or default_price or "0")
+        line_total = (unit_price * quantity).quantize(Decimal("0.01"))
+        total += line_total
+        name = item_product.name if item_product else (catalogue[0] if catalogue else "")
+        unit = item_product.unit if item_product else (catalogue[1] if catalogue else "ks")
+        lines.append(
+            OrderItem(
+                id=uuid4(),
+                tenant_id=tenant_id,
+                order_id=order_id,
+                product_id=item_product.id if item_product else None,
+                position=pos,
+                description=item.desc or name,
+                quantity=quantity,
+                unit=item.unit or unit,
+                unit_price=unit_price,
+                line_total=line_total,
+                created_at=p.created,
+            )
+        )
+    status = spec.status
+    rank = PIPELINE.index(status) if status in PIPELINE else None
+    creator = actor(spec.timeline[0].by)
+    confirm = next((e for e in spec.steps if e.status == OrderStatus.CONFIRMED), None)
+    # A step the order skipped (a phone order the shop typed in goes
+    # DRAFT -> QUOTED) is filled the way the app's _backfill_milestones
+    # fills it: with the next step's time.
+    after_draft = spec.steps[1] if len(spec.steps) > 1 else None
+    submitted_at = p.step_time(OrderStatus.SUBMITTED) or (
+        p.step_time(after_draft.status)
+        if after_draft and after_draft.status != OrderStatus.CANCELLED
+        else None
+    )
+    if status == OrderStatus.SUBMITTED or status == OrderStatus.DRAFT:
+        assignee = None
+    elif status == OrderStatus.QUOTED:
+        assignee = actor("planner")
+    elif rank is not None:
+        assignee = actor("foreman")
+    else:
+        assignee = None
+    order = Order(
+        id=order_id,
+        tenant_id=tenant_id,
+        customer_id=customer_id,
+        number=p.number,
+        title=spec.title,
+        status=status,
+        created_by_contact_id=creator.id if isinstance(creator, CustomerContact) else None,
+        created_by_user_id=creator.id if isinstance(creator, User) else None,
+        assigned_to_user_id=assignee.id if assignee else None,
+        requested_delivery_at=p.requested,
+        promised_delivery_at=p.promised,
+        # As the app does: add_item keeps the running total cached
+        # (F-14), and confirming snapshots it (LOGIC-2).
+        quoted_total=total if lines else None,
+        quoted_at=p.step_time(OrderStatus.QUOTED),
+        confirmed_total=total if confirm else None,
+        confirmed_at=p.step_time(OrderStatus.CONFIRMED),
+        confirmed_by_contact_id=actor(confirm.by).id if confirm else None,
+        currency="CZK",
+        submitted_at=submitted_at,
+        delivered_at=p.delivered,
+        closed_at=p.step_time(OrderStatus.CLOSED),
+        cancelled_at=p.step_time(OrderStatus.CANCELLED),
+        created_at=p.created,
+        # updated_at keeps its default (seed time) on purpose: the hourly
+        # auto-close job closes DELIVERED orders by updated_at, and would
+        # otherwise do it at night.
+    )
+    built = _BuiltOrder(order=order, rows=list(lines), audit=[], uploads=[], acted=[])
+
+    prev: OrderStatus | None = None
+    for event, at in zip(spec.timeline, p.times, strict=True):
+        who = actor(event.by)
+        built.acted.append((who, at))
+        by_contact = isinstance(who, CustomerContact)
+        if isinstance(event, Step):
+            built.rows.append(
+                OrderStatusHistory(
+                    id=uuid4(),
+                    tenant_id=tenant_id,
+                    order_id=order_id,
+                    from_status=prev,
+                    to_status=event.status,
+                    changed_by_contact_id=who.id if by_contact else None,
+                    changed_by_user_id=None if by_contact else who.id,
+                    note=event.note,
+                    created_at=at,
+                )
+            )
+            if prev is not None:
+                # The same trail the app writes, so the dashboard's
+                # "Recent activity" and the audit log are not empty.
+                after: dict[str, Any] = {"status": event.status.value}
+                if event.note:
+                    after["note"] = event.note
+                built.audit.append(
+                    _audit(
+                        tenant_id,
+                        at,
+                        who,
+                        "order.status_changed",
+                        entity_type="order",
+                        entity_id=order_id,
+                        entity_label=order.number,
+                        before={"status": prev.value},
+                        after=after,
+                    )
+                )
+            prev = event.status
+        elif isinstance(event, Comment):
+            body = _render_text(event.body, p, clock, said_on=at.astimezone(PRAGUE).date())
+            comment = OrderComment(
+                id=uuid4(),
+                tenant_id=tenant_id,
+                order_id=order_id,
+                author_contact_id=who.id if by_contact else None,
+                author_user_id=None if by_contact else who.id,
+                body=body,
+                is_internal=event.internal,
+                created_at=at,
+            )
+            built.rows.append(comment)
+            built.audit.append(
+                _audit(
+                    tenant_id,
+                    at,
+                    who,
+                    "order.comment_added",
+                    entity_type="order",
+                    entity_id=order_id,
+                    entity_label=order.number,
+                    after={
+                        "comment_id": str(comment.id),
+                        "is_internal": comment.is_internal,
+                        "body": body,
+                    },
+                )
+            )
+        else:
+            built.uploads.append(_PendingUpload(order, event.file, at, who))
+    return built
+
+
+def _upload_audit(
+    tenant_id: UUID, att: OrderAttachment, uploader: User | CustomerContact
+) -> AuditEvent:
+    return _audit(
+        tenant_id,
+        att.created_at,
+        uploader,
+        "attachment.upload",
+        entity_type="attachment",
+        entity_id=att.id,
+        entity_label=att.filename,
+        after={
+            "order_id": str(att.order_id),
+            "size_bytes": att.size_bytes,
+            "content_type": att.content_type,
+        },
+    )
+
+
 def _login_before(action: datetime, seed: str) -> datetime:
     """A sign-in shortly before ``action``, still inside business hours."""
     rng = random.Random(seed)
@@ -1769,6 +2124,9 @@ async def seed_demo(
                 **(tenant.settings or {}),
                 DEMO_MARKER: True,
                 "demo_seeded_at": now.isoformat(),
+                # The fictional shop is a VAT payer; its order PDFs say
+                # so under the totals (P2-3).
+                PRICE_NOTE_KEY: DEMO_PRICE_NOTE,
             }
             await session.flush()
             tid = tenant.id
@@ -1883,161 +2241,22 @@ async def seed_demo(
 
             for p in planned:
                 spec = p.spec
-                lines: list[OrderItem] = []
-                total = Decimal("0")
-                for pos, item in enumerate(spec.items):
-                    item_product: Product | None = products[item.sku] if item.sku else None
-                    quantity = Decimal(item.qty)
-                    unit_price = Decimal(
-                        item.price or (item_product.default_price if item_product else None) or "0"
-                    )
-                    line_total = (unit_price * quantity).quantize(Decimal("0.01"))
-                    total += line_total
-                    lines.append(
-                        OrderItem(
-                            id=uuid4(),
-                            tenant_id=tid,
-                            product_id=item_product.id if item_product else None,
-                            position=pos,
-                            description=item.desc or (item_product.name if item_product else ""),
-                            quantity=quantity,
-                            unit=item.unit or (item_product.unit if item_product else "ks"),
-                            unit_price=unit_price,
-                            line_total=line_total,
-                            created_at=p.created,
-                        )
-                    )
-                status = spec.status
-                rank = PIPELINE.index(status) if status in PIPELINE else None
-                creator = actor(spec.client, spec.timeline[0].by)
-                confirm = next((e for e in spec.steps if e.status == OrderStatus.CONFIRMED), None)
-                # A step the order skipped (a phone order the shop typed in
-                # goes DRAFT -> QUOTED) is filled the way the app's
-                # _backfill_milestones fills it: with the next step's time.
-                after_draft = spec.steps[1] if len(spec.steps) > 1 else None
-                submitted_at = p.step_time(OrderStatus.SUBMITTED) or (
-                    p.step_time(after_draft.status)
-                    if after_draft and after_draft.status != OrderStatus.CANCELLED
-                    else None
-                )
-                if status == OrderStatus.SUBMITTED or status == OrderStatus.DRAFT:
-                    assignee = None
-                elif status == OrderStatus.QUOTED:
-                    assignee = staff["planner"]
-                elif rank is not None:
-                    assignee = staff["foreman"]
-                else:
-                    assignee = None
-                order = Order(
-                    id=uuid4(),
+                built = _build_order(
+                    p,
                     tenant_id=tid,
                     customer_id=customers[spec.client].id,
-                    number=p.number,
-                    title=spec.title,
-                    status=status,
-                    created_by_contact_id=(
-                        creator.id if isinstance(creator, CustomerContact) else None
-                    ),
-                    created_by_user_id=creator.id if isinstance(creator, User) else None,
-                    assigned_to_user_id=assignee.id if assignee else None,
-                    requested_delivery_at=p.requested,
-                    promised_delivery_at=p.promised,
-                    # As the app does: add_item keeps the running total cached
-                    # (F-14), and confirming snapshots it (LOGIC-2).
-                    quoted_total=total if lines else None,
-                    quoted_at=p.step_time(OrderStatus.QUOTED),
-                    confirmed_total=total if confirm else None,
-                    confirmed_at=p.step_time(OrderStatus.CONFIRMED),
-                    confirmed_by_contact_id=(
-                        actor(spec.client, confirm.by).id if confirm else None
-                    ),
-                    currency="CZK",
-                    submitted_at=submitted_at,
-                    delivered_at=p.delivered,
-                    closed_at=p.step_time(OrderStatus.CLOSED),
-                    cancelled_at=p.step_time(OrderStatus.CANCELLED),
-                    created_at=p.created,
-                    # updated_at keeps its default (seed time) on purpose:
-                    # the hourly auto-close job closes DELIVERED orders by
-                    # updated_at, and would otherwise do it at night.
+                    actor=partial(actor, spec.client),
+                    product=products.get,
+                    clock=clock,
                 )
-                session.add(order)
+                session.add(built.order)
                 await session.flush()
-                for line in lines:
-                    line.order_id = order.id
-                session.add_all(lines)
-
-                prev: OrderStatus | None = None
-                for event, at in zip(spec.timeline, p.times, strict=True):
-                    who = actor(spec.client, event.by)
+                session.add_all(built.rows)
+                audit.extend(built.audit)
+                uploads.extend(built.uploads)
+                for who, at in built.acted:
                     acted(who, at)
-                    by_contact = isinstance(who, CustomerContact)
-                    if isinstance(event, Step):
-                        session.add(
-                            OrderStatusHistory(
-                                id=uuid4(),
-                                tenant_id=tid,
-                                order_id=order.id,
-                                from_status=prev,
-                                to_status=event.status,
-                                changed_by_contact_id=who.id if by_contact else None,
-                                changed_by_user_id=None if by_contact else who.id,
-                                note=event.note,
-                                created_at=at,
-                            )
-                        )
-                        if prev is not None:
-                            # The same trail the app writes, so the dashboard's
-                            # "Recent activity" and the audit log are not empty.
-                            after: dict[str, Any] = {"status": event.status.value}
-                            if event.note:
-                                after["note"] = event.note
-                            audit.append(
-                                _audit(
-                                    tid,
-                                    at,
-                                    who,
-                                    "order.status_changed",
-                                    entity_type="order",
-                                    entity_id=order.id,
-                                    entity_label=order.number,
-                                    before={"status": prev.value},
-                                    after=after,
-                                )
-                            )
-                        prev = event.status
-                    elif isinstance(event, Comment):
-                        body = _render_text(event.body, p, clock)
-                        comment = OrderComment(
-                            id=uuid4(),
-                            tenant_id=tid,
-                            order_id=order.id,
-                            author_contact_id=who.id if by_contact else None,
-                            author_user_id=None if by_contact else who.id,
-                            body=body,
-                            is_internal=event.internal,
-                            created_at=at,
-                        )
-                        session.add(comment)
-                        audit.append(
-                            _audit(
-                                tid,
-                                at,
-                                who,
-                                "order.comment_added",
-                                entity_type="order",
-                                entity_id=order.id,
-                                entity_label=order.number,
-                                after={
-                                    "comment_id": str(comment.id),
-                                    "is_internal": comment.is_internal,
-                                    "body": body,
-                                },
-                            )
-                        )
-                    else:
-                        uploads.append(_PendingUpload(order, event.file, at, who))
-                orders_by_title[spec.title] = order
+                orders_by_title[spec.title] = built.order
             await session.flush()
 
             # ---- drawings (S3). A failure costs the drawings, not the seed.
@@ -2062,22 +2281,7 @@ async def seed_demo(
                 }
                 for att in attachments:
                     uploader = by_id[att.uploaded_by_contact_id or att.uploaded_by_user_id]  # type: ignore[index]
-                    audit.append(
-                        _audit(
-                            tid,
-                            att.created_at,
-                            uploader,
-                            "attachment.upload",
-                            entity_type="attachment",
-                            entity_id=att.id,
-                            entity_label=att.filename,
-                            after={
-                                "order_id": str(att.order_id),
-                                "size_bytes": att.size_bytes,
-                                "content_type": att.content_type,
-                            },
-                        )
-                    )
+                    audit.append(_upload_audit(tid, att, uploader))
             session.add_all(audit)
 
             # ---- client-owned material
@@ -2228,6 +2432,198 @@ async def find_showcase(db: AsyncSession, tenant_id: UUID) -> DemoShowcase:
         overdue_order=await order(OVERDUE_ORDER_TITLE),
         material=ShowcaseLink(id=asset.id, label=asset.code) if asset else None,
     )
+
+
+# --------------------------------------------------------------------------
+# Re-arming the customer persona's quote (public demo, N1)
+# --------------------------------------------------------------------------
+
+#: The client whose admin contact is the public demo's customer persona.
+PERSONA_CLIENT = "ukazkova"
+
+#: Namespace of the per-tenant advisory lock taken while re-arming.
+_REARM_LOCK = "app.demo.ensure_open_quote"
+
+
+def persona_quote_templates() -> list[OrderSpec]:
+    """The persona client's seeded open quotes, flagship first."""
+    specs = [o for o in ORDERS if o.client == PERSONA_CLIENT and o.status == OrderStatus.QUOTED]
+    return sorted(specs, key=lambda o: o.title != FLAGSHIP_ORDER_TITLE)
+
+
+async def ensure_open_quote(
+    db: AsyncSession,
+    *,
+    tenant_id: UUID,
+    customer_id: UUID,
+    now: datetime | None = None,
+) -> Order | None:
+    """Give the persona's client a fresh quote when it has none open (N1).
+
+    The public demo is shared: once visitors have confirmed every seeded
+    quote, the next one would land on a dashboard with nothing to confirm
+    until the nightly reset. This re-creates one of
+    :func:`persona_quote_templates` — the one re-armed least often, the
+    flagship on a tie — exactly as the seed would today: same lines and
+    prices, the drawings (new rows pointing at the already stored files),
+    status history, comments and audit trail on Czech working hours, the
+    promised date, and the next number from the app's own allocator.
+
+    Idempotent and race-safe: a per-tenant transaction-scoped advisory
+    lock serialises concurrent callers, and nothing is created while the
+    client still has a ``QUOTED`` order. Returns the new order, or
+    ``None`` when nothing was needed (or the seed's people are gone).
+    The caller commits; only :mod:`app.demo.router` calls this, and only
+    for the public demo tenant.
+    """
+    from app.services.order_service import _next_order_number
+
+    await db.execute(
+        text("SELECT pg_advisory_xact_lock(hashtext(:ns), hashtext(:tid))"),
+        {"ns": _REARM_LOCK, "tid": str(tenant_id)},
+    )
+    open_quote = (
+        await db.execute(
+            select(Order.id)
+            .where(
+                Order.tenant_id == tenant_id,
+                Order.customer_id == customer_id,
+                Order.status == OrderStatus.QUOTED,
+            )
+            .limit(1)
+        )
+    ).first()
+    if open_quote is not None:
+        return None
+
+    templates = persona_quote_templates()
+    rows = (
+        await db.execute(
+            select(Order.title, func.count())
+            .where(
+                Order.tenant_id == tenant_id,
+                Order.customer_id == customer_id,
+                Order.title.in_([t.title for t in templates]),
+            )
+            .group_by(Order.title)
+        )
+    ).all()
+    counts: dict[str, int] = {row[0]: row[1] for row in rows}
+    spec = min(templates, key=lambda t: counts.get(t.title, 0))  # stable: flagship on ties
+
+    # The seed's people, by their seeded e-mail addresses.
+    users = {
+        u.email: u
+        for u in (
+            await db.execute(
+                select(User).where(User.tenant_id == tenant_id, User.is_active.is_(True))
+            )
+        ).scalars()
+    }
+    contacts = {
+        c.email: c
+        for c in (
+            await db.execute(
+                select(CustomerContact).where(
+                    CustomerContact.tenant_id == tenant_id,
+                    CustomerContact.customer_id == customer_id,
+                )
+            )
+        ).scalars()
+    }
+    staff_mail = {s.key: _email(s.local, STAFF_DOMAIN) for s in STAFF}
+    client_domain = CUSTOMERS[PERSONA_CLIENT][1]
+    fallback_user = users.get(DEMO_STAFF_EMAIL) or next(iter(users.values()), None)
+    fallback_contact = contacts.get(DEMO_CONTACT_EMAIL) or next(iter(contacts.values()), None)
+    if fallback_user is None or fallback_contact is None:
+        log.warning("demo.rearm.people_missing", tenant_id=str(tenant_id))
+        return None
+
+    def actor(by: str) -> User | CustomerContact:
+        if by in staff_mail:
+            return users.get(staff_mail[by]) or fallback_user
+        return contacts.get(_email(by, client_domain)) or fallback_contact
+
+    skus = [i.sku for i in spec.items if i.sku]
+    catalogue: dict[str, Product] = {}
+    for row in (
+        await db.execute(
+            select(Product).where(
+                Product.tenant_id == tenant_id,
+                Product.sku.in_(skus),
+                Product.is_active.is_(True),
+                (Product.customer_id == customer_id) | Product.customer_id.is_(None),
+            )
+        )
+    ).scalars():
+        # The client's own product wins over a shared one with that SKU.
+        if row.sku not in catalogue or row.customer_id is not None:
+            catalogue[row.sku] = row
+
+    clock = DemoClock(now or datetime.now(UTC))
+    seq = counts.get(spec.title, 0)
+    plan = PlannedOrder(
+        spec=spec,
+        times=clock.slots([e.wd for e in spec.timeline], f"{spec.title}/rearm/{seq}"),
+        requested=clock.day(-spec.requested) if spec.requested is not None else None,
+        promised=clock.day(-spec.promised) if spec.promised is not None else None,
+        number=await _next_order_number(db, tenant_id=tenant_id),
+    )
+    built = _build_order(
+        plan,
+        tenant_id=tenant_id,
+        customer_id=customer_id,
+        actor=actor,
+        product=catalogue.get,
+        clock=clock,
+    )
+    db.add(built.order)
+    await db.flush()
+    db.add_all(built.rows)
+    audit = list(built.audit)
+
+    # Drawings: new rows pointing at the files the seed stored. The
+    # attachment delete route keeps an object another row still uses.
+    for up in built.uploads:
+        stored = (
+            await db.execute(
+                select(OrderAttachment)
+                .where(
+                    OrderAttachment.tenant_id == tenant_id,
+                    OrderAttachment.filename == FILES[up.file].filename,
+                )
+                .order_by(OrderAttachment.created_at.desc())
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+        if stored is None:  # seeded without files, or deleted today
+            continue
+        by_contact = isinstance(up.by, CustomerContact)
+        att = OrderAttachment(
+            id=uuid4(),
+            tenant_id=tenant_id,
+            order_id=built.order.id,
+            kind=stored.kind,
+            filename=stored.filename,
+            content_type=stored.content_type,
+            size_bytes=stored.size_bytes,
+            storage_key=stored.storage_key,
+            thumbnail_key=stored.thumbnail_key,
+            uploaded_by_contact_id=up.by.id if by_contact else None,
+            uploaded_by_user_id=None if by_contact else up.by.id,
+            created_at=up.at,
+        )
+        db.add(att)
+        audit.append(_upload_audit(tenant_id, att, up.by))
+    db.add_all(audit)
+    await db.flush()
+    log.info(
+        "demo.rearm.quote_created",
+        tenant_id=str(tenant_id),
+        number=built.order.number,
+        title=spec.title,
+    )
+    return built.order
 
 
 # --------------------------------------------------------------------------
