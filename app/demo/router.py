@@ -25,7 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import Settings, get_settings
 from app.demo.guard import is_public_demo_request
 from app.demo.landing import flagship_quote
-from app.demo.seed import DEMO_CONTACT_EMAIL, DEMO_STAFF_EMAIL
+from app.demo.seed import DEMO_CONTACT_EMAIL, DEMO_STAFF_EMAIL, ensure_open_quote
 from app.deps import Principal, get_current_principal, get_current_tenant, get_db
 from app.i18n import t as _t
 from app.logging import get_logger
@@ -140,12 +140,25 @@ async def demo_enter(
 
     # The customer persona lands on its open quote (P2-14): drawing,
     # price and the "Confirm" button are the whole point of the client
-    # view. Falls back to the dashboard when no quote is waiting.
+    # view. The demo is shared, so when earlier visitors have confirmed
+    # every quote a fresh one is re-armed first (N1). Falls back to the
+    # dashboard only if that is impossible (the seed's people are gone).
     target = "/app"
     if session_data.principal_type == "contact" and session_data.customer_id:
-        flagship = await flagship_quote(db, customer_id=UUID(session_data.customer_id))
-        if flagship is not None:
-            target = f"/app/orders/{flagship.id}"
+        customer_id = UUID(session_data.customer_id)
+        landing = await ensure_open_quote(db, tenant_id=tenant.id, customer_id=customer_id)
+        if landing is None:
+            landing = await flagship_quote(db, customer_id=customer_id)
+            if landing is not None:
+                target = f"/app/orders/{landing.id}"
+        else:
+            target = f"/app/orders/{landing.id}"
+            log.info("demo.enter.quote_rearmed", number=landing.number)
+            # Committed before the redirect is sent, so the very next
+            # request sees it whatever the dependency teardown order
+            # (CLAUDE.md §2). Nothing is read after this: the commit ends
+            # the transaction that carried the RLS tenant context.
+            await db.commit()
 
     log.info("demo.enter", role=role, ip=_client_ip(request))
     response = RedirectResponse(url=target, status_code=status.HTTP_303_SEE_OTHER)
