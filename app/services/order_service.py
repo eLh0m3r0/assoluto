@@ -1010,8 +1010,9 @@ async def transition_order(
 
     ``notify_customer=False`` (staff only, LOGIC-22) records that the
     sender chose not to e-mail the customer about this move:
-    ``not_notified_note`` is appended to the history note and the audit
-    entry carries ``notify_customer: false``. Suppressing the mail itself
+    the audit entry carries ``notify_customer: false`` and
+    ``not_notified_note``. Nothing is added to the history note — the
+    customer reads that. Suppressing the mail itself
     is the caller's job — this function sends nothing. Callers pass it
     only for a move that would otherwise have mailed the customer.
     """
@@ -1099,10 +1100,10 @@ async def transition_order(
 
     await _backfill_milestones(db, order, to_status=to_status, now=now, actor=actor)
 
-    silent_note = None if notify_customer else not_notified_note
-    history_note = "; ".join(
-        part for part in ((note or "").strip(), override_note, silent_note) if part
-    )
+    # The "customer not notified" fact goes to the audit event only: the
+    # status history is shown to the customer, and "we chose not to tell
+    # you" is not theirs to read.
+    history_note = "; ".join(part for part in ((note or "").strip(), override_note) if part)
 
     db.add(
         OrderStatusHistory(
@@ -1131,8 +1132,12 @@ async def transition_order(
         )
     if promised_delivery_at is not None:
         after["promised_delivery_at"] = promised_delivery_at.isoformat()
-    if history_note:
-        after["note"] = history_note
+    # The audit log is staff-only, so it may say what the history must not.
+    audit_note = "; ".join(
+        part for part in (history_note, None if notify_customer else not_notified_note) if part
+    )
+    if audit_note:
+        after["note"] = audit_note
     if not notify_customer:
         after["notify_customer"] = False
 

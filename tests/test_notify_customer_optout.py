@@ -220,8 +220,9 @@ async def test_unticked_checkbox_sends_no_customer_mail_and_records_it(
     assert order.status == OrderStatus.IN_PRODUCTION
 
     history = await _latest_history(owner_engine, order_id)
-    assert history.note.startswith("Material arrived; ")
-    assert _is_not_notified_marker(history.note)
+    # Staff-only fact: never in the customer-visible history note.
+    assert history.note == "Material arrived"
+    assert not _is_not_notified_marker(history.note)
     after = await _status_audit(owner_engine, order_id)
     assert after["notify_customer"] is False
     assert _is_not_notified_marker(after["note"])
@@ -307,7 +308,7 @@ async def test_bulk_unticked_sends_no_customer_mail(
     for order_id in order_ids:
         history = await _latest_history(owner_engine, order_id)
         assert history.to_status == OrderStatus.READY
-        assert _is_not_notified_marker(history.note)
+        assert not _is_not_notified_marker(history.note)
         assert (await _status_audit(owner_engine, order_id))["notify_customer"] is False
 
 
