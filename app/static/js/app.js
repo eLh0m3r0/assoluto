@@ -180,8 +180,12 @@
   // Success notices (``role="status"``, blue) fade out after 4s so the
   // user gets the confirmation but isn't left with a permanent banner.
   // Errors (``role="alert"``, red) stay — they usually need action.
+  // Page banners that are also ``role="status"`` (public demo, trial /
+  // early access) carry ``data-persistent``: they used to vanish after
+  // 4 s along with the flashes, taking the demo's "fictional data" notice
+  // and its blocked-action explanation with them.
   document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll('[role="status"]').forEach(function (el) {
+    document.querySelectorAll('[role="status"]:not([data-persistent])').forEach(function (el) {
       setTimeout(function () {
         el.style.transition = "opacity 400ms ease";
         el.style.opacity = "0";
@@ -371,4 +375,84 @@
       priceEl.setAttribute("data-autofilled", price ? "1" : "0");
     }
   });
+
+  // -------- public demo: show refused forms as disabled --------
+  // ``<body data-demo-locked>`` (public demo only) lists the path patterns
+  // the demo guard refuses (app.demo.guard). Such forms get their
+  // controls disabled and a short note up front, rather than looking
+  // editable until the visitor presses Save. The guard still refuses
+  // them server-side; this is presentation only.
+  (function lockDemoForms() {
+    var body = document.body;
+    var raw = body ? body.getAttribute("data-demo-locked") : null;
+    if (!raw) return;
+    var patterns;
+    try {
+      patterns = JSON.parse(raw).map(function (src) { return new RegExp(src); });
+    } catch (e) {
+      return;
+    }
+    var note = body.getAttribute("data-demo-locked-note") || "";
+    var forms = document.querySelectorAll("form");
+    Array.prototype.forEach.call(forms, function (form) {
+      if ((form.getAttribute("method") || "get").toLowerCase() !== "post") return;
+      var path;
+      try {
+        path = new URL(form.getAttribute("action") || "", window.location.href).pathname;
+      } catch (e) {
+        return;
+      }
+      if (!patterns.some(function (re) { return re.test(path); })) return;
+      form.setAttribute("data-demo-locked-form", "1");
+      form.classList.add("opacity-60");
+      if (note) form.setAttribute("title", note);
+      var controls = form.querySelectorAll("input, select, textarea, button");
+      var hasFields = false;
+      Array.prototype.forEach.call(controls, function (el) {
+        if (el.type !== "hidden" && el.tagName !== "BUTTON") hasFields = true;
+        el.disabled = true;
+        if (el.tagName === "BUTTON") el.classList.add("cursor-not-allowed");
+      });
+      // A real form (fields to fill in) gets the note spelled out; a lone
+      // inline button in a table row keeps just the tooltip.
+      if (hasFields && note) {
+        var p = document.createElement("p");
+        p.className = "mt-2 text-xs font-medium text-amber-700 dark:text-amber-300";
+        p.setAttribute("data-demo-locked-note", "1");
+        p.textContent = note;
+        form.appendChild(p);
+      }
+    });
+  })();
+
+  // -------- dismissible cards --------
+  // ``data-dismissible="<key>"`` wraps a hint card; a ``data-dismiss``
+  // button inside hides it and remembers that in localStorage, so the
+  // card stays closed on the next visit (e.g. the demo "Where to start").
+  (function dismissibleCards() {
+    function stored(key) {
+      try {
+        return window.localStorage.getItem("dismissed:" + key) === "1";
+      } catch (e) {
+        return false;
+      }
+    }
+    var cards = document.querySelectorAll("[data-dismissible]");
+    Array.prototype.forEach.call(cards, function (card) {
+      if (stored(card.getAttribute("data-dismissible"))) card.classList.add("hidden");
+    });
+    document.addEventListener("click", function (event) {
+      var button = event.target.closest("[data-dismiss]");
+      if (!button) return;
+      var card = button.closest("[data-dismissible]");
+      if (!card) return;
+      event.preventDefault();
+      card.classList.add("hidden");
+      try {
+        window.localStorage.setItem("dismissed:" + card.getAttribute("data-dismissible"), "1");
+      } catch (e) {
+        /* private mode: closes for this page view only */
+      }
+    });
+  })();
 })();

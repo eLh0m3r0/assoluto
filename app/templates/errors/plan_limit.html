@@ -24,7 +24,7 @@
                 {{ _('Upgrade your plan to increase the cap, or contact support if you believe this is a mistake.') }}
             </p>
             <div class="mt-6 flex flex-wrap justify-center gap-2">
-                {% if feature_platform %}
+                {% if feature_platform and not public_demo %}
                     <a href="/platform/billing"
                        class="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
                         {{ _('Upgrade plan') }}
