@@ -2,7 +2,7 @@
    ``?demo_blocked=<kind>`` is set by app.demo.guard when it refused an
    action; the explanation is picked from a fixed list (never echoed). #}
 {% set blocked = request.query_params.get("demo_blocked") %}
-<div role="status" class="border-b border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-500/30 dark:bg-amber-900/20 dark:text-amber-100">
+<div role="status" data-persistent class="border-b border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-500/30 dark:bg-amber-900/20 dark:text-amber-100">
     <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-sm sm:px-6">
         <span class="font-semibold">{{ _("Public demo") }}</span>
         <span>{{ _("This is a public demo with fictional data. Anything you change is reset every night.") }}</span>

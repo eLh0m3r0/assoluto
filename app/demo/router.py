@@ -15,6 +15,7 @@ No password is involved; what such a session may do is limited by
 from __future__ import annotations
 
 from urllib.parse import quote
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -23,6 +24,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
 from app.demo.guard import is_public_demo_request
+from app.demo.landing import flagship_quote
 from app.demo.seed import DEMO_CONTACT_EMAIL, DEMO_STAFF_EMAIL
 from app.deps import Principal, get_current_principal, get_current_tenant, get_db
 from app.i18n import t as _t
@@ -136,7 +138,16 @@ async def demo_enter(
         message = quote(_t(request, "The demo is being refreshed. Please try again in a minute."))
         return RedirectResponse(url=f"/demo?error={message}", status_code=303)
 
+    # The customer persona lands on its open quote (P2-14): drawing,
+    # price and the "Confirm" button are the whole point of the client
+    # view. Falls back to the dashboard when no quote is waiting.
+    target = "/app"
+    if session_data.principal_type == "contact" and session_data.customer_id:
+        flagship = await flagship_quote(db, customer_id=UUID(session_data.customer_id))
+        if flagship is not None:
+            target = f"/app/orders/{flagship.id}"
+
     log.info("demo.enter", role=role, ip=_client_ip(request))
-    response = RedirectResponse(url="/app", status_code=status.HTTP_303_SEE_OTHER)
+    response = RedirectResponse(url=target, status_code=status.HTTP_303_SEE_OTHER)
     write_session(response, settings.app_secret_key, session_data, secure=settings.is_production)
     return response

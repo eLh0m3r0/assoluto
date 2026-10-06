@@ -175,6 +175,24 @@ async def assets_detail(
     from app.models.order import Order
 
     movements = await list_movements(db, asset_id=asset.id)
+    # Order numbers for the movement table's "Order" column (P2-13).
+    # Limited to the asset owner's orders, so a contact never sees a
+    # number from another client even if a movement pointed elsewhere.
+    ref_ids = {m.reference_order_id for m in movements if m.reference_order_id}
+    movement_orders: dict = {}
+    if ref_ids:
+        movement_orders = {
+            o.id: o
+            for o in (
+                await db.execute(
+                    select(Order).where(
+                        Order.id.in_(ref_ids), Order.customer_id == asset.customer_id
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        }
     customer = None
     orders: list[Order] = []
     if principal.is_staff:
@@ -203,6 +221,7 @@ async def assets_detail(
             "tenant": _tenant(request),
             "asset": asset,
             "movements": movements,
+            "movement_orders": movement_orders,
             "customer": customer,
             "orders": orders,
             "error": error,

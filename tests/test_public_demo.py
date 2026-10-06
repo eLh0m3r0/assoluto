@@ -101,7 +101,12 @@ async def demo_client(settings, demo) -> AsyncIterator[CsrfAwareClient]:
 async def _enter(client: CsrfAwareClient, role: str) -> None:
     resp = await client.post("/demo/enter", data={"role": role}, follow_redirects=False)
     assert resp.status_code == 303, resp.text[:300]
-    assert resp.headers["location"] == "/app"
+    # The supplier lands on the dashboard, the customer on its open quote
+    # (P2-14, see tests/test_demo_ui.py).
+    if role == "staff":
+        assert resp.headers["location"] == "/app"
+    else:
+        assert resp.headers["location"].startswith("/app/orders/")
 
 
 def _sender(client: CsrfAwareClient):

@@ -6,6 +6,8 @@ Customer contacts see counts of their own open orders and assets.
 
 from __future__ import annotations
 
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy import func, select
@@ -167,6 +169,17 @@ async def dashboard_index(
     # only see order events on their own customer's orders).
     recent_activity = await audit_service.list_recent(db, principal=principal, limit=20)
 
+    # P3-8: an upload event is about a file, but the reader wants to know
+    # which *order* got it. The order id sits in the event's diff.
+    activity_orders = await _upload_event_orders(db, recent_activity, principal)
+
+    # Public demo (P2-14): a "Where to start" card for the supplier.
+    demo_start = None
+    if principal.is_staff and getattr(request.state, "public_demo", False):
+        from app.demo.landing import start_here_links
+
+        demo_start = await start_here_links(db, today=local_today(request_tz(request)))
+
     html = _templates(request).render(
         request,
         "dashboard/index.html",
@@ -178,6 +191,29 @@ async def dashboard_index(
             "work_queues": work_queues,
             "customer_by_id": customer_by_id,
             "recent_activity": recent_activity,
+            "activity_orders": activity_orders,
+            "demo_start": demo_start,
         },
     )
     return HTMLResponse(html)
+
+
+async def _upload_event_orders(
+    db: AsyncSession, events: list, principal: Principal
+) -> dict[str, Order]:
+    """``{order id (str): Order}`` for the ``attachment.upload`` events shown."""
+    ids: set[UUID] = set()
+    for event in events:
+        if event.action != "attachment.upload" or not isinstance(event.diff, dict):
+            continue
+        raw = (event.diff.get("after") or {}).get("order_id")
+        try:
+            ids.add(UUID(str(raw)))
+        except (TypeError, ValueError):
+            continue
+    if not ids:
+        return {}
+    stmt = select(Order).where(Order.id.in_(ids))
+    if not principal.is_staff:
+        stmt = stmt.where(Order.customer_id == principal.customer_id)
+    return {str(o.id): o for o in (await db.execute(stmt)).scalars().all()}

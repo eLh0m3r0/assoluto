@@ -41,7 +41,7 @@
     {% endif %}
 
     <form method="get" action="/app/orders" data-no-busy
-          class="mb-4 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-4 lg:grid-cols-5">
+          class="mb-4 grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-4 lg:grid-cols-5">
         <input type="text" name="q" value="{{ filters.q }}"
                placeholder="{{ _('Number or title…') }}"
                class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500">
@@ -111,20 +111,20 @@
                                        class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-700">
                             </th>
                         {% endif %}
-                        <th class="px-4 py-3 text-left">{{ _('Number') }}</th>
+                        <th class="hidden px-4 py-3 text-left md:table-cell">{{ _('Number') }}</th>
                         <th class="px-4 py-3 text-left">{{ _('Name') }}</th>
                         {% if principal.is_staff %}
-                            <th class="px-4 py-3 text-left">{{ _('Client') }}</th>
+                            <th class="hidden px-4 py-3 text-left md:table-cell">{{ _('Client') }}</th>
                         {% endif %}
-                        <th class="px-4 py-3 text-left">{{ _('Status') }}</th>
+                        <th class="hidden px-4 py-3 text-left md:table-cell">{{ _('Status') }}</th>
                         {% if principal.is_staff %}
-                            <th class="px-4 py-3 text-left">{{ _('Responsible') }}</th>
+                            <th class="hidden px-4 py-3 text-left md:table-cell">{{ _('Responsible') }}</th>
                         {% endif %}
-                        <th class="px-4 py-3 text-right">{{ _('Total') }}</th>
+                        <th class="hidden px-4 py-3 text-right md:table-cell">{{ _('Total') }}</th>
                         {# Sortable by promised date (UX-12): the column a
                            job shop actually plans by. #}
                         {% set _next_sort = 'due' if filters.sort != 'due' else '-due' %}
-                        <th class="px-4 py-3 text-left"
+                        <th class="hidden px-4 py-3 text-left md:table-cell"
                             {% if filters.sort %}aria-sort="{{ 'ascending' if filters.sort == 'due' else 'descending' }}"{% endif %}>
                             <a href="?{{ sort_qs }}{{ '&' if sort_qs else '' }}sort={{ _next_sort }}"
                                class="inline-flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-200">
@@ -132,11 +132,13 @@
                                 {% if filters.sort == 'due' %}<span aria-hidden="true">↑</span>{% elif filters.sort == '-due' %}<span aria-hidden="true">↓</span>{% endif %}
                             </a>
                         </th>
-                        <th class="px-4 py-3 text-left">{{ _('Created') }}</th>
+                        <th class="hidden px-4 py-3 text-left md:table-cell">{{ _('Created') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     {% for order in orders %}
+                        {% set _overdue = order.promised_delivery_at and order.promised_delivery_at < today
+                                          and order.status.value not in ('delivered', 'closed', 'cancelled') %}
                         <tr class="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50"
                             data-href="/app/orders/{{ order.id }}">
                             {% if principal.is_staff %}
@@ -150,23 +152,44 @@
                             {# A real link (UX-05): Tab + Enter, middle-click and
                                "open in new tab" all work; the row's data-href
                                stays a mouse convenience. #}
-                            <td class="px-4 py-3 font-mono text-slate-700 dark:text-slate-300">
+                            <td class="hidden px-4 py-3 font-mono text-slate-700 dark:text-slate-300 md:table-cell">
                                 <a href="/app/orders/{{ order.id }}"
                                    class="rounded hover:text-brand-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:hover:text-brand-300">{{ order.number }}</a>
                             </td>
-                            <td class="px-4 py-3 text-slate-900 dark:text-slate-100">{{ order.title }}</td>
+                            <td class="px-4 py-3 text-slate-900 dark:text-slate-100">
+                                {# Phone layout (P2-7): the row becomes a card —
+                                   number + status on top, title, then client,
+                                   total and due date. md+ uses the columns. #}
+                                <div class="mb-1 flex items-center justify-between gap-2 md:hidden" data-order-card>
+                                    <a href="/app/orders/{{ order.id }}"
+                                       class="font-mono text-xs text-slate-600 hover:text-brand-700 hover:underline dark:text-slate-400 dark:hover:text-brand-300">{{ order.number }}</a>
+                                    {% with status=order.status.value %}
+                                        {% include "orders/_status_badge.html" %}
+                                    {% endwith %}
+                                </div>
+                                <span class="font-medium md:font-normal">{{ order.title }}</span>
+                                <div class="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400 md:hidden">
+                                    {% if principal.is_staff and customer_by_id.get(order.customer_id) %}
+                                        <span>{{ customer_by_id[order.customer_id].name }}</span>
+                                    {% endif %}
+                                    <span class="font-medium text-slate-700 dark:text-slate-300" data-card-total>{{ order.quoted_total | money_major(order.currency) }}</span>
+                                    <span class="{% if _overdue %}font-semibold text-red-700 dark:text-red-300{% endif %}" data-card-due>
+                                        {{ _('Due') }}: {{ order.promised_delivery_at.strftime("%d.%m.%Y") if order.promised_delivery_at else "—" }}{% if _overdue %} · {{ _('Overdue') }}{% endif %}
+                                    </span>
+                                </div>
+                            </td>
                             {% if principal.is_staff %}
-                                <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                                <td class="hidden px-4 py-3 text-slate-600 dark:text-slate-400 md:table-cell">
                                     {{ customer_by_id[order.customer_id].name if customer_by_id.get(order.customer_id) else "—" }}
                                 </td>
                             {% endif %}
-                            <td class="px-4 py-3">
+                            <td class="hidden px-4 py-3 md:table-cell">
                                 {% with status=order.status.value %}
                                     {% include "orders/_status_badge.html" %}
                                 {% endwith %}
                             </td>
                             {% if principal.is_staff %}
-                                <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                                <td class="hidden px-4 py-3 text-slate-600 dark:text-slate-400 md:table-cell">
                                     {% if order.assigned_to_user_id %}
                                         {{ assignee_by_id.get(order.assigned_to_user_id, "—") }}
                                     {% else %}
@@ -174,12 +197,10 @@
                                     {% endif %}
                                 </td>
                             {% endif %}
-                            <td class="px-4 py-3 text-right text-slate-700 dark:text-slate-300">
+                            <td class="hidden whitespace-nowrap px-4 py-3 text-right text-slate-700 dark:text-slate-300 md:table-cell">
                                 {{ order.quoted_total | money_major(order.currency) }}
                             </td>
-                            {% set _overdue = order.promised_delivery_at and order.promised_delivery_at < today
-                                              and order.status.value not in ('delivered', 'closed', 'cancelled') %}
-                            <td class="px-4 py-3 {% if _overdue %}font-semibold text-red-700 dark:text-red-300{% else %}text-slate-600 dark:text-slate-400{% endif %}"
+                            <td class="hidden px-4 py-3 md:table-cell {% if _overdue %}font-semibold text-red-700 dark:text-red-300{% else %}text-slate-600 dark:text-slate-400{% endif %}"
                                 {% if _overdue %}data-overdue{% endif %}>
                                 {% if order.promised_delivery_at %}
                                     {{ order.promised_delivery_at.strftime("%d.%m.%Y") }}
@@ -188,7 +209,7 @@
                                     <span class="text-slate-400 dark:text-slate-500">—</span>
                                 {% endif %}
                             </td>
-                            <td class="px-4 py-3 text-slate-500 dark:text-slate-400">
+                            <td class="hidden px-4 py-3 text-slate-500 dark:text-slate-400 md:table-cell">
                                 {{ order.created_at|localdate }}
                             </td>
                         </tr>
