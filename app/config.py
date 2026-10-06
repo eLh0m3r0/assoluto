@@ -108,6 +108,17 @@ class Settings(BaseSettings):
     # ``tenants.settings["hide_powered_by"] = true`` (white-label).
     powered_by_url: str = Field(default="", alias="POWERED_BY_URL")
 
+    # --- Public demo (E3) --------------------------------------------------
+    # Slug of the tenant that anyone may enter without signing up, via
+    # ``https://<slug>.<apex>/demo`` (staff or customer view). Empty = off.
+    # Only a tenant created by ``app.demo.seed`` (marker
+    # ``tenants.settings.demo_seed``) can be public; any other tenant with
+    # this slug is refused. While on, that tenant sends no e-mail at all,
+    # account / invitation / settings changes are blocked, uploads are
+    # capped, and the data is re-seeded every night (02:30 Europe/Prague).
+    # See app/demo/ and docs/OPERATOR_PLAYBOOK.md §9.
+    public_demo_tenant: str = Field(default="", alias="PUBLIC_DEMO_TENANT")
+
     # --- Orders -----------------------------------------------------------
     # Days an order may sit in QUOTED before the customer contacts get one
     # follow-up reminder (respecting their notification consent) and the

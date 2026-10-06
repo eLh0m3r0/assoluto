@@ -73,10 +73,13 @@ def _reset_app_caches() -> None:
     when it is later disposed, so we must rebuild it every test.
     """
     from app.db import session as db_session
+    from app.demo import guard as demo_guard
 
     get_settings.cache_clear()
     db_session.get_engine.cache_clear()
     db_session.get_sessionmaker.cache_clear()
+    # Resolved public-demo tenant ids outlive a test's wiped DB otherwise.
+    demo_guard.reset_cache()
 
 
 @pytest.fixture

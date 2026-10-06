@@ -372,6 +372,10 @@ class Templates:
             # "Powered by Assoluto" footer for customer contacts (MKT-9);
             # empty string hides it. See app.urls.powered_by_url.
             "powered_by_url": _powered_by_url(self.settings, request),
+            # Public demo host (E3): banner + "Create your own portal".
+            # Set by app.demo.guard.PublicDemoMiddleware, False elsewhere.
+            "public_demo": bool(getattr(request.state, "public_demo", False)),
+            "public_demo_signup_url": getattr(request.state, "public_demo_signup_url", ""),
         }
         if extra:
             context.update(extra)
