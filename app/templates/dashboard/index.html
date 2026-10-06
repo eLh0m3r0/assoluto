@@ -97,91 +97,10 @@
         own customer's orders. The empty state keeps the widget present
         on fresh tenants so the UI doesn't jump.
 
-        Action strings: we keep a lookup dict from ``action`` code to a
-        short English verb phrase, then run each phrase through ``_()``
-        so Czech (and any future locale) can translate normally. Keeping
-        the verbs English-keyed matches the rest of the codebase — the
-        `.po` catalog translates English strings, not opaque keys.
+        Labels (action verbs, statuses, entity types) come from the
+        shared ``_audit_labels.html`` — the audit log uses the same map.
     #}
-    {% set activity_icons = {
-        'order.status_changed': '→',
-        'order.assigned': '@',
-        'order.updated': '*',
-        'order.duplicated': '+',
-        'attachment.upload': '+',
-        'attachment.deleted': '−',
-        'order.item_added': '+',
-        'order.item_updated': '*',
-        'order.item_removed': '−',
-        'order.comment_added': '"',
-        'customer.created': '+',
-        'customer.updated': '*',
-        'customer.deleted': '−',
-        'product.created': '+',
-        'product.updated': '*',
-        'user.invited': '+',
-        'user.password_changed': '*',
-    } %}
-    {# Every action the feed can show gets a human verb (UX-09); the
-       raw code only appears for something added later and forgotten. #}
-    {% set activity_verbs = {
-        'order.status_changed': _('changed status of'),
-        'order.assigned': _('changed who is responsible for'),
-        'order.updated': _('edited order'),
-        'order.duplicated': _('created a repeat order'),
-        'attachment.upload': _('uploaded a file to'),
-        'attachment.deleted': _('deleted a file from'),
-        'user.role_changed': _('changed the role of'),
-        'user.disabled': _('deactivated user'),
-        'user.reactivated': _('reactivated user'),
-        'user.profile_updated': _('updated the profile of'),
-        'tenant.settings_updated': _('updated settings of'),
-        'tenant.data_exported': _('exported data of'),
-        'contact.password_changed': _('changed password for'),
-        'asset.movement_added': _('recorded a stock movement of'),
-        'user.gdpr_erased': _('erased personal data of'),
-        'contact.gdpr_erased': _('erased personal data of'),
-        'auth.password_reset': _('reset the password of'),
-        'platform.support_access_granted': _('granted support access to'),
-        'platform.support_access_revoked': _('revoked support access to'),
-        'platform.support_access_session_started': _('started a support session in'),
-        'billing.subscription_canceled': _('cancelled the subscription of'),
-        'billing.subscription_edited_by_platform_admin': _('changed the subscription of'),
-        'order.item_added': _('added item to'),
-        'order.item_updated': _('updated item on'),
-        'order.item_removed': _('removed item from'),
-        'order.comment_added': _('commented on'),
-        'customer.created': _('created client'),
-        'customer.updated': _('updated client'),
-        'customer.deleted': _('deleted client'),
-        'product.created': _('created product'),
-        'product.updated': _('updated product'),
-        'user.invited': _('invited user'),
-        'user.password_changed': _('changed password for'),
-    } %}
-    {% set status_labels = {
-        'draft': _('Draft'),
-        'submitted': _('Submitted'),
-        'quoted': _('Quoted'),
-        'confirmed': _('Confirmed'),
-        'in_production': _('In production'),
-        'ready': _('Ready'),
-        'delivered': _('Delivered'),
-        'closed': _('Closed'),
-        'cancelled': _('Cancelled'),
-    } %}
-    {% set entity_type_labels = {
-        'order': _('Order'),
-        'customer': _('Client'),
-        'product': _('Product'),
-        'user': _('User'),
-        'asset': _('Asset'),
-        'tenant': _('Settings'),
-        'contact': _('Contact'),
-        'customer_contact': _('Contact'),
-        'attachment': _('Attachment'),
-        'subscription': _('Subscription'),
-    } %}
+    {% from "_audit_labels.html" import activity_icons, activity_verbs, status_labels, entity_type_labels %}
     <section class="mt-8 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3 dark:border-slate-800">
             <h2 class="font-semibold text-slate-900 dark:text-slate-100">{{ _('Recent activity') }}</h2>

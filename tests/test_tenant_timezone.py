@@ -463,7 +463,8 @@ async def test_audit_log_filter_and_display_are_local(
     await _login(tenant_client)
     hit = (await tenant_client.get("/app/admin/audit?from=2026-03-03&to=2026-03-03")).text
     assert "tz-probe-event" in hit
-    assert "2026-03-03 00:30 CET" in hit
+    assert "03.03.2026 00:30" in hit
+    assert "03.03.2026 00:30 CET" in hit  # zone in the title tooltip
     miss = (await tenant_client.get("/app/admin/audit?from=2026-03-02&to=2026-03-02")).text
     assert "tz-probe-event" not in miss
 

@@ -1093,6 +1093,7 @@ async def audit_index(
         tz=request_tz(request),
     )
     total_pages = max(1, (total + AUDIT_PAGE_SIZE - 1) // AUDIT_PAGE_SIZE)
+    order_numbers = await _audit_order_numbers(db, events)
 
     html = _templates(request).render(
         request,
@@ -1111,10 +1112,54 @@ async def audit_index(
                 "to": to or "",
                 "q": q or "",
             },
+            "date_from": date_from,
+            "date_to": date_to,
             "entity_choices": AUDIT_ENTITY_CHOICES,
+            "order_numbers": order_numbers,
+            # Raw JSON of a change ("technical details") is for admins.
+            "show_technical": principal.role == UserRole.TENANT_ADMIN.value,
         },
     )
     return HTMLResponse(html)
+
+
+def _audit_order_refs(diff: object) -> set[UUID]:
+    """Order ids referenced by an event diff (``order_id``,
+    ``source_order_id``, … in ``before`` / ``after``)."""
+    found: set[UUID] = set()
+    if not isinstance(diff, dict):
+        return found
+    for side in (diff.get("before"), diff.get("after")):
+        if not isinstance(side, dict):
+            continue
+        for key, value in side.items():
+            if not (isinstance(key, str) and key.endswith("order_id")):
+                continue
+            try:
+                found.add(UUID(str(value)))
+            except ValueError:
+                continue
+    return found
+
+
+async def _audit_order_numbers(db: AsyncSession, events: list) -> dict[str, str]:
+    """``{order_id: order number}`` for every order a page of events names.
+
+    The log shows "2026-000021" (a link) instead of a UUID (P2-5). One
+    query per page; RLS keeps it to the tenant's own orders. An order
+    that no longer exists keeps its raw id.
+    """
+    from app.models.order import Order
+
+    ids: set[UUID] = set()
+    for ev in events:
+        ids |= _audit_order_refs(getattr(ev, "diff", None))
+        if getattr(ev, "entity_type", None) == "order" and getattr(ev, "entity_id", None):
+            ids.add(ev.entity_id)
+    if not ids:
+        return {}
+    rows = await db.execute(select(Order.id, Order.number).where(Order.id.in_(ids)))
+    return {str(oid): number for oid, number in rows.tuples().all()}
 
 
 # ----------------------------------------------------------------- SLA
