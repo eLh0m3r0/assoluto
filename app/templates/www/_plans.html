@@ -11,6 +11,25 @@
 
    Only list what the code actually does (CEO decision D3). #}
 
+{# E1 — early access (EARLY_ACCESS_UNTIL). ``early_access_offer`` comes
+   from the base template context; ``.active`` is date-driven, so every
+   line below flips back to the 30-day trial copy after the date with no
+   deploy. Only the facts the CEO decision states — nothing more. #}
+{% macro trial_cta() %}{% if early_access_offer and early_access_offer.active %}{{ _("Start free") }}{% else %}{{ _("Start 30-day trial") }}{% endif %}{% endmacro %}
+
+{# "30 days free. No card. Cancel any time." or its early-access twin. #}
+{% macro free_line() %}{% if early_access_offer and early_access_offer.active %}{{ _("Early access: free until") }} {{ early_access_offer.until_label }}. {{ _("No card. Cancel any time.") }}{% else %}{{ _("30 days free. No card. Cancel any time.") }}{% endif %}{% endmacro %}
+
+{% macro early_access_banner() %}
+{% if early_access_offer and early_access_offer.active %}
+<div class="mx-auto mt-6 max-w-2xl rounded-xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-center text-sm text-slate-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-slate-100" data-early-access="banner">
+    <strong class="font-semibold text-emerald-800 dark:text-emerald-300">{{ _("Early access: free until") }} {{ early_access_offer.until_label }}.</strong>
+    {{ _("Then 1 490 CZK / month, your data stays.") }}
+    <a href="#founding-customers" class="font-medium text-brand-700 underline decoration-brand-300 underline-offset-2 hover:text-brand-800 dark:text-brand-300">{{ _("The first 10 workshops keep the founding price of 490 CZK for good.") }}</a>
+</div>
+{% endif %}
+{% endmacro %}
+
 {% macro _tick(text) %}
     <li class="flex items-start gap-2"><span aria-hidden="true" class="mt-0.5 text-emerald-500">✓</span> <span>{{ text }}</span></li>
 {% endmacro %}
@@ -49,7 +68,7 @@
         {{ _tick(_("Email support, reply within 1 working day")) }}
     </ul>
     <a href="/platform/signup?plan=starter" class="mt-8">
-        <span class="block rounded-lg bg-slate-900 px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">{{ _("Start 30-day trial") }}</span>
+        <span class="block rounded-lg bg-slate-900 px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">{{ trial_cta() }}</span>
     </a>
 </div>
 {% endmacro %}
@@ -67,7 +86,7 @@
         {{ _tick(_("Email support, reply within 1 working day")) }}
     </ul>
     <a href="/platform/signup?plan=pro" class="mt-8">
-        <span class="block rounded-lg bg-gradient-to-r from-brand-600 to-brand-500 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition hover:shadow-md hover:brightness-105">{{ _("Start 30-day trial") }}</span>
+        <span class="block rounded-lg bg-gradient-to-r from-brand-600 to-brand-500 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition hover:shadow-md hover:brightness-105">{{ trial_cta() }}</span>
     </a>
 </div>
 {% endmacro %}

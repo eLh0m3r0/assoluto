@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
 from app.models.tenant import Tenant
+from app.platform.billing.early_access import effective_trial_end
 from app.platform.billing.models import Invoice, Plan, Subscription
 
 TRIAL_DAYS = 30
@@ -64,7 +65,8 @@ NON_CHECKOUT_PLAN_CODES: frozenset[str] = HIDDEN_PLAN_CODES | frozenset({"enterp
 #
 #   status               access                    cut-off anchor + grace
 #   -------------------  ------------------------  ---------------------------------
-#   trialing / demo      full                      trial_ends_at → canceled (expiry job)
+#   trialing / demo      full                      effective trial end → canceled (expiry job)
+#                                                  = max(trial_ends_at, early-access end), E1
 #   active (Stripe)      full                      — (Stripe drives transitions)
 #   active (manual)      full                      current_period_end → canceled
 #   past_due             full during dunning       status_changed_at + PAST_DUE_GRACE_DAYS
@@ -126,34 +128,58 @@ async def get_subscription_for_tenant(db: AsyncSession, tenant_id: UUID) -> Subs
     ).scalar_one_or_none()
 
 
+def trial_end_for_new_signup(settings: Settings, now: datetime | None = None) -> datetime:
+    """When a trial started ``now`` ends.
+
+    ``TRIAL_DAYS`` from now — or, during early access (E1), the
+    early-access end when that is later. Storing it (rather than
+    computing it on read only) keeps the row honest: what the tenant
+    sees is what the database says.
+    """
+    from app.services.early_access import early_access_ends_at
+
+    current = now or datetime.now(UTC)
+    trial_end = current + timedelta(days=TRIAL_DAYS)
+    early_access_end = early_access_ends_at(settings.early_access_until)
+    if early_access_end is not None and early_access_end > trial_end:
+        return early_access_end
+    return trial_end
+
+
 async def start_trial_subscription(
     db: AsyncSession,
     *,
     tenant: Tenant,
     plan_code: str = "starter",
+    settings: Settings | None = None,
 ) -> Subscription:
     """Attach a trial subscription to a brand-new tenant.
 
     Called from the self-signup flow right after the Tenant is created.
-    Uses ``plan_code`` as the "intended" post-trial plan. When the
-    trial ends without an active Stripe subscription,
-    ``expire_demo_trials`` flips status to ``canceled`` (plan_id stays
-    as a historical record); the tenant then has CANCEL_GRACE_DAYS to
-    convert before ``enforce_canceled_subscriptions`` deactivates them.
+    Uses ``plan_code`` as the "intended" post-trial plan. The trial runs
+    ``TRIAL_DAYS`` — or until the early-access end, whichever is later
+    (:func:`trial_end_for_new_signup`). When the trial ends without an
+    active Stripe subscription, ``expire_demo_trials`` flips status to
+    ``canceled`` (plan_id stays as a historical record); the tenant then
+    has CANCEL_GRACE_DAYS to convert before
+    ``enforce_canceled_subscriptions`` deactivates them.
     """
+    from app.config import get_settings
+
     plan = await require_plan(db, plan_code)
     existing = await get_subscription_for_tenant(db, tenant.id)
     if existing is not None:
         return existing
 
     now = datetime.now(UTC)
+    trial_end = trial_end_for_new_signup(settings or get_settings(), now)
     subscription = Subscription(
         tenant_id=tenant.id,
         plan_id=plan.id,
         status="trialing",
-        trial_ends_at=now + timedelta(days=TRIAL_DAYS),
+        trial_ends_at=trial_end,
         current_period_start=now,
-        current_period_end=now + timedelta(days=TRIAL_DAYS),
+        current_period_end=trial_end,
     )
     db.add(subscription)
     await db.flush()
@@ -732,7 +758,9 @@ async def open_checkout_session(
         success_url=success_url,
         cancel_url=cancel_url,
         customer_email=customer_email,
-        trial_ends_at=subscription.trial_ends_at if subscription else None,
+        # The *effective* trial end (E1): a card added during early
+        # access is not charged before the early-access date.
+        trial_ends_at=effective_trial_end(subscription, settings),
         subscription_id=subscription.id if subscription else None,
         never_trialed=subscription is None,
         previous_session_id=previous,

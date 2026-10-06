@@ -7,7 +7,7 @@
 
 {% block head_extra %}
     {# --- SEO basics. Each page can override description; default is safe. --- #}
-    <meta name="description" content="{% block meta_description %}{{ _("The customer portal for make-to-order manufacturers. Next to your accounting software, not instead of it. Clients upload drawings, confirm quotes and follow production status on their own. 30 days free, no card.") }}{% endblock %}">
+    <meta name="description" content="{% block meta_description %}{% if early_access_offer and early_access_offer.active %}{{ _("The customer portal for make-to-order manufacturers. Next to your accounting software, not instead of it. Clients upload drawings, confirm quotes and follow production status on their own.") }} {{ _("Early access: free until") }} {{ early_access_offer.until_label }}, {{ _("no card.") }}{% else %}{{ _("The customer portal for make-to-order manufacturers. Next to your accounting software, not instead of it. Clients upload drawings, confirm quotes and follow production status on their own. 30 days free, no card.") }}{% endif %}{% endblock %}">
     <meta name="robots" content="index,follow">
     <meta name="author" content="Assoluto">
     <meta name="theme-color" content="#3b6efb">
@@ -59,7 +59,7 @@
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "CZK",
-            "description": {{ _('30-day free trial, no credit card required')|tojson }}
+            "description": {{ ((_('Free early access until') ~ ' ' ~ early_access_offer.until_label ~ ', ' ~ _('no credit card required')) if early_access_offer and early_access_offer.active else _('30-day free trial, no credit card required'))|tojson }}
         }
     }
     </script>

@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from datetime import date
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -95,8 +96,9 @@ class Settings(BaseSettings):
     # grants a plan for free (audit 2026-10-03, BIZ-01 / D2). Set to
     # true only on a hosted staging/demo box that has no real customers.
     billing_demo_mode_allowed: bool | None = Field(default=None, alias="BILLING_DEMO_MODE_ALLOWED")
-    # Trial-nurture email cadence (day-1 onboarding, day-7 check-in,
-    # trial-ending reminder 5 days before trial_ends_at). Off by default
+    # Trial-nurture email cadence (day-1 onboarding, day-7 check-in).
+    # The trial-ending reminders (14 and 3 days before the effective
+    # trial end) do not wait for this flag. Off by default
     # so the copy can be reviewed before any tenant receives it; flip to
     # true in /etc/assoluto/env once approved. Requires FEATURE_PLATFORM.
     trial_nurture_enabled: bool = Field(default=False, alias="TRIAL_NURTURE_ENABLED")
@@ -106,6 +108,14 @@ class Settings(BaseSettings):
     # if invited contacts never signed in). Same copy-approval rule as
     # TRIAL_NURTURE_ENABLED: off by default. Requires FEATURE_PLATFORM.
     activation_nudges_enabled: bool = Field(default=False, alias="ACTIVATION_NUDGES_ENABLED")
+    # Early access (CEO decision E1): every hosted signup is free until
+    # the END of this day (Europe/Prague). Existing trials are not
+    # rewritten — their effective end is max(trial_ends_at, this date),
+    # see app.services.early_access. Drives the expiry job, the 14- and
+    # 3-day reminders, the billing page, the in-app banner and the
+    # marketing banner; after the date everything flips back to the
+    # 30-day trial by itself. ISO date; empty string = feature off.
+    early_access_until: date | None = Field(default=date(2027, 1, 31), alias="EARLY_ACCESS_UNTIL")
     # "Powered by Assoluto" footer in customer-contact emails and in the
     # customer portal (MKT-9). Base URL of the marketing site the footer
     # links to; ``?ref=portal&t=<tenant slug>`` is appended. Empty = derive
@@ -265,6 +275,13 @@ class Settings(BaseSettings):
         default="INFO", alias="LOG_LEVEL"
     )
     log_json: bool = Field(default=False, alias="LOG_JSON")
+
+    @field_validator("early_access_until", mode="before")
+    @classmethod
+    def _empty_early_access_is_off(cls, value: object) -> object:
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
 
     @property
     def max_upload_size_bytes(self) -> int:

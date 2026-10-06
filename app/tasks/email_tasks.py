@@ -392,14 +392,16 @@ def send_trial_nurture(
     trial_end_date: str = "",
     days_left: int = 0,
     pending_contacts: list[dict] | None = None,
+    early_access: bool = False,
     locale: str | None = None,
 ) -> None:
     """Send one trial-nurture or activation email.
 
-    ``stage`` is one of ``day1`` / ``day7`` / ``ending`` (the
-    ``trial_<stage>`` triples) or ``invite`` / ``no_login`` (the
+    ``stage`` is one of ``day1`` / ``day7`` / ``ending14`` / ``ending``
+    (the ``trial_<stage>`` triples) or ``invite`` / ``no_login`` (the
     behaviour-based ``activation_*`` triples) — see
-    :data:`NURTURE_TEMPLATES`. Scheduled by
+    :data:`NURTURE_TEMPLATES`. ``early_access`` switches the ending
+    mails to the "free early access ends on …" copy (E1). Scheduled by
     ``app.tasks.periodic.send_trial_nurture_emails``.
     """
     template = NURTURE_TEMPLATES.get(stage, f"trial_{stage}")
@@ -417,6 +419,7 @@ def send_trial_nurture(
             "trial_end_date": trial_end_date,
             "days_left": days_left,
             "pending_contacts": pending_contacts or [],
+            "early_access": early_access,
         },
         locale,
     )
@@ -456,6 +459,7 @@ def send_contact_erased_notice(
 NURTURE_TEMPLATES: dict[str, str] = {
     "day1": "trial_day1",
     "day7": "trial_day7",
+    "ending14": "trial_ending14",
     "ending": "trial_ending",
     "invite": "activation_invite_customer",
     "no_login": "activation_contact_no_login",

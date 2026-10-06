@@ -31,6 +31,7 @@ from markupsafe import Markup
 from app import __version__
 from app.config import Settings
 from app.i18n import get_translations, identity_translations
+from app.services.early_access import early_access_info
 from app.timezones import format_local, request_tz, to_local
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
@@ -403,6 +404,10 @@ class Templates:
             # "Powered by Assoluto" footer for customer contacts (MKT-9);
             # empty string hides it. See app.urls.powered_by_url.
             "powered_by_url": _powered_by_url(self.settings, request),
+            # E1 early access, for the public pages (banner, "Start free"
+            # CTAs, meta/JSON-LD). ``.active`` turns false by itself once
+            # EARLY_ACCESS_UNTIL has passed.
+            "early_access_offer": early_access_info(self.settings.early_access_until, locale),
         }
         if extra:
             context.update(extra)

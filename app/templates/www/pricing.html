@@ -1,7 +1,7 @@
 {% extends "www/www_base.html" %}
 
 {% block title %}{{ _("Pricing") }} · Assoluto{% endblock %}
-{% block meta_description %}{{ _("Pricing: Starter 1 490 CZK / month, Pro 2 990 CZK / month, unlimited client contacts and orders, free self-hosted Community edition. 30 days free, no card.") }}{% endblock %}
+{% block meta_description %}{% if early_access_offer.active %}{{ _("Pricing: Starter 1 490 CZK / month, Pro 2 990 CZK / month, unlimited client contacts and orders, free self-hosted Community edition.") }} {{ _("Early access: free until") }} {{ early_access_offer.until_label }}, {{ _("no card.") }}{% else %}{{ _("Pricing: Starter 1 490 CZK / month, Pro 2 990 CZK / month, unlimited client contacts and orders, free self-hosted Community edition. 30 days free, no card.") }}{% endif %}{% endblock %}
 
 {% import "www/_plans.html" as plans with context %}
 
@@ -15,11 +15,13 @@
             {{ _("An honest price list") }}
         </h1>
         <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
-            {{ _("30 days free. No card. Cancel any time.") }}
+            {{ plans.free_line() }}
             <span class="mt-1 block text-sm text-slate-500 dark:text-slate-400">{{ _("You pay for the people in your office — your clients and their orders are never metered.") }}</span>
             <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">{{ _("We are not VAT-registered, so the listed price is the final price — no VAT is added.") }}</span>
         </p>
     </div>
+
+    {{ plans.early_access_banner() }}
 
     {# D3: paid plans first, Enterprise, Community (self-host) last. #}
     <div class="mx-auto mt-14 grid max-w-6xl gap-5 md:grid-cols-2 lg:grid-cols-4">
@@ -92,7 +94,11 @@
             {% endmacro %}
 
             {{ pfaq(_("What counts as a staff user?"), _("Anyone in your own company who logs in to manage orders — office, foreman, owner. Your clients' contacts are not staff users and are unlimited on every plan.")) }}
-            {{ pfaq(_("Is a card required for the trial?"), _("No. Sign up with just an email. When the 30 days are over, pick a plan to continue — or let the trial lapse, nothing is charged.")) }}
+            {% if early_access_offer.active %}
+                {{ pfaq(_("Is a card required for the trial?"), _("No. Sign up with just an email. Early access is free until") ~ " " ~ early_access_offer.until_label ~ ". " ~ _("To continue after that, write to us — or let it lapse, nothing is charged.")) }}
+            {% else %}
+                {{ pfaq(_("Is a card required for the trial?"), _("No. Sign up with just an email. When the 30 days are over, pick a plan to continue — or let the trial lapse, nothing is charged.")) }}
+            {% endif %}
             {{ pfaq(_("What do I need to enter at first paid checkout?"), _("Billing name, IČO (8 digits) and billing address. We need these to issue your invoice. We are not VAT-registered, so no VAT is charged and you receive an ordinary invoice. You enter these once — we keep them on file.")) }}
             {% if stripe_enabled %}
                 {{ pfaq(_("How does billing actually work?"), _("Monthly plan: card via Stripe; the invoice is available to download in your account. Annual plan: invoiced and paid by bank transfer, 2 months free.")) }}
