@@ -14,7 +14,9 @@ retyping them. Code: `app/services/accounting_export.py`, route
   **Download for POHODA**.
 * **Orders list → Export to POHODA** downloads the orders matching the
   filters currently applied to the list.
-* By default **drafts and cancelled orders are left out**. Tick them on
+* By default only **confirmed and later** orders are exported (confirmed,
+  in production, ready, delivered, closed): drafts, requests waiting for
+  a price, unaccepted quotes and cancelled orders are left out. Tick them on
   the export page if you really want them.
 * One file holds at most 5,000 orders. Export a shorter period if you
   hit the limit.
