@@ -300,7 +300,7 @@ async def test_privacy_names_hetzner_storage_not_backblaze(www) -> None:
     assert "Backblaze" not in html
     assert "Object Storage for uploaded files" in html
     assert "encrypted backups" not in html
-    assert "Version 1.1" in html
+    assert "Version 1.2" in html
 
 
 async def test_cookies_page_lists_exactly_the_cookies_the_app_sets(www) -> None:
