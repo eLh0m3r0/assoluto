@@ -104,7 +104,7 @@
         {# --- Primary nav -------------------------------------------- #}
         <a href="/app" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100">{{ _("Dashboard") }}</a>
         <a href="/app/orders" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100">{{ _("Orders") }}</a>
-        <a href="/app/assets" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100">{{ _("Assets") }}</a>
+        <a href="/app/assets" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100">{{ _("Customer material") }}</a>
         {% if principal.is_staff %}
             <a href="/app/customers" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100">{{ _("Clients") }}</a>
             <a href="/app/products" class="rounded-md px-3 py-1.5 font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100">{{ _("Catalog") }}</a>
@@ -155,7 +155,7 @@
                 <span class="flex h-6 w-6 items-center justify-center rounded-full {% if principal.is_staff %}bg-blue-600{% else %}bg-emerald-600{% endif %} text-[10px] font-bold text-white">
                     {{ principal.full_name[0]|upper }}
                 </span>
-                <span class="max-w-[12ch] truncate">{{ principal.full_name }}</span>
+                <span class="max-w-[12ch] truncate md:max-w-none" data-user-name>{{ principal.full_name }}</span>
                 <svg aria-hidden="true" class="h-3 w-3 text-gray-500 dark:text-slate-400" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.2l3.71-3.97a.75.75 0 0 1 1.08 1.04l-4.25 4.55a.75.75 0 0 1-1.08 0L5.21 8.27a.75.75 0 0 1 .02-1.06z" clip-rule="evenodd"/>
                 </svg>

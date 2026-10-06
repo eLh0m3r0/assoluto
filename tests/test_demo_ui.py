@@ -212,6 +212,24 @@ async def test_customer_lands_on_the_flagship_quote(demo_client, owner_engine) -
     assert f"/app/orders/{flagship}/transitions/confirmed" in page.text
 
 
+async def test_quote_editor_and_header_polish(demo_client, owner_engine) -> None:
+    """N5: on a phone each item row stacks (labelled quantity / price /
+    total) instead of hiding them behind a horizontal scroll. N8: the
+    header shows the whole name from ``md`` up. N10: the nav says
+    "Customer material", not "Assets"."""
+    await _enter(demo_client, "staff")
+    flagship = await _flagship_for_contact(owner_engine)
+    page = (
+        await demo_client.get(f"/app/orders/{flagship}", headers={"Accept-Language": "en"})
+    ).text
+    assert page.count("data-line-total") == 4  # one per line of the flagship
+    assert 'class="item-row max-sm:flex max-sm:flex-wrap' in page
+    assert "max-sm:hidden" in page  # the table header row, phones only
+    assert 'truncate md:max-w-none" data-user-name' in page
+    assert ">Customer material</a>" in page
+    assert ">Assets</a>" not in page
+
+
 async def _confirm_all_quotes(owner_engine) -> None:
     async with owner_engine.begin() as conn:
         await conn.execute(

@@ -155,7 +155,7 @@
                                                     {% if k == 'body' %}
                                                         {# A comment: an excerpt, flagged when it was a staff-only note. #}
                                                         {% set text = after.get('body') if 'body' in after else before.get('body') %}
-                                                        <span data-audit-comment>“{{ (text or '')|string|truncate(80) }}”</span>
+                                                        <span data-audit-comment>“{{ (text or '')|string|truncate(80, false, '…') }}”</span>
                                                         {% if (after.get('is_internal') if 'is_internal' in after else before.get('is_internal')) is sameas true %}
                                                             <span class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-800 dark:bg-amber-900/40 dark:text-amber-200" data-audit-internal>{{ _('internal') }}</span>
                                                         {% endif %}
