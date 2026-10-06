@@ -157,7 +157,8 @@ class Settings(BaseSettings):
     # can tell, per Identity, which revision they accepted. Bump when
     # you publish a new version of ``terms.html`` / ``privacy.html``.
     # Format is free but convention is ``YYYY.MM`` or semver.
-    legal_doc_version: str = Field(default="2026.05", alias="LEGAL_DOC_VERSION")
+    # 2026.10 = Terms 1.2 + Privacy 1.2 + DPA 1.0 (early access, retention).
+    legal_doc_version: str = Field(default="2026.10", alias="LEGAL_DOC_VERSION")
     platform_operator_email: str = Field(
         default="team@assoluto.eu", alias="PLATFORM_OPERATOR_EMAIL"
     )
