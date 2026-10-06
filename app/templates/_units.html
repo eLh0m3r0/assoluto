@@ -1,0 +1,19 @@
+{#
+  Display helpers for units of measure (P3-6). Stored values stay as the
+  user typed them ("m2"); only the rendering is prettified ("m²").
+  A macro rather than a Jinja filter so templating.py stays untouched —
+  if a ``unit`` filter is ever added there, this file can delegate to it.
+
+  Usage:  {% from "_units.html" import unit %}  …  {{ unit(item.unit) }}
+#}
+{% macro unit(value) -%}
+    {%- set _raw = (value or '')|string|trim -%}
+    {%- set _pretty = {
+        'm2': 'm²', 'm3': 'm³',
+        'cm2': 'cm²', 'cm3': 'cm³',
+        'mm2': 'mm²', 'mm3': 'mm³',
+        'dm2': 'dm²', 'dm3': 'dm³',
+        'km2': 'km²',
+    } -%}
+    {{- _pretty.get(_raw|lower, _raw) -}}
+{%- endmacro %}
